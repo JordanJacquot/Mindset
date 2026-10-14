@@ -132,6 +132,52 @@ public static class MSIntegration
     }
 }
 
+// Lancer un programme SANS les droits administrateur depuis un Mindset administrateur : avec le jeton de l'Explorateur
+// (qui tourne toujours avec les droits de l'utilisateur). Evermind et les liens ne doivent jamais hériter des droits admin.
+public static class MSLanceur
+{
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+    struct STARTUPINFO { public int cb; public string reserved, desktop, title; public int x, y, w, h, xc, yc, attr, flags; public short show, r2; public IntPtr r3, stdin, stdout, stderr; }
+    [StructLayout(LayoutKind.Sequential)]
+    struct PROCESS_INFORMATION { public IntPtr process, thread; public int pid, tid; }
+    [DllImport("user32.dll")] static extern IntPtr GetShellWindow();
+    [DllImport("user32.dll")] static extern int GetWindowThreadProcessId(IntPtr h, out int pid);
+    [DllImport("kernel32.dll", SetLastError = true)] static extern IntPtr OpenProcess(uint acces, bool herite, int pid);
+    [DllImport("advapi32.dll", SetLastError = true)] static extern bool OpenProcessToken(IntPtr p, uint acces, out IntPtr jeton);
+    [DllImport("advapi32.dll", SetLastError = true)] static extern bool DuplicateTokenEx(IntPtr j, uint acces, IntPtr attr, int niveau, int type, out IntPtr nouveau);
+    [DllImport("advapi32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
+    static extern bool CreateProcessWithTokenW(IntPtr jeton, int logon, string appli, System.Text.StringBuilder ligne, int flags, IntPtr env, string dossier, ref STARTUPINFO si, out PROCESS_INFORMATION pi);
+    [DllImport("kernel32.dll")] static extern bool CloseHandle(IntPtr h);
+
+    // Renvoie le numéro du processus lancé (lève une exception si Windows refuse)
+    public static int SansAdmin(string exe, string arguments, string dossier)
+    {
+        IntPtr shell = GetShellWindow();
+        if (shell == IntPtr.Zero) throw new InvalidOperationException("Explorateur introuvable");
+        int pidShell; GetWindowThreadProcessId(shell, out pidShell);
+        IntPtr proc = OpenProcess(0x1000, false, pidShell);   // PROCESS_QUERY_LIMITED_INFORMATION
+        if (proc == IntPtr.Zero) throw new System.ComponentModel.Win32Exception();
+        IntPtr jeton = IntPtr.Zero, primaire = IntPtr.Zero;
+        try
+        {
+            if (!OpenProcessToken(proc, 0x0002, out jeton)) throw new System.ComponentModel.Win32Exception();   // TOKEN_DUPLICATE
+            if (!DuplicateTokenEx(jeton, 0x02000000, IntPtr.Zero, 2, 1, out primaire)) throw new System.ComponentModel.Win32Exception();   // MAXIMUM_ALLOWED, impersonation, primaire
+            var si = new STARTUPINFO(); si.cb = Marshal.SizeOf(si);
+            PROCESS_INFORMATION pi;
+            var ligne = new System.Text.StringBuilder("\"" + exe + "\"" + (string.IsNullOrEmpty(arguments) ? "" : " " + arguments));
+            if (!CreateProcessWithTokenW(primaire, 0, exe, ligne, 0, IntPtr.Zero, dossier, ref si, out pi)) throw new System.ComponentModel.Win32Exception();
+            CloseHandle(pi.thread); CloseHandle(pi.process);
+            return pi.pid;
+        }
+        finally
+        {
+            if (primaire != IntPtr.Zero) CloseHandle(primaire);
+            if (jeton != IntPtr.Zero) CloseHandle(jeton);
+            CloseHandle(proc);
+        }
+    }
+}
+
 public static class MSNative
 {
     [DllImport("dwmapi.dll")]

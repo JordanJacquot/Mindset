@@ -14,7 +14,6 @@
 Add-Type -AssemblyName WindowsFormsIntegration
 
 $script:Integrees = @{}   # id -> { Hote, Panneau, Fenetre, Styles, Etat }
-$MindsetAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 
 function Get-Integration([string]$Id) {
     $i = $script:Integrees[$Id]

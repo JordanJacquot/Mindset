@@ -8,6 +8,8 @@
 # d'un fichier modifiable. suite.json (thème, applis gérées) reste toujours dans %LOCALAPPDATA%\Mindset.
 
 $SuiteFileDir = Join-Path $env:LOCALAPPDATA 'Mindset'
+# Mindset tourne-t-il en administrateur (lancé par sa tâche planifiée) ? Il peut alors accueillir Nevermind
+$MindsetAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 
 # Racines d'une installation dont on connaît le dossier du programme Mindset (…\Mindset)
 function Get-RacinesDepuis([string]$DossierMindset) {

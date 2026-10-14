@@ -76,16 +76,19 @@ $Window.Add_Closing({
     param($s, $e)
     if ($script:QuitterVraiment -or $EnTest -or -not $script:IconeHorloge) { return }
     $e.Cancel = $true
-    switch ([string](Get-Setting 'Fermeture' 'demander')) {
-        'reduire' { Hide-Fenetre }
-        'quitter' { Exit-Mindset -Applis }
-        default {
-            Show-Fenetre
-            $ui.FermetureSouvenir.IsChecked = $false
-            $ui.Fermeture.Visibility = 'Visible'
-            [void]$ui.BtnFermetureReduire.Focus()
+    # Juste après (pas pendant la fermeture annulée : Windows refuse alors d'afficher, cacher ou refermer la fenêtre)
+    [void]$Window.Dispatcher.BeginInvoke([action]{
+        switch ([string](Get-Setting 'Fermeture' 'demander')) {
+            'reduire' { Hide-Fenetre }
+            'quitter' { Exit-Mindset -Applis }
+            default {
+                if ($Window.WindowState -eq 'Minimized') { $Window.WindowState = 'Normal' }
+                $ui.FermetureSouvenir.IsChecked = $false
+                $ui.Fermeture.Visibility = 'Visible'
+                [void]$ui.BtnFermetureReduire.Focus()
+            }
         }
-    }
+    })
 })
 
 function Close-ChoixFermeture([string]$Choix) {

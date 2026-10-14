@@ -133,10 +133,18 @@ function Open-Appli($Appli, [switch]$Demarrage) {
             try { $f = Join-Path (Get-DossierDonnees $Appli) $Appli.AfficherFichier; New-Item -ItemType Directory -Force -Path (Split-Path $f) | Out-Null; [IO.File]::WriteAllText($f, [string]$PID); return } catch {}
         }
     }
-    $p = @{ FilePath = (Join-Path $inst.Dossier $Appli.Exe); WorkingDirectory = $inst.Dossier; ErrorAction = 'Stop' }
-    if ($Demarrage) { $p.ArgumentList = '-Demarrage' }
-    try { Start-Process @p }
-    catch { Write-Log "Lancement de $($Appli.Nom) : $($_.Exception.Message)" }   # (par exemple : autorisation de Windows refusée)
+    $exe = Join-Path $inst.Dossier $Appli.Exe
+    # Mindset administrateur : seule une appli administrateur installée par lui (dossier protégé) hérite de ses droits.
+    # Les autres (Evermind, une copie de travail) sont lancées avec les droits de l'utilisateur.
+    $avecDroits = $Appli.Admin -and $inst.Gere -and $inst.Dossier -ieq (Get-DossierGere $Appli)
+    try {
+        if ($MindsetAdmin -and -not $avecDroits) { [void][MSLanceur]::SansAdmin($exe, $(if ($Demarrage) { '-Demarrage' } else { '' }), $inst.Dossier) }
+        else {
+            $p = @{ FilePath = $exe; WorkingDirectory = $inst.Dossier; ErrorAction = 'Stop' }
+            if ($Demarrage) { $p.ArgumentList = '-Demarrage' }
+            Start-Process @p
+        }
+    } catch { Write-Log "Lancement de $($Appli.Nom) : $($_.Exception.Message)" }   # (par exemple : autorisation de Windows refusée)
 }
 
 # ---------------------------------------------------------------------------
