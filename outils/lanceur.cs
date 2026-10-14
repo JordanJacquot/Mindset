@@ -1,4 +1,4 @@
-// Mindset.exe : le programme Mindset. Il exécute lui même le code de Mindset (fichiers\Mindset.ps1)
+﻿// Mindset.exe : le programme Mindset. Il exécute lui même le code de Mindset (fichiers\Mindset.ps1)
 // au lieu de le confier à powershell.exe : pour Windows, c'est une vraie application, avec son nom
 // et son icône (barre des tâches, Gestionnaire des tâches).
 // Compilé par construire.ps1.

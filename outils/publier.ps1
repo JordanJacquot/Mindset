@@ -70,7 +70,8 @@ if (-not (Test-Path -LiteralPath "$zip.sig")) { throw 'Publication annulée : si
 Push-Location $racine
 try {
     Invoke-Native git @('add', '-A')
-    Invoke-Native git @('commit', '-m', "Mindset $Version", '-m', $(if ($Notes) { $Notes } else { "Version $Version" }))
+    # (rien à commiter si le numéro de version était déjà le bon)
+    if (git status --porcelain) { Invoke-Native git @('commit', '-m', "Mindset $Version", '-m', $(if ($Notes) { $Notes } else { "Version $Version" })) }
     Invoke-Native git @('tag', "v$Version")
     Invoke-Native git @('push')
     Invoke-Native git @('push', 'origin', "v$Version")
