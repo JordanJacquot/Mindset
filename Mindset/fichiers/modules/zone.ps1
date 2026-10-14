@@ -51,7 +51,7 @@ function Update-MenuHorloge {
         [void]$m.Items.Add((New-Object System.Windows.Forms.ToolStripSeparator))
         foreach ($a in $installees) {
             $i = $m.Items.Add("Ouvrir $($a.Nom)"); $i.Tag = $a.Id
-            $i.Add_Click({ param($s) Open-Appli (Get-Appli $s.Tag) })
+            $i.Add_Click({ param($s) Show-Fenetre; Show-Page $s.Tag })   # (affichée dans Mindset, dans son onglet)
         }
     }
     [void]$m.Items.Add((New-Object System.Windows.Forms.ToolStripSeparator))

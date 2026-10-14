@@ -48,17 +48,16 @@ function Show-AppliIntegree($Appli) {
     # En test automatique, jamais les vraies applis : ni lancées, ni accrochées
     if ($EnTest -and -not $env:MINDSET_INTEGRATION_TEST) { Set-EtatPageAppli $Appli "$($Appli.Nom) s'affichera ici" '(test : les vraies applis ne sont pas lancées)' $false; return }
     if ($i.Fenetre -ne [IntPtr]::Zero -and [MSIntegration]::IsWindow($i.Fenetre)) { Update-HotesVisibles; return }
-    # Réduite près de l'horloge, ou rendue à sa fenêtre : elle reste où elle est tant qu'on ne demande pas « Afficher ici »
-    if ($i.Etat -eq 'cachee') { Set-EtatPageAppli $Appli "$($Appli.Nom) est réduit près de l'horloge" 'Il tourne toujours.' $false; Show-BoutonAfficherIci $Appli; return }
-    if ($i.Etat -eq 'detachee') { Set-EtatPageAppli $Appli "$($Appli.Nom) est dans sa propre fenêtre" '' $false; Show-BoutonAfficherIci $Appli; return }
+    # Ouvrir l'onglet suffit : réduite près de l'horloge, dans sa propre fenêtre ou fermée, l'appli revient ici directement
     if ($Appli.Admin -and -not $MindsetAdmin) {
-        Set-EtatPageAppli $Appli "$($Appli.Nom) s'ouvre dans sa propre fenêtre" "Il tourne en administrateur : pour l'afficher ici, Mindset doit l'être aussi (prochaine étape)." $true
+        Set-EtatPageAppli $Appli "$($Appli.Nom) s'ouvre dans sa propre fenêtre" "Il tourne en administrateur : pour l'afficher ici, Mindset doit l'être aussi (Paramètres)." $true
+        Open-Appli $Appli
         return
     }
     $h = Find-FenetreAppli $Appli
     if ($h -ne [IntPtr]::Zero) { Connect-Fenetre $Appli $h; return }
-    # Pas lancée : on la lance cachée, puis on attend sa fenêtre
-    if ($i.Etat -ne 'lancement') {
+    # Pas lancée (ou sa fenêtre n'existe pas encore) : on la lance cachée, puis on attend sa fenêtre
+    if ($i.Etat -notin 'lancement', 'relance') {
         $i.Etat = 'lancement'; $i.Depuis = Get-Date
         # Lancée cachée (-Demarrage), sans passer par sa propre fenêtre, si sa version sait se dessiner une fois accrochée ;
         # sinon lancée normalement (une version plus ancienne lancée cachée resterait noire)
@@ -128,7 +127,7 @@ $ui.BtnAppliDetacher.Add_Click({
     $a = Get-Appli $i.Id
     $i.Fenetre = [IntPtr]::Zero; $i.Styles = $null; $i.Etat = 'detachee'
     Update-HotesVisibles
-    Set-EtatPageAppli $a "$($a.Nom) est dans sa propre fenêtre" 'Clique sur « Afficher ici » pour le remettre dans Mindset.' $false
+    Set-EtatPageAppli $a "$($a.Nom) est dans sa propre fenêtre" 'Clique sur son onglet pour le remettre dans Mindset.' $false
     Show-BoutonAfficherIci $a
 })
 
@@ -139,7 +138,6 @@ function Show-BoutonAfficherIci($Appli) {
 $ui.BtnPageAppliIci.Add_Click({
     $a = Get-Appli $this.Tag
     $ui.BtnPageAppliIci.Visibility = 'Collapsed'
-    $i = Get-Integration $a.Id; $i.Etat = 'vide'
     Show-AppliIntegree $a
 })
 
@@ -160,15 +158,16 @@ $script:IntegrationTimer.Add_Tick({
             [MSIntegration]::Liberer($i.Fenetre, $i.Styles[0], $i.Styles[1])
             $i.Fenetre = [IntPtr]::Zero; $i.Styles = $null; $i.Etat = 'cachee'
             Update-HotesVisibles
-            Set-EtatPageAppli $a "$($a.Nom) est réduit près de l'horloge" 'Il tourne toujours.' $false
+            Set-EtatPageAppli $a "$($a.Nom) est réduit près de l'horloge" 'Il tourne toujours : clique sur son onglet pour le rouvrir ici.' $false
             Show-BoutonAfficherIci $a
         }
         if ($i.Etat -in 'lancement', 'relance') {
             $h = Find-FenetreAppli $a
             if ($h -ne [IntPtr]::Zero) { Connect-Fenetre $a $h; continue }
-            if (((Get-Date) - $i.Depuis).TotalSeconds -gt 25) {
+            # (Nevermind met près de 20 s à démarrer : on lui laisse une minute)
+            if (((Get-Date) - $i.Depuis).TotalSeconds -gt 60) {
                 $i.Etat = 'vide'
-                Set-EtatPageAppli $a "$($a.Nom) est fermé" '' $false
+                Set-EtatPageAppli $a "$($a.Nom) n'a pas pu s'ouvrir" 'Clique sur son onglet pour réessayer.' $false
                 Show-BoutonAfficherIci $a
             } else { $attente = $true }
         }

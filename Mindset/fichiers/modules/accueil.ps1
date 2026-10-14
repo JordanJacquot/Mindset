@@ -148,7 +148,7 @@ function Update-Carte($Appli) {
         }
     } else {
         if ($e.MajDispo) { [void]$actions.Children.Add((New-Action 'Mettre à jour' 'BtnPrimary' $Appli.Id { Confirm-MiseAJour (Get-Appli $this.Tag) })) }
-        [void]$actions.Children.Add((New-Action 'Ouvrir' $(if ($e.MajDispo) { 'BtnSecondary' } else { 'BtnPrimary' }) $Appli.Id { Open-Appli (Get-Appli $this.Tag) }))
+        [void]$actions.Children.Add((New-Action 'Ouvrir' $(if ($e.MajDispo) { 'BtnSecondary' } else { 'BtnPrimary' }) $Appli.Id { Show-Page $this.Tag }))
         if ($e.Inst.Gere) { [void]$actions.Children.Add((New-Action 'Désinstaller' 'BtnSecondary' $Appli.Id { Confirm-Desinstallation (Get-Appli $this.Tag) })) }
         else { [void]$actions.Children.Add((New-Action 'Prendre en charge' 'BtnSecondary' $Appli.Id { $a = Get-Appli $this.Tag; Confirm-PriseEnCharge $a (Get-Installation $a).Dossier })) }
     }
