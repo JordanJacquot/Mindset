@@ -72,14 +72,17 @@ $ui.BtnImporterTheme.Add_Click({
     } catch { $ui.ThemeInfo.Text = "Ce thème n'a pas pu être importé : $($_.Exception.Message)" }
 })
 
-# Démarrage avec Windows : une case par appli qui peut être lancée par Mindset (pas Nevermind, qui a besoin de l'admin)
-foreach ($a in $Applis | Where-Object { -not $_.Admin }) {
-    $cb = New-Object System.Windows.Controls.CheckBox
-    $cb.Content = "Démarrer $($a.Nom) en arrière-plan$(if ($a.Id -eq 'evermind') { ' (pour que les rappels sonnent)' })"
-    $cb.Foreground = Get-Brush '#ECEAF7'; $cb.Margin = '0,0,0,8'; $cb.Tag = $a.Id
-    $cb.IsChecked = Get-DemarrageAppli $a.Id
-    $cb.Add_Click({ Set-DemarrageAppli $this.Tag ([bool]$this.IsChecked) })
-    [void]$ui.Demarrages.Children.Add($cb)
+# Démarrage avec Windows : le même interrupteur « S'ouvre avec Mindset » que sur les cartes de l'accueil
+# (Nevermind seulement si Mindset est administrateur : sinon il garde son propre lancement)
+foreach ($a in $Applis | Where-Object { -not $_.Admin -or $MindsetAdmin }) {
+    $ligne = New-Object System.Windows.Controls.DockPanel
+    $ligne.Margin = '0,0,0,10'; $ligne.MaxWidth = 520; $ligne.HorizontalAlignment = 'Left'
+    $sw = New-InterrupteurOuverture $a.Id
+    [System.Windows.Controls.DockPanel]::SetDock($sw, 'Right')
+    [void]$ligne.Children.Add($sw)
+    $t = New-Text "$($a.Nom) s'ouvre avec Mindset" 13 '#ECEAF7'; $t.VerticalAlignment = 'Center'; $t.Margin = '0,0,16,0'
+    [void]$ligne.Children.Add($t)
+    [void]$ui.Demarrages.Children.Add($ligne)
 }
 
 $ui.DossiersTexte.Text = "Les programmes sont dans $RacineProgrammes (protégé : seul un administrateur peut les modifier). Les données de Mindset et de chaque appli sont dans $SuiteDir, un dossier par appli."

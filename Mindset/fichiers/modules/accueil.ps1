@@ -154,8 +154,40 @@ function Update-Carte($Appli) {
     }
     if ($actions.Children.Count) { [void]$sp.Children.Add($actions) }
 
+    # « S'ouvre avec Mindset » : l'appli démarre en arrière-plan à l'ouverture de Mindset (et donc avec Windows)
+    if ($e.Inst -and $e.Inst.Gere -and -not $e.Occupe -and (-not $Appli.Admin -or $MindsetAdmin)) {
+        $ligne = New-Object System.Windows.Controls.DockPanel
+        $ligne.Margin = '0,16,0,0'; $ligne.LastChildFill = $true
+        $sw = New-InterrupteurOuverture $Appli.Id
+        [System.Windows.Controls.DockPanel]::SetDock($sw, 'Right')
+        [void]$ligne.Children.Add($sw)
+        $txt = New-Object System.Windows.Controls.StackPanel
+        $txt.VerticalAlignment = 'Center'
+        [void]$txt.Children.Add((New-Text "S'ouvre avec Mindset" 13 '#ECEAF7'))
+        $aide = if ($Appli.Id -eq 'evermind') { 'En arrière-plan : ses rappels sonnent même avant que tu ouvres son onglet.' } else { 'En arrière-plan, prêt dans son onglet.' }
+        $a2 = New-Text $aide 11.5 '#6F6894'; $a2.TextWrapping = 'Wrap'; $a2.Margin = '0,2,12,0'
+        [void]$txt.Children.Add($a2)
+        [void]$ligne.Children.Add($txt)
+        [void]$sp.Children.Add($ligne)
+    }
+
     if ($e.Message -and -not $e.Occupe) { $m = New-Text $e.Message 12 '#A9A3C9'; $m.Margin = '0,12,0,0'; [void]$sp.Children.Add($m) }
     elseif ($e.Pub.Erreur -and -not $e.Inst) { $m = New-Text $e.Pub.Erreur 12 '#6F6894'; $m.Margin = '0,12,0,0'; [void]$sp.Children.Add($m) }
+}
+
+# Interrupteur « S'ouvre avec Mindset » d'une appli ; tous ceux de la même appli (carte, Paramètres) restent d'accord
+$script:Interrupteurs = New-Object System.Collections.ArrayList
+function New-InterrupteurOuverture([string]$Id) {
+    $sw = New-Object System.Windows.Controls.CheckBox
+    $sw.Style = $Window.FindResource('Switch'); $sw.Tag = $Id; $sw.VerticalAlignment = 'Center'
+    $sw.IsChecked = Get-DemarrageAppli $Id
+    $sw.Add_Click({
+        $oui = [bool]$this.IsChecked
+        Set-DemarrageAppli $this.Tag $oui
+        foreach ($x in $script:Interrupteurs) { if ($x -ne $this -and $x.Tag -eq $this.Tag) { $x.IsChecked = $oui } }
+    })
+    [void]$script:Interrupteurs.Add($sw)
+    $sw
 }
 
 function Update-Cartes {

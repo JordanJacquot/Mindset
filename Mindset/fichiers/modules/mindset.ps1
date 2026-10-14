@@ -81,11 +81,23 @@ function Confirm-DesinstallMindset {
     }
 }
 
-# Mindset.exe -Demarrage : démarre en arrière-plan les applis choisies (Paramètres), sans ouvrir la fenêtre.
-# Nevermind n'en fait pas partie : il garde sa tâche planifiée, qui le lance en administrateur sans demande.
+# Mindset s'ouvre (ou démarre avec Windows, caché) : les applis « S'ouvre avec Mindset » démarrent en arrière-plan,
+# prêtes à s'afficher dans leur onglet. Pas après une relance pour un nouveau thème (une appli fermée resterait fermée).
+# Une appli administrateur (Nevermind) seulement si Mindset l'est aussi : sinon Windows demanderait l'autorisation.
 function Start-Demarrage {
+    if ($EnTest) { return }
+    $marque = Join-Path $DataDir 'relance.marque'
+    if (Test-Path -LiteralPath $marque) {
+        $recente = ((Get-Date) - (Get-Item -LiteralPath $marque).LastWriteTime).TotalSeconds -lt 120
+        Remove-Item -LiteralPath $marque -Force -ErrorAction SilentlyContinue
+        if ($recente) { return }
+    }
+    Move-TachesDemarrage
     foreach ($a in $Applis) {
-        if (-not $a.Admin -and (Get-DemarrageAppli $a.Id)) { $i = Get-Installation $a; if ($i -and $i.Gere) { Open-Appli $a -Demarrage } }
+        if ($a.Admin -and -not $MindsetAdmin) { continue }
+        if (-not (Get-DemarrageAppli $a.Id)) { continue }
+        $i = Get-Installation $a
+        if ($i -and $i.Gere) { Open-Appli $a -Demarrage }
     }
 }
 

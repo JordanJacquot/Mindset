@@ -75,6 +75,7 @@ function Exit-Mindset([switch]$Applis) {
 # Relance de Mindset (nouveau thème) : la fenêtre se ferme, Mindset.ps1 relance après avoir libéré sa place
 function Restart-Mindset {
     $script:Relancer = $true
+    try { [IO.File]::WriteAllText((Join-Path $DataDir 'relance.marque'), [string]$PID) } catch {}   # (le nouveau Mindset ne rouvre pas les applis)
     Exit-Mindset
 }
 

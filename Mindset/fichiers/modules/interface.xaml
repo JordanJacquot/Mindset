@@ -123,6 +123,39 @@
         </Trigger>
       </Style.Triggers>
     </Style>
+    <!-- Interrupteur (le même que Nevermind) : le bouton glisse et la piste s'allume -->
+    <Style x:Key="Switch" TargetType="CheckBox">
+      <Setter Property="Cursor" Value="Hand"/>
+      <Setter Property="Focusable" Value="False"/>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="CheckBox">
+            <Border x:Name="Track" Width="46" Height="26" CornerRadius="13" BorderThickness="1" BorderBrush="#3A4355">
+              <Border.Background><SolidColorBrush x:Name="TrackBrush" Color="#2EFFFFFF"/></Border.Background>
+              <Ellipse x:Name="Knob" Width="20" Height="20" Fill="#EEEBF7" Stroke="#40000000" StrokeThickness="1" HorizontalAlignment="Left" Margin="2,0,0,0">
+                <Ellipse.RenderTransform><TranslateTransform x:Name="KnobMove" X="0"/></Ellipse.RenderTransform>
+              </Ellipse>
+            </Border>
+            <ControlTemplate.Triggers>
+              <!-- Le bouton glisse et la piste s'allume en douceur -->
+              <Trigger Property="IsChecked" Value="True">
+                <Setter TargetName="Track" Property="BorderBrush" Value="#7FF4FF"/>
+                <Trigger.EnterActions><BeginStoryboard><Storyboard>
+                  <DoubleAnimation Storyboard.TargetName="KnobMove" Storyboard.TargetProperty="X" To="20" Duration="0:0:0.2"><DoubleAnimation.EasingFunction><CubicEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction></DoubleAnimation>
+                  <ColorAnimation Storyboard.TargetName="TrackBrush" Storyboard.TargetProperty="Color" To="#00D9F5" Duration="0:0:0.2"/>
+                </Storyboard></BeginStoryboard></Trigger.EnterActions>
+                <Trigger.ExitActions><BeginStoryboard><Storyboard>
+                  <DoubleAnimation Storyboard.TargetName="KnobMove" Storyboard.TargetProperty="X" To="0" Duration="0:0:0.2"><DoubleAnimation.EasingFunction><CubicEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction></DoubleAnimation>
+                  <ColorAnimation Storyboard.TargetName="TrackBrush" Storyboard.TargetProperty="Color" To="#2EFFFFFF" Duration="0:0:0.2"/>
+                </Storyboard></BeginStoryboard></Trigger.ExitActions>
+              </Trigger>
+              <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Knob" Property="Fill" Value="White"/></Trigger>
+              <Trigger Property="IsEnabled" Value="False"><Setter TargetName="Track" Property="Opacity" Value="0.4"/></Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
   </Window.Resources>
 
   <Grid>
@@ -300,7 +333,7 @@
 
                   <TextBlock Text="Démarrage avec Windows" FontSize="17" FontWeight="SemiBold" Margin="0,28,0,4"/>
                   <TextBlock TextWrapping="Wrap" Foreground="{StaticResource Texte2}" Margin="0,0,0,10"
-                             Text="Mindset se lance avec Windows, caché près de l'horloge, et démarre en arrière-plan les applis cochées. Nevermind garde son propre lancement (dans Nevermind, page Sauvegarde) tant qu'il a besoin des droits administrateur."/>
+                             Text="Mindset se lance avec Windows, caché près de l'horloge. Les applis qui s'ouvrent avec Mindset démarrent en arrière-plan, à chaque ouverture de Mindset (le même réglage que sur leur carte de l'accueil)."/>
                   <StackPanel x:Name="Demarrages"/>
                 </StackPanel>
 
