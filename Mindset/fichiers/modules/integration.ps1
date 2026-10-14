@@ -40,8 +40,9 @@ function Find-FenetreAppli($Appli) {
     [IntPtr]::Zero
 }
 
-# Onglet d'une appli ouvert : l'afficher ici (en la lançant si besoin)
-function Show-AppliIntegree($Appli) {
+# Onglet d'une appli ouvert : elle s'affiche ici si elle tourne ; fermée, son écran « Ouvrir » attend un clic.
+# -Lancer (bouton « Ouvrir », carte de l'accueil, menu de l'horloge) : elle est lancée si besoin.
+function Show-AppliIntegree($Appli, [switch]$Lancer) {
     $i = Get-Integration $Appli.Id
     if ($EnTest -and $env:MINDSET_ECRAN) { Show-EcranOuvrir $Appli "$($Appli.Nom) est fermé."; return }   # (capture de l'écran « Ouvrir »)
     if ($EnTest -and $env:MINDSET_JAUGE) { $i.Depuis = (Get-Date).AddSeconds(-[double]$env:MINDSET_JAUGE); Show-JaugeAppli $Appli 'Ouverture...'; return }   # (capture de la jauge)
@@ -50,17 +51,20 @@ function Show-AppliIntegree($Appli) {
     # En test automatique, jamais les vraies applis : ni lancées, ni accrochées
     if ($EnTest -and -not $env:MINDSET_INTEGRATION_TEST) { Set-EtatPageAppli $Appli "$($Appli.Nom) s'affichera ici" '(test : les vraies applis ne sont pas lancées)' $false; return }
     if ($i.Fenetre -ne [IntPtr]::Zero -and [MSIntegration]::IsWindow($i.Fenetre)) { Update-HotesVisibles; return }
-    # Ouvrir l'onglet suffit : réduite près de l'horloge, dans sa propre fenêtre ou fermée, l'appli revient ici directement
     if ($Appli.Admin -and -not $MindsetAdmin) {
         Set-EtatPageAppli $Appli "$($Appli.Nom) s'ouvre dans sa propre fenêtre" "Il tourne en administrateur : pour l'afficher ici, Mindset doit l'être aussi (Paramètres)." $true
-        Open-Appli $Appli
+        if ($Lancer) { Open-Appli $Appli }
         return
     }
+    # Elle tourne (réduite près de l'horloge, dans sa propre fenêtre) : elle revient ici directement
     $h = Find-FenetreAppli $Appli
     if ($h -ne [IntPtr]::Zero) { Connect-Fenetre $Appli $h; return }
-    # Pas lancée (ou sa fenêtre n'existe pas encore) : on la lance cachée, puis on attend sa fenêtre
-    # (fermée par sa croix, elle est en « relance » sans nouveau processus : on la relance)
-    if ($i.Etat -ne 'lancement' -and -not ($i.Etat -eq 'relance' -and (Test-NouveauProcessus $Appli $i))) {
+    $enCours = $i.Etat -eq 'lancement' -or ($i.Etat -eq 'relance' -and (Test-NouveauProcessus $Appli $i))
+    if (-not $enCours -and $i.Etat -ne 'relance' -and (Test-AppliOuverte $Appli)) { $i.Etat = 'lancement'; $i.Depuis = Get-Date; $enCours = $true }   # (elle démarre : sa fenêtre arrive)
+    # Fermée, et rien ne demande de la lancer : son écran, avec « Ouvrir »
+    if (-not $enCours -and -not $Lancer) { $i.Etat = 'vide'; Show-EcranOuvrir $Appli "$($Appli.Nom) est fermé."; return }
+    # À lancer : cachée, puis on attend sa fenêtre
+    if (-not $enCours) {
         $i.Etat = 'lancement'; $i.Depuis = Get-Date
         # Lancée cachée (-Demarrage), sans passer par sa propre fenêtre, si sa version sait se dessiner une fois accrochée ;
         # sinon lancée normalement (une version plus ancienne lancée cachée resterait noire)
@@ -150,8 +154,11 @@ function Test-NouveauProcessus($Appli, $i) {
 $ui.BtnPageAppliIci.Add_Click({
     $a = Get-Appli $this.Tag
     $ui.BtnPageAppliIci.Visibility = 'Collapsed'
-    Show-AppliIntegree $a
+    Show-AppliIntegree $a -Lancer
 })
+
+# « Ouvrir » d'une carte de l'accueil ou du menu de l'horloge : son onglet, et elle est lancée
+function Open-AppliIci([string]$Id) { Show-Page $Id; Show-AppliIntegree (Get-Appli $Id) -Lancer }
 
 # Surveillance : fenêtre attendue (lancement, relance pour un thème), fenêtre fermée
 $script:IntegrationTimer = New-Object System.Windows.Threading.DispatcherTimer
