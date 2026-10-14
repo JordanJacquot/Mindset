@@ -8,8 +8,10 @@ Depuis Mindset, tu installes, mets à jour et utilises chaque appli. C'est la se
 1. Va dans [Releases](../../releases/latest) et télécharge **Mindset.zip**.
 2. Clic droit sur le zip > **Extraire tout**, puis double-clique sur **Mindset.exe**.
    Si Windows affiche « Windows a protégé votre ordinateur » : « Informations complémentaires » puis « Exécuter quand même ».
-3. Clique sur **Installer Mindset** (Windows demande l'autorisation) : Mindset s'installe, crée son raccourci et se
-   lance avec Windows. Tu peux ensuite supprimer le dossier téléchargé.
+3. Choisis le disque, puis clique sur **Installer Mindset** (Windows demande l'autorisation) : Mindset s'installe,
+   crée son raccourci et se lance avec Windows. Tu peux ensuite supprimer le dossier téléchargé.
+   Sur C:, tout va dans `Program Files\Mindset` (programmes) et `%LOCALAPPDATA%\Mindset` (données) ; sur un autre
+   disque, tout va dans `X:\Mindset` (`Programmes` et `Donnees`), pour garder de la place sur C:.
 4. Dans Mindset, installe Nevermind et Evermind.
 
 Tu avais déjà Nevermind ou Evermind ? Mindset les trouve et propose de les **prendre en charge** : tes réglages, tes

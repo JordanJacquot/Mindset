@@ -50,11 +50,23 @@ foreach ($a in $Applis | Where-Object { -not $_.Admin }) {
     [void]$ui.Demarrages.Children.Add($cb)
 }
 
-$ui.BtnDossierProgrammes.Add_Click({ $d = Join-Path $env:ProgramFiles 'Mindset'; if (-not (Test-Path -LiteralPath $d)) { $d = Split-Path $AppDir -Parent }; Start-Process explorer.exe "`"$d`"" })
+$ui.DossiersTexte.Text = "Les programmes sont dans $RacineProgrammes (protégé : seul un administrateur peut les modifier). Les données de Mindset et de chaque appli sont dans $SuiteDir, un dossier par appli."
+$ui.BtnDossierProgrammes.Add_Click({ $d = $RacineProgrammes; if (-not (Test-Path -LiteralPath $d)) { $d = Split-Path $AppDir -Parent }; Start-Process explorer.exe "`"$d`"" })
 $ui.BtnDossierDonnees.Add_Click({ Start-Process explorer.exe "`"$SuiteDir`"" })
 $ui.BtnDesinstallerMindset.Add_Click({ Confirm-DesinstallMindset })
 
 # Bandeau de bienvenue : Mindset lancé depuis le dossier téléchargé (pas installé, pas un dossier de travail)
 $ui.Bienvenue.Visibility = if ((-not (Test-MindsetInstalle) -and -not (Test-MindsetDeveloppement) -and -not $EnTest) -or ($EnTest -and $env:MINDSET_BIENVENUE)) { 'Visible' } else { 'Collapsed' }
-$ui.BtnInstallerMindset.Add_Click({ Install-Mindset })
+# Un bouton radio par disque (C: d'abord, coché par défaut)
+foreach ($d in @(Get-DisquesInstallation)) {
+    $rb = New-Object System.Windows.Controls.RadioButton
+    $rb.GroupName = 'Disque'; $rb.Tag = $d.Lettre; $rb.Margin = '0,2,0,2'; $rb.Foreground = Get-Brush '#ECEAF7'
+    $rb.Content = "$($d.Texte)   ·   $($d.Libre)"
+    if (-not $d.Lettre) { $rb.IsChecked = $true }
+    [void]$ui.ChoixDisques.Children.Add($rb)
+}
+$ui.BtnInstallerMindset.Add_Click({
+    $choix = @($ui.ChoixDisques.Children | Where-Object { $_.IsChecked }) | Select-Object -First 1
+    Install-Mindset $(if ($choix) { [string]$choix.Tag } else { '' })
+})
 $ui.BtnBienvenuePlusTard.Add_Click({ $ui.Bienvenue.Visibility = 'Collapsed' })

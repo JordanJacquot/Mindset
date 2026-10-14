@@ -9,7 +9,7 @@
 # thème connu, et un dossier n'y sert qu'à comparer avec le sien, jamais à lancer quoi que ce soit.
 # Chargé par Mindset.ps1 après donnees.ps1.
 
-$SuiteFile = Join-Path $SuiteDir 'suite.json'
+$SuiteFile = Join-Path $SuiteFileDir 'suite.json'   # toujours dans %LOCALAPPDATA%\Mindset, où que soit installée la suite
 $ThemesSuite = @('neon', 'crepuscule', 'terminal', 'arcade', 'rubis')
 
 function Read-Suite {

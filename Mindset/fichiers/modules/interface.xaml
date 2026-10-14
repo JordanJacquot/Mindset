@@ -126,7 +126,9 @@
                   <StackPanel>
                     <TextBlock Text="Installer Mindset sur ce PC" FontSize="16" FontWeight="SemiBold"/>
                     <TextBlock x:Name="BienvenueTexte" TextWrapping="Wrap" Foreground="#A9A3C9" Margin="0,4,0,0"
-                               Text="Mindset se copie dans Program Files, crée son raccourci sur le Bureau et dans le menu Démarrer, et se lance avec Windows. Tu pourras ensuite supprimer le dossier téléchargé."/>
+                               Text="Mindset s'installe avec ses applis et leurs données sur le disque choisi, crée son raccourci sur le Bureau et dans le menu Démarrer, et se lance avec Windows. Tu pourras ensuite supprimer le dossier téléchargé."/>
+                    <TextBlock Text="Où installer Mindset et ses applis ?" FontWeight="SemiBold" FontSize="13" Margin="0,12,0,4"/>
+                    <StackPanel x:Name="ChoixDisques"/>
                   </StackPanel>
                 </DockPanel>
               </Border>
@@ -162,7 +164,7 @@
 
               <TextBlock Text="Dossiers" FontSize="17" FontWeight="SemiBold" Margin="0,28,0,4"/>
               <TextBlock TextWrapping="Wrap" Foreground="{StaticResource Texte2}" Margin="0,0,0,10"
-                         Text="Les programmes sont dans Program Files\Mindset (protégé : seul un administrateur peut les modifier). Les données de Mindset et de chaque appli sont dans %LOCALAPPDATA%\Mindset, un dossier par appli."/>
+                         x:Name="DossiersTexte"/>
               <StackPanel Orientation="Horizontal">
                 <Button x:Name="BtnDossierProgrammes" Content="Ouvrir le dossier des programmes" Style="{StaticResource BtnSecondary}" Margin="0,0,10,0"/>
                 <Button x:Name="BtnDossierDonnees" Content="Ouvrir le dossier des données" Style="{StaticResource BtnSecondary}"/>

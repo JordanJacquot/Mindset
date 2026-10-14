@@ -16,7 +16,7 @@ $script:Publications = @{}   # id -> dernière version publiée (ou erreur)
 $script:Occupe = @{}         # id -> texte de l'opération en cours
 $script:Messages = @{}       # id -> dernier message affiché sur la carte
 
-function Get-DossierGere($Appli) { Join-Path $env:ProgramFiles "Mindset\$($Appli.Nom)" }
+function Get-DossierGere($Appli) { Join-Path $RacineProgrammes $Appli.Nom }
 
 # Dossier de données d'une appli : celui de la suite si elle est gérée et l'a déjà adopté, sinon l'ancien
 function Get-DossierDonnees($Appli) {
@@ -235,7 +235,41 @@ function Complete-Installation($Appli, [string]$Dossier) {
     if ($ancien) { $notes += Remove-AncienneCopie $Appli $ancien $c.Zip }
     foreach ($f in @(Get-ChildItem -LiteralPath $TelechargementsDir -Filter "$($Appli.Id).*" -ErrorAction SilentlyContinue)) { Remove-Item -LiteralPath $f.FullName -Force -ErrorAction SilentlyContinue }
     Write-Log "$($Appli.Nom) $($c.Version) installé dans $Dossier$(if ($ancien) { " (pris en charge depuis $ancien)" })"
-    Stop-Operation $Appli ((@("$($Appli.Nom) $($c.Version) est installé.") + $notes | Where-Object { $_ }) -join ' ')
+    $fin = (@("$($Appli.Nom) $($c.Version) est installé.") + $notes | Where-Object { $_ }) -join ' '
+    Move-DonneesAppli $Appli $fin
+}
+
+# Les données d'avant (dossier de l'appli autonome, ou %LOCALAPPDATA%\Mindset si la suite était sur C:) rejoignent
+# celles de la suite. Sur le même disque, l'appli renomme elle-même le dossier d'un bloc au lancement ; d'un disque à
+# l'autre, Mindset copie, vérifie (nombre de fichiers et taille), puis supprime l'ancien, avant le premier lancement.
+function Move-DonneesAppli($Appli, [string]$Message) {
+    $dest = Join-Path $SuiteDir $Appli.Nom
+    $src = @((Join-Path $env:LOCALAPPDATA "Mindset\$($Appli.Nom)"), $Appli.Donnees) | Where-Object { $_ -ine $dest -and (Test-Path -LiteralPath $_) } | Select-Object -First 1
+    if ((Test-Path -LiteralPath $dest) -or -not $src -or ([IO.Path]::GetPathRoot($src) -ieq [IO.Path]::GetPathRoot($dest))) { Stop-Operation $Appli $Message; return }
+    $taille = (Get-ChildItem -LiteralPath $src -Recurse -File -Force -ErrorAction SilentlyContinue | Measure-Object Length -Sum).Sum
+    $script:Occupe[$Appli.Id] = "Déplacement des données vers $dest ({0:N1} Go)..." -f ($taille / 1GB)
+    Update-Cartes
+    Start-Tache {
+        $p = $args[0]
+        $mesure = { param($d) $f = @(Get-ChildItem -LiteralPath $d -Recurse -File -Force -ErrorAction SilentlyContinue); "$($f.Count)|$(($f | Measure-Object Length -Sum).Sum)" }
+        New-Item -ItemType Directory -Force -Path (Split-Path $p.Dest) | Out-Null
+        $tmp = "$($p.Dest).copie"
+        if (Test-Path -LiteralPath $tmp) { Remove-Item -LiteralPath $tmp -Recurse -Force }
+        robocopy $p.Src $tmp /E /COPY:DAT /DCOPY:DAT /R:1 /W:1 /NFL /NDL /NP /NJH /NJS | Out-Null
+        if ($LASTEXITCODE -ge 8 -or (& $mesure $p.Src) -ne (& $mesure $tmp)) {
+            Remove-Item -LiteralPath $tmp -Recurse -Force -ErrorAction SilentlyContinue
+            throw "la copie de $($p.Src) n'est pas complète : les données restent à leur place."
+        }
+        [IO.Directory]::Move($tmp, $p.Dest)   # (même disque : renommage d'un bloc, le dossier n'apparaît qu'une fois complet)
+        try { Remove-Item -LiteralPath $p.Src -Recurse -Force -ErrorAction Stop; '' }
+        catch { "L'ancien dossier $($p.Src) n'a pas pu être supprimé (un fichier est ouvert) : supprime-le plus tard." }
+    } @{ Src = $src; Dest = $dest } ([scriptblock]::Create(@"
+        param(`$Resultat, `$Erreur)
+        `$a = Get-Appli '$($Appli.Id)'
+        `$m = '$($Message -replace "'", "''")'
+        if (`$Erreur) { Write-Log "Données de `$(`$a.Nom) : `$Erreur"; Stop-Operation `$a "`$m Attention : `$Erreur" }
+        else { Write-Log "Données de `$(`$a.Nom) déplacées : $($src -replace "'", "''") -> $($dest -replace "'", "''")"; Stop-Operation `$a (("`$m Ses données sont maintenant dans $($dest -replace "'", "''"). `$Resultat").Trim()) }
+"@))
 }
 
 # Plus aucun accès direct : raccourcis et lancement au démarrage de l'appli (toutes copies) sont retirés.
@@ -256,10 +290,10 @@ function Test-DossierTravail([string]$Dossier) {
 }
 
 # L'ancienne copie, une fois prise en charge : seuls les fichiers livrés avec l'appli (ceux du zip) sont supprimés,
-# puis les dossiers devenus vides. Jamais un dossier de travail (Git), jamais dans Program Files\Mindset.
+# puis les dossiers devenus vides. Jamais un dossier de travail (Git), jamais dans les programmes de Mindset.
 function Remove-AncienneCopie($Appli, [string]$Dossier, [string]$Zip) {
     $d = [IO.Path]::GetFullPath($Dossier.TrimEnd('\'))
-    if ($d -like "$([IO.Path]::GetFullPath((Join-Path $env:ProgramFiles 'Mindset')))\*") { return '' }
+    if ($d -like "$([IO.Path]::GetFullPath($RacineProgrammes))\*" -or $d -like "$([IO.Path]::GetFullPath((Join-Path $env:ProgramFiles 'Mindset')))\*") { return '' }
     if (Test-DossierTravail $d) {
         return "L'ancienne copie ($d) est un dossier de travail : elle est gardée telle quelle."
     }

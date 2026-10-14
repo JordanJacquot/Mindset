@@ -1,20 +1,46 @@
-﻿# Mindset : dossiers de données, journal et réglages.
+﻿# Mindset : où sont les programmes et les données, journal et réglages.
 # Chargé par Mindset.ps1, qui définit $AppDir et $ModulesDir.
 #
-#   %LOCALAPPDATA%\Mindset\             les données de la suite
-#     suite.json                        commun à Mindset et aux applis (thème, applis gérées) : suite.ps1
-#     Mindset\                          celles de Mindset (journal, réglages, installations, téléchargements)
-#     Nevermind\, Evermind\             celles des applis gérées par Mindset (elles s'y installent elles-mêmes)
+# Mindset s'installe sur le disque choisi à l'installation :
+#   par défaut   programmes  C:\Program Files\Mindset\<Appli>      données  %LOCALAPPDATA%\Mindset\<Appli>
+#   autre disque programmes  X:\Mindset\Programmes\<Appli>        données  X:\Mindset\Donnees\<Appli>
+# L'emplacement se déduit toujours de celui du programme (protégé : seul un administrateur peut y écrire), jamais
+# d'un fichier modifiable. suite.json (thème, applis gérées) reste toujours dans %LOCALAPPDATA%\Mindset.
 
-$SuiteDir = Join-Path $env:LOCALAPPDATA 'Mindset'
-if ($EnTest -and $env:MINDSET_DONNEES) { $SuiteDir = $env:MINDSET_DONNEES }
+$SuiteFileDir = Join-Path $env:LOCALAPPDATA 'Mindset'
+
+# Racines d'une installation dont on connaît le dossier du programme Mindset (…\Mindset)
+function Get-RacinesDepuis([string]$DossierMindset) {
+    $p = Split-Path $DossierMindset -Parent; $m = Split-Path $p -Parent
+    if ((Split-Path $p -Leaf) -eq 'Programmes' -and $m -and (Split-Path $m -Leaf) -eq 'Mindset') {
+        return @{ Programmes = $p; Donnees = (Join-Path $m 'Donnees'); Disque = $m.Substring(0, 1).ToUpper() }
+    }
+    @{ Programmes = (Join-Path $env:ProgramFiles 'Mindset'); Donnees = $SuiteFileDir; Disque = '' }
+}
+
+# Ce Mindset est-il installé ? Sinon (lancé depuis le dossier téléchargé), celui inscrit dans « Applications
+# installées » (écrit en administrateur) donne les racines ; sans installation, les racines par défaut.
+$MonDossier = Split-Path $AppDir -Parent
+$Racines = Get-RacinesDepuis $MonDossier
+if ((Split-Path $MonDossier -Leaf) -ne 'Mindset' -or (Join-Path $Racines.Programmes 'Mindset') -ine $MonDossier) {
+    $Racines = Get-RacinesDepuis 'C:\_\Mindset'   # (défaut)
+    try {
+        $inscrit = [string](Get-ItemProperty 'HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\Mindset' -ErrorAction Stop).InstallLocation
+        if ($inscrit -and (Test-Path -LiteralPath (Join-Path $inscrit 'Mindset.exe'))) { $Racines = Get-RacinesDepuis $inscrit }
+    } catch {}
+}
+$RacineProgrammes = $Racines.Programmes
+$SuiteDir = $Racines.Donnees
+if ($EnTest -and $env:MINDSET_DONNEES) { $SuiteDir = $env:MINDSET_DONNEES; $SuiteFileDir = $env:MINDSET_DONNEES }
 $DataDir = Join-Path $SuiteDir 'Mindset'
 New-Item -ItemType Directory -Force -Path $DataDir | Out-Null
 
-# Premières versions : les fichiers de Mindset étaient à la racine
+# Premières versions : les fichiers de Mindset étaient à la racine de %LOCALAPPDATA%\Mindset
 foreach ($n in 'journal.txt', 'reglages.json', 'installations.json') {
-    $a = Join-Path $SuiteDir $n
-    if ((Test-Path -LiteralPath $a) -and -not (Test-Path -LiteralPath (Join-Path $DataDir $n))) { try { Move-Item -LiteralPath $a -Destination $DataDir } catch {} }
+    foreach ($a in (Join-Path $SuiteFileDir $n), (Join-Path $SuiteFileDir "Mindset\$n")) {
+        $b = Join-Path $DataDir $n
+        if ($a -ine $b -and (Test-Path -LiteralPath $a) -and -not (Test-Path -LiteralPath $b)) { try { Move-Item -LiteralPath $a -Destination $DataDir } catch {} }
+    }
 }
 
 $LogFile = Join-Path $DataDir 'journal.txt'

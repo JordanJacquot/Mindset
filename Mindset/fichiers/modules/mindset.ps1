@@ -1,11 +1,12 @@
 ﻿# Mindset : s'installer sur le PC, se lancer avec Windows, se désinstaller.
 # Chargé par Mindset.ps1 après installations.ps1 (Invoke-Admin).
 #
-# Installé, Mindset est dans C:\Program Files\Mindset\Mindset, avec un raccourci « Mindset » sur le Bureau et
-# dans le menu Démarrer, et se lance avec Windows (Mindset.exe -Demarrage : il démarre en arrière-plan les applis
-# qui en ont besoin, comme les rappels d'Evermind, puis se ferme). Il est aussi dans « Applications installées ».
+# Installé, Mindset est dans C:\Program Files\Mindset\Mindset (ou X:\Mindset\Programmes\Mindset sur le disque choisi),
+# avec un raccourci « Mindset » sur le Bureau et dans le menu Démarrer, et se lance avec Windows (Mindset.exe -Demarrage :
+# il démarre en arrière-plan les applis qui en ont besoin, comme les rappels d'Evermind, puis se ferme).
+# Il est aussi dans « Applications installées ».
 
-$DossierMindset = Join-Path $env:ProgramFiles 'Mindset\Mindset'
+$DossierMindset = Join-Path $RacineProgrammes 'Mindset'
 $RaccourcisMindset = @((Join-Path ([Environment]::GetFolderPath('Desktop')) 'Mindset.lnk'), (Join-Path ([Environment]::GetFolderPath('Programs')) 'Mindset.lnk'))
 $CleRun = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Run'
 
@@ -14,22 +15,39 @@ function Test-MindsetInstalle { (Split-Path $AppDir -Parent) -ieq $DossierMindse
 # Un dossier de travail (dépôt Git) : pas de proposition d'installation
 function Test-MindsetDeveloppement { Test-Path -LiteralPath (Join-Path (Split-Path (Split-Path $AppDir -Parent) -Parent) '.git') }
 
-function Install-Mindset {
+# Disques proposés à l'installation : C: (Program Files) et les autres disques fixes NTFS, avec leur place libre
+function Get-DisquesInstallation {
+    foreach ($v in @(Get-CimInstance Win32_LogicalDisk -Filter 'DriveType=3' -ErrorAction SilentlyContinue | Sort-Object DeviceID)) {
+        if ($v.FileSystem -ne 'NTFS') { continue }
+        $l = $v.DeviceID.Substring(0, 1)
+        $systeme = ($l -eq $env:SystemDrive.Substring(0, 1))
+        [pscustomobject]@{
+            Lettre = if ($systeme) { '' } else { $l }
+            Texte  = if ($systeme) { "$($l): (dans Program Files, comme les autres programmes)" } else { "$($l):\Mindset" }
+            Libre  = "{0:N0} Go libres" -f ($v.FreeSpace / 1GB)
+        }
+    }
+}
+
+# $Disque : '' pour C: (Program Files), sinon la lettre du disque choisi (X:\Mindset)
+function Install-Mindset([string]$Disque) {
     if ($script:InstallMindsetEnCours) { return }
     $script:InstallMindsetEnCours = $true
     $ui.BienvenueTexte.Text = 'Installation (accepte la demande de Windows)...'
-    Invoke-Admin 'mindset' @{ Source = (Split-Path $AppDir -Parent); Version = $AppVersion } {
+    $sid = [Security.Principal.WindowsIdentity]::GetCurrent().User.Value
+    Invoke-Admin 'mindset' @{ Source = (Split-Path $AppDir -Parent); Version = $AppVersion; Disque = $Disque; Sid = $sid } {
         param($Ok, $Message)
         $script:InstallMindsetEnCours = $false
         if (-not $Ok) { $ui.BienvenueTexte.Text = "Installation impossible : $Message"; return }
-        $exe = Join-Path $DossierMindset 'Mindset.exe'
+        $dossier = $Message   # le dossier où Mindset a été installé
+        $exe = Join-Path $dossier 'Mindset.exe'
         $sh = New-Object -ComObject WScript.Shell
         foreach ($l in $RaccourcisMindset) {
-            try { $s = $sh.CreateShortcut($l); $s.TargetPath = $exe; $s.WorkingDirectory = $DossierMindset; $s.IconLocation = "$exe,0"; $s.Description = 'Mindset : Nevermind et Evermind au même endroit'; $s.Save() }
+            try { $s = $sh.CreateShortcut($l); $s.TargetPath = $exe; $s.WorkingDirectory = $dossier; $s.IconLocation = "$exe,0"; $s.Description = 'Mindset : Nevermind et Evermind au même endroit'; $s.Save() }
             catch { Write-Log "Raccourci $l : $_" }
         }
         Set-ItemProperty -Path $CleRun -Name 'Mindset' -Value "`"$exe`" -Demarrage"
-        Write-Log "Mindset $AppVersion installé dans $DossierMindset"
+        Write-Log "Mindset $AppVersion installé dans $dossier"
         # Le Mindset installé prend le relais ; celui-ci (dans le dossier téléchargé) se ferme
         $script:LancerApres = $exe
         $Window.Close()
