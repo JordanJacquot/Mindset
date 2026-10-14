@@ -24,11 +24,30 @@ $ui.Version.Text = "version $AppVersion"
 # Une couleur Néon, traduite dans le thème de la suite
 function Get-Brush([string]$Hex) { [System.Windows.Media.BrushConverter]::new().ConvertFromString((ConvertTo-ThemeHex $Hex)) }
 
+# Icône de la fenêtre (le M, la même que Mindset.exe). Chargée en mémoire pour ne pas bloquer le fichier
+# (il doit pouvoir être remplacé par une mise à jour).
+$IconPath = Join-Path $AppDir 'Mindset.ico'
+if (Test-Path -LiteralPath $IconPath) {
+    try {
+        $frames = [System.Windows.Media.Imaging.BitmapDecoder]::Create((New-Object IO.MemoryStream (, [IO.File]::ReadAllBytes($IconPath))), 'None', 'OnLoad').Frames
+        $Window.Icon = $frames | Sort-Object PixelWidth | Where-Object { $_.PixelWidth -ge 32 } | Select-Object -First 1
+    } catch { Write-Log "Icône : $_" }
+}
+
+# Commande qui relance Mindset (épingle de la barre des tâches) : Mindset.exe, ou PowerShell s'il manque
+function Get-LaunchCommand {
+    if (Test-Path -LiteralPath $AppExe) { "`"$AppExe`"" }
+    else { "`"$env:SystemRoot\System32\WindowsPowerShell\v1.0\powershell.exe`" -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File `"$MainScript`"" }
+}
+
 $Window.Add_SourceInitialized({
     # Barre de titre sombre, couleur du fond dans le thème (écrite en « 0xBBGGRR »)
     $h = (New-Object System.Windows.Interop.WindowInteropHelper $Window).Handle
     $fond = (ConvertTo-ThemeHex '#06050F').Substring(1)
     try { [MSNative]::SetDarkTitleBar($h, [Convert]::ToInt32($fond.Substring(4, 2) + $fond.Substring(2, 2) + $fond.Substring(0, 2), 16)) } catch {}
+    # Dans la barre des tâches : l'icône de Mindset, et épinglé, il se relance par Mindset.exe avec son icône
+    try { [MSNative]::SetWindowIdentity($h, $AppId, (Get-LaunchCommand), $IconPath, 'Mindset') }
+    catch { Write-Log "Identité de la fenêtre : $_" }
 })
 
 # « Êtes-vous sûr ? » : $Oui est lancé seulement si on confirme
@@ -64,13 +83,6 @@ if ($script:ShowSignal) {
 }
 
 $Window.Add_Closed({ [System.Windows.Threading.Dispatcher]::CurrentDispatcher.InvokeShutdown() })
-
-# Logo : l'anneau cyan vers violet tourne doucement, comme chez Nevermind et Evermind
-if ([System.Windows.SystemParameters]::ClientAreaAnimation) {   # animations coupées dans Windows : logo immobile
-    $anim = New-Object System.Windows.Media.Animation.DoubleAnimation(0, 360, [TimeSpan]::FromSeconds(8))
-    $anim.RepeatBehavior = [System.Windows.Media.Animation.RepeatBehavior]::Forever
-    $ui.LogoRotation.BeginAnimation([System.Windows.Media.RotateTransform]::AngleProperty, $anim)
-}
 
 function New-Button([string]$Text, [string]$Style = 'BtnSecondary') {
     $btn = New-Object System.Windows.Controls.Button

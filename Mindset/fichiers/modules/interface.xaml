@@ -2,7 +2,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Mindset" Width="1180" Height="740" MinWidth="900" MinHeight="560"
         WindowStartupLocation="CenterScreen" Background="#06050F"
-        FontFamily="Segoe UI" FontSize="14" Foreground="#ECEAF7"
+        FontFamily="Segoe UI Variable Text, Segoe UI" FontSize="14" Foreground="#ECEAF7"
         UseLayoutRounding="True" TextOptions.TextFormattingMode="Display">
   <Window.Resources>
     <!-- Palette Néon, la même que Nevermind et Evermind -->
@@ -39,39 +39,89 @@
       </Setter>
     </Style>
 
-    <!-- Boutons, même style que Nevermind et Evermind -->
-    <Style x:Key="BtnSecondary" TargetType="Button">
-      <Setter Property="Foreground" Value="#ECEAF7"/>
-      <Setter Property="Background" Value="#141030"/>
-      <Setter Property="BorderBrush" Value="#2A2450"/>
-      <Setter Property="Cursor" Value="Hand"/>
+    <!-- Cartes en verre, boutons : exactement ceux de Nevermind et Evermind -->
+    <LinearGradientBrush x:Key="CardBg" StartPoint="0,0" EndPoint="1,1">
+      <GradientStop Color="#17FFFFFF" Offset="0"/>
+      <GradientStop Color="#08FFFFFF" Offset="1"/>
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="CardBorder" StartPoint="0,0" EndPoint="1,1">
+      <GradientStop Color="#40FFFFFF" Offset="0"/>
+      <GradientStop Color="#0AFFFFFF" Offset="1"/>
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="AccentBg" StartPoint="0,0" EndPoint="1,0">
+      <GradientStop Color="#00E5FF" Offset="0"/>
+      <GradientStop Color="#B04BFF" Offset="1"/>
+    </LinearGradientBrush>
+    <Style x:Key="BtnPrimary" TargetType="Button">
+      <Setter Property="Background" Value="{StaticResource AccentBg}"/>
+      <Setter Property="Foreground" Value="#08060F"/>
+      <Setter Property="BorderBrush" Value="#00FFFFFF"/>
+      <Setter Property="BorderThickness" Value="0"/>
       <Setter Property="FontWeight" Value="SemiBold"/>
       <Setter Property="FontSize" Value="13"/>
+      <Setter Property="Padding" Value="18,9"/>
+      <Setter Property="Cursor" Value="Hand"/>
       <Setter Property="Template">
         <Setter.Value>
           <ControlTemplate TargetType="Button">
-            <Border x:Name="b" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" CornerRadius="7" Padding="14,8">
-              <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-            </Border>
+            <Grid x:Name="Root" RenderTransformOrigin="0.5,0.5">
+              <Grid.RenderTransform><ScaleTransform x:Name="Scale" ScaleX="1" ScaleY="1"/></Grid.RenderTransform>
+              <Border x:Name="B" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                      BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="19" Padding="{TemplateBinding Padding}">
+                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+              </Border>
+              <!-- Reflet qui apparaît au survol -->
+              <Border x:Name="Shine" CornerRadius="19" IsHitTestVisible="False" Opacity="0">
+                <Border.Background>
+                  <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                    <GradientStop Color="#38FFFFFF" Offset="0"/>
+                    <GradientStop Color="#00FFFFFF" Offset="0.65"/>
+                  </LinearGradientBrush>
+                </Border.Background>
+              </Border>
+            </Grid>
             <ControlTemplate.Triggers>
-              <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="b" Property="BorderBrush" Value="#00E5FF"/></Trigger>
-              <Trigger Property="IsEnabled" Value="False"><Setter TargetName="b" Property="Opacity" Value="0.45"/></Trigger>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Trigger.EnterActions><BeginStoryboard><Storyboard>
+                  <DoubleAnimation Storyboard.TargetName="Shine" Storyboard.TargetProperty="Opacity" To="1" Duration="0:0:0.18"/>
+                </Storyboard></BeginStoryboard></Trigger.EnterActions>
+                <Trigger.ExitActions><BeginStoryboard><Storyboard>
+                  <DoubleAnimation Storyboard.TargetName="Shine" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.25"/>
+                </Storyboard></BeginStoryboard></Trigger.ExitActions>
+              </Trigger>
+              <Trigger Property="IsPressed" Value="True">
+                <Trigger.EnterActions><BeginStoryboard><Storyboard>
+                  <DoubleAnimation Storyboard.TargetName="Scale" Storyboard.TargetProperty="ScaleX" To="0.96" Duration="0:0:0.08"/>
+                  <DoubleAnimation Storyboard.TargetName="Scale" Storyboard.TargetProperty="ScaleY" To="0.96" Duration="0:0:0.08"/>
+                </Storyboard></BeginStoryboard></Trigger.EnterActions>
+                <Trigger.ExitActions><BeginStoryboard><Storyboard>
+                  <DoubleAnimation Storyboard.TargetName="Scale" Storyboard.TargetProperty="ScaleX" To="1" Duration="0:0:0.15"/>
+                  <DoubleAnimation Storyboard.TargetName="Scale" Storyboard.TargetProperty="ScaleY" To="1" Duration="0:0:0.15"/>
+                </Storyboard></BeginStoryboard></Trigger.ExitActions>
+              </Trigger>
+              <Trigger Property="IsEnabled" Value="False"><Setter TargetName="Root" Property="Opacity" Value="0.4"/></Trigger>
             </ControlTemplate.Triggers>
           </ControlTemplate>
         </Setter.Value>
       </Setter>
+      <Style.Triggers>
+        <!-- Halo cyan au survol -->
+        <Trigger Property="IsMouseOver" Value="True">
+          <Setter Property="Effect"><Setter.Value><DropShadowEffect Color="#00E5FF" BlurRadius="22" ShadowDepth="0" Opacity="0.6"/></Setter.Value></Setter>
+        </Trigger>
+      </Style.Triggers>
     </Style>
-    <Style x:Key="BtnPrimary" TargetType="Button" BasedOn="{StaticResource BtnSecondary}">
-      <Setter Property="Foreground" Value="#06050F"/>
-      <Setter Property="Background">
-        <Setter.Value>
-          <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-            <GradientStop Color="#00E5FF" Offset="0"/>
-            <GradientStop Color="#B04BFF" Offset="1"/>
-          </LinearGradientBrush>
-        </Setter.Value>
-      </Setter>
-      <Setter Property="BorderBrush" Value="Transparent"/>
+    <Style x:Key="BtnSecondary" TargetType="Button" BasedOn="{StaticResource BtnPrimary}">
+      <Setter Property="Background" Value="#16FFFFFF"/>
+      <Setter Property="Foreground" Value="#F2EFFA"/>
+      <Setter Property="BorderBrush" Value="#26FFFFFF"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Style.Triggers>
+        <Trigger Property="IsMouseOver" Value="True">
+          <Setter Property="BorderBrush" Value="#8000E5FF"/>
+          <Setter Property="Effect"><Setter.Value><DropShadowEffect Color="#00E5FF" BlurRadius="16" ShadowDepth="0" Opacity="0.3"/></Setter.Value></Setter>
+        </Trigger>
+      </Style.Triggers>
     </Style>
   </Window.Resources>
 
@@ -81,43 +131,78 @@
       <RowDefinition Height="*"/>
     </Grid.RowDefinitions>
 
-    <!-- En-tête -->
-    <Border Grid.Row="0" Background="{StaticResource Fond}" BorderBrush="{StaticResource Trait}" BorderThickness="0,0,0,1" Padding="18,12">
-      <DockPanel LastChildFill="False">
-        <Grid DockPanel.Dock="Left" Width="30" Height="30" VerticalAlignment="Center">
-          <Ellipse Stroke="#1D1840" StrokeThickness="3"/>
-          <Ellipse x:Name="LogoAnneau" StrokeThickness="3" StrokeDashArray="14 6" RenderTransformOrigin="0.5,0.5" Stroke="{StaticResource Marque}">
-            <Ellipse.RenderTransform><RotateTransform x:Name="LogoRotation"/></Ellipse.RenderTransform>
-          </Ellipse>
-          <TextBlock Text="M" FontWeight="Bold" FontSize="14" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#ECEAF7"/>
-        </Grid>
-        <TextBlock DockPanel.Dock="Left" Text="Mindset" FontSize="18" FontWeight="SemiBold" Margin="12,0,0,0" VerticalAlignment="Center"/>
-        <TextBlock x:Name="Version" DockPanel.Dock="Right" Foreground="{StaticResource Texte3}" FontSize="12" VerticalAlignment="Center"/>
-      </DockPanel>
-    </Border>
+    <!-- Fond : nuit violette et trois lueurs (cyan en haut à gauche, violet au centre, magenta en bas à droite),
+         le même que Nevermind et Evermind -->
+    <Grid Grid.RowSpan="2" IsHitTestVisible="False">
+      <Rectangle>
+        <Rectangle.Fill>
+          <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#0C0920" Offset="0"/>
+            <GradientStop Color="#06050F" Offset="1"/>
+          </LinearGradientBrush>
+        </Rectangle.Fill>
+      </Rectangle>
+      <Rectangle>
+        <Rectangle.Fill>
+          <RadialGradientBrush Center="0.12,0.05" GradientOrigin="0.12,0.05" RadiusX="0.5" RadiusY="0.55">
+            <GradientStop Color="#4400E5FF" Offset="0"/>
+            <GradientStop Color="#0000E5FF" Offset="1"/>
+          </RadialGradientBrush>
+        </Rectangle.Fill>
+      </Rectangle>
+      <Rectangle>
+        <Rectangle.Fill>
+          <RadialGradientBrush Center="0.6,0.35" GradientOrigin="0.6,0.35" RadiusX="0.45" RadiusY="0.45">
+            <GradientStop Color="#267A3CFF" Offset="0"/>
+            <GradientStop Color="#007A3CFF" Offset="1"/>
+          </RadialGradientBrush>
+        </Rectangle.Fill>
+      </Rectangle>
+      <Rectangle>
+        <Rectangle.Fill>
+          <RadialGradientBrush Center="0.92,0.9" GradientOrigin="0.92,0.9" RadiusX="0.5" RadiusY="0.55">
+            <GradientStop Color="#44FF2EB5" Offset="0"/>
+            <GradientStop Color="#00FF2EB5" Offset="1"/>
+          </RadialGradientBrush>
+        </Rectangle.Fill>
+      </Rectangle>
+    </Grid>
 
-    <Grid Grid.Row="1">
+    <!-- En-tête : logo animé, nom et phrase, comme Nevermind et Evermind -->
+    <DockPanel Grid.Row="0" Margin="24,16,28,10" LastChildFill="False">
+      <TextBlock x:Name="Version" DockPanel.Dock="Right" Foreground="{StaticResource Texte3}" FontSize="12" VerticalAlignment="Center"/>
+      <!-- Logo (modules\logo.ps1) : dessiné en 84 px, affiché en 60 -->
+      <Grid x:Name="LogoHote" DockPanel.Dock="Left" Width="84" Height="84" Margin="0,-6,10,-6" VerticalAlignment="Center" Background="Transparent">
+        <Grid.LayoutTransform><ScaleTransform ScaleX="0.714" ScaleY="0.714"/></Grid.LayoutTransform>
+      </Grid>
+      <StackPanel DockPanel.Dock="Left" VerticalAlignment="Center">
+        <TextBlock Text="Mindset" FontFamily="Segoe UI Variable Display, Segoe UI" FontSize="30" FontWeight="Bold" Foreground="White"/>
+        <TextBlock Text="Nevermind et Evermind au même endroit." FontSize="15" Foreground="#A6A1BC" Margin="1,0,0,0"/>
+      </StackPanel>
+    </DockPanel>
+
+    <Grid Grid.Row="1" Margin="0,6,0,0">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="210"/>
         <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
 
       <!-- Onglets : Accueil, puis une ligne par appli (ajoutées depuis apps.json) ; Paramètres en bas -->
-      <Border Grid.Column="0" Background="{StaticResource Fond}" BorderBrush="{StaticResource Trait}" BorderThickness="0,0,1,0" Padding="10,14">
+      <Border Grid.Column="0" Background="#55060510" BorderBrush="#2A2450" BorderThickness="0,1,1,0" CornerRadius="0,14,0,0" Padding="10,14">
         <DockPanel>
           <StackPanel x:Name="OngletsBas" DockPanel.Dock="Bottom"/>
           <StackPanel x:Name="Onglets"/>
         </DockPanel>
       </Border>
 
-      <!-- Zone centrale -->
-      <Border Grid.Column="1" Background="{StaticResource Panneau}">
+      <!-- Zone centrale (transparente : le fond et ses lueurs passent derrière) -->
+      <Border Grid.Column="1" Background="Transparent">
         <Grid>
           <!-- Accueil -->
           <ScrollViewer x:Name="PageAccueil" VerticalScrollBarVisibility="Auto">
             <StackPanel Margin="32,28">
               <!-- Mindset lancé depuis le dossier téléchargé : proposer de l'installer -->
-              <Border x:Name="Bienvenue" Visibility="Collapsed" Background="#141030" BorderBrush="#00E5FF" BorderThickness="1" CornerRadius="10" Padding="18,14" Margin="0,0,0,22" MaxWidth="770" HorizontalAlignment="Left">
+              <Border x:Name="Bienvenue" Visibility="Collapsed" Background="{StaticResource CardBg}" BorderBrush="#8000E5FF" BorderThickness="1" CornerRadius="22" Padding="24,18" Margin="0,0,0,22" MaxWidth="770" HorizontalAlignment="Left">
                 <DockPanel>
                   <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center" Margin="16,0,0,0">
                     <Button x:Name="BtnBienvenuePlusTard" Content="Plus tard" Style="{StaticResource BtnSecondary}" Margin="0,0,8,0"/>

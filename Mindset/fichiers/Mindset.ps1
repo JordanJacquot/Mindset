@@ -45,7 +45,7 @@ try { Get-ChildItem -LiteralPath $PSScriptRoot -File -Recurse -ErrorAction Silen
 # ---------------------------------------------------------------------------
 $AppDir = $PSScriptRoot
 $ModulesDir = Join-Path $AppDir 'modules'
-$msModules = 'donnees', 'suite', 'themes', 'signature', 'paquets', 'taches', 'applis', 'installations', 'mindset', 'interface', 'accueil', 'parametres'
+$msModules = 'donnees', 'suite', 'themes', 'signature', 'paquets', 'taches', 'applis', 'installations', 'mindset', 'interface', 'logo', 'accueil', 'parametres'
 $missing = @(@('natif.cs', 'interface.xaml') + @($msModules | ForEach-Object { "$_.ps1" }) | Where-Object { -not (Test-Path -LiteralPath (Join-Path $ModulesDir $_)) })
 if (-not (Test-Path -LiteralPath (Join-Path $AppDir 'cle-publique.xml'))) { $missing += 'cle-publique.xml' }
 if ($missing) {
@@ -59,7 +59,7 @@ $AppId = 'JordanJacquot.Mindset'
 try { [MSNative]::SetAppId($AppId) } catch {}
 
 # Au démarrage de Windows, pas de fenêtre : seulement ce qu'il faut pour lancer les applis
-if ($Demarrage) { $msModules = $msModules | Where-Object { $_ -notin 'interface', 'accueil', 'parametres' } }
+if ($Demarrage) { $msModules = $msModules | Where-Object { $_ -notin 'interface', 'logo', 'accueil', 'parametres' } }
 foreach ($msModule in $msModules) { . (Join-Path $ModulesDir "$msModule.ps1") }
 
 # ---------------------------------------------------------------------------

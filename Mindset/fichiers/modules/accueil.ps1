@@ -56,9 +56,10 @@ function Update-PageAppli {
 # ---------------------------------------------------------------------------
 function New-Carte($Appli) {
     $carte = New-Object System.Windows.Controls.Border
-    $carte.Width = 370; $carte.Margin = '0,0,16,16'; $carte.Padding = '18,16'
-    $carte.CornerRadius = 10; $carte.BorderThickness = 1
-    $carte.Background = Get-Brush '#06050F'; $carte.BorderBrush = Get-Brush '#2A2450'
+    # Carte en verre, comme celles de Nevermind et Evermind
+    $carte.Width = 380; $carte.Margin = '0,0,18,18'; $carte.Padding = '24,20'
+    $carte.CornerRadius = 22; $carte.BorderThickness = 1
+    $carte.Background = $Window.FindResource('CardBg'); $carte.BorderBrush = $Window.FindResource('CardBorder')
     $sp = New-Object System.Windows.Controls.StackPanel
     $carte.Child = $sp
     [void]$ui.Cartes.Children.Add($carte)

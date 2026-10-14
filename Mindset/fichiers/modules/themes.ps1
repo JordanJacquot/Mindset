@@ -84,11 +84,14 @@ function ConvertTo-ThemeHex([string]$Hex, [string]$Id = $ThemeId) {
     $res
 }
 
+# Une couleur de l'app, dans le thème choisi
+function Get-Couleur([string]$Hex) { [System.Windows.Media.ColorConverter]::ConvertFromString((ConvertTo-ThemeHex $Hex)) }
+
 # Texte de la fenêtre (interface.xaml) traduit avant d'être chargé : couleurs, et police du thème
 function Convert-ThemeXaml([string]$Text, [string]$Id = $ThemeId) {
     if ($Id -eq 'neon') { return $Text }
     $th = $AppThemes[$Id]
     $Text = [regex]::Replace($Text, '(?<![&\w])#([0-9A-Fa-f]{8}|[0-9A-Fa-f]{6})(?![0-9A-Fa-f])', { param($m) ConvertTo-ThemeHex $m.Value $Id })
-    if ($th.Font) { $Text = $Text.Replace('FontFamily="Segoe UI"', "FontFamily=`"$($th.Font)`"") }
+    if ($th.Font) { $Text = $Text.Replace('Segoe UI Variable Display, Segoe UI', $th.Font).Replace('Segoe UI Variable Text, Segoe UI', $th.Font) }
     $Text
 }
