@@ -40,7 +40,9 @@ try { Get-ChildItem -LiteralPath $PSScriptRoot -File -Recurse -ErrorAction Silen
 # ---------------------------------------------------------------------------
 $AppDir = $PSScriptRoot
 $ModulesDir = Join-Path $AppDir 'modules'
-$missing = @('natif.cs', 'interface.xaml', 'donnees.ps1', 'applis.ps1', 'interface.ps1', 'accueil.ps1' | Where-Object { -not (Test-Path -LiteralPath (Join-Path $ModulesDir $_)) })
+$msModules = 'donnees', 'suite', 'themes', 'signature', 'paquets', 'taches', 'applis', 'installations', 'interface', 'accueil', 'parametres'
+$missing = @(@('natif.cs', 'interface.xaml') + @($msModules | ForEach-Object { "$_.ps1" }) | Where-Object { -not (Test-Path -LiteralPath (Join-Path $ModulesDir $_)) })
+if (-not (Test-Path -LiteralPath (Join-Path $AppDir 'cle-publique.xml'))) { $missing += 'cle-publique.xml' }
 if ($missing) {
     [System.Windows.MessageBox]::Show("Des fichiers de Mindset sont manquants :`n`n$($missing -join ', ')`n`nRetélécharge Mindset et remplace tout le dossier.", 'Mindset', 'OK', 'Error') | Out-Null
     exit
@@ -51,7 +53,7 @@ Add-Type -TypeDefinition ([IO.File]::ReadAllText((Join-Path $ModulesDir 'natif.c
 $AppId = 'JordanJacquot.Mindset'
 try { [MSNative]::SetAppId($AppId) } catch {}
 
-foreach ($msModule in 'donnees', 'applis', 'interface', 'accueil') { . (Join-Path $ModulesDir "$msModule.ps1") }
+foreach ($msModule in $msModules) { . (Join-Path $ModulesDir "$msModule.ps1") }
 
 # ---------------------------------------------------------------------------
 # Lancement
@@ -63,3 +65,9 @@ $Window.Show()
 
 if ($script:InstanceMutex) { try { $script:InstanceMutex.ReleaseMutex(); $script:InstanceMutex.Dispose() } catch {} }
 if ($script:ShowSignal) { try { $script:ShowSignal.Dispose() } catch {} }
+
+# Relance demandée (nouveau thème) : la place est libérée, puis un nouveau Mindset démarre
+if ($script:Relancer) {
+    if (Test-Path -LiteralPath $AppExe) { Start-Process -FilePath $AppExe }
+    else { Start-Process -FilePath "$env:SystemRoot\System32\WindowsPowerShell\v1.0\powershell.exe" -ArgumentList '-NoProfile', '-ExecutionPolicy', 'Bypass', '-WindowStyle', 'Hidden', '-File', "`"$MainScript`"" }
+}

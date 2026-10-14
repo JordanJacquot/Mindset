@@ -4,7 +4,8 @@
 # ---------------------------------------------------------------------------
 # Fenêtre (décrite dans interface.xaml)
 # ---------------------------------------------------------------------------
-[xml]$Xaml = [IO.File]::ReadAllText((Join-Path $ModulesDir 'interface.xaml'), [Text.Encoding]::UTF8)
+# Couleurs (et police) traduites dans le thème de la suite (themes.ps1) avant le chargement
+[xml]$Xaml = Convert-ThemeXaml ([IO.File]::ReadAllText((Join-Path $ModulesDir 'interface.xaml'), [Text.Encoding]::UTF8))
 try { $Window = [Windows.Markup.XamlReader]::Load((New-Object System.Xml.XmlNodeReader $Xaml)) }
 catch {
     $e = $_.Exception; while ($e.InnerException) { $e = $e.InnerException }
@@ -20,13 +21,34 @@ foreach ($node in $Xaml.SelectNodes('//*[@*[local-name()="Name"]]')) {
 }
 $ui.Version.Text = "version $AppVersion"
 
-function Get-Brush([string]$Hex) { [System.Windows.Media.BrushConverter]::new().ConvertFromString($Hex) }
+# Une couleur Néon, traduite dans le thème de la suite
+function Get-Brush([string]$Hex) { [System.Windows.Media.BrushConverter]::new().ConvertFromString((ConvertTo-ThemeHex $Hex)) }
 
 $Window.Add_SourceInitialized({
-    # Barre de titre sombre, couleur du fond (#06050F écrit en « 0xBBGGRR »)
+    # Barre de titre sombre, couleur du fond dans le thème (écrite en « 0xBBGGRR »)
     $h = (New-Object System.Windows.Interop.WindowInteropHelper $Window).Handle
-    try { [MSNative]::SetDarkTitleBar($h, 0x0F0506) } catch {}
+    $fond = (ConvertTo-ThemeHex '#06050F').Substring(1)
+    try { [MSNative]::SetDarkTitleBar($h, [Convert]::ToInt32($fond.Substring(4, 2) + $fond.Substring(2, 2) + $fond.Substring(0, 2), 16)) } catch {}
 })
+
+# « Êtes-vous sûr ? » : $Oui est lancé seulement si on confirme
+function Show-Confirmation([string]$Titre, [string]$Texte, [string]$Bouton, [scriptblock]$Oui) {
+    $ui.ConfirmationTitre.Text = $Titre
+    $ui.ConfirmationTexte.Text = $Texte
+    $ui.BtnConfirmationOui.Content = $Bouton
+    $script:ConfirmationAction = $Oui
+    $ui.Confirmation.Visibility = 'Visible'
+    [void]$ui.BtnConfirmationNon.Focus()   # Entrée par erreur = Annuler
+}
+function Close-Confirmation { $ui.Confirmation.Visibility = 'Collapsed'; $script:ConfirmationAction = $null }
+$ui.BtnConfirmationNon.Add_Click({ Close-Confirmation })
+$ui.BtnConfirmationOui.Add_Click({ $a = $script:ConfirmationAction; Close-Confirmation; if ($a) { & $a } })
+
+# Relance de Mindset (nouveau thème) : la fenêtre se ferme, Mindset.ps1 relance après avoir libéré sa place
+function Restart-Mindset {
+    $script:Relancer = $true
+    $Window.Close()
+}
 
 # Un nouveau lancement de Mindset ramène la fenêtre (voir Mindset.ps1)
 if ($script:ShowSignal) {

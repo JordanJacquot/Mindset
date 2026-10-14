@@ -20,4 +20,8 @@ public static class MSNative
 
     // Mindset apparaît sous son propre nom dans la barre des tâches, pas comme PowerShell
     public static void SetAppId(string appId) { SetCurrentProcessExplicitAppUserModelID(appId); }
+
+    // Autorise une autre appli (réveillée par Mindset) à passer au premier plan
+    [DllImport("user32.dll")]
+    public static extern bool AllowSetForegroundWindow(int pid);
 }

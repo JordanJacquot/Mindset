@@ -1,7 +1,7 @@
 ﻿# Mindset : la liste des applis de la suite (fichiers\apps.json) et leur état.
 # Chargé par Mindset.ps1, qui définit $AppDir.
 #
-# Sécurité : apps.json est installé avec Mindset (dans Program Files plus tard) ; on n'y lit que des champs connus,
+# Sécurité : apps.json est livré avec Mindset ; on n'y lit que des champs connus, vérifiés un par un,
 # et aucun texte qui en vient n'est exécuté comme une commande.
 
 function Get-Applis {
@@ -9,20 +9,30 @@ function Get-Applis {
     # (sans @() : PowerShell 5.1 rend un tableau JSON en un seul bloc, que @() emballerait dans un autre tableau)
     try { $liste = [IO.File]::ReadAllText($f, [Text.Encoding]::UTF8) | ConvertFrom-Json }
     catch { Write-Log "apps.json illisible : $_"; return @() }
+    $nomFichier = '^[^\\/:*?"<>|]+$'
     foreach ($a in $liste) {
         if ($a.id -isnot [string] -or $a.couleur -isnot [string]) { Write-Log 'apps.json : entrée mal formée ignorée'; continue }
-        if (-not ($a.id -match '^[a-z0-9-]+$' -and $a.nom -and $a.couleur -match '^#[0-9A-Fa-f]{6}$')) { Write-Log "apps.json : appli ignorée ($($a.id))"; continue }
+        $ok = $a.id -match '^[a-z0-9-]+$' -and $a.nom -and $a.couleur -match '^#[0-9A-Fa-f]{6}$' -and
+              $a.depot -match '^[\w.-]+/[\w.-]+$' -and $a.zip -match $nomFichier -and $a.dossier_zip -match $nomFichier -and
+              $a.exe -match '^[^\\/:*?"<>|]+\.exe$' -and $a.script -match '^[\w\\.-]+\.ps1$' -and $a.script -notmatch '\.\.'
+        if ($a.desinstalleur) { $ok = $ok -and $a.desinstalleur -match '^[^\\/:*?"<>|]+\.exe$' }
+        if (-not $ok) { Write-Log "apps.json : appli ignorée ($($a.id))"; continue }
         [pscustomobject]@{
-            Id          = [string]$a.id
-            Nom         = [string]$a.nom
-            Couleur     = [string]$a.couleur
-            Description = [string]$a.description
-            Depot       = [string]$a.depot
-            Zip         = [string]$a.zip
-            Exe         = [string]$a.exe
-            Mutex       = [string]$a.mutex
-            Donnees     = [Environment]::ExpandEnvironmentVariables([string]$a.donnees)
-            Admin       = [bool]$a.admin
+            Id              = [string]$a.id
+            Nom             = [string]$a.nom
+            Couleur         = [string]$a.couleur
+            Description     = [string]$a.description
+            Depot           = [string]$a.depot
+            Zip             = [string]$a.zip
+            DossierZip      = [string]$a.dossier_zip
+            Exe             = [string]$a.exe
+            Script          = [string]$a.script
+            Mutex           = [string]$a.mutex
+            AfficherFichier = [Environment]::ExpandEnvironmentVariables([string]$a.afficher_fichier)
+            AfficherSignal  = [string]$a.afficher_signal
+            Desinstalleur   = [string]$a.desinstalleur
+            Donnees         = [Environment]::ExpandEnvironmentVariables([string]$a.donnees)
+            Admin           = [bool]$a.admin
         }
     }
 }

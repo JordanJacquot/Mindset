@@ -5,12 +5,29 @@ Depuis Mindset, tu installes, mets à jour et utilises chaque appli, directement
 
 ## État (0.1.0)
 
-- Fenêtre aux couleurs de la suite (palette Néon), onglets à gauche : Accueil, puis une ligne par appli.
-- Accueil : une carte par appli, avec son état (ouverte ou fermée), relu toutes les 2 secondes.
-- Un seul Mindset à la fois : le relancer ramène sa fenêtre.
+- Fenêtre aux couleurs de la suite, onglets à gauche : Accueil, une ligne par appli, Paramètres.
+- Accueil : une carte par appli avec son état (pas installée, trouvée sur le PC, version, ouverte, mise à jour disponible)
+  et les bons boutons : Installer, Mettre à jour, Ouvrir (ou ramener sa fenêtre), Désinstaller, Prendre en charge.
+- Les applis installées par Mindset vont dans `Program Files\Mindset\` (Nevermind, qui tourne en administrateur)
+  ou `%LOCALAPPDATA%\Programs\Mindset\` (Evermind).
+- Une copie déjà présente sur le PC est reconnue : Mindset peut l'ouvrir telle quelle, ou la prendre en charge
+  (installer une copie gérée et y faire pointer raccourcis et démarrage). Il ne modifie ni ne supprime jamais une copie
+  qu'il n'a pas installée.
+- Thème de la suite (Paramètres) : les 5 thèmes de Nevermind et Evermind, partagés par `%LOCALAPPDATA%\Mindset\suite.json`.
 
-À venir, dans l'ordre du plan : installer et mettre à jour les applis, les lancer ou ramener leur fenêtre,
-les afficher dans Mindset, puis les cartes vivantes (score de Nevermind, prochains rendez-vous d'Evermind).
+À venir : afficher les applis dans Mindset, puis les cartes vivantes (score de Nevermind, prochains rendez-vous d'Evermind).
+
+## Sécurité des téléchargements
+
+Chaque zip publié (Nevermind, Evermind, Mindset) est accompagné de `<zip>.sig`, sa signature RSA 3072 bits.
+Mindset vérifie la signature avec `fichiers\cle-publique.xml` avant d'installer, extrait depuis la mémoire ce qu'il a
+vérifié, et refuse tout fichier du zip qui sortirait de son dossier. Un zip non signé n'est jamais installé.
+
+```powershell
+.\outils\cle.ps1                          # crée la clé (une fois) ; la clé privée reste chiffrée dans %APPDATA%
+.\outils\cle.ps1 -Exporter E:\cle.msk     # copie de secours protégée par un mot de passe
+.\outils\signer.ps1 -Fichier .\Truc.zip   # écrit Truc.zip.sig, à publier avec le zip
+```
 
 ## Construire
 
