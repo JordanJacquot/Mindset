@@ -231,3 +231,30 @@ function Open-PageDemandee {
 }
 
 Show-OngletParametres $(if ($EnTest -and $env:MINDSET_ONGLET) { $env:MINDSET_ONGLET } else { 'general' })
+
+# ---------------------------------------------------------------------------
+# Mindset en administrateur, par ses tâches planifiées (créées à l'installation ; installer-admin.ps1).
+# Une installation d'avant la 0.2 n'en a pas : un bandeau propose de les créer (une dernière demande de Windows).
+# ---------------------------------------------------------------------------
+function Test-TacheMindset {
+    & "$env:SystemRoot\System32\schtasks.exe" /Query /TN '\Mindset\Mindset' 2>$null | Out-Null
+    $LASTEXITCODE -eq 0
+}
+
+function Enable-MindsetAdmin {
+    $ui.AdminTexte.Text = 'Activation (accepte la demande de Windows)...'
+    $ui.BtnActiverAdmin.IsEnabled = $false
+    Invoke-Admin 'taches' @{ Destination = $DossierMindset; Sid = [Security.Principal.WindowsIdentity]::GetCurrent().User.Value } {
+        param($Ok, $Message)
+        $ui.BtnActiverAdmin.IsEnabled = $true
+        if (-not $Ok) { $ui.AdminTexte.Text = "Activation impossible : $Message"; return }
+        # Le lancement avec Windows passe par la tâche (en administrateur) ; Mindset se rouvre par elle
+        Remove-ItemProperty -Path $CleRun -Name 'Mindset' -ErrorAction SilentlyContinue
+        Write-Log 'Mindset activé en administrateur (tâches planifiées)'
+        $script:LancerTache = $true
+        Exit-Mindset
+    }
+}
+
+$ui.AdminBandeau.Visibility = if (((Test-MindsetInstalle) -and -not $MindsetAdmin -and -not $EnTest -and -not (Test-TacheMindset)) -or ($EnTest -and $env:MINDSET_ADMIN_TEST)) { 'Visible' } else { 'Collapsed' }
+$ui.BtnActiverAdmin.Add_Click({ Enable-MindsetAdmin })

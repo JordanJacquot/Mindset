@@ -17,6 +17,21 @@ $AppExe = Join-Path (Split-Path $PSScriptRoot -Parent) 'Mindset.exe'   # le prog
 $EnTest = [bool]$env:MINDSET_TEST      # test automatique : rien n'est modifié sur le PC
 if ($EnTest -and $env:MINDSET_VERSION) { $AppVersion = $env:MINDSET_VERSION }   # (test de la mise à jour de Mindset)
 
+# ---------------------------------------------------------------------------
+# Mindset installé tourne en administrateur, lancé par sa tâche planifiée (aucune demande de Windows) : il peut ainsi
+# accueillir Nevermind. Lancé autrement (raccourci, relance après une mise à jour), il passe la main à sa tâche.
+# Seulement le Mindset du dossier inscrit dans « Applications installées » (écrit par un administrateur).
+# ---------------------------------------------------------------------------
+$EstAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+if (-not $EnTest -and -not $EstAdmin -and -not $Desinstaller) {
+    $inscrit = try { [string](Get-ItemProperty 'HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\Mindset' -ErrorAction Stop).InstallLocation } catch { '' }
+    if ($inscrit -and $inscrit -ieq (Split-Path $PSScriptRoot -Parent)) {
+        $tache = if ($Demarrage) { '\Mindset\Mindset (démarrage)' } else { '\Mindset\Mindset' }
+        & "$env:SystemRoot\System32\schtasks.exe" /Run /TN $tache 2>$null | Out-Null
+        if ($LASTEXITCODE -eq 0) { exit }   # (sinon : pas de tâche, Mindset continue sans les droits administrateur)
+    }
+}
+
 Add-Type -AssemblyName PresentationFramework, PresentationCore, WindowsBase, System.Drawing, System.Windows.Forms
 
 # ---------------------------------------------------------------------------
@@ -92,3 +107,6 @@ if ($script:Relancer) {
 
 # Mindset vient d'être installé dans Program Files : le Mindset installé prend le relais
 if ($script:LancerApres) { Start-Process -FilePath $script:LancerApres }
+
+# Mindset vient d'être activé en administrateur : il se rouvre par sa tâche planifiée
+if ($script:LancerTache) { & "$env:SystemRoot\System32\schtasks.exe" /Run /TN '\Mindset\Mindset' 2>$null | Out-Null }

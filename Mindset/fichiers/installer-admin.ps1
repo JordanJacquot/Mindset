@@ -17,7 +17,7 @@
     Seuls des dossiers directement dans Program Files\Mindset ou X:\Mindset\Programmes sont acceptés.
 #>
 param(
-    [Parameter(Mandatory = $true)][ValidateSet('appli', 'mindset', 'mindset-maj', 'supprimer')][string]$Action,
+    [Parameter(Mandatory = $true)][ValidateSet('appli', 'mindset', 'mindset-maj', 'taches', 'supprimer')][string]$Action,
     [Parameter(Mandatory = $true)][string]$Resultat,
     [string]$Zip, [string]$Signature, [string]$Destination, [string]$DossierZip, [string]$Exe, [string]$AncienExe,
     [string]$Source, [string]$Version, [int]$AttendrePid,
@@ -79,6 +79,29 @@ function Initialize-RacineDisque([string]$Lettre, [string]$Sid) {
     "$racine\Programmes"
 }
 
+# Les tâches planifiées de Mindset : il tourne en administrateur sans demande de Windows (pour accueillir Nevermind,
+# installer et mettre à jour sans demande). Elles ne lancent que le Mindset.exe du dossier protégé, pour l'utilisateur $Sid.
+#   \Mindset\Mindset              à la demande (le raccourci « Mindset » la lance)
+#   \Mindset\Mindset (démarrage)  à l'ouverture de session, avec -Demarrage (caché près de l'horloge)
+$TachesMindset = @('Mindset', 'Mindset (démarrage)')
+function Register-TachesMindset([string]$DossierMindset, [string]$Sid) {
+    if ($Sid -notmatch '^S-1-5-21-\d+-\d+-\d+-\d+$') { throw 'Utilisateur inconnu.' }
+    $exe = Join-Path $DossierMindset 'Mindset.exe'
+    if (-not (Test-Path -LiteralPath $exe)) { throw "Mindset.exe introuvable dans $DossierMindset" }
+    $pr = New-ScheduledTaskPrincipal -UserId $Sid -LogonType Interactive -RunLevel Highest
+    $set = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -ExecutionTimeLimit ([TimeSpan]::Zero) -MultipleInstances Parallel
+    $utilisateur = (New-Object Security.Principal.SecurityIdentifier($Sid)).Translate([Security.Principal.NTAccount]).Value
+    $act = New-ScheduledTaskAction -Execute "`"$exe`"" -WorkingDirectory $DossierMindset
+    Register-ScheduledTask -TaskPath '\Mindset\' -TaskName 'Mindset' -Action $act -Principal $pr -Settings $set -Description 'Ouvre Mindset (le raccourci « Mindset » la lance).' -Force | Out-Null
+    $trg = New-ScheduledTaskTrigger -AtLogOn -User $utilisateur
+    $trg.Delay = 'PT10S'   # laisse Windows finir d'ouvrir la session
+    $actD = New-ScheduledTaskAction -Execute "`"$exe`"" -Argument '-Demarrage' -WorkingDirectory $DossierMindset
+    Register-ScheduledTask -TaskPath '\Mindset\' -TaskName 'Mindset (démarrage)' -Action $actD -Trigger $trg -Principal $pr -Settings $set -Description 'Lance Mindset à l''ouverture de session, caché près de l''horloge.' -Force | Out-Null
+}
+function Unregister-TachesMindset {
+    foreach ($t in $TachesMindset) { Unregister-ScheduledTask -TaskPath '\Mindset\' -TaskName $t -Confirm:$false -ErrorAction SilentlyContinue }
+}
+
 function Stop-Programme([string]$Nom) {
     if ($Nom -notmatch '^[^\\/:*?"<>|]+\.exe$') { throw 'Nom de programme refusé.' }
     Get-Process -Name ([IO.Path]::GetFileNameWithoutExtension($Nom)) -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
@@ -137,6 +160,7 @@ try {
                 if ($p.Value -is [int]) { New-ItemProperty -Path $CleDesinstall -Name $p.Key -Value $p.Value -PropertyType DWord -Force | Out-Null }
                 else { New-ItemProperty -Path $CleDesinstall -Name $p.Key -Value ([string]$p.Value) -PropertyType String -Force | Out-Null }
             }
+            try { Register-TachesMindset $dest $Sid } catch { Write-Resultat $true "$dest|sans-taches : $($_.Exception.Message)"; return }
             Write-Resultat $true $dest
         }
         'mindset-maj' {
@@ -161,12 +185,19 @@ try {
             }
             return
         }
+        'taches' {
+            # Installation existante (Mindset 0.1.9 ou avant) : ses tâches planifiées, sans réinstaller
+            $dest = Test-DossierMindset $Destination
+            if ((Split-Path $dest -Leaf) -ne 'Mindset') { throw "Dossier refusé : $Destination" }
+            Register-TachesMindset $dest $Sid
+            Write-Resultat $true $dest
+        }
         'supprimer' {
             $dest = Test-DossierMindset $Destination
             if ($AttendrePid) { try { Wait-Process -Id $AttendrePid -Timeout 30 -ErrorAction Stop } catch {} }
             if ($Exe) { Stop-Programme $Exe }
             if (Test-Path -LiteralPath $dest) { Remove-Item -LiteralPath $dest -Recurse -Force }
-            if ((Split-Path $dest -Leaf) -eq 'Mindset') { Remove-Item -Path $CleDesinstall -Recurse -Force -ErrorAction SilentlyContinue }
+            if ((Split-Path $dest -Leaf) -eq 'Mindset') { Remove-Item -Path $CleDesinstall -Recurse -Force -ErrorAction SilentlyContinue; Unregister-TachesMindset }
             # Dossier des programmes vide : retiré aussi (les données, elles, restent)
             $base = Split-Path $dest -Parent
             if ((Test-Path -LiteralPath $base) -and -not @(Get-ChildItem -LiteralPath $base -Force).Count) { Remove-Item -LiteralPath $base -Force }

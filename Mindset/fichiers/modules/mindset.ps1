@@ -39,14 +39,17 @@ function Install-Mindset([string]$Disque) {
         param($Ok, $Message)
         $script:InstallMindsetEnCours = $false
         if (-not $Ok) { $ui.BienvenueTexte.Text = "Installation impossible : $Message"; return }
-        $dossier = $Message   # le dossier où Mindset a été installé
+        # Le dossier où Mindset a été installé, et « |sans-taches » si ses tâches planifiées n'ont pas pu être créées
+        $dossier, $sansTaches = $Message -split '\|', 2
         $exe = Join-Path $dossier 'Mindset.exe'
         $sh = New-Object -ComObject WScript.Shell
         foreach ($l in $RaccourcisMindset) {
             try { $s = $sh.CreateShortcut($l); $s.TargetPath = $exe; $s.WorkingDirectory = $dossier; $s.IconLocation = "$exe,0"; $s.Description = 'Mindset : Nevermind et Evermind au même endroit'; $s.Save() }
             catch { Write-Log "Raccourci $l : $_" }
         }
-        Set-ItemProperty -Path $CleRun -Name 'Mindset' -Value "`"$exe`" -Demarrage"
+        # Lancement avec Windows : par sa tâche planifiée (en administrateur), sinon par le registre (sans les droits)
+        if ($sansTaches) { Write-Log "Tâches planifiées : $sansTaches"; Set-ItemProperty -Path $CleRun -Name 'Mindset' -Value "`"$exe`" -Demarrage" }
+        else { Remove-ItemProperty -Path $CleRun -Name 'Mindset' -ErrorAction SilentlyContinue }
         Write-Log "Mindset $AppVersion installé dans $dossier"
         # Le Mindset installé prend le relais ; celui-ci (dans le dossier téléchargé) se ferme
         $script:LancerApres = $exe

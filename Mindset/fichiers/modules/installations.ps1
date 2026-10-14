@@ -56,6 +56,9 @@ function Test-DossierAppli([string]$Dossier, $Appli) {
 # L'installation connue d'une appli : @{ Dossier; Gere; Version } ou $null
 function Get-Installation($Appli) {
     $r = (Read-Installations)[$Appli.Id]
+    # installations.json est modifiable par n'importe quel programme : une installation « gérée » n'est crue que dans le
+    # dossier protégé des programmes (un Mindset administrateur ne lance jamais un programme qu'on aurait glissé ailleurs)
+    if ($r -and $r.Gere -and $r.Dossier -ine (Get-DossierGere $Appli)) { Write-Log "installations.json : $($Appli.Nom) « géré » hors de $(Get-DossierGere $Appli), ignoré"; $r = $null }
     if ($r -and (Test-DossierAppli $r.Dossier $Appli)) {
         return @{ Dossier = $r.Dossier; Gere = $r.Gere; Version = (Get-VersionDans $r.Dossier $Appli) }
     }
@@ -257,6 +260,7 @@ function Move-DonneesAppli($Appli, [string]$Message) {
     $dest = Join-Path $SuiteDir $Appli.Nom
     $src = @((Join-Path $env:LOCALAPPDATA "Mindset\$($Appli.Nom)"), $Appli.Donnees) | Where-Object { $_ -ine $dest -and (Test-Path -LiteralPath $_) } | Select-Object -First 1
     if ((Test-Path -LiteralPath $dest) -or -not $src -or ([IO.Path]::GetPathRoot($src) -ieq [IO.Path]::GetPathRoot($dest))) { Stop-Operation $Appli $Message; return }
+    if (-not (Test-DossierSur $src)) { Write-Log "Données de $($Appli.Nom) : $src est un lien vers un autre dossier, pas déplacé"; Stop-Operation $Appli $Message; return }
     $taille = (Get-ChildItem -LiteralPath $src -Recurse -File -Force -ErrorAction SilentlyContinue | Measure-Object Length -Sum).Sum
     $script:Occupe[$Appli.Id] = "Déplacement des données vers $dest ({0:N1} Go)..." -f ($taille / 1GB)
     Update-Cartes
@@ -294,6 +298,19 @@ function Remove-Doublons($Appli) {
     if ($n) { "$n raccourci$(if ($n -gt 1) { 's' }) direct$(if ($n -gt 1) { 's' }) retiré$(if ($n -gt 1) { 's' }) : $($Appli.Nom) s'ouvre maintenant depuis Mindset." }
 }
 
+# Un dossier que Mindset (peut-être administrateur) accepte de vider : ni dossier de Windows ou de programmes, ni point de
+# jonction ou lien symbolique (sur lui ou sur un de ses parents), qui pourrait renvoyer ailleurs que là où il semble être
+function Test-DossierSur([string]$Dossier) {
+    $d = [IO.Path]::GetFullPath($Dossier.TrimEnd('\'))
+    foreach ($interdit in $env:windir, $env:ProgramFiles, ${env:ProgramFiles(x86)}, $env:ProgramData) { if ($interdit -and ($d -ieq $interdit -or $d -like "$interdit\*")) { return $false } }
+    $x = $d
+    while ($x -and $x.Length -gt 3) {
+        try { if ((Get-Item -LiteralPath $x -Force -ErrorAction Stop).Attributes -band [IO.FileAttributes]::ReparsePoint) { return $false } } catch { return $false }
+        $x = Split-Path $x -Parent
+    }
+    $true
+}
+
 # Dossier de travail (dépôt Git dans la copie ou son parent, comme D:\Projets\Evermind\Evermind) : Mindset ne le
 # supprime jamais, et c'est la seule copie non gérée que les applis acceptent encore d'ouvrir sans Mindset
 function Test-DossierTravail([string]$Dossier) {
@@ -305,6 +322,7 @@ function Test-DossierTravail([string]$Dossier) {
 function Remove-AncienneCopie($Appli, [string]$Dossier, [string]$Zip) {
     $d = [IO.Path]::GetFullPath($Dossier.TrimEnd('\'))
     if ($d -like "$([IO.Path]::GetFullPath($RacineProgrammes))\*" -or $d -like "$([IO.Path]::GetFullPath((Join-Path $env:ProgramFiles 'Mindset')))\*") { return '' }
+    if (-not (Test-DossierSur $d)) { return "L'ancienne copie ($d) n'a pas été supprimée (dossier protégé ou lien vers un autre dossier)." }
     if (Test-DossierTravail $d) {
         return "L'ancienne copie ($d) est un dossier de travail : elle est gardée telle quelle."
     }
