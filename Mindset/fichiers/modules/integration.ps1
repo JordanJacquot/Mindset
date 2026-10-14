@@ -43,6 +43,7 @@ function Find-FenetreAppli($Appli) {
 # Onglet d'une appli ouvert : l'afficher ici (en la lançant si besoin)
 function Show-AppliIntegree($Appli) {
     $i = Get-Integration $Appli.Id
+    if ($EnTest -and $env:MINDSET_ECRAN) { Show-EcranOuvrir $Appli "$($Appli.Nom) est fermé."; return }   # (capture de l'écran « Ouvrir »)
     if ($EnTest -and $env:MINDSET_JAUGE) { $i.Depuis = (Get-Date).AddSeconds(-[double]$env:MINDSET_JAUGE); Show-JaugeAppli $Appli 'Ouverture...'; return }   # (capture de la jauge)
     $inst = Get-Installation $Appli
     if (-not $inst) { Set-EtatPageAppli $Appli "$($Appli.Nom) n'est pas installé." 'Installe-le depuis l''accueil.' $false; return }
@@ -58,7 +59,8 @@ function Show-AppliIntegree($Appli) {
     $h = Find-FenetreAppli $Appli
     if ($h -ne [IntPtr]::Zero) { Connect-Fenetre $Appli $h; return }
     # Pas lancée (ou sa fenêtre n'existe pas encore) : on la lance cachée, puis on attend sa fenêtre
-    if ($i.Etat -notin 'lancement', 'relance') {
+    # (fermée par sa croix, elle est en « relance » sans nouveau processus : on la relance)
+    if ($i.Etat -ne 'lancement' -and -not ($i.Etat -eq 'relance' -and (Test-NouveauProcessus $Appli $i))) {
         $i.Etat = 'lancement'; $i.Depuis = Get-Date
         # Lancée cachée (-Demarrage), sans passer par sa propre fenêtre, si sa version sait se dessiner une fois accrochée ;
         # sinon lancée normalement (une version plus ancienne lancée cachée resterait noire)
@@ -82,7 +84,7 @@ function Connect-Fenetre($Appli, [IntPtr]$Fenetre) {
         return
     }
     if ($i.Etat -eq 'lancement') { Save-DureeOuverture $Appli $i.Depuis }
-    $i.Fenetre = $Fenetre; $i.Styles = $styles; $i.Etat = 'affiche'
+    $i.Fenetre = $Fenetre; $i.Styles = $styles; $i.Etat = 'affiche'; $i.Pid = [MSIntegration]::Processus($Fenetre)
     Write-Log "$($Appli.Nom) affiché dans Mindset"
     Update-HotesVisibles
     [MSIntegration]::Focus($Fenetre)
@@ -132,14 +134,19 @@ $ui.BtnAppliDetacher.Add_Click({
     $a = Get-Appli $i.Id
     $i.Fenetre = [IntPtr]::Zero; $i.Styles = $null; $i.Etat = 'detachee'
     Update-HotesVisibles
-    Set-EtatPageAppli $a "$($a.Nom) est dans sa propre fenêtre" 'Clique sur son onglet pour le remettre dans Mindset.' $false
-    Show-BoutonAfficherIci $a
+    Show-EcranOuvrir $a "$($a.Nom) est dans sa propre fenêtre."
 })
 
-# « Afficher ici » : l'appli (réduite près de l'horloge, ou dans sa fenêtre) revient dans Mindset
-function Show-BoutonAfficherIci($Appli) {
-    $ui.BtnPageAppliIci.Visibility = 'Visible'; $ui.BtnPageAppliIci.Tag = $Appli.Id
+# Un nouveau processus de l'appli (relance après un thème ou une mise à jour), pas celui dont la fenêtre vient de partir
+function Test-NouveauProcessus($Appli, $i) {
+    foreach ($p in @(Get-Process -Name ([IO.Path]::GetFileNameWithoutExtension($Appli.Exe)) -ErrorAction SilentlyContinue)) {
+        if ($p.Id -eq $i.Pid) { continue }
+        try { if ($p.StartTime -ge $i.Depuis.AddSeconds(-10)) { return $true } } catch {}
+    }
+    $false
 }
+
+# « Ouvrir » (écran de l'appli fermée ou réduite) : elle revient dans Mindset
 $ui.BtnPageAppliIci.Add_Click({
     $a = Get-Appli $this.Tag
     $ui.BtnPageAppliIci.Visibility = 'Collapsed'
@@ -154,26 +161,27 @@ $script:IntegrationTimer.Add_Tick({
     foreach ($i in @($script:Integrees.Values)) {
         $a = Get-Appli $i.Id
         if ($i.Fenetre -ne [IntPtr]::Zero -and -not [MSIntegration]::IsWindow($i.Fenetre)) {
-            # Fermée, ou relancée (nouveau thème, mise à jour) : on attend la nouvelle fenêtre quelques secondes
+            # Fermée (sa croix, son menu Quitter) ou relancée (mise à jour) : l'écran « Ouvrir », et si un nouveau
+            # processus démarre, c'est une relance : la jauge, puis sa nouvelle fenêtre est raccrochée
             $i.Fenetre = [IntPtr]::Zero; $i.Styles = $null; $i.Etat = 'relance'; $i.Depuis = Get-Date
             Update-HotesVisibles
-            Show-JaugeAppli $a 'Relance...'
+            Show-EcranOuvrir $a "$($a.Nom) est fermé."
         } elseif ($i.Fenetre -ne [IntPtr]::Zero -and -not [MSIntegration]::EstMontree($i.Fenetre)) {
             # Elle s'est cachée elle-même (réduite près de l'horloge, par sa croix) : rendue telle quelle, elle y reste
             [MSIntegration]::Liberer($i.Fenetre, $i.Styles[0], $i.Styles[1])
             $i.Fenetre = [IntPtr]::Zero; $i.Styles = $null; $i.Etat = 'cachee'
             Update-HotesVisibles
-            Set-EtatPageAppli $a "$($a.Nom) est réduit près de l'horloge" 'Il tourne toujours : clique sur son onglet pour le rouvrir ici.' $false
-            Show-BoutonAfficherIci $a
+            Show-EcranOuvrir $a "$($a.Nom) est réduit près de l'horloge."
         }
         if ($i.Etat -in 'lancement', 'relance') {
             $h = Find-FenetreAppli $a
             if ($h -ne [IntPtr]::Zero) { Connect-Fenetre $a $h; continue }
+            if ($i.Etat -eq 'relance' -and $script:Jauge -and $script:Jauge.Ecran -and $script:Jauge.Id -eq $a.Id -and (Test-NouveauProcessus $a $i)) { Show-JaugeAppli $a 'Relance...' }
             # (Nevermind met près de 20 s à démarrer : on lui laisse une minute)
             if (((Get-Date) - $i.Depuis).TotalSeconds -gt 60) {
+                $echec = $i.Etat -eq 'lancement' -or -not ($script:Jauge -and $script:Jauge.Ecran)
                 $i.Etat = 'vide'
-                Set-EtatPageAppli $a "$($a.Nom) n'a pas pu s'ouvrir" 'Clique sur son onglet pour réessayer.' $false
-                Show-BoutonAfficherIci $a
+                if ($echec) { Show-EcranOuvrir $a "$($a.Nom) n'a pas pu s'ouvrir." }
             } else { $attente = $true }
         }
     }
@@ -210,4 +218,4 @@ function Request-FermetureApplis {
 $Window.Add_Closed({ if ($script:FermerApplis) { Request-FermetureApplis } })
 
 # (capture de la jauge en test : la page de l'appli, ouverte avant ce module, est rouverte)
-if ($EnTest -and $env:MINDSET_JAUGE -and $env:MINDSET_PAGE) { Show-Page $env:MINDSET_PAGE }
+if ($EnTest -and ($env:MINDSET_JAUGE -or $env:MINDSET_ECRAN) -and $env:MINDSET_PAGE) { Show-Page $env:MINDSET_PAGE }

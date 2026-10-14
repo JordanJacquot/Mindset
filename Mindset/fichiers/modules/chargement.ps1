@@ -71,7 +71,7 @@ function New-JaugeTexte([double]$Taille) {
 }
 
 # Anneau de Nevermind, avec la lettre de l'appli
-function New-JaugeAnneau($Hote, [string]$Id) {
+function New-JaugeAnneau($Hote, [string]$Id, [bool]$Plein = $false) {
     $S = 260.0; $C = 130.0
     $cv = New-Object System.Windows.Controls.Canvas
     $cv.Width = $S; $cv.Height = $S
@@ -90,7 +90,7 @@ function New-JaugeAnneau($Hote, [string]$Id) {
     Start-JaugeBoucle $hs ([System.Windows.Media.ScaleTransform]::ScaleYProperty) 0.85 1.1 1600 $true
     # Anneau de fond et anneau de progression
     [void]$cv.Children.Add((New-LogoArc $C 112 -90 359.9 (Get-Brush '#16FFFFFF') 6))
-    $arc = New-LogoArc $C 112 -90 0.1 (New-LinearBrush @($LogoCyan, $LogoMagenta) 0 0 1 1) 6
+    $arc = New-LogoArc $C 112 -90 $(if ($Plein) { 359.9 } else { 0.1 }) (New-LinearBrush @($LogoCyan, $LogoMagenta) 0 0 1 1) 6
     $arc.Effect = New-Glow $LogoCyan 14 0.7
     [void]$cv.Children.Add($arc)
     # Comète magenta qui tourne en sens inverse
@@ -106,12 +106,37 @@ function New-JaugeAnneau($Hote, [string]$Id) {
     [void]$com.Children.Add((New-LogoArc $C 124 0 60 $cb 2))
     [void]$cv.Children.Add($com)
     Start-JaugeBoucle $rot ([System.Windows.Media.RotateTransform]::AngleProperty) 360 0 2600 $false
-    # La lettre de l'appli, au centre
-    $mark = New-MindsetMark 128 (Get-LettreAppli $Id 128)
-    [System.Windows.Controls.Canvas]::SetLeft($mark.Root, $C - 64); [System.Windows.Controls.Canvas]::SetTop($mark.Root, $C - 72)
-    [void]$cv.Children.Add($mark.Root)
-    # Pourcentage sous la lettre
+    # Au centre : l'icône de l'appli dans le thème perso (celle de son onglet), sinon sa lettre
+    $mark = $null
+    $icone = if ($Plein -and $ThemePack -and $ThemePack.TabIcons.ContainsKey($Id)) { $ThemePack.TabIcons[$Id] } else { $null }
+    if ($icone) {
+        try {
+            $frames = Get-SheetFrames $icone.File $icone.Frames
+            $img = New-Object System.Windows.Controls.Image
+            $img.Width = 112; $img.Height = 112; $img.Stretch = 'Uniform'; $img.Source = $frames[0]
+            [System.Windows.Media.RenderOptions]::SetBitmapScalingMode($img, $(if ($frames[0].PixelHeight -le 56) { 'NearestNeighbor' } else { 'HighQuality' }))
+            $mv = New-Object System.Windows.Media.TranslateTransform; $img.RenderTransform = $mv
+            [System.Windows.Controls.Canvas]::SetLeft($img, $C - 56); [System.Windows.Controls.Canvas]::SetTop($img, $C - 56)
+            [void]$cv.Children.Add($img)
+            Start-JaugeBoucle $mv ([System.Windows.Media.TranslateTransform]::YProperty) 0 -6 900 $true   # (il lévite doucement)
+            if ($frames.Count -gt 1 -and -not $EnTest) {
+                $ti = New-Object System.Windows.Threading.DispatcherTimer
+                $ti.Interval = [TimeSpan]::FromMilliseconds($icone.Delay)
+                $ti.Tag = @{ Img = $img; Frames = $frames; Frame = 0 }
+                $ti.Add_Tick({ param($s) $x = $s.Tag; $x.Frame = ($x.Frame + 1) % $x.Frames.Count; $x.Img.Source = $x.Frames[$x.Frame] })
+                $ti.Start()
+                [void]$script:Jauge.Timers.Add($ti)
+            }
+        } catch { $icone = $null }
+    }
+    if (-not $icone) {
+        $mark = New-MindsetMark 128 (Get-LettreAppli $Id 128)
+        [System.Windows.Controls.Canvas]::SetLeft($mark.Root, $C - 64); [System.Windows.Controls.Canvas]::SetTop($mark.Root, $C - $(if ($Plein) { 64 } else { 72 }))
+        [void]$cv.Children.Add($mark.Root)
+    }
+    # Pourcentage sous la lettre (pas sur l'écran « Ouvrir » : l'anneau y est plein)
     $txt = New-JaugeTexte 18
+    if ($Plein) { $txt.Visibility = 'Collapsed' }
     $txt.Width = $S
     [System.Windows.Controls.Canvas]::SetTop($txt, $C + 58)
     [void]$cv.Children.Add($txt)
@@ -209,7 +234,7 @@ function Show-JaugeAppli($Appli, [string]$Texte) {
     $ui.BtnPageAppliFenetre.Visibility = 'Collapsed'
     $ui.BtnPageAppliIci.Visibility = 'Collapsed'
     $ui.PageAppliEtat.Text = ''
-    if ($script:Jauge -and $script:Jauge.Id -eq $Appli.Id) { return }
+    if ($script:Jauge -and $script:Jauge.Id -eq $Appli.Id -and -not $script:Jauge.Ecran) { return }
     Stop-JaugeAppli
     $i = Get-Integration $Appli.Id
     $script:Jauge = @{ Id = $Appli.Id; Depuis = $i.Depuis; Boucles = (New-Object System.Collections.ArrayList); Timers = (New-Object System.Collections.ArrayList)
@@ -233,7 +258,7 @@ function Show-JaugeAppli($Appli, [string]$Texte) {
 # Progression : 90 % à la durée habituelle (en ralentissant), puis elle s'approche doucement de 99 %
 function Update-JaugeAppli {
     $J = $script:Jauge
-    if (-not $J) { return }
+    if (-not $J -or $J.Ecran) { return }
     $t = ((Get-Date) - $J.Depuis).TotalSeconds
     $k = [math]::Max(0.0, $t / $J.Duree)
     $v = if ($k -lt 1) { 90 * (1 - [math]::Pow(1 - $k, 2)) } else { 90 + 9 * (1 - [math]::Exp(-($k - 1))) }
@@ -263,4 +288,25 @@ function Stop-JaugeAppli {
 function Save-DureeOuverture($Appli, [datetime]$Depuis) {
     $s = ((Get-Date) - $Depuis).TotalSeconds
     if ($s -ge 1 -and $s -le 120) { Set-Setting "Ouverture-$($Appli.Id)" ([math]::Round($s, 1)) }
+}
+
+# Écran de l'appli fermée, réduite ou dans sa propre fenêtre : son logo (l'anneau plein, comme la jauge finie), son nom,
+# ce qui se passe, et « Ouvrir » qui la remet dans Mindset
+function Show-EcranOuvrir($Appli, [string]$Texte) {
+    if ($script:PageCourante -ne $Appli.Id) { return }
+    Stop-JaugeAppli
+    $ui.PageAppliTitre.Text = $Appli.Nom
+    $ui.PageAppliTitre.Foreground = Get-Brush $Appli.Couleur
+    $ui.PageAppliTexte.Text = $Texte
+    $ui.PageAppliTexte.Visibility = 'Visible'
+    $ui.BtnPageAppliFenetre.Visibility = 'Collapsed'
+    $ui.BtnPageAppliIci.Content = "Ouvrir $($Appli.Nom)"
+    $ui.BtnPageAppliIci.Tag = $Appli.Id
+    $ui.BtnPageAppliIci.Visibility = 'Visible'
+    $ui.PageAppliEtat.Text = ''
+    $script:Jauge = @{ Id = $Appli.Id; Ecran = $true; Boucles = (New-Object System.Collections.ArrayList); Timers = (New-Object System.Collections.ArrayList) }
+    $hote = $ui.PageAppliJauge
+    $hote.Children.Clear()
+    New-JaugeAnneau $hote $Appli.Id $true
+    $hote.Visibility = 'Visible'
 }
