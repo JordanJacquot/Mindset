@@ -1,0 +1,26 @@
+[
+  {
+    "id": "nevermind",
+    "nom": "Nevermind",
+    "couleur": "#00E5FF",
+    "description": "Analyse et optimisation gaming",
+    "depot": "JordanJacquot/Nevermind",
+    "zip": "OptiGame.zip",
+    "exe": "Nevermind.exe",
+    "mutex": "Local\\OptiGame-Instance",
+    "donnees": "%LOCALAPPDATA%\\OptiGame",
+    "admin": true
+  },
+  {
+    "id": "evermind",
+    "nom": "Evermind",
+    "couleur": "#B04BFF",
+    "description": "L'agenda qui se souvient de tout pour toi",
+    "depot": "JordanJacquot/Evermind",
+    "zip": "Evermind.zip",
+    "exe": "Evermind.exe",
+    "mutex": "Local\\Evermind-Instance",
+    "donnees": "%LOCALAPPDATA%\\Evermind",
+    "admin": false
+  }
+]

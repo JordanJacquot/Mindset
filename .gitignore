@@ -1,0 +1,6 @@
+# Fichiers générés par outils/construire.ps1
+/release/
+/Mindset/*.exe
+
+# Tests
+/_test/

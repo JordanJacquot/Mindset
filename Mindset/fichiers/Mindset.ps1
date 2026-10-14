@@ -1,0 +1,65 @@
+﻿#Requires -Version 5.1
+<#
+    Mindset 0.1.0
+    Le portail de la suite : installe, met à jour et affiche Nevermind et Evermind.
+
+    La liste des applis est dans fichiers\apps.json. Les réglages et le journal sont dans %LOCALAPPDATA%\Mindset.
+#>
+
+$AppVersion = '0.1.0'
+$UpdateRepo = 'JordanJacquot/Mindset'
+$MainScript = $PSCommandPath
+$AppExe = Join-Path (Split-Path $PSScriptRoot -Parent) 'Mindset.exe'   # le programme qui exécute ce script
+$EnTest = [bool]$env:MINDSET_TEST      # test automatique : rien n'est modifié sur le PC
+
+Add-Type -AssemblyName PresentationFramework, PresentationCore, WindowsBase, System.Drawing, System.Windows.Forms
+
+# ---------------------------------------------------------------------------
+# Un seul Mindset à la fois : un nouveau lancement ramène simplement la fenêtre
+# ---------------------------------------------------------------------------
+if (-not $EnTest) {
+    $created = $false
+    $script:InstanceMutex = New-Object System.Threading.Mutex($true, 'Local\Mindset-Instance', [ref]$created)
+    $script:ShowSignal = New-Object System.Threading.EventWaitHandle($false, [System.Threading.EventResetMode]::AutoReset, 'Local\Mindset-Afficher')
+    if (-not $created) {
+        # Ce lancement vient d'un clic : il autorise la fenêtre déjà ouverte à passer devant
+        try {
+            Add-Type -Namespace MS -Name Fg -MemberDefinition '[DllImport("user32.dll")] public static extern bool AllowSetForegroundWindow(int pid);'
+            [void][MS.Fg]::AllowSetForegroundWindow(-1)
+        } catch {}
+        [void]$script:ShowSignal.Set()
+        exit
+    }
+}
+
+# Retire la marque « téléchargé depuis Internet », pour que Windows n'avertisse plus aux lancements suivants
+try { Get-ChildItem -LiteralPath $PSScriptRoot -File -Recurse -ErrorAction SilentlyContinue | Unblock-File -ErrorAction SilentlyContinue } catch {}
+
+# ---------------------------------------------------------------------------
+# Chargement des modules (dossier « modules » à côté de ce fichier)
+# ---------------------------------------------------------------------------
+$AppDir = $PSScriptRoot
+$ModulesDir = Join-Path $AppDir 'modules'
+$missing = @('natif.cs', 'interface.xaml', 'donnees.ps1', 'applis.ps1', 'interface.ps1', 'accueil.ps1' | Where-Object { -not (Test-Path -LiteralPath (Join-Path $ModulesDir $_)) })
+if ($missing) {
+    [System.Windows.MessageBox]::Show("Des fichiers de Mindset sont manquants :`n`n$($missing -join ', ')`n`nRetélécharge Mindset et remplace tout le dossier.", 'Mindset', 'OK', 'Error') | Out-Null
+    exit
+}
+
+# Fonctions natives (barre de titre sombre, identité dans la barre des tâches)
+Add-Type -TypeDefinition ([IO.File]::ReadAllText((Join-Path $ModulesDir 'natif.cs'), [Text.Encoding]::UTF8))
+$AppId = 'JordanJacquot.Mindset'
+try { [MSNative]::SetAppId($AppId) } catch {}
+
+foreach ($msModule in 'donnees', 'applis', 'interface', 'accueil') { . (Join-Path $ModulesDir "$msModule.ps1") }
+
+# ---------------------------------------------------------------------------
+# Lancement
+# ---------------------------------------------------------------------------
+Write-Log "Démarrage Mindset $AppVersion (PowerShell $($PSVersionTable.PSVersion))"
+if ($env:MINDSET_CAPTURE) { Start-Capture $env:MINDSET_CAPTURE }
+$Window.Show()
+[System.Windows.Threading.Dispatcher]::Run()
+
+if ($script:InstanceMutex) { try { $script:InstanceMutex.ReleaseMutex(); $script:InstanceMutex.Dispose() } catch {} }
+if ($script:ShowSignal) { try { $script:ShowSignal.Dispose() } catch {} }
