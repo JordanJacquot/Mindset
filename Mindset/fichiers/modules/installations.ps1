@@ -15,6 +15,7 @@ $ClePublique = Join-Path $AppDir 'cle-publique.xml'
 $script:Publications = @{}   # id -> dernière version publiée (ou erreur)
 $script:Occupe = @{}         # id -> texte de l'opération en cours
 $script:Messages = @{}       # id -> dernier message affiché sur la carte
+$script:EnCours = @{}        # id -> installation en cours (version, zip, ancienne copie)
 
 function Get-DossierGere($Appli) { Join-Path $RacineProgrammes $Appli.Nom }
 
@@ -176,7 +177,7 @@ function Invoke-Admin([string]$Action, [hashtable]$Parametres, [scriptblock]$Fin
     $rep = Join-Path $TelechargementsDir "admin-$([guid]::NewGuid().ToString('N').Substring(0, 8)).json"
     $a = @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-WindowStyle', 'Hidden', '-File', "`"$(Join-Path $AppDir 'installer-admin.ps1')`"", '-Action', $Action, '-Resultat', "`"$rep`"")
     foreach ($k in $Parametres.Keys) { if ($null -ne $Parametres[$k] -and "$($Parametres[$k])" -ne '') { $a += @("-$k", "`"$($Parametres[$k])`"") } }
-    try { $proc = Start-Process -FilePath "$env:SystemRoot\System32\WindowsPowerShell\v1.0\powershell.exe" -ArgumentList $a -Verb RunAs -WindowStyle Hidden -PassThru -ErrorAction Stop }
+    try { $proc = Start-Process -FilePath "$env:SystemRoot\System32\WindowsPowerShell\v1.0\powershell.exe" -ArgumentList $a -Verb RunAs -WindowStyle Hidden -WorkingDirectory $env:SystemRoot -PassThru -ErrorAction Stop }
     catch { & $Fin $false 'l''autorisation de Windows a été refusée.'; return }
     [void]$script:AttentesAdmin.Add(@{ Process = $proc; Reponse = $rep; Fin = $Fin; Debut = Get-Date })
     $script:AdminTimer.Start()
@@ -230,7 +231,7 @@ function Complete-Telechargement($Appli, $Resultat, $Erreur, [string]$AncienDoss
     if ($Erreur -or -not $Resultat) { Stop-Operation $Appli "Échec : $Erreur"; return }
     $script:Occupe[$Appli.Id] = 'Installation (accepte la demande de Windows)...'
     Update-Cartes
-    $script:EnCours = @{ Appli = $Appli; Ancien = $AncienDossier; Version = $Resultat.Version; Zip = $Resultat.Zip }
+    $script:EnCours[$Appli.Id] = @{ Appli = $Appli; Ancien = $AncienDossier; Version = $Resultat.Version; Zip = $Resultat.Zip }
     $p = [ordered]@{ Zip = $Resultat.Zip; Signature = $Resultat.Sig; Destination = (Get-DossierGere $Appli); DossierZip = $Appli.DossierZip; Exe = $Appli.Exe }
     if ($AncienDossier) { $p.AncienExe = Join-Path $AncienDossier $Appli.Exe }
     Invoke-Admin 'appli' $p ([scriptblock]::Create(@"
@@ -241,7 +242,7 @@ function Complete-Telechargement($Appli, $Resultat, $Erreur, [string]$AncienDoss
 }
 
 function Complete-Installation($Appli, [string]$Dossier) {
-    $c = $script:EnCours; $script:EnCours = $null
+    $c = $script:EnCours[$Appli.Id]; $script:EnCours.Remove($Appli.Id)
     $ancien = if ($c -and $c.Appli.Id -eq $Appli.Id) { $c.Ancien } else { '' }
     Save-Installation $Appli.Id $Dossier $true
     Set-SuiteAppli $Appli.Id $Dossier

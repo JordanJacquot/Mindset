@@ -136,7 +136,8 @@ function Start-MajMindset {
     Remove-Item -LiteralPath $FichierMajMindset -Force -ErrorAction SilentlyContinue
     $a = @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-WindowStyle', 'Hidden', '-File', "`"$(Join-Path $AppDir 'installer-admin.ps1')`"", '-Action', 'mindset-maj',
            '-Zip', "`"$($m.Zip)`"", '-Signature', "`"$($m.Sig)`"", '-Destination', "`"$DossierMindset`"", '-Version', $m.Version, '-AttendrePid', $PID, '-Resultat', "`"$FichierMajMindset`"")
-    try { Start-Process -FilePath "$env:SystemRoot\System32\WindowsPowerShell\v1.0\powershell.exe" -ArgumentList $a -Verb RunAs -WindowStyle Hidden -ErrorAction Stop | Out-Null }
+    # (lancé depuis le dossier de Windows : s'il gardait le dossier de Mindset comme dossier courant, il ne pourrait pas le remplacer)
+    try { Start-Process -FilePath "$env:SystemRoot\System32\WindowsPowerShell\v1.0\powershell.exe" -ArgumentList $a -Verb RunAs -WindowStyle Hidden -WorkingDirectory $env:SystemRoot -ErrorAction Stop | Out-Null }
     catch { $ui.MajTexte.Text = 'Mise à jour annulée : l''autorisation de Windows a été refusée. Tu peux réessayer.'; return }
     Write-Log "Mise à jour vers Mindset $($m.Version) lancée"
     Exit-Mindset   # installer-admin.ps1 attend la fermeture, installe, puis relance Mindset

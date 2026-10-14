@@ -60,7 +60,8 @@ function Show-AppliIntegree($Appli) {
     # Pas lancée : on la lance cachée, puis on attend sa fenêtre
     if ($i.Etat -ne 'lancement') {
         $i.Etat = 'lancement'; $i.Depuis = Get-Date
-        Open-Appli $Appli -Demarrage
+        # Lancée normalement (pas -Demarrage) : une appli lancée cachée ne se dessine pas une fois accrochée (écran noir)
+        Open-Appli $Appli
     }
     Set-EtatPageAppli $Appli "Ouverture de $($Appli.Nom)..." '' $false
     $script:IntegrationTimer.Start()
