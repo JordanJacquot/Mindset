@@ -14,6 +14,8 @@
 
 $SuiteFile = Join-Path $SuiteFileDir 'suite.json'   # toujours dans %LOCALAPPDATA%\Mindset, où que soit installée la suite
 $ThemesSuite = @('neon', 'crepuscule', 'terminal', 'arcade', 'rubis')
+# Un thème de la suite : un des 5 thèmes de base, ou « pack:<id> », un thème personnalisé importé dans Mindset (packs.ps1)
+function Test-ThemeSuite($T) { $T -is [string] -and ($T -in $ThemesSuite -or $T -match '^pack:[a-z0-9-]{1,40}$') }
 
 # Un nom d'appareil audio : une chaîne courte et sans caractère de contrôle (il ne sert qu'à être comparé)
 function Test-NomAppareil($Nom) { $Nom -is [string] -and $Nom.Length -le 64 -and $Nom -notmatch '[\x00-\x1F]' }
@@ -23,7 +25,7 @@ function Read-Suite {
     if (-not (Test-Path -LiteralPath $SuiteFile)) { return $s }
     try {
         $j = [IO.File]::ReadAllText($SuiteFile, [Text.Encoding]::UTF8) | ConvertFrom-Json
-        if ($j.theme -in $ThemesSuite) { $s.theme = [string]$j.theme }
+        if (Test-ThemeSuite $j.theme) { $s.theme = [string]$j.theme }
         if ($null -ne $j.micro -and (Test-NomAppareil $j.micro)) { $s.micro = [string]$j.micro }
         if ($null -ne $j.casque -and (Test-NomAppareil $j.casque)) { $s.casque = [string]$j.casque }
         if ($j.applis) { foreach ($p in $j.applis.PSObject.Properties) { if ($p.Name -match '^[a-z0-9-]+$' -and $p.Value -is [string]) { $s.applis[$p.Name] = $p.Value } } }
@@ -57,7 +59,7 @@ function Get-SuiteTheme {
 }
 
 function Set-SuiteTheme([string]$Id) {
-    if ($Id -notin $ThemesSuite) { return }
+    if (-not (Test-ThemeSuite $Id)) { return }
     $s = Read-Suite; $s.theme = $Id; Write-Suite $s
     Write-Log "Thème de la suite : $Id"
 }

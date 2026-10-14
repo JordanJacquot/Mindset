@@ -9,18 +9,28 @@ $script:PageCourante = 'accueil'
 
 function Get-Appli([string]$Id) { $Applis | Where-Object Id -eq $Id | Select-Object -First 1 }
 
+# Bonjour selon l'heure, dans la phrase du thème personnalisé s'il en a une (« {0} » = Bonjour ou Bonsoir)
 function Update-Greeting {
     $h = (Get-Date).Hour
-    $ui.Greeting.Text = if ($h -ge 18 -or $h -lt 5) { 'Bonsoir !' } else { 'Bonjour !' }
+    $ui.Greeting.Text = (Get-ThemeHello) -f $(if ($h -ge 18 -or $h -lt 5) { 'Bonsoir' } else { 'Bonjour' })
 }
 
 function New-Onglet([string]$Id, [string]$Texte, [string]$Couleur, $Panneau = $ui.Onglets) {
     $b = New-Button '' 'Onglet'
     $sp = New-Object System.Windows.Controls.StackPanel
     $sp.Orientation = 'Horizontal'
-    $pt = New-Object System.Windows.Shapes.Ellipse
-    $pt.Width = 8; $pt.Height = 8; $pt.Fill = Get-Brush $Couleur; $pt.Margin = '0,0,10,0'; $pt.VerticalAlignment = 'Center'
-    [void]$sp.Children.Add($pt)
+    # Pastille de couleur, ou l'icône animée du thème personnalisé (immobile, animée au survol)
+    $icone = New-IconeOnglet $Id
+    if ($icone) {
+        [void]$sp.Children.Add($icone.Image)
+        $b.Resources['Anim'] = $icone.Anim
+        $b.Add_MouseEnter({ param($s) $a = $s.Resources['Anim']; if ($a.Tag.Frames.Count -gt 1) { $a.Start() } })
+        $b.Add_MouseLeave({ param($s) $a = $s.Resources['Anim']; $a.Stop(); $a.Tag.Frame = 0; $a.Tag.Img.Source = $a.Tag.Frames[0] })
+    } else {
+        $pt = New-Object System.Windows.Shapes.Ellipse
+        $pt.Width = 8; $pt.Height = 8; $pt.Fill = Get-Brush $Couleur; $pt.Margin = '0,0,10,0'; $pt.VerticalAlignment = 'Center'
+        [void]$sp.Children.Add($pt)
+    }
     [void]$sp.Children.Add((New-Text $Texte 14 '#A9A3C9'))
     $b.Content = $sp
     $b.Tag = $Id

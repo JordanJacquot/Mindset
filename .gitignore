@@ -5,3 +5,12 @@
 # Tests
 /_test/
 /outils/icones/
+
+# Thèmes personnalisés : images protégées (Nintendo, Ankama...), JAMAIS sur GitHub. Ils restent sur le PC.
+Thème-*/
+Theme-*/
+Thème-*.zip
+Theme-*.zip
+packs/
+pack.json
+pack-*.json

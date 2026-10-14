@@ -1,44 +1,76 @@
 ﻿# Mindset : page Paramètres (thème de la suite, démarrage avec Windows, dossiers, désinstallation).
 # Chargé par Mindset.ps1 après accueil.ps1.
 
-function New-ChoixTheme([string]$Id) {
+# Une carte de thème : $Cle est ce qui va dans suite.json (« neon », « pack:mario »), $Id le thème de couleurs
+function New-ChoixTheme([string]$Cle, [string]$Id, [string]$Nom, [string]$Desc, $Pack) {
     $th = $AppThemes[$Id]
-    $actuel = ($Id -eq $ThemeId)
+    $actuel = ($Cle -eq $ThemeSetting)
     $b = New-Button '' 'BtnSecondary'
-    $b.Width = 220; $b.Margin = '0,0,12,12'; $b.HorizontalContentAlignment = 'Left'; $b.Tag = $Id
+    $b.Width = 220; $b.Margin = '0,0,12,12'; $b.HorizontalContentAlignment = 'Left'; $b.Tag = $Cle
     # Aperçu dans ses propres couleurs (pas traduites par le thème actuel)
     $b.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString((ConvertTo-ThemeHex '#0C0920' $Id))
     $b.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString($(if ($actuel) { $th.P } else { ConvertTo-ThemeHex '#2A2450' $Id }))
     $sp = New-Object System.Windows.Controls.StackPanel
-    $l = New-Object System.Windows.Controls.StackPanel; $l.Orientation = 'Horizontal'; $l.Margin = '0,2,0,8'
+    $haut = New-Object System.Windows.Controls.DockPanel; $haut.Margin = '0,2,0,8'; $haut.LastChildFill = $false
+    $l = New-Object System.Windows.Controls.StackPanel; $l.Orientation = 'Horizontal'; $l.VerticalAlignment = 'Center'
     foreach ($c in $th.P, $th.S, $th.T) {
         $r = New-Object System.Windows.Shapes.Ellipse; $r.Width = 14; $r.Height = 14; $r.Margin = '0,0,6,0'
         $r.Fill = [System.Windows.Media.BrushConverter]::new().ConvertFromString($c)
         [void]$l.Children.Add($r)
     }
-    [void]$sp.Children.Add($l)
+    [void]$haut.Children.Add($l)
+    # Thème personnalisé : sa mascotte (ou son logo) dans le coin de la carte
+    $image = if ($Pack -and $Pack.Mascotte) { @($Pack.Mascotte.File, $Pack.Mascotte.Frames) } elseif ($Pack -and $Pack.Logo) { @($Pack.Logo, $Pack.LogoFrames) } else { $null }
+    if ($image) {
+        try {
+            $im = New-Object System.Windows.Controls.Image
+            $im.Source = (Get-SheetFrames $image[0] $image[1])[0]; $im.Height = 40; $im.Margin = '0,-10,0,-6'
+            [System.Windows.Controls.DockPanel]::SetDock($im, 'Right')
+            [void]$haut.Children.Add($im)
+        } catch {}
+    }
+    [void]$sp.Children.Add($haut)
     $n = New-Object System.Windows.Controls.TextBlock
-    $n.Text = $th.Name + $(if ($actuel) { '  (actuel)' } else { '' }); $n.FontWeight = 'SemiBold'; $n.FontSize = 14
+    $n.Text = $Nom + $(if ($actuel) { '  (actuel)' } else { '' }); $n.FontWeight = 'SemiBold'; $n.FontSize = 14
     $n.Foreground = [System.Windows.Media.Brushes]::White
     if ($th.Font) { $n.FontFamily = $th.Font }
     [void]$sp.Children.Add($n)
     $dsc = New-Object System.Windows.Controls.TextBlock
-    $dsc.Text = $th.Desc; $dsc.TextWrapping = 'Wrap'; $dsc.FontSize = 12; $dsc.FontWeight = 'Normal'; $dsc.Margin = '0,3,0,2'
+    $dsc.Text = $Desc; $dsc.TextWrapping = 'Wrap'; $dsc.FontSize = 12; $dsc.FontWeight = 'Normal'; $dsc.Margin = '0,3,0,2'
     $dsc.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString((ConvertTo-ThemeHex '#A9A3C9' $Id))
     [void]$sp.Children.Add($dsc)
     $b.Content = $sp
     $b.Add_Click({
-        $id = $this.Tag
-        if ($id -eq $ThemeId) { return }
+        $cle = $this.Tag
+        if ($cle -eq $ThemeSetting) { return }
         if ($script:Occupe.Count) { $ui.ThemeInfo.Text = 'Une installation est en cours : réessaie quand elle sera finie.'; return }
-        Set-SuiteTheme $id
-        if ($EnTest) { $ui.ThemeInfo.Text = "Thème « $id » choisi (test : pas de relance)."; return }
+        Set-SuiteTheme $cle
+        if ($EnTest) { $ui.ThemeInfo.Text = "Thème « $cle » choisi (test : pas de relance)."; return }
         Restart-Mindset
     })
     [void]$ui.Themes.Children.Add($b)
 }
 
-foreach ($id in $AppThemes.Keys) { New-ChoixTheme $id }
+# Les 5 thèmes de base, puis les thèmes personnalisés importés
+function Update-ChoixThemes {
+    $ui.Themes.Children.Clear()
+    foreach ($id in @($AppThemes.Keys | Where-Object { -not $AppThemes[$_].Pack })) { New-ChoixTheme $id $id $AppThemes[$id].Name $AppThemes[$id].Desc $null }
+    foreach ($pk in @(Get-ThemePacks)) { New-ChoixTheme "pack:$($pk.Id)" $pk.Base $pk.Name $pk.Desc $pk }
+}
+Update-ChoixThemes
+
+# « Importer un thème » : un zip de la suite, installé pour Mindset, Nevermind et Evermind
+$ui.BtnImporterTheme.Add_Click({
+    $dlg = New-Object Microsoft.Win32.OpenFileDialog
+    $dlg.Title = 'Choisis le thème de la suite (.zip)'; $dlg.Filter = 'Thème de la suite (*.zip)|*.zip'
+    foreach ($d in @('D:\Projets\Thème-Mindset', (Join-Path ([Environment]::GetFolderPath('Desktop')) 'Thème-Mindset'))) { if (Test-Path -LiteralPath $d) { $dlg.InitialDirectory = $d; break } }
+    if (-not $dlg.ShowDialog()) { return }
+    try {
+        $id = Import-PackSuite $dlg.FileName
+        Update-ChoixThemes
+        $ui.ThemeInfo.Text = "« $((Get-ThemePack $id).Name) » est importé pour Mindset, Nevermind et Evermind : clique dessus pour le choisir."
+    } catch { $ui.ThemeInfo.Text = "Ce thème n'a pas pu être importé : $($_.Exception.Message)" }
+})
 
 # Démarrage avec Windows : une case par appli qui peut être lancée par Mindset (pas Nevermind, qui a besoin de l'admin)
 foreach ($a in $Applis | Where-Object { -not $_.Admin }) {

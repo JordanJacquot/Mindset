@@ -23,9 +23,41 @@ $AppThemes = [ordered]@{
         Map = @{ '0C0920' = '17171D'; '06050F' = '0A0A0D'; '0B0820' = '141419'; '08060F' = '1A0606' }; Font = $null }
 }
 
-$ThemeId = Get-SuiteTheme
-if ($EnTest -and $env:MINDSET_THEME -and $AppThemes.Contains($env:MINDSET_THEME)) { $ThemeId = $env:MINDSET_THEME }
+# Thème choisi : un thème de base, ou « pack:<id> », un thème personnalisé de la suite (packs.ps1)
+$ThemeSetting = Get-SuiteTheme
+if ($EnTest -and $env:MINDSET_THEME) { $ThemeSetting = $env:MINDSET_THEME }
+$ThemePack = $null
+$ThemeId = $ThemeSetting
+if ($ThemeSetting -like 'pack:*') {
+    $ThemePack = Get-ThemePack $ThemeSetting.Substring(5)
+    $ThemeId = if ($ThemePack) { $ThemePack.Base } else { 'neon' }
+    if (-not $ThemePack) { Write-Log "Thème personnalisé introuvable ($ThemeSetting) : Néon en attendant" }
+}
+if (-not $AppThemes.Contains($ThemeId)) { $ThemeId = 'neon' }
 $Theme = $AppThemes[$ThemeId]
+
+# Police du pack, utilisable partout comme un nom de police (« file:///dossier/#Nom, police de secours »)
+$PackFont = $null
+if ($ThemePack -and $ThemePack.Font) {
+    try {
+        $gt = New-Object System.Windows.Media.GlyphTypeface (New-Object Uri $ThemePack.Font)
+        $PackFont = 'file:///' + ($ThemePack.Dir -replace '\\', '/') + '/#' + @($gt.FamilyNames.Values)[0]
+    } catch { Write-Log "Police du pack illisible : $_" }
+}
+
+# Bonjour de l'en-tête de l'accueil (« {0} » = Bonjour ou Bonsoir)
+function Get-ThemeHello { if ($ThemePack -and $ThemePack.Hello -and $ThemePack.Hello -match '\{0\}') { $ThemePack.Hello } else { '{0} !' } }
+
+# Police du pack dans la fenêtre : les titres, ou toute l'app (FontScope « tout »), en tailles pixel si c'est une police pixel
+function Add-PackFontXaml([string]$Text) {
+    $spec = [Security.SecurityElement]::Escape("$PackFont, Segoe UI Variable Display, Segoe UI")
+    $Text = $Text.Replace('Segoe UI Variable Display, Segoe UI', $spec)
+    if ($ThemePack.FontScope -eq 'tout') {
+        $Text = $Text.Replace('Segoe UI Variable Text, Segoe UI', $spec)
+        if ($ThemePack.FontPixel) { $Text = [regex]::Replace($Text, '(<Window [^>]*?)FontFamily=', '$1TextOptions.TextRenderingMode="Aliased" FontFamily=', 1) }
+    }
+    $Text
+}
 
 # Attention : PowerShell ne distingue pas $R de $r, d'où des noms différents pour les valeurs 0 à 1
 function ConvertTo-Hsl([int]$Red, [int]$Green, [int]$Blue) {
@@ -89,6 +121,7 @@ function Get-Couleur([string]$Hex) { [System.Windows.Media.ColorConverter]::Conv
 
 # Texte de la fenêtre (interface.xaml) traduit avant d'être chargé : couleurs, et police du thème
 function Convert-ThemeXaml([string]$Text, [string]$Id = $ThemeId) {
+    if ($PackFont -and $Id -eq $ThemeId) { $Text = Add-PackFontXaml $Text }
     if ($Id -eq 'neon') { return $Text }
     $th = $AppThemes[$Id]
     $Text = [regex]::Replace($Text, '(?<![&\w])#([0-9A-Fa-f]{8}|[0-9A-Fa-f]{6})(?![0-9A-Fa-f])', { param($m) ConvertTo-ThemeHex $m.Value $Id })
