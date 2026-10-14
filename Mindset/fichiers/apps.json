@@ -13,7 +13,8 @@
     "afficher_fichier": "afficher.demande",
     "desinstalleur": "Désinstaller Nevermind.exe",
     "donnees": "%LOCALAPPDATA%\\OptiGame",
-    "admin": true
+    "admin": true,
+    "cache_depuis": "1.0.105"
   },
   {
     "id": "evermind",
@@ -28,6 +29,7 @@
     "mutex": "Local\\Evermind-Instance",
     "afficher_signal": "Local\\Evermind-Afficher",
     "donnees": "%LOCALAPPDATA%\\Evermind",
-    "admin": false
+    "admin": false,
+    "cache_depuis": "0.12.6"
   }
 ]

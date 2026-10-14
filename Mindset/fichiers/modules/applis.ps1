@@ -34,6 +34,7 @@ function Get-Applis {
             Desinstalleur   = [string]$a.desinstalleur
             Donnees         = [Environment]::ExpandEnvironmentVariables([string]$a.donnees)
             Admin           = [bool]$a.admin
+            CacheDepuis     = [string]$a.cache_depuis   # version à partir de laquelle l'appli lancée cachée se dessine une fois affichée dans Mindset
         }
     }
 }

@@ -60,8 +60,10 @@ function Show-AppliIntegree($Appli) {
     # Pas lancée : on la lance cachée, puis on attend sa fenêtre
     if ($i.Etat -ne 'lancement') {
         $i.Etat = 'lancement'; $i.Depuis = Get-Date
-        # Lancée normalement (pas -Demarrage) : une appli lancée cachée ne se dessine pas une fois accrochée (écran noir)
-        Open-Appli $Appli
+        # Lancée cachée (-Demarrage), sans passer par sa propre fenêtre, si sa version sait se dessiner une fois accrochée ;
+        # sinon lancée normalement (une version plus ancienne lancée cachée resterait noire)
+        $cache = $Appli.CacheDepuis -and $inst.Version -and -not (Test-VersionPlusRecente $Appli.CacheDepuis $inst.Version)
+        if ($cache) { Open-Appli $Appli -Demarrage } else { Open-Appli $Appli }
     }
     Set-EtatPageAppli $Appli "Ouverture de $($Appli.Nom)..." '' $false
     $script:IntegrationTimer.Start()
