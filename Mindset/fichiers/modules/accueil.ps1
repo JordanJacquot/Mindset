@@ -86,6 +86,116 @@ function New-Action([string]$Texte, [string]$Style, [string]$Id, [scriptblock]$C
     $b
 }
 
+# ---------------------------------------------------------------------------
+# Cartes vivantes : le résumé que chaque appli gérée écrit dans son dossier de données (etat.json).
+#   Nevermind : { Score, Protection, AFaire, Urgent, NbAFaire }    Evermind : { Prochains : [ { Id, Titre, Quand, Journee } ] }
+# Seulement lu pour afficher du texte et des nombres, jamais exécuté ni ouvert : 32 Ko au plus, textes coupés à
+# 80 caractères, identifiants de rendez-vous de 32 chiffres hexadécimaux. Relu quand le fichier change.
+# ---------------------------------------------------------------------------
+$script:EtatsApplis = @{}
+function Get-EtatAppli($Appli) {
+    $d = Get-DossierDonnees $Appli
+    if (-not $d) { return $null }
+    $fi = New-Object IO.FileInfo (Join-Path $d 'etat.json')
+    if (-not $fi.Exists -or $fi.Length -gt 32KB) { return $null }
+    $c = $script:EtatsApplis[$Appli.Id]
+    if ($c -and $c.Date -eq $fi.LastWriteTimeUtc) { return $c.Etat }
+    $e = $null
+    try {
+        $j = [IO.File]::ReadAllText($fi.FullName, [Text.Encoding]::UTF8) | ConvertFrom-Json
+        $txt = { param($v) $s = ([string]$v -replace '\p{Cc}', ' ').Trim(); if ($s.Length -gt 80) { $s.Substring(0, 80) } else { $s } }
+        $pct = { param($v) $x = 0; if ($null -ne $v -and [int]::TryParse([string]$v, [ref]$x) -and $x -ge 0 -and $x -le 100) { $x } else { $null } }
+        if ($Appli.Id -eq 'nevermind') {
+            $e = @{ Score = (& $pct $j.Score); Protection = (& $pct $j.Protection); AFaire = (& $txt $j.AFaire); Urgent = ($j.Urgent -eq $true) }
+        } elseif ($Appli.Id -eq 'evermind') {
+            $ic = [Globalization.CultureInfo]::InvariantCulture
+            $e = @{ Prochains = @(foreach ($p in @($j.Prochains | Select-Object -First 10)) {
+                $q = [datetime]::MinValue
+                if ([string]$p.Id -cmatch '^[0-9a-f]{32}$' -and [datetime]::TryParseExact([string]$p.Quand, 's', $ic, 'None', [ref]$q)) {
+                    @{ Id = [string]$p.Id; Titre = (& $txt $p.Titre); Quand = $q; Journee = ($p.Journee -eq $true) }
+                }
+            }) }
+        }
+    } catch { $e = $null }
+    $script:EtatsApplis[$Appli.Id] = @{ Date = $fi.LastWriteTimeUtc; Etat = $e }
+    $e
+}
+
+# Les 3 prochains rendez-vous encore à venir (ceux d'aujourd'hui sans heure restent toute la journée)
+function Get-ProchainsRdv($Etat) {
+    $now = Get-Date
+    @($Etat.Prochains | Where-Object { if ($_.Journee) { $_.Quand.Date -ge $now.Date } else { $_.Quand -ge $now } } | Select-Object -First 3)
+}
+
+function Format-QuandRdv($R) {
+    $fr = [Globalization.CultureInfo]::GetCultureInfo('fr-FR')
+    $j = ($R.Quand.Date - (Get-Date).Date).Days
+    $jour = if ($j -eq 0) { "Aujourd'hui" } elseif ($j -eq 1) { 'Demain' } elseif ($j -lt 7) { $fr.TextInfo.ToTitleCase($R.Quand.ToString('dddd', $fr)) } else { $R.Quand.ToString('d MMM', $fr) }
+    if ($R.Journee) { $jour } else { "$jour $($R.Quand.ToString('HH:mm'))" }
+}
+
+# Une ligne cliquable de la carte (survol éclairé)
+function New-LigneVivante($Contenu, [scriptblock]$Clic, $Tag) {
+    $b = New-Object System.Windows.Controls.Border
+    $b.CornerRadius = 10; $b.Padding = '10,7'; $b.Margin = '0,0,0,4'; $b.Cursor = 'Hand'; $b.Tag = $Tag
+    $b.Background = Get-Brush '#0DFFFFFF'
+    $b.Child = $Contenu
+    $b.Add_MouseEnter({ $this.Background = Get-Brush '#1CFFFFFF' })
+    $b.Add_MouseLeave({ $this.Background = Get-Brush '#0DFFFFFF' })
+    $b.Add_MouseLeftButtonUp($Clic)
+    $b
+}
+
+# Le résumé d'une appli sur sa carte (rien si elle n'a encore rien écrit)
+function Add-ResumeCarte($Sp, $Appli, $Etat) {
+    if (-not $Etat) { return }
+    $box = New-Object System.Windows.Controls.StackPanel
+    $box.Margin = '0,0,0,6'
+    if ($Appli.Id -eq 'nevermind') {
+        $scores = New-Object System.Windows.Controls.WrapPanel
+        foreach ($s in @(@('Optimisation', $Etat.Score, '#00E5FF'), @('Protection', $Etat.Protection, '#FF2EB5'))) {
+            if ($null -eq $s[1]) { continue }
+            $p = New-Object System.Windows.Controls.StackPanel; $p.Margin = '0,0,26,8'
+            $n = New-Object System.Windows.Controls.TextBlock
+            [void]$n.Inlines.Add((New-Object System.Windows.Documents.Run "$($s[1])"))
+            $r2 = New-Object System.Windows.Documents.Run ' /100'; $r2.FontSize = 12; $r2.Foreground = Get-Brush '#6F6894'; [void]$n.Inlines.Add($r2)
+            $n.FontSize = 26; $n.FontWeight = 'SemiBold'; $n.Foreground = Get-Brush $s[2]
+            [void]$p.Children.Add($n); [void]$p.Children.Add((New-Text $s[0] 11.5 '#A9A3C9'))
+            [void]$scores.Children.Add($p)
+        }
+        [void]$box.Children.Add($scores)
+        $t = if ($Etat.AFaire) { "À faire : $($Etat.AFaire)" } else { 'Rien à corriger : ton PC est prêt pour jouer.' }
+        $l = New-Text $t 12.5 $(if ($Etat.Urgent) { '#FFB020' } elseif ($Etat.AFaire) { '#ECEAF7' } else { '#3DDC84' }); $l.TextWrapping = 'Wrap'
+        [void]$box.Children.Add((New-LigneVivante $l { Open-AppliIci 'nevermind' } $null))
+    } elseif ($Appli.Id -eq 'evermind') {
+        [void]$box.Children.Add((New-Text 'Prochains rendez-vous' 11.5 '#A9A3C9'))
+        $rdv = Get-ProchainsRdv $Etat
+        if (-not $rdv.Count) { $v = New-Text 'Rien de prévu pour le moment.' 12.5 '#6F6894'; $v.Margin = '0,6,0,0'; [void]$box.Children.Add($v) }
+        else {
+            $box.Children[0].Margin = '0,0,0,6'
+            foreach ($r in $rdv) {
+                $dp = New-Object System.Windows.Controls.DockPanel
+                $q = New-Text (Format-QuandRdv $r) 12 $Appli.Couleur 'SemiBold'; $q.Width = 118
+                [void]$dp.Children.Add($q)
+                $ti = New-Text $r.Titre 12.5 '#ECEAF7'; $ti.TextTrimming = 'CharacterEllipsis'
+                [void]$dp.Children.Add($ti)
+                [void]$box.Children.Add((New-LigneVivante $dp { Open-RdvEvermind $this.Tag } $r))
+            }
+        }
+    }
+    [void]$Sp.Children.Add($box)
+}
+
+# Clic sur un rendez-vous : Evermind s'ouvre dans son onglet, sur la fiche de ce rendez-vous
+function Open-RdvEvermind($R) {
+    $a = Get-Appli 'evermind'
+    $d = Get-DossierDonnees $a
+    if ($d -and $R.Id -cmatch '^[0-9a-f]{32}$') {
+        try { [IO.File]::WriteAllText((Join-Path $d 'afficher-rdv.demande'), "$($R.Id)|$($R.Quand.ToString('s', [Globalization.CultureInfo]::InvariantCulture))") } catch {}
+    }
+    Open-AppliIci 'evermind'
+}
+
 # Ce que la carte doit montrer, résumé en une clé : la carte n'est redessinée que si elle change
 function Get-EtatCarte($Appli) {
     $inst = Get-Installation $Appli
@@ -98,12 +208,14 @@ function Get-EtatCarte($Appli) {
         Occupe  = $script:Occupe[$Appli.Id]
         Message = $script:Messages[$Appli.Id]
         MajDispo = [bool]($inst -and $inst.Gere -and $pub -and $pub.Version -and (Test-VersionPlusRecente $pub.Version $inst.Version))
+        Resume  = $(if ($inst -and $inst.Gere) { Get-EtatAppli $Appli })
     }
 }
 
 function Update-Carte($Appli) {
     $e = Get-EtatCarte $Appli
-    $cle = "$($e.Inst.Dossier)|$($e.Inst.Gere)|$($e.Inst.Version)|$($e.Pub.Version)|$($e.Pub.Erreur)|$($e.Ouverte)|$($e.Trouvee)|$($e.Occupe)|$($e.Message)|$($e.MajDispo)"
+    $resume = if ($e.Resume) { if ($Appli.Id -eq 'evermind') { ((Get-ProchainsRdv $e.Resume | ForEach-Object { "$($_.Id)$($_.Quand)$($_.Titre)" }) -join ',') + "|$((Get-Date).Date)" } else { "$($e.Resume.Score)/$($e.Resume.Protection)/$($e.Resume.AFaire)/$($e.Resume.Urgent)" } }
+    $cle = "$($e.Inst.Dossier)|$($e.Inst.Gere)|$($e.Inst.Version)|$($e.Pub.Version)|$($e.Pub.Erreur)|$($e.Ouverte)|$($e.Trouvee)|$($e.Occupe)|$($e.Message)|$($e.MajDispo)|$resume"
     if ($script:CartesCle[$Appli.Id] -eq $cle) { return }
     $script:CartesCle[$Appli.Id] = $cle
     $sp = $script:Cartes[$Appli.Id]
@@ -124,6 +236,7 @@ function Update-Carte($Appli) {
         [void]$pastilles.Children.Add($(if ($e.Trouvee) { New-Pastille 'Trouvé sur ce PC' '#FFB020' } else { New-Pastille 'Pas installé' '#6F6894' }))
     }
     [void]$sp.Children.Add($pastilles)
+    Add-ResumeCarte $sp $Appli $e.Resume
 
     if ($e.Inst -and -not $e.Inst.Gere) { [void]$sp.Children.Add((New-Text "Copie de $($e.Inst.Dossier), non gérée par Mindset." 12 '#6F6894')) }
     if (-not $e.Inst -and $e.Trouvee) { [void]$sp.Children.Add((New-Text "Une copie existe déjà dans $($e.Trouvee). Prends-la en charge pour continuer à l'utiliser : tes réglages et tes données sont gardés." 12 '#A9A3C9')) }
