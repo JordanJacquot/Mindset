@@ -49,16 +49,11 @@ function Show-Page([string]$Id) {
     $ui.PageAccueil.Visibility = if ($Id -eq 'accueil') { 'Visible' } else { 'Collapsed' }
     $ui.PageParametres.Visibility = if ($Id -eq 'parametres') { 'Visible' } else { 'Collapsed' }
     $ui.PageAppli.Visibility = if ($Id -in @('accueil', 'parametres')) { 'Collapsed' } else { 'Visible' }
-    if ($ui.PageAppli.Visibility -eq 'Visible') { Update-PageAppli }
-}
-
-function Update-PageAppli {
-    $a = Get-Appli $script:PageCourante
-    if (-not $a) { return }
-    $ui.PageAppliTitre.Text = $a.Nom
-    $ui.PageAppliTitre.Foreground = Get-Brush $a.Couleur
-    $ui.PageAppliTexte.Text = "$($a.Nom) s'affichera ici, directement dans Mindset. Pour l'instant, cette page est réservée : l'affichage intégré arrive avec la phase C du plan. En attendant, « Ouvrir » sur l'accueil le lance dans sa fenêtre."
-    $ui.PageAppliEtat.Text = if (Test-AppliOuverte $a) { "$($a.Nom) est ouvert en ce moment." } else { "$($a.Nom) est fermé." }
+    # Onglet d'une appli : elle s'affiche ici, dans Mindset (integration.ps1, chargé après ce module)
+    if (Get-Command Update-HotesVisibles -ErrorAction SilentlyContinue) {
+        Update-HotesVisibles
+        if ($ui.PageAppli.Visibility -eq 'Visible') { Show-AppliIntegree (Get-Appli $Id) }
+    }
 }
 
 # ---------------------------------------------------------------------------
@@ -165,7 +160,6 @@ function Update-Carte($Appli) {
 
 function Update-Cartes {
     foreach ($a in $Applis) { Update-Carte $a }
-    if ($script:PageCourante -notin @('accueil', 'parametres')) { Update-PageAppli }
 }
 
 function Update-Trouvees {

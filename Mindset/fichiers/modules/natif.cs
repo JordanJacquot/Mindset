@@ -30,6 +30,92 @@ public static class MSAudio
     }
 }
 
+// Affichage des applis dans Mindset : la vraie fenêtre de Nevermind ou d'Evermind devient une fenêtre enfant de la zone
+// centrale de Mindset (sans bordure ni barre de titre), puis est rendue telle qu'elle était quand Mindset la libère.
+// Chaque appli reste son propre programme : si elle plante, Mindset continue.
+public static class MSIntegration
+{
+    delegate bool EnumProc(IntPtr h, IntPtr l);
+    [DllImport("user32.dll")] static extern bool EnumWindows(EnumProc f, IntPtr l);
+    [DllImport("user32.dll")] static extern int GetWindowThreadProcessId(IntPtr h, out int pid);
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)] static extern int GetWindowText(IntPtr h, System.Text.StringBuilder s, int n);
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)] static extern int GetClassName(IntPtr h, System.Text.StringBuilder s, int n);
+    [DllImport("user32.dll")] static extern IntPtr GetWindow(IntPtr h, uint cmd);
+    [DllImport("user32.dll", SetLastError = true)] static extern IntPtr SetParent(IntPtr child, IntPtr parent);
+    [DllImport("user32.dll", EntryPoint = "GetWindowLongPtrW")] static extern IntPtr GetWindowLongPtr(IntPtr h, int i);
+    [DllImport("user32.dll", EntryPoint = "SetWindowLongPtrW")] static extern IntPtr SetWindowLongPtr(IntPtr h, int i, IntPtr v);
+    [DllImport("user32.dll")] static extern bool SetWindowPos(IntPtr h, IntPtr after, int x, int y, int w, int hh, uint flags);
+    [DllImport("user32.dll")] static extern bool ShowWindow(IntPtr h, int cmd);
+    [DllImport("user32.dll")] public static extern bool IsWindow(IntPtr h);
+    [DllImport("user32.dll")] static extern IntPtr GetParent(IntPtr h);
+    [DllImport("user32.dll")] static extern IntPtr SetFocus(IntPtr h);
+
+    const int GWL_STYLE = -16, GWL_EXSTYLE = -20;
+    const long WS_CHILD = 0x40000000, WS_POPUP = 0x80000000, WS_CAPTION = 0x00C00000, WS_THICKFRAME = 0x00040000,
+               WS_SYSMENU = 0x00080000, WS_MINIMIZEBOX = 0x00020000, WS_MAXIMIZEBOX = 0x00010000, WS_VISIBLE = 0x10000000;
+    const long WS_EX_APPWINDOW = 0x00040000, WS_EX_WINDOWEDGE = 0x100, WS_EX_DLGMODALFRAME = 0x1, WS_EX_CLIENTEDGE = 0x200, WS_EX_STATICEDGE = 0x20000;
+    const uint SWP_NOZORDER = 0x4, SWP_FRAMECHANGED = 0x20, SWP_NOACTIVATE = 0x10, SWP_SHOWWINDOW = 0x40, SWP_NOMOVE = 0x2, SWP_NOSIZE = 0x1;
+
+    // La fenêtre principale d'un programme : une fenêtre de premier niveau de ce processus dont le titre est $Titre
+    // (visible ou cachée près de l'horloge), à l'exclusion des fenêtres « possédées » (alertes, menus).
+    public static IntPtr Trouver(int pid, string titre)
+    {
+        IntPtr trouve = IntPtr.Zero;
+        EnumWindows(delegate (IntPtr h, IntPtr l)
+        {
+            int p; GetWindowThreadProcessId(h, out p);
+            if (p != pid || GetWindow(h, 4) != IntPtr.Zero) return true;   // 4 = GW_OWNER
+            var t = new System.Text.StringBuilder(256); GetWindowText(h, t, 256);
+            var c = new System.Text.StringBuilder(256); GetClassName(h, c, 256);
+            if (t.ToString() == titre && c.ToString().StartsWith("HwndWrapper")) { trouve = h; return false; }
+            return true;
+        }, IntPtr.Zero);
+        return trouve;
+    }
+
+    public static int Processus(IntPtr h) { int p; GetWindowThreadProcessId(h, out p); return p; }
+    public static bool EstEnfantDe(IntPtr h, IntPtr parent) { return GetParent(h) == parent; }
+
+    // Accroche la fenêtre dans $Parent ; renvoie ses styles d'avant (pour la rendre telle quelle), ou 0 si Windows refuse
+    // (par exemple : une appli en administrateur dans un Mindset qui ne l'est pas)
+    public static long[] Accrocher(IntPtr fenetre, IntPtr parent, int largeur, int hauteur)
+    {
+        long style = GetWindowLongPtr(fenetre, GWL_STYLE).ToInt64();
+        long ex = GetWindowLongPtr(fenetre, GWL_EXSTYLE).ToInt64();
+        ShowWindow(fenetre, 9);   // SW_RESTORE : ni réduite, ni agrandie
+        long nouveau = (style & ~(WS_POPUP | WS_CAPTION | WS_THICKFRAME | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX)) | WS_CHILD | WS_VISIBLE;
+        long nouveauEx = ex & ~(WS_EX_APPWINDOW | WS_EX_WINDOWEDGE | WS_EX_DLGMODALFRAME | WS_EX_CLIENTEDGE | WS_EX_STATICEDGE);
+        SetWindowLongPtr(fenetre, GWL_STYLE, new IntPtr(nouveau));
+        SetWindowLongPtr(fenetre, GWL_EXSTYLE, new IntPtr(nouveauEx));
+        if (SetParent(fenetre, parent) == IntPtr.Zero && Marshal.GetLastWin32Error() != 0)
+        {
+            SetWindowLongPtr(fenetre, GWL_STYLE, new IntPtr(style));
+            SetWindowLongPtr(fenetre, GWL_EXSTYLE, new IntPtr(ex));
+            return null;
+        }
+        SetWindowPos(fenetre, IntPtr.Zero, 0, 0, largeur, hauteur, SWP_NOZORDER | SWP_FRAMECHANGED | SWP_SHOWWINDOW);
+        return new long[] { style, ex };
+    }
+
+    public static void Redimensionner(IntPtr fenetre, int largeur, int hauteur)
+    {
+        SetWindowPos(fenetre, IntPtr.Zero, 0, 0, largeur, hauteur, SWP_NOZORDER | SWP_NOACTIVATE);
+    }
+
+    public static void Focus(IntPtr fenetre) { SetFocus(fenetre); }
+
+    // Rend la fenêtre telle qu'elle était, cachée (l'appli reste près de l'horloge)
+    public static void Liberer(IntPtr fenetre, long style, long ex)
+    {
+        if (!IsWindow(fenetre)) return;
+        ShowWindow(fenetre, 0);   // SW_HIDE
+        SetParent(fenetre, IntPtr.Zero);
+        SetWindowLongPtr(fenetre, GWL_STYLE, new IntPtr(style & ~WS_VISIBLE));
+        SetWindowLongPtr(fenetre, GWL_EXSTYLE, new IntPtr(ex));
+        SetWindowPos(fenetre, IntPtr.Zero, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOMOVE | SWP_NOSIZE | SWP_FRAMECHANGED | SWP_NOACTIVATE);
+    }
+}
+
 public static class MSNative
 {
     [DllImport("dwmapi.dll")]

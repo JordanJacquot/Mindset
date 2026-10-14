@@ -147,6 +147,8 @@ function Update-Publications {
         Start-Tache { $p = $args[0]; Get-Publication $p.Depot $p.Zip } @{ Depot = $a.Depot; Zip = $a.Zip } ([scriptblock]::Create(@"
             param(`$Resultat, `$Erreur)
             `$script:Publications['$($a.Id)'] = if (`$Erreur) { @{ Erreur = `$Erreur } } else { `$Resultat }
+            # GitHub limite les questions (60 par heure et par connexion) : refusé, on réessaie dans 30 minutes, pas dans 6 heures
+            if ("`$Erreur `$(`$Resultat.Erreur)" -match '403|429') { `$script:DernieresPublications = (Get-Date).AddHours(-5.5) }
             Update-Cartes
             if (`$script:OngletParametres -eq 'maj') { Update-ListeVersions }
 "@))

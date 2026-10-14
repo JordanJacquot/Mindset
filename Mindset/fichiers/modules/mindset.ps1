@@ -112,7 +112,11 @@ function Start-VerifMajMindset {
         param($Resultat, $Erreur)
         $script:MajMindsetEnCours = $false
         if ($script:OngletParametres -eq 'maj') { Update-ListeVersions }
-        if ($Erreur) { Write-Log "Mise à jour de Mindset : $Erreur"; return }
+        if ($Erreur) {
+            Write-Log "Mise à jour de Mindset : $Erreur"
+            if ($Erreur -match '403|429') { $script:DernieresPublications = (Get-Date).AddHours(-5.5) }   # (limite de GitHub : réessai dans 30 minutes)
+            return
+        }
         if (-not $Resultat.Version) { return }
         $script:MajMindset = $Resultat
         Write-Log "Mindset $($Resultat.Version) téléchargé et vérifié, prêt à installer"
