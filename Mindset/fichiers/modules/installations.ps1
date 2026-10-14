@@ -148,6 +148,7 @@ function Update-Publications {
             param(`$Resultat, `$Erreur)
             `$script:Publications['$($a.Id)'] = if (`$Erreur) { @{ Erreur = `$Erreur } } else { `$Resultat }
             Update-Cartes
+            if (`$script:OngletParametres -eq 'maj') { Update-ListeVersions }
 "@))
     }
 }

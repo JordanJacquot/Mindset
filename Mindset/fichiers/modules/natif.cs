@@ -2,6 +2,34 @@
 using System;
 using System.Runtime.InteropServices;
 
+// Les micros et les sorties audio du PC, par leur nom : les mêmes noms qu'Evermind (EMMicros, EMSortie), que Windows
+// coupe à 31 lettres. C'est par ce nom que la suite garde son choix (les numéros changent quand on branche un appareil).
+public static class MSAudio
+{
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+    struct CAPSIN { public ushort mid, pid; public uint ver; [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)] public string name; public uint fmts; public ushort ch, res; }
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+    struct CAPSOUT { public ushort mid, pid; public uint ver; [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)] public string name; public uint fmts; public ushort ch, res; public uint support; }
+    [DllImport("winmm.dll")] static extern uint waveInGetNumDevs();
+    [DllImport("winmm.dll", CharSet = CharSet.Unicode)] static extern int waveInGetDevCapsW(IntPtr id, ref CAPSIN c, int sz);
+    [DllImport("winmm.dll")] static extern uint waveOutGetNumDevs();
+    [DllImport("winmm.dll", CharSet = CharSet.Unicode)] static extern int waveOutGetDevCapsW(IntPtr id, ref CAPSOUT c, int sz);
+
+    public static string[] Micros()
+    {
+        uint n = waveInGetNumDevs(); string[] r = new string[n];
+        for (uint d = 0; d < n; d++) { CAPSIN c = new CAPSIN(); waveInGetDevCapsW((IntPtr)d, ref c, Marshal.SizeOf(c)); r[d] = c.name ?? ""; }
+        return r;
+    }
+
+    public static string[] Sorties()
+    {
+        uint n = waveOutGetNumDevs(); string[] r = new string[n];
+        for (uint d = 0; d < n; d++) { CAPSOUT c = new CAPSOUT(); waveOutGetDevCapsW((IntPtr)d, ref c, Marshal.SizeOf(c)); r[d] = c.name ?? ""; }
+        return r;
+    }
+}
+
 public static class MSNative
 {
     [DllImport("dwmapi.dll")]

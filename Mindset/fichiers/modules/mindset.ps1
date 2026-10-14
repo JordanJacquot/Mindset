@@ -111,6 +111,7 @@ function Start-VerifMajMindset {
     } @{ Version = $AppVersion; Cle = $ClePublique; Dossier = $TelechargementsDir } {
         param($Resultat, $Erreur)
         $script:MajMindsetEnCours = $false
+        if ($script:OngletParametres -eq 'maj') { Update-ListeVersions }
         if ($Erreur) { Write-Log "Mise à jour de Mindset : $Erreur"; return }
         if (-not $Resultat.Version) { return }
         $script:MajMindset = $Resultat

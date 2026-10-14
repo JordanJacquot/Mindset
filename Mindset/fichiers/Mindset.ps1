@@ -67,7 +67,7 @@ foreach ($msModule in $msModules) { . (Join-Path $ModulesDir "$msModule.ps1") }
 Write-Log "Démarrage Mindset $AppVersion (PowerShell $($PSVersionTable.PSVersion))$(if ($Demarrage) { ', lancé avec Windows' })"
 if ($env:MINDSET_CAPTURE) { Start-Capture $env:MINDSET_CAPTURE }
 # Lancé avec Windows : il démarre les applis en arrière-plan et reste caché près de l'horloge (zone.ps1)
-if ($Demarrage) { Start-Demarrage } else { $Window.Show() }
+if ($Demarrage) { Start-Demarrage } else { $Window.Show(); Open-PageDemandee }
 if ($Desinstaller) { Show-Page 'parametres'; Confirm-DesinstallMindset }
 [System.Windows.Threading.Dispatcher]::Run()
 

@@ -77,3 +77,125 @@ $ui.BtnBienvenuePlusTard.Add_Click({ $ui.Bienvenue.Visibility = 'Collapsed' })
 $ui.BtnMajMindset.Add_Click({ Start-MajMindset })
 $ui.BtnMajFermer.Add_Click({ $ui.MajBandeau.Visibility = 'Collapsed' })
 Show-ResultatMajMindset
+
+# ---------------------------------------------------------------------------
+# Onglets : Général, Apparence, Son, Mises à jour, Dossiers
+# ---------------------------------------------------------------------------
+$OngletsParametres = [ordered]@{ general = 'Général'; apparence = 'Apparence'; son = 'Son'; maj = 'Mises à jour'; dossiers = 'Dossiers' }
+$PanneauxParametres = @{ general = 'PanGeneral'; apparence = 'PanApparence'; son = 'PanSon'; maj = 'PanMaj'; dossiers = 'PanDossiers' }
+$script:OngletParametres = 'general'
+
+function Show-OngletParametres([string]$Id) {
+    if (-not $OngletsParametres.Contains($Id)) { $Id = 'general' }
+    $script:OngletParametres = $Id
+    foreach ($b in $ui.OngletsParametres.Children) { $b.Style = $Window.FindResource($(if ($b.Tag -eq $Id) { 'BtnPrimary' } else { 'BtnSecondary' })) }
+    foreach ($k in $PanneauxParametres.Keys) { $ui[$PanneauxParametres[$k]].Visibility = if ($k -eq $Id) { 'Visible' } else { 'Collapsed' } }
+    if ($Id -eq 'son') { Update-ChoixSon }
+    if ($Id -eq 'maj') { Update-ListeVersions }
+}
+foreach ($k in $OngletsParametres.Keys) {
+    $b = New-Button $OngletsParametres[$k] 'BtnSecondary'
+    $b.Tag = $k; $b.Margin = '0,0,8,8'
+    $b.Add_Click({ Show-OngletParametres $this.Tag })
+    [void]$ui.OngletsParametres.Children.Add($b)
+}
+
+# ---------------------------------------------------------------------------
+# Son : le micro et le casque de toute la suite (suite.json) ; Evermind les suit tout de suite
+# ---------------------------------------------------------------------------
+# Windows coupe les noms d'appareils à 31 lettres : « … » le montre au lieu d'une parenthèse qui ne se ferme pas
+# (comme Evermind ; le nom gardé, lui, reste le nom coupé, celui que les applis retrouvent)
+function Get-NomAppareil([string]$Nom) {
+    if ($Nom.Length -ge 31 -and $Nom.Substring(0, 31) -match '\([^)]*$') { return $Nom.Substring(0, 31).TrimEnd() + '…)' + $Nom.Substring(31) }
+    if ($Nom.Length -eq 31) { return $Nom.TrimEnd() + '…' }
+    $Nom
+}
+
+# Une ligne cliquable : le nom de l'appareil, et « choisi » ou « choisir »
+function New-LigneAppareil([string]$Quoi, [string]$Cle, [string]$Nom, [bool]$Choisi) {
+    $b = New-Object System.Windows.Controls.Border
+    $b.CornerRadius = 14; $b.Padding = '14,9'; $b.Margin = '0,0,0,6'; $b.BorderThickness = 1.5; $b.Cursor = 'Hand'
+    $b.Tag = @{ Quoi = $Quoi; Cle = $Cle }
+    $b.Background = Get-Brush $(if ($Choisi) { '#2600E5FF' } else { '#0FFFFFFF' })
+    $b.BorderBrush = if ($Choisi) { $Window.FindResource('AccentBg') } else { Get-Brush '#1CFFFFFF' }
+    $dp = New-Object System.Windows.Controls.DockPanel
+    $etat = New-Text $(if ($Choisi) { '✓ choisi' } else { 'choisir' }) 13 $(if ($Choisi) { '#7FF4FF' } else { '#A6A1BC' })
+    $etat.TextWrapping = 'NoWrap'; $etat.Margin = '12,0,0,0'; $etat.VerticalAlignment = 'Center'
+    [System.Windows.Controls.DockPanel]::SetDock($etat, 'Right')
+    [void]$dp.Children.Add($etat)
+    $n = New-Text (Get-NomAppareil $Nom) 14 '#FFFFFF'; $n.TextWrapping = 'NoWrap'; $n.TextTrimming = 'CharacterEllipsis'; $n.VerticalAlignment = 'Center'
+    [void]$dp.Children.Add($n)
+    $b.Child = $dp
+    $b.Add_MouseLeftButtonUp({ param($s) Set-SuiteSon $s.Tag.Quoi $s.Tag.Cle; Update-ChoixSon })
+    $b
+}
+
+function Update-ChoixSon {
+    $son = Get-SuiteSon
+    foreach ($c in @(@('micro', $ui.ChoixMicro, @([MSAudio]::Micros()), $son.Micro), @('casque', $ui.ChoixCasque, @([MSAudio]::Sorties()), $son.Casque))) {
+        $quoi = $c[0]; $panneau = $c[1]; $noms = @($c[2]); $choisi = [string]$c[3]
+        $panneau.Children.Clear()
+        [void]$panneau.Children.Add((New-LigneAppareil $quoi '' 'Celui de Windows' (-not $choisi)))
+        foreach ($n in $noms | Select-Object -Unique) { if ($n) { [void]$panneau.Children.Add((New-LigneAppareil $quoi $n $n ($n -eq $choisi))) } }
+        if ($choisi -and $noms -notcontains $choisi) { [void]$panneau.Children.Add((New-LigneAppareil $quoi $choisi "$choisi (débranché)" $true)) }
+    }
+}
+$ui.BtnSonActualiser.Add_Click({ Update-ChoixSon })
+
+# ---------------------------------------------------------------------------
+# Mises à jour : la version de Mindset et de chaque appli, et ce qui est publié
+# ---------------------------------------------------------------------------
+function New-LigneVersion([string]$Nom, [string]$Couleur, [string]$Installee, [string]$Etat, [string]$CouleurEtat) {
+    $b = New-Object System.Windows.Controls.Border
+    $b.CornerRadius = 14; $b.Padding = '16,10'; $b.Margin = '0,0,0,6'; $b.BorderThickness = 1
+    $b.Background = $Window.FindResource('CardBg'); $b.BorderBrush = $Window.FindResource('CardBorder')
+    $dp = New-Object System.Windows.Controls.DockPanel
+    $e = New-Text $Etat 13 $CouleurEtat; $e.TextWrapping = 'NoWrap'; $e.VerticalAlignment = 'Center'
+    [System.Windows.Controls.DockPanel]::SetDock($e, 'Right')
+    [void]$dp.Children.Add($e)
+    $sp = New-Object System.Windows.Controls.StackPanel; $sp.Orientation = 'Horizontal'
+    [void]$sp.Children.Add((New-Text $Nom 15 $Couleur 'SemiBold'))
+    $v = New-Text "   $Installee" 13 '#A6A1BC'; $v.VerticalAlignment = 'Center'
+    [void]$sp.Children.Add($v)
+    [void]$dp.Children.Add($sp)
+    $b.Child = $dp
+    $b
+}
+
+function Update-ListeVersions {
+    $ui.ListeVersions.Children.Clear()
+    $etatMindset = if ($script:MajMindset) { @("$($script:MajMindset.Version) prête : voir l'accueil", '#FFB020') } elseif ($script:MajMindsetEnCours) { @('recherche...', '#A6A1BC') } else { @('à jour', '#3DDC84') }
+    [void]$ui.ListeVersions.Children.Add((New-LigneVersion 'Mindset' '#ECEAF7' "version $AppVersion" $etatMindset[0] $etatMindset[1]))
+    foreach ($a in $Applis) {
+        $i = Get-Installation $a; $p = $script:Publications[$a.Id]
+        $inst = if ($i) { "version $(if ($i.Version) { $i.Version } else { '?' })" } else { 'pas installé' }
+        $etat = if (-not $p) { @('pas encore vérifié', '#A6A1BC') } elseif ($p.Erreur) { @('GitHub injoignable', '#FF7A9C') }
+                elseif ($i -and $i.Version -and (Test-VersionPlusRecente $p.Version $i.Version)) { @("$($p.Version) disponible", '#FFB020') }
+                elseif ($i) { @('à jour', '#3DDC84') } else { @("dernière : $($p.Version)", '#A6A1BC') }
+        [void]$ui.ListeVersions.Children.Add((New-LigneVersion $a.Nom $a.Couleur $inst $etat[0] $etat[1]))
+    }
+}
+$ui.BtnVerifierMaj.Add_Click({
+    Update-Publications; Start-VerifMajMindset
+    $ui.MajInfo.Text = "Vérifié à $((Get-Date).ToString('HH:mm'))"
+    $t = New-Object System.Windows.Threading.DispatcherTimer; $t.Interval = [TimeSpan]::FromSeconds(4)
+    $t.Add_Tick({ $this.Stop(); if ($script:OngletParametres -eq 'maj') { Update-ListeVersions } }); $t.Start()
+})
+
+# ---------------------------------------------------------------------------
+# Une appli demande d'ouvrir un onglet des Paramètres (« Ouvrir les réglages de Mindset ») : elle écrit
+# « parametres:son » ou « parametres:apparence » dans %LOCALAPPDATA%\Mindset\afficher-page.txt, puis lance Mindset
+# ---------------------------------------------------------------------------
+$FichierPageDemandee = Join-Path $SuiteFileDir 'afficher-page.txt'
+function Open-PageDemandee {
+    if (-not (Test-Path -LiteralPath $FichierPageDemandee)) { return }
+    $t = ''; try { $t = ([IO.File]::ReadAllText($FichierPageDemandee)).Trim() } catch {}
+    Remove-Item -LiteralPath $FichierPageDemandee -Force -ErrorAction SilentlyContinue
+    if ($t -notmatch '^parametres(:(general|apparence|son|maj|dossiers))?$') { return }
+    $onglet = if ($Matches[2]) { $Matches[2] } else { 'general' }
+    Show-Fenetre
+    Show-Page 'parametres'
+    Show-OngletParametres $onglet
+}
+
+Show-OngletParametres $(if ($EnTest -and $env:MINDSET_ONGLET) { $env:MINDSET_ONGLET } else { 'general' })

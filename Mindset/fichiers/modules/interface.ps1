@@ -79,7 +79,7 @@ function Restart-Mindset {
 if ($script:ShowSignal) {
     $script:ShowTimer = New-Object System.Windows.Threading.DispatcherTimer
     $script:ShowTimer.Interval = [TimeSpan]::FromMilliseconds(300)
-    $script:ShowTimer.Add_Tick({ if ($script:ShowSignal.WaitOne(0)) { Show-Fenetre } })
+    $script:ShowTimer.Add_Tick({ if ($script:ShowSignal.WaitOne(0)) { Show-Fenetre; Open-PageDemandee } })
     $script:ShowTimer.Start()
 }
 

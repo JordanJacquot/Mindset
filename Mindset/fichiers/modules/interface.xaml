@@ -245,42 +245,82 @@
             </StackPanel>
           </Grid>
 
-          <!-- Paramètres -->
-          <ScrollViewer x:Name="PageParametres" VerticalScrollBarVisibility="Auto" Visibility="Collapsed">
-            <StackPanel Margin="32,28" MaxWidth="760" HorizontalAlignment="Left">
+          <!-- Paramètres : les réglages communs à toute la suite, en onglets (parametres.ps1) -->
+          <DockPanel x:Name="PageParametres" Visibility="Collapsed">
+            <StackPanel DockPanel.Dock="Top" Margin="32,22,32,0">
               <TextBlock Text="Paramètres" FontSize="26" FontWeight="SemiBold"/>
-              <TextBlock Text="Thème de la suite" FontSize="17" FontWeight="SemiBold" Margin="0,24,0,4"/>
-              <TextBlock TextWrapping="Wrap" Foreground="{StaticResource Texte2}" Margin="0,0,0,14"
-                         Text="Le même pour Mindset et pour les applis installées par Mindset : en changer ici les relance avec ce thème. Changer de thème dans Nevermind ou Evermind le change aussi ici."/>
-              <WrapPanel x:Name="Themes"/>
-              <TextBlock x:Name="ThemeInfo" Foreground="{StaticResource Texte3}" FontSize="12" Margin="0,6,0,0"/>
-
-              <TextBlock Text="Réduire et fermer" FontSize="17" FontWeight="SemiBold" Margin="0,28,0,4"/>
-              <TextBlock TextWrapping="Wrap" Foreground="{StaticResource Texte2}" Margin="0,0,0,10"
-                         Text="Caché près de l'horloge, Mindset continue de veiller sur tes applis : un clic sur son icône le rouvre."/>
-              <CheckBox x:Name="ReduireHorloge" Content="Réduire Mindset près de l'horloge (au lieu de la barre des tâches)" Foreground="#ECEAF7" Margin="0,0,0,10"/>
-              <TextBlock Text="Quand je clique sur la croix :" FontSize="13" FontWeight="SemiBold" Margin="0,0,0,4"/>
-              <StackPanel x:Name="ChoixFermeture"/>
-
-              <TextBlock Text="Démarrage avec Windows" FontSize="17" FontWeight="SemiBold" Margin="0,28,0,4"/>
-              <TextBlock TextWrapping="Wrap" Foreground="{StaticResource Texte2}" Margin="0,0,0,10"
-                         Text="Mindset se lance avec Windows, caché près de l'horloge, et démarre en arrière-plan les applis cochées. Nevermind garde son propre lancement (dans Nevermind, page Sauvegarde) tant qu'il a besoin des droits administrateur."/>
-              <StackPanel x:Name="Demarrages"/>
-
-              <TextBlock Text="Dossiers" FontSize="17" FontWeight="SemiBold" Margin="0,28,0,4"/>
-              <TextBlock TextWrapping="Wrap" Foreground="{StaticResource Texte2}" Margin="0,0,0,10"
-                         x:Name="DossiersTexte"/>
-              <StackPanel Orientation="Horizontal">
-                <Button x:Name="BtnDossierProgrammes" Content="Ouvrir le dossier des programmes" Style="{StaticResource BtnSecondary}" Margin="0,0,10,0"/>
-                <Button x:Name="BtnDossierDonnees" Content="Ouvrir le dossier des données" Style="{StaticResource BtnSecondary}"/>
-              </StackPanel>
-
-              <TextBlock Text="Désinstaller Mindset" FontSize="17" FontWeight="SemiBold" Margin="0,28,0,4"/>
-              <TextBlock TextWrapping="Wrap" Foreground="{StaticResource Texte2}" Margin="0,0,0,10"
-                         Text="Désinstalle d'abord les applis depuis l'accueil. Les données restent sur le PC : une réinstallation les retrouve."/>
-              <Button x:Name="BtnDesinstallerMindset" Content="Désinstaller Mindset" Style="{StaticResource BtnSecondary}" HorizontalAlignment="Left"/>
+              <TextBlock Text="Ces réglages valent pour Mindset, Nevermind et Evermind." Foreground="{StaticResource Texte2}" Margin="0,4,0,14"/>
+              <WrapPanel x:Name="OngletsParametres"/>
             </StackPanel>
-          </ScrollViewer>
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+              <Grid Margin="32,18,32,28" MaxWidth="780" HorizontalAlignment="Left">
+
+                <!-- Général -->
+                <StackPanel x:Name="PanGeneral">
+                  <TextBlock Text="Réduire et fermer" FontSize="17" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                  <TextBlock TextWrapping="Wrap" Foreground="{StaticResource Texte2}" Margin="0,0,0,10"
+                             Text="Caché près de l'horloge, Mindset continue de veiller sur tes applis : un clic sur son icône le rouvre."/>
+                  <CheckBox x:Name="ReduireHorloge" Content="Réduire Mindset près de l'horloge (au lieu de la barre des tâches)" Foreground="#ECEAF7" Margin="0,0,0,10"/>
+                  <TextBlock Text="Quand je clique sur la croix :" FontSize="13" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                  <StackPanel x:Name="ChoixFermeture"/>
+
+                  <TextBlock Text="Démarrage avec Windows" FontSize="17" FontWeight="SemiBold" Margin="0,28,0,4"/>
+                  <TextBlock TextWrapping="Wrap" Foreground="{StaticResource Texte2}" Margin="0,0,0,10"
+                             Text="Mindset se lance avec Windows, caché près de l'horloge, et démarre en arrière-plan les applis cochées. Nevermind garde son propre lancement (dans Nevermind, page Sauvegarde) tant qu'il a besoin des droits administrateur."/>
+                  <StackPanel x:Name="Demarrages"/>
+                </StackPanel>
+
+                <!-- Apparence -->
+                <StackPanel x:Name="PanApparence" Visibility="Collapsed">
+                  <TextBlock Text="Thème de la suite" FontSize="17" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                  <TextBlock TextWrapping="Wrap" Foreground="{StaticResource Texte2}" Margin="0,0,0,14"
+                             Text="Le même pour Mindset, Nevermind et Evermind : le changer ici relance chaque appli ouverte avec ce thème."/>
+                  <WrapPanel x:Name="Themes"/>
+                  <TextBlock x:Name="ThemeInfo" Foreground="{StaticResource Texte3}" FontSize="12" Margin="0,6,0,0"/>
+                </StackPanel>
+
+                <!-- Son -->
+                <StackPanel x:Name="PanSon" Visibility="Collapsed">
+                  <TextBlock Text="Micro" FontSize="17" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                  <TextBlock TextWrapping="Wrap" Foreground="{StaticResource Texte2}" Margin="0,0,0,10"
+                             Text="Celui qu'Evermind écoute (dictée, « OK Evermind »). Débranché, c'est celui de Windows qui sert en attendant."/>
+                  <StackPanel x:Name="ChoixMicro"/>
+                  <TextBlock Text="Casque ou haut-parleurs" FontSize="17" FontWeight="SemiBold" Margin="0,24,0,4"/>
+                  <TextBlock TextWrapping="Wrap" Foreground="{StaticResource Texte2}" Margin="0,0,0,10"
+                             Text="Là où Evermind te parle et sonne tes rappels."/>
+                  <StackPanel x:Name="ChoixCasque"/>
+                  <Button x:Name="BtnSonActualiser" Content="Actualiser la liste" Style="{StaticResource BtnSecondary}" HorizontalAlignment="Left" Margin="0,14,0,0"/>
+                </StackPanel>
+
+                <!-- Mises à jour -->
+                <StackPanel x:Name="PanMaj" Visibility="Collapsed">
+                  <TextBlock Text="Versions" FontSize="17" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                  <TextBlock TextWrapping="Wrap" Foreground="{StaticResource Texte2}" Margin="0,0,0,12"
+                             Text="Mindset cherche les nouvelles versions au démarrage puis toutes les 6 heures. Elles sont signées : une version qui ne l'est pas n'est jamais installée."/>
+                  <StackPanel x:Name="ListeVersions"/>
+                  <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
+                    <Button x:Name="BtnVerifierMaj" Content="Vérifier maintenant" Style="{StaticResource BtnPrimary}"/>
+                    <TextBlock x:Name="MajInfo" Foreground="{StaticResource Texte3}" FontSize="12" VerticalAlignment="Center" Margin="14,0,0,0"/>
+                  </StackPanel>
+                </StackPanel>
+
+                <!-- Dossiers -->
+                <StackPanel x:Name="PanDossiers" Visibility="Collapsed">
+                  <TextBlock Text="Dossiers" FontSize="17" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                  <TextBlock TextWrapping="Wrap" Foreground="{StaticResource Texte2}" Margin="0,0,0,10" x:Name="DossiersTexte"/>
+                  <StackPanel Orientation="Horizontal">
+                    <Button x:Name="BtnDossierProgrammes" Content="Ouvrir le dossier des programmes" Style="{StaticResource BtnSecondary}" Margin="0,0,10,0"/>
+                    <Button x:Name="BtnDossierDonnees" Content="Ouvrir le dossier des données" Style="{StaticResource BtnSecondary}"/>
+                  </StackPanel>
+
+                  <TextBlock Text="Désinstaller Mindset" FontSize="17" FontWeight="SemiBold" Margin="0,28,0,4"/>
+                  <TextBlock TextWrapping="Wrap" Foreground="{StaticResource Texte2}" Margin="0,0,0,10"
+                             Text="Désinstalle d'abord les applis depuis l'accueil. Les données restent sur le PC : une réinstallation les retrouve."/>
+                  <Button x:Name="BtnDesinstallerMindset" Content="Désinstaller Mindset" Style="{StaticResource BtnSecondary}" HorizontalAlignment="Left"/>
+                </StackPanel>
+              </Grid>
+            </ScrollViewer>
+          </DockPanel>
         </Grid>
       </Border>
     </Grid>
