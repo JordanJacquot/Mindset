@@ -57,12 +57,14 @@ $ui.BtnDesinstallerMindset.Add_Click({ Confirm-DesinstallMindset })
 
 # Bandeau de bienvenue : Mindset lancé depuis le dossier téléchargé (pas installé, pas un dossier de travail)
 $ui.Bienvenue.Visibility = if ((-not (Test-MindsetInstalle) -and -not (Test-MindsetDeveloppement) -and -not $EnTest) -or ($EnTest -and $env:MINDSET_BIENVENUE)) { 'Visible' } else { 'Collapsed' }
-# Un bouton radio par disque (C: d'abord, coché par défaut)
-foreach ($d in @(Get-DisquesInstallation)) {
+# Un bouton radio par disque : celui de l'installation existante (réinstallation), sinon C:
+$disques = @(Get-DisquesInstallation)
+$coche = if ($disques | Where-Object { $_.Lettre -eq $Racines.Disque }) { $Racines.Disque } else { '' }
+foreach ($d in $disques) {
     $rb = New-Object System.Windows.Controls.RadioButton
     $rb.GroupName = 'Disque'; $rb.Tag = $d.Lettre; $rb.Margin = '0,2,0,2'; $rb.Foreground = Get-Brush '#ECEAF7'
     $rb.Content = "$($d.Texte)   ·   $($d.Libre)"
-    if (-not $d.Lettre) { $rb.IsChecked = $true }
+    if ($d.Lettre -eq $coche) { $rb.IsChecked = $true }
     [void]$ui.ChoixDisques.Children.Add($rb)
 }
 $ui.BtnInstallerMindset.Add_Click({
