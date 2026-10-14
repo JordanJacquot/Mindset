@@ -295,7 +295,7 @@ function Remove-Doublons($Appli) {
     foreach ($r in @(Get-RaccourcisAppli $Appli)) { try { Remove-Item -LiteralPath $r.Lien -Force -ErrorAction Stop; $n++ } catch { Write-Log "Raccourci non retiré : $($r.Lien)" } }
     $demarrage = @(Get-DemarragesAppli $Appli)
     foreach ($d in $demarrage) { try { Remove-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Run' -Name $d.Nom -ErrorAction Stop } catch {} }
-    if ($demarrage.Count -and -not $Appli.Admin) { Set-DemarrageAppli $Appli.Id $true }
+    # (son ancien lancement avec Windows n'est pas repris : l'interrupteur « S'ouvre avec Mindset » reste éteint, à chacun de l'allumer)
     if ($n) { "$n raccourci$(if ($n -gt 1) { 's' }) direct$(if ($n -gt 1) { 's' }) retiré$(if ($n -gt 1) { 's' }) : $($Appli.Nom) s'ouvre maintenant depuis Mindset." }
 }
 
@@ -357,7 +357,8 @@ function Stop-Operation($Appli, [string]$Message) {
 # « S'ouvre avec Mindset » (interrupteur des cartes de l'accueil) : l'appli démarre en arrière-plan quand Mindset s'ouvre,
 # donc aussi au démarrage de Windows (Mindset.exe -Demarrage), voir Start-Demarrage dans mindset.ps1
 # ---------------------------------------------------------------------------
-# Nevermind avait sa propre tâche de démarrage : un Mindset administrateur la reprend (une seule règle, la sienne)
+# Nevermind avait sa propre tâche de démarrage : un Mindset administrateur la retire (une seule règle, la sienne ;
+# éteinte au départ, comme pour toute appli : à chacun de l'allumer)
 $TachesDemarrageAppli = @{ nevermind = @('Nevermind (démarrage)', 'OptiGame (démarrage)', 'Nexo (démarrage)') }
 
 function Get-DemarrageAppli([string]$Id) { $Id -in @(Get-Setting 'Demarrage' @()) }
@@ -371,18 +372,17 @@ function Set-DemarrageAppli([string]$Id, [bool]$Oui) {
 function Remove-TachesDemarrageAppli([string]$Id) {
     foreach ($n in @($TachesDemarrageAppli[$Id] | Where-Object { $_ })) {
         & "$env:SystemRoot\System32\schtasks.exe" /Delete /TN "\$n" /F 2>$null | Out-Null
-        if ($LASTEXITCODE -eq 0) { Write-Log "Tâche « $n » retirée : $Id s'ouvre maintenant avec Mindset" }
+        if ($LASTEXITCODE -eq 0) { Write-Log "Tâche « $n » retirée : le démarrage de $Id se règle dans Mindset (S'ouvre avec Mindset)" }
     }
 }
 
-# Mindset administrateur : une appli qui avait sa propre tâche de démarrage passe sous l'interrupteur de Mindset (une fois)
+# Mindset administrateur : une appli gérée qui avait sa propre tâche de démarrage la perd ; son interrupteur
+# « S'ouvre avec Mindset » n'est pas allumé pour autant (rien ne démarre sans que l'utilisateur l'ait choisi dans Mindset)
 function Move-TachesDemarrage {
     if (-not $MindsetAdmin) { return }
     foreach ($id in @($TachesDemarrageAppli.Keys)) {
-        foreach ($n in $TachesDemarrageAppli[$id]) {
-            & "$env:SystemRoot\System32\schtasks.exe" /Query /TN "\$n" 2>$null | Out-Null
-            if ($LASTEXITCODE -eq 0) { Set-DemarrageAppli $id $true; break }
-        }
+        $a = Get-Appli $id; $i = if ($a) { Get-Installation $a } else { $null }
+        if ($i -and $i.Gere) { Remove-TachesDemarrageAppli $id }
     }
 }
 
