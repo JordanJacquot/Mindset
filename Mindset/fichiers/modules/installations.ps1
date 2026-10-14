@@ -1,24 +1,28 @@
 ﻿# Mindset : où sont les applis, et ce qu'on peut en faire (installer, mettre à jour, prendre en charge, ouvrir, désinstaller).
 # Chargé par Mindset.ps1 après applis.ps1 et taches.ps1.
 #
-# Deux sortes d'installations :
-#   gérée     installée par Mindset depuis un zip signé, dans son dossier à lui :
-#               Program Files\Mindset\<Appli>        pour une appli qui tourne en administrateur (Nevermind)
-#               %LOCALAPPDATA%\Programs\Mindset\<Appli>  pour les autres (Evermind se met ainsi à jour lui-même)
-#             Mindset la met à jour, peut la désinstaller, et elle suit le thème de la suite.
-#   trouvée   une copie déjà présente sur le PC (téléchargée avant Mindset, ou un dossier de travail).
-#             Mindset l'ouvre, mais ne la modifie et ne la supprime jamais.
-#             « Prendre en charge » installe une copie gérée à la place et y fait pointer raccourcis et démarrage.
+# Une appli gérée par Mindset :
+#   programme   C:\Program Files\Mindset\<Appli>     (seul un administrateur peut y écrire : installer-admin.ps1)
+#   données     %LOCALAPPDATA%\Mindset\<Appli>      (l'appli y déplace elle-même ses anciennes données)
+#   aucun raccourci direct ni lancement au démarrage à elle : tout passe par Mindset.
+# Une copie trouvée sur le PC (téléchargée avant Mindset, ou un dossier de travail) peut être ouverte telle quelle,
+# ou prise en charge : Mindset installe une copie gérée, retire les raccourcis et démarrages de l'ancienne, puis
+# supprime l'ancienne copie (seulement les fichiers livrés avec l'appli, jamais un dossier de travail).
 
 $InstallFile = Join-Path $DataDir 'installations.json'
 $TelechargementsDir = Join-Path $DataDir 'telechargements'
 $ClePublique = Join-Path $AppDir 'cle-publique.xml'
 $script:Publications = @{}   # id -> dernière version publiée (ou erreur)
 $script:Occupe = @{}         # id -> texte de l'opération en cours
+$script:Messages = @{}       # id -> dernier message affiché sur la carte
 
-function Get-DossierGere($Appli) {
-    if ($Appli.Admin) { Join-Path $env:ProgramFiles "Mindset\$($Appli.Nom)" }
-    else { Join-Path $env:LOCALAPPDATA "Programs\Mindset\$($Appli.Nom)" }
+function Get-DossierGere($Appli) { Join-Path $env:ProgramFiles "Mindset\$($Appli.Nom)" }
+
+# Dossier de données d'une appli : celui de la suite si elle est gérée et l'a déjà adopté, sinon l'ancien
+function Get-DossierDonnees($Appli) {
+    $inst = (Read-Installations)[$Appli.Id]
+    $suite = Join-Path $SuiteDir $Appli.Nom
+    if ($inst -and $inst.Gere -and (Test-Path -LiteralPath $suite)) { $suite } else { $Appli.Donnees }
 }
 
 function Read-Installations {
@@ -58,31 +62,51 @@ function Get-Installation($Appli) {
     if ($r) { Save-Installation $Appli.Id $null $false; if ($r.Gere) { Set-SuiteAppli $Appli.Id $null } }
     # Copie gérée présente mais oubliée (installations.json effacé)
     $g = Get-DossierGere $Appli
-    if (Test-DossierAppli $g $Appli) { Save-Installation $Appli.Id $g $true; return @{ Dossier = $g; Gere = $true; Version = (Get-VersionDans $g $Appli) } }
+    if (Test-DossierAppli $g $Appli) { Save-Installation $Appli.Id $g $true; Set-SuiteAppli $Appli.Id $g; return @{ Dossier = $g; Gere = $true; Version = (Get-VersionDans $g $Appli) } }
     $null
 }
 
-# Copie déjà présente sur le PC : raccourcis (Bureau, menu Démarrer), lancement au démarrage, programme ouvert
-function Find-InstallationExistante($Appli) {
-    $candidats = New-Object System.Collections.Generic.List[string]
+# ---------------------------------------------------------------------------
+# Copies déjà présentes sur le PC
+# ---------------------------------------------------------------------------
+function Get-LieuxRaccourcis {
+    @([Environment]::GetFolderPath('Desktop'), [Environment]::GetFolderPath('CommonDesktopDirectory'),
+      [Environment]::GetFolderPath('Programs'), [Environment]::GetFolderPath('CommonPrograms'), [Environment]::GetFolderPath('Startup')) |
+        Where-Object { $_ -and (Test-Path -LiteralPath $_) }
+}
+
+# Raccourcis (.lnk) qui lancent cette appli, quelle que soit la copie
+function Get-RaccourcisAppli($Appli) {
     $sh = New-Object -ComObject WScript.Shell
-    $lieux = @([Environment]::GetFolderPath('Desktop'), [Environment]::GetFolderPath('CommonDesktopDirectory'),
-               [Environment]::GetFolderPath('Programs'), [Environment]::GetFolderPath('CommonPrograms'), [Environment]::GetFolderPath('Startup'))
-    foreach ($l in $lieux) {
-        if (-not $l -or -not (Test-Path -LiteralPath $l)) { continue }
+    foreach ($l in Get-LieuxRaccourcis) {
         foreach ($lnk in @(Get-ChildItem -LiteralPath $l -Filter *.lnk -Recurse -Depth 2 -ErrorAction SilentlyContinue)) {
             try { $t = $sh.CreateShortcut($lnk.FullName).TargetPath } catch { continue }
-            if ($t -and [IO.Path]::GetFileName($t) -ieq $Appli.Exe) { $candidats.Add((Split-Path $t -Parent)) }
+            if ($t -and [IO.Path]::GetFileName($t) -ieq $Appli.Exe) { [pscustomobject]@{ Lien = $lnk.FullName; Cible = $t } }
         }
     }
-    try {
-        $run = Get-ItemProperty 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Run' -ErrorAction Stop
-        foreach ($p in $run.PSObject.Properties) {
-            if ($p.Value -is [string] -and $p.Value -match '^"?([^"]+\\' + [regex]::Escape($Appli.Exe) + ')"?') { $candidats.Add((Split-Path $Matches[1] -Parent)) }
-        }
-    } catch {}
+}
+
+# Entrées « lancer au démarrage » de l'utilisateur qui lancent cette appli
+function Get-DemarragesAppli($Appli) {
+    try { $run = Get-ItemProperty 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Run' -ErrorAction Stop } catch { return }
+    foreach ($p in $run.PSObject.Properties) {
+        if ($p.Name -like 'PS*') { continue }
+        if ($p.Value -is [string] -and $p.Value -match ('^"?([^"]*\\' + [regex]::Escape($Appli.Exe) + ')"?')) { [pscustomobject]@{ Nom = $p.Name; Cible = $Matches[1] } }
+    }
+}
+
+# Une copie déjà présente : raccourcis, démarrage, programme ouvert, puis Téléchargements, Bureau et Documents
+function Find-InstallationExistante($Appli) {
+    $candidats = New-Object System.Collections.Generic.List[string]
+    foreach ($r in @(Get-RaccourcisAppli $Appli)) { $candidats.Add((Split-Path $r.Cible -Parent)) }
+    foreach ($r in @(Get-DemarragesAppli $Appli)) { $candidats.Add((Split-Path $r.Cible -Parent)) }
     foreach ($pr in @(Get-Process -Name ([IO.Path]::GetFileNameWithoutExtension($Appli.Exe)) -ErrorAction SilentlyContinue)) {
         try { if ($pr.Path) { $candidats.Add((Split-Path $pr.Path -Parent)) } } catch {}   # (illisible si elle tourne en administrateur)
+    }
+    $telech = Join-Path $env:USERPROFILE 'Downloads'
+    foreach ($l in @($telech, [Environment]::GetFolderPath('Desktop'), [Environment]::GetFolderPath('MyDocuments'))) {
+        if (-not $l -or -not (Test-Path -LiteralPath $l)) { continue }
+        foreach ($f in @(Get-ChildItem -LiteralPath $l -Filter $Appli.Exe -File -Recurse -Depth 3 -ErrorAction SilentlyContinue | Select-Object -First 5)) { $candidats.Add($f.DirectoryName) }
     }
     $gere = Get-DossierGere $Appli
     foreach ($c in $candidats | Select-Object -Unique) {
@@ -94,10 +118,11 @@ function Find-InstallationExistante($Appli) {
 # ---------------------------------------------------------------------------
 # Ouvrir : lancer l'appli, ou ramener sa fenêtre si elle tourne déjà
 # ---------------------------------------------------------------------------
-function Open-Appli($Appli) {
+function Open-Appli($Appli, [switch]$Demarrage) {
     $inst = Get-Installation $Appli
     if (-not $inst) { return }
     if (Test-AppliOuverte $Appli) {
+        if ($Demarrage) { return }
         # Chaque appli a sa façon d'être réveillée : un fichier qu'elle surveille (Nevermind) ou un signal (Evermind).
         # Relancer son .exe marcherait aussi, mais pour Nevermind cela redemanderait l'autorisation de Windows.
         try { [void][MSNative]::AllowSetForegroundWindow(-1) } catch {}
@@ -105,10 +130,12 @@ function Open-Appli($Appli) {
             try { $ev = [System.Threading.EventWaitHandle]::OpenExisting($Appli.AfficherSignal); [void]$ev.Set(); $ev.Dispose(); return } catch {}
         }
         if ($Appli.AfficherFichier) {
-            try { New-Item -ItemType Directory -Force -Path (Split-Path $Appli.AfficherFichier) | Out-Null; [IO.File]::WriteAllText($Appli.AfficherFichier, [string]$PID); return } catch {}
+            try { $f = Join-Path (Get-DossierDonnees $Appli) $Appli.AfficherFichier; New-Item -ItemType Directory -Force -Path (Split-Path $f) | Out-Null; [IO.File]::WriteAllText($f, [string]$PID); return } catch {}
         }
     }
-    try { Start-Process -FilePath (Join-Path $inst.Dossier $Appli.Exe) -WorkingDirectory $inst.Dossier -ErrorAction Stop }
+    $p = @{ FilePath = (Join-Path $inst.Dossier $Appli.Exe); WorkingDirectory = $inst.Dossier; ErrorAction = 'Stop' }
+    if ($Demarrage) { $p.ArgumentList = '-Demarrage' }
+    try { Start-Process @p }
     catch { Write-Log "Lancement de $($Appli.Nom) : $($_.Exception.Message)" }   # (par exemple : autorisation de Windows refusée)
 }
 
@@ -126,12 +153,45 @@ function Update-Publications {
 }
 
 # ---------------------------------------------------------------------------
+# installer-admin.ps1 : une demande de Windows, puis le travail en administrateur ; $Fin reçoit (ok, message)
+# ---------------------------------------------------------------------------
+$script:AttentesAdmin = New-Object System.Collections.ArrayList
+
+function Invoke-Admin([string]$Action, [hashtable]$Parametres, [scriptblock]$Fin) {
+    New-Item -ItemType Directory -Force -Path $TelechargementsDir | Out-Null
+    $rep = Join-Path $TelechargementsDir "admin-$([guid]::NewGuid().ToString('N').Substring(0, 8)).json"
+    $a = @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-WindowStyle', 'Hidden', '-File', "`"$(Join-Path $AppDir 'installer-admin.ps1')`"", '-Action', $Action, '-Resultat', "`"$rep`"")
+    foreach ($k in $Parametres.Keys) { if ($null -ne $Parametres[$k] -and "$($Parametres[$k])" -ne '') { $a += @("-$k", "`"$($Parametres[$k])`"") } }
+    try { $proc = Start-Process -FilePath "$env:SystemRoot\System32\WindowsPowerShell\v1.0\powershell.exe" -ArgumentList $a -Verb RunAs -WindowStyle Hidden -PassThru -ErrorAction Stop }
+    catch { & $Fin $false 'l''autorisation de Windows a été refusée.'; return }
+    [void]$script:AttentesAdmin.Add(@{ Process = $proc; Reponse = $rep; Fin = $Fin; Debut = Get-Date })
+    $script:AdminTimer.Start()
+}
+
+$script:AdminTimer = New-Object System.Windows.Threading.DispatcherTimer
+$script:AdminTimer.Interval = [TimeSpan]::FromMilliseconds(500)
+$script:AdminTimer.Add_Tick({
+    foreach ($w in @($script:AttentesAdmin)) {
+        $fini = $false; try { $fini = $w.Process.HasExited } catch {}
+        if (-not $fini -and ((Get-Date) - $w.Debut).TotalMinutes -lt 5) { continue }
+        [void]$script:AttentesAdmin.Remove($w)
+        $r = $null
+        try { $r = [IO.File]::ReadAllText($w.Reponse, [Text.Encoding]::UTF8) | ConvertFrom-Json; Remove-Item -LiteralPath $w.Reponse -Force } catch {}
+        try {
+            if ($r) { & $w.Fin ([bool]$r.ok) ([string]$r.message) } else { & $w.Fin $false 'pas de réponse (opération interrompue ?).' }
+        } catch { Write-Log "Fin d'opération admin : $_" }
+    }
+    if (-not $script:AttentesAdmin.Count) { $script:AdminTimer.Stop() }
+})
+
+# ---------------------------------------------------------------------------
 # Installer, mettre à jour, prendre en charge
 # ---------------------------------------------------------------------------
-# $AncienDossier : copie trouvée qu'on prend en charge (ses raccourcis et son démarrage pointeront vers la nouvelle)
+# $AncienDossier : copie existante qu'on prend en charge
 function Start-InstallAppli($Appli, [string]$AncienDossier) {
     if ($script:Occupe[$Appli.Id]) { return }
     $script:Occupe[$Appli.Id] = 'Téléchargement...'
+    $script:Messages.Remove($Appli.Id)
     Update-Cartes
     New-Item -ItemType Directory -Force -Path $TelechargementsDir | Out-Null
     $params = @{ Depot = $Appli.Depot; Zip = $Appli.Zip; Cle = $ClePublique; Dossier = $TelechargementsDir; Id = $Appli.Id }
@@ -139,7 +199,7 @@ function Start-InstallAppli($Appli, [string]$AncienDossier) {
         $p = $args[0]
         $pub = Get-Publication $p.Depot $p.Zip
         if ($pub.Erreur) { throw $pub.Erreur }
-        if (-not $pub.UrlSig) { throw "La version $($pub.Version) n'est pas signée : Mindset ne l'installera pas. Il faut publier sa signature ($($p.Zip).sig)." }
+        if (-not $pub.UrlSig) { throw "La version $($pub.Version) n'est pas signée : Mindset ne l'installera pas." }
         $zip = Get-Octets $pub.UrlZip
         $sig = Get-Octets $pub.UrlSig
         if (-not (Test-Signature $zip $sig $p.Cle)) { throw 'La signature du fichier téléchargé est invalide : rien n''a été installé.' }
@@ -148,102 +208,89 @@ function Start-InstallAppli($Appli, [string]$AncienDossier) {
         @{ Version = $pub.Version; Zip = $fz; Sig = $fs }
     } $params ([scriptblock]::Create(@"
         param(`$Resultat, `$Erreur)
-        Complete-Telechargement (`$Applis | Where-Object Id -eq '$($Appli.Id)') `$Resultat `$Erreur '$($AncienDossier -replace "'", "''")'
+        Complete-Telechargement (Get-Appli '$($Appli.Id)') `$Resultat `$Erreur '$($AncienDossier -replace "'", "''")'
 "@))
 }
 
 function Complete-Telechargement($Appli, $Resultat, $Erreur, [string]$AncienDossier) {
     if ($Erreur -or -not $Resultat) { Stop-Operation $Appli "Échec : $Erreur"; return }
-    $dest = Get-DossierGere $Appli
-    $ancienExe = if ($AncienDossier) { Join-Path $AncienDossier $Appli.Exe } else { '' }
-    if ($Appli.Admin) {
-        # Program Files : une demande de Windows, puis installer-admin.ps1 vérifie et installe en administrateur
-        $script:Occupe[$Appli.Id] = 'Installation (accepte la demande de Windows)...'
-        Update-Cartes
-        $rep = Join-Path $TelechargementsDir "$($Appli.Id).resultat.json"
-        Remove-Item -LiteralPath $rep -Force -ErrorAction SilentlyContinue
-        $argsAdmin = @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-WindowStyle', 'Hidden', '-File', "`"$(Join-Path $AppDir 'installer-admin.ps1')`"",
-            '-Zip', "`"$($Resultat.Zip)`"", '-Signature', "`"$($Resultat.Sig)`"", '-Destination', "`"$dest`"",
-            '-DossierZip', "`"$($Appli.DossierZip)`"", '-Exe', "`"$($Appli.Exe)`"", '-Resultat', "`"$rep`"")
-        if ($ancienExe) { $argsAdmin += @('-AncienExe', "`"$ancienExe`"") }
-        try { $proc = Start-Process -FilePath "$env:SystemRoot\System32\WindowsPowerShell\v1.0\powershell.exe" -ArgumentList $argsAdmin -Verb RunAs -WindowStyle Hidden -PassThru -ErrorAction Stop }
-        catch { Stop-Operation $Appli 'Installation annulée : l''autorisation de Windows a été refusée.'; return }
-        $script:AttenteAdmin = @{ Appli = $Appli; Process = $proc; Reponse = $rep; Ancien = $AncienDossier; Version = $Resultat.Version; Debut = Get-Date }
-        $script:AdminTimer.Start()
-    } else {
-        $script:Occupe[$Appli.Id] = 'Installation...'
-        Update-Cartes
-        # L'appli tourne avec les mêmes droits que Mindset : on peut la fermer (confirmation demandée avant)
-        Get-Process -Name ([IO.Path]::GetFileNameWithoutExtension($Appli.Exe)) -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
-        $params = @{ Zip = $Resultat.Zip; Sig = $Resultat.Sig; Cle = $ClePublique; Dest = $dest; DossierZip = $Appli.DossierZip; Exe = $Appli.Exe }
-        Start-Tache {
-            $p = $args[0]
-            Start-Sleep -Milliseconds 800
-            Install-Paquet -Zip ([IO.File]::ReadAllBytes($p.Zip)) -Signature ([IO.File]::ReadAllBytes($p.Sig)) -ClePublique $p.Cle -Destination $p.Dest -DossierZip $p.DossierZip -Exe $p.Exe
-        } $params ([scriptblock]::Create(@"
-            param(`$Resultat, `$Erreur)
-            `$a = `$Applis | Where-Object Id -eq '$($Appli.Id)'
-            if (`$Erreur) { Stop-Operation `$a "Échec : `$Erreur" } else { Complete-Installation `$a `$Resultat '$($AncienDossier -replace "'", "''")' '$($Resultat.Version)' }
+    $script:Occupe[$Appli.Id] = 'Installation (accepte la demande de Windows)...'
+    Update-Cartes
+    $script:EnCours = @{ Appli = $Appli; Ancien = $AncienDossier; Version = $Resultat.Version; Zip = $Resultat.Zip }
+    $p = [ordered]@{ Zip = $Resultat.Zip; Signature = $Resultat.Sig; Destination = (Get-DossierGere $Appli); DossierZip = $Appli.DossierZip; Exe = $Appli.Exe }
+    if ($AncienDossier) { $p.AncienExe = Join-Path $AncienDossier $Appli.Exe }
+    Invoke-Admin 'appli' $p ([scriptblock]::Create(@"
+        param(`$Ok, `$Message)
+        `$a = Get-Appli '$($Appli.Id)'
+        if (`$Ok) { Complete-Installation `$a `$Message } else { Stop-Operation `$a "Échec : `$Message" }
 "@))
-    }
 }
 
-# Fin de l'installation en administrateur : installer-admin.ps1 a écrit sa réponse
-$script:AdminTimer = New-Object System.Windows.Threading.DispatcherTimer
-$script:AdminTimer.Interval = [TimeSpan]::FromMilliseconds(500)
-$script:AdminTimer.Add_Tick({
-    $w = $script:AttenteAdmin
-    if (-not $w) { $script:AdminTimer.Stop(); return }
-    $fini = $false; try { $fini = $w.Process.HasExited } catch {}
-    if (-not $fini -and ((Get-Date) - $w.Debut).TotalMinutes -lt 5) { return }
-    $script:AdminTimer.Stop(); $script:AttenteAdmin = $null
-    $r = $null
-    try { $r = [IO.File]::ReadAllText($w.Reponse, [Text.Encoding]::UTF8) | ConvertFrom-Json } catch {}
-    if ($r -and $r.ok) { Complete-Installation $w.Appli ([string]$r.message) $w.Ancien $w.Version }
-    elseif ($r) { Stop-Operation $w.Appli "Échec : $($r.message)" }
-    else { Stop-Operation $w.Appli 'Échec : l''installation en administrateur n''a pas répondu.' }
-})
-
-function Complete-Installation($Appli, [string]$Dossier, [string]$AncienDossier, [string]$Version) {
+function Complete-Installation($Appli, [string]$Dossier) {
+    $c = $script:EnCours; $script:EnCours = $null
+    $ancien = if ($c -and $c.Appli.Id -eq $Appli.Id) { $c.Ancien } else { '' }
     Save-Installation $Appli.Id $Dossier $true
     Set-SuiteAppli $Appli.Id $Dossier
-    if ($AncienDossier) { Move-Raccourcis $Appli $AncienDossier $Dossier }
+    $notes = @(Remove-Doublons $Appli)
+    if ($ancien) { $notes += Remove-AncienneCopie $Appli $ancien $c.Zip }
     foreach ($f in @(Get-ChildItem -LiteralPath $TelechargementsDir -Filter "$($Appli.Id).*" -ErrorAction SilentlyContinue)) { Remove-Item -LiteralPath $f.FullName -Force -ErrorAction SilentlyContinue }
-    Write-Log "$($Appli.Nom) $Version installé dans $Dossier$(if ($AncienDossier) { " (pris en charge depuis $AncienDossier)" })"
-    $msg = "$($Appli.Nom) $Version est installé."
-    if ($AncienDossier) { $msg += " L'ancienne copie ($AncienDossier) n'est plus utilisée : tu peux la supprimer si ce n'est pas un dossier de travail." }
-    Stop-Operation $Appli $msg
+    Write-Log "$($Appli.Nom) $($c.Version) installé dans $Dossier$(if ($ancien) { " (pris en charge depuis $ancien)" })"
+    Stop-Operation $Appli ((@("$($Appli.Nom) $($c.Version) est installé.") + $notes | Where-Object { $_ }) -join ' ')
 }
 
-# Prise en charge : raccourcis et lancement au démarrage (utilisateur) passent de l'ancienne copie à la nouvelle
-function Move-Raccourcis($Appli, [string]$Ancien, [string]$Nouveau) {
-    $ancienExe = Join-Path $Ancien $Appli.Exe; $nouvelExe = Join-Path $Nouveau $Appli.Exe
-    $sh = New-Object -ComObject WScript.Shell
-    foreach ($l in @([Environment]::GetFolderPath('Desktop'), [Environment]::GetFolderPath('Programs'), [Environment]::GetFolderPath('Startup'))) {
-        foreach ($lnk in @(Get-ChildItem -LiteralPath $l -Filter *.lnk -Recurse -Depth 2 -ErrorAction SilentlyContinue)) {
-            try {
-                $s = $sh.CreateShortcut($lnk.FullName)
-                if ($s.TargetPath -ieq $ancienExe) {
-                    $s.TargetPath = $nouvelExe; $s.WorkingDirectory = $Nouveau
-                    if ($s.IconLocation -like "$Ancien\*") { $s.IconLocation = $s.IconLocation.Replace($Ancien, $Nouveau) }
-                    $s.Save()
-                }
-            } catch { Write-Log "Raccourci $($lnk.Name) : $_" }
-        }
+# Plus aucun accès direct : raccourcis et lancement au démarrage de l'appli (toutes copies) sont retirés.
+# Le lancement au démarrage d'une appli qui en a besoin (les rappels d'Evermind) est repris par Mindset.
+function Remove-Doublons($Appli) {
+    $n = 0
+    foreach ($r in @(Get-RaccourcisAppli $Appli)) { try { Remove-Item -LiteralPath $r.Lien -Force -ErrorAction Stop; $n++ } catch { Write-Log "Raccourci non retiré : $($r.Lien)" } }
+    $demarrage = @(Get-DemarragesAppli $Appli)
+    foreach ($d in $demarrage) { try { Remove-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Run' -Name $d.Nom -ErrorAction Stop } catch {} }
+    if ($demarrage.Count -and -not $Appli.Admin) { Set-DemarrageAppli $Appli.Id $true }
+    if ($n) { "$n raccourci$(if ($n -gt 1) { 's' }) direct$(if ($n -gt 1) { 's' }) retiré$(if ($n -gt 1) { 's' }) : $($Appli.Nom) s'ouvre maintenant depuis Mindset." }
+}
+
+# L'ancienne copie, une fois prise en charge : seuls les fichiers livrés avec l'appli (ceux du zip) sont supprimés,
+# puis les dossiers devenus vides. Jamais un dossier de travail (Git), jamais dans Program Files\Mindset.
+function Remove-AncienneCopie($Appli, [string]$Dossier, [string]$Zip) {
+    $d = [IO.Path]::GetFullPath($Dossier.TrimEnd('\'))
+    if ($d -like "$([IO.Path]::GetFullPath((Join-Path $env:ProgramFiles 'Mindset')))\*") { return '' }
+    if ((Test-Path -LiteralPath (Join-Path $d '.git')) -or (Test-Path -LiteralPath (Join-Path (Split-Path $d -Parent) '.git'))) {
+        return "L'ancienne copie ($d) est un dossier de travail : elle est gardée telle quelle."
     }
     try {
-        $cle = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Run'
-        $run = Get-ItemProperty $cle -ErrorAction Stop
-        foreach ($p in $run.PSObject.Properties) {
-            if ($p.Value -is [string] -and $p.Value.Trim('"') -ieq $ancienExe) { Set-ItemProperty -Path $cle -Name $p.Name -Value "`"$nouvelExe`"" }
-        }
-    } catch {}
+        Add-Type -AssemblyName System.IO.Compression.FileSystem
+        $za = [IO.Compression.ZipFile]::OpenRead($Zip)
+        $prefixe = $Appli.DossierZip + '\'
+        $livres = @($za.Entries | ForEach-Object { $_.FullName.Replace('/', '\') } | Where-Object { $_.StartsWith($prefixe, [StringComparison]::OrdinalIgnoreCase) -and -not $_.EndsWith('\') } | ForEach-Object { $_.Substring($prefixe.Length) })
+        $za.Dispose()
+    } catch { return "L'ancienne copie ($d) n'a pas été supprimée (contenu du zip illisible)." }
+    foreach ($rel in $livres) {
+        $f = [IO.Path]::GetFullPath((Join-Path $d $rel))
+        if ($f.StartsWith("$d\", [StringComparison]::OrdinalIgnoreCase) -and (Test-Path -LiteralPath $f -PathType Leaf)) { try { Remove-Item -LiteralPath $f -Force -ErrorAction Stop } catch {} }
+    }
+    foreach ($sd in @(Get-ChildItem -LiteralPath $d -Directory -Recurse -Force -ErrorAction SilentlyContinue | Sort-Object { $_.FullName.Length } -Descending)) {
+        if (-not @(Get-ChildItem -LiteralPath $sd.FullName -Force -ErrorAction SilentlyContinue).Count) { Remove-Item -LiteralPath $sd.FullName -Force -ErrorAction SilentlyContinue }
+    }
+    $reste = @(Get-ChildItem -LiteralPath $d -Recurse -Force -File -ErrorAction SilentlyContinue)
+    if (-not $reste.Count) { Remove-Item -LiteralPath $d -Recurse -Force -ErrorAction SilentlyContinue; return "L'ancienne copie ($d) a été supprimée." }
+    "L'ancienne copie ($d) a été vidée de $($Appli.Nom) ; $($reste.Count) fichier$(if ($reste.Count -gt 1) { 's' }) qui n'en fai$(if ($reste.Count -gt 1) { 'saient' } else { 'sait' }) pas partie y reste$(if ($reste.Count -gt 1) { 'nt' })."
 }
 
 function Stop-Operation($Appli, [string]$Message) {
     $script:Occupe.Remove($Appli.Id)
     $script:Messages[$Appli.Id] = $Message
+    Update-Trouvees
     Update-Cartes
+}
+
+# ---------------------------------------------------------------------------
+# Lancement au démarrage par Mindset (Mindset.exe -Demarrage, voir mindset.ps1)
+# ---------------------------------------------------------------------------
+function Get-DemarrageAppli([string]$Id) { $Id -in @(Get-Setting 'Demarrage' @()) }
+function Set-DemarrageAppli([string]$Id, [bool]$Oui) {
+    $l = @(@(Get-Setting 'Demarrage' @()) | Where-Object { $_ -ne $Id })
+    if ($Oui) { $l += $Id }
+    Set-Setting 'Demarrage' $l
 }
 
 # ---------------------------------------------------------------------------
@@ -254,35 +301,28 @@ function Start-DesinstallAppli($Appli) {
     if (-not $inst -or -not $inst.Gere -or $inst.Dossier -ine (Get-DossierGere $Appli)) { return }
     if ($Appli.Desinstalleur) {
         # Nevermind a son propre désinstalleur : il remet les réglages de Windows comme avant, puis supprime ses fichiers
-        $d = Join-Path $inst.Dossier $Appli.Desinstalleur
-        try { Start-Process -FilePath $d -WorkingDirectory $inst.Dossier -ErrorAction Stop } catch { Stop-Operation $Appli 'Désinstallation annulée.'; return }
+        try { Start-Process -FilePath (Join-Path $inst.Dossier $Appli.Desinstalleur) -WorkingDirectory $inst.Dossier -ErrorAction Stop } catch { Stop-Operation $Appli 'Désinstallation annulée.'; return }
         $script:Occupe[$Appli.Id] = 'Désinstallation (suis les étapes de son désinstalleur)...'
         $script:AttenteDesinstall = @{ Appli = $Appli; Dossier = $inst.Dossier; Debut = Get-Date }
         $script:DesinstallTimer.Start()
         Update-Cartes
         return
     }
-    Get-Process -Name ([IO.Path]::GetFileNameWithoutExtension($Appli.Exe)) -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
-    Start-Sleep -Milliseconds 600
-    $exe = Join-Path $inst.Dossier $Appli.Exe
-    try { Remove-Item -LiteralPath $inst.Dossier -Recurse -Force -ErrorAction Stop }
-    catch { Stop-Operation $Appli "Désinstallation incomplète : $($_.Exception.Message)"; return }
-    # Raccourcis et lancement au démarrage qui pointaient vers elle
-    try {
-        $cle = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Run'
-        $run = Get-ItemProperty $cle -ErrorAction Stop
-        foreach ($p in $run.PSObject.Properties) { if ($p.Value -is [string] -and $p.Value.Trim('"') -ieq $exe) { Remove-ItemProperty -Path $cle -Name $p.Name } }
-    } catch {}
-    $sh = New-Object -ComObject WScript.Shell
-    foreach ($l in @([Environment]::GetFolderPath('Desktop'), [Environment]::GetFolderPath('Programs'))) {
-        foreach ($lnk in @(Get-ChildItem -LiteralPath $l -Filter *.lnk -Recurse -Depth 2 -ErrorAction SilentlyContinue)) {
-            try { if ($sh.CreateShortcut($lnk.FullName).TargetPath -ieq $exe) { Remove-Item -LiteralPath $lnk.FullName -Force } } catch {}
-        }
-    }
+    $script:Occupe[$Appli.Id] = 'Désinstallation (accepte la demande de Windows)...'
+    Update-Cartes
+    Invoke-Admin 'supprimer' @{ Destination = $inst.Dossier; Exe = $Appli.Exe } ([scriptblock]::Create(@"
+        param(`$Ok, `$Message)
+        `$a = Get-Appli '$($Appli.Id)'
+        if (`$Ok) { Complete-Desinstallation `$a } else { Stop-Operation `$a "Désinstallation impossible : `$Message" }
+"@))
+}
+
+function Complete-Desinstallation($Appli) {
     Save-Installation $Appli.Id $null $false
     Set-SuiteAppli $Appli.Id $null
-    Write-Log "$($Appli.Nom) désinstallé ($($inst.Dossier))"
-    Stop-Operation $Appli "$($Appli.Nom) est désinstallé. Ses données (réglages, rendez-vous) sont gardées dans $($Appli.Donnees)."
+    Set-DemarrageAppli $Appli.Id $false
+    Write-Log "$($Appli.Nom) désinstallé"
+    Stop-Operation $Appli "$($Appli.Nom) est désinstallé. Ses données sont gardées dans $(Join-Path $SuiteDir $Appli.Nom) : une réinstallation les retrouve."
 }
 
 $script:DesinstallTimer = New-Object System.Windows.Threading.DispatcherTimer
@@ -292,10 +332,7 @@ $script:DesinstallTimer.Add_Tick({
     if (-not $w) { $script:DesinstallTimer.Stop(); return }
     if (-not (Test-Path -LiteralPath (Join-Path $w.Dossier $w.Appli.Exe))) {
         $script:DesinstallTimer.Stop(); $script:AttenteDesinstall = $null
-        Save-Installation $w.Appli.Id $null $false
-        Set-SuiteAppli $w.Appli.Id $null
-        Write-Log "$($w.Appli.Nom) désinstallé par son désinstalleur"
-        Stop-Operation $w.Appli "$($w.Appli.Nom) est désinstallé."
+        Complete-Desinstallation $w.Appli
     } elseif (((Get-Date) - $w.Debut).TotalMinutes -gt 10) {
         $script:DesinstallTimer.Stop(); $script:AttenteDesinstall = $null
         Stop-Operation $w.Appli 'Désinstallation annulée ou pas terminée.'
@@ -304,9 +341,7 @@ $script:DesinstallTimer.Add_Tick({
 
 # Utiliser une copie trouvée telle quelle (Mindset l'ouvre, sans la gérer)
 function Use-InstallationTrouvee($Appli, [string]$Dossier) {
-    if (-not (Test-DossierAppli $Dossier $Appli)) { return }
+    if (-not (Test-DossierAppli $Dossier $Appli)) { Stop-Operation $Appli "Ce dossier ne contient pas $($Appli.Nom)."; return }
     Save-Installation $Appli.Id $Dossier $false
     Stop-Operation $Appli "Mindset ouvrira la copie de $Dossier. Elle se met à jour toute seule et garde son propre thème."
 }
-
-$script:Messages = @{}   # id -> dernier message affiché sur la carte

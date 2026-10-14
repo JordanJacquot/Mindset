@@ -16,6 +16,7 @@ function Get-Applis {
               $a.depot -match '^[\w.-]+/[\w.-]+$' -and $a.zip -match $nomFichier -and $a.dossier_zip -match $nomFichier -and
               $a.exe -match '^[^\\/:*?"<>|]+\.exe$' -and $a.script -match '^[\w\\.-]+\.ps1$' -and $a.script -notmatch '\.\.'
         if ($a.desinstalleur) { $ok = $ok -and $a.desinstalleur -match '^[^\\/:*?"<>|]+\.exe$' }
+        if ($a.afficher_fichier) { $ok = $ok -and $a.afficher_fichier -match $nomFichier }
         if (-not $ok) { Write-Log "apps.json : appli ignorée ($($a.id))"; continue }
         [pscustomobject]@{
             Id              = [string]$a.id
@@ -28,7 +29,7 @@ function Get-Applis {
             Exe             = [string]$a.exe
             Script          = [string]$a.script
             Mutex           = [string]$a.mutex
-            AfficherFichier = [Environment]::ExpandEnvironmentVariables([string]$a.afficher_fichier)
+            AfficherFichier = [string]$a.afficher_fichier   # nom du fichier, dans le dossier de données de l'appli
             AfficherSignal  = [string]$a.afficher_signal
             Desinstalleur   = [string]$a.desinstalleur
             Donnees         = [Environment]::ExpandEnvironmentVariables([string]$a.donnees)

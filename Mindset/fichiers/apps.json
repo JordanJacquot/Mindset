@@ -10,7 +10,7 @@
     "exe": "Nevermind.exe",
     "script": "fichiers\\OptiGame.ps1",
     "mutex": "Local\\OptiGame-Instance",
-    "afficher_fichier": "%LOCALAPPDATA%\\OptiGame\\afficher.demande",
+    "afficher_fichier": "afficher.demande",
     "desinstalleur": "Désinstaller Nevermind.exe",
     "donnees": "%LOCALAPPDATA%\\OptiGame",
     "admin": true

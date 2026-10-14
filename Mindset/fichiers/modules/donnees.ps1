@@ -1,9 +1,22 @@
-﻿# Mindset : dossier de données, journal et réglages.
+﻿# Mindset : dossiers de données, journal et réglages.
 # Chargé par Mindset.ps1, qui définit $AppDir et $ModulesDir.
+#
+#   %LOCALAPPDATA%\Mindset\             les données de la suite
+#     suite.json                        commun à Mindset et aux applis (thème, applis gérées) : suite.ps1
+#     Mindset\                          celles de Mindset (journal, réglages, installations, téléchargements)
+#     Nevermind\, Evermind\             celles des applis gérées par Mindset (elles s'y installent elles-mêmes)
 
-$DataDir = Join-Path $env:LOCALAPPDATA 'Mindset'
-if ($EnTest -and $env:MINDSET_DONNEES) { $DataDir = $env:MINDSET_DONNEES }
+$SuiteDir = Join-Path $env:LOCALAPPDATA 'Mindset'
+if ($EnTest -and $env:MINDSET_DONNEES) { $SuiteDir = $env:MINDSET_DONNEES }
+$DataDir = Join-Path $SuiteDir 'Mindset'
 New-Item -ItemType Directory -Force -Path $DataDir | Out-Null
+
+# Premières versions : les fichiers de Mindset étaient à la racine
+foreach ($n in 'journal.txt', 'reglages.json', 'installations.json') {
+    $a = Join-Path $SuiteDir $n
+    if ((Test-Path -LiteralPath $a) -and -not (Test-Path -LiteralPath (Join-Path $DataDir $n))) { try { Move-Item -LiteralPath $a -Destination $DataDir } catch {} }
+}
+
 $LogFile = Join-Path $DataDir 'journal.txt'
 $SettingsFile = Join-Path $DataDir 'reglages.json'
 

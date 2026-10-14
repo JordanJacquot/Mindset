@@ -1,4 +1,4 @@
-﻿# Mindset : page Paramètres (thème de la suite).
+﻿# Mindset : page Paramètres (thème de la suite, démarrage avec Windows, dossiers, désinstallation).
 # Chargé par Mindset.ps1 après accueil.ps1.
 
 function New-ChoixTheme([string]$Id) {
@@ -39,3 +39,22 @@ function New-ChoixTheme([string]$Id) {
 }
 
 foreach ($id in $AppThemes.Keys) { New-ChoixTheme $id }
+
+# Démarrage avec Windows : une case par appli qui peut être lancée par Mindset (pas Nevermind, qui a besoin de l'admin)
+foreach ($a in $Applis | Where-Object { -not $_.Admin }) {
+    $cb = New-Object System.Windows.Controls.CheckBox
+    $cb.Content = "Démarrer $($a.Nom) en arrière-plan$(if ($a.Id -eq 'evermind') { ' (pour que les rappels sonnent)' })"
+    $cb.Foreground = Get-Brush '#ECEAF7'; $cb.Margin = '0,0,0,8'; $cb.Tag = $a.Id
+    $cb.IsChecked = Get-DemarrageAppli $a.Id
+    $cb.Add_Click({ Set-DemarrageAppli $this.Tag ([bool]$this.IsChecked) })
+    [void]$ui.Demarrages.Children.Add($cb)
+}
+
+$ui.BtnDossierProgrammes.Add_Click({ $d = Join-Path $env:ProgramFiles 'Mindset'; if (-not (Test-Path -LiteralPath $d)) { $d = Split-Path $AppDir -Parent }; Start-Process explorer.exe "`"$d`"" })
+$ui.BtnDossierDonnees.Add_Click({ Start-Process explorer.exe "`"$SuiteDir`"" })
+$ui.BtnDesinstallerMindset.Add_Click({ Confirm-DesinstallMindset })
+
+# Bandeau de bienvenue : Mindset lancé depuis le dossier téléchargé (pas installé, pas un dossier de travail)
+$ui.Bienvenue.Visibility = if ((-not (Test-MindsetInstalle) -and -not (Test-MindsetDeveloppement) -and -not $EnTest) -or ($EnTest -and $env:MINDSET_BIENVENUE)) { 'Visible' } else { 'Collapsed' }
+$ui.BtnInstallerMindset.Add_Click({ Install-Mindset })
+$ui.BtnBienvenuePlusTard.Add_Click({ $ui.Bienvenue.Visibility = 'Collapsed' })

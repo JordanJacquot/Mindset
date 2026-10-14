@@ -116,6 +116,20 @@
           <!-- Accueil -->
           <ScrollViewer x:Name="PageAccueil" VerticalScrollBarVisibility="Auto">
             <StackPanel Margin="32,28">
+              <!-- Mindset lancé depuis le dossier téléchargé : proposer de l'installer -->
+              <Border x:Name="Bienvenue" Visibility="Collapsed" Background="#141030" BorderBrush="#00E5FF" BorderThickness="1" CornerRadius="10" Padding="18,14" Margin="0,0,0,22" MaxWidth="770" HorizontalAlignment="Left">
+                <DockPanel>
+                  <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center" Margin="16,0,0,0">
+                    <Button x:Name="BtnBienvenuePlusTard" Content="Plus tard" Style="{StaticResource BtnSecondary}" Margin="0,0,8,0"/>
+                    <Button x:Name="BtnInstallerMindset" Content="Installer Mindset" Style="{StaticResource BtnPrimary}"/>
+                  </StackPanel>
+                  <StackPanel>
+                    <TextBlock Text="Installer Mindset sur ce PC" FontSize="16" FontWeight="SemiBold"/>
+                    <TextBlock x:Name="BienvenueTexte" TextWrapping="Wrap" Foreground="#A9A3C9" Margin="0,4,0,0"
+                               Text="Mindset se copie dans Program Files, crée son raccourci sur le Bureau et dans le menu Démarrer, et se lance avec Windows. Tu pourras ensuite supprimer le dossier téléchargé."/>
+                  </StackPanel>
+                </DockPanel>
+              </Border>
               <TextBlock x:Name="Greeting" FontSize="26" FontWeight="SemiBold"/>
               <TextBlock Text="Tes applis de la suite, au même endroit." Foreground="{StaticResource Texte2}" Margin="0,4,0,24"/>
               <WrapPanel x:Name="Cartes"/>
@@ -140,6 +154,24 @@
                          Text="Le même pour Mindset et pour les applis installées par Mindset : en changer ici les relance avec ce thème. Changer de thème dans Nevermind ou Evermind le change aussi ici."/>
               <WrapPanel x:Name="Themes"/>
               <TextBlock x:Name="ThemeInfo" Foreground="{StaticResource Texte3}" FontSize="12" Margin="0,6,0,0"/>
+
+              <TextBlock Text="Démarrage avec Windows" FontSize="17" FontWeight="SemiBold" Margin="0,28,0,4"/>
+              <TextBlock TextWrapping="Wrap" Foreground="{StaticResource Texte2}" Margin="0,0,0,10"
+                         Text="Mindset se lance avec Windows et démarre en arrière-plan les applis cochées. Nevermind garde son propre lancement (dans Nevermind, page Sauvegarde) tant qu'il a besoin des droits administrateur."/>
+              <StackPanel x:Name="Demarrages"/>
+
+              <TextBlock Text="Dossiers" FontSize="17" FontWeight="SemiBold" Margin="0,28,0,4"/>
+              <TextBlock TextWrapping="Wrap" Foreground="{StaticResource Texte2}" Margin="0,0,0,10"
+                         Text="Les programmes sont dans Program Files\Mindset (protégé : seul un administrateur peut les modifier). Les données de Mindset et de chaque appli sont dans %LOCALAPPDATA%\Mindset, un dossier par appli."/>
+              <StackPanel Orientation="Horizontal">
+                <Button x:Name="BtnDossierProgrammes" Content="Ouvrir le dossier des programmes" Style="{StaticResource BtnSecondary}" Margin="0,0,10,0"/>
+                <Button x:Name="BtnDossierDonnees" Content="Ouvrir le dossier des données" Style="{StaticResource BtnSecondary}"/>
+              </StackPanel>
+
+              <TextBlock Text="Désinstaller Mindset" FontSize="17" FontWeight="SemiBold" Margin="0,28,0,4"/>
+              <TextBlock TextWrapping="Wrap" Foreground="{StaticResource Texte2}" Margin="0,0,0,10"
+                         Text="Désinstalle d'abord les applis depuis l'accueil. Les données restent sur le PC : une réinstallation les retrouve."/>
+              <Button x:Name="BtnDesinstallerMindset" Content="Désinstaller Mindset" Style="{StaticResource BtnSecondary}" HorizontalAlignment="Left"/>
             </StackPanel>
           </ScrollViewer>
         </Grid>

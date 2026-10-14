@@ -132,6 +132,11 @@ function Update-Carte($Appli) {
         [void]$actions.Children.Add((New-Action 'Utiliser telle quelle' 'BtnSecondary' $Appli.Id { $a = Get-Appli $this.Tag; Use-InstallationTrouvee $a $script:Trouvees[$a.Id] }))
     } elseif (-not $e.Inst) {
         [void]$actions.Children.Add((New-Action 'Installer' 'BtnPrimary' $Appli.Id { Start-InstallAppli (Get-Appli $this.Tag) }))
+        # Ses données existent mais aucune copie trouvée : elle est peut-être dans un dossier inhabituel
+        if (Test-Path -LiteralPath $Appli.Donnees) {
+            [void]$sp.Children.Add((New-Text "Tu avais déjà $($Appli.Nom) ? Montre son dossier pour qu'il soit pris en charge (sinon il resterait en double)." 12 '#A9A3C9'))
+            [void]$actions.Children.Add((New-Action 'Choisir son dossier' 'BtnSecondary' $Appli.Id { Select-DossierAppli (Get-Appli $this.Tag) }))
+        }
     } else {
         if ($e.MajDispo) { [void]$actions.Children.Add((New-Action 'Mettre à jour' 'BtnPrimary' $Appli.Id { Confirm-MiseAJour (Get-Appli $this.Tag) })) }
         [void]$actions.Children.Add((New-Action 'Ouvrir' $(if ($e.MajDispo) { 'BtnSecondary' } else { 'BtnPrimary' }) $Appli.Id { Open-Appli (Get-Appli $this.Tag) }))
@@ -167,14 +172,24 @@ function Confirm-PriseEnCharge($Appli, [string]$Dossier) {
     if (-not $Dossier) { $Dossier = $script:Trouvees[$Appli.Id] }
     if (-not $Dossier) { return }
     $ou = Get-DossierGere $Appli
-    $txt = "Mindset installe la dernière version signée de $($Appli.Nom) dans $ou, et y fait pointer ses raccourcis et son lancement au démarrage. Ses réglages et ses données ne bougent pas.`n`nL'ancienne copie ($Dossier) n'est ni modifiée ni supprimée."
+    $txt = "Mindset installe la dernière version signée de $($Appli.Nom) dans $ou. Ses raccourcis directs et son lancement au démarrage sont retirés : il s'ouvrira depuis Mindset. Ses réglages et ses données sont gardés (ils rejoignent $SuiteDir\$($Appli.Nom))."
+    $txt += if ((Test-Path -LiteralPath (Join-Path $Dossier '.git')) -or (Test-Path -LiteralPath (Join-Path (Split-Path $Dossier -Parent) '.git'))) { "`n`n$Dossier est un dossier de travail : il est gardé tel quel." }
+            else { "`n`nL'ancienne copie ($Dossier) est ensuite supprimée (seulement les fichiers de $($Appli.Nom))." }
     if (Test-AppliOuverte $Appli) { $txt += " $($Appli.Nom) va être fermé pendant l'opération." }
     Show-Confirmation "Prendre en charge $($Appli.Nom) ?" $txt 'Prendre en charge' ([scriptblock]::Create("Start-InstallAppli (Get-Appli '$($Appli.Id)') '$($Dossier -replace "'", "''")'"))
 }
 
+function Select-DossierAppli($Appli) {
+    $dlg = New-Object System.Windows.Forms.FolderBrowserDialog
+    $dlg.Description = "Le dossier de $($Appli.Nom) (celui qui contient $($Appli.Exe))"
+    if ($dlg.ShowDialog() -ne 'OK') { return }
+    if (-not (Test-DossierAppli $dlg.SelectedPath $Appli)) { Stop-Operation $Appli "Ce dossier ne contient pas $($Appli.Nom) ($($Appli.Exe) et $($Appli.Script))."; return }
+    Confirm-PriseEnCharge $Appli $dlg.SelectedPath
+}
+
 function Confirm-Desinstallation($Appli) {
     $txt = if ($Appli.Desinstalleur) { "Le désinstalleur de $($Appli.Nom) va s'ouvrir : il remet comme avant les réglages de Windows qu'il a modifiés, puis supprime ses fichiers." }
-           else { "$($Appli.Nom) va être fermé et ses fichiers supprimés. Ses données (réglages, rendez-vous) sont gardées : une réinstallation les retrouve." }
+           else { "$($Appli.Nom) va être fermé et ses fichiers supprimés (une demande de Windows). Ses données (réglages, rendez-vous) sont gardées : une réinstallation les retrouve." }
     Show-Confirmation "Désinstaller $($Appli.Nom) ?" $txt 'Désinstaller' ([scriptblock]::Create("Start-DesinstallAppli (Get-Appli '$($Appli.Id)')"))
 }
 

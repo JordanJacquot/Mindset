@@ -50,6 +50,12 @@ static class Lanceur
                 {
                     ps.Runspace = rs;
                     ps.AddCommand(script);
+                    // « Mindset.exe -Demarrage » (lancé avec Windows), « -Desinstaller » (Applications installées)
+                    foreach (string a in args)
+                    {
+                        if (string.Equals(a, "-Demarrage", StringComparison.OrdinalIgnoreCase)) ps.AddParameter("Demarrage");
+                        else if (string.Equals(a, "-Desinstaller", StringComparison.OrdinalIgnoreCase)) ps.AddParameter("Desinstaller");
+                    }
                     ps.Invoke();
                     if (ps.Streams.Error.Count > 0)
                     {
@@ -69,12 +75,12 @@ static class Lanceur
         return 0;
     }
 
-    // Même journal que le code de Mindset (%LOCALAPPDATA%\Mindset\journal.txt)
+    // Même journal que le code de Mindset (%LOCALAPPDATA%\Mindset\Mindset\journal.txt)
     static void Journal(string texte)
     {
         try
         {
-            string dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Mindset");
+            string dir = Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Mindset"), "Mindset");
             Directory.CreateDirectory(dir);
             File.AppendAllText(Path.Combine(dir, "journal.txt"), DateTime.Now.ToString("s") + " " + texte + "\r\n", new UTF8Encoding(false));
         }
