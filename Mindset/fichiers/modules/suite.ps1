@@ -36,7 +36,7 @@ function Write-Suite($Suite) {
 function Get-SuiteTheme {
     $s = Read-Suite
     if ($s.theme) { return $s.theme }
-    foreach ($f in "$env:LOCALAPPDATA\Evermind\reglages.json", "$env:LOCALAPPDATA\OptiGame\parametres.json") {
+    foreach ($f in "$SuiteDir\Evermind\reglages.json", "$env:LOCALAPPDATA\Evermind\reglages.json", "$SuiteDir\Nevermind\parametres.json", "$env:LOCALAPPDATA\OptiGame\parametres.json") {
         try {
             $t = [string]([IO.File]::ReadAllText($f, [Text.Encoding]::UTF8) | ConvertFrom-Json).Theme
             if ($t -in $ThemesSuite) { return $t }
