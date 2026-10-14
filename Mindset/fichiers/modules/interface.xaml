@@ -217,6 +217,19 @@
                   </StackPanel>
                 </DockPanel>
               </Border>
+              <!-- Mise à jour de Mindset : prête (téléchargée et vérifiée), ou résultat après la relance (mindset.ps1) -->
+              <Border x:Name="MajBandeau" Visibility="Collapsed" Background="{StaticResource CardBg}" BorderBrush="#80B04BFF" BorderThickness="1" CornerRadius="22" Padding="24,16" Margin="0,0,0,22" MaxWidth="770" HorizontalAlignment="Left">
+                <DockPanel>
+                  <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center" Margin="16,0,0,0">
+                    <Button x:Name="BtnMajFermer" Content="OK" Style="{StaticResource BtnSecondary}" Margin="0,0,8,0"/>
+                    <Button x:Name="BtnMajMindset" Content="Redémarrer et mettre à jour" Style="{StaticResource BtnPrimary}"/>
+                  </StackPanel>
+                  <StackPanel VerticalAlignment="Center">
+                    <TextBlock x:Name="MajTitre" FontSize="16" FontWeight="SemiBold"/>
+                    <TextBlock x:Name="MajTexte" TextWrapping="Wrap" Foreground="#A9A3C9" Margin="0,4,0,0"/>
+                  </StackPanel>
+                </DockPanel>
+              </Border>
               <TextBlock x:Name="Greeting" FontSize="26" FontWeight="SemiBold"/>
               <TextBlock Text="Tes applis de la suite, au même endroit." Foreground="{StaticResource Texte2}" Margin="0,4,0,24"/>
               <WrapPanel x:Name="Cartes"/>

@@ -8,6 +8,8 @@
     -Action mindset         installe Mindset lui-même : copie -Source dans Program Files\Mindset\Mindset, ou dans
                             X:\Mindset\Programmes\Mindset avec -Disque X -Sid <utilisateur> (crée X:\Mindset protégé),
                             et l'inscrit dans « Applications installées » de Windows (-Version)
+    -Action mindset-maj     met Mindset à jour : attend la fin du processus -AttendrePid, installe -Zip/-Signature (vérifiés ici)
+                            dans -Destination (…\Mindset), puis relance Mindset sans les droits administrateur
     -Action supprimer       supprime une appli gérée (-Destination, -Exe) ou Mindset lui-même (-Destination ...\Mindset)
                             après avoir attendu la fin du processus -AttendrePid
     Toujours : -Resultat <fichier de réponse> (JSON { ok, message }).
@@ -15,7 +17,7 @@
     Seuls des dossiers directement dans Program Files\Mindset ou X:\Mindset\Programmes sont acceptés.
 #>
 param(
-    [Parameter(Mandatory = $true)][ValidateSet('appli', 'mindset', 'supprimer')][string]$Action,
+    [Parameter(Mandatory = $true)][ValidateSet('appli', 'mindset', 'mindset-maj', 'supprimer')][string]$Action,
     [Parameter(Mandatory = $true)][string]$Resultat,
     [string]$Zip, [string]$Signature, [string]$Destination, [string]$DossierZip, [string]$Exe, [string]$AncienExe,
     [string]$Source, [string]$Version, [int]$AttendrePid,
@@ -136,6 +138,28 @@ try {
                 else { New-ItemProperty -Path $CleDesinstall -Name $p.Key -Value ([string]$p.Value) -PropertyType String -Force | Out-Null }
             }
             Write-Resultat $true $dest
+        }
+        'mindset-maj' {
+            # Mise à jour de Mindset lui-même : on attend qu'il soit fermé, on installe le zip signé (vérifié ici),
+            # puis on le relance sans les droits administrateur (par l'Explorateur, qui tourne avec ceux de l'utilisateur)
+            $relance = Join-Path $PSScriptRoot '..\Mindset.exe'   # le Mindset qui a demandé la mise à jour
+            try {
+                $dest = Test-DossierMindset $Destination
+                if ((Split-Path $dest -Leaf) -ne 'Mindset') { throw "Dossier refusé : $Destination" }
+                $relance = Join-Path $dest 'Mindset.exe'
+                if ($AttendrePid) { try { Wait-Process -Id $AttendrePid -Timeout 30 -ErrorAction Stop } catch {} }
+                Start-Sleep -Milliseconds 500
+                $octets = [IO.File]::ReadAllBytes($Zip)
+                $sig = [IO.File]::ReadAllBytes($Signature)
+                [void](Install-Paquet -Zip $octets -Signature $sig -ClePublique (Join-Path $PSScriptRoot 'cle-publique.xml') -Destination $dest -DossierZip 'Mindset' -Exe 'Mindset.exe')
+                if ($Version) { Set-ItemProperty -Path $CleDesinstall -Name 'DisplayVersion' -Value $Version -ErrorAction SilentlyContinue }
+                Write-Resultat $true $Version
+            } catch { Write-Resultat $false $_.Exception.Message }
+            finally {
+                # Relancé dans tous les cas : la nouvelle version, ou l'ancienne si la mise à jour a échoué
+                Start-Process -FilePath "$env:SystemRoot\explorer.exe" -ArgumentList "`"$([IO.Path]::GetFullPath($relance))`""
+            }
+            return
         }
         'supprimer' {
             $dest = Test-DossierMindset $Destination

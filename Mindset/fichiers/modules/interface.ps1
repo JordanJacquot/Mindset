@@ -107,7 +107,10 @@ function Start-Capture([string]$Path) {
     $Window.Add_ContentRendered({
         $script:CaptureTimer = New-Object System.Windows.Threading.DispatcherTimer
         $script:CaptureTimer.Interval = [TimeSpan]::FromMilliseconds(500)
+        $script:CaptureDebut = Get-Date
         $script:CaptureTimer.Add_Tick({
+            # (on attend la fin des travaux de fond, téléchargements compris, 30 secondes au plus)
+            if ($script:Taches.Count -and ((Get-Date) - $script:CaptureDebut).TotalSeconds -lt 30) { return }
             $script:CaptureTimer.Stop()
             try {
                 $root = $Window.Content

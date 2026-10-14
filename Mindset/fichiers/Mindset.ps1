@@ -15,6 +15,7 @@ $UpdateRepo = 'JordanJacquot/Mindset'
 $MainScript = $PSCommandPath
 $AppExe = Join-Path (Split-Path $PSScriptRoot -Parent) 'Mindset.exe'   # le programme qui exécute ce script
 $EnTest = [bool]$env:MINDSET_TEST      # test automatique : rien n'est modifié sur le PC
+if ($EnTest -and $env:MINDSET_VERSION) { $AppVersion = $env:MINDSET_VERSION }   # (test de la mise à jour de Mindset)
 
 Add-Type -AssemblyName PresentationFramework, PresentationCore, WindowsBase, System.Drawing, System.Windows.Forms
 

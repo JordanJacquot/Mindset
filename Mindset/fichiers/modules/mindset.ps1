@@ -85,3 +85,64 @@ function Start-Demarrage {
         if (-not $a.Admin -and (Get-DemarrageAppli $a.Id)) { $i = Get-Installation $a; if ($i -and $i.Gere) { Open-Appli $a -Demarrage } }
     }
 }
+
+# ---------------------------------------------------------------------------
+# Mise à jour de Mindset lui-même (au démarrage, puis toutes les 6 heures avec les applis) :
+# la nouvelle version est téléchargée et sa signature vérifiée en arrière-plan, puis un bandeau la propose.
+# Un clic : Mindset se ferme, installer-admin.ps1 (une demande de Windows) vérifie à nouveau et installe, puis le relance.
+# ---------------------------------------------------------------------------
+$FichierMajMindset = Join-Path $TelechargementsDir 'maj-mindset.json'
+
+function Start-VerifMajMindset {
+    if (-not ((Test-MindsetInstalle) -or ($EnTest -and $env:MINDSET_MAJ_TEST)) -or $script:MajMindset -or $script:MajMindsetEnCours) { return }
+    $script:MajMindsetEnCours = $true
+    New-Item -ItemType Directory -Force -Path $TelechargementsDir | Out-Null
+    Start-Tache {
+        $p = $args[0]
+        $pub = Get-Publication 'JordanJacquot/Mindset' 'Mindset.zip'
+        if ($pub.Erreur) { throw $pub.Erreur }
+        if (-not (Test-VersionPlusRecente $pub.Version $p.Version)) { return @{ AJour = $true } }
+        if (-not $pub.UrlSig) { throw "la version $($pub.Version) n'est pas signée" }
+        $zip = Get-Octets $pub.UrlZip; $sig = Get-Octets $pub.UrlSig
+        if (-not (Test-Signature $zip $sig $p.Cle)) { throw "la signature de la version $($pub.Version) est invalide" }
+        $fz = Join-Path $p.Dossier 'mindset.zip'
+        [IO.File]::WriteAllBytes($fz, $zip); [IO.File]::WriteAllBytes("$fz.sig", $sig)
+        @{ Version = $pub.Version; Zip = $fz; Sig = "$fz.sig"; Notes = $pub.Notes }
+    } @{ Version = $AppVersion; Cle = $ClePublique; Dossier = $TelechargementsDir } {
+        param($Resultat, $Erreur)
+        $script:MajMindsetEnCours = $false
+        if ($Erreur) { Write-Log "Mise à jour de Mindset : $Erreur"; return }
+        if (-not $Resultat.Version) { return }
+        $script:MajMindset = $Resultat
+        Write-Log "Mindset $($Resultat.Version) téléchargé et vérifié, prêt à installer"
+        $ui.MajTitre.Text = "Mindset $($Resultat.Version) est prêt"
+        $ui.MajTexte.Text = "La nouvelle version est téléchargée et sa signature vérifiée. Mindset va se fermer, se mettre à jour (Windows demande l'autorisation) et se rouvrir tout seul."
+        $ui.BtnMajMindset.Visibility = 'Visible'; $ui.BtnMajFermer.Content = 'Plus tard'
+        $ui.MajBandeau.Visibility = 'Visible'
+    }
+}
+
+function Start-MajMindset {
+    $m = $script:MajMindset
+    if (-not $m -or $script:Occupe.Count) { if ($script:Occupe.Count) { $ui.MajTexte.Text = 'Une installation est en cours : réessaie quand elle sera finie.' }; return }
+    Remove-Item -LiteralPath $FichierMajMindset -Force -ErrorAction SilentlyContinue
+    $a = @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-WindowStyle', 'Hidden', '-File', "`"$(Join-Path $AppDir 'installer-admin.ps1')`"", '-Action', 'mindset-maj',
+           '-Zip', "`"$($m.Zip)`"", '-Signature', "`"$($m.Sig)`"", '-Destination', "`"$DossierMindset`"", '-Version', $m.Version, '-AttendrePid', $PID, '-Resultat', "`"$FichierMajMindset`"")
+    try { Start-Process -FilePath "$env:SystemRoot\System32\WindowsPowerShell\v1.0\powershell.exe" -ArgumentList $a -Verb RunAs -WindowStyle Hidden -ErrorAction Stop | Out-Null }
+    catch { $ui.MajTexte.Text = 'Mise à jour annulée : l''autorisation de Windows a été refusée. Tu peux réessayer.'; return }
+    Write-Log "Mise à jour vers Mindset $($m.Version) lancée"
+    $Window.Close()   # installer-admin.ps1 attend la fermeture, installe, puis relance Mindset
+}
+
+# Après une mise à jour : le résultat laissé par installer-admin.ps1
+function Show-ResultatMajMindset {
+    if (-not (Test-Path -LiteralPath $FichierMajMindset)) { return }
+    try { $r = [IO.File]::ReadAllText($FichierMajMindset, [Text.Encoding]::UTF8) | ConvertFrom-Json } catch { return }
+    Remove-Item -LiteralPath $FichierMajMindset -Force -ErrorAction SilentlyContinue
+    foreach ($f in 'mindset.zip', 'mindset.zip.sig') { Remove-Item -LiteralPath (Join-Path $TelechargementsDir $f) -Force -ErrorAction SilentlyContinue }
+    $ui.BtnMajMindset.Visibility = 'Collapsed'; $ui.BtnMajFermer.Content = 'OK'
+    if ($r.ok) { $ui.MajTitre.Text = "Mindset est à jour (version $AppVersion)"; $ui.MajTexte.Text = 'La mise à jour s''est bien passée.' }
+    else { $ui.MajTitre.Text = 'La mise à jour de Mindset n''a pas pu se faire'; $ui.MajTexte.Text = "$($r.message) Mindset garde sa version actuelle et réessaiera plus tard." }
+    Write-Log "Résultat de la mise à jour de Mindset : $(if ($r.ok) { 'réussie' } else { $r.message })"
+    $ui.MajBandeau.Visibility = 'Visible'
+}

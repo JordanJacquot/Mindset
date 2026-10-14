@@ -70,3 +70,8 @@ $ui.BtnInstallerMindset.Add_Click({
     Install-Mindset $(if ($choix) { [string]$choix.Tag } else { '' })
 })
 $ui.BtnBienvenuePlusTard.Add_Click({ $ui.Bienvenue.Visibility = 'Collapsed' })
+
+# Mise à jour de Mindset (mindset.ps1) : le bandeau de l'accueil
+$ui.BtnMajMindset.Add_Click({ Start-MajMindset })
+$ui.BtnMajFermer.Add_Click({ $ui.MajBandeau.Visibility = 'Collapsed' })
+Show-ResultatMajMindset

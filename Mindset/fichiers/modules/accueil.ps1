@@ -207,7 +207,7 @@ Update-Greeting
 Update-Trouvees
 Update-Cartes
 Show-Page $(if ($EnTest -and $env:MINDSET_PAGE) { $env:MINDSET_PAGE } else { 'accueil' })
-if (-not $env:MINDSET_SANS_RESEAU) { Update-Publications }
+if (-not $env:MINDSET_SANS_RESEAU) { Update-Publications; Start-VerifMajMindset }
 
 # État des applis relu toutes les 2 secondes ; versions publiées toutes les 6 heures ; thème de la suite surveillé
 $script:DernieresPublications = Get-Date
@@ -215,7 +215,7 @@ $script:EtatTimer = New-Object System.Windows.Threading.DispatcherTimer
 $script:EtatTimer.Interval = [TimeSpan]::FromSeconds(2)
 $script:EtatTimer.Add_Tick({
     Update-Cartes; Update-Greeting
-    if (((Get-Date) - $script:DernieresPublications).TotalHours -ge 6) { $script:DernieresPublications = Get-Date; Update-Publications }
+    if (((Get-Date) - $script:DernieresPublications).TotalHours -ge 6) { $script:DernieresPublications = Get-Date; Update-Publications; Start-VerifMajMindset }
     # Thème changé depuis une appli : Mindset le prend aussi (sauf pendant une opération)
     $t = (Read-Suite).theme
     if ($t -and $t -ne $ThemeId -and -not $script:Occupe.Count -and -not $EnTest) { Write-Log "Thème de la suite changé ailleurs : $t"; Restart-Mindset }
