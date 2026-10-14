@@ -5,7 +5,7 @@
 
     La liste des applis est dans fichiers\apps.json. Les réglages et le journal sont dans %LOCALAPPDATA%\Mindset\Mindset.
 
-    Mindset.ps1 -Demarrage     lancé avec Windows : démarre en arrière-plan les applis choisies, sans fenêtre, puis se ferme
+    Mindset.ps1 -Demarrage     lancé avec Windows : démarre en arrière-plan les applis choisies et reste caché près de l'horloge
     Mindset.ps1 -Desinstaller  depuis « Applications installées » de Windows : ouvre la désinstallation de Mindset
 #>
 param([switch]$Demarrage, [switch]$Desinstaller)
@@ -46,7 +46,7 @@ try { Get-ChildItem -LiteralPath $PSScriptRoot -File -Recurse -ErrorAction Silen
 # ---------------------------------------------------------------------------
 $AppDir = $PSScriptRoot
 $ModulesDir = Join-Path $AppDir 'modules'
-$msModules = 'donnees', 'suite', 'themes', 'signature', 'paquets', 'taches', 'applis', 'installations', 'mindset', 'interface', 'logo', 'accueil', 'parametres'
+$msModules = 'donnees', 'suite', 'themes', 'signature', 'paquets', 'taches', 'applis', 'installations', 'mindset', 'interface', 'logo', 'accueil', 'parametres', 'zone'
 $missing = @(@('natif.cs', 'interface.xaml') + @($msModules | ForEach-Object { "$_.ps1" }) | Where-Object { -not (Test-Path -LiteralPath (Join-Path $ModulesDir $_)) })
 if (-not (Test-Path -LiteralPath (Join-Path $AppDir 'cle-publique.xml'))) { $missing += 'cle-publique.xml' }
 if ($missing) {
@@ -59,21 +59,15 @@ Add-Type -TypeDefinition ([IO.File]::ReadAllText((Join-Path $ModulesDir 'natif.c
 $AppId = 'JordanJacquot.Mindset'
 try { [MSNative]::SetAppId($AppId) } catch {}
 
-# Au démarrage de Windows, pas de fenêtre : seulement ce qu'il faut pour lancer les applis
-if ($Demarrage) { $msModules = $msModules | Where-Object { $_ -notin 'interface', 'logo', 'accueil', 'parametres' } }
 foreach ($msModule in $msModules) { . (Join-Path $ModulesDir "$msModule.ps1") }
 
 # ---------------------------------------------------------------------------
 # Lancement
 # ---------------------------------------------------------------------------
 Write-Log "Démarrage Mindset $AppVersion (PowerShell $($PSVersionTable.PSVersion))$(if ($Demarrage) { ', lancé avec Windows' })"
-if ($Demarrage) {
-    Start-Demarrage
-    if ($script:InstanceMutex) { try { $script:InstanceMutex.ReleaseMutex(); $script:InstanceMutex.Dispose() } catch {} }
-    exit
-}
 if ($env:MINDSET_CAPTURE) { Start-Capture $env:MINDSET_CAPTURE }
-$Window.Show()
+# Lancé avec Windows : il démarre les applis en arrière-plan et reste caché près de l'horloge (zone.ps1)
+if ($Demarrage) { Start-Demarrage } else { $Window.Show() }
 if ($Desinstaller) { Show-Page 'parametres'; Confirm-DesinstallMindset }
 [System.Windows.Threading.Dispatcher]::Run()
 

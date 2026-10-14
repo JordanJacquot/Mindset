@@ -63,26 +63,30 @@ function Close-Confirmation { $ui.Confirmation.Visibility = 'Collapsed'; $script
 $ui.BtnConfirmationNon.Add_Click({ Close-Confirmation })
 $ui.BtnConfirmationOui.Add_Click({ $a = $script:ConfirmationAction; Close-Confirmation; if ($a) { & $a } })
 
-# Relance de Mindset (nouveau thème) : la fenêtre se ferme, Mindset.ps1 relance après avoir libéré sa place
-function Restart-Mindset {
-    $script:Relancer = $true
+# Quitter vraiment (thème, mise à jour, installation, menu « Quitter ») : sans la question de la croix (zone.ps1)
+function Exit-Mindset {
+    $script:QuitterVraiment = $true
     $Window.Close()
 }
 
-# Un nouveau lancement de Mindset ramène la fenêtre (voir Mindset.ps1)
+# Relance de Mindset (nouveau thème) : la fenêtre se ferme, Mindset.ps1 relance après avoir libéré sa place
+function Restart-Mindset {
+    $script:Relancer = $true
+    Exit-Mindset
+}
+
+# Un nouveau lancement de Mindset ramène la fenêtre, même cachée près de l'horloge (voir Mindset.ps1)
 if ($script:ShowSignal) {
     $script:ShowTimer = New-Object System.Windows.Threading.DispatcherTimer
     $script:ShowTimer.Interval = [TimeSpan]::FromMilliseconds(300)
-    $script:ShowTimer.Add_Tick({
-        if ($script:ShowSignal.WaitOne(0)) {
-            if ($Window.WindowState -eq 'Minimized') { $Window.WindowState = 'Normal' }
-            $Window.Show(); [void]$Window.Activate()
-        }
-    })
+    $script:ShowTimer.Add_Tick({ if ($script:ShowSignal.WaitOne(0)) { Show-Fenetre } })
     $script:ShowTimer.Start()
 }
 
-$Window.Add_Closed({ [System.Windows.Threading.Dispatcher]::CurrentDispatcher.InvokeShutdown() })
+$Window.Add_Closed({
+    if ($script:IconeHorloge) { try { $script:IconeHorloge.Visible = $false; $script:IconeHorloge.Dispose() } catch {} }
+    [System.Windows.Threading.Dispatcher]::CurrentDispatcher.InvokeShutdown()
+})
 
 function New-Button([string]$Text, [string]$Style = 'BtnSecondary') {
     $btn = New-Object System.Windows.Controls.Button
@@ -121,7 +125,7 @@ function Start-Capture([string]$Path) {
                 $fs = [IO.File]::Create($env:MINDSET_CAPTURE)
                 try { $enc.Save($fs) } finally { $fs.Dispose() }
             } catch { [Console]::Error.WriteLine("Capture : $_") }
-            $Window.Close()
+            Exit-Mindset
         })
         $script:CaptureTimer.Start()
     })

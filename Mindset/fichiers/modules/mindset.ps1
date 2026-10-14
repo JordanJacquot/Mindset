@@ -3,7 +3,7 @@
 #
 # Installé, Mindset est dans C:\Program Files\Mindset\Mindset (ou X:\Mindset\Programmes\Mindset sur le disque choisi),
 # avec un raccourci « Mindset » sur le Bureau et dans le menu Démarrer, et se lance avec Windows (Mindset.exe -Demarrage :
-# il démarre en arrière-plan les applis qui en ont besoin, comme les rappels d'Evermind, puis se ferme).
+# il démarre en arrière-plan les applis qui en ont besoin, comme les rappels d'Evermind, et reste caché près de l'horloge).
 # Il est aussi dans « Applications installées ».
 
 $DossierMindset = Join-Path $RacineProgrammes 'Mindset'
@@ -50,7 +50,7 @@ function Install-Mindset([string]$Disque) {
         Write-Log "Mindset $AppVersion installé dans $dossier"
         # Le Mindset installé prend le relais ; celui-ci (dans le dossier téléchargé) se ferme
         $script:LancerApres = $exe
-        $Window.Close()
+        Exit-Mindset
     }
 }
 
@@ -71,14 +71,14 @@ function Confirm-DesinstallMindset {
             Invoke-Admin 'supprimer' @{ Destination = $DossierMindset; AttendrePid = $PID } { param($Ok, $Message) if (-not $Ok) { Write-Log "Désinstallation de Mindset : $Message" } }
             $t = New-Object System.Windows.Threading.DispatcherTimer
             $t.Interval = [TimeSpan]::FromSeconds(2)
-            $t.Add_Tick({ $this.Stop(); $Window.Close() })
+            $t.Add_Tick({ $this.Stop(); Exit-Mindset })
             $t.Start()
-        } else { $Window.Close() }
+        } else { Exit-Mindset }
         Write-Log 'Mindset désinstallé'
     }
 }
 
-# Mindset.exe -Demarrage : démarre en arrière-plan les applis choisies (Paramètres), puis se ferme.
+# Mindset.exe -Demarrage : démarre en arrière-plan les applis choisies (Paramètres), sans ouvrir la fenêtre.
 # Nevermind n'en fait pas partie : il garde sa tâche planifiée, qui le lance en administrateur sans demande.
 function Start-Demarrage {
     foreach ($a in $Applis) {
@@ -131,7 +131,7 @@ function Start-MajMindset {
     try { Start-Process -FilePath "$env:SystemRoot\System32\WindowsPowerShell\v1.0\powershell.exe" -ArgumentList $a -Verb RunAs -WindowStyle Hidden -ErrorAction Stop | Out-Null }
     catch { $ui.MajTexte.Text = 'Mise à jour annulée : l''autorisation de Windows a été refusée. Tu peux réessayer.'; return }
     Write-Log "Mise à jour vers Mindset $($m.Version) lancée"
-    $Window.Close()   # installer-admin.ps1 attend la fermeture, installe, puis relance Mindset
+    Exit-Mindset   # installer-admin.ps1 attend la fermeture, installe, puis relance Mindset
 }
 
 # Après une mise à jour : le résultat laissé par installer-admin.ps1

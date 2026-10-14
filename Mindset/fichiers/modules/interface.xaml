@@ -255,9 +255,16 @@
               <WrapPanel x:Name="Themes"/>
               <TextBlock x:Name="ThemeInfo" Foreground="{StaticResource Texte3}" FontSize="12" Margin="0,6,0,0"/>
 
+              <TextBlock Text="Réduire et fermer" FontSize="17" FontWeight="SemiBold" Margin="0,28,0,4"/>
+              <TextBlock TextWrapping="Wrap" Foreground="{StaticResource Texte2}" Margin="0,0,0,10"
+                         Text="Caché près de l'horloge, Mindset continue de veiller sur tes applis : un clic sur son icône le rouvre."/>
+              <CheckBox x:Name="ReduireHorloge" Content="Réduire Mindset près de l'horloge (au lieu de la barre des tâches)" Foreground="#ECEAF7" Margin="0,0,0,10"/>
+              <TextBlock Text="Quand je clique sur la croix :" FontSize="13" FontWeight="SemiBold" Margin="0,0,0,4"/>
+              <StackPanel x:Name="ChoixFermeture"/>
+
               <TextBlock Text="Démarrage avec Windows" FontSize="17" FontWeight="SemiBold" Margin="0,28,0,4"/>
               <TextBlock TextWrapping="Wrap" Foreground="{StaticResource Texte2}" Margin="0,0,0,10"
-                         Text="Mindset se lance avec Windows et démarre en arrière-plan les applis cochées. Nevermind garde son propre lancement (dans Nevermind, page Sauvegarde) tant qu'il a besoin des droits administrateur."/>
+                         Text="Mindset se lance avec Windows, caché près de l'horloge, et démarre en arrière-plan les applis cochées. Nevermind garde son propre lancement (dans Nevermind, page Sauvegarde) tant qu'il a besoin des droits administrateur."/>
               <StackPanel x:Name="Demarrages"/>
 
               <TextBlock Text="Dossiers" FontSize="17" FontWeight="SemiBold" Margin="0,28,0,4"/>
@@ -275,6 +282,24 @@
             </StackPanel>
           </ScrollViewer>
         </Grid>
+      </Border>
+    </Grid>
+
+    <!-- La croix rouge : réduire près de l'horloge ou quitter (zone.ps1) -->
+    <Grid x:Name="Fermeture" Grid.RowSpan="2" Visibility="Collapsed" Background="#C006050F">
+      <Border Background="{StaticResource Panneau2}" BorderBrush="{StaticResource Trait}" BorderThickness="1" CornerRadius="22"
+              Padding="28,24" MaxWidth="500" HorizontalAlignment="Center" VerticalAlignment="Center">
+        <StackPanel>
+          <TextBlock Text="Fermer Mindset ?" FontSize="19" FontWeight="SemiBold"/>
+          <TextBlock Foreground="{StaticResource Texte2}" TextWrapping="Wrap" Margin="0,10,0,0"
+                     Text="Réduit près de l'horloge, Mindset reste prêt : un clic sur son icône le rouvre. Quitté, il se ferme complètement (tes applis ouvertes continuent de tourner)."/>
+          <CheckBox x:Name="FermetureSouvenir" Content="Ne plus me demander (modifiable dans Paramètres)" Foreground="#ECEAF7" Margin="0,16,0,0"/>
+          <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
+            <Button x:Name="BtnFermetureAnnuler" Content="Annuler" Style="{StaticResource BtnSecondary}" Margin="0,0,10,0"/>
+            <Button x:Name="BtnFermetureQuitter" Content="Quitter" Style="{StaticResource BtnSecondary}" Margin="0,0,10,0"/>
+            <Button x:Name="BtnFermetureReduire" Content="Réduire près de l'horloge" Style="{StaticResource BtnPrimary}"/>
+          </StackPanel>
+        </StackPanel>
       </Border>
     </Grid>
 
