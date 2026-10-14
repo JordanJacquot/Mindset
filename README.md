@@ -1,7 +1,19 @@
 # Mindset
 
 Le portail de la suite : [Nevermind](https://github.com/JordanJacquot/Nevermind) et [Evermind](https://github.com/JordanJacquot/Evermind) au même endroit.
-Depuis Mindset, tu installes, mets à jour et utilises chaque appli, directement dans sa fenêtre.
+Depuis Mindset, tu installes, mets à jour et utilises chaque appli. C'est la seule façon de les installer.
+
+## Télécharger
+
+1. Va dans [Releases](../../releases/latest) et télécharge **Mindset.zip**.
+2. Clic droit sur le zip > **Extraire tout**, puis double-clique sur **Mindset.exe**.
+   Si Windows affiche « Windows a protégé votre ordinateur » : « Informations complémentaires » puis « Exécuter quand même ».
+3. Clique sur **Installer Mindset** (Windows demande l'autorisation) : Mindset s'installe, crée son raccourci et se
+   lance avec Windows. Tu peux ensuite supprimer le dossier téléchargé.
+4. Dans Mindset, installe Nevermind et Evermind.
+
+Tu avais déjà Nevermind ou Evermind ? Mindset les trouve et propose de les **prendre en charge** : tes réglages, tes
+rendez-vous et tes sauvegardes sont gardés, l'ancienne copie et ses raccourcis sont retirés.
 
 ## État (0.1.0)
 

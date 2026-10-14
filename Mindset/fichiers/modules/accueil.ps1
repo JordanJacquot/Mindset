@@ -120,7 +120,7 @@ function Update-Carte($Appli) {
     [void]$sp.Children.Add($pastilles)
 
     if ($e.Inst -and -not $e.Inst.Gere) { [void]$sp.Children.Add((New-Text "Copie de $($e.Inst.Dossier), non gérée par Mindset." 12 '#6F6894')) }
-    if (-not $e.Inst -and $e.Trouvee) { [void]$sp.Children.Add((New-Text "Une copie existe déjà dans $($e.Trouvee)." 12 '#A9A3C9')) }
+    if (-not $e.Inst -and $e.Trouvee) { [void]$sp.Children.Add((New-Text "Une copie existe déjà dans $($e.Trouvee). Prends-la en charge pour continuer à l'utiliser : tes réglages et tes données sont gardés." 12 '#A9A3C9')) }
 
     # Boutons : ce qu'on peut faire dans cette situation
     $actions = New-Object System.Windows.Controls.WrapPanel
@@ -129,7 +129,10 @@ function Update-Carte($Appli) {
         [void]$sp.Children.Add((New-Text $e.Occupe 13 '#00E5FF'))
     } elseif (-not $e.Inst -and $e.Trouvee) {
         [void]$actions.Children.Add((New-Action 'Prendre en charge' 'BtnPrimary' $Appli.Id { Confirm-PriseEnCharge (Get-Appli $this.Tag) }))
-        [void]$actions.Children.Add((New-Action 'Utiliser telle quelle' 'BtnSecondary' $Appli.Id { $a = Get-Appli $this.Tag; Use-InstallationTrouvee $a $script:Trouvees[$a.Id] }))
+        # Hors de Mindset, les applis ne s'ouvrent plus : seule une copie de travail (Git) peut servir telle quelle
+        if (Test-DossierTravail $e.Trouvee) {
+            [void]$actions.Children.Add((New-Action 'Utiliser telle quelle' 'BtnSecondary' $Appli.Id { $a = Get-Appli $this.Tag; Use-InstallationTrouvee $a $script:Trouvees[$a.Id] }))
+        }
     } elseif (-not $e.Inst) {
         [void]$actions.Children.Add((New-Action 'Installer' 'BtnPrimary' $Appli.Id { Start-InstallAppli (Get-Appli $this.Tag) }))
         # Ses données existent mais aucune copie trouvée : elle est peut-être dans un dossier inhabituel
@@ -173,7 +176,7 @@ function Confirm-PriseEnCharge($Appli, [string]$Dossier) {
     if (-not $Dossier) { return }
     $ou = Get-DossierGere $Appli
     $txt = "Mindset installe la dernière version signée de $($Appli.Nom) dans $ou. Ses raccourcis directs et son lancement au démarrage sont retirés : il s'ouvrira depuis Mindset. Ses réglages et ses données sont gardés (ils rejoignent $SuiteDir\$($Appli.Nom))."
-    $txt += if ((Test-Path -LiteralPath (Join-Path $Dossier '.git')) -or (Test-Path -LiteralPath (Join-Path (Split-Path $Dossier -Parent) '.git'))) { "`n`n$Dossier est un dossier de travail : il est gardé tel quel." }
+    $txt += if (Test-DossierTravail $Dossier) { "`n`n$Dossier est un dossier de travail : il est gardé tel quel." }
             else { "`n`nL'ancienne copie ($Dossier) est ensuite supprimée (seulement les fichiers de $($Appli.Nom))." }
     if (Test-AppliOuverte $Appli) { $txt += " $($Appli.Nom) va être fermé pendant l'opération." }
     Show-Confirmation "Prendre en charge $($Appli.Nom) ?" $txt 'Prendre en charge' ([scriptblock]::Create("Start-InstallAppli (Get-Appli '$($Appli.Id)') '$($Dossier -replace "'", "''")'"))

@@ -1,0 +1,26 @@
+Mindset
+=======
+
+Le portail de la suite : Nevermind et Evermind au même endroit.
+
+Installer
+---------
+1. Double-clique sur Mindset.exe.
+   Si Windows affiche « Windows a protégé votre ordinateur » : « Informations complémentaires » puis « Exécuter quand même ».
+2. Clique sur « Installer Mindset » et accepte la demande de Windows.
+   Mindset s'installe dans Program Files, crée son raccourci sur le Bureau et dans le menu Démarrer, et se lance avec Windows.
+3. Tu peux ensuite supprimer ce dossier.
+4. Dans Mindset, installe Nevermind et Evermind.
+
+Tu avais déjà Nevermind ou Evermind ? Mindset les trouve et propose de les prendre en charge :
+tes réglages, tes rendez-vous et tes sauvegardes sont gardés.
+
+Où sont les fichiers
+--------------------
+Programmes : C:\Program Files\Mindset\ (Mindset, Nevermind, Evermind)
+Données    : %LOCALAPPDATA%\Mindset\  (un dossier par appli)
+
+Désinstaller
+------------
+Dans Mindset, désinstalle d'abord les applis (accueil), puis Paramètres > Désinstaller Mindset.
+Mindset est aussi dans « Applications installées » de Windows.

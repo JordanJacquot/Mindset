@@ -249,12 +249,18 @@ function Remove-Doublons($Appli) {
     if ($n) { "$n raccourci$(if ($n -gt 1) { 's' }) direct$(if ($n -gt 1) { 's' }) retiré$(if ($n -gt 1) { 's' }) : $($Appli.Nom) s'ouvre maintenant depuis Mindset." }
 }
 
+# Dossier de travail (dépôt Git dans la copie ou son parent, comme D:\Projets\Evermind\Evermind) : Mindset ne le
+# supprime jamais, et c'est la seule copie non gérée que les applis acceptent encore d'ouvrir sans Mindset
+function Test-DossierTravail([string]$Dossier) {
+    $Dossier -and ((Test-Path -LiteralPath (Join-Path $Dossier '.git')) -or (Test-Path -LiteralPath (Join-Path (Split-Path $Dossier -Parent) '.git')))
+}
+
 # L'ancienne copie, une fois prise en charge : seuls les fichiers livrés avec l'appli (ceux du zip) sont supprimés,
 # puis les dossiers devenus vides. Jamais un dossier de travail (Git), jamais dans Program Files\Mindset.
 function Remove-AncienneCopie($Appli, [string]$Dossier, [string]$Zip) {
     $d = [IO.Path]::GetFullPath($Dossier.TrimEnd('\'))
     if ($d -like "$([IO.Path]::GetFullPath((Join-Path $env:ProgramFiles 'Mindset')))\*") { return '' }
-    if ((Test-Path -LiteralPath (Join-Path $d '.git')) -or (Test-Path -LiteralPath (Join-Path (Split-Path $d -Parent) '.git'))) {
+    if (Test-DossierTravail $d) {
         return "L'ancienne copie ($d) est un dossier de travail : elle est gardée telle quelle."
     }
     try {
