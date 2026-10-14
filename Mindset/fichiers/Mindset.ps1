@@ -71,6 +71,16 @@ if ($Demarrage) { Start-Demarrage } else { $Window.Show(); Open-PageDemandee }
 if ($Desinstaller) { Show-Page 'parametres'; Confirm-DesinstallMindset }
 [System.Windows.Threading.Dispatcher]::Run()
 
+# Quitté pour de bon : les applis ont reçu leur demande de fermeture (integration.ps1) ; on leur laisse 6 secondes,
+# puis on ferme celles qui tournent encore (une appli en administrateur ne peut l'être que par un Mindset administrateur)
+if ($script:FermerApplis) {
+    $noms = @($Applis | ForEach-Object { [IO.Path]::GetFileNameWithoutExtension($_.Exe) })
+    $limite = (Get-Date).AddSeconds(6)
+    while ((Get-Date) -lt $limite -and @(Get-Process -Name $noms -ErrorAction SilentlyContinue).Count) { Start-Sleep -Milliseconds 300 }
+    foreach ($p in @(Get-Process -Name $noms -ErrorAction SilentlyContinue)) {
+        try { $p.Kill(); Write-Log "$($p.ProcessName) ne répondait pas : fermé par Mindset" } catch { Write-Log "$($p.ProcessName) tourne encore (fermeture refusée par Windows)" }
+    }
+}
 if ($script:InstanceMutex) { try { $script:InstanceMutex.ReleaseMutex(); $script:InstanceMutex.Dispose() } catch {} }
 if ($script:ShowSignal) { try { $script:ShowSignal.Dispose() } catch {} }
 

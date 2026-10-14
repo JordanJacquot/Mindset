@@ -250,10 +250,21 @@
             <StackPanel x:Name="PageAppliMessage" VerticalAlignment="Center" HorizontalAlignment="Center" MaxWidth="480">
               <TextBlock x:Name="PageAppliTitre" FontSize="24" FontWeight="SemiBold" HorizontalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center"/>
               <TextBlock x:Name="PageAppliTexte" Foreground="{StaticResource Texte2}" TextWrapping="Wrap" TextAlignment="Center" Margin="0,10,0,18"/>
-              <Button x:Name="BtnPageAppliFenetre" Content="Ouvrir dans sa fenêtre" Style="{StaticResource BtnSecondary}" HorizontalAlignment="Center" Visibility="Collapsed"/>
+              <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <Button x:Name="BtnPageAppliIci" Content="Afficher ici" Style="{StaticResource BtnPrimary}" Visibility="Collapsed" Margin="0,0,8,0"/>
+                <Button x:Name="BtnPageAppliFenetre" Content="Ouvrir dans sa fenêtre" Style="{StaticResource BtnSecondary}" Visibility="Collapsed"/>
+              </StackPanel>
               <TextBlock x:Name="PageAppliEtat" Foreground="{StaticResource Texte3}" FontSize="12" HorizontalAlignment="Center" Margin="0,10,0,0"/>
             </StackPanel>
-            <Grid x:Name="PageAppliHotes" Margin="0,0,10,10"/>
+            <DockPanel x:Name="PageAppliCadre" Margin="0,0,10,10" Visibility="Collapsed">
+              <!-- Barre de l'appli affichée : son nom, l'ouvrir dans sa fenêtre, la fermer -->
+              <DockPanel DockPanel.Dock="Top" Margin="6,0,0,8" LastChildFill="False">
+                <Button x:Name="BtnAppliFermer" DockPanel.Dock="Right" Content="Fermer" Style="{StaticResource BtnSecondary}" Padding="14,6"/>
+                <Button x:Name="BtnAppliDetacher" DockPanel.Dock="Right" Content="Ouvrir dans sa fenêtre" Style="{StaticResource BtnSecondary}" Padding="14,6" Margin="0,0,8,0"/>
+                <TextBlock x:Name="PageAppliNom" DockPanel.Dock="Left" FontSize="15" FontWeight="SemiBold" VerticalAlignment="Center"/>
+              </DockPanel>
+              <Grid x:Name="PageAppliHotes"/>
+            </DockPanel>
           </Grid>
 
           <!-- Paramètres : les réglages communs à toute la suite, en onglets (parametres.ps1) -->
@@ -345,11 +356,11 @@
         <StackPanel>
           <TextBlock Text="Fermer Mindset ?" FontSize="19" FontWeight="SemiBold"/>
           <TextBlock Foreground="{StaticResource Texte2}" TextWrapping="Wrap" Margin="0,10,0,0"
-                     Text="Réduit près de l'horloge, Mindset reste prêt : un clic sur son icône le rouvre. Quitté, il se ferme complètement (tes applis ouvertes continuent de tourner)."/>
+                     Text="Réduit près de l'horloge, Mindset et tes applis restent prêts : un clic sur son icône le rouvre. Quitter ferme aussi Nevermind et Evermind (les rappels d'Evermind ne sonneront plus jusqu'à la réouverture)."/>
           <CheckBox x:Name="FermetureSouvenir" Content="Ne plus me demander (modifiable dans Paramètres)" Foreground="#ECEAF7" Margin="0,16,0,0"/>
           <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
             <Button x:Name="BtnFermetureAnnuler" Content="Annuler" Style="{StaticResource BtnSecondary}" Margin="0,0,10,0"/>
-            <Button x:Name="BtnFermetureQuitter" Content="Quitter" Style="{StaticResource BtnSecondary}" Margin="0,0,10,0"/>
+            <Button x:Name="BtnFermetureQuitter" Content="Tout quitter" Style="{StaticResource BtnSecondary}" Margin="0,0,10,0"/>
             <Button x:Name="BtnFermetureReduire" Content="Réduire près de l'horloge" Style="{StaticResource BtnPrimary}"/>
           </StackPanel>
         </StackPanel>

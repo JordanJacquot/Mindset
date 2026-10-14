@@ -55,8 +55,8 @@ function Update-MenuHorloge {
         }
     }
     [void]$m.Items.Add((New-Object System.Windows.Forms.ToolStripSeparator))
-    $q = $m.Items.Add('Quitter Mindset')
-    $q.Add_Click({ Exit-Mindset })
+    $q = $m.Items.Add('Tout quitter (Mindset et ses applis)')
+    $q.Add_Click({ Exit-Mindset -Applis })
 }
 
 # ---------------------------------------------------------------------------
@@ -78,7 +78,7 @@ $Window.Add_Closing({
     $e.Cancel = $true
     switch ([string](Get-Setting 'Fermeture' 'demander')) {
         'reduire' { Hide-Fenetre }
-        'quitter' { Exit-Mindset }
+        'quitter' { Exit-Mindset -Applis }
         default {
             Show-Fenetre
             $ui.FermetureSouvenir.IsChecked = $false
@@ -91,7 +91,7 @@ $Window.Add_Closing({
 function Close-ChoixFermeture([string]$Choix) {
     $ui.Fermeture.Visibility = 'Collapsed'
     if ($ui.FermetureSouvenir.IsChecked) { Set-Setting 'Fermeture' $Choix; Update-ReglageFermeture }
-    if ($Choix -eq 'quitter') { Exit-Mindset } else { Hide-Fenetre }
+    if ($Choix -eq 'quitter') { Exit-Mindset -Applis } else { Hide-Fenetre }
 }
 $ui.BtnFermetureReduire.Add_Click({ Close-ChoixFermeture 'reduire' })
 $ui.BtnFermetureQuitter.Add_Click({ Close-ChoixFermeture 'quitter' })
@@ -102,7 +102,7 @@ function Update-ReglageFermeture {
     $c = [string](Get-Setting 'Fermeture' 'demander')
     foreach ($rb in $ui.ChoixFermeture.Children) { $rb.IsChecked = ($rb.Tag -eq $c) }
 }
-foreach ($o in @(@('demander', 'Me demander à chaque fois'), @('reduire', 'Réduire près de l''horloge'), @('quitter', 'Quitter Mindset'))) {
+foreach ($o in @(@('demander', 'Me demander à chaque fois'), @('reduire', 'Réduire près de l''horloge'), @('quitter', 'Tout quitter (Mindset, Nevermind et Evermind)'))) {
     $rb = New-Object System.Windows.Controls.RadioButton
     $rb.GroupName = 'Fermeture'; $rb.Tag = $o[0]; $rb.Content = $o[1]; $rb.Margin = '0,2,0,2'; $rb.Foreground = Get-Brush '#ECEAF7'
     $rb.Add_Checked({ param($s) Set-Setting 'Fermeture' $s.Tag })

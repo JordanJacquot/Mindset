@@ -63,9 +63,12 @@ function Close-Confirmation { $ui.Confirmation.Visibility = 'Collapsed'; $script
 $ui.BtnConfirmationNon.Add_Click({ Close-Confirmation })
 $ui.BtnConfirmationOui.Add_Click({ $a = $script:ConfirmationAction; Close-Confirmation; if ($a) { & $a } })
 
-# Quitter vraiment (thème, mise à jour, installation, menu « Quitter ») : sans la question de la croix (zone.ps1)
-function Exit-Mindset {
+# Quitter vraiment (thème, mise à jour, installation, menu « Quitter ») : sans la question de la croix (zone.ps1).
+# -Applis : quitter pour de bon, demandé par l'utilisateur : Nevermind et Evermind se ferment aussi (Stop-ApplisSuite).
+# Sans : Mindset se relance ou se met à jour, les applis continuent.
+function Exit-Mindset([switch]$Applis) {
     $script:QuitterVraiment = $true
+    if ($Applis) { $script:FermerApplis = $true }
     $Window.Close()
 }
 

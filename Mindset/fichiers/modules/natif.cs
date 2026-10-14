@@ -104,6 +104,22 @@ public static class MSIntegration
 
     public static void Focus(IntPtr fenetre) { SetFocus(fenetre); }
 
+    [DllImport("user32.dll")] static extern bool PostMessage(IntPtr h, uint msg, IntPtr w, IntPtr l);
+
+    // L'appli s'est cachée elle-même (réduite près de l'horloge) ? Son propre drapeau « visible », pas celui de ses
+    // parents : quand Mindset se cache, la fenêtre accrochée ne compte pas comme cachée.
+    public static bool EstMontree(IntPtr fenetre) { return (GetWindowLongPtr(fenetre, GWL_STYLE).ToInt64() & WS_VISIBLE) != 0; }
+
+    // Demande à l'appli de se fermer, comme un clic sur sa croix (elle applique sa propre règle : demander, réduire, quitter)
+    public static void Fermer(IntPtr fenetre) { PostMessage(fenetre, 0x0010, IntPtr.Zero, IntPtr.Zero); }   // WM_CLOSE
+
+    // Rend la fenêtre telle qu'elle était et l'affiche (« Ouvrir dans sa fenêtre »)
+    public static void Detacher(IntPtr fenetre, long style, long ex)
+    {
+        Liberer(fenetre, style, ex);
+        ShowWindow(fenetre, 9);   // SW_RESTORE
+    }
+
     // Rend la fenêtre telle qu'elle était, cachée (l'appli reste près de l'horloge)
     public static void Liberer(IntPtr fenetre, long style, long ex)
     {

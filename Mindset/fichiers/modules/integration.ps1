@@ -46,7 +46,12 @@ function Show-AppliIntegree($Appli) {
     $i = Get-Integration $Appli.Id
     $inst = Get-Installation $Appli
     if (-not $inst) { Set-EtatPageAppli $Appli "$($Appli.Nom) n'est pas installé." 'Installe-le depuis l''accueil.' $false; return }
+    # En test automatique, jamais les vraies applis : ni lancées, ni accrochées
+    if ($EnTest -and -not $env:MINDSET_INTEGRATION_TEST) { Set-EtatPageAppli $Appli "$($Appli.Nom) s'affichera ici" '(test : les vraies applis ne sont pas lancées)' $false; return }
     if ($i.Fenetre -ne [IntPtr]::Zero -and [MSIntegration]::IsWindow($i.Fenetre)) { Update-HotesVisibles; return }
+    # Réduite près de l'horloge, ou rendue à sa fenêtre : elle reste où elle est tant qu'on ne demande pas « Afficher ici »
+    if ($i.Etat -eq 'cachee') { Set-EtatPageAppli $Appli "$($Appli.Nom) est réduit près de l'horloge" 'Il tourne toujours.' $false; Show-BoutonAfficherIci $Appli; return }
+    if ($i.Etat -eq 'detachee') { Set-EtatPageAppli $Appli "$($Appli.Nom) est dans sa propre fenêtre" '' $false; Show-BoutonAfficherIci $Appli; return }
     if ($Appli.Admin -and -not $MindsetAdmin) {
         Set-EtatPageAppli $Appli "$($Appli.Nom) s'ouvre dans sa propre fenêtre" "Il tourne en administrateur : pour l'afficher ici, Mindset doit l'être aussi (prochaine étape)." $true
         return
@@ -90,6 +95,7 @@ function Set-EtatPageAppli($Appli, [string]$Titre, [string]$Texte, [bool]$Bouton
     $ui.PageAppliTexte.Visibility = if ($Texte) { 'Visible' } else { 'Collapsed' }
     $ui.BtnPageAppliFenetre.Visibility = if ($BoutonFenetre) { 'Visible' } else { 'Collapsed' }
     $ui.BtnPageAppliFenetre.Tag = $Appli.Id
+    $ui.BtnPageAppliIci.Visibility = 'Collapsed'
     $ui.PageAppliEtat.Text = ''
 }
 $ui.BtnPageAppliFenetre.Add_Click({ Open-Appli (Get-Appli $this.Tag) })
@@ -103,8 +109,38 @@ function Update-HotesVisibles {
         $i.Hote.Visibility = if ($voir) { 'Visible' } else { 'Collapsed' }
     }
     $affichee = $script:Integrees[$script:PageCourante]
-    $ui.PageAppliMessage.Visibility = if ($affichee -and $affichee.Fenetre -ne [IntPtr]::Zero) { 'Collapsed' } else { 'Visible' }
+    $montree = $affichee -and $affichee.Fenetre -ne [IntPtr]::Zero
+    $ui.PageAppliMessage.Visibility = if ($montree) { 'Collapsed' } else { 'Visible' }
+    $ui.PageAppliCadre.Visibility = if ($montree) { 'Visible' } else { 'Collapsed' }
+    if ($montree) { $a = Get-Appli $affichee.Id; $ui.PageAppliNom.Text = $a.Nom; $ui.PageAppliNom.Foreground = Get-Brush $a.Couleur }
 }
+
+# Barre de l'appli : la fermer (sa propre règle s'applique : elle demande, se réduit ou quitte), ou la rendre à sa fenêtre
+$ui.BtnAppliFermer.Add_Click({
+    $i = $script:Integrees[$script:PageCourante]
+    if ($i -and $i.Fenetre -ne [IntPtr]::Zero) { [MSIntegration]::Fermer($i.Fenetre) }
+})
+$ui.BtnAppliDetacher.Add_Click({
+    $i = $script:Integrees[$script:PageCourante]
+    if (-not $i -or $i.Fenetre -eq [IntPtr]::Zero) { return }
+    [MSIntegration]::Detacher($i.Fenetre, $i.Styles[0], $i.Styles[1])
+    $a = Get-Appli $i.Id
+    $i.Fenetre = [IntPtr]::Zero; $i.Styles = $null; $i.Etat = 'detachee'
+    Update-HotesVisibles
+    Set-EtatPageAppli $a "$($a.Nom) est dans sa propre fenêtre" 'Clique sur « Afficher ici » pour le remettre dans Mindset.' $false
+    Show-BoutonAfficherIci $a
+})
+
+# « Afficher ici » : l'appli (réduite près de l'horloge, ou dans sa fenêtre) revient dans Mindset
+function Show-BoutonAfficherIci($Appli) {
+    $ui.BtnPageAppliIci.Visibility = 'Visible'; $ui.BtnPageAppliIci.Tag = $Appli.Id
+}
+$ui.BtnPageAppliIci.Add_Click({
+    $a = Get-Appli $this.Tag
+    $ui.BtnPageAppliIci.Visibility = 'Collapsed'
+    $i = Get-Integration $a.Id; $i.Etat = 'vide'
+    Show-AppliIntegree $a
+})
 
 # Surveillance : fenêtre attendue (lancement, relance pour un thème), fenêtre fermée
 $script:IntegrationTimer = New-Object System.Windows.Threading.DispatcherTimer
@@ -118,13 +154,21 @@ $script:IntegrationTimer.Add_Tick({
             $i.Fenetre = [IntPtr]::Zero; $i.Styles = $null; $i.Etat = 'relance'; $i.Depuis = Get-Date
             Update-HotesVisibles
             Set-EtatPageAppli $a "$($a.Nom) se relance..." '' $false
+        } elseif ($i.Fenetre -ne [IntPtr]::Zero -and -not [MSIntegration]::EstMontree($i.Fenetre)) {
+            # Elle s'est cachée elle-même (réduite près de l'horloge, par sa croix) : rendue telle quelle, elle y reste
+            [MSIntegration]::Liberer($i.Fenetre, $i.Styles[0], $i.Styles[1])
+            $i.Fenetre = [IntPtr]::Zero; $i.Styles = $null; $i.Etat = 'cachee'
+            Update-HotesVisibles
+            Set-EtatPageAppli $a "$($a.Nom) est réduit près de l'horloge" 'Il tourne toujours.' $false
+            Show-BoutonAfficherIci $a
         }
         if ($i.Etat -in 'lancement', 'relance') {
             $h = Find-FenetreAppli $a
             if ($h -ne [IntPtr]::Zero) { Connect-Fenetre $a $h; continue }
             if (((Get-Date) - $i.Depuis).TotalSeconds -gt 25) {
                 $i.Etat = 'vide'
-                Set-EtatPageAppli $a "$($a.Nom) est fermé" 'Rouvre son onglet pour le relancer ici.' $true
+                Set-EtatPageAppli $a "$($a.Nom) est fermé" '' $false
+                Show-BoutonAfficherIci $a
             } else { $attente = $true }
         }
     }
@@ -143,3 +187,19 @@ $Window.Add_Closed({ Disconnect-Applis })
 # Une fenêtre de Mindset passe par-dessus (question, confirmation) : l'appli affichée s'efface le temps qu'elle s'en aille
 $ui.Confirmation.Add_IsVisibleChanged({ Update-HotesVisibles })
 $ui.Fermeture.Add_IsVisibleChanged({ Update-HotesVisibles })
+
+# ---------------------------------------------------------------------------
+# Quitter Mindset pour de bon : les applis se ferment aussi. Chacune reçoit une demande (« quitter.demande » dans son
+# dossier de données, qu'elle surveille) et se ferme proprement, comme par son menu « Quitter ». Mindset.ps1 attend
+# ensuite quelques secondes, et ferme lui-même une appli qui ne répond pas (si Windows le lui permet).
+# ---------------------------------------------------------------------------
+function Request-FermetureApplis {
+    foreach ($a in $Applis) {
+        if (-not (Test-AppliOuverte $a)) { continue }
+        foreach ($d in @((Get-DossierDonnees $a), $a.Donnees) | Select-Object -Unique) {
+            if ($d -and (Test-Path -LiteralPath $d)) { try { [IO.File]::WriteAllText((Join-Path $d 'quitter.demande'), [string]$PID) } catch {} }
+        }
+        Write-Log "Fermeture de $($a.Nom) demandée (Mindset quitte)"
+    }
+}
+$Window.Add_Closed({ if ($script:FermerApplis) { Request-FermetureApplis } })
