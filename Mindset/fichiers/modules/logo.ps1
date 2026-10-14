@@ -80,8 +80,9 @@ function New-LogoGeoPath($Geo, [string]$Hex) {
 }
 
 # Le M animable : { Root, Cyan, Mag, Base, Pieces (tranches), Size, Rest (décalages au repos) }
-function New-MindsetMark([double]$Size) {
-    $n = Get-MindsetM $Size
+# (une autre lettre peut être donnée : celle de l'appli, sur sa jauge de chargement, chargement.ps1)
+function New-MindsetMark([double]$Size, $Forme = $null) {
+    $n = if ($Forme) { $Forme } else { Get-MindsetM $Size }
     $root = New-Object System.Windows.Controls.Grid
     $root.Width = $Size; $root.Height = $Size
     $cyan = New-LogoGeoPath $n $LogoCyan; $cyan.Opacity = 0.92

@@ -43,6 +43,7 @@ function Find-FenetreAppli($Appli) {
 # Onglet d'une appli ouvert : l'afficher ici (en la lançant si besoin)
 function Show-AppliIntegree($Appli) {
     $i = Get-Integration $Appli.Id
+    if ($EnTest -and $env:MINDSET_JAUGE) { $i.Depuis = (Get-Date).AddSeconds(-[double]$env:MINDSET_JAUGE); Show-JaugeAppli $Appli 'Ouverture...'; return }   # (capture de la jauge)
     $inst = Get-Installation $Appli
     if (-not $inst) { Set-EtatPageAppli $Appli "$($Appli.Nom) n'est pas installé." 'Installe-le depuis l''accueil.' $false; return }
     # En test automatique, jamais les vraies applis : ni lancées, ni accrochées
@@ -64,7 +65,7 @@ function Show-AppliIntegree($Appli) {
         $cache = $Appli.CacheDepuis -and $inst.Version -and -not (Test-VersionPlusRecente $Appli.CacheDepuis $inst.Version)
         if ($cache) { Open-Appli $Appli -Demarrage } else { Open-Appli $Appli }
     }
-    Set-EtatPageAppli $Appli "Ouverture de $($Appli.Nom)..." '' $false
+    Show-JaugeAppli $Appli 'Ouverture...'
     $script:IntegrationTimer.Start()
 }
 
@@ -80,6 +81,7 @@ function Connect-Fenetre($Appli, [IntPtr]$Fenetre) {
         Write-Log "Intégration de $($Appli.Nom) refusée par Windows"
         return
     }
+    if ($i.Etat -eq 'lancement') { Save-DureeOuverture $Appli $i.Depuis }
     $i.Fenetre = $Fenetre; $i.Styles = $styles; $i.Etat = 'affiche'
     Write-Log "$($Appli.Nom) affiché dans Mindset"
     Update-HotesVisibles
@@ -90,6 +92,7 @@ function Connect-Fenetre($Appli, [IntPtr]$Fenetre) {
 # Le texte de la page quand l'appli n'est pas (encore) affichée
 function Set-EtatPageAppli($Appli, [string]$Titre, [string]$Texte, [bool]$BoutonFenetre) {
     if ($script:PageCourante -ne $Appli.Id) { return }
+    Stop-JaugeAppli
     $ui.PageAppliTitre.Text = $Titre
     $ui.PageAppliTitre.Foreground = Get-Brush $Appli.Couleur
     $ui.PageAppliTexte.Text = $Texte
@@ -111,6 +114,8 @@ function Update-HotesVisibles {
     }
     $affichee = $script:Integrees[$script:PageCourante]
     $montree = $affichee -and $affichee.Fenetre -ne [IntPtr]::Zero
+    # La jauge ne reste que sur la page de l'appli qui s'ouvre, tant qu'elle n'est pas affichée
+    if ($script:Jauge -and ($montree -or $script:Jauge.Id -ne $script:PageCourante)) { Stop-JaugeAppli }
     $ui.PageAppliMessage.Visibility = if ($montree) { 'Collapsed' } else { 'Visible' }
     $ui.PageAppliCadre.Visibility = if ($montree) { 'Visible' } else { 'Collapsed' }
 }
@@ -152,7 +157,7 @@ $script:IntegrationTimer.Add_Tick({
             # Fermée, ou relancée (nouveau thème, mise à jour) : on attend la nouvelle fenêtre quelques secondes
             $i.Fenetre = [IntPtr]::Zero; $i.Styles = $null; $i.Etat = 'relance'; $i.Depuis = Get-Date
             Update-HotesVisibles
-            Set-EtatPageAppli $a "$($a.Nom) se relance..." '' $false
+            Show-JaugeAppli $a 'Relance...'
         } elseif ($i.Fenetre -ne [IntPtr]::Zero -and -not [MSIntegration]::EstMontree($i.Fenetre)) {
             # Elle s'est cachée elle-même (réduite près de l'horloge, par sa croix) : rendue telle quelle, elle y reste
             [MSIntegration]::Liberer($i.Fenetre, $i.Styles[0], $i.Styles[1])
@@ -203,3 +208,6 @@ function Request-FermetureApplis {
     }
 }
 $Window.Add_Closed({ if ($script:FermerApplis) { Request-FermetureApplis } })
+
+# (capture de la jauge en test : la page de l'appli, ouverte avant ce module, est rouverte)
+if ($EnTest -and $env:MINDSET_JAUGE -and $env:MINDSET_PAGE) { Show-Page $env:MINDSET_PAGE }

@@ -259,6 +259,8 @@
           <!-- Page d'une appli : sa vraie fenêtre, accrochée ici (integration.ps1), ou un message en attendant -->
           <Grid x:Name="PageAppli" Visibility="Collapsed">
             <StackPanel x:Name="PageAppliMessage" VerticalAlignment="Center" HorizontalAlignment="Center" MaxWidth="480">
+              <!-- Jauge de chargement pendant que l'appli s'ouvre (chargement.ps1) -->
+              <Grid x:Name="PageAppliJauge" HorizontalAlignment="Center" Margin="0,0,0,10" Visibility="Collapsed"/>
               <TextBlock x:Name="PageAppliTitre" FontSize="24" FontWeight="SemiBold" HorizontalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center"/>
               <TextBlock x:Name="PageAppliTexte" Foreground="{StaticResource Texte2}" TextWrapping="Wrap" TextAlignment="Center" Margin="0,10,0,18"/>
               <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
