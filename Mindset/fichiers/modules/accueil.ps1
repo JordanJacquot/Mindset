@@ -226,8 +226,19 @@ $script:EtatTimer.Interval = [TimeSpan]::FromSeconds(2)
 $script:EtatTimer.Add_Tick({
     Update-Cartes; Update-Greeting
     if (((Get-Date) - $script:DernieresPublications).TotalHours -ge 6) { $script:DernieresPublications = Get-Date; Update-Publications; Start-VerifMajMindset }
-    # Thème changé depuis une appli : Mindset le prend aussi (sauf pendant une opération)
+    # Thème de la suite changé ailleurs : Mindset le prend aussi (sauf pendant une opération). Comparé au thème choisi
+    # (« pack:dofus »), pas à ses couleurs (« pack-dofus ») ; et jamais deux relances pour le même thème en une minute,
+    # pour qu'un thème qui ne se charge pas ne fasse pas tourner Mindset en boucle.
     $t = (Read-Suite).theme
-    if ($t -and $t -ne $ThemeId -and -not $script:Occupe.Count -and -not $EnTest) { Write-Log "Thème de la suite changé ailleurs : $t"; Restart-Mindset }
+    if ($t -and $t -ne $ThemeSetting -and -not $script:Occupe.Count -and -not $EnTest) {
+        $r = Get-Setting 'DerniereRelanceTheme' $null
+        if ($r -and [string]$r.Theme -eq $t -and ((Get-Date) - [datetime][string]$r.Quand).TotalSeconds -lt 60) {
+            if (-not $script:BoucleThemeNotee) { Write-Log "Thème de la suite $t : déjà relancé il y a moins d'une minute, pas de nouvelle relance"; $script:BoucleThemeNotee = $true }
+        } else {
+            Set-Setting 'DerniereRelanceTheme' ([ordered]@{ Theme = $t; Quand = (Get-Date).ToString('s') })
+            Write-Log "Thème de la suite changé ailleurs : $t"
+            Restart-Mindset
+        }
+    }
 })
 $script:EtatTimer.Start()
