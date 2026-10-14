@@ -146,6 +146,39 @@ function New-LigneVivante($Contenu, [scriptblock]$Clic, $Tag) {
     $b
 }
 
+# Petite jauge néon d'un score sur 100 (comme les anneaux de l'accueil de Nevermind) : l'anneau se remplit à l'affichage,
+# le score au centre, son nom en dessous
+function New-JaugeScore([string]$Nom, [int]$Valeur, [string]$C1, [string]$C2) {
+    $S = 74.0; $C = $S / 2; $R = 30.0
+    $p = New-Object System.Windows.Controls.StackPanel; $p.Margin = '0,0,22,10'
+    $g = New-Object System.Windows.Controls.Grid; $g.Width = $S; $g.Height = $S
+    $cv = New-Object System.Windows.Controls.Canvas; $cv.Width = $S; $cv.Height = $S
+    [void]$cv.Children.Add((New-LogoArc $C $R -90 359.9 (Get-Brush '#1AFFFFFF') 6))
+    $arc = New-LogoArc $C $R -90 0.1 (New-LinearBrush @($C1, $C2) 0 0 1 1) 6
+    $arc.Effect = New-Glow $C1 10 0.6
+    [void]$cv.Children.Add($arc)
+    [void]$g.Children.Add($cv)
+    $n = New-Text "$Valeur" 19 '#FFFFFF' 'SemiBold'; $n.HorizontalAlignment = 'Center'; $n.VerticalAlignment = 'Center'
+    [void]$g.Children.Add($n)
+    [void]$p.Children.Add($g)
+    $l = New-Text $Nom 11.5 '#A9A3C9'; $l.HorizontalAlignment = 'Center'; $l.Margin = '0,4,0,0'
+    [void]$p.Children.Add($l)
+    # Remplissage en 0,7 s (ralenti à la fin) ; tout de suite plein en test ou si les animations de Windows sont coupées
+    $fin = [math]::Max(0.1, [math]::Min(359.9, 3.6 * $Valeur))
+    if ($EnTest -or -not [System.Windows.SystemParameters]::ClientAreaAnimation) { $arc.Data = Get-ArcGeometry $C $R -90 $fin; return $p }
+    $t = New-Object System.Windows.Threading.DispatcherTimer
+    $t.Interval = [TimeSpan]::FromMilliseconds(16)
+    $t.Tag = @{ Arc = $arc; C = $C; R = $R; Fin = $fin; Debut = Get-Date }
+    $t.Add_Tick({
+        param($s)
+        $x = $s.Tag; $k = [math]::Min(1.0, ((Get-Date) - $x.Debut).TotalMilliseconds / 700)
+        $x.Arc.Data = Get-ArcGeometry $x.C $x.R -90 ([math]::Max(0.1, $x.Fin * (1 - [math]::Pow(1 - $k, 3))))
+        if ($k -ge 1) { $s.Stop() }
+    })
+    $t.Start()
+    $p
+}
+
 # Le résumé d'une appli sur sa carte (rien si elle n'a encore rien écrit)
 function Add-ResumeCarte($Sp, $Appli, $Etat) {
     if (-not $Etat) { return }
@@ -153,15 +186,8 @@ function Add-ResumeCarte($Sp, $Appli, $Etat) {
     $box.Margin = '0,0,0,6'
     if ($Appli.Id -eq 'nevermind') {
         $scores = New-Object System.Windows.Controls.WrapPanel
-        foreach ($s in @(@('Optimisation', $Etat.Score, '#00E5FF'), @('Protection', $Etat.Protection, '#FF2EB5'))) {
-            if ($null -eq $s[1]) { continue }
-            $p = New-Object System.Windows.Controls.StackPanel; $p.Margin = '0,0,26,8'
-            $n = New-Object System.Windows.Controls.TextBlock
-            [void]$n.Inlines.Add((New-Object System.Windows.Documents.Run "$($s[1])"))
-            $r2 = New-Object System.Windows.Documents.Run ' /100'; $r2.FontSize = 12; $r2.Foreground = Get-Brush '#6F6894'; [void]$n.Inlines.Add($r2)
-            $n.FontSize = 26; $n.FontWeight = 'SemiBold'; $n.Foreground = Get-Brush $s[2]
-            [void]$p.Children.Add($n); [void]$p.Children.Add((New-Text $s[0] 11.5 '#A9A3C9'))
-            [void]$scores.Children.Add($p)
+        foreach ($s in @(@('Optimisation', $Etat.Score, '#00E5FF', '#7A7BFF'), @('Protection', $Etat.Protection, '#FF2EB5', '#B04BFF'))) {
+            if ($null -ne $s[1]) { [void]$scores.Children.Add((New-JaugeScore $s[0] $s[1] $s[2] $s[3])) }
         }
         [void]$box.Children.Add($scores)
         $t = if ($Etat.AFaire) { "À faire : $($Etat.AFaire)" } else { 'Rien à corriger : ton PC est prêt pour jouer.' }
