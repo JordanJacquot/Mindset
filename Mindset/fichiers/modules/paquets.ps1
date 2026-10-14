@@ -8,7 +8,12 @@ function Get-Publication([string]$Depot, [string]$Zip) {
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
     try {
         $r = Invoke-RestMethod -Uri "https://api.github.com/repos/$Depot/releases/latest" -Headers @{ 'User-Agent' = 'Mindset' } -TimeoutSec 15
-    } catch { return @{ Erreur = "Impossible de joindre GitHub ($($_.Exception.Message))." } }
+    } catch {
+        # L'API de GitHub limite les questions (60 par heure et par connexion) : on passe alors par la page des versions
+        $repli = Get-PublicationSansApi $Depot $Zip
+        if ($repli) { return $repli }
+        return @{ Erreur = "Impossible de joindre GitHub ($($_.Exception.Message))." }
+    }
     $z = @($r.assets | Where-Object { $_.name -eq $Zip }) | Select-Object -First 1
     $s = @($r.assets | Where-Object { $_.name -eq "$Zip.sig" }) | Select-Object -First 1
     if (-not $z) { return @{ Erreur = "La dernière version publiée ne contient pas $Zip." } }
@@ -18,6 +23,26 @@ function Get-Publication([string]$Depot, [string]$Zip) {
         UrlSig  = if ($s) { [string]$s.browser_download_url } else { $null }
         Notes   = [string]$r.body
     }
+}
+
+# Sans l'API : https://github.com/<dépôt>/releases/latest renvoie vers /releases/tag/v<version> (sans limite de questions),
+# et les fichiers d'une version sont à /releases/download/v<version>/<fichier>
+function Get-PublicationSansApi([string]$Depot, [string]$Zip) {
+    try {
+        $q = [Net.HttpWebRequest]::Create("https://github.com/$Depot/releases/latest")
+        $q.Method = 'HEAD'; $q.AllowAutoRedirect = $false; $q.UserAgent = 'Mindset'; $q.Timeout = 15000
+        $rep = $q.GetResponse(); $vers = [string]$rep.Headers['Location']; $rep.Close()
+        if ($vers -notmatch '/releases/tag/v?(\d+(\.\d+){1,3})$') { return $null }
+        $version = $Matches[1]
+        $base = "https://github.com/$Depot/releases/download/v$version"
+        # La signature est-elle publiée ? (une redirection vers le fichier veut dire oui)
+        $sig = $null
+        try {
+            $q2 = [Net.HttpWebRequest]::Create("$base/$Zip.sig"); $q2.Method = 'HEAD'; $q2.AllowAutoRedirect = $false; $q2.UserAgent = 'Mindset'; $q2.Timeout = 15000
+            $r2 = $q2.GetResponse(); if ([int]$r2.StatusCode -in 200, 301, 302) { $sig = "$base/$Zip.sig" }; $r2.Close()
+        } catch {}
+        @{ Version = $version; UrlZip = "$base/$Zip"; UrlSig = $sig; Notes = '' }
+    } catch { $null }
 }
 
 function Get-Octets([string]$Url) {

@@ -111,7 +111,6 @@ function Update-HotesVisibles {
     $montree = $affichee -and $affichee.Fenetre -ne [IntPtr]::Zero
     $ui.PageAppliMessage.Visibility = if ($montree) { 'Collapsed' } else { 'Visible' }
     $ui.PageAppliCadre.Visibility = if ($montree) { 'Visible' } else { 'Collapsed' }
-    if ($montree) { $a = Get-Appli $affichee.Id; $ui.PageAppliNom.Text = $a.Nom; $ui.PageAppliNom.Foreground = Get-Brush $a.Couleur }
 }
 
 # Barre de l'appli : la fermer (sa propre règle s'applique : elle demande, se réduit ou quitte), ou la rendre à sa fenêtre
