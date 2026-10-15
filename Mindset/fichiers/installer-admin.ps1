@@ -14,13 +14,19 @@
                             dans -Destination (…\Mindset), puis relance Mindset sans les droits administrateur
     -Action supprimer       supprime une appli gérée (-Destination, -Exe) ou Mindset lui-même (-Destination ...\Mindset)
                             après avoir attendu la fin du processus -AttendrePid
-    Toujours : -Resultat <fichier de réponse> (JSON { ok, message }).
+    -Action demande         lancé par la tâche « \Mindset\Mindset (installation) » (Mindset sans droits) : lit la demande
+                            dans -Demande (fichier JSON écrit par Mindset : Id, Action parmi appli, mindset-maj, supprimer,
+                            taches, et ses paramètres). Le fichier est modifiable sans droits : tout y est revérifié comme
+                            pour un lancement direct, seuls les zips signés s'installent, et l'utilisateur est toujours
+                            celui de la tâche. La réponse va dans HKLM:\SOFTWARE\Mindset\Installation (valeur Resultat,
+                            JSON { id, ok, message }) : jamais dans un dossier modifiable sans droits.
+    Sinon : -Resultat <fichier de réponse> (JSON { ok, message }).
 
     Seuls des dossiers directement dans Program Files\Mindset ou X:\Mindset\Programmes sont acceptés.
 #>
 param(
-    [Parameter(Mandatory = $true)][ValidateSet('appli', 'mindset', 'mindset-maj', 'taches', 'supprimer')][string]$Action,
-    [Parameter(Mandatory = $true)][string]$Resultat,
+    [Parameter(Mandatory = $true)][ValidateSet('appli', 'mindset', 'mindset-maj', 'taches', 'supprimer', 'demande')][string]$Action,
+    [string]$Resultat, [string]$Demande,
     [string]$Zip, [string]$Signature, [string]$Destination, [string]$DossierZip, [string]$Exe, [string]$AncienExe,
     [string]$Source, [string]$Version, [int]$AttendrePid, [string]$TacheAide, [string]$ExeAide,
     [ValidatePattern('^[A-Za-z]?$')][string]$Disque, [string]$Sid
@@ -28,8 +34,24 @@ param(
 $ErrorActionPreference = 'Stop'
 $CleDesinstall = 'HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\Mindset'
 
+$CleInstallation = 'HKLM:\SOFTWARE\Mindset\Installation'   # réponse d'une demande passée par la tâche (écrite seulement ici)
+$IdDemande = ''
 function Write-Resultat([bool]$Ok, [string]$Message) {
-    try { [IO.File]::WriteAllText($Resultat, (@{ ok = $Ok; message = $Message } | ConvertTo-Json), (New-Object Text.UTF8Encoding $false)) } catch {}
+    if ($IdDemande) {
+        try {
+            New-Item -Path $CleInstallation -Force | Out-Null
+            Set-ItemProperty -Path $CleInstallation -Name 'Resultat' -Value (@{ id = $IdDemande; ok = $Ok; message = $Message } | ConvertTo-Json -Compress)
+        } catch {}
+        return
+    }
+    if ($Resultat) { try { [IO.File]::WriteAllText($Resultat, (@{ ok = $Ok; message = $Message } | ConvertTo-Json), (New-Object Text.UTF8Encoding $false)) } catch {} }
+}
+
+# Dossier des données de Mindset (même règle que Get-RacinesDepuis dans modules\donnees.ps1) : la demande y est écrite
+function Get-DonneesMindset([string]$DossierMindset) {
+    $p = Split-Path $DossierMindset -Parent; $m = Split-Path $p -Parent
+    if ((Split-Path $p -Leaf) -eq 'Programmes' -and $m -and (Split-Path $m -Leaf) -eq 'Mindset') { return (Join-Path $m 'Donnees\Mindset') }
+    Join-Path $env:LOCALAPPDATA 'Mindset\Mindset'
 }
 
 # Un dossier directement dans les programmes de Mindset : Program Files\Mindset, ou X:\Mindset\Programmes sur un
@@ -81,20 +103,27 @@ function Initialize-RacineDisque([string]$Lettre, [string]$Sid) {
     "$racine\Programmes"
 }
 
-# Les tâches planifiées de Mindset : il tourne en administrateur sans demande de Windows (pour accueillir Nevermind,
-# installer et mettre à jour sans demande). Elles ne lancent que le Mindset.exe du dossier protégé, pour l'utilisateur $Sid.
-#   \Mindset\Mindset              à la demande (le raccourci « Mindset » la lance)
-#   \Mindset\Mindset (démarrage)  à l'ouverture de session, avec -Demarrage (caché près de l'horloge)
-$TachesMindset = @('Mindset', 'Mindset (démarrage)')
+# Les tâches planifiées de Mindset, pour l'utilisateur $Sid seulement :
+#   \Mindset\Mindset (démarrage)     à l'ouverture de session, Mindset.exe -Demarrage (caché près de l'horloge), SANS droits
+#   \Mindset\Mindset (installation)  à la demande de Mindset, installer-admin.ps1 -Action demande : la seule partie de Mindset
+#                                    en administrateur (installer, mettre à jour ou supprimer une appli ou Mindset)
+# (L'ancienne « \Mindset\Mindset » ouvrait Mindset en administrateur : elle est retirée, Mindset s'ouvre directement.)
+$TachesMindset = @('Mindset', 'Mindset (démarrage)', 'Mindset (installation)')
 function Register-TachesMindset([string]$DossierMindset, [string]$Sid) {
     if ($Sid -notmatch '^S-1-5-21-\d+-\d+-\d+-\d+$') { throw 'Utilisateur inconnu.' }
     $exe = Join-Path $DossierMindset 'Mindset.exe'
     if (-not (Test-Path -LiteralPath $exe)) { throw "Mindset.exe introuvable dans $DossierMindset" }
-    $pr = New-ScheduledTaskPrincipal -UserId $Sid -LogonType Interactive -RunLevel Highest
+    $pr = New-ScheduledTaskPrincipal -UserId $Sid -LogonType Interactive -RunLevel Limited
     $set = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -ExecutionTimeLimit ([TimeSpan]::Zero) -MultipleInstances Parallel
     $utilisateur = (New-Object Security.Principal.SecurityIdentifier($Sid)).Translate([Security.Principal.NTAccount]).Value
-    $act = New-ScheduledTaskAction -Execute "`"$exe`"" -WorkingDirectory $DossierMindset
-    Register-ScheduledTask -TaskPath '\Mindset\' -TaskName 'Mindset' -Action $act -Principal $pr -Settings $set -Description 'Ouvre Mindset (le raccourci « Mindset » la lance).' -Force | Out-Null
+    Unregister-ScheduledTask -TaskPath '\Mindset\' -TaskName 'Mindset' -Confirm:$false -ErrorAction SilentlyContinue
+    # Le mini-installateur : une demande à la fois (les suivantes attendent leur tour)
+    $prAdmin = New-ScheduledTaskPrincipal -UserId $Sid -LogonType Interactive -RunLevel Highest
+    $setAdmin = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -ExecutionTimeLimit ([TimeSpan]::FromMinutes(30)) -MultipleInstances Queue
+    $script = Join-Path $DossierMindset 'fichiers\installer-admin.ps1'
+    $fichier = Join-Path (Get-DonneesMindset $DossierMindset) 'installation.demande'
+    $actI = New-ScheduledTaskAction -Execute "$env:SystemRoot\System32\WindowsPowerShell\v1.0\powershell.exe" -Argument "-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File `"$script`" -Action demande -Demande `"$fichier`"" -WorkingDirectory $env:SystemRoot
+    Register-ScheduledTask -TaskPath '\Mindset\' -TaskName 'Mindset (installation)' -Action $actI -Principal $prAdmin -Settings $setAdmin -Description 'Installe et met à jour Mindset et ses applis (zips signés seulement), à la demande de Mindset.' -Force | Out-Null
     $trg = New-ScheduledTaskTrigger -AtLogOn -User $utilisateur
     $trg.Delay = 'PT10S'   # laisse Windows finir d'ouvrir la session
     $actD = New-ScheduledTaskAction -Execute "`"$exe`"" -Argument '-Demarrage' -WorkingDirectory $DossierMindset
@@ -124,6 +153,27 @@ function Stop-Programme([string]$Nom) {
     if ($Nom -notmatch '^[^\\/:*?"<>|]+\.exe$') { throw 'Nom de programme refusé.' }
     Get-Process -Name ([IO.Path]::GetFileNameWithoutExtension($Nom)) -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
     Start-Sleep -Milliseconds 800
+}
+
+# Demande passée par la tâche « \Mindset\Mindset (installation) » : lue, puis effacée. Tout ce qu'elle contient est
+# revérifié plus bas (dossiers, noms, signature des zips) ; l'utilisateur est toujours celui de la tâche.
+if ($Action -eq 'demande') {
+    try {
+        $fi = New-Object IO.FileInfo $Demande
+        if (-not $fi.Exists -or $fi.Length -gt 16KB -or ($fi.Attributes -band [IO.FileAttributes]::ReparsePoint)) { exit }
+        $j = [IO.File]::ReadAllText($Demande, [Text.Encoding]::UTF8) | ConvertFrom-Json
+        try { [IO.File]::Delete($Demande) } catch {}
+        if ([string]$j.Id -notmatch '^[0-9a-f]{8,32}$') { exit }
+        $IdDemande = [string]$j.Id
+        if ([string]$j.Action -notin 'appli', 'mindset-maj', 'supprimer', 'taches') { Write-Resultat $false 'Demande refusée.'; exit }
+        $Action = [string]$j.Action
+        foreach ($n in 'Zip', 'Signature', 'Destination', 'DossierZip', 'Exe', 'AncienExe', 'Version', 'TacheAide', 'ExeAide') {
+            $v = $j.PSObject.Properties[$n]
+            if ($v -and $v.Value -is [string]) { Set-Variable -Name $n -Value ([string]$v.Value) }
+        }
+        if ($j.AttendrePid) { $AttendrePid = [int]$j.AttendrePid }
+        $Sid = [Security.Principal.WindowsIdentity]::GetCurrent().User.Value
+    } catch { Write-Resultat $false "Demande illisible : $($_.Exception.Message)"; exit }
 }
 
 try {
@@ -198,6 +248,8 @@ try {
                 $sig = [IO.File]::ReadAllBytes($Signature)
                 [void](Install-Paquet -Zip $octets -Signature $sig -ClePublique (Join-Path $PSScriptRoot 'cle-publique.xml') -Destination $dest -DossierZip 'Mindset' -Exe 'Mindset.exe')
                 if ($Version) { Set-ItemProperty -Path $CleDesinstall -Name 'DisplayVersion' -Value $Version -ErrorAction SilentlyContinue }
+                # Tâches à jour avec la nouvelle version (demande passée par la tâche : l'utilisateur est connu)
+                if ($Sid) { try { Register-TachesMindset $dest $Sid } catch {} }
                 Write-Resultat $true $Version
             } catch { Write-Resultat $false $_.Exception.Message }
             finally {

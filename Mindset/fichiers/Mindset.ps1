@@ -18,17 +18,47 @@ $EnTest = [bool]$env:MINDSET_TEST      # test automatique : rien n'est modifié 
 if ($EnTest -and $env:MINDSET_VERSION) { $AppVersion = $env:MINDSET_VERSION }   # (test de la mise à jour de Mindset)
 
 # ---------------------------------------------------------------------------
-# Mindset installé tourne en administrateur, lancé par sa tâche planifiée (aucune demande de Windows) : il peut ainsi
-# accueillir Nevermind. Lancé autrement (raccourci, relance après une mise à jour), il passe la main à sa tâche.
-# Seulement le Mindset du dossier inscrit dans « Applications installées » (écrit par un administrateur).
+# Mindset tourne sans les droits administrateur. Seul son mini-installateur (tâche « \Mindset\Mindset (installation) »)
+# les a, pour installer les zips signés. Une installation d'avant la 0.3 (Mindset ouvert en administrateur par sa tâche
+# « \Mindset\Mindset ») bascule une fois : tâches refaites (installer-admin.ps1 -Action taches), puis Mindset se rouvre
+# sans les droits, par l'Explorateur. Seulement le Mindset du dossier inscrit dans « Applications installées ».
 # ---------------------------------------------------------------------------
 $EstAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+$MarqueCache = Join-Path $env:TEMP 'mindset-rouvrir-cache.marque'   # (rouvert par l'Explorateur, qui ne passe pas -Demarrage)
+if (-not $EnTest -and -not $Demarrage -and (Test-Path -LiteralPath $MarqueCache)) {
+    if (((Get-Date) - (Get-Item -LiteralPath $MarqueCache).LastWriteTime).TotalSeconds -lt 120) { $Demarrage = $true }
+    Remove-Item -LiteralPath $MarqueCache -Force -ErrorAction SilentlyContinue
+}
+# Ouvert sans droits alors que l'ancienne tâche « \Mindset\Mindset » existe encore : elle sert une dernière fois, pour la
+# bascule ci-dessous (sans demande de Windows). Pas plus d'une tentative toutes les 2 minutes (si la bascule échouait).
 if (-not $EnTest -and -not $EstAdmin -and -not $Desinstaller) {
+    $marqueBascule = Join-Path $env:TEMP 'mindset-bascule.marque'
+    $recente = (Test-Path -LiteralPath $marqueBascule) -and ((Get-Date) - (Get-Item -LiteralPath $marqueBascule).LastWriteTime).TotalSeconds -lt 120
+    $inscrit = try { [string](Get-ItemProperty 'HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\Mindset' -ErrorAction Stop).InstallLocation } catch { '' }
+    if (-not $recente -and $inscrit -and $inscrit -ieq (Split-Path $PSScriptRoot -Parent)) {
+        & "$env:SystemRoot\System32\schtasks.exe" /Query /TN '\Mindset\Mindset' 2>$null | Out-Null
+        if ($LASTEXITCODE -eq 0) {
+            try { [IO.File]::WriteAllText($marqueBascule, '1') } catch {}
+            if ($Demarrage) { try { [IO.File]::WriteAllText($MarqueCache, '1') } catch {} }
+            & "$env:SystemRoot\System32\schtasks.exe" /Run /TN '\Mindset\Mindset' 2>$null | Out-Null
+            if ($LASTEXITCODE -eq 0) { exit }
+        }
+    }
+}
+if (-not $EnTest -and $EstAdmin -and -not $Desinstaller) {
     $inscrit = try { [string](Get-ItemProperty 'HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\Mindset' -ErrorAction Stop).InstallLocation } catch { '' }
     if ($inscrit -and $inscrit -ieq (Split-Path $PSScriptRoot -Parent)) {
-        $tache = if ($Demarrage) { '\Mindset\Mindset (démarrage)' } else { '\Mindset\Mindset' }
-        & "$env:SystemRoot\System32\schtasks.exe" /Run /TN $tache 2>$null | Out-Null
-        if ($LASTEXITCODE -eq 0) { exit }   # (sinon : pas de tâche, Mindset continue sans les droits administrateur)
+        $sid = [Security.Principal.WindowsIdentity]::GetCurrent().User.Value
+        $rep = Join-Path $env:TEMP "mindset-taches-$PID.json"
+        try {
+            $p = Start-Process -FilePath "$env:SystemRoot\System32\WindowsPowerShell\v1.0\powershell.exe" -WorkingDirectory $env:SystemRoot -WindowStyle Hidden -PassThru -ArgumentList @(
+                '-NoProfile', '-ExecutionPolicy', 'Bypass', '-WindowStyle', 'Hidden', '-File', "`"$(Join-Path $PSScriptRoot 'installer-admin.ps1')`"", '-Action', 'taches', '-Destination', "`"$inscrit`"", '-Sid', $sid, '-Resultat', "`"$rep`"")
+            [void]$p.WaitForExit(60000)
+        } catch {}
+        Remove-Item -LiteralPath $rep -Force -ErrorAction SilentlyContinue
+        if ($Demarrage) { try { [IO.File]::WriteAllText($MarqueCache, '1') } catch {} }
+        Start-Process -FilePath "$env:SystemRoot\explorer.exe" -ArgumentList "`"$AppExe`""
+        exit
     }
 }
 
@@ -108,5 +138,3 @@ if ($script:Relancer) {
 # Mindset vient d'être installé dans Program Files : le Mindset installé prend le relais
 if ($script:LancerApres) { Start-Process -FilePath $script:LancerApres }
 
-# Mindset vient d'être activé en administrateur : il se rouvre par sa tâche planifiée
-if ($script:LancerTache) { & "$env:SystemRoot\System32\schtasks.exe" /Run /TN '\Mindset\Mindset' 2>$null | Out-Null }

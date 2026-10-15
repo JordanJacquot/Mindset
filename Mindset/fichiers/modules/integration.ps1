@@ -53,7 +53,7 @@ function Show-AppliIntegree($Appli, [switch]$Lancer) {
     if ($i.Fenetre -ne [IntPtr]::Zero -and [MSIntegration]::IsWindow($i.Fenetre)) { Update-HotesVisibles; return }
     # (les applis ne s'ouvrent que dans Mindset : sans ses droits, Nevermind n'est pas lancé à côté)
     if ((Test-AppliAdmin $Appli $inst) -and -not $MindsetAdmin) {
-        Set-EtatPageAppli $Appli "$($Appli.Nom) ne peut pas encore s'afficher ici" "Il tourne en administrateur : pour l'afficher, Mindset doit l'être aussi (Paramètres, Général)." $false
+        Set-EtatPageAppli $Appli "$($Appli.Nom) doit être mis à jour" "Cette version demande les droits administrateur. Mets-le à jour depuis sa carte de l'accueil : la nouvelle version n'en a plus besoin." $false
         return
     }
     # Elle tourne (réduite près de l'horloge, dans sa propre fenêtre) : elle revient ici directement

@@ -1,4 +1,4 @@
-# Mindset
+﻿# Mindset
 
 Le portail de la suite : [Nevermind](https://github.com/JordanJacquot/Nevermind) et [Evermind](https://github.com/JordanJacquot/Evermind) au même endroit.
 Depuis Mindset, tu installes, mets à jour et utilises chaque appli. C'est la seule façon de les installer.
@@ -28,6 +28,16 @@ rendez-vous et tes sauvegardes sont gardés, l'ancienne copie et ses raccourcis 
 - **Discret** : Mindset se range près de l'horloge et se lance avec Windows ; sur chaque carte, l'interrupteur
   « S'ouvre avec Mindset » choisit les applis qui démarrent avec lui.
 - **Mises à jour automatiques** de Mindset et des applis, toutes signées.
+## Droits administrateur
+
+Mindset, Nevermind et Evermind tournent **sans** les droits administrateur. Seules deux petites parties les ont, lancées
+par des tâches planifiées créées à l'installation (une seule demande de Windows, à l'installation de Mindset) :
+
+- **le mini-installateur de Mindset** (`installer-admin.ps1 -Action demande`) : il installe, met à jour ou supprime une
+  appli ou Mindset, et rien d'autre ; il revérifie chaque demande et n'installe que des zips signés ;
+- **Nevermind Aide** : les réglages de Windows que Nevermind modifie, ses lectures et ses mesures, selon une liste stricte
+  (`modules\aide-actions.ps1` de Nevermind) qui refuse tout ce qui affaiblirait la sécurité du PC.
+
 ## Sécurité des téléchargements
 
 Chaque zip publié (Nevermind, Evermind, Mindset) est accompagné de `<zip>.sig`, sa signature RSA 3072 bits.

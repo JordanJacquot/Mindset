@@ -244,13 +244,11 @@ function Open-PageDemandee {
 Show-OngletParametres $(if ($EnTest -and $env:MINDSET_ONGLET) { $env:MINDSET_ONGLET } else { 'general' })
 
 # ---------------------------------------------------------------------------
-# Mindset en administrateur, par ses tâches planifiées (créées à l'installation ; installer-admin.ps1).
-# Une installation d'avant la 0.2 n'en a pas : un bandeau propose de les créer (une dernière demande de Windows).
+# Le mini-installateur (tâche « \Mindset\Mindset (installation) », créée à l'installation de Mindset) : installer et
+# mettre à jour sans demande de Windows. Une installation qui ne l'a pas : un bandeau propose de le créer (une dernière
+# demande de Windows).
 # ---------------------------------------------------------------------------
-function Test-TacheMindset {
-    & "$env:SystemRoot\System32\schtasks.exe" /Query /TN '\Mindset\Mindset' 2>$null | Out-Null
-    $LASTEXITCODE -eq 0
-}
+function Test-TacheMindset { $script:TacheInstallationOk = $null; Test-TacheInstallation }
 
 function Enable-MindsetAdmin {
     $ui.AdminTexte.Text = 'Activation (accepte la demande de Windows)...'
@@ -259,13 +257,13 @@ function Enable-MindsetAdmin {
         param($Ok, $Message)
         $ui.BtnActiverAdmin.IsEnabled = $true
         if (-not $Ok) { $ui.AdminTexte.Text = "Activation impossible : $Message"; return }
-        # Le lancement avec Windows passe par la tâche (en administrateur) ; Mindset se rouvre par elle
+        # Le lancement avec Windows passe par la tâche (sans droits)
         Remove-ItemProperty -Path $CleRun -Name 'Mindset' -ErrorAction SilentlyContinue
-        Write-Log 'Mindset activé en administrateur (tâches planifiées)'
-        $script:LancerTache = $true
-        Exit-Mindset
+        Write-Log 'Mini-installateur activé (tâches planifiées)'
+        $script:TacheInstallationOk = $true
+        $ui.AdminBandeau.Visibility = 'Collapsed'
     }
 }
 
-$ui.AdminBandeau.Visibility = if (((Test-MindsetInstalle) -and -not $MindsetAdmin -and -not $EnTest -and -not (Test-TacheMindset)) -or ($EnTest -and $env:MINDSET_ADMIN_TEST)) { 'Visible' } else { 'Collapsed' }
+$ui.AdminBandeau.Visibility = if (((Test-MindsetInstalle) -and -not $EnTest -and -not (Test-TacheMindset)) -or ($EnTest -and $env:MINDSET_ADMIN_TEST)) { 'Visible' } else { 'Collapsed' }
 $ui.BtnActiverAdmin.Add_Click({ Enable-MindsetAdmin })

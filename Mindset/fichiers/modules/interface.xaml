@@ -264,9 +264,9 @@
                 <DockPanel>
                   <Button x:Name="BtnActiverAdmin" DockPanel.Dock="Right" Content="Activer" Style="{StaticResource BtnPrimary}" VerticalAlignment="Center" Margin="16,0,0,0"/>
                   <StackPanel VerticalAlignment="Center">
-                    <TextBlock Text="Afficher Nevermind dans Mindset" FontSize="16" FontWeight="SemiBold"/>
+                    <TextBlock Text="Installer sans demande de Windows" FontSize="16" FontWeight="SemiBold"/>
                     <TextBlock x:Name="AdminTexte" TextWrapping="Wrap" Foreground="#A9A3C9" Margin="0,4,0,0"
-                               Text="Mindset passe en administrateur, sans demande de Windows à chaque fois : il peut alors accueillir Nevermind, et ni l'ouverture de Nevermind ni les installations ne demandent plus l'autorisation. Une dernière demande de Windows, puis Mindset se rouvre."/>
+                               Text="Mindset crée son mini-installateur : les installations et les mises à jour (seulement des fichiers signés) ne demanderont plus l'autorisation. Une dernière demande de Windows."/>
                   </StackPanel>
                 </DockPanel>
               </Border>

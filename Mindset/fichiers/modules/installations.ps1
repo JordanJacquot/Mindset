@@ -174,8 +174,42 @@ function Update-Publications {
 # ---------------------------------------------------------------------------
 $script:AttentesAdmin = New-Object System.Collections.ArrayList
 
+# Le mini-installateur : la tâche « \Mindset\Mindset (installation) » (installer-admin.ps1 -Action demande), en
+# administrateur sans demande de Windows. Mindset écrit sa demande dans installation.demande (une à la fois : les
+# suivantes attendent) et lit la réponse dans HKLM:\SOFTWARE\Mindset\Installation (écrite seulement par l'installateur).
+$TacheInstallation = '\Mindset\Mindset (installation)'
+$FichierDemande = Join-Path $DataDir 'installation.demande'
+$script:DemandesEnAttente = New-Object System.Collections.ArrayList
+function Test-TacheInstallation {
+    if ($null -eq $script:TacheInstallationOk) {
+        & "$env:SystemRoot\System32\schtasks.exe" /Query /TN $TacheInstallation 2>$null | Out-Null
+        $script:TacheInstallationOk = ($LASTEXITCODE -eq 0)
+    }
+    $script:TacheInstallationOk
+}
+
+function Send-DemandeInstallation($D) {
+    try {
+        [IO.File]::WriteAllText($FichierDemande, (ConvertTo-Json -InputObject $D.Contenu -Compress), (New-Object Text.UTF8Encoding $false))
+        $null = & "$env:SystemRoot\System32\schtasks.exe" /Run /TN $TacheInstallation 2>&1
+        if ($LASTEXITCODE -ne 0) { throw "la tâche d'installation n'a pas démarré (code $LASTEXITCODE)" }
+    } catch { & $D.Fin $false $_.Exception.Message; return $false }
+    $D.Debut = Get-Date
+    [void]$script:AttentesAdmin.Add(@{ Process = $null; Id = $D.Contenu.Id; Fin = $D.Fin; Debut = $D.Debut })
+    $script:AdminTimer.Start()
+    $true
+}
+
 function Invoke-Admin([string]$Action, [hashtable]$Parametres, [scriptblock]$Fin) {
     New-Item -ItemType Directory -Force -Path $TelechargementsDir | Out-Null
+    if (-not $MindsetAdmin -and $Action -ne 'mindset' -and (Test-TacheInstallation)) {
+        $c = @{ Id = [guid]::NewGuid().ToString('N'); Action = $Action }
+        foreach ($k in $Parametres.Keys) { if ($null -ne $Parametres[$k] -and "$($Parametres[$k])" -ne '') { $c[$k] = [string]$Parametres[$k] } }
+        $d = @{ Contenu = $c; Fin = $Fin }
+        if (@($script:AttentesAdmin | Where-Object { $_.Id }).Count) { [void]$script:DemandesEnAttente.Add($d); return }
+        [void](Send-DemandeInstallation $d)
+        return
+    }
     $rep = Join-Path $TelechargementsDir "admin-$([guid]::NewGuid().ToString('N').Substring(0, 8)).json"
     $a = @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-WindowStyle', 'Hidden', '-File', "`"$(Join-Path $AppDir 'installer-admin.ps1')`"", '-Action', $Action, '-Resultat', "`"$rep`"")
     foreach ($k in $Parametres.Keys) { if ($null -ne $Parametres[$k] -and "$($Parametres[$k])" -ne '') { $a += @("-$k", "`"$($Parametres[$k])`"") } }
@@ -189,10 +223,21 @@ $script:AdminTimer = New-Object System.Windows.Threading.DispatcherTimer
 $script:AdminTimer.Interval = [TimeSpan]::FromMilliseconds(500)
 $script:AdminTimer.Add_Tick({
     foreach ($w in @($script:AttentesAdmin)) {
+        $r = $null
+        if ($w.Id) {
+            # Demande passée par la tâche : sa réponse, reconnue à son numéro
+            try { $r = [string](Get-ItemProperty -Path 'HKLM:\SOFTWARE\Mindset\Installation' -Name Resultat -ErrorAction Stop).Resultat | ConvertFrom-Json } catch {}
+            if ($r -and $r.id -ne $w.Id) { $r = $null }
+            if (-not $r -and ((Get-Date) - $w.Debut).TotalMinutes -lt 10) { continue }
+            [void]$script:AttentesAdmin.Remove($w)
+            try { if ($r) { & $w.Fin ([bool]$r.ok) ([string]$r.message) } else { & $w.Fin $false 'pas de réponse du mini-installateur (opération interrompue ?).' } } catch { Write-Log "Fin d'opération admin : $_" }
+            # Demande suivante
+            if ($script:DemandesEnAttente.Count) { $s = $script:DemandesEnAttente[0]; $script:DemandesEnAttente.RemoveAt(0); [void](Send-DemandeInstallation $s) }
+            continue
+        }
         $fini = $false; try { $fini = $w.Process.HasExited } catch {}
         if (-not $fini -and ((Get-Date) - $w.Debut).TotalMinutes -lt 5) { continue }
         [void]$script:AttentesAdmin.Remove($w)
-        $r = $null
         try { $r = [IO.File]::ReadAllText($w.Reponse, [Text.Encoding]::UTF8) | ConvertFrom-Json; Remove-Item -LiteralPath $w.Reponse -Force } catch {}
         try {
             if ($r) { & $w.Fin ([bool]$r.ok) ([string]$r.message) } else { & $w.Fin $false 'pas de réponse (opération interrompue ?).' }
@@ -233,7 +278,7 @@ function Start-InstallAppli($Appli, [string]$AncienDossier) {
 
 function Complete-Telechargement($Appli, $Resultat, $Erreur, [string]$AncienDossier) {
     if ($Erreur -or -not $Resultat) { Stop-Operation $Appli "Échec : $Erreur"; return }
-    $script:Occupe[$Appli.Id] = 'Installation (accepte la demande de Windows)...'
+    $script:Occupe[$Appli.Id] = $(if (-not $MindsetAdmin -and (Test-TacheInstallation)) { 'Installation...' } else { 'Installation (accepte la demande de Windows)...' })
     Update-Cartes
     $script:EnCours[$Appli.Id] = @{ Appli = $Appli; Ancien = $AncienDossier; Version = $Resultat.Version; Zip = $Resultat.Zip }
     $p = [ordered]@{ Zip = $Resultat.Zip; Signature = $Resultat.Sig; Destination = (Get-DossierGere $Appli); DossierZip = $Appli.DossierZip; Exe = $Appli.Exe }
