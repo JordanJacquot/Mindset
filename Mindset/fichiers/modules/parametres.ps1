@@ -75,7 +75,7 @@ $ui.BtnImporterTheme.Add_Click({
 
 # Démarrage avec Windows : le même interrupteur « S'ouvre avec Mindset » que sur les cartes de l'accueil
 # (Nevermind seulement si Mindset est administrateur : sinon il garde son propre lancement)
-foreach ($a in $Applis | Where-Object { -not $_.Admin -or $MindsetAdmin }) {
+foreach ($a in $Applis | Where-Object { -not (Test-AppliAdmin $_) -or $MindsetAdmin }) {
     $ligne = New-Object System.Windows.Controls.DockPanel
     $ligne.Margin = '0,0,0,10'; $ligne.MaxWidth = 520; $ligne.HorizontalAlignment = 'Left'
     $sw = New-InterrupteurOuverture $a.Id

@@ -336,7 +336,7 @@ function Update-Carte($Appli) {
     if ($actions.Children.Count) { [void]$sp.Children.Add($actions) }
 
     # « S'ouvre avec Mindset » : l'appli démarre en arrière-plan à l'ouverture de Mindset (et donc avec Windows)
-    if ($e.Inst -and $e.Inst.Gere -and -not $e.Occupe -and (-not $Appli.Admin -or $MindsetAdmin)) {
+    if ($e.Inst -and $e.Inst.Gere -and -not $e.Occupe -and (-not (Test-AppliAdmin $Appli $e.Inst) -or $MindsetAdmin)) {
         $ligne = New-Object System.Windows.Controls.DockPanel
         $ligne.Margin = '0,16,0,0'; $ligne.LastChildFill = $true
         $sw = New-InterrupteurOuverture $Appli.Id

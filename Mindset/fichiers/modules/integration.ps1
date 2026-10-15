@@ -52,7 +52,7 @@ function Show-AppliIntegree($Appli, [switch]$Lancer) {
     if ($EnTest -and -not $env:MINDSET_INTEGRATION_TEST) { Set-EtatPageAppli $Appli "$($Appli.Nom) s'affichera ici" '(test : les vraies applis ne sont pas lancées)' $false; return }
     if ($i.Fenetre -ne [IntPtr]::Zero -and [MSIntegration]::IsWindow($i.Fenetre)) { Update-HotesVisibles; return }
     # (les applis ne s'ouvrent que dans Mindset : sans ses droits, Nevermind n'est pas lancé à côté)
-    if ($Appli.Admin -and -not $MindsetAdmin) {
+    if ((Test-AppliAdmin $Appli $inst) -and -not $MindsetAdmin) {
         Set-EtatPageAppli $Appli "$($Appli.Nom) ne peut pas encore s'afficher ici" "Il tourne en administrateur : pour l'afficher, Mindset doit l'être aussi (Paramètres, Général)." $false
         return
     }

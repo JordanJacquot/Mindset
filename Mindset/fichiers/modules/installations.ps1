@@ -125,6 +125,8 @@ function Find-InstallationExistante($Appli) {
 function Open-Appli($Appli, [switch]$Demarrage) {
     $inst = Get-Installation $Appli
     if (-not $inst) { return }
+    # En cours d'installation : pas maintenant (elle démarrerait avec les anciens fichiers) ; elle est relancée à la fin
+    if ($script:Occupe[$Appli.Id]) { $script:ARelancer[$Appli.Id] = $true; return }
     if (Test-AppliOuverte $Appli) {
         if ($Demarrage) { return }
         # Chaque appli a sa façon d'être réveillée : un fichier qu'elle surveille (Nevermind) ou un signal (Evermind).
@@ -140,7 +142,7 @@ function Open-Appli($Appli, [switch]$Demarrage) {
     $exe = Join-Path $inst.Dossier $Appli.Exe
     # Mindset administrateur : seule une appli administrateur installée par lui (dossier protégé) hérite de ses droits.
     # Les autres (Evermind, une copie de travail) sont lancées avec les droits de l'utilisateur.
-    $avecDroits = $Appli.Admin -and $inst.Gere -and $inst.Dossier -ieq (Get-DossierGere $Appli)
+    $avecDroits = (Test-AppliAdmin $Appli $inst) -and $inst.Gere -and $inst.Dossier -ieq (Get-DossierGere $Appli)
     try {
         if ($MindsetAdmin -and -not $avecDroits) { [void][MSLanceur]::SansAdmin($exe, $(if ($Demarrage) { '-Demarrage' } else { '' }), $inst.Dossier) }
         else {
@@ -205,6 +207,8 @@ $script:AdminTimer.Add_Tick({
 # $AncienDossier : copie existante qu'on prend en charge
 function Start-InstallAppli($Appli, [string]$AncienDossier) {
     if ($script:Occupe[$Appli.Id]) { return }
+    # Ouverte, ou qui s'ouvre avec Mindset : relancée une fois installée (l'installation la ferme)
+    $script:ARelancer[$Appli.Id] = [bool]((Test-AppliOuverte $Appli) -or (Get-DemarrageAppli $Appli.Id))
     $script:Occupe[$Appli.Id] = 'Téléchargement...'
     $script:Messages.Remove($Appli.Id)
     Update-Cartes
@@ -353,7 +357,16 @@ function Stop-Operation($Appli, [string]$Message) {
     $script:Messages[$Appli.Id] = $Message
     Update-Trouvees
     Update-Cartes
+    # Fermée par l'installation (ou demandée pendant) : relancée, cachée, puis accrochée si son onglet est affiché
+    if ($script:ARelancer[$Appli.Id]) {
+        $script:ARelancer.Remove($Appli.Id)
+        $i = Get-Installation $Appli
+        if ($i -and $i.Gere -and -not $EnTest) {
+            if ($script:PageCourante -eq $Appli.Id) { Open-AppliIci $Appli.Id } else { Open-Appli $Appli -Demarrage }
+        }
+    }
 }
+$script:ARelancer = @{}
 
 # ---------------------------------------------------------------------------
 # « S'ouvre avec Mindset » (interrupteur des cartes de l'accueil) : l'appli démarre en arrière-plan quand Mindset s'ouvre,

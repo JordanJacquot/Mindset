@@ -14,6 +14,7 @@
     "desinstalleur": "Désinstaller Nevermind.exe",
     "donnees": "%LOCALAPPDATA%\\OptiGame",
     "admin": true,
+    "sans_droits_depuis": "1.0.115",
     "aide": "Nevermind (aide)",
     "aide_exe": "NevermindAide.exe",
     "cache_depuis": "1.0.105"

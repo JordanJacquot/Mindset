@@ -18,6 +18,7 @@ function Get-Applis {
         if ($a.desinstalleur) { $ok = $ok -and $a.desinstalleur -match '^[^\\/:*?"<>|]+\.exe$' }
         if ($a.afficher_fichier) { $ok = $ok -and $a.afficher_fichier -match $nomFichier }
         if ($a.aide) { $ok = $ok -and $a.aide -cmatch '^[A-Za-z0-9 ]{1,40} \(aide\)$' -and $a.aide_exe -match '^[^\\/:*?"<>|]+\.exe$' }
+        if ($a.sans_droits_depuis) { $ok = $ok -and $a.sans_droits_depuis -match '^\d+(\.\d+){1,3}$' }
         if (-not $ok) { Write-Log "apps.json : appli ignorée ($($a.id))"; continue }
         [pscustomobject]@{
             Id              = [string]$a.id
@@ -35,11 +36,22 @@ function Get-Applis {
             Desinstalleur   = [string]$a.desinstalleur
             Donnees         = [Environment]::ExpandEnvironmentVariables([string]$a.donnees)
             Admin           = [bool]$a.admin
+            SansDroitsDepuis = [string]$a.sans_droits_depuis   # version à partir de laquelle elle n'a plus besoin des droits (son Aide les a)
             Aide            = [string]$a.aide       # tâche planifiée de sa partie administrateur (« \Mindset\<aide> »)
             AideExe         = [string]$a.aide_exe   # le programme qu'elle lance, à côté de l'exe de l'appli
             CacheDepuis     = [string]$a.cache_depuis   # version à partir de laquelle l'appli lancée cachée se dessine une fois affichée dans Mindset
         }
     }
+}
+
+# L'appli a-t-elle besoin des droits administrateur ? Selon la version installée : Nevermind n'en a plus besoin depuis
+# « sans_droits_depuis » (ce qui en demande passe par son Aide) ; une version plus ancienne les demande encore.
+function Test-AppliAdmin($Appli, $Inst = $null) {
+    if (-not $Appli.Admin) { return $false }
+    if (-not $Appli.SansDroitsDepuis) { return $true }
+    if (-not $Inst) { $Inst = Get-Installation $Appli }
+    if (-not $Inst -or -not $Inst.Version) { return $true }
+    Test-VersionPlusRecente $Appli.SansDroitsDepuis $Inst.Version
 }
 
 # Ouverte ou non : chaque appli garde un mutex tant qu'elle tourne (« une seule à la fois »).

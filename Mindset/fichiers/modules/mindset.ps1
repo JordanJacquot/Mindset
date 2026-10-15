@@ -94,7 +94,7 @@ function Start-Demarrage {
     }
     Move-TachesDemarrage
     foreach ($a in $Applis) {
-        if ($a.Admin -and -not $MindsetAdmin) { continue }
+        if ((Test-AppliAdmin $a) -and -not $MindsetAdmin) { continue }
         if (-not (Get-DemarrageAppli $a.Id)) { continue }
         $i = Get-Installation $a
         if ($i -and $i.Gere) { Open-Appli $a -Demarrage }
