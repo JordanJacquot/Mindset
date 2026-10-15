@@ -1,4 +1,4 @@
-[
+﻿[
   {
     "id": "nevermind",
     "nom": "Nevermind",
@@ -14,6 +14,8 @@
     "desinstalleur": "Désinstaller Nevermind.exe",
     "donnees": "%LOCALAPPDATA%\\OptiGame",
     "admin": true,
+    "aide": "Nevermind (aide)",
+    "aide_exe": "NevermindAide.exe",
     "cache_depuis": "1.0.105"
   },
   {

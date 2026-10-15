@@ -4,7 +4,9 @@
     fichier que Nevermind (ou Mindset plus tard) exécuterait ensuite en administrateur.
 
     -Action appli           installe une appli à partir de son zip signé (vérifié ici, sur le contenu lu en mémoire)
-                            -Zip -Signature -Destination -DossierZip -Exe [-AncienExe]
+                            -Zip -Signature -Destination -DossierZip -Exe [-AncienExe] [-TacheAide <nom> -ExeAide <exe> -Sid <utilisateur>]
+                            -TacheAide : crée la tâche « \Mindset\<nom> » qui lance -ExeAide (à côté de -Exe) en administrateur
+                            pour l'utilisateur -Sid (la partie administrateur de l'appli, lancée sans demande de Windows)
     -Action mindset         installe Mindset lui-même : copie -Source dans Program Files\Mindset\Mindset, ou dans
                             X:\Mindset\Programmes\Mindset avec -Disque X -Sid <utilisateur> (crée X:\Mindset protégé),
                             et l'inscrit dans « Applications installées » de Windows (-Version)
@@ -20,7 +22,7 @@ param(
     [Parameter(Mandatory = $true)][ValidateSet('appli', 'mindset', 'mindset-maj', 'taches', 'supprimer')][string]$Action,
     [Parameter(Mandatory = $true)][string]$Resultat,
     [string]$Zip, [string]$Signature, [string]$Destination, [string]$DossierZip, [string]$Exe, [string]$AncienExe,
-    [string]$Source, [string]$Version, [int]$AttendrePid,
+    [string]$Source, [string]$Version, [int]$AttendrePid, [string]$TacheAide, [string]$ExeAide,
     [ValidatePattern('^[A-Za-z]?$')][string]$Disque, [string]$Sid
 )
 $ErrorActionPreference = 'Stop'
@@ -100,6 +102,22 @@ function Register-TachesMindset([string]$DossierMindset, [string]$Sid) {
 }
 function Unregister-TachesMindset {
     foreach ($t in $TachesMindset) { Unregister-ScheduledTask -TaskPath '\Mindset\' -TaskName $t -Confirm:$false -ErrorAction SilentlyContinue }
+    # Et celles des parties administrateur des applis (« \Mindset\Nevermind (aide) »)
+    foreach ($t in @(Get-ScheduledTask -TaskPath '\Mindset\' -ErrorAction SilentlyContinue | Where-Object { $_.TaskName -like '* (aide)' })) {
+        Unregister-ScheduledTask -TaskPath '\Mindset\' -TaskName $t.TaskName -Confirm:$false -ErrorAction SilentlyContinue
+    }
+}
+
+# La partie administrateur d'une appli (son programme d'aide), à la demande (l'appli lance la tâche quand elle en a besoin),
+# pour l'utilisateur $Sid seulement, depuis le dossier protégé où l'appli vient d'être installée. Une seule à la fois.
+function Register-TacheAide([string]$Nom, [string]$ExeAide, [string]$Sid) {
+    if ($Nom -cnotmatch '^[A-Za-z0-9 ]{1,40} \(aide\)$') { throw 'Nom de tâche refusé.' }
+    if ($Sid -notmatch '^S-1-5-21-\d+-\d+-\d+-\d+$') { throw 'Utilisateur inconnu.' }
+    if (-not (Test-Path -LiteralPath $ExeAide)) { throw "Programme introuvable : $ExeAide" }
+    $pr = New-ScheduledTaskPrincipal -UserId $Sid -LogonType Interactive -RunLevel Highest
+    $set = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -ExecutionTimeLimit ([TimeSpan]::Zero) -MultipleInstances IgnoreNew
+    $act = New-ScheduledTaskAction -Execute "`"$ExeAide`"" -WorkingDirectory (Split-Path $ExeAide -Parent)
+    Register-ScheduledTask -TaskPath '\Mindset\' -TaskName $Nom -Action $act -Principal $pr -Settings $set -Description 'Partie administrateur de l''appli : ne fait que les actions de sa liste stricte, à la demande de l''appli.' -Force | Out-Null
 }
 
 function Stop-Programme([string]$Nom) {
@@ -119,6 +137,7 @@ try {
             $octets = [IO.File]::ReadAllBytes($Zip)
             $sig = [IO.File]::ReadAllBytes($Signature)
             Stop-Programme $Exe   # Mindset a demandé confirmation avant de fermer l'appli
+            if ($ExeAide) { Stop-Programme $ExeAide }   # sa partie administrateur tient son programme ouvert
             $installe = Install-Paquet -Zip $octets -Signature $sig -ClePublique (Join-Path $PSScriptRoot 'cle-publique.xml') -Destination $dest -DossierZip $DossierZip -Exe $Exe
             # Prise en charge : les tâches planifiées qui lançaient l'ancienne copie (en administrateur, que Mindset
             # sans droits ne peut pas modifier) lancent désormais la nouvelle
@@ -132,6 +151,8 @@ try {
                     }
                 }
             }
+            # (une version de l'appli sans programme d'aide s'installe quand même, sans tâche)
+            if ($TacheAide -and $ExeAide -and (Test-Path -LiteralPath (Join-Path $installe $ExeAide))) { Register-TacheAide $TacheAide (Join-Path $installe $ExeAide) $Sid }
             Write-Resultat $true $installe
         }
         'mindset' {

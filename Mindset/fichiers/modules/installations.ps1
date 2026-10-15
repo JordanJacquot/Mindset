@@ -234,6 +234,8 @@ function Complete-Telechargement($Appli, $Resultat, $Erreur, [string]$AncienDoss
     $script:EnCours[$Appli.Id] = @{ Appli = $Appli; Ancien = $AncienDossier; Version = $Resultat.Version; Zip = $Resultat.Zip }
     $p = [ordered]@{ Zip = $Resultat.Zip; Signature = $Resultat.Sig; Destination = (Get-DossierGere $Appli); DossierZip = $Appli.DossierZip; Exe = $Appli.Exe }
     if ($AncienDossier) { $p.AncienExe = Join-Path $AncienDossier $Appli.Exe }
+    # Appli avec une partie administrateur (Nevermind) : sa tâche planifiée est créée ou remise à jour à chaque installation
+    if ($Appli.Aide) { $p.TacheAide = $Appli.Aide; $p.ExeAide = $Appli.AideExe; $p.Sid = [Security.Principal.WindowsIdentity]::GetCurrent().User.Value }
     Invoke-Admin 'appli' $p ([scriptblock]::Create(@"
         param(`$Ok, `$Message)
         `$a = Get-Appli '$($Appli.Id)'
