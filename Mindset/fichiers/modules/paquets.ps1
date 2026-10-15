@@ -57,6 +57,17 @@ function Test-VersionPlusRecente([string]$Distante, [string]$Locale) {
     try { [version]$Distante -gt [version]$Locale } catch { $false }
 }
 
+# Version d'une appli installée dans un dossier : la ligne « $AppVersion = 'x.y.z' » de son script principal
+# (fichiers\*.ps1 : OptiGame.ps1, Evermind.ps1, Mindset.ps1). '' si introuvable.
+function Get-VersionDossier([string]$Dossier) {
+    foreach ($f in @(Get-ChildItem -LiteralPath (Join-Path $Dossier 'fichiers') -Filter '*.ps1' -File -ErrorAction SilentlyContinue)) {
+        foreach ($l in @(Get-Content -LiteralPath $f.FullName -TotalCount 40 -ErrorAction SilentlyContinue)) {
+            if ($l -match "^\`$AppVersion\s*=\s*'(\d+(\.\d+){1,3})'") { return $Matches[1] }
+        }
+    }
+    ''
+}
+
 # Installe (ou remplace) une appli à partir de son zip signé.
 #   Le zip est vérifié puis extrait depuis la mémoire : le fichier sur le disque peut changer après la vérification,
 #   ce qu'on installe est exactement ce qu'on a vérifié.
@@ -99,6 +110,13 @@ function Install-Paquet([byte[]]$Zip, [byte[]]$Signature, [string]$ClePublique, 
     if (-not (Test-Path -LiteralPath (Join-Path $tmp $Exe))) {
         try { Remove-Item -LiteralPath $tmp -Recurse -Force } catch {}
         throw "Le zip ne contient pas $Exe dans le dossier $DossierZip."
+    }
+    # Jamais de retour en arrière : une version plus ancienne que celle installée est refusée, même signée (un
+    # programme pourrait sinon faire réinstaller une vieille version et ses défauts). La même version reste permise.
+    $nouvelle = Get-VersionDossier $tmp; $installee = Get-VersionDossier $Destination
+    if ($nouvelle -and $installee -and (Test-VersionPlusRecente $installee $nouvelle)) {
+        try { Remove-Item -LiteralPath $tmp -Recurse -Force } catch {}
+        throw "Version $nouvelle refusée : la version $installee, plus récente, est déjà installée."
     }
 
     if (Test-Path -LiteralPath $Destination) {

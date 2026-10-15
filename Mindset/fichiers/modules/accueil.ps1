@@ -90,6 +90,8 @@ function Show-Page([string]$Id) {
     }
     $ui.PageAccueil.Visibility = if ($Id -eq 'accueil') { 'Visible' } else { 'Collapsed' }
     $ui.PageParametres.Visibility = if ($Id -eq 'parametres') { 'Visible' } else { 'Collapsed' }
+    # (Paramètres sur l'onglet Général : les interrupteurs « S'ouvre avec Mindset » à jour ; parametres.ps1, chargé après)
+    if ($Id -eq 'parametres' -and $script:OngletParametres -eq 'general' -and (Get-Command Update-DemarragesParametres -ErrorAction SilentlyContinue)) { Update-DemarragesParametres }
     $ui.PageAppli.Visibility = if ($Id -in @('accueil', 'parametres')) { 'Collapsed' } else { 'Visible' }
     # Onglet d'une appli : elle s'affiche ici, dans Mindset (integration.ps1, chargé après ce module)
     if (Get-Command Update-HotesVisibles -ErrorAction SilentlyContinue) {

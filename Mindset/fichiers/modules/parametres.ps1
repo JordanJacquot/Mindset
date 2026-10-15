@@ -77,18 +77,23 @@ $ui.BtnImporterTheme.Add_Click({
     } catch { $ui.ThemeInfo.Text = "Ce thème n'a pas pu être importé : $($_.Exception.Message)" }
 })
 
-# Démarrage avec Windows : le même interrupteur « S'ouvre avec Mindset » que sur les cartes de l'accueil
-# (Nevermind seulement si Mindset est administrateur : sinon il garde son propre lancement)
-foreach ($a in $Applis | Where-Object { -not (Test-AppliAdmin $_) -or $MindsetAdmin }) {
-    $ligne = New-Object System.Windows.Controls.DockPanel
-    $ligne.Margin = '0,0,0,10'; $ligne.MaxWidth = 520; $ligne.HorizontalAlignment = 'Left'
-    $sw = New-InterrupteurOuverture $a.Id
-    [System.Windows.Controls.DockPanel]::SetDock($sw, 'Right')
-    [void]$ligne.Children.Add($sw)
-    $t = New-Text "$($a.Nom) s'ouvre avec Mindset" 13 '#ECEAF7'; $t.VerticalAlignment = 'Center'; $t.Margin = '0,0,16,0'
-    [void]$ligne.Children.Add($t)
-    [void]$ui.Demarrages.Children.Add($ligne)
+# Démarrage avec Windows : le même interrupteur « S'ouvre avec Mindset » que sur les cartes de l'accueil, pour chaque
+# appli que Mindset peut ouvrir (une version qui demande encore les droits administrateur : non). Refait à chaque
+# affichage de l'onglet Général : une appli installée ou mise à jour entre-temps y apparaît sans rouvrir Mindset.
+function Update-DemarragesParametres {
+    $ui.Demarrages.Children.Clear()
+    foreach ($a in $Applis | Where-Object { (Get-Installation $_) -and (-not (Test-AppliAdmin $_) -or $MindsetAdmin) }) {
+        $ligne = New-Object System.Windows.Controls.DockPanel
+        $ligne.Margin = '0,0,0,10'; $ligne.MaxWidth = 520; $ligne.HorizontalAlignment = 'Left'
+        $sw = New-InterrupteurOuverture $a.Id
+        [System.Windows.Controls.DockPanel]::SetDock($sw, 'Right')
+        [void]$ligne.Children.Add($sw)
+        $t = New-Text "$($a.Nom) s'ouvre avec Mindset" 13 '#ECEAF7'; $t.VerticalAlignment = 'Center'; $t.Margin = '0,0,16,0'
+        [void]$ligne.Children.Add($t)
+        [void]$ui.Demarrages.Children.Add($ligne)
+    }
 }
+Update-DemarragesParametres
 
 $ui.DossiersTexte.Text = "Les programmes sont dans $RacineProgrammes (protégé : seul un administrateur peut les modifier). Les données de Mindset et de chaque appli sont dans $SuiteDir, un dossier par appli."
 $ui.BtnDossierProgrammes.Add_Click({ $d = $RacineProgrammes; if (-not (Test-Path -LiteralPath $d)) { $d = Split-Path $AppDir -Parent }; Start-Process explorer.exe "`"$d`"" })
@@ -130,6 +135,7 @@ function Show-OngletParametres([string]$Id) {
     $script:OngletParametres = $Id
     foreach ($b in $ui.OngletsParametres.Children) { $b.Style = $Window.FindResource($(if ($b.Tag -eq $Id) { 'BtnPrimary' } else { 'BtnSecondary' })) }
     foreach ($k in $PanneauxParametres.Keys) { $ui[$PanneauxParametres[$k]].Visibility = if ($k -eq $Id) { 'Visible' } else { 'Collapsed' } }
+    if ($Id -eq 'general') { Update-DemarragesParametres }
     if ($Id -eq 'son') { Update-ChoixSon }
     if ($Id -eq 'maj') { Update-ListeVersions }
 }
