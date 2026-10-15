@@ -120,11 +120,19 @@ if ($Desinstaller) { Show-Page 'parametres'; Confirm-DesinstallMindset }
 # puis on ferme celles qui tournent encore (une appli en administrateur ne peut l'être que par un Mindset administrateur)
 if ($script:FermerApplis) {
     $noms = @($Applis | ForEach-Object { [IO.Path]::GetFileNameWithoutExtension($_.Exe) })
+    # Seulement les programmes installés par Mindset (une copie de travail ou de test du même nom n'est pas touchée)
+    $miens = @{}
+    foreach ($a in $Applis) { $i = Get-Installation $a; if ($i) { $miens[(Join-Path $i.Dossier $a.Exe).ToLower()] = $a.Nom } }
+    $aFermer = { @(Get-Process -Name $noms -ErrorAction SilentlyContinue | Where-Object { $c = try { [string]$_.Path } catch { '' }; -not $c -or $miens.ContainsKey($c.ToLower()) }) }
     $limite = (Get-Date).AddSeconds(6)
-    while ((Get-Date) -lt $limite -and @(Get-Process -Name $noms -ErrorAction SilentlyContinue).Count) { Start-Sleep -Milliseconds 300 }
-    foreach ($p in @(Get-Process -Name $noms -ErrorAction SilentlyContinue)) {
-        try { $p.Kill(); Write-Log "$($p.ProcessName) ne répondait pas : fermé par Mindset" } catch { Write-Log "$($p.ProcessName) tourne encore (fermeture refusée par Windows)" }
+    while ((Get-Date) -lt $limite -and (& $aFermer).Count) { Start-Sleep -Milliseconds 300 }
+    # Une ligne par appli (avant : une par processus, d'où des lignes en double)
+    $fermes = @{}; $refuses = @{}
+    foreach ($p in (& $aFermer)) {
+        try { $p.Kill(); $fermes[$p.ProcessName] = 1 + [int]$fermes[$p.ProcessName] } catch { $refuses[$p.ProcessName] = 1 + [int]$refuses[$p.ProcessName] }
     }
+    foreach ($n in $fermes.Keys) { Write-Log "$n ne répondait pas : fermé par Mindset$(if ($fermes[$n] -gt 1) { " ($($fermes[$n]) processus)" })" }
+    foreach ($n in $refuses.Keys) { Write-Log "$n tourne encore (fermeture refusée par Windows)" }
 }
 if ($script:InstanceMutex) { try { $script:InstanceMutex.ReleaseMutex(); $script:InstanceMutex.Dispose() } catch {} }
 if ($script:ShowSignal) { try { $script:ShowSignal.Dispose() } catch {} }

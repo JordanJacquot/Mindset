@@ -26,7 +26,11 @@ function New-ChoixTheme([string]$Cle, [string]$Id, [string]$Nom, [string]$Desc, 
     if ($image) {
         try {
             $im = New-Object System.Windows.Controls.Image
-            $im.Source = (Get-SheetFrames $image[0] $image[1])[0]; $im.Height = 34; $im.Width = 48; $im.Stretch = 'Uniform'
+            $src = (Get-SheetFrames $image[0] $image[1])[0]
+            # Une « mascotte » qui est en fait une bande de chargement (Dofus : un personnage entre deux portails, très
+            # large) serait minuscule dans le cadre : le logo du pack la remplace
+            if ($Pack.Mascotte -and $Pack.Logo -and $src.PixelWidth -gt 2 * $src.PixelHeight) { $src = (Get-SheetFrames $Pack.Logo $Pack.LogoFrames)[0] }
+            $im.Source = $src; $im.Height = 34; $im.Width = 48; $im.Stretch = 'Uniform'
             $im.HorizontalAlignment = 'Right'; $im.VerticalAlignment = 'Center'
             [System.Windows.Media.RenderOptions]::SetBitmapScalingMode($im, 'HighQuality')
             [System.Windows.Controls.DockPanel]::SetDock($im, 'Right')
