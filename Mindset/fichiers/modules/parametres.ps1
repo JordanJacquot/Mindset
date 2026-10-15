@@ -6,12 +6,14 @@ function New-ChoixTheme([string]$Cle, [string]$Id, [string]$Nom, [string]$Desc, 
     $th = $AppThemes[$Id]
     $actuel = ($Cle -eq $ThemeSetting)
     $b = New-Button '' 'BtnSecondary'
-    $b.Width = 220; $b.Margin = '0,0,12,12'; $b.HorizontalContentAlignment = 'Left'; $b.Tag = $Cle
+    $b.Width = 220; $b.Height = 82; $b.Margin = '0,0,12,12'; $b.HorizontalContentAlignment = 'Stretch'; $b.VerticalContentAlignment = 'Stretch'; $b.Tag = $Cle
     # Aperçu dans ses propres couleurs (pas traduites par le thème actuel)
     $b.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString((ConvertTo-ThemeHex '#0C0920' $Id))
     $b.BorderBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString($(if ($actuel) { $th.P } else { ConvertTo-ThemeHex '#2A2450' $Id }))
     $sp = New-Object System.Windows.Controls.StackPanel
-    $haut = New-Object System.Windows.Controls.DockPanel; $haut.Margin = '0,2,0,8'; $haut.LastChildFill = $false
+    $sp.Width = 178; $sp.HorizontalAlignment = 'Left'; $sp.VerticalAlignment = 'Center'   # même place pour tout, sur chaque carte
+    # Ligne du haut toujours de la même hauteur : pastilles à gauche, mascotte (thème perso) dans un cadre fixe à droite
+    $haut = New-Object System.Windows.Controls.DockPanel; $haut.Height = 34; $haut.Margin = '0,0,0,6'; $haut.LastChildFill = $false
     $l = New-Object System.Windows.Controls.StackPanel; $l.Orientation = 'Horizontal'; $l.VerticalAlignment = 'Center'
     foreach ($c in $th.P, $th.S, $th.T) {
         $r = New-Object System.Windows.Shapes.Ellipse; $r.Width = 14; $r.Height = 14; $r.Margin = '0,0,6,0'
@@ -24,21 +26,20 @@ function New-ChoixTheme([string]$Cle, [string]$Id, [string]$Nom, [string]$Desc, 
     if ($image) {
         try {
             $im = New-Object System.Windows.Controls.Image
-            $im.Source = (Get-SheetFrames $image[0] $image[1])[0]; $im.Height = 40; $im.Margin = '0,-10,0,-6'
+            $im.Source = (Get-SheetFrames $image[0] $image[1])[0]; $im.Height = 34; $im.Width = 48; $im.Stretch = 'Uniform'
+            $im.HorizontalAlignment = 'Right'; $im.VerticalAlignment = 'Center'
+            [System.Windows.Media.RenderOptions]::SetBitmapScalingMode($im, 'HighQuality')
             [System.Windows.Controls.DockPanel]::SetDock($im, 'Right')
             [void]$haut.Children.Add($im)
         } catch {}
     }
     [void]$sp.Children.Add($haut)
     $n = New-Object System.Windows.Controls.TextBlock
-    $n.Text = $Nom + $(if ($actuel) { '  (actuel)' } else { '' }); $n.FontWeight = 'SemiBold'; $n.FontSize = 14
+    $n.Text = $Nom + $(if ($actuel) { '  (actuel)' } else { '' }); $n.FontWeight = 'SemiBold'; $n.FontSize = 14; $n.TextTrimming = 'CharacterEllipsis'
     $n.Foreground = [System.Windows.Media.Brushes]::White
     if ($th.Font) { $n.FontFamily = $th.Font }
     [void]$sp.Children.Add($n)
-    $dsc = New-Object System.Windows.Controls.TextBlock
-    $dsc.Text = $Desc; $dsc.TextWrapping = 'Wrap'; $dsc.FontSize = 12; $dsc.FontWeight = 'Normal'; $dsc.Margin = '0,3,0,2'
-    $dsc.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString((ConvertTo-ThemeHex '#A9A3C9' $Id))
-    [void]$sp.Children.Add($dsc)
+    $b.ToolTip = $Nom
     $b.Content = $sp
     $b.Add_Click({
         $cle = $this.Tag

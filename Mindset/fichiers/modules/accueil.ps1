@@ -15,11 +15,55 @@ function Update-Greeting {
     $ui.Greeting.Text = (Get-ThemeHello) -f $(if ($h -ge 18 -or $h -lt 5) { 'Bonsoir' } else { 'Bonjour' })
 }
 
+# Icône d'un onglet dans les thèmes de base (20 x 20) : une petite maison pour l'accueil, une roue crantée pour les
+# paramètres, et pour une appli son logo (l'anneau dégradé et sa lettre, comme sur l'écran « Ouvrir »)
+function New-IconeBase([string]$Id, [string]$Couleur) {
+    $S = 20.0
+    $cv = New-Object System.Windows.Controls.Canvas
+    $cv.Width = $S; $cv.Height = $S; $cv.Margin = '0,0,10,0'; $cv.VerticalAlignment = 'Center'
+    $p = New-Object System.Windows.Shapes.Path
+    switch ($Id) {
+        'accueil' {
+            # Toit, murs et porte, au trait
+            $p.Data = [System.Windows.Media.Geometry]::Parse('M 2.5,10 L 10,3 L 17.5,10 M 4.8,8.2 L 4.8,17 L 15.2,17 L 15.2,8.2 M 8.3,17 L 8.3,12.3 L 11.7,12.3 L 11.7,17')
+            $p.Stroke = Get-Brush $Couleur; $p.StrokeThickness = 1.7
+            $p.StrokeLineJoin = 'Round'; $p.StrokeStartLineCap = 'Round'; $p.StrokeEndLineCap = 'Round'
+        }
+        'parametres' {
+            # Roue crantée : 8 dents autour d'un anneau, trou au centre
+            $pts = New-Object System.Collections.Generic.List[string]
+            for ($k = 0; $k -lt 8; $k++) {
+                foreach ($a in @(@(-15.0, 6.6), @(-8.0, 9.4), @(8.0, 9.4), @(15.0, 6.6))) {
+                    $ang = ($k * 45 + $a[0]) * [math]::PI / 180
+                    $pts.Add(('{0},{1}' -f ([math]::Round(10 + $a[1] * [math]::Cos($ang), 2)).ToString([Globalization.CultureInfo]::InvariantCulture), ([math]::Round(10 + $a[1] * [math]::Sin($ang), 2)).ToString([Globalization.CultureInfo]::InvariantCulture)))
+                }
+            }
+            $roue = [System.Windows.Media.Geometry]::Parse("M $($pts[0]) L $(($pts | Select-Object -Skip 1) -join ' ') Z")
+            $trou = New-Object System.Windows.Media.EllipseGeometry ([System.Windows.Point]::new(10, 10)), 2.8, 2.8
+            $p.Data = [System.Windows.Media.Geometry]::Combine($roue, $trou, 'Exclude', $null)
+            $p.Fill = Get-Brush $Couleur
+        }
+        default {
+            # Logo de l'appli : anneau cyan vers magenta et sa lettre au centre
+            $anneau = New-Object System.Windows.Shapes.Ellipse
+            $anneau.Width = $S - 1; $anneau.Height = $S - 1; $anneau.StrokeThickness = 1.6
+            $anneau.Stroke = New-LinearBrush @($LogoCyan, '#B04BFF', $LogoMagenta) 0 0 1 1
+            [System.Windows.Controls.Canvas]::SetLeft($anneau, 0.5); [System.Windows.Controls.Canvas]::SetTop($anneau, 0.5)
+            [void]$cv.Children.Add($anneau)
+            $p.Data = Get-LettreAppli $Id $S
+            $p.Fill = Get-Brush '#ECEAF7'
+            $p.RenderTransform = New-Object System.Windows.Media.ScaleTransform 0.72, 0.72, ($S / 2), ($S / 2)
+        }
+    }
+    [void]$cv.Children.Add($p)
+    $cv
+}
+
 function New-Onglet([string]$Id, [string]$Texte, [string]$Couleur, $Panneau = $ui.Onglets) {
     $b = New-Button '' 'Onglet'
     $sp = New-Object System.Windows.Controls.StackPanel
     $sp.Orientation = 'Horizontal'
-    # Pastille de couleur, ou l'icône animée du thème personnalisé (immobile, animée au survol)
+    # Icône du thème de base, ou l'icône animée du thème personnalisé (immobile, animée au survol)
     $icone = New-IconeOnglet $Id
     if ($icone) {
         [void]$sp.Children.Add($icone.Image)
@@ -27,9 +71,7 @@ function New-Onglet([string]$Id, [string]$Texte, [string]$Couleur, $Panneau = $u
         $b.Add_MouseEnter({ param($s) $a = $s.Resources['Anim']; if ($a.Tag.Frames.Count -gt 1) { $a.Start() } })
         $b.Add_MouseLeave({ param($s) $a = $s.Resources['Anim']; $a.Stop(); $a.Tag.Frame = 0; $a.Tag.Img.Source = $a.Tag.Frames[0] })
     } else {
-        $pt = New-Object System.Windows.Shapes.Ellipse
-        $pt.Width = 8; $pt.Height = 8; $pt.Fill = Get-Brush $Couleur; $pt.Margin = '0,0,10,0'; $pt.VerticalAlignment = 'Center'
-        [void]$sp.Children.Add($pt)
+        [void]$sp.Children.Add((New-IconeBase $Id $Couleur))
     }
     [void]$sp.Children.Add((New-Text $Texte 14 '#A9A3C9'))
     $b.Content = $sp
