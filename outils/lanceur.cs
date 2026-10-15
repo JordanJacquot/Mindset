@@ -14,8 +14,8 @@ using System.Windows.Forms;
 [assembly: AssemblyTitle("Mindset")]
 [assembly: AssemblyProduct("Mindset")]
 [assembly: AssemblyDescription("Le portail de la suite : Nevermind et Evermind au même endroit")]
-[assembly: AssemblyVersion("0.2.11.0")]
-[assembly: AssemblyFileVersion("0.2.11.0")]
+[assembly: AssemblyVersion("0.2.12.0")]
+[assembly: AssemblyFileVersion("0.2.12.0")]
 
 static class Lanceur
 {
