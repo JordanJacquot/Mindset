@@ -36,6 +36,8 @@ function Initialize-IconeHorloge {
     $menu.Add_Opening({ Update-MenuHorloge })
     $n.ContextMenuStrip = $menu
     $n.Add_MouseClick({ param($s, $e) if ($e.Button -eq [System.Windows.Forms.MouseButtons]::Left) { Show-Fenetre } })
+    $n.Add_BalloonTipClicked({ Open-BulleAppli })
+    $n.Add_BalloonTipClosed({ $script:BulleAppli = $null })
     $n.Visible = $true
     $script:IconeHorloge = $n
 }
@@ -116,5 +118,49 @@ $ui.ReduireHorloge.IsChecked = [bool](Get-Setting 'ReduireHorloge' $true)
 $ui.ReduireHorloge.Add_Click({ Set-Setting 'ReduireHorloge' ([bool]$ui.ReduireHorloge.IsChecked) })
 
 Initialize-IconeHorloge
+
+# ---------------------------------------------------------------------------
+# Notifications des applis : elles n'ont plus d'icône près de l'horloge, tout passe par celle de Mindset.
+# Nevermind écrit notification.demande dans son dossier de données ({ titre, texte, id }) ; Mindset la montre en bulle.
+# Un clic sur la bulle ouvre l'appli ici et lui renvoie son numéro (« notif:<id> » dans son fichier d'affichage) pour
+# qu'elle fasse ce qu'elle annonçait. Le titre et le texte sont seulement affichés.
+# ---------------------------------------------------------------------------
+$script:BulleAppli = $null
+function Watch-NotificationsApplis {
+    foreach ($a in @($Applis | Where-Object { $_.AfficherFichier })) {
+        $f = Join-Path (Get-DossierDonnees $a) 'notification.demande'
+        if (-not [IO.File]::Exists($f)) { continue }
+        $j = $null
+        try { if ((New-Object IO.FileInfo $f).Length -lt 8KB) { $j = [IO.File]::ReadAllText($f, [Text.Encoding]::UTF8) | ConvertFrom-Json } } catch {}
+        try { [IO.File]::Delete($f) } catch {}
+        if (-not $j -or -not $script:IconeHorloge) { continue }
+        $titre = [string]$j.titre; $texte = [string]$j.texte; $id = [string]$j.id
+        if (-not $titre) { $titre = $a.Nom }
+        if ($titre.Length -gt 63) { $titre = $titre.Substring(0, 62) + '…' }
+        if ($texte.Length -gt 250) { $texte = $texte.Substring(0, 249) + '…' }
+        if ($id -notmatch '^[0-9a-f]{12}$') { $id = '' }
+        $script:BulleAppli = @{ Appli = $a.Id; Id = $id }
+        $script:IconeHorloge.ShowBalloonTip(8000, $titre, $(if ($texte) { $texte } else { ' ' }), [System.Windows.Forms.ToolTipIcon]::Info)
+    }
+}
+
+function Open-BulleAppli {
+    $b = $script:BulleAppli; $script:BulleAppli = $null
+    Show-Fenetre
+    if (-not $b) { return }
+    $a = Get-Appli $b.Appli
+    if (-not $a) { return }
+    Open-AppliIci $a.Id
+    if ($b.Id) {
+        try { [IO.File]::WriteAllText((Join-Path (Get-DossierDonnees $a) $a.AfficherFichier), "notif:$($b.Id)", (New-Object Text.UTF8Encoding $false)) } catch { Write-Log "Notification de $($a.Nom) : $_" }
+    }
+}
+
+if (-not $EnTest) {
+    $script:NotifTimer = New-Object System.Windows.Threading.DispatcherTimer
+    $script:NotifTimer.Interval = [TimeSpan]::FromSeconds(2)
+    $script:NotifTimer.Add_Tick({ try { Watch-NotificationsApplis } catch { Write-Log "Notifications des applis : $_" } })
+    $script:NotifTimer.Start()
+}
 
 if ($EnTest -and $env:MINDSET_FERMETURE) { $ui.Fermeture.Visibility = 'Visible' }   # (capture de test de la question)

@@ -51,9 +51,9 @@ function Show-AppliIntegree($Appli, [switch]$Lancer) {
     # En test automatique, jamais les vraies applis : ni lancées, ni accrochées
     if ($EnTest -and -not $env:MINDSET_INTEGRATION_TEST) { Set-EtatPageAppli $Appli "$($Appli.Nom) s'affichera ici" '(test : les vraies applis ne sont pas lancées)' $false; return }
     if ($i.Fenetre -ne [IntPtr]::Zero -and [MSIntegration]::IsWindow($i.Fenetre)) { Update-HotesVisibles; return }
+    # (les applis ne s'ouvrent que dans Mindset : sans ses droits, Nevermind n'est pas lancé à côté)
     if ($Appli.Admin -and -not $MindsetAdmin) {
-        Set-EtatPageAppli $Appli "$($Appli.Nom) s'ouvre dans sa propre fenêtre" "Il tourne en administrateur : pour l'afficher ici, Mindset doit l'être aussi (Paramètres)." $true
-        if ($Lancer) { Open-Appli $Appli }
+        Set-EtatPageAppli $Appli "$($Appli.Nom) ne peut pas encore s'afficher ici" "Il tourne en administrateur : pour l'afficher, Mindset doit l'être aussi (Paramètres, Général)." $false
         return
     }
     # Elle tourne (réduite près de l'horloge, dans sa propre fenêtre) : elle revient ici directement
@@ -83,7 +83,7 @@ function Connect-Fenetre($Appli, [IntPtr]$Fenetre) {
     $styles = [MSIntegration]::Accrocher($Fenetre, $i.Panneau.Handle, [math]::Max(200, $taille.Width), [math]::Max(200, $taille.Height))
     if (-not $styles) {
         $i.Hote.Visibility = 'Collapsed'; $i.Etat = 'refus'
-        Set-EtatPageAppli $Appli "$($Appli.Nom) n'a pas pu s'afficher ici" 'Windows a refusé de l''accrocher : il reste dans sa propre fenêtre.' $true
+        Set-EtatPageAppli $Appli "$($Appli.Nom) n'a pas pu s'afficher ici" 'Windows a refusé de l''accrocher : quitte tout (icône près de l''horloge) puis rouvre Mindset.' $false
         Write-Log "Intégration de $($Appli.Nom) refusée par Windows"
         return
     }
@@ -103,12 +103,9 @@ function Set-EtatPageAppli($Appli, [string]$Titre, [string]$Texte, [bool]$Bouton
     $ui.PageAppliTitre.Foreground = Get-Brush $Appli.Couleur
     $ui.PageAppliTexte.Text = $Texte
     $ui.PageAppliTexte.Visibility = if ($Texte) { 'Visible' } else { 'Collapsed' }
-    $ui.BtnPageAppliFenetre.Visibility = if ($BoutonFenetre) { 'Visible' } else { 'Collapsed' }
-    $ui.BtnPageAppliFenetre.Tag = $Appli.Id
     $ui.BtnPageAppliIci.Visibility = 'Collapsed'
     $ui.PageAppliEtat.Text = ''
 }
-$ui.BtnPageAppliFenetre.Add_Click({ Open-Appli (Get-Appli $this.Tag) })
 
 # Une seule appli visible : celle de l'onglet ouvert, et aucune quand une fenêtre de Mindset passe par-dessus
 # (une fenêtre accrochée se dessine toujours au-dessus de Mindset : elle masquerait la question)
@@ -126,20 +123,12 @@ function Update-HotesVisibles {
     $ui.PageAppliCadre.Visibility = if ($montree) { 'Visible' } else { 'Collapsed' }
 }
 
-# Barre de l'appli : la fermer (sa propre règle s'applique : elle demande, se réduit ou quitte), ou la rendre à sa fenêtre
+# Barre de l'appli : la fermer (sa propre règle s'applique : elle demande, se réduit ou quitte)
 $ui.BtnAppliFermer.Add_Click({
     $i = $script:Integrees[$script:PageCourante]
     if ($i -and $i.Fenetre -ne [IntPtr]::Zero) { [MSIntegration]::Fermer($i.Fenetre) }
 })
-$ui.BtnAppliDetacher.Add_Click({
-    $i = $script:Integrees[$script:PageCourante]
-    if (-not $i -or $i.Fenetre -eq [IntPtr]::Zero) { return }
-    [MSIntegration]::Detacher($i.Fenetre, $i.Styles[0], $i.Styles[1])
-    $a = Get-Appli $i.Id
-    $i.Fenetre = [IntPtr]::Zero; $i.Styles = $null; $i.Etat = 'detachee'
-    Update-HotesVisibles
-    Show-EcranOuvrir $a "$($a.Nom) est dans sa propre fenêtre."
-})
+
 
 # Un nouveau processus de l'appli (relance après un thème ou une mise à jour), pas celui dont la fenêtre vient de partir
 function Test-NouveauProcessus($Appli, $i) {

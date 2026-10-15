@@ -231,7 +231,6 @@ function Show-JaugeAppli($Appli, [string]$Texte) {
     $ui.PageAppliTitre.Foreground = Get-Brush $Appli.Couleur
     $ui.PageAppliTexte.Text = $Texte
     $ui.PageAppliTexte.Visibility = 'Visible'
-    $ui.BtnPageAppliFenetre.Visibility = 'Collapsed'
     $ui.BtnPageAppliIci.Visibility = 'Collapsed'
     $ui.PageAppliEtat.Text = ''
     if ($script:Jauge -and $script:Jauge.Id -eq $Appli.Id -and -not $script:Jauge.Ecran) { return }
@@ -299,7 +298,6 @@ function Show-EcranOuvrir($Appli, [string]$Texte) {
     $ui.PageAppliTitre.Foreground = Get-Brush $Appli.Couleur
     $ui.PageAppliTexte.Text = $Texte
     $ui.PageAppliTexte.Visibility = 'Visible'
-    $ui.BtnPageAppliFenetre.Visibility = 'Collapsed'
     $ui.BtnPageAppliIci.Content = "Ouvrir $($Appli.Nom)"
     $ui.BtnPageAppliIci.Tag = $Appli.Id
     $ui.BtnPageAppliIci.Visibility = 'Visible'

@@ -227,6 +227,13 @@ function Open-PageDemandee {
     if (-not (Test-Path -LiteralPath $FichierPageDemandee)) { return }
     $t = ''; try { $t = ([IO.File]::ReadAllText($FichierPageDemandee)).Trim() } catch {}
     Remove-Item -LiteralPath $FichierPageDemandee -Force -ErrorAction SilentlyContinue
+    # Une appli lancée à la main, ou qui demande à être montrée : elle s'ouvre ici, dans son onglet
+    if ($t -match '^appli:([a-z0-9-]{1,30})$' -and (Get-Appli $Matches[1])) {
+        $id = $Matches[1]
+        Show-Fenetre
+        Open-AppliIci $id
+        return
+    }
     if ($t -notmatch '^parametres(:(general|apparence|son|maj|dossiers))?$') { return }
     $onglet = if ($Matches[2]) { $Matches[2] } else { 'general' }
     Show-Fenetre
