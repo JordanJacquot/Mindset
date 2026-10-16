@@ -421,6 +421,10 @@ $script:ARelancer = @{}
 # éteinte au départ, comme pour toute appli : à chacun de l'allumer)
 $TachesDemarrageAppli = @{ nevermind = @('Nevermind (démarrage)', 'OptiGame (démarrage)', 'Nexo (démarrage)') }
 
+# Mindset lui-même se lance-t-il avec Windows ? (oui tant que l'utilisateur ne l'a pas coupé dans les Paramètres)
+function Get-LancerAvecWindows { [bool](Get-Setting 'LancerAvecWindows' $true) }
+function Set-LancerAvecWindows([bool]$Oui) { Set-Setting 'LancerAvecWindows' $Oui }
+
 function Get-DemarrageAppli([string]$Id) { $Id -in @(Get-Setting 'Demarrage' @()) }
 function Set-DemarrageAppli([string]$Id, [bool]$Oui) {
     $l = @(@(Get-Setting 'Demarrage' @()) | Where-Object { $_ -ne $Id })

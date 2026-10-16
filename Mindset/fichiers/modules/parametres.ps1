@@ -82,9 +82,25 @@ $ui.BtnImporterTheme.Add_Click({
 # affichage de l'onglet Général : une appli installée ou mise à jour entre-temps y apparaît sans rouvrir Mindset.
 function Update-DemarragesParametres {
     $ui.Demarrages.Children.Clear()
+    # D'abord Mindset lui-même : s'il se lance avec Windows, il ouvre avec lui les applis cochées en dessous
+    $ligne = New-Object System.Windows.Controls.DockPanel
+    $ligne.Margin = '0,0,0,14'; $ligne.Width = 520; $ligne.HorizontalAlignment = 'Left'
+    $sw = New-Object System.Windows.Controls.CheckBox
+    $sw.Style = $Window.FindResource('Switch'); $sw.VerticalAlignment = 'Center'
+    $sw.IsChecked = Get-LancerAvecWindows
+    $sw.Add_Click({ Set-LancerAvecWindows ([bool]$this.IsChecked) })
+    [System.Windows.Controls.DockPanel]::SetDock($sw, 'Right')
+    [void]$ligne.Children.Add($sw)
+    $txt = New-Object System.Windows.Controls.StackPanel; $txt.VerticalAlignment = 'Center'; $txt.Margin = '0,0,16,0'
+    [void]$txt.Children.Add((New-Text 'Mindset se lance avec Windows' 13 '#ECEAF7'))
+    $aide = New-Text 'Caché près de l''horloge, il ouvre en même temps les applis cochées ci-dessous.' 11.5 '#6F6894'
+    $aide.TextWrapping = 'Wrap'; $aide.Margin = '0,2,0,0'
+    [void]$txt.Children.Add($aide)
+    [void]$ligne.Children.Add($txt)
+    [void]$ui.Demarrages.Children.Add($ligne)
     foreach ($a in $Applis | Where-Object { (Get-Installation $_) -and (-not (Test-AppliAdmin $_) -or $MindsetAdmin) }) {
         $ligne = New-Object System.Windows.Controls.DockPanel
-        $ligne.Margin = '0,0,0,10'; $ligne.MaxWidth = 520; $ligne.HorizontalAlignment = 'Left'
+        $ligne.Margin = '0,0,0,10'; $ligne.Width = 520; $ligne.HorizontalAlignment = 'Left'
         $sw = New-InterrupteurOuverture $a.Id
         [System.Windows.Controls.DockPanel]::SetDock($sw, 'Right')
         [void]$ligne.Children.Add($sw)

@@ -331,7 +331,7 @@
 
                   <TextBlock Text="Démarrage avec Windows" FontSize="17" FontWeight="SemiBold" Margin="0,28,0,4"/>
                   <TextBlock TextWrapping="Wrap" Foreground="{StaticResource Texte2}" Margin="0,0,0,10"
-                             Text="Mindset se lance avec Windows, caché près de l'horloge. Les applis qui s'ouvrent avec Mindset démarrent en arrière-plan, à chaque ouverture de Mindset (le même réglage que sur leur carte de l'accueil)."/>
+                             Text="Choisis si Mindset se lance avec Windows (caché près de l'horloge), et quelles applis s'ouvrent avec lui : elles démarrent en arrière-plan à chaque ouverture de Mindset (le même réglage que sur leur carte de l'accueil)."/>
                   <StackPanel x:Name="Demarrages"/>
                 </StackPanel>
 
