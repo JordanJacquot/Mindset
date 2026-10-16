@@ -69,3 +69,8 @@ function Set-Setting([string]$Nom, $Valeur) {
     try { [IO.File]::WriteAllText($SettingsFile, ($script:Settings | ConvertTo-Json -Depth 5), (New-Object Text.UTF8Encoding $false)) }
     catch { Write-Log "Réglages non enregistrés : $_" }
 }
+
+# Mindset lui-même se lance-t-il avec Windows ? (oui tant que l'utilisateur ne l'a pas coupé dans les Paramètres ;
+# lu par Mindset.ps1 juste après ce module, avant que la fenêtre et l'icône près de l'horloge n'existent)
+function Get-LancerAvecWindows { [bool](Get-Setting 'LancerAvecWindows' $true) }
+function Set-LancerAvecWindows([bool]$Oui) { Set-Setting 'LancerAvecWindows' $Oui }

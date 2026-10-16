@@ -99,19 +99,22 @@ if ($missing) {
     exit
 }
 
+# Les réglages d'abord : lancé par Windows alors que « Mindset se lance avec Windows » est coupé (Paramètres > Général),
+# il s'arrête là, avant d'avoir créé la fenêtre ou l'icône près de l'horloge (sinon une icône morte y resterait).
+# (la tâche « \Mindset\Mindset (démarrage) » reste : Mindset, sans les droits, ne peut pas la changer)
+. (Join-Path $ModulesDir 'donnees.ps1')
+if ($Demarrage -and -not (Get-LancerAvecWindows)) { Write-Log 'Lancé avec Windows, mais « Mindset se lance avec Windows » est coupé : rien n''est ouvert'; exit }
+
 # Fonctions natives (barre de titre sombre, identité dans la barre des tâches)
 Add-Type -TypeDefinition ([IO.File]::ReadAllText((Join-Path $ModulesDir 'natif.cs'), [Text.Encoding]::UTF8))
 $AppId = 'JordanJacquot.Mindset'
 try { [MSNative]::SetAppId($AppId) } catch {}
 
-foreach ($msModule in $msModules) { . (Join-Path $ModulesDir "$msModule.ps1") }
+foreach ($msModule in $msModules -ne 'donnees') { . (Join-Path $ModulesDir "$msModule.ps1") }
 
 # ---------------------------------------------------------------------------
 # Lancement
 # ---------------------------------------------------------------------------
-# Lancé par Windows alors que « Mindset se lance avec Windows » est coupé (Paramètres > Général) : il s'arrête là.
-# (la tâche « \Mindset\Mindset (démarrage) » reste : Mindset, sans les droits, ne peut pas la changer)
-if ($Demarrage -and -not (Get-LancerAvecWindows)) { Write-Log 'Lancé avec Windows, mais « Mindset se lance avec Windows » est coupé : rien n''est ouvert'; exit }
 Write-Log "Démarrage Mindset $AppVersion (PowerShell $($PSVersionTable.PSVersion))$(if ($Demarrage) { ', lancé avec Windows' })"
 if ($env:MINDSET_CAPTURE) { Start-Capture $env:MINDSET_CAPTURE }
 # Lancé avec Windows : il démarre les applis en arrière-plan et reste caché près de l'horloge (zone.ps1)
