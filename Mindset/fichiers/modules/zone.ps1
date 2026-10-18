@@ -58,7 +58,7 @@ function Update-MenuHorloge {
     }
     [void]$m.Items.Add((New-Object System.Windows.Forms.ToolStripSeparator))
     $q = $m.Items.Add('Tout quitter (Mindset et ses applis)')
-    $q.Add_Click({ Exit-Mindset -Applis })
+    $q.Add_Click({ Exit-Mindset -AvecApplis })
 }
 
 # ---------------------------------------------------------------------------
@@ -82,7 +82,7 @@ $Window.Add_Closing({
     [void]$Window.Dispatcher.BeginInvoke([action]{
         switch ([string](Get-Setting 'Fermeture' 'demander')) {
             'reduire' { Hide-Fenetre }
-            'quitter' { Exit-Mindset -Applis }
+            'quitter' { Exit-Mindset -AvecApplis }
             default {
                 if ($Window.WindowState -eq 'Minimized') { $Window.WindowState = 'Normal' }
                 $ui.FermetureSouvenir.IsChecked = $false
@@ -96,7 +96,7 @@ $Window.Add_Closing({
 function Close-ChoixFermeture([string]$Choix) {
     $ui.Fermeture.Visibility = 'Collapsed'
     if ($ui.FermetureSouvenir.IsChecked) { Set-Setting 'Fermeture' $Choix; Update-ReglageFermeture }
-    if ($Choix -eq 'quitter') { Exit-Mindset -Applis } else { Hide-Fenetre }
+    if ($Choix -eq 'quitter') { Exit-Mindset -AvecApplis } else { Hide-Fenetre }
 }
 $ui.BtnFermetureReduire.Add_Click({ Close-ChoixFermeture 'reduire' })
 $ui.BtnFermetureQuitter.Add_Click({ Close-ChoixFermeture 'quitter' })

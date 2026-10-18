@@ -242,7 +242,7 @@ $ui.Fermeture.Add_IsVisibleChanged({ Update-HotesVisibles })
 # ensuite quelques secondes, et ferme lui-même une appli qui ne répond pas (si Windows le lui permet).
 # ---------------------------------------------------------------------------
 function Request-FermetureApplis {
-    foreach ($a in $Applis) {
+    foreach ($a in $script:Applis) {
         if (-not (Test-AppliOuverte $a)) { continue }
         foreach ($d in @((Get-DossierDonnees $a), $a.Donnees) | Select-Object -Unique) {
             if ($d -and (Test-Path -LiteralPath $d)) { try { [IO.File]::WriteAllText((Join-Path $d 'quitter.demande'), [string]$PID) } catch {} }

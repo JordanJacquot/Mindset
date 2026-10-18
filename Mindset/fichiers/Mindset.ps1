@@ -124,7 +124,7 @@ if ($Desinstaller) { Show-Page 'parametres'; Confirm-DesinstallMindset }
 
 # Quitté pour de bon : les applis ont reçu leur demande de fermeture (integration.ps1) ; on leur laisse 6 secondes,
 # puis on ferme celles qui tournent encore (une appli en administrateur ne peut l'être que par un Mindset administrateur)
-if ($script:FermerApplis) {
+if ($script:FermerApplis -and -not $EnTest) {   # (jamais en test : les vraies applis de l'utilisateur tournent peut-être)
     $noms = @($Applis | ForEach-Object { [IO.Path]::GetFileNameWithoutExtension($_.Exe) })
     # Seulement les programmes installés par Mindset (une copie de travail ou de test du même nom n'est pas touchée)
     $miens = @{}
