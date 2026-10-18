@@ -283,8 +283,17 @@
                   </StackPanel>
                 </DockPanel>
               </Border>
-              <TextBlock x:Name="Greeting" FontSize="26" FontWeight="SemiBold"/>
-              <TextBlock Text="Tes applis de la suite, au même endroit." Foreground="{StaticResource Texte2}" Margin="0,4,0,24"/>
+              <!-- Bonjour, et « Actualiser » : chercher tout de suite les nouvelles versions (sans fermer Mindset) -->
+              <DockPanel Margin="0,0,18,24">
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                  <TextBlock x:Name="ActualiserInfo" Foreground="{StaticResource Texte3}" FontSize="12" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                  <Button x:Name="BtnActualiser" Content="Actualiser" Style="{StaticResource BtnSecondary}" ToolTip="Chercher les nouvelles versions de Mindset et de tes applis"/>
+                </StackPanel>
+                <StackPanel>
+                  <TextBlock x:Name="Greeting" FontSize="26" FontWeight="SemiBold"/>
+                  <TextBlock Text="Tes applis de la suite, au même endroit." Foreground="{StaticResource Texte2}" Margin="0,4,0,0"/>
+                </StackPanel>
+              </DockPanel>
               <WrapPanel x:Name="Cartes"/>
             </StackPanel>
           </ScrollViewer>

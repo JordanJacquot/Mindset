@@ -238,7 +238,7 @@ function Update-ListeVersions {
     }
 }
 $ui.BtnVerifierMaj.Add_Click({
-    Update-Publications; Start-VerifMajMindset
+    Invoke-Actualiser -Clic
     $ui.MajInfo.Text = "Vérifié à $((Get-Date).ToString('HH:mm'))"
     $t = New-Object System.Windows.Threading.DispatcherTimer; $t.Interval = [TimeSpan]::FromSeconds(4)
     $t.Add_Tick({ $this.Stop(); if ($script:OngletParametres -eq 'maj') { Update-ListeVersions } }); $t.Start()

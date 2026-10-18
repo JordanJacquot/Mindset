@@ -451,15 +451,31 @@ Update-Greeting
 Update-Trouvees
 Update-Cartes
 Show-Page $(if ($EnTest -and $env:MINDSET_PAGE) { $env:MINDSET_PAGE } else { 'accueil' })
-if (-not $env:MINDSET_SANS_RESEAU) { Update-Publications; Start-VerifMajMindset }
+# ---------------------------------------------------------------------------
+# Chercher les nouvelles versions (Mindset et ses applis) : au démarrage, toutes les heures, en rouvrant Mindset depuis
+# l'horloge (si la dernière fois date de plus de 15 minutes), et avec « Actualiser » sur l'accueil. Les bandeaux et les
+# cartes se mettent à jour d'eux-mêmes quand les réponses arrivent : plus besoin de fermer Mindset pour les voir.
+# GitHub accepte 60 questions par heure : une recherche en pose une par appli, plus une pour Mindset.
+# ---------------------------------------------------------------------------
+$script:DernieresPublications = [datetime]::MinValue
+function Invoke-Actualiser([switch]$Clic) {
+    if ($env:MINDSET_SANS_RESEAU) { return }
+    if ($Clic -and ((Get-Date) - $script:DernieresPublications).TotalSeconds -lt 20) { return }   # (clics répétés)
+    $script:DernieresPublications = Get-Date
+    Update-Publications
+    Start-VerifMajMindset
+    $ui.ActualiserInfo.Text = "Vérifié à $((Get-Date).ToString('HH:mm'))"
+    if ($Clic) { Write-Log 'Actualiser : recherche des nouvelles versions' }
+}
+$ui.BtnActualiser.Add_Click({ Invoke-Actualiser -Clic })
+Invoke-Actualiser
 
-# État des applis relu toutes les 2 secondes ; versions publiées toutes les 6 heures ; thème de la suite surveillé
-$script:DernieresPublications = Get-Date
+# État des applis relu toutes les 2 secondes ; versions publiées toutes les heures ; thème de la suite surveillé
 $script:EtatTimer = New-Object System.Windows.Threading.DispatcherTimer
 $script:EtatTimer.Interval = [TimeSpan]::FromSeconds(2)
 $script:EtatTimer.Add_Tick({
     Update-Cartes; Update-Greeting
-    if (((Get-Date) - $script:DernieresPublications).TotalHours -ge 6) { $script:DernieresPublications = Get-Date; Update-Publications; Start-VerifMajMindset }
+    if (((Get-Date) - $script:DernieresPublications).TotalHours -ge 1) { Invoke-Actualiser }
     # Thème de la suite changé ailleurs : Mindset le prend aussi (sauf pendant une opération). Comparé au thème choisi
     # (« pack:dofus »), pas à ses couleurs (« pack-dofus ») ; et jamais deux relances pour le même thème en une minute,
     # pour qu'un thème qui ne se charge pas ne fasse pas tourner Mindset en boucle.
