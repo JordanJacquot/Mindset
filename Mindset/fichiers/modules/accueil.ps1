@@ -133,6 +133,8 @@ function New-Action([string]$Texte, [string]$Style, [string]$Id, [scriptblock]$C
 # ---------------------------------------------------------------------------
 # Cartes vivantes : le résumé que chaque appli gérée écrit dans son dossier de données (etat.json).
 #   Nevermind : { Score, Protection, AFaire, Urgent, NbAFaire }    Evermind : { Prochains : [ { Id, Titre, Quand, Journee } ] }
+#   Toute autre appli (format commun) : { Titre, Scores : [ { Nom, Valeur 0 à 100 } ] (2 au plus),
+#                                         Lignes : [ { Texte, Etat : ok | info | attention | urgent } ] (3 au plus) }
 # Seulement lu pour afficher du texte et des nombres, jamais exécuté ni ouvert : 32 Ko au plus, textes coupés à
 # 80 caractères, identifiants de rendez-vous de 32 chiffres hexadécimaux. Relu quand le fichier change.
 # ---------------------------------------------------------------------------
@@ -159,6 +161,11 @@ function Get-EtatAppli($Appli) {
                     @{ Id = [string]$p.Id; Titre = (& $txt $p.Titre); Quand = $q; Journee = ($p.Journee -eq $true) }
                 }
             }) }
+        } else {
+            $etats = @('ok', 'info', 'attention', 'urgent')
+            $e = @{ Titre = (& $txt $j.Titre)
+                Scores = @(foreach ($s in @($j.Scores | Select-Object -First 2)) { $v = & $pct $s.Valeur; if ($null -ne $v -and $s.Nom) { @{ Nom = (& $txt $s.Nom); Valeur = $v } } })
+                Lignes = @(foreach ($l in @($j.Lignes | Select-Object -First 3)) { if ($l.Texte) { @{ Texte = (& $txt $l.Texte); Etat = $(if ([string]$l.Etat -in $etats) { [string]$l.Etat } else { 'info' }) } } }) }
         }
     } catch { $e = $null }
     $script:EtatsApplis[$Appli.Id] = @{ Date = $fi.LastWriteTimeUtc; Etat = $e }
@@ -252,6 +259,20 @@ function Add-ResumeCarte($Sp, $Appli, $Etat) {
                 [void]$box.Children.Add((New-LigneVivante $dp { Open-RdvEvermind $this.Tag } $r))
             }
         }
+    } else {
+        # Format commun : un petit titre, des jauges, puis des lignes ; un clic ouvre l'appli dans son onglet
+        if ($Etat.Titre) { $t = New-Text $Etat.Titre 11.5 '#A9A3C9'; $t.Margin = '0,0,0,6'; [void]$box.Children.Add($t) }
+        if ($Etat.Scores.Count) {
+            $scores = New-Object System.Windows.Controls.WrapPanel
+            $paires = @(@('#00E5FF', '#7A7BFF'), @('#FF2EB5', '#B04BFF'))
+            for ($k = 0; $k -lt $Etat.Scores.Count; $k++) { [void]$scores.Children.Add((New-JaugeScore $Etat.Scores[$k].Nom $Etat.Scores[$k].Valeur $paires[$k][0] $paires[$k][1])) }
+            [void]$box.Children.Add($scores)
+        }
+        $couleurs = @{ ok = '#3DDC84'; info = '#ECEAF7'; attention = '#FFB020'; urgent = '#FF5C7A' }
+        foreach ($l in $Etat.Lignes) {
+            $tl = New-Text $l.Texte 12.5 $couleurs[$l.Etat]; $tl.TextWrapping = 'Wrap'
+            [void]$box.Children.Add((New-LigneVivante $tl { Open-AppliIci $this.Tag } $Appli.Id))
+        }
     }
     [void]$Sp.Children.Add($box)
 }
@@ -284,7 +305,11 @@ function Get-EtatCarte($Appli) {
 
 function Update-Carte($Appli) {
     $e = Get-EtatCarte $Appli
-    $resume = if ($e.Resume) { if ($Appli.Id -eq 'evermind') { ((Get-ProchainsRdv $e.Resume | ForEach-Object { "$($_.Id)$($_.Quand)$($_.Titre)" }) -join ',') + "|$((Get-Date).Date)" } else { "$($e.Resume.Score)/$($e.Resume.Protection)/$($e.Resume.AFaire)/$($e.Resume.Urgent)" } }
+    $resume = if ($e.Resume) {
+        if ($Appli.Id -eq 'evermind') { ((Get-ProchainsRdv $e.Resume | ForEach-Object { "$($_.Id)$($_.Quand)$($_.Titre)" }) -join ',') + "|$((Get-Date).Date)" }
+        elseif ($Appli.Id -eq 'nevermind') { "$($e.Resume.Score)/$($e.Resume.Protection)/$($e.Resume.AFaire)/$($e.Resume.Urgent)" }
+        else { ConvertTo-Json -InputObject $e.Resume -Depth 4 -Compress }
+    }
     $cle = "$($e.Inst.Dossier)|$($e.Inst.Gere)|$($e.Inst.Version)|$($e.Pub.Version)|$($e.Pub.Erreur)|$($e.Ouverte)|$($e.Trouvee)|$($e.Occupe)|$($e.Message)|$($e.MajDispo)|$resume"
     if ($script:CartesCle[$Appli.Id] -eq $cle) { return }
     $script:CartesCle[$Appli.Id] = $cle

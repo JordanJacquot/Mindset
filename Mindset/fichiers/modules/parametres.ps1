@@ -73,7 +73,7 @@ $ui.BtnImporterTheme.Add_Click({
     try {
         $id = Import-PackSuite $dlg.FileName
         Update-ChoixThemes
-        $ui.ThemeInfo.Text = "« $((Get-ThemePack $id).Name) » est importé pour Mindset, Nevermind et Evermind : clique dessus pour le choisir."
+        $ui.ThemeInfo.Text = "« $((Get-ThemePack $id).Name) » est importé pour Mindset et toutes ses applis : clique dessus pour le choisir."
     } catch { $ui.ThemeInfo.Text = "Ce thème n'a pas pu être importé : $($_.Exception.Message)" }
 })
 

@@ -11,6 +11,18 @@
 $script:Jauge = $null
 $script:JaugeDureesDefaut = @{ nevermind = 20.0; evermind = 10.0 }
 
+# Une lettre de la police, centrée dans un carré de $Size (pour une appli qui n'a pas encore sa lettre dessinée)
+function Get-LettreTexte([string]$Lettre, [double]$Size) {
+    $tf = New-Object System.Windows.Media.Typeface ((New-Object System.Windows.Media.FontFamily 'Segoe UI')), ([System.Windows.FontStyles]::Normal), ([System.Windows.FontWeights]::Black), ([System.Windows.FontStretches]::Normal)
+    $ft = New-Object System.Windows.Media.FormattedText $Lettre, ([Globalization.CultureInfo]::InvariantCulture), ([System.Windows.FlowDirection]::LeftToRight), $tf, ($Size * 0.66), ([System.Windows.Media.Brushes]::Black), 1.0
+    $g = $ft.BuildGeometry((New-Object System.Windows.Point 0, 0))
+    $b = $g.Bounds
+    $g.Transform = New-Object System.Windows.Media.TranslateTransform ((($Size - $b.Width) / 2) - $b.X), ((($Size - $b.Height) / 2) - $b.Y)
+    $g = $g.GetFlattenedPathGeometry()
+    $g.Freeze()
+    $g
+}
+
 # La lettre de l'appli, au même dessin que son logo (un trait épais aux bouts arrondis)
 function Get-LettreAppli([string]$Id, [double]$Size) {
     switch ($Id) {
@@ -22,7 +34,12 @@ function Get-LettreAppli([string]$Id, [double]$Size) {
             $x = $Size * 0.27; $y = $Size * 0.2; $w = $Size * 0.46; $h = $Size * 0.6; $ep = 0.17
             $d = "M $($x + $w),$y L $x,$y L $x,$($y + $h) L $($x + $w),$($y + $h) M $x,$($y + $h / 2) L $($x + $w * 0.82),$($y + $h / 2)"
         }
-        default { return (Get-MindsetM $Size) }
+        default {
+            # Une autre appli de apps.json : la première lettre de son nom, en très gras ; sinon le M de Mindset
+            $a = Get-Appli $Id
+            if ($a -and $a.Nom) { return (Get-LettreTexte $a.Nom.Substring(0, 1).ToUpperInvariant() $Size) }
+            return (Get-MindsetM $Size)
+        }
     }
     $pen = New-Object System.Windows.Media.Pen ([System.Windows.Media.Brushes]::Black), ($Size * $ep)
     $pen.StartLineCap = 'Round'; $pen.EndLineCap = 'Round'; $pen.LineJoin = 'Round'

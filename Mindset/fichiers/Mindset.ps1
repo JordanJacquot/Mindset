@@ -1,7 +1,7 @@
 ﻿#Requires -Version 5.1
 <#
     Mindset 1.0.0
-    Le portail de la suite : installe, met à jour et affiche Nevermind et Evermind.
+    Le portail de la suite : installe, met à jour et affiche ses applis (Nevermind, Evermind et les suivantes).
 
     La liste des applis est dans fichiers\apps.json. Les réglages et le journal sont dans %LOCALAPPDATA%\Mindset\Mindset.
 

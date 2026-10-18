@@ -44,7 +44,7 @@ function Install-Mindset([string]$Disque) {
         $exe = Join-Path $dossier 'Mindset.exe'
         $sh = New-Object -ComObject WScript.Shell
         foreach ($l in $RaccourcisMindset) {
-            try { $s = $sh.CreateShortcut($l); $s.TargetPath = $exe; $s.WorkingDirectory = $dossier; $s.IconLocation = "$exe,0"; $s.Description = 'Mindset : Nevermind et Evermind au même endroit'; $s.Save() }
+            try { $s = $sh.CreateShortcut($l); $s.TargetPath = $exe; $s.WorkingDirectory = $dossier; $s.IconLocation = "$exe,0"; $s.Description = 'Mindset : toutes tes applis au même endroit'; $s.Save() }
             catch { Write-Log "Raccourci $l : $_" }
         }
         # Lancement avec Windows : par sa tâche planifiée (en administrateur), sinon par le registre (sans les droits)

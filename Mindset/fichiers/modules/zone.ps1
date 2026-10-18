@@ -19,7 +19,7 @@ function Hide-Fenetre {
     $Window.Hide()
     # La première fois, une bulle explique où est passé Mindset
     if (-not (Get-Setting 'BulleHorlogeVue' $false) -and $script:IconeHorloge) {
-        $script:IconeHorloge.ShowBalloonTip(4000, 'Mindset reste ici', 'Clique sur l''icône pour le rouvrir. Clic droit pour Nevermind, Evermind ou quitter.', 'None')
+        $script:IconeHorloge.ShowBalloonTip(4000, 'Mindset reste ici', 'Clique sur l''icône pour le rouvrir. Clic droit pour tes applis ou pour quitter.', 'None')
         Set-Setting 'BulleHorlogeVue' $true
     }
 }
@@ -107,7 +107,7 @@ function Update-ReglageFermeture {
     $c = [string](Get-Setting 'Fermeture' 'demander')
     foreach ($rb in $ui.ChoixFermeture.Children) { $rb.IsChecked = ($rb.Tag -eq $c) }
 }
-foreach ($o in @(@('demander', 'Me demander à chaque fois'), @('reduire', 'Réduire près de l''horloge'), @('quitter', 'Tout quitter (Mindset, Nevermind et Evermind)'))) {
+foreach ($o in @(@('demander', 'Me demander à chaque fois'), @('reduire', 'Réduire près de l''horloge'), @('quitter', 'Tout quitter (Mindset et ses applis)'))) {
     $rb = New-Object System.Windows.Controls.RadioButton
     $rb.GroupName = 'Fermeture'; $rb.Tag = $o[0]; $rb.Content = $o[1]; $rb.Margin = '0,2,0,2'; $rb.Foreground = Get-Brush '#ECEAF7'
     $rb.Add_Checked({ param($s) Set-Setting 'Fermeture' $s.Tag })

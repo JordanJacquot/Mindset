@@ -1,7 +1,9 @@
 ﻿# Mindset : thèmes personnalisés (packs) de la suite, repris des packs de Nevermind et Evermind.
 #
 # Un pack de la suite est un zip (par exemple Thème-Mario.zip) avec ses images, sa police, et un fichier de réglage
-# par appli : pack-mindset.json, pack-nevermind.json, pack-evermind.json (le même format que le pack.json de chaque appli).
+# par appli : pack-mindset.json, puis pack-<id>.json pour chaque appli de apps.json (pack-nevermind.json, pack-evermind.json...),
+# au même format que le pack.json de chaque appli. Une appli sans réglage dans le pack reprend les couleurs de celui de
+# Mindset (<données>\Mindset\packs\<id>\pack.json), qu'elle lit elle-même.
 # Importé dans Mindset (Paramètres, Apparence), il est installé pour chacune, dans son dossier de données :
 #   <données de la suite>\Mindset\packs\<id>\     <données>\Nevermind\packs\<id>\     <données>\Evermind\packs\<id>\
 # Choisi dans Mindset, il devient le thème de la suite (« pack:<id> » dans suite.json) : les applis gérées le prennent.
@@ -19,7 +21,12 @@
 # Chargé par Mindset.ps1 avant themes.ps1 (qui choisit le thème) ; les visuels sont posés après la fenêtre.
 
 $PacksDir = Join-Path $DataDir 'packs'
-$PackAppliFichiers = [ordered]@{ Mindset = 'pack-mindset.json'; Nevermind = 'pack-nevermind.json'; Evermind = 'pack-evermind.json' }
+# Le réglage de chaque appli dans un pack : Mindset, puis toutes celles de apps.json (lu à l'import : applis.ps1 est chargé après)
+function Get-PackAppliFichiers {
+    $f = [ordered]@{ Mindset = 'pack-mindset.json' }
+    foreach ($a in $script:Applis) { $f[$a.Nom] = "pack-$($a.Id).json" }
+    $f
+}
 
 # Un nom de fichier du pack : simple, sans dossier (rien ne peut sortir du dossier du pack)
 function Test-NomFichierPack($Nom) { $Nom -is [string] -and $Nom -match '^[\w .()-]{1,80}$' -and $Nom -notmatch '\.\.' }
@@ -83,7 +90,7 @@ function Import-PackSuite([string]$Zip) {
     try {
         $entrees = @($za.Entries | Where-Object { $_.Name })
         if (-not ($entrees | Where-Object { $_.Name -eq 'pack-mindset.json' })) {
-            if ($entrees | Where-Object { $_.Name -eq 'pack.json' }) { throw 'Ce zip est un thème pour une seule appli (Nevermind ou Evermind). Un thème de la suite contient pack-mindset.json, pack-nevermind.json et pack-evermind.json.' }
+            if ($entrees | Where-Object { $_.Name -eq 'pack.json' }) { throw 'Ce zip est un thème pour une seule appli. Un thème de la suite contient pack-mindset.json, puis un réglage par appli (pack-nevermind.json...).' }
             throw 'Ce zip ne contient pas de thème de la suite (pack-mindset.json).'
         }
         $total = ($entrees | Measure-Object Length -Sum).Sum
@@ -93,8 +100,9 @@ function Import-PackSuite([string]$Zip) {
             if ($e.FullName -ne $e.Name -or -not (Test-NomFichierPack $e.Name) -or $e.Name -notmatch '\.(png|jpe?g|gif|ttf|otf|json)$') { throw "Fichier inattendu dans le thème : $($e.FullName)" }
         }
         $installes = @()
-        foreach ($appli in $PackAppliFichiers.Keys) {
-            $reglage = $entrees | Where-Object { $_.Name -eq $PackAppliFichiers[$appli] } | Select-Object -First 1
+        $fichiers = Get-PackAppliFichiers
+        foreach ($appli in $fichiers.Keys) {
+            $reglage = $entrees | Where-Object { $_.Name -eq $fichiers[$appli] } | Select-Object -First 1
             if (-not $reglage) { continue }
             $dest = if ($appli -eq 'Mindset') { Join-Path $PacksDir $id } else { Join-Path $SuiteDir "$appli\packs\$id" }
             $tmp = "$dest.nouveau"
