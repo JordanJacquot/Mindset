@@ -35,10 +35,17 @@ function Get-LettreAppli([string]$Id, [double]$Size) {
             $d = "M $($x + $w),$y L $x,$y L $x,$($y + $h) L $($x + $w),$($y + $h) M $x,$($y + $h / 2) L $($x + $w * 0.82),$($y + $h / 2)"
         }
         default {
-            # Une autre appli de apps.json : la première lettre de son nom, en très gras ; sinon le M de Mindset
+            # Une autre appli de apps.json : son logo (champ « logo », un tracé sur une grille de 100), sinon la première
+            # lettre de son nom, en très gras ; sinon le M de Mindset
             $a = Get-Appli $Id
-            if ($a -and $a.Nom) { return (Get-LettreTexte $a.Nom.Substring(0, 1).ToUpperInvariant() $Size) }
-            return (Get-MindsetM $Size)
+            if ($a -and $a.Logo) {
+                $k = $Size / 100
+                $d = [regex]::Replace($a.Logo, '\d+(\.\d+)?', { param($m) ([double]::Parse($m.Value, [Globalization.CultureInfo]::InvariantCulture) * $k).ToString([Globalization.CultureInfo]::InvariantCulture) })
+                $ep = $a.LogoEpaisseur
+            } else {
+                if ($a -and $a.Nom) { return (Get-LettreTexte $a.Nom.Substring(0, 1).ToUpperInvariant() $Size) }
+                return (Get-MindsetM $Size)
+            }
         }
     }
     $pen = New-Object System.Windows.Media.Pen ([System.Windows.Media.Brushes]::Black), ($Size * $ep)

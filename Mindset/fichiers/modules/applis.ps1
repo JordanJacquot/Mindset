@@ -20,6 +20,12 @@ function Get-Applis {
         if ($a.aide) { $ok = $ok -and $a.aide -cmatch '^[A-Za-z0-9 ]{1,40} \(aide\)$' -and $a.aide_exe -match '^[^\\/:*?"<>|]+\.exe$' }
         if ($a.sans_droits_depuis) { $ok = $ok -and $a.sans_droits_depuis -match '^\d+(\.\d+){1,3}$' }
         if (-not $ok) { Write-Log "apps.json : appli ignorée ($($a.id))"; continue }
+        # Son logo dans Mindset (à la place de sa première lettre) : un tracé de traits droits (M, L) sur une grille de 100,
+        # dessiné au trait épais comme les lettres de Nevermind et d'Evermind. Mal formé : ignoré, la lettre reste.
+        $logo = if ([string]$a.logo -match '^[ML0-9., ]{3,240}$' -and [string]$a.logo -match '^M') { [string]$a.logo } else { '' }
+        if ($a.logo -and -not $logo) { Write-Log "apps.json : logo de $($a.id) ignoré (tracé non compris)" }
+        $epaisseur = 0.0
+        if (-not [double]::TryParse([string]$a.logo_epaisseur, [Globalization.NumberStyles]::Float, [Globalization.CultureInfo]::InvariantCulture, [ref]$epaisseur) -or $epaisseur -lt 4 -or $epaisseur -gt 25) { $epaisseur = 12.0 }
         [pscustomobject]@{
             Id              = [string]$a.id
             Nom             = [string]$a.nom
@@ -40,6 +46,8 @@ function Get-Applis {
             Aide            = [string]$a.aide       # tâche planifiée de sa partie administrateur (« \Mindset\<aide> »)
             AideExe         = [string]$a.aide_exe   # le programme qu'elle lance, à côté de l'exe de l'appli
             CacheDepuis     = [string]$a.cache_depuis   # version à partir de laquelle l'appli lancée cachée se dessine une fois affichée dans Mindset
+            Logo            = $logo        # tracé du logo (grille de 100), sinon sa première lettre
+            LogoEpaisseur   = $epaisseur / 100
         }
     }
 }

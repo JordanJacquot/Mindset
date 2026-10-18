@@ -49,6 +49,8 @@
     "afficher_signal": "Local\\Mindcare-Afficher",
     "donnees": "%LOCALAPPDATA%\\Mindset\\Mindcare",
     "admin": false,
-    "cache_depuis": "0.1.0"
+    "cache_depuis": "0.1.0",
+    "logo": "M14,52 L31,52 L38,31 L47,73 L57,20 L66,66 L71,52 L86,52",
+    "logo_epaisseur": 12
   }
 ]
