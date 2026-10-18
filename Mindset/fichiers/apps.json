@@ -34,5 +34,21 @@
     "donnees": "%LOCALAPPDATA%\\Evermind",
     "admin": false,
     "cache_depuis": "0.12.6"
+  },
+  {
+    "id": "mindcare",
+    "nom": "Mindcare",
+    "couleur": "#FF8A00",
+    "description": "Trouve pourquoi ton PC est en panne, en répondant à quelques questions simples.",
+    "depot": "JordanJacquot/Mindcare",
+    "zip": "Mindcare.zip",
+    "dossier_zip": "Mindcare",
+    "exe": "Mindcare.exe",
+    "script": "fichiers\\Mindcare.ps1",
+    "mutex": "Local\\Mindcare-Instance",
+    "afficher_signal": "Local\\Mindcare-Afficher",
+    "donnees": "%LOCALAPPDATA%\\Mindset\\Mindcare",
+    "admin": false,
+    "cache_depuis": "0.1.0"
   }
 ]

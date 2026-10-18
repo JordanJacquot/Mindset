@@ -40,8 +40,11 @@ $tirets = Get-ChildItem -LiteralPath $racine -Recurse -File -Include '*.ps1', '*
 foreach ($t in $tirets) { $problemes += "Tiret cadratin : $($t.Path) ligne $($t.LineNumber)" }
 if ($problemes) { $problemes | ForEach-Object { Write-Host $_ -ForegroundColor Red }; throw 'Publication annulée : corrige les points ci dessus.' }
 
+# Un programme (git, gh) : seul son code de sortie compte. Ses avertissements (« LF will be replaced by CRLF »...) ne
+# sont pas des échecs : sans « Continue », PowerShell les prenait pour des erreurs et arrêtait la publication.
 function Invoke-Native([string]$Exe, [string[]]$Arguments) {
-    & $Exe @Arguments
+    $ErrorActionPreference = 'Continue'
+    & $Exe @Arguments 2>&1 | ForEach-Object { "$_" }
     if ($LASTEXITCODE) { throw "Échec : $Exe $($Arguments -join ' ')" }
 }
 
