@@ -126,6 +126,7 @@ function Stop-Console([string]$Raison) {
 function Set-NavigationConsole {
     $avec = $script:Console.Possible
     $ui.BarreOnglets.Visibility = if ($avec) { 'Collapsed' } else { 'Visible' }
+    $ui.EnTete.Visibility = if ($avec) { 'Collapsed' } else { 'Visible' }   # (le nom de Mindset est déjà sur l'écran de la console)
     $ui.ColonneOnglets.Width = if ($avec) { New-Object System.Windows.GridLength 0 } else { New-Object System.Windows.GridLength 210 }
     foreach ($b in $ui.BtnAppliMenu, $ui.BtnPageAppliMenu, $ui.BtnParametresMenu) { $b.Visibility = if ($avec) { 'Visible' } else { 'Collapsed' } }
 }

@@ -194,7 +194,7 @@ function Start-LogoAnime($Hote, [double]$S = 84) {
         if ($EnTest) { return }
         $script:LogoTimer = New-Object System.Windows.Threading.DispatcherTimer
         $script:LogoTimer.Interval = [TimeSpan]::FromSeconds(7)
-        $script:LogoTimer.Add_Tick({ param($s) $s.Interval = [TimeSpan]::FromSeconds((Get-Random -Minimum 6 -Maximum 13)); if ($Window.IsActive -and $Window.WindowState -ne 'Minimized') { Start-PackLogoShake } })
+        $script:LogoTimer.Add_Tick({ param($s) $s.Interval = [TimeSpan]::FromSeconds((Get-Random -Minimum 6 -Maximum 13)); if ($Window.IsActive -and $Window.WindowState -ne 'Minimized' -and $ui.LogoHote.IsVisible) { Start-PackLogoShake } })
         $script:LogoTimer.Start()
         $Hote.Add_MouseEnter({ Start-PackLogoShake })
         return
@@ -226,7 +226,7 @@ function Start-LogoAnime($Hote, [double]$S = 84) {
     if ($EnTest) { return }
     $script:LogoTimer = New-Object System.Windows.Threading.DispatcherTimer
     $script:LogoTimer.Interval = [TimeSpan]::FromMilliseconds(1300)
-    $script:LogoTimer.Add_Tick({ if ($Window.IsActive -and $Window.WindowState -ne 'Minimized') { Start-LogoGlitch $script:LogoMarque 260 } })
+    $script:LogoTimer.Add_Tick({ if ($Window.IsActive -and $Window.WindowState -ne 'Minimized' -and $ui.LogoHote.IsVisible) { Start-LogoGlitch $script:LogoMarque 260 } })   # (en-tête caché avec la console : rien à animer)
     $script:LogoTimer.Start()
     $Hote.Add_MouseEnter({ Start-LogoGlitch $script:LogoMarque 420 })
 }

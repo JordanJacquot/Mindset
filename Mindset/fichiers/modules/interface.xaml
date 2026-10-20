@@ -218,8 +218,8 @@
     <!-- Dessin animé d'un thème personnalisé, en bas de la fenêtre (packs.ps1) -->
     <Border x:Name="FooterArt" Grid.Row="2" Visibility="Collapsed" HorizontalAlignment="Left" Margin="16,0,0,4" IsHitTestVisible="False"/>
 
-    <!-- En-tête : logo animé, nom et phrase, comme Nevermind et Evermind -->
-    <DockPanel Grid.Row="0" Margin="24,16,28,10" LastChildFill="False">
+    <!-- En-tête : logo animé, nom et phrase, comme Nevermind et Evermind (caché avec la console 3D : elle prend la place) -->
+    <DockPanel x:Name="EnTete" Grid.Row="0" Margin="24,16,28,10" LastChildFill="False">
       <TextBlock x:Name="Version" DockPanel.Dock="Right" Foreground="{StaticResource Texte3}" FontSize="12" VerticalAlignment="Center"/>
       <!-- Mascotte d'un thème personnalisé (packs.ps1) -->
       <Border x:Name="Mascotte" DockPanel.Dock="Right" Height="64" Margin="0,-10,22,-10" VerticalAlignment="Center" Visibility="Collapsed" IsHitTestVisible="False"/>
