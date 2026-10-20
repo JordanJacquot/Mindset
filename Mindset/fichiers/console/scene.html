@@ -42,6 +42,39 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: #07060D; col
 #ronds button:hover span, #ronds button:focus-visible span { opacity: 1; }
 #bulle { position: fixed; top: 18px; left: 50%; transform: translateX(-50%); padding: 9px 16px; border-radius: 18px; background: rgba(14,13,22,0.92); border: 1px solid #3A3466; font-size: 14px; opacity: 0; transition: opacity 200ms ease; pointer-events: none; white-space: nowrap; }
 #bulle.vu { opacity: 1; }
+/* Le menu de la console en grand (clic sur l'écran) : la ligne des applis en carrousel, comme l'écran d'une console */
+#menuGrand { position: absolute; inset: 0; display: flex; flex-direction: column; padding: 4% 5% 3%; box-sizing: border-box; text-align: left; }
+#menuGrand[hidden] { display: none; }
+#menuGrand .tete { display: flex; align-items: center; gap: 14px; font-size: 26px; font-weight: 700; }
+#menuGrand .tete img { width: 48px; height: 48px; } #menuGrand .tete .hh { margin-left: auto; color: #C9C4DD; font-weight: 600; }
+#menuGrand .nomSel { margin-top: auto; height: 34px; font-size: 24px; font-weight: 800; color: var(--c, #00E5FF); transition: padding-left 160ms ease; white-space: nowrap; }
+#carrousel { display: flex; gap: 28px; padding: 22px 60px 30px 24px; overflow-x: auto; scrollbar-width: none; scroll-behavior: smooth; -webkit-mask: linear-gradient(90deg, #000 calc(100% - 70px), transparent); mask: linear-gradient(90deg, #000 calc(100% - 70px), transparent); }
+#carrousel::-webkit-scrollbar { display: none; }
+#carrousel button { --c: #00E5FF; flex: 0 0 auto; position: relative; width: clamp(150px, 24vh, 230px); aspect-ratio: 1; border-radius: 26px; border: 1px solid color-mix(in srgb, var(--c) 45%, #2A2450); cursor: pointer;
+  background: radial-gradient(120% 90% at 20% 0%, color-mix(in srgb, var(--c) 30%, transparent), transparent 60%), linear-gradient(165deg, #1E1A3E, #0C0920 70%); color: #ECEAF7; font: inherit;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 14px;
+  box-shadow: 0 2px 0 color-mix(in srgb, var(--c) 30%, #000), 0 5px 0 color-mix(in srgb, var(--c) 20%, #000), 0 8px 0 color-mix(in srgb, var(--c) 12%, #000), 0 22px 30px rgba(0,0,0,0.55);
+  transition: transform 160ms ease-out; }
+#carrousel button img { width: 52%; height: auto; } #carrousel button .l { font-size: 64px; font-weight: 900; color: var(--c); line-height: 1; }
+#carrousel button b { font-size: 19px; } #carrousel button em { font-style: normal; font-size: 14px; color: #A9A3C9; }
+#carrousel button em.amettre { color: #FFB020; font-weight: 700; } #carrousel button em.pause { color: #3DDC84; font-weight: 700; }
+#carrousel button.pasla img, #carrousel button.pasla .l { opacity: 0.45; }
+#carrousel button:focus { outline: none; transform: translateY(-10px) scale(1.06); }
+#carrousel button:focus::after { content: ""; position: absolute; inset: -9px; border-radius: 34px; padding: 4px; background: conic-gradient(from var(--tour, 0deg), #00E5FF, #B04BFF, #FF2EB5, #00E5FF);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; animation: tourne 2.4s linear infinite; }
+@property --tour { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+@keyframes tourne { to { --tour: 360deg; } }
+#menuGrand .bas { margin-top: auto; display: flex; justify-content: space-between; align-items: center; color: #A9A3C9; font-size: 16px; }
+#menuGrand .aides { display: flex; gap: 22px; color: #ECEAF7; }
+#menuGrand .aides button { all: unset; display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 16px; }
+#menuGrand .aides i { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(180deg, #FFFFFF, #CFCDE0); color: #14102A; font-style: normal; font-weight: 800; font-size: 14px; display: flex; align-items: center; justify-content: center; }
+#voile.menu > :not(#menuGrand) { display: none; }
+/* (les règles de l'écran d'une appli, #voile img, b, span et button, ne s'appliquent pas au menu) */
+#voile #menuGrand img { width: auto; height: auto; } #voile #menuGrand .tete img { width: 48px; height: 48px; }
+#voile #menuGrand b { font-size: 19px; } #voile #menuGrand span { font-size: inherit; color: inherit; max-width: none; }
+#voile #carrousel button { height: auto; padding: 14px; border-radius: 26px; font-size: 16px; font-weight: 600; }
+#voile #carrousel button img { width: 52%; }
+#voile #menuGrand span.l { font-size: 64px; color: var(--c); }
 @media (prefers-reduced-motion: reduce) { #voile .roue { animation-duration: 3s; } }
 </style>
 </head>
@@ -56,7 +89,10 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: #07060D; col
     </nav></div>
   <div id="voile" role="dialog" aria-label="L'écran de la console"><img id="voileLogo" alt=""><b id="voileNom"></b><span id="voileTexte"></span>
     <div class="barre" id="voileBarre" hidden><i><b></b></i><em></em></div>
-    <div class="actions" id="voileActions"></div></div>
+    <div class="actions" id="voileActions"></div>
+    <div id="menuGrand" hidden><div class="tete"><img id="menuLogo" alt=""><span>Mindset</span><span class="hh" id="menuHeure"></span></div>
+      <div class="nomSel" id="menuNom"></div><div id="carrousel" role="listbox" aria-label="Tes applis"></div>
+      <div class="bas"><span id="menuConsigne"></span><div class="aides"><button type="button" id="menuB"><i>B</i>Retour</button><button type="button" id="menuA"><i>A</i>OK</button></div></div></div></div>
 </div></div>
 <div id="bulle" role="status" aria-live="polite"></div>
 <script type="importmap">
@@ -162,7 +198,7 @@ function dessinerEcran(t) {
     else if (m) { ex.fillStyle = '#FFB020'; ex.beginPath(); ex.roundRect(X + s / 2 - 80, Y + s + 12, 160, 36, 18); ex.fill(); ex.fillStyle = '#1A1206'; ex.font = `800 22px ${POLICE}`; ex.fillText('Mise à jour', X + s / 2, Y + s + 31); }
   });
   ex.textAlign = 'center'; ex.fillStyle = '#ECEAF7'; ex.font = `600 34px ${POLICE}`;
-  ex.fillText(!TUILES.length ? 'Chargement des applis...' : a ? `${a.nom} est en pause : clique sur sa cartouche` : 'Clique sur une cartouche pour l\'ouvrir', 512, 470);
+  ex.fillText(!TUILES.length ? 'Chargement des applis...' : a ? `${a.nom} est en pause : clique sur l\'écran` : 'Clique sur l\'écran ou sur une cartouche', 512, 470);
   ex.textBaseline = 'alphabetic';
 }
 
@@ -267,6 +303,59 @@ function dezoomer(ensuite) {
     plan.style.transform = ''; plan.style.filter = ''; zoome = false; demarrage = 0; occupe = false; ensuite?.();
   });
 }
+// ---------------------------------------------------------------- le menu en grand : un clic sur l'écran de la console zoome dedans
+// La ligne des applis défile (souris, molette, flèches). Choisir l'appli déjà dans la fente : son écran s'affiche ;
+// une autre : on ressort, l'ancienne cartouche s'éjecte, la nouvelle s'insère, et on replonge dans l'écran.
+const MENU = '__menu';
+let menuSel = 0;
+function etatTuile(a, id) {
+  const m = a.maj;
+  if (m && m.etat !== 'dispo') return ['', m.etat === 'installation' ? 'Installation...' : `Téléchargement ${Math.round(m.progres * 100)} %`];
+  if (!a.installee) return ['', 'À installer'];
+  if (m) return ['amettre', 'Mise à jour'];
+  if (enFente === id && a.etat !== 'ferme') return ['pause', 'En pause'];
+  return ['', a.etat !== 'ferme' ? 'Ouverte' : 'Prête'];
+}
+function remplirMenu(focus) {
+  const car = document.getElementById('carrousel');
+  car.innerHTML = TUILES.map((id, i) => { const a = APPLIS[id], [cl, t] = etatTuile(a, id);
+    return `<button type="button" role="option" data-id="${id}" data-i="${i}" class="${a.installee ? '' : 'pasla'}" style="--c:${a.c}">${logosDemandes[id] ? `<img src="${logosDemandes[id]}" alt="">` : `<span class="l">${a.nom.charAt(0).toUpperCase()}</span>`}<b>${a.nom}</b><em class="${cl}">${t}</em></button>`; }).join('');
+  document.getElementById('menuLogo').src = logosDemandes.mindset || 'logos/mindset.png';
+  document.getElementById('menuHeure').textContent = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+  const a = enFente && APPLIS[enFente];
+  document.getElementById('menuConsigne').textContent = a && a.etat !== 'ferme' ? `${a.nom} est en pause` : 'Choisis une appli';
+  if (focus) car.querySelectorAll('button')[Math.min(menuSel, TUILES.length - 1)]?.focus({ preventScroll: false });
+}
+function zoomerMenu() {
+  if (occupe || zoome || !TUILES.length) return;
+  origineZoom(); ouverte = MENU; voile.classList.add('menu'); document.getElementById('menuGrand').hidden = false;
+  voile.style.background = 'radial-gradient(circle at 50% 30%, #1E1A3E, #07060D 75%)';
+  menuSel = Math.max(0, TUILES.indexOf(enFente)); remplirMenu(false); sons.allume();
+  occupe = true;
+  anim(1.0, (q) => { const k = q * q * q; plan.style.transform = `scale(${1 + k * ZOOM})`; plan.style.filter = `blur(${Math.max(0, q - 0.6) * 10}px)`; voile.style.opacity = Math.max(0, (q - 0.55) / 0.45); }, () => {
+    zoome = true; occupe = false; voile.style.pointerEvents = 'auto'; remplirMenu(true);
+  });
+}
+function quitterMenu() { voile.classList.remove('menu'); document.getElementById('menuGrand').hidden = true; }
+function choisirDepuisMenu(id) {
+  const a = APPLIS[id]; if (!a || occupe) return; sons.ok();
+  if (id === enFente) {   // déjà dans la fente : son écran, sans ressortir
+    quitterMenu(); ouverte = id;
+    document.getElementById('voileLogo').src = logosDemandes[id] || ''; document.getElementById('voileNom').textContent = a.nom;
+    voile.style.background = `radial-gradient(circle at 50% 45%, ${a.c}55, #07060D 70%)`;
+    if (a.installee && !a.maj) { pretes[id] = false; chargement[id] = 0; demandeOuverture[id] = true; hote('action', { action: 'ouvrir', id }); }
+    remplirEcran(); voile.querySelector('#voileActions button')?.focus(); return;
+  }
+  dezoomer(() => { quitterMenu(); choisirCartouche(id); });   // l'ancienne cartouche ressort, la nouvelle entre, on replonge
+}
+document.getElementById('carrousel').addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) choisirDepuisMenu(b.dataset.id); });
+document.getElementById('carrousel').addEventListener('focusin', (e) => { const b = e.target.closest('button'); if (!b) return; if (+b.dataset.i !== menuSel) sons.survol(); menuSel = +b.dataset.i;
+  const n = document.getElementById('menuNom'); n.textContent = APPLIS[b.dataset.id]?.nom || ''; n.style.setProperty('--c', APPLIS[b.dataset.id]?.c); n.style.paddingLeft = `${Math.max(0, b.offsetLeft - b.parentElement.scrollLeft)}px`; b.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'smooth' }); });
+document.getElementById('carrousel').addEventListener('mouseover', (e) => { const b = e.target.closest('button'); if (b && b !== document.activeElement) b.focus({ preventScroll: true }); });
+document.getElementById('carrousel').addEventListener('wheel', (e) => { const c = e.currentTarget; if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) { c.scrollLeft += e.deltaY; e.preventDefault(); } }, { passive: false });
+document.getElementById('menuB').addEventListener('click', () => { if (!occupe) { sons.ok(); dezoomer(quitterMenu); } });
+document.getElementById('menuA').addEventListener('click', () => { const b = document.activeElement?.closest?.('#carrousel button'); if (b) choisirDepuisMenu(b.dataset.id); });
+
 // Revenir au menu depuis l'écran : la cartouche ne reste dans la console que si l'appli tourne
 function revenirAuMenu() {
   const id = enFente;
@@ -275,7 +364,7 @@ function revenirAuMenu() {
 
 // Ce que montre l'écran en grand : le chargement de l'appli, l'installation, la mise à jour, ou leur avancée
 function remplirEcran() {
-  const id = ouverte, a = id && APPLIS[id]; if (!a) return;
+  const id = ouverte, a = id && APPLIS[id]; if (!a) return;   // (le menu en grand : remplirMenu)
   const texte = document.getElementById('voileTexte'), actions = document.getElementById('voileActions'), barre = document.getElementById('voileBarre');
   const m = a.maj, charge = m && m.etat !== 'dispo';
   let t, boutons = [], attente = false;
@@ -310,11 +399,21 @@ document.getElementById('voileActions').addEventListener('click', (e) => {
 document.querySelectorAll('#ronds button').forEach((b) => b.addEventListener('click', () => { if (occupe || zoome) return; sons.ok(); hote('action', { action: b.dataset.r }); }));
 
 // ---------------------------------------------------------------- souris et clavier
-const souris = new THREE.Vector2(9, 9), rayon = new THREE.Raycaster(); let vise = null;
+const souris = new THREE.Vector2(9, 9), rayon = new THREE.Raycaster(); let vise = null, visConsole = false;
 cv.addEventListener('pointermove', (e) => { const r = cv.getBoundingClientRect(); souris.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1); });
 cv.addEventListener('pointerleave', () => souris.set(9, 9));
-cv.addEventListener('click', () => { if (vise) choisirCartouche(vise.id); });
+cv.addEventListener('click', () => {
+  if (vise) { choisirCartouche(vise.id); return; }
+  if (!occupe && !zoome && visConsole) zoomerMenu();
+});
 addEventListener('keydown', (e) => {
+  if (ouverte === MENU && zoome && !occupe) {
+    const car = document.getElementById('carrousel'), bs = [...car.querySelectorAll('button')];
+    if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { e.preventDefault(); const i = Math.max(0, Math.min(bs.length - 1, menuSel + (e.key === 'ArrowRight' ? 1 : -1))); bs[i]?.focus(); return; }
+    if (e.key === 'Escape' || e.key === 'Backspace') { e.preventDefault(); sons.ok(); dezoomer(quitterMenu); return; }
+    return;
+  }
+  if (!zoome && !occupe && (e.key === 'Enter' || e.key === ' ') && document.activeElement === document.body) { e.preventDefault(); zoomerMenu(); return; }
   if (e.key === 'Escape' && zoome && !occupe && !demandeOuverture[ouverte]) { e.preventDefault(); revenirAuMenu(); return; }
   const n = parseInt(e.key, 10); if (n >= 1 && n <= TUILES.length && !zoome) choisirCartouche(TUILES[n - 1]);
 });
@@ -346,8 +445,9 @@ function image() {
   anims = gardes.concat(anims);
   rayon.setFromCamera(souris, camera);
   const hit = occupe || zoome ? null : rayon.intersectObjects(Object.values(carts).map((c) => c.g), true)[0];
+  visConsole = !hit && !occupe && !zoome && rayon.intersectObjects([ecran, corps], false).some((h) => h.object === ecran || (h.uv && h.object === corps));
   let nv = null; if (hit) { let o = hit.object; while (o && !nv) { nv = Object.values(carts).find((c) => c.g === o) || null; o = o.parent; } }
-  if (nv !== vise) { vise = nv; if (vise) sons.survol(); } cv.style.cursor = vise ? 'pointer' : 'default';
+  if (nv !== vise) { vise = nv; if (vise) sons.survol(); } cv.style.cursor = vise || visConsole ? 'pointer' : 'default';
   for (const c of Object.values(carts)) {
     if (c.etat !== 'repos') continue; c.k += ((c === vise ? 1 : 0) - c.k) * 0.15;
     c.g.position.set(c.repos.x, c.repos.y + Math.sin(t * 1.6 + c.phase) * 0.12 * c.echelleRepos + c.k * 0.25 * c.echelleRepos, c.repos.z);
@@ -382,7 +482,7 @@ function etat(e) {
   poser();
   // une appli fermée pendant que sa cartouche était dans la console, au menu : la cartouche ressort
   if (enFente && !occupe && !zoome && (!APPLIS[enFente] || APPLIS[enFente].etat === 'ferme')) { const c = carts[enFente]; occupe = true; ejecter(c, () => { occupe = false; }); }
-  if (zoome) remplirEcran();
+  if (zoome && ouverte === MENU) remplirMenu(false); else if (zoome) remplirEcran();
 }
 // Mindset a lancé l'appli (après « ouvrir ») : si la cartouche n'est pas déjà en route, on joue l'insertion
 function jouerOuverture(id) { if (!carts[id] || occupe || zoome || enFente === id && ouverte === id) return; demandeOuverture[id] = true; inserer(carts[id]); }
@@ -404,7 +504,7 @@ function jouerEjection(id) { if (enFente !== id || occupe) return; if (zoome) de
 let minuteBulle = 0;
 function message(texte) { const b = document.getElementById('bulle'); b.textContent = String(texte).slice(0, 80); b.classList.add('vu'); clearTimeout(minuteBulle); minuteBulle = setTimeout(() => b.classList.remove('vu'), 2400); }
 window.mindset = { etat, pause, reprendre, message, jouerOuverture, jouerRetour, jouerEjection, appliPrete, avancee };
-window.mindsetEssai = { choisirCartouche, cliquer: (f) => document.querySelector(`#voileActions button[data-f="${f}"]`)?.click(), etatScene: () => ({ enFente, zoome, occupe, ouverte }) };   // (pour les essais automatiques)
+window.mindsetEssai = { choisirCartouche, zoomerMenu, choisirDepuisMenu, cliquer: (f) => document.querySelector(`#voileActions button[data-f="${f}"]`)?.click(), etatScene: () => ({ enFente, zoome, occupe, ouverte }) };   // (pour les essais automatiques)
 
 montrerDecor(); poser();
 renderer.setAnimationLoop(image);
