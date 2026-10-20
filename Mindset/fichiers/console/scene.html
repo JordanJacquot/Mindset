@@ -5,551 +5,362 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Mindset, la console</title>
 <style>
-/* La console de Mindset : une tablette en 3D, son menu dessiné sur son écran. Affichée par Mindset (WebView2, console.ps1),
-   hors connexion : tout vient du dossier « console ». Elle ne fait rien d'elle-même : elle envoie les clics à Mindset. */
-html, body { margin: 0; height: 100%; overflow: hidden; background: #07060D; }
-canvas { display: block; outline: none; }
-#fondu { position: fixed; inset: 0; pointer-events: none; opacity: 0; background: #FFFFFF; transition: opacity 260ms ease; }
+/* L'accueil de Mindset : une pièce japonaise ouverte sur un jardin (décor dessiné), la console posée sur le meuble
+   (dessinée aussi, son écran affiche le menu), les cartouches des applis devant. Affichée par Mindset (WebView2,
+   console.ps1), hors connexion : tout vient du dossier « console ». Elle ne fait rien d'elle-même : elle envoie les
+   demandes à Mindset. */
+html, body { height: 100%; margin: 0; overflow: hidden; background: #07060D; color: #ECEAF7; font-family: "Segoe UI Variable Display", "Segoe UI", sans-serif; user-select: none; }
+#flou { position: fixed; inset: -40px; background-size: cover; background-position: center; filter: blur(28px) brightness(0.55); }
+#zone { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+#scene { position: relative; aspect-ratio: 16 / 9; width: min(100vw, calc(100vh * 16 / 9)); overflow: hidden; }
+#plan { position: absolute; inset: 0; transform-origin: 50% 50%; will-change: transform, filter; }
+#fond { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+#effets, #trois { position: absolute; inset: 0; width: 100%; height: 100%; }
+/* L'écran de la console, en grand (après le zoom) : installer, mettre à jour, le téléchargement, le chargement */
+#voile { position: absolute; inset: 0; opacity: 0; pointer-events: none; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; text-align: center; padding: 0 24px; }
+#voile img { width: 120px; height: 120px; }
+#voile b { font-size: 34px; }
+#voile span { font-size: 16px; color: rgba(255,255,255,0.8); max-width: 44ch; }
+#voile .actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 10px; }
+#voile button { height: 46px; padding: 0 24px; border-radius: 23px; border: 0; font: inherit; font-size: 15px; font-weight: 700; cursor: pointer; }
+#voile .principal { background: #FFFFFF; color: #0A0812; }
+#voile .second { background: rgba(255,255,255,0.16); color: #FFFFFF; }
+#voile .maj { background: #FFB020; color: #1A1206; }
+#voile button:focus-visible, #ronds button:focus-visible { outline: 3px solid #00E5FF; outline-offset: 3px; }
+#voile .barre { width: min(420px, 70%); }
+#voile .barre i { display: block; height: 10px; border-radius: 5px; background: rgba(255,255,255,0.18); overflow: hidden; }
+#voile .barre i b { display: block; height: 100%; width: 0; background: #FFB020; border-radius: 5px; transition: width 300ms ease; }
+#voile .barre em { display: block; margin-top: 8px; font-style: normal; font-size: 15px; color: rgba(255,255,255,0.85); }
+#voile .roue { width: 42px; height: 42px; border-radius: 50%; border: 4px solid rgba(255,255,255,0.18); border-top-color: #FFFFFF; animation: tourne 0.9s linear infinite; }
+@keyframes tourne { to { transform: rotate(360deg); } }
+/* Les boutons ronds, comme sur une console */
+#ronds { position: absolute; right: 2.5%; bottom: 4%; display: flex; gap: 14px; }
+#ronds button { position: relative; width: 54px; height: 54px; border-radius: 50%; border: 0; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  background: radial-gradient(circle at 35% 28%, #3a355a, #14102a 75%); box-shadow: 0 4px 0 rgba(0,0,0,0.5), 0 10px 18px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.18); transition: transform 120ms ease; }
+#ronds button:hover { transform: translateY(-3px); }
+#ronds svg { width: 24px; height: 24px; }
+#ronds span { position: absolute; bottom: 64px; left: 50%; transform: translateX(-50%); padding: 4px 10px; border-radius: 10px; background: rgba(14,12,28,0.9); color: #ECEAF7; font-size: 12px; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity 120ms ease; }
+#ronds button:hover span, #ronds button:focus-visible span { opacity: 1; }
+#bulle { position: fixed; top: 18px; left: 50%; transform: translateX(-50%); padding: 9px 16px; border-radius: 18px; background: rgba(14,13,22,0.92); border: 1px solid #3A3466; font-size: 14px; opacity: 0; transition: opacity 200ms ease; pointer-events: none; white-space: nowrap; }
+#bulle.vu { opacity: 1; }
+@media (prefers-reduced-motion: reduce) { #voile .roue { animation-duration: 3s; } }
 </style>
 </head>
 <body>
-<div id="scene"></div>
-<div id="fondu"></div>
+<div id="flou" aria-hidden="true"></div>
+<div id="zone"><div id="scene">
+  <div id="plan"><img id="fond" alt=""><canvas id="effets" aria-hidden="true"></canvas><canvas id="trois" aria-label="La console et les cartouches : clique sur une cartouche pour l'insérer"></canvas>
+    <nav id="ronds" aria-label="Mindset">
+      <button type="button" data-r="parametres" aria-label="Paramètres"><svg viewBox="0 0 24 24" fill="none" stroke="#C9C4DD" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg><span>Paramètres</span></button>
+      <button type="button" data-r="actualiser" aria-label="Chercher les nouvelles versions"><svg viewBox="0 0 24 24" fill="none" stroke="#3DDC84" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.3-5.7M20 4v5h-5"/></svg><span>Chercher les nouvelles versions</span></button>
+      <button type="button" data-r="veille" aria-label="Mettre Mindset en veille"><svg viewBox="0 0 24 24" fill="none" stroke="#FF5C7A" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 3v9M6.3 7.5a8 8 0 1 0 11.4 0"/></svg><span>Veille (près de l'horloge)</span></button>
+    </nav></div>
+  <div id="voile" role="dialog" aria-label="L'écran de la console"><img id="voileLogo" alt=""><b id="voileNom"></b><span id="voileTexte"></span>
+    <div class="roue" id="voileRoue" hidden></div>
+    <div class="barre" id="voileBarre" hidden><i><b></b></i><em></em></div>
+    <div class="actions" id="voileActions"></div></div>
+</div></div>
+<div id="bulle" role="status" aria-live="polite"></div>
 <script type="importmap">
 { "imports": { "three": "./three/three.module.js", "three/addons/": "./three/addons/" } }
 </script>
 <script type="module">
 import * as THREE from 'three';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
-import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
-import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
-import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
-import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
-import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 
 const POLICE = '"Segoe UI Variable Display", "Segoe UI", sans-serif';
 const params = new URLSearchParams(location.search);
-const vitesse = params.get('animations') === 'express' || matchMedia('(prefers-reduced-motion: reduce)').matches ? 0.35 : 1;
-// Couleurs du thème de la suite : Mindset traduit chaque couleur Néon de la scène (paramètre « couleurs ») ; Néon par défaut
-const COULEURS = {};
-try { for (const [k, v] of Object.entries(JSON.parse(params.get('couleurs') || '{}'))) if (/^[0-9A-F]{6}$/.test(k) && /^#[0-9A-F]{6}$/i.test(v)) COULEURS[k] = v; } catch (e) {}
-const C = (h) => COULEURS[h.slice(1).toUpperCase()] || h;                     // '#RRGGBB' dans le thème
-const CN = (h) => parseInt(C(h).slice(1), 16);                                // la même, en nombre (Three.js)
-const CA = (h, a) => { const x = C(h); return `rgba(${parseInt(x.slice(1, 3), 16)},${parseInt(x.slice(3, 5), 16)},${parseInt(x.slice(5, 7), 16)},${a})`; };
-document.documentElement.style.background = C('#07060D');
+const vitesse = params.get('animations') === 'express' || matchMedia('(prefers-reduced-motion: reduce)').matches ? 0.4 : 1;
 // Messages vers Mindset : seulement des actions connues, avec l'identifiant d'une appli (Mindset vérifie tout)
 const hote = (type, donnees = {}) => { try { window.chrome?.webview?.postMessage({ type, ...donnees }); } catch (e) {} };
 
-// ---------------------------------------------------------------- l'état, donné par Mindset (window.mindset.etat)
-let APPLIS = {};          // id -> { nom, c1, c2, installee, etat: ferme | ouvert | fond, maj: null | { etat, progres, version } }
-let TUILES = [];          // l'ordre des tuiles
-const images = {};
-const enChargement = {};
+// ---------------------------------------------------------------- le décor : il suit l'heure (jour, coucher de soleil, nuit)
+// x, y : où le socle de la console se pose (part de la largeur, de la hauteur de l'image) ; l : largeur de la console
+const DECORS = {
+  jour: { x: 0.4997, y: 0.718, l: 0.17, lumiere: 0xfff2e0, ciel: 0xbfd8ff, effet: 'petales' },
+  soir: { x: 0.502, y: 0.72, l: 0.16, lumiere: 0xffc488, ciel: 0xff9a6a, effet: 'petales' },
+  nuit: { x: 0.499, y: 0.708, l: 0.17, lumiere: 0x9fb4ff, ciel: 0x5a6ad0, effet: 'lucioles' },
+};
+const momentDuJour = () => { const h = new Date().getHours(); return h >= 20 || h < 7 ? 'nuit' : h >= 18 ? 'soir' : 'jour'; };
+let nomDecor = momentDuJour(), decor = DECORS[nomDecor];
+const fond = document.getElementById('fond'), plan = document.getElementById('plan'), voile = document.getElementById('voile');
+function montrerDecor() { fond.src = `decor/${nomDecor}.jpg`; document.getElementById('flou').style.backgroundImage = `url("decor/${nomDecor}.jpg")`; }
+
+// ---------------------------------------------------------------- l'état des applis, donné par Mindset (window.mindset.etat)
+let APPLIS = {};          // id -> { nom, c, installee, etat: ferme | ouvert | fond, maj: null | { etat, progres } }
+let TUILES = [];          // l'ordre des applis
+const logos = {}, logosDemandes = {};
 function chargerLogo(id, url) {
-  if (!url || images[id] || enChargement[id]) return;
-  enChargement[id] = true;
+  if (!url || logosDemandes[id] === url) return;
+  logosDemandes[id] = url;
   const im = new Image();
   if (url.startsWith('https://')) im.crossOrigin = 'anonymous';   // (logo servi par Mindset hors du dossier de la console)
-  im.onload = () => { images[id] = im; if (cartouches[id]) rafraichirEtiquette(id); };
+  im.onload = () => { logos[id] = im; carts[id]?.redessiner(); };
   im.src = url;
 }
 chargerLogo('mindset', 'logos/mindset.png');
 
-// ---------------------------------------------------------------- moteur
-const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
-renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-renderer.setSize(innerWidth, innerHeight);
-renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.05;
-document.getElementById('scene').appendChild(renderer.domElement);
+// ---------------------------------------------------------------- petits sons de console (après le premier clic)
+const son = { ctx: null, bip(f, d, v, type = 'triangle', f2) { if (!this.ctx) return; try { const t = this.ctx.currentTime, o = this.ctx.createOscillator(), g = this.ctx.createGain(); o.type = type; o.frequency.setValueAtTime(f, t); if (f2) o.frequency.exponentialRampToValueAtTime(f2, t + d); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(v, t + 0.006); g.gain.exponentialRampToValueAtTime(0.0001, t + d); o.connect(g).connect(this.ctx.destination); o.start(t); o.stop(t + d + 0.02); } catch (e) {} } };
+addEventListener('pointerdown', () => { try { son.ctx ??= new AudioContext(); son.ctx.resume?.(); } catch (e) {} }, true);
+const sons = { survol: () => son.bip(2000, 0.03, 0.02, 'square'), envol: () => son.bip(400, 0.35, 0.03, 'sine', 1400), clac: () => { son.bip(180, 0.06, 0.08, 'square'); setTimeout(() => son.bip(1200, 0.05, 0.03, 'square'), 60); }, allume: () => [523, 784, 1047].forEach((f, i) => setTimeout(() => son.bip(f, 0.14, 0.04), i * 90)), ejecte: () => son.bip(900, 0.12, 0.04, 'sine', 300), ok: () => son.bip(880, 0.05, 0.04) };
 
-const scene = new THREE.Scene();
-scene.background = new THREE.Color(CN('#07060D'));
-scene.fog = new THREE.Fog(CN('#07060D'), 11, 26);
-const pmrem = new THREE.PMREMGenerator(renderer);
-scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
-scene.environmentIntensity = 0.32;
-
-const camera = new THREE.PerspectiveCamera(40, innerWidth / innerHeight, 0.05, 100);
-const VUES = {
-  large:  { pos: new THREE.Vector3(0, 0.9, 10.6), vise: new THREE.Vector3(0, 0.15, 0), fov: 40 },
-  menu:   { pos: new THREE.Vector3(0, 0.55, 4.9), vise: new THREE.Vector3(0, 0.55, 0), fov: 40 },
-  boot:   { pos: new THREE.Vector3(0, 0.7, 8.4), vise: new THREE.Vector3(0, 0.55, 0.2), fov: 40 },
-  dedans: { pos: new THREE.Vector3(0, 0.55, 0.62), vise: new THREE.Vector3(0, 0.55, 0.2), fov: 24 },
-};
-const depart = params.get('vue') === 'dedans' ? 'dedans' : 'menu';
-const cam = { pos: VUES[depart].pos.clone(), vise: VUES[depart].vise.clone(), fov: VUES[depart].fov, vue: depart };
-function poserCamera() { camera.position.copy(cam.pos); camera.fov = cam.fov; camera.updateProjectionMatrix(); camera.lookAt(cam.vise); }
-poserCamera();
-
-const cle = new THREE.DirectionalLight(0xffffff, 1.4); cle.position.set(4, 6, 7); scene.add(cle);
-const lumCyan = new THREE.PointLight(CN('#00E5FF'), 60, 22); lumCyan.position.set(-6, 2.5, -1.5); scene.add(lumCyan);
-const lumMagenta = new THREE.PointLight(CN('#FF2EB5'), 60, 22); lumMagenta.position.set(6, 2.5, -1.5); scene.add(lumMagenta);
-scene.add(new THREE.AmbientLight(CN('#6A5CFF'), 0.15));
-const sol = new THREE.Mesh(new THREE.CircleGeometry(14, 64), new THREE.MeshStandardMaterial({ color: CN('#0B0A12'), roughness: 0.28, metalness: 0.6 }));
-sol.rotation.x = -Math.PI / 2; sol.position.y = -2.45; scene.add(sol);
-function textureHalo(c) {
-  const cv = document.createElement('canvas'); cv.width = cv.height = 256; const x = cv.getContext('2d');
-  const g = x.createRadialGradient(128, 128, 0, 128, 128, 128); g.addColorStop(0, c); g.addColorStop(1, 'rgba(0,0,0,0)');
-  x.fillStyle = g; x.fillRect(0, 0, 256, 256); const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; return t;
+// ---------------------------------------------------------------- moteur (les cartouches en relief, ombrées en 3 tons comme un dessin animé)
+const cv = document.getElementById('trois');
+const renderer = new THREE.WebGLRenderer({ canvas: cv, antialias: true, alpha: true, powerPreference: 'high-performance' });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2)); renderer.setClearColor(0, 0); renderer.toneMapping = THREE.ACESFilmicToneMapping;
+const scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera(24, 16 / 9, 0.05, 100);
+const ciel = new THREE.HemisphereLight(0xffffff, 0x2a2238, 1.3); scene.add(ciel);
+const cle = new THREE.DirectionalLight(0xffffff, 2.4); cle.position.set(-2, 4, 7); scene.add(cle);
+const tons = (() => { const t = new THREE.DataTexture(new Uint8Array([95, 175, 255]), 3, 1, THREE.RedFormat); t.minFilter = t.magFilter = THREE.NearestFilter; t.needsUpdate = true; return t; })();
+const contour = new THREE.MeshBasicMaterial({ color: 0x120e18, side: THREE.BackSide });
+function piece(geo, mat, parent, pos = [0, 0, 0], e = 0.04) {
+  const m = new THREE.Mesh(geo, mat); m.position.set(...pos); parent.add(m);
+  if (e) { geo.computeBoundingBox(); const s = geo.boundingBox.getSize(new THREE.Vector3()); const o = new THREE.Mesh(geo, contour); o.scale.set((s.x + 2 * e) / s.x, (s.y + 2 * e) / s.y, (s.z + 2 * e) / Math.max(s.z, 0.01)); m.add(o); }
+  return m;
 }
-const halo = new THREE.Mesh(new THREE.PlaneGeometry(11, 5), new THREE.MeshBasicMaterial({ map: textureHalo(CA('#7A5BFF', 0.55)), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }));
-halo.rotation.x = -Math.PI / 2; halo.position.y = -2.43; scene.add(halo);
-const poussiere = (() => {
-  const n = 260, pos = new Float32Array(n * 3), col = new Float32Array(n * 3);
-  const a = new THREE.Color(CN('#00E5FF')), b = new THREE.Color(CN('#FF2EB5'));
-  for (let i = 0; i < n; i++) {
-    pos[i * 3] = (Math.random() - 0.5) * 30; pos[i * 3 + 1] = Math.random() * 12 - 3; pos[i * 3 + 2] = -4 - Math.random() * 12;
-    const c = a.clone().lerp(b, Math.random()); col[i * 3] = c.r; col[i * 3 + 1] = c.g; col[i * 3 + 2] = c.b;
+
+// ---------------------------------------------------------------- la console, dessinée dans le style du décor (une image découpée, de face)
+// Son écran dessiné reçoit le menu ; la fente est au milieu du bord du haut ; le bas de l'image est posé sur le meuble.
+const CONSOLE = { w: 854, h: 631, ecran: [45, 35, 785, 540] }, LARGEUR = 4.1;
+const cons = new THREE.Group(); scene.add(cons);
+const k0 = LARGEUR / CONSOLE.w, HAUT = CONSOLE.h * k0;
+const texConsole = new THREE.TextureLoader().load('decor/console.png'); texConsole.colorSpace = THREE.SRGBColorSpace; texConsole.anisotropy = 8;
+const corps = new THREE.Mesh(new THREE.PlaneGeometry(LARGEUR, HAUT), new THREE.MeshBasicMaterial({ map: texConsole, transparent: true, alphaTest: 0.5, toneMapped: false }));
+corps.position.set(0, HAUT / 2, 0); cons.add(corps);
+const ecv = document.createElement('canvas'); ecv.width = 1024; ecv.height = 576; const ex = ecv.getContext('2d');
+const ecranTex = new THREE.CanvasTexture(ecv); ecranTex.colorSpace = THREE.SRGBColorSpace; ecranTex.anisotropy = 8;
+const [ex0, ey0, ex1, ey1] = CONSOLE.ecran;
+const ecran = new THREE.Mesh(new THREE.PlaneGeometry((ex1 - ex0) * k0, (ey1 - ey0) * k0), new THREE.MeshBasicMaterial({ map: ecranTex, toneMapped: false }));
+ecran.position.set(((ex0 + ex1) / 2 - CONSOLE.w / 2) * k0, HAUT - (ey0 + ey1) / 2 * k0, 0.01); cons.add(ecran);
+const fente = new THREE.Object3D(); fente.position.set(0, HAUT - 0.02, -0.03); cons.add(fente);
+const ombre = new THREE.Mesh(new THREE.PlaneGeometry(4.6, 1.2), new THREE.MeshBasicMaterial({ transparent: true, depthWrite: false, map: (() => { const c = document.createElement('canvas'); c.width = 256; c.height = 128; const k = c.getContext('2d'); const g = k.createRadialGradient(128, 64, 4, 128, 64, 124); g.addColorStop(0, 'rgba(0,0,0,0.55)'); g.addColorStop(1, 'rgba(0,0,0,0)'); k.fillStyle = g; k.fillRect(0, 0, 256, 128); return new THREE.CanvasTexture(c); })() }));
+ombre.rotation.x = -Math.PI / 2; ombre.position.set(0, 0.01, 0.3); cons.add(ombre);
+
+// Le menu sur l'écran de la console : Mindset et l'heure en haut, une tuile par appli avec son état, la consigne en bas
+let enFente = null, demarrage = 0;
+function dessinerEcran(t) {
+  const g = ex.createLinearGradient(0, 0, 1024, 576); g.addColorStop(0, '#120E28'); g.addColorStop(1, '#05040C'); ex.fillStyle = g; ex.fillRect(0, 0, 1024, 576);
+  const a = enFente && APPLIS[enFente];
+  if (a && demarrage > 0) {
+    const r = ex.createRadialGradient(512, 288, 10, 512, 288, 600); r.addColorStop(0, a.c + 'AA'); r.addColorStop(1, 'rgba(0,0,0,0)'); ex.globalAlpha = Math.min(1, demarrage); ex.fillStyle = r; ex.fillRect(0, 0, 1024, 576);
+    if (logos[enFente]) ex.drawImage(logos[enFente], 402, 130, 220, 220);
+    ex.fillStyle = '#FFFFFF'; ex.font = `800 60px ${POLICE}`; ex.textAlign = 'center'; ex.textBaseline = 'alphabetic'; ex.fillText(a.nom, 512, 440); ex.globalAlpha = 1; return;
   }
-  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(pos, 3)); g.setAttribute('color', new THREE.BufferAttribute(col, 3));
-  const p = new THREE.Points(g, new THREE.PointsMaterial({ size: 0.06, vertexColors: true, transparent: true, opacity: 0.75, depthWrite: false }));
-  scene.add(p); return p;
-})();
-
-// ---------------------------------------------------------------- la tablette : son écran et sa fente
-const consoleG = new THREE.Group(); consoleG.position.set(0, 0.55, 0); scene.add(consoleG);
-consoleG.add(new THREE.Mesh(new RoundedBoxGeometry(4.4, 2.5, 0.36, 6, 0.14), new THREE.MeshPhysicalMaterial({ color: CN('#17151F'), roughness: 0.32, metalness: 0.25, clearcoat: 0.7, clearcoatRoughness: 0.25 })));
-const cadre = new THREE.Mesh(new RoundedBoxGeometry(3.95, 2.28, 0.02, 4, 0.06), new THREE.MeshStandardMaterial({ color: CN('#050409'), roughness: 0.15, metalness: 0.1 }));
-cadre.position.z = 0.181; consoleG.add(cadre);
-const ecranCv = document.createElement('canvas'); ecranCv.width = 1024; ecranCv.height = 576;
-const ex = ecranCv.getContext('2d');
-const ecranTex = new THREE.CanvasTexture(ecranCv); ecranTex.colorSpace = THREE.SRGBColorSpace;
-const ecran = new THREE.Mesh(new THREE.PlaneGeometry(3.72, 2.09), new THREE.MeshBasicMaterial({ map: ecranTex, toneMapped: false }));
-ecran.position.z = 0.193; consoleG.add(ecran);
-const matNoir = new THREE.MeshStandardMaterial({ color: CN('#111018'), roughness: 0.5, metalness: 0.2 });
-const fente = new THREE.Mesh(new THREE.BoxGeometry(1.0, 0.05, 0.16), new THREE.MeshStandardMaterial({ color: 0x020203, roughness: 1 }));
-fente.position.set(1.05, 1.24, 0); consoleG.add(fente);
-const levre = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.02, 0.22), new THREE.MeshStandardMaterial({ color: CN('#2C2840'), roughness: 0.4, metalness: 0.5 }));
-levre.position.set(1.05, 1.255, 0); consoleG.add(levre);
-
-// ---------------------------------------------------------------- les cartouches (une par appli de Mindset)
-const cartouches = {};
-const matCoque = new THREE.MeshPhysicalMaterial({ color: CN('#24212F'), roughness: 0.45, metalness: 0.1, clearcoat: 0.4 });
-function etiquette(id) {
-  const cv = document.createElement('canvas'); cv.width = 256; cv.height = 256; const x = cv.getContext('2d');
-  const a = APPLIS[id];
-  const g = x.createLinearGradient(0, 0, 256, 256); g.addColorStop(0, C('#1B1830')); g.addColorStop(1, C('#0A0912'));
-  x.fillStyle = g; x.fillRect(0, 0, 256, 256);
-  x.strokeStyle = a.c1; x.lineWidth = 6; x.strokeRect(6, 6, 244, 244);
-  x.shadowColor = a.c1; x.shadowBlur = 24;
-  if (images[id]) x.drawImage(images[id], 58, 34, 140, 140);
-  else { x.fillStyle = a.c1; x.font = `700 110px ${POLICE}`; x.textAlign = 'center'; x.fillText(a.nom.charAt(0).toUpperCase(), 128, 145); }
-  x.shadowBlur = 0;
-  x.fillStyle = a.c1; x.font = `700 28px ${POLICE}`; x.textAlign = 'center'; x.fillText(a.nom.toUpperCase(), 128, 220);
-  if (a.maj) {
-    x.save(); x.translate(204, 52); x.rotate(0.35);
-    x.fillStyle = '#FFB020'; x.beginPath(); x.arc(0, 0, 36, 0, Math.PI * 2); x.fill();
-    x.fillStyle = '#1A1206'; x.font = `700 24px ${POLICE}`; x.textAlign = 'center'; x.fillText('MAJ', 0, 8);
-    x.restore();
-  }
-  const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return t;
-}
-function creerCartouche(id) {
-  const g = new THREE.Group();
-  const coque = new THREE.Mesh(new RoundedBoxGeometry(0.82, 1.02, 0.11, 4, 0.045), matCoque); g.add(coque);
-  const tex = etiquette(id);
-  const labMat = new THREE.MeshStandardMaterial({ map: tex, roughness: 0.55, emissive: 0xffffff, emissiveMap: tex, emissiveIntensity: 0.35 });
-  const lab = new THREE.Mesh(new THREE.PlaneGeometry(0.68, 0.68), labMat); lab.position.set(0, 0.1, 0.057); g.add(lab);
-  const encoche = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.04, 0.09), matNoir); encoche.position.set(0, -0.51, 0); g.add(encoche);
-  g.userData = { id, repos: new THREE.Vector3(), phase: Math.random() * 6, anime: false, labMat };
-  coque.userData.cartouche = g; lab.userData.cartouche = g; encoche.userData.cartouche = g;
-  scene.add(g); cartouches[id] = g;
-}
-function placerCartouches() {
-  const ids = TUILES.filter((id) => APPLIS[id].installee), n = ids.length;
-  ids.forEach((id, i) => { const r = cartouches[id].userData.repos; r.set((i - (n - 1) / 2) * 1.45, -1.55, 1.7); });
-  for (const id of Object.keys(cartouches)) cartouches[id].visible = !!(APPLIS[id] && APPLIS[id].installee);
-}
-function rafraichirEtiquette(id) {
-  const c = cartouches[id]; if (!c) return;
-  const m = c.userData.labMat, ancienne = m.map, tex = etiquette(id);
-  m.map = tex; m.emissiveMap = tex; m.needsUpdate = true; ancienne.dispose();
-}
-
-// ---------------------------------------------------------------- le menu, dessiné sur l'écran
-let enFente = null, selection = 0, survol = null, zones = [], toast = null;
-let ecranMode = 'menu';
-let ecranParam = { id: null, progres: 0, flash: 0, ligne: 1 };
-const defil = { x: 0, cible: 0, glisse: false };
-function rond(x, y, w, h, r) { ex.beginPath(); ex.moveTo(x + r, y); ex.arcTo(x + w, y, x + w, y + h, r); ex.arcTo(x + w, y + h, x, y + h, r); ex.arcTo(x, y + h, x, y, r); ex.arcTo(x, y, x + w, y, r); ex.closePath(); }
-function lignes() { ex.fillStyle = 'rgba(0,0,0,0.16)'; for (let y = 0; y < 576; y += 4) ex.fillRect(0, y, 1024, 2); }
-function icone(nom, cx, cy, coul) {
-  ex.save(); ex.strokeStyle = coul; ex.fillStyle = coul; ex.lineWidth = 4; ex.lineCap = 'round';
-  if (nom === 'reglages') {
-    for (let k = 0; k < 8; k++) { ex.save(); ex.translate(cx, cy); ex.rotate(k * Math.PI / 4); ex.fillRect(-3.5, -16, 7, 7); ex.restore(); }
-    ex.beginPath(); ex.arc(cx, cy, 10, 0, Math.PI * 2); ex.stroke();
-  } else if (nom === 'majTout') {
-    ex.beginPath(); ex.moveTo(cx, cy - 13); ex.lineTo(cx, cy + 7); ex.moveTo(cx - 8, cy); ex.lineTo(cx, cy + 8); ex.lineTo(cx + 8, cy); ex.moveTo(cx - 12, cy + 14); ex.lineTo(cx + 12, cy + 14); ex.stroke();
-  } else if (nom === 'actualiser') {
-    // un cercle presque fermé (ouvert en haut à droite), la pointe au bout du trait, dans le sens de la rotation
-    ex.beginPath(); ex.arc(cx, cy, 12, -Math.PI * 0.2, Math.PI * 1.45); ex.stroke();
-    ex.beginPath(); ex.moveTo(cx + 6, cy - 12); ex.lineTo(cx - 2, cy - 18); ex.lineTo(cx - 2, cy - 6); ex.closePath(); ex.fill();
-  } else if (nom === 'veille') {
-    ex.beginPath(); ex.arc(cx, cy + 2, 12, -Math.PI * 0.32, Math.PI * 1.32); ex.stroke();
-    ex.beginPath(); ex.moveTo(cx, cy - 14); ex.lineTo(cx, cy); ex.stroke();
-  }
-  ex.restore();
-}
-// Logos vivants : ils flottent, celui de l'appli choisie respire, et de temps en temps ils « glitchent »
-const hasard = (n) => { const v = Math.sin(n * 12.9898) * 43758.5453; return v - Math.floor(v); };
-function dessinerLogo(id, x, y, l, t, choisie, ph) {
-  const img = images[id], a = APPLIS[id];
-  const echelle = choisie ? 1 + Math.sin(t * 2.4) * 0.025 : 1;
-  const ll = l * echelle, xx = x + (l - ll) / 2;
-  const yy = y + (l - ll) / 2 + (choisie ? Math.sin(t * 2.2) * 4 : Math.sin(t * 1.3 + ph) * 1.6);
-  const glitch = (t * (choisie ? 1.1 : 0.7) + ph) % 3.6 < 0.24;
-  const dessiner = (dx, alpha, teinte) => {
-    if (img) { ex.globalAlpha *= alpha; ex.drawImage(img, xx + dx, yy, ll, ll); ex.globalAlpha /= alpha; return; }
-    ex.save(); ex.globalAlpha *= alpha;
-    rond(xx + dx, yy, ll, ll, ll * 0.22); ex.fillStyle = C('#100D22'); ex.fill();
-    ex.fillStyle = teinte || a.c1; ex.font = `700 ${Math.round(ll * 0.55)}px ${POLICE}`; ex.textAlign = 'center';
-    ex.shadowColor = a.c1; ex.shadowBlur = 18; ex.fillText(a.nom.charAt(0).toUpperCase(), xx + dx + ll / 2, yy + ll * 0.7);
-    ex.restore();
-  };
-  if (!glitch) { dessiner(0, 1); return; }
-  const n = Math.floor(t * 24);
-  ex.save(); ex.globalCompositeOperation = 'lighter';
-  dessiner(-6 - hasard(n) * 4, 0.5, C('#00E5FF')); dessiner(6 + hasard(n + 1) * 4, 0.5, C('#FF2EB5'));
-  ex.restore();
-  dessiner(0, 1);
-  if (img) for (let k = 0; k < 3; k++) {
-    const sy = hasard(n * 3 + k) * 0.85, h = 0.05 + hasard(n + k * 7) * 0.07, dx = (hasard(n * 5 + k) - 0.5) * 22;
-    ex.drawImage(img, 0, sy * img.height, img.width, h * img.height, xx + dx, yy + sy * ll, ll, h * ll);
-  }
-}
-const SYSTEME = [['reglages', 'Paramètres'], ['majTout', 'Mises à jour'], ['actualiser', 'Actualiser'], ['veille', 'Veille']];
-function dessinerMenu(t) {
-  zones = [];
-  const g = ex.createLinearGradient(0, 0, 1024, 576); g.addColorStop(0, C('#120E28')); g.addColorStop(1, C('#05040C'));
-  ex.fillStyle = g; ex.fillRect(0, 0, 1024, 576);
-  const b1 = ex.createRadialGradient(120, 60, 0, 120, 60, 380); b1.addColorStop(0, CA('#00E5FF', 0.16)); b1.addColorStop(1, CA('#00E5FF', 0));
-  ex.fillStyle = b1; ex.fillRect(0, 0, 1024, 576);
-  const b2 = ex.createRadialGradient(930, 540, 0, 930, 540, 420); b2.addColorStop(0, CA('#FF2EB5', 0.14)); b2.addColorStop(1, CA('#FF2EB5', 0));
-  ex.fillStyle = b2; ex.fillRect(0, 0, 1024, 576);
-  if (images.mindset) ex.drawImage(images.mindset, 34, 26, 42, 42);
-  ex.fillStyle = '#FFFFFF'; ex.font = `700 26px ${POLICE}`; ex.textAlign = 'left'; ex.fillText('Mindset', 88, 57);
-  const h = new Date(); ex.textAlign = 'right'; ex.fillStyle = C('#A9A3C9'); ex.font = `500 26px ${POLICE}`;
-  ex.fillText(`${String(h.getHours()).padStart(2, '0')}:${String(h.getMinutes()).padStart(2, '0')}`, 990, 57);
-  if (!TUILES.length) { ex.textAlign = 'center'; ex.fillStyle = C('#A9A3C9'); ex.font = `500 24px ${POLICE}`; ex.fillText('Chargement des applis...', 512, 280); lignes(); return; }
-  selection = Math.min(selection, TUILES.length - 1);
-  // le carrousel des applis : il défile quand elles ne tiennent pas toutes ; l'appli choisie plus grande, cerclée de sa couleur
-  const tailles = TUILES.map((id, i) => (i === selection ? 236 : 196));
-  const ecart = 34, cy = 248, debuts = []; let cumul = 0;
-  tailles.forEach((s) => { debuts.push(cumul); cumul += s + ecart; });
-  const total = cumul - ecart, VG = 48, VD = 976;
-  if (!defil.glisse) {
-    if (total <= VD - VG) defil.cible = -(1024 - total) / 2;
-    else {
-      const g0 = debuts[selection], d0 = g0 + tailles[selection];
-      if (g0 - defil.cible < VG + 70) defil.cible = g0 - VG - 70;
-      if (d0 - defil.cible > VD - 70) defil.cible = d0 - VD + 70;
-      defil.cible = Math.min(total - VD + 20, Math.max(-VG + 20, defil.cible));
-    }
-  }
-  defil.x += (defil.cible - defil.x) * 0.18;
-  defil.debuts = debuts; defil.tailles = tailles;
+  if (logos.mindset) ex.drawImage(logos.mindset, 52, 34, 64, 64);
+  ex.textBaseline = 'middle'; ex.textAlign = 'left'; ex.fillStyle = '#FFFFFF'; ex.font = `700 40px ${POLICE}`; ex.fillText('Mindset', 130, 67);
+  ex.textAlign = 'right'; ex.fillStyle = '#C9C4DD'; ex.font = `600 40px ${POLICE}`; ex.fillText(new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }), 972, 67);
+  const n = Math.max(1, TUILES.length), s = Math.min(220, Math.floor((900 - (n - 1) * 36) / n)), ecart = n > 1 ? Math.min(50, (900 - n * s) / (n - 1)) : 0, x0 = 512 - (n * s + (n - 1) * ecart) / 2;
   TUILES.forEach((id, i) => {
-    const a = APPLIS[id], s = tailles[i], x = debuts[i] - defil.x, y = cy - s / 2, choisie = i === selection;
-    if (x > 1024 || x + s < 0) return;
-    ex.save();
-    if (choisie) { ex.shadowColor = a.c1; ex.shadowBlur = 34 + Math.sin(t * 3) * 8; }
-    rond(x, y, s, s, 28); ex.fillStyle = choisie ? C('#1A1636') : C('#141126'); ex.fill();
-    ex.restore();
-    if (choisie) { rond(x, y, s, s, 28); ex.lineWidth = 5; ex.strokeStyle = a.c1; ex.stroke(); }
-    else if (!a.installee) { ex.save(); ex.setLineDash([8, 7]); rond(x, y, s, s, 28); ex.lineWidth = 2; ex.strokeStyle = 'rgba(255,255,255,0.22)'; ex.stroke(); ex.restore(); }
-    const l = s * 0.62;
-    ex.globalAlpha = !choisie && (!a.installee || a.etat === 'ferme') ? 0.72 : 1;
-    dessinerLogo(id, x + (s - l) / 2, y + s * 0.12, l, t, choisie, i * 1.37);
-    ex.globalAlpha = 1;
-    ex.textAlign = 'center'; ex.fillStyle = choisie ? '#FFFFFF' : C('#C9C4DD'); ex.font = `700 ${choisie ? 24 : 20}px ${POLICE}`;
-    ex.fillText(a.nom, x + s / 2, y + s * 0.9);
-    const m = a.maj, charge = m && m.etat !== 'dispo', etat = enFente === id ? 'fente' : a.etat;
-    if (m && m.etat === 'dispo') {
-      rond(x + s - 64, y + 12, 52, 26, 13); ex.fillStyle = '#FFB020'; ex.fill();
-      ex.fillStyle = '#1A1206'; ex.font = `700 15px ${POLICE}`; ex.fillText('MAJ', x + s - 38, y + 30);
-    }
-    if (!a.installee || etat !== 'ferme') {
-      const txt = !a.installee ? 'À INSTALLER' : etat === 'fente' ? 'EN PAUSE' : 'EN ARRIÈRE-PLAN', w = !a.installee ? 130 : etat === 'fente' ? 104 : 170;
-      rond(x + s / 2 - w / 2, y - 18, w, 30, 15); ex.fillStyle = etat === 'fente' ? a.c1 : C('#2B2648'); ex.fill();
-      ex.fillStyle = etat === 'fente' ? C('#08060F') : C('#ECEAF7'); ex.font = `700 15px ${POLICE}`; ex.fillText(txt, x + s / 2, y + 2);
-    }
-    zones.push({ x, y, w: s, h: s, action: 'tuile', id });
-    let sous = y + s + 12;
-    if (charge) {   // sous la tuile, en petit : une fine barre, et « Téléchargement » juste dessous
-      const bw = Math.min(s - 20, 200), bx = x + (s - bw) / 2;
-      rond(bx, sous, bw, 6, 3); ex.fillStyle = 'rgba(255,255,255,0.16)'; ex.fill();
-      if (m.progres > 0.01) { rond(bx, sous, Math.max(6, bw * Math.min(1, m.progres)), 6, 3); ex.fillStyle = '#FFB020'; ex.fill(); }
-      ex.font = `500 14px ${POLICE}`; ex.fillStyle = C('#C9C4DD');
-      ex.textAlign = 'left'; ex.fillText(m.etat === 'installation' ? 'Installation...' : 'Téléchargement', bx, sous + 23);
-      if (m.etat === 'telechargement' && m.progres > 0) { ex.textAlign = 'right'; ex.fillText(`${Math.floor(m.progres * 100)} %`, bx + bw, sous + 23); }
-      ex.textAlign = 'center'; sous += 34;
-    }
-    if (choisie && !charge) {   // sous la tuile choisie : ses boutons
-      const boutons = [];
-      if (!a.installee) boutons.push({ action: 'installer', texte: 'Installer', w: 120, fond: C('#00E5FF'), fondDoux: CA('#00E5FF', 0.18), encre: C('#8FF4FF') });
-      if (m && m.etat === 'dispo') boutons.push({ action: 'maj', texte: 'Mettre à jour', w: 150, fond: '#FFB020', fondDoux: 'rgba(255,176,32,0.2)', encre: '#FFD27A' });
-      if (a.installee && etat !== 'ferme') boutons.push({ action: 'fermer', texte: 'Fermer', w: 108, fond: '#FF5C7A', fondDoux: 'rgba(255,92,122,0.18)', encre: '#FF9BAE' });
-      const largeur = boutons.reduce((lg, b) => lg + b.w, 0) + 10 * Math.max(0, boutons.length - 1);
-      let bx = x + s / 2 - largeur / 2;
-      for (const b of boutons) {
-        const dessus = survol && survol.action === b.action;
-        rond(bx, sous, b.w, 34, 17); ex.fillStyle = dessus ? b.fond : b.fondDoux; ex.fill();
-        ex.fillStyle = dessus ? C('#08060F') : b.encre; ex.font = `700 16px ${POLICE}`; ex.fillText(b.texte, bx + b.w / 2, sous + 23);
-        zones.push({ x: bx, y: sous, w: b.w, h: 34, action: b.action, id });
-        bx += b.w + 10;
-      }
-    }
+    const app = APPLIS[id], X = x0 + i * (s + ecart), Y = 140, choisi = a ? id === enFente : i === Math.floor(t / 2.5) % n;
+    ex.fillStyle = choisi ? '#1E1A3E' : '#141126'; ex.beginPath(); ex.roundRect(X, Y, s, s, 30); ex.fill();
+    if (choisi) { ex.lineWidth = 7; ex.strokeStyle = app.c; ex.stroke(); }
+    if (logos[id]) { ex.globalAlpha = app.installee ? 1 : 0.5; ex.drawImage(logos[id], X + s * 0.18, Y + s * 0.12, s * 0.64, s * 0.64); ex.globalAlpha = 1; }
+    else { ex.fillStyle = app.c; ex.font = `900 ${Math.round(s * 0.45)}px ${POLICE}`; ex.textAlign = 'center'; ex.fillText(app.nom.charAt(0).toUpperCase(), X + s / 2, Y + s * 0.45); }
+    ex.textAlign = 'center'; ex.fillStyle = choisi ? '#FFFFFF' : '#C9C4DD'; ex.font = `700 ${Math.round(s * 0.135)}px ${POLICE}`; ex.fillText(app.nom, X + s / 2, Y + s - s * 0.11);
+    const m = app.maj;
+    if (m && m.etat !== 'dispo') { ex.fillStyle = 'rgba(255,255,255,0.18)'; ex.beginPath(); ex.roundRect(X + 20, Y + s + 16, s - 40, 10, 5); ex.fill(); ex.fillStyle = '#FFB020'; ex.beginPath(); ex.roundRect(X + 20, Y + s + 16, Math.max(10, (s - 40) * (m.etat === 'installation' ? 1 : m.progres)), 10, 5); ex.fill(); }
+    else if (!app.installee) { ex.fillStyle = '#A9A3C9'; ex.font = `600 24px ${POLICE}`; ex.fillText('À installer', X + s / 2, Y + s + 34); }
+    else if (m) { ex.fillStyle = '#FFB020'; ex.beginPath(); ex.roundRect(X + s / 2 - 80, Y + s + 12, 160, 36, 18); ex.fill(); ex.fillStyle = '#1A1206'; ex.font = `800 22px ${POLICE}`; ex.fillText('Mise à jour', X + s / 2, Y + s + 31); }
   });
-  const defile = total > VD - VG;   // (fondu et chevron seulement si toutes les applis ne tiennent pas)
-  const encoreGauche = defile && defil.x > -VG + 30, encoreDroite = defile && total - defil.x > VD - 10;
-  for (const [cote, visible] of [['g', encoreGauche], ['d', encoreDroite]]) {
-    if (!visible) continue;
-    const x0 = cote === 'g' ? 0 : 1024 - 90, gr = ex.createLinearGradient(x0, 0, x0 + 90, 0);
-    gr.addColorStop(cote === 'g' ? 0 : 1, CA('#0A0818', 0.95)); gr.addColorStop(cote === 'g' ? 1 : 0, CA('#0A0818', 0));
-    ex.fillStyle = gr; ex.fillRect(x0, 110, 90, 330);
-    ex.fillStyle = C('#ECEAF7'); ex.font = `700 46px ${POLICE}`; ex.textAlign = 'center';
-    ex.globalAlpha = 0.55 + 0.35 * Math.sin(t * 3); ex.fillText(cote === 'g' ? '‹' : '›', cote === 'g' ? 26 : 998, cy + 14); ex.globalAlpha = 1;
+  ex.textAlign = 'center'; ex.fillStyle = '#ECEAF7'; ex.font = `600 34px ${POLICE}`;
+  ex.fillText(!TUILES.length ? 'Chargement des applis...' : a ? `${a.nom} est en pause : clique sur sa cartouche` : 'Clique sur une cartouche pour l\'ouvrir', 512, 470);
+  ex.textBaseline = 'alphabetic';
+}
+
+// ---------------------------------------------------------------- les cartouches (une par appli) : en relief, une étiquette avec le logo et le nom
+function etiquette(id) {
+  const a = APPLIS[id], c = document.createElement('canvas'); c.width = 256; c.height = 300; const k = c.getContext('2d');
+  k.fillStyle = '#1b1830'; k.fillRect(0, 0, 256, 300); k.fillStyle = a.c; k.fillRect(0, 0, 256, 34); k.strokeStyle = a.c; k.lineWidth = 8; k.strokeRect(4, 4, 248, 292);
+  if (logos[id]) k.drawImage(logos[id], 48, 56, 160, 160); else { k.fillStyle = a.c; k.font = `900 120px ${POLICE}`; k.textAlign = 'center'; k.fillText(a.nom.charAt(0).toUpperCase(), 128, 180); }
+  k.fillStyle = '#FFFFFF'; k.textAlign = 'center'; let taille = 34; k.font = `800 ${taille}px ${POLICE}`; while (k.measureText(a.nom).width > 230 && taille > 16) { taille -= 2; k.font = `800 ${taille}px ${POLICE}`; }
+  k.fillText(a.nom, 128, 266);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return t;
+}
+const carts = {};
+function creerCartouche(id) {
+  const g = new THREE.Group(); scene.add(g);
+  piece(new RoundedBoxGeometry(0.9, 1.05, 0.14, 3, 0.06), new THREE.MeshToonMaterial({ color: 0x2c2838, gradientMap: tons }), g, [0, 0, 0], 0.035);
+  const lab = new THREE.Mesh(new THREE.PlaneGeometry(0.78, 0.92), new THREE.MeshBasicMaterial({ toneMapped: false })); lab.position.z = 0.072; g.add(lab);
+  piece(new THREE.BoxGeometry(0.6, 0.06, 0.1), new THREE.MeshToonMaterial({ color: 0xc9a24a, gradientMap: tons }), g, [0, -0.55, 0], 0);
+  const c = { id, g, lab, k: 0, etat: 'repos', phase: Object.keys(carts).length * 1.7, repos: new THREE.Vector3(), echelleRepos: 1,
+    redessiner() { lab.material.map?.dispose(); lab.material.map = etiquette(id); lab.material.needsUpdate = true; } };
+  c.redessiner(); carts[id] = c; return c;
+}
+function retirerCartouche(id) { const c = carts[id]; if (!c) return; scene.remove(c.g); c.g.traverse((o) => { o.geometry?.dispose(); if (o.material && o.material !== contour) { o.material.map?.dispose(); o.material.dispose(); } }); delete carts[id]; }
+
+// ---------------------------------------------------------------- placer la console et les cartouches sur l'image
+const camBase = new THREE.Vector3(0, 1.4, 30);
+const surImage = (fx, fy, z = 0) => { const p = new THREE.Vector3(fx * 2 - 1, 1 - 2 * fy, 0.5).unproject(camera), d = p.sub(camera.position).normalize(), k = (z - camera.position.z) / d.z; return camera.position.clone().addScaledVector(d, k); };
+let largeurVue = 1, echelleCons = 1, pointFente = new THREE.Vector3();
+function poser() {
+  const w = cv.clientWidth, h = cv.clientHeight; if (!w || !h) return; renderer.setSize(w, h, false);
+  camera.aspect = w / h; camera.position.copy(camBase); camera.lookAt(0, 1.4, 0); camera.updateProjectionMatrix(); camera.updateMatrixWorld();
+  largeurVue = 2 * camBase.z * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camera.aspect;
+  echelleCons = (decor.l * largeurVue) / LARGEUR; cons.scale.setScalar(echelleCons); cons.position.copy(surImage(decor.x, decor.y));
+  cons.updateMatrixWorld(); pointFente = fente.getWorldPosition(new THREE.Vector3());
+  // les cartouches : plus près de toi, en bas de l'image, bien cliquables
+  const n = Math.max(1, TUILES.length), esp = Math.min(0.15, 0.62 / n), zc = 9, ech = (0.062 * largeurVue * (camBase.z - zc) / camBase.z) / 0.9 * Math.min(1, 4 / Math.max(4, n));
+  TUILES.forEach((id, i) => { const c = carts[id]; if (!c) return; c.repos.copy(surImage(0.5 + (i - (n - 1) / 2) * esp, 0.835, zc)); c.echelleRepos = ech; if (c.etat === 'repos') { c.g.position.copy(c.repos); c.g.scale.setScalar(ech); } });
+  ciel.color.set(decor.ciel); cle.color.set(decor.lumiere);
+}
+
+// ---------------------------------------------------------------- animations : une petite file de mouvements
+let anims = [];
+const anim = (d, maj, fin) => anims.push({ t0: performance.now() / 1000, d: d * vitesse, maj, fin });
+const doux = (p) => p * p * (3 - 2 * p), sortie = (p) => 1 - (1 - p) ** 3;
+let occupe = false, zoome = false, ouverte = null;   // ouverte : l'appli dont l'écran est affiché en grand
+const pretes = {}, demandeOuverture = {};
+
+// Cliquer une cartouche : elle s'insère (celle qui était dans la fente ressort d'abord), puis on zoome dans l'écran
+function choisirCartouche(id) {
+  const a = APPLIS[id], c = carts[id]; if (!a || !c || occupe || zoome) return;
+  // une appli installée et à jour : Mindset la lance tout de suite, pendant l'animation (elle s'affichera à la fin)
+  if (a.installee && !a.maj) { pretes[id] = false; demandeOuverture[id] = true; hote('action', { action: 'ouvrir', id }); }
+  inserer(c);
+}
+function inserer(c) {
+  occupe = true;
+  if (enFente === c.id) { zoomer(c.id); return; }
+  const autre = enFente && carts[enFente];
+  const voler = () => {
+    c.etat = 'vol'; sons.envol();
+    const de = c.g.position.clone(), s0 = c.g.scale.x, dessus = pointFente.clone().add(new THREE.Vector3(0, 1.1 * echelleCons, 0));
+    const ctrl = de.clone().lerp(dessus, 0.5).add(new THREE.Vector3(0, 2.5, 0));
+    anim(0.9, (p) => { const k = doux(p); const a = de.clone().lerp(ctrl, k), b = ctrl.clone().lerp(dessus, k); c.g.position.copy(a.lerp(b, k)); c.g.scale.setScalar(THREE.MathUtils.lerp(s0, echelleCons, k)); c.g.rotation.set(0, k * Math.PI * 2, Math.sin(k * Math.PI) * 0.3); }, () => {
+      // (elle descend derrière le bord de la console : le dessin la cache, comme si elle entrait dans la fente)
+      anim(0.32, (p) => { c.g.position.copy(dessus.clone().lerp(pointFente.clone().add(new THREE.Vector3(0, -0.3 * echelleCons, 0)), p * p)); c.g.position.z = pointFente.z - 0.05; c.g.rotation.set(0, 0, 0); }, () => {
+        sons.clac(); c.etat = 'fente'; enFente = c.id;
+        const y0 = cons.position.y; anim(0.18, (p) => { cons.position.y = y0 - Math.sin(p * Math.PI) * 0.04 * echelleCons; }, () => { cons.position.y = y0; });
+        setTimeout(() => { sons.allume(); demarrage = 0.001; anim(0.6, (p) => { demarrage = p; }, () => zoomer(c.id)); }, 250 * vitesse);
+      });
+    });
+  };
+  if (autre) ejecter(autre, voler); else voler();
+}
+function ejecter(c, ensuite) {
+  sons.ejecte(); const de = pointFente.clone().add(new THREE.Vector3(0, -0.3 * echelleCons, -0.05)), haut = pointFente.clone().add(new THREE.Vector3(0, 1.2 * echelleCons, 0));
+  c.etat = 'vol'; if (enFente === c.id) enFente = null; demarrage = 0;
+  anim(0.3, (p) => c.g.position.copy(de.clone().lerp(haut, sortie(p))), () => {
+    const s0 = c.g.scale.x, ctrl = haut.clone().lerp(c.repos, 0.5).add(new THREE.Vector3(0, 2, 0));
+    anim(0.8, (p) => { const k = doux(p); const a = haut.clone().lerp(ctrl, k), b = ctrl.clone().lerp(c.repos, k); c.g.position.copy(a.lerp(b, k)); c.g.scale.setScalar(THREE.MathUtils.lerp(s0, c.echelleRepos, k)); c.g.rotation.y = -k * Math.PI * 2; }, () => { c.etat = 'repos'; c.g.rotation.set(0, 0, 0); ensuite?.(); });
+  });
+}
+function placerEnFente(id) {   // (sans animation : une vue rouverte alors qu'une appli était affichée)
+  const c = carts[id]; if (!c) return;
+  c.etat = 'fente'; enFente = id; c.g.scale.setScalar(echelleCons); c.g.rotation.set(0, 0, 0);
+  c.g.position.copy(pointFente.clone().add(new THREE.Vector3(0, -0.3 * echelleCons, -0.05)));
+}
+// Le zoom dans l'écran : tout le plan (décor, console, cartouches) grossit autour de l'écran, puis l'écran s'affiche en grand
+const ZOOM = 8;
+function origineZoom() { const p = ecran.getWorldPosition(new THREE.Vector3()).project(camera); plan.style.transformOrigin = `${(p.x + 1) / 2 * 100}% ${(1 - p.y) / 2 * 100}%`; }
+function zoomer(id) {
+  const a = APPLIS[id]; origineZoom(); ouverte = id;
+  document.getElementById('voileLogo').src = logosDemandes[id] || ''; document.getElementById('voileNom').textContent = a.nom;
+  voile.style.background = `radial-gradient(circle at 50% 45%, ${a.c}55, #07060D 70%)`;
+  remplirEcran();
+  anim(1.0, (q) => { const k = q * q * q; plan.style.transform = `scale(${1 + k * ZOOM})`; plan.style.filter = `blur(${Math.max(0, q - 0.6) * 10}px)`; voile.style.opacity = Math.max(0, (q - 0.55) / 0.45); }, () => {
+    zoome = true; occupe = false; voile.style.pointerEvents = 'auto'; remplirEcran(); voile.querySelector('#voileActions button')?.focus();
+  });
+}
+function dezoomer(ensuite) {
+  occupe = true; voile.style.pointerEvents = 'none'; ouverte = null;
+  anim(0.8, (q) => { const k = 1 - doux(q); plan.style.transform = `scale(${1 + k * ZOOM})`; plan.style.filter = `blur(${Math.max(0, k - 0.6) * 10}px)`; voile.style.opacity = Math.max(0, 1 - q * 2.2); }, () => {
+    plan.style.transform = ''; plan.style.filter = ''; zoome = false; demarrage = 0; occupe = false; ensuite?.();
+  });
+}
+// Revenir au menu depuis l'écran : la cartouche ne reste dans la console que si l'appli tourne
+function revenirAuMenu() {
+  const id = enFente;
+  dezoomer(() => { const a = id && APPLIS[id]; if (id && (!a || a.etat === 'ferme')) { occupe = true; ejecter(carts[id], () => { occupe = false; }); } });
+}
+
+// Ce que montre l'écran en grand : le chargement de l'appli, l'installation, la mise à jour, ou leur avancée
+function remplirEcran() {
+  const id = ouverte, a = id && APPLIS[id]; if (!a) return;
+  const texte = document.getElementById('voileTexte'), actions = document.getElementById('voileActions'), barre = document.getElementById('voileBarre'), roue = document.getElementById('voileRoue');
+  const m = a.maj, charge = m && m.etat !== 'dispo';
+  let t, boutons = [], attente = false;
+  if (charge) { t = a.installee ? `Mise à jour de ${a.nom}...` : `Installation de ${a.nom}...`; boutons = [['menu', 'Menu', 'second']]; }
+  else if (!a.installee) { t = `${a.nom} n'est pas encore installée.`; boutons = [['installer', `Installer ${a.nom}`, 'principal'], ['menu', 'Retirer la cartouche', 'second']]; }
+  else if (demandeOuverture[id]) { t = `Ouverture de ${a.nom}...`; attente = true; }
+  else if (m) { t = `Une nouvelle version de ${a.nom} est prête.`; boutons = [['maj', 'Mettre à jour', 'maj'], ['ouvrir', 'Ouvrir sans mettre à jour', 'second'], ['menu', 'Menu', 'second']]; }
+  else { t = `${a.nom} est prête.`; boutons = [['ouvrir', `Ouvrir ${a.nom}`, 'principal'], ['menu', 'Menu', 'second']]; }
+  const cleEcran = t + boutons.map((x) => x[0]).join();
+  if (actions.dataset.cle !== cleEcran) {
+    texte.textContent = t; actions.dataset.cle = cleEcran;
+    actions.innerHTML = boutons.map(([f, txt, cls]) => `<button type="button" class="${cls}" data-f="${f}">${txt}</button>`).join('');
+    if (zoome) actions.querySelector('button')?.focus();
   }
-  const n = SYSTEME.length, ecartB = 92, x0 = 512 - ((n - 1) * ecartB) / 2;
-  SYSTEME.forEach(([nom, libelle], k) => {
-    const cx = x0 + k * ecartB, cyb = 500, dessus = survol && survol.action === nom;
-    ex.beginPath(); ex.arc(cx, cyb, 30, 0, Math.PI * 2); ex.fillStyle = dessus ? CA('#00E5FF', 0.22) : 'rgba(255,255,255,0.07)'; ex.fill();
-    ex.lineWidth = 2; ex.strokeStyle = dessus ? C('#00E5FF') : 'rgba(255,255,255,0.22)'; ex.stroke();
-    icone(nom, cx, cyb, dessus ? C('#E8FDFF') : C('#C9C4DD'));
-    if (dessus) { ex.fillStyle = C('#ECEAF7'); ex.font = `500 16px ${POLICE}`; ex.textAlign = 'center'; ex.fillText(libelle, cx, cyb + 52); }
-    zones.push({ x: cx - 32, y: cyb - 32, w: 64, h: 64, action: nom });
-  });
-  if (toast && t < toast.fin) {
-    ex.font = `500 20px ${POLICE}`; const w = ex.measureText(toast.texte).width + 44;
-    rond(512 - w / 2, 92, w, 42, 21); ex.fillStyle = CA('#0C0920', 0.92); ex.fill(); ex.strokeStyle = CA('#00E5FF', 0.6); ex.lineWidth = 2; ex.stroke();
-    ex.fillStyle = C('#ECEAF7'); ex.textAlign = 'center'; ex.fillText(toast.texte, 512, 120);
+  roue.hidden = !attente; barre.hidden = !charge;
+  if (charge) { barre.querySelector('b').style.width = `${Math.round((m.etat === 'installation' ? 1 : m.progres) * 100)}%`; barre.querySelector('em').textContent = m.etat === 'installation' ? 'Installation...' : `Téléchargement ${Math.round(m.progres * 100)} %`; }
+  // l'appli ouverte est prête : elle prend la place de la console
+  if (attente && zoome && pretes[id]) { demandeOuverture[id] = false; hote('afficher', { id }); }
+}
+document.getElementById('voileActions').addEventListener('click', (e) => {
+  const b = e.target.closest('button'), id = ouverte; if (!b || !id || occupe) return; sons.ok();
+  if (b.dataset.f === 'menu') revenirAuMenu();
+  if (b.dataset.f === 'installer') hote('action', { action: 'installer', id });
+  if (b.dataset.f === 'maj') hote('action', { action: 'maj', id });
+  if (b.dataset.f === 'ouvrir') { pretes[id] = false; demandeOuverture[id] = true; hote('action', { action: 'ouvrir', id }); remplirEcran(); }
+});
+document.querySelectorAll('#ronds button').forEach((b) => b.addEventListener('click', () => { if (occupe || zoome) return; sons.ok(); hote('action', { action: b.dataset.r }); }));
+
+// ---------------------------------------------------------------- souris et clavier
+const souris = new THREE.Vector2(9, 9), rayon = new THREE.Raycaster(); let vise = null;
+cv.addEventListener('pointermove', (e) => { const r = cv.getBoundingClientRect(); souris.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1); });
+cv.addEventListener('pointerleave', () => souris.set(9, 9));
+cv.addEventListener('click', () => { if (vise) choisirCartouche(vise.id); });
+addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && zoome && !occupe && !demandeOuverture[ouverte]) { e.preventDefault(); revenirAuMenu(); return; }
+  const n = parseInt(e.key, 10); if (n >= 1 && n <= TUILES.length && !zoome) choisirCartouche(TUILES[n - 1]);
+});
+
+// ---------------------------------------------------------------- les effets dessinés par-dessus le décor : pétales, ou lucioles la nuit
+const ef = document.getElementById('effets'), fx = ef.getContext('2d');
+const parts = Array.from({ length: 46 }, () => ({ u: Math.random(), v: Math.random(), s: 0.5 + Math.random(), ph: Math.random() * 6 }));
+function effets(t) {
+  const W = ef.clientWidth, H = ef.clientHeight, d = Math.min(devicePixelRatio, 2);
+  if (ef.width !== Math.round(W * d)) { ef.width = Math.round(W * d); ef.height = Math.round(H * d); }
+  fx.setTransform(d, 0, 0, d, 0, 0); fx.clearRect(0, 0, W, H);
+  if (decor.effet === 'lucioles') {
+    parts.forEach((q) => { const a = (q.u + Math.sin(t * 0.3 + q.ph) * 0.03) * W, b = (0.2 + q.v * 0.55 + Math.cos(t * 0.4 + q.ph) * 0.02) * H, k = 0.5 + Math.sin(t * 2 + q.ph * 3) * 0.5;
+      const g = fx.createRadialGradient(a, b, 0, a, b, 7 * q.s); g.addColorStop(0, `rgba(255,240,150,${k})`); g.addColorStop(1, 'rgba(255,240,150,0)'); fx.fillStyle = g; fx.fillRect(a - 8, b - 8, 16, 16); });
+    return;
   }
-  lignes();
-}
-function ecranAppli(id, p, flash) {
-  const a = APPLIS[id];
-  const g = ex.createRadialGradient(512, 240, 20, 512, 288, 640); g.addColorStop(0, a.c1 + '66'); g.addColorStop(0.45, C('#0C0920')); g.addColorStop(1, C('#06050F'));
-  ex.fillStyle = g; ex.fillRect(0, 0, 1024, 576);
-  ex.shadowColor = a.c1; ex.shadowBlur = 50;
-  if (images[id]) ex.drawImage(images[id], 412, 70, 200, 200);
-  else { ex.fillStyle = a.c1; ex.font = `700 160px ${POLICE}`; ex.textAlign = 'center'; ex.fillText(a.nom.charAt(0).toUpperCase(), 512, 230); }
-  ex.shadowBlur = 0;
-  ex.fillStyle = '#FFFFFF'; ex.font = `700 64px ${POLICE}`; ex.textAlign = 'center'; ex.fillText(a.nom, 512, 350);
-  ex.fillStyle = 'rgba(255,255,255,0.14)'; ex.fillRect(312, 400, 400, 10);
-  const b = ex.createLinearGradient(312, 0, 712, 0); b.addColorStop(0, a.c1); b.addColorStop(1, a.c2);
-  ex.fillStyle = b; ex.fillRect(312, 400, 400 * Math.min(1, p), 10);
-  ex.fillStyle = C('#A9A3C9'); ex.font = `500 26px ${POLICE}`; ex.fillText(p >= 1 ? 'Prêt' : 'Chargement...', 512, 450);
-  lignes();
-  if (flash > 0) { ex.fillStyle = `rgba(255,255,255,${flash})`; ex.fillRect(0, 0, 1024, 576); }
-}
-function ecranEteint(ligne) {
-  ex.fillStyle = '#020104'; ex.fillRect(0, 0, 1024, 576);
-  if (ligne > 0) { const h = Math.max(2, 576 * ligne * ligne); ex.fillStyle = C('#E8FDFF'); ex.fillRect(512 - 512 * Math.min(1, ligne * 1.6), 288 - h / 2, 1024 * Math.min(1, ligne * 1.6), h); }
+  parts.forEach((q) => { const a = ((q.u + t * 0.016 * q.s) % 1.2 - 0.1) * W + Math.sin(t * 1.5 + q.ph) * 16, b = ((q.v + t * 0.026 * q.s) % 1) * H;
+    fx.save(); fx.translate(a, b); fx.rotate(t * 1.4 + q.ph); fx.scale(1, 0.5 + Math.abs(Math.sin(t * 2 + q.ph)) * 0.5); fx.beginPath(); fx.ellipse(0, 0, 5 * q.s, 3.2 * q.s, 0, 0, Math.PI * 2); fx.fillStyle = 'rgba(255,183,207,0.92)'; fx.fill(); fx.restore(); });
 }
 
-// ---------------------------------------------------------------- rendu et lueur néon
-const composer = new EffectComposer(renderer);
-composer.addPass(new RenderPass(scene, camera));
-const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 0.6, 0.55, 0.78);
-composer.addPass(bloom);
-composer.addPass(new OutputPass());
-
-// ---------------------------------------------------------------- les animations, en file
-const file = [];
-let etape = null;
-const doux = (p) => (p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2);
-const sortie = (p) => 1 - Math.pow(1 - p, 3);
-function bezier(a, b, c, d, t, out) {
-  const u = 1 - t;
-  return out.set(0, 0, 0).addScaledVector(a, u * u * u).addScaledVector(b, 3 * u * u * t).addScaledVector(c, 3 * u * t * t).addScaledVector(d, t * t * t);
-}
-const occupe = () => etape !== null || file.length > 0;
-const enchainer = (...e) => file.push(...e);
-function versVue(nom, duree, courbe = doux) {
-  return { duree, debut() { this.de = { pos: cam.pos.clone(), vise: cam.vise.clone(), fov: cam.fov }; cam.vue = nom; },
-    maj(p) { const k = courbe(p), v = VUES[nom]; cam.pos.lerpVectors(this.de.pos, v.pos, k); cam.vise.lerpVectors(this.de.vise, v.vise, k); cam.fov = THREE.MathUtils.lerp(this.de.fov, v.fov, k); } };
-}
-const AU_DESSUS = new THREE.Vector3(1.05, 3.15, 0), DEDANS = new THREE.Vector3(1.05, 1.6, 0);
-const fondu = document.getElementById('fondu');
-function etapesEjecter(id) {
-  const c = cartouches[id];
-  return [
-    { duree: 0.28 * vitesse, debut() { c.userData.anime = true; ecranMode = 'eteint'; ecranParam.ligne = 0; }, maj(p) { c.position.lerpVectors(DEDANS, AU_DESSUS, sortie(p)); c.rotation.set(0, 0, Math.sin(p * Math.PI) * 0.12); } },
-    { duree: 0.75 * vitesse, debut() { this.de = c.position.clone(); },
-      maj(p) { const k = doux(p), r = c.userData.repos; bezier(this.de, new THREE.Vector3(this.de.x, this.de.y + 1.0, 0.8), new THREE.Vector3(r.x, r.y + 2.0, r.z + 0.6), r, k, c.position); c.rotation.set(THREE.MathUtils.lerp(0, -0.32, k), -k * Math.PI * 2, 0); },
-      fin() { c.userData.anime = false; enFente = null; } },
-  ];
-}
-function etapesInserer(id) {
-  const c = cartouches[id];
-  return [
-    { duree: 1.15 * vitesse, debut() { c.userData.anime = true; c.visible = true; this.de = c.position.clone(); this.rot = c.rotation.x; c.scale.setScalar(1); },
-      maj(p) { const k = doux(p); bezier(this.de, new THREE.Vector3(this.de.x, this.de.y + 2.2, this.de.z + 1.2), new THREE.Vector3(AU_DESSUS.x, AU_DESSUS.y + 1.2, 1.0), AU_DESSUS, k, c.position); c.rotation.set(THREE.MathUtils.lerp(this.rot, 0, k), k * Math.PI * 2, Math.sin(k * Math.PI) * 0.35); } },
-    { duree: 0.32 * vitesse, maj(p) { c.position.lerpVectors(AU_DESSUS, DEDANS, p * p); c.rotation.set(0, 0, 0); } },
-    { duree: 0.28 * vitesse, debut() { enFente = id; c.userData.anime = false; ecranMode = 'appli'; ecranParam = { id, progres: 0, flash: 1, ligne: 1 }; },
-      maj(p) { consoleG.position.y = 0.55 - Math.sin(p * Math.PI) * 0.06; bloom.strength = 0.6 + Math.sin(p * Math.PI) * 0.9; ecranParam.flash = 1 - p * 0.3; } },
-  ];
-}
-function etapePlonger(id, duree) {
-  return Object.assign(versVue('dedans', duree, (p) => p * p * p), {
-    maj2(p) { ecranMode = 'appli'; ecranParam = { id, progres: 1, flash: 0, ligne: 1 }; fondu.style.background = APPLIS[id].c1; if (p > 0.7) fondu.style.opacity = Math.min(0.85, (p - 0.7) / 0.3); },
-    fin() { hote('afficher', { id }); setTimeout(() => { fondu.style.opacity = 0; }, 400); },
-  });
-}
-// Ouvrir une appli : recul, éjection de celle qui est dans la fente, insertion, démarrage, plongée ; puis Mindset l'affiche
-function jouerOuverture(id) {
-  if (!APPLIS[id] || occupe()) return;
-  pretes[id] = false;
-  selection = Math.max(0, TUILES.indexOf(id));
-  if (enFente === id || !cartouches[id]) { enchainer(etapePlonger(id, 0.85 * vitesse)); return; }
-  enchainer(versVue('large', 0.7 * vitesse));
-  if (enFente && cartouches[enFente]) enchainer(...etapesEjecter(enFente));
-  enchainer(...etapesInserer(id), Object.assign(versVue('boot', 0.95 * vitesse), { maj2(p) { bloom.strength = 0.75; ecranParam.progres = p * 0.35; ecranParam.flash = Math.max(0, 0.7 - p * 2); } }), etapeAttente(id), etapePlonger(id, 1.3 * vitesse));
-}
-// Pendant que l'appli démarre derrière (Nevermind : environ 15 s), l'écran de la console affiche son chargement ;
-// Mindset prévient quand sa fenêtre est prête (window.mindset.appliPrete), et on plonge
-const pretes = {};
-function etapeAttente(id) {
-  return { duree: 90, debut() { this.t0 = performance.now() / 1000; },
-    maj() {
-      const ecoule = performance.now() / 1000 - this.t0;
-      ecranParam.progres = 0.35 + 0.6 * (1 - Math.exp(-ecoule / 5));
-      if (pretes[id]) { ecranParam.progres = 1; this.fini = true; }
-    } };
-}
-function appliPrete(id) { pretes[id] = true; }
-// Revenir de l'appli au menu : la caméra ressort de l'écran
-// (ejecter : l'appli s'est fermée pendant qu'on la regardait ; la caméra ressort en reculant, et sa cartouche s'éjecte)
-function jouerRetour(id, ejecter) {
-  if (id && APPLIS[id] && cartouches[id]) { enFente = id; const c = cartouches[id]; c.visible = true; c.position.copy(DEDANS); c.rotation.set(0, 0, 0); }
-  selection = Math.max(0, TUILES.indexOf(id));
-  cam.pos.copy(VUES.dedans.pos); cam.vise.copy(VUES.dedans.vise); cam.fov = VUES.dedans.fov;
-  ecranMode = 'menu';
-  if (ejecter && enFente === id && cartouches[id]) enchainer(versVue('large', 1.1 * vitesse, sortie), ...etapesEjecter(id), { duree: 0.1, debut() { ecranMode = 'menu'; } }, versVue('menu', 0.8 * vitesse));
-  else enchainer(versVue('menu', 1.0 * vitesse, sortie));
-}
-// Fermer l'appli qui est dans la fente : elle s'éjecte, puis retour au menu
-function jouerEjection(id) {
-  if (occupe() || enFente !== id || !cartouches[id]) return;
-  enchainer(versVue('large', 0.7 * vitesse), ...etapesEjecter(id), { duree: 0.1, debut() { ecranMode = 'menu'; } }, versVue('menu', 0.8 * vitesse));
-}
-
-// ---------------------------------------------------------------- la boucle : 30 images par seconde au repos, 60 pendant une animation
-let dernier = 0, enPause = false;
-const v = new THREE.Vector3();
+// ---------------------------------------------------------------- la boucle : 30 images par seconde au repos, 60 pendant une animation ; rien en pause
+let dernier = 0, dernierEcran = 0, enPause = false;
 function image() {
   const t = performance.now() / 1000;
-  if (!occupe() && t - dernier < 1 / 30) return;
+  if (!anims.length && !occupe && t - dernier < 1 / 30) return;
   dernier = t;
-  poussiere.rotation.y = t * 0.01;
-  if (!etape && file.length) { etape = file.shift(); etape.t0 = t; etape.debut?.(); }
-  if (etape) {
-    const p = Math.min(1, (t - etape.t0) / Math.max(0.01, etape.duree));
-    etape.maj?.(p); etape.maj2?.(p);
-    if (p >= 1 || etape.fini) { const e = etape; etape = null; e.fin?.(); }
+  const liste = anims; anims = [];   // (un mouvement lancé à la fin d'un autre arrive dans la nouvelle liste : rien ne se perd)
+  const gardes = liste.filter((a) => { const p = Math.min(1, (t - a.t0) / Math.max(0.01, a.d)); a.maj(p); if (p >= 1) { a.fin?.(); return false; } return true; });
+  anims = gardes.concat(anims);
+  rayon.setFromCamera(souris, camera);
+  const hit = occupe || zoome ? null : rayon.intersectObjects(Object.values(carts).map((c) => c.g), true)[0];
+  let nv = null; if (hit) { let o = hit.object; while (o && !nv) { nv = Object.values(carts).find((c) => c.g === o) || null; o = o.parent; } }
+  if (nv !== vise) { vise = nv; if (vise) sons.survol(); } cv.style.cursor = vise ? 'pointer' : 'default';
+  for (const c of Object.values(carts)) {
+    if (c.etat !== 'repos') continue; c.k += ((c === vise ? 1 : 0) - c.k) * 0.15;
+    c.g.position.set(c.repos.x, c.repos.y + Math.sin(t * 1.6 + c.phase) * 0.12 * c.echelleRepos + c.k * 0.25 * c.echelleRepos, c.repos.z);
+    c.g.rotation.set(-0.15, Math.sin(t * 0.8 + c.phase) * 0.25, 0); c.g.scale.setScalar(c.echelleRepos * (1 + c.k * 0.12));
+    c.lab.material.color.setScalar(APPLIS[c.id]?.installee ? 1 : 0.5);   // (pas encore installée : grisée)
   }
-  for (const id of Object.keys(cartouches)) {
-    const c = cartouches[id];
-    if (c.userData.anime || enFente === id || !c.visible) continue;
-    c.position.set(c.userData.repos.x, c.userData.repos.y + Math.sin(t * 1.4 + c.userData.phase) * 0.06, c.userData.repos.z);
-    c.rotation.set(-0.32, Math.sin(t * 0.7 + c.userData.phase) * 0.12, 0);
-    const s = c.userData.survol && !occupe() ? 1.08 : 1; c.scale.lerp(v.set(s, s, s), 0.15);
-    c.userData.labMat.emissiveIntensity = APPLIS[id] && APPLIS[id].etat === 'fond' ? 0.85 + Math.sin(t * 2.5 + c.userData.phase) * 0.3 : 0.35;
-  }
-  if (!occupe() && (cam.vue === 'menu' || cam.vue === 'large')) {
-    const vue = VUES[cam.vue];
-    cam.pos.set(vue.pos.x + Math.sin(t * 0.25) * (cam.vue === 'menu' ? 0.12 : 0.5), vue.pos.y + Math.sin(t * 0.33) * 0.05, vue.pos.z);
-  }
-  poserCamera();
-  if (ecranMode === 'menu') dessinerMenu(t);
-  else if (ecranMode === 'appli') ecranAppli(ecranParam.id, ecranParam.progres, ecranParam.flash);
-  else ecranEteint(ecranParam.ligne);
-  ecranTex.needsUpdate = true;
-  if (bloom.strength > 0.6 && !etape) bloom.strength += (0.6 - bloom.strength) * 0.05;
-  composer.render();
+  if (t - dernierEcran > 0.08) { dernierEcran = t; dessinerEcran(t); ecranTex.needsUpdate = true; if (zoome) remplirEcran(); }
+  effets(t);
+  renderer.render(scene, camera);
 }
-renderer.setAnimationLoop(image);
 function pause() { if (!enPause) { enPause = true; renderer.setAnimationLoop(null); } }
 function reprendre() { if (enPause) { enPause = false; renderer.setAnimationLoop(image); } }
 document.addEventListener('visibilitychange', () => { if (document.hidden) pause(); else reprendre(); });
-
-// ---------------------------------------------------------------- souris, glisser, molette, clavier
-const rayon = new THREE.Raycaster(), souris = new THREE.Vector2();
-function viser(e) {
-  const r = renderer.domElement.getBoundingClientRect();
-  souris.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
-  rayon.setFromCamera(souris, camera);
-  const cibles = [ecran, ...Object.values(cartouches).filter((c) => c.visible).flatMap((c) => c.children)];
-  const h = rayon.intersectObjects(cibles, false)[0];
-  if (!h) return { zone: null, cartouche: null, surEcran: false };
-  if (h.object === ecran) {
-    if (ecranMode !== 'menu') return { zone: null, cartouche: null, surEcran: true };
-    const px = h.uv.x * 1024, py = (1 - h.uv.y) * 576;
-    return { zone: zones.find((z) => px >= z.x && px <= z.x + z.w && py >= z.y && py <= z.y + z.h) || null, cartouche: null, surEcran: true };
-  }
-  return { zone: null, cartouche: h.object.userData.cartouche || null, surEcran: false };
-}
-const prise = { active: false, x0: 0, defil0: 0, aGlisse: false };
-function largeurEcranPixels() {
-  const a = new THREE.Vector3(-1.86, 0, 0.193), b = new THREE.Vector3(1.86, 0, 0.193);
-  consoleG.localToWorld(a); consoleG.localToWorld(b); a.project(camera); b.project(camera);
-  return Math.abs(b.x - a.x) / 2 * renderer.domElement.clientWidth;
-}
-renderer.domElement.addEventListener('pointerdown', (e) => {
-  if (occupe() || ecranMode !== 'menu') return;
-  if (viser(e).surEcran) Object.assign(prise, { active: true, x0: e.clientX, defil0: defil.x, aGlisse: false });
-});
-renderer.domElement.addEventListener('pointermove', (e) => {
-  if (occupe()) { survol = null; return; }
-  if (prise.active && (e.buttons & 1)) {
-    const dx = (e.clientX - prise.x0) * (1024 / Math.max(50, largeurEcranPixels()));
-    if (Math.abs(dx) > 8) prise.aGlisse = true;
-    if (prise.aGlisse) { defil.glisse = true; defil.cible = prise.defil0 - dx; survol = null; renderer.domElement.style.cursor = 'grabbing'; return; }
-  }
-  const { zone, cartouche } = viser(e);
-  survol = zone;
-  if (zone && zone.action === 'tuile' && zone.x >= 40 && zone.x + zone.w <= 984) selection = TUILES.indexOf(zone.id);
-  for (const id of Object.keys(cartouches)) cartouches[id].userData.survol = cartouches[id] === cartouche;
-  renderer.domElement.style.cursor = zone || cartouche ? 'pointer' : 'default';
-});
-addEventListener('pointerup', () => {
-  if (!prise.active) return;
-  prise.active = false;
-  if (!prise.aGlisse || !defil.debuts) return;
-  let meilleur = 0, ecartMin = Infinity;
-  defil.debuts.forEach((d, i) => { const c = d + defil.tailles[i] / 2 - defil.cible; if (Math.abs(c - 512) < ecartMin) { ecartMin = Math.abs(c - 512); meilleur = i; } });
-  selection = meilleur; defil.glisse = false;
-  setTimeout(() => { prise.aGlisse = false; }, 0);
-});
-renderer.domElement.addEventListener('wheel', (e) => {
-  if (occupe() || ecranMode !== 'menu' || !TUILES.length) return;
-  e.preventDefault();
-  selection = Math.min(TUILES.length - 1, Math.max(0, selection + Math.sign(e.deltaY || e.deltaX)));
-}, { passive: false });
-function agir(action, id) {
-  if (occupe()) return;
-  if (action === 'tuile') action = APPLIS[id] && APPLIS[id].installee ? 'ouvrir' : 'installer';
-  hote('action', { action, id: id || '' });
-}
-renderer.domElement.addEventListener('click', (e) => {
-  if (prise.aGlisse || occupe()) return;
-  const { zone, cartouche } = viser(e);
-  if (zone) agir(zone.action, zone.id); else if (cartouche) agir('ouvrir', cartouche.userData.id);
-});
-addEventListener('keydown', (e) => {
-  if (occupe() || !TUILES.length) return;
-  if (e.key === 'ArrowRight') selection = Math.min(TUILES.length - 1, selection + 1);
-  else if (e.key === 'ArrowLeft') selection = Math.max(0, selection - 1);
-  else if (e.key === 'Enter') agir('tuile', TUILES[selection]);
-  else if (e.key === 'Delete') { const id = TUILES[selection]; if (APPLIS[id].etat !== 'ferme') agir('fermer', id); }
-  else return;
-  e.preventDefault();
-});
-addEventListener('resize', () => {
-  camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix();
-  renderer.setSize(innerWidth, innerHeight); composer.setSize(innerWidth, innerHeight);
-});
+addEventListener('resize', () => { poser(); if (zoome) origineZoom(); });
+// le décor change tout seul quand le moment de la journée change
+setInterval(() => { const m = momentDuJour(); if (m !== nomDecor && !zoome && !occupe) { nomDecor = m; decor = DECORS[m]; montrerDecor(); poser(); } }, 60000);
 
 // ---------------------------------------------------------------- ce que Mindset peut demander
 function etat(e) {
@@ -557,20 +368,41 @@ function etat(e) {
   const nouvelles = {};
   for (const a of e.applis) {
     if (typeof a.id !== 'string' || !/^[a-z0-9-]{1,30}$/.test(a.id)) continue;
-    nouvelles[a.id] = { nom: String(a.nom || a.id).slice(0, 30), c1: /^#[0-9A-Fa-f]{6}$/.test(a.c1) ? a.c1 : '#00E5FF', c2: /^#[0-9A-Fa-f]{6}$/.test(a.c2) ? a.c2 : '#B04BFF',
-      installee: !!a.installee, etat: ['ferme', 'ouvert', 'fond'].includes(a.etat) ? a.etat : 'ferme', maj: a.maj && ['dispo', 'telechargement', 'installation'].includes(a.maj.etat) ? { etat: a.maj.etat, progres: Number(a.maj.progres) || 0 } : null };
+    nouvelles[a.id] = { nom: String(a.nom || a.id).slice(0, 30), c: /^#[0-9A-Fa-f]{6}$/.test(a.c1) ? a.c1 : '#00E5FF',
+      installee: !!a.installee, etat: ['ferme', 'ouvert', 'fond'].includes(a.etat) ? a.etat : 'ferme',
+      maj: a.maj && ['dispo', 'telechargement', 'installation'].includes(a.maj.etat) ? { etat: a.maj.etat, progres: Number(a.maj.progres) || 0 } : null };
   }
   const avant = APPLIS; APPLIS = nouvelles; TUILES = e.applis.map((a) => a.id).filter((id) => APPLIS[id]);
   for (const a of e.applis) if (APPLIS[a.id]) chargerLogo(a.id, typeof a.logo === 'string' && /^(logos\/|https:\/\/applogos\.mindset\.local\/)[a-z0-9-]+\.png$/.test(a.logo) ? a.logo : null);
-  for (const id of TUILES) {
-    if (!cartouches[id]) creerCartouche(id);
-    else if (!avant[id] || !!avant[id].maj !== !!APPLIS[id].maj || avant[id].nom !== APPLIS[id].nom) rafraichirEtiquette(id);
-  }
-  if (enFente && !occupe() && (!APPLIS[enFente] || APPLIS[enFente].etat === 'ferme')) enFente = null;
-  placerCartouches();
+  for (const id of Object.keys(carts)) if (!APPLIS[id] && enFente !== id) retirerCartouche(id);
+  for (const id of TUILES) { if (!carts[id]) creerCartouche(id); else if (!avant[id] || avant[id].nom !== APPLIS[id].nom || avant[id].c !== APPLIS[id].c) carts[id].redessiner(); }
+  poser();
+  // une appli fermée pendant que sa cartouche était dans la console, au menu : la cartouche ressort
+  if (enFente && !occupe && !zoome && (!APPLIS[enFente] || APPLIS[enFente].etat === 'ferme')) { const c = carts[enFente]; occupe = true; ejecter(c, () => { occupe = false; }); }
+  if (zoome) remplirEcran();
 }
-function message(texte) { toast = { texte: String(texte).slice(0, 80), fin: performance.now() / 1000 + 2.4 }; }
+// Mindset a lancé l'appli (après « ouvrir ») : si la cartouche n'est pas déjà en route, on joue l'insertion
+function jouerOuverture(id) { if (!carts[id] || occupe || zoome || enFente === id && ouverte === id) return; demandeOuverture[id] = true; inserer(carts[id]); }
+function appliPrete(id) { pretes[id] = true; if (zoome) remplirEcran(); }
+// Retour d'une appli (bouton Menu de Mindset, ou appli fermée) : la caméra ressort de l'écran ; ejecter : la cartouche ressort
+function jouerRetour(id, ejecter) {
+  if (!carts[id]) return;
+  const fin = () => { if (ejecter || APPLIS[id]?.etat === 'ferme') { occupe = true; window.setTimeout(() => ejecterMaintenant(id), 50); } };
+  if (!zoome) {   // (vue rouverte : on repart de l'intérieur de l'écran)
+    if (enFente !== id) placerEnFente(id);
+    origineZoom(); plan.style.transform = `scale(${1 + ZOOM})`; voile.style.opacity = 0; zoome = true; ouverte = id;
+  }
+  demandeOuverture[id] = false; dezoomer(fin);
+}
+function ejecterMaintenant(id) { const c = carts[id]; if (c && enFente === id) ejecter(c, () => { occupe = false; }); else occupe = false; }
+function jouerEjection(id) { if (enFente !== id || occupe) return; if (zoome) dezoomer(() => { occupe = true; ejecterMaintenant(id); }); else { occupe = true; ejecterMaintenant(id); } }
+let minuteBulle = 0;
+function message(texte) { const b = document.getElementById('bulle'); b.textContent = String(texte).slice(0, 80); b.classList.add('vu'); clearTimeout(minuteBulle); minuteBulle = setTimeout(() => b.classList.remove('vu'), 2400); }
 window.mindset = { etat, pause, reprendre, message, jouerOuverture, jouerRetour, jouerEjection, appliPrete };
+window.mindsetEssai = { choisirCartouche, cliquer: (f) => document.querySelector(`#voileActions button[data-f="${f}"]`)?.click(), etatScene: () => ({ enFente, zoome, occupe, ouverte }) };   // (pour les essais automatiques)
+
+montrerDecor(); poser();
+renderer.setAnimationLoop(image);
 hote('pret');
 </script>
 </body>
