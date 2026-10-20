@@ -16,7 +16,8 @@
 $ConsoleDir = Join-Path $AppDir 'console'
 $LogosAppliDir = Join-Path $DataDir 'console-logos'   # logos tirés de l'icône d'une appli installée (pas livrés avec Mindset)
 $Webview2Dir = Join-Path $AppDir 'lib\webview2'
-$script:Console = @{ Possible = $false; Vue = $null; Pret = $false; DerniereAppli = $null; RetourAJouer = $null; EtatEnvoye = ''; QuitteeA = $null }
+$script:Console = @{ Possible = $false; Vue = $null; Pret = $false; DerniereAppli = $null; RetourAJouer = $null; EtatEnvoye = ''; QuitteeA = $null
+    EnFente = $null; Ejecter = $null; Attente = $null; AttenteDepuis = $null }
 
 # La 3D est-elle possible ici ? (une fois, au démarrage)
 function Test-ConsolePossible {
@@ -130,7 +131,7 @@ function Update-PageConsole {
             New-VueConsole $(if ($depuis) { 'dedans' } else { 'menu' })
         } else {
             Invoke-ScriptConsole 'window.mindset.reprendre()'
-            if ($script:Console.DerniereAppli) { Invoke-ScriptConsole "window.mindset.jouerRetour('$($script:Console.DerniereAppli)')" }
+            if ($script:Console.DerniereAppli) { Invoke-ScriptConsole "window.mindset.jouerRetour('$($script:Console.DerniereAppli)', $(if ($script:Console.Ejecter) { 'true' } else { 'false' }))"; $script:Console.Ejecter = $null }
             Send-EtatConsole -Force
         }
         $script:Console.DerniereAppli = $null
@@ -203,7 +204,7 @@ function Receive-MessageConsole([string]$Json) {
         $script:Console.Pret = $true
         $ui.ConsoleAttente.Visibility = 'Collapsed'
         Send-EtatConsole -Force
-        if ($script:Console.RetourAJouer) { Invoke-ScriptConsole "window.mindset.jouerRetour('$($script:Console.RetourAJouer)')"; $script:Console.RetourAJouer = $null }
+        if ($script:Console.RetourAJouer) { Invoke-ScriptConsole "window.mindset.jouerRetour('$($script:Console.RetourAJouer)', $(if ($script:Console.Ejecter) { 'true' } else { 'false' }))"; $script:Console.RetourAJouer = $null; $script:Console.Ejecter = $null }
         Write-Log 'Console 3D prête'
         if ($EnTest -and $env:MINDSET_CONSOLE_CAPTURE) { Start-CaptureConsole $env:MINDSET_CONSOLE_CAPTURE }
         return
@@ -212,12 +213,19 @@ function Receive-MessageConsole([string]$Json) {
     $a = if ($id -match '^[a-z0-9-]{1,30}$') { Get-Appli $id } else { $null }
     if ($type -eq 'afficher') {
         # Fin de la plongée dans l'écran : l'appli prend la place de la console
-        if ($a) { $script:Console.DerniereAppli = $a.Id; Open-AppliIci $a.Id }
+        if ($a) { $script:Console.DerniereAppli = $a.Id; $script:Console.EnFente = $a.Id; Open-AppliIci $a.Id }
         return
     }
     if ($type -ne 'action') { return }
     switch ([string]$m.action) {
-        'ouvrir'     { if ($a -and (Get-Installation $a)) { Invoke-ScriptConsole "window.mindset.jouerOuverture('$($a.Id)')" } }
+        'ouvrir'     {
+            if ($a -and (Get-Installation $a)) {
+                if (-not (Test-AppliOuverte $a)) { Start-AppliCachee $a }
+                $script:Console.Attente = $a.Id; $script:Console.AttenteDepuis = Get-Date
+                Invoke-ScriptConsole "window.mindset.jouerOuverture('$($a.Id)')"
+                $script:ConsoleAttenteTimer.Start()
+            }
+        }
         'installer'  { if ($a -and -not (Get-Installation $a)) { if ($script:Trouvees[$a.Id]) { Confirm-PriseEnCharge $a } else { Start-InstallAppli $a } } }
         'maj'        { if ($a) { Confirm-MiseAJour $a } }
         'fermer'     { if ($a) { Stop-AppliConsole $a } }
@@ -233,13 +241,12 @@ function Receive-MessageConsole([string]$Json) {
 
 # Fermer une appli depuis la console : sa fenêtre affichée dans Mindset reçoit « Fermer », sinon sa demande de fermeture
 function Stop-AppliConsole($Appli) {
+    if ($script:Console.EnFente -eq $Appli.Id) { $script:Console.EnFente = $null }
     Invoke-ScriptConsole "window.mindset.jouerEjection('$($Appli.Id)')"
     $i = $script:Integrees[$Appli.Id]
     if ($i -and $i.Fenetre -ne [IntPtr]::Zero) { [MSIntegration]::Fermer($i.Fenetre); Write-Log "$($Appli.Nom) fermé depuis la console"; return }
     if (-not (Test-AppliOuverte $Appli)) { return }
-    foreach ($d in @((Get-DossierDonnees $Appli), $Appli.Donnees) | Select-Object -Unique) {
-        if ($d -and (Test-Path -LiteralPath $d)) { try { [IO.File]::WriteAllText((Join-Path $d 'quitter.demande'), [string]$PID) } catch {} }
-    }
+    Write-DemandeQuitter $Appli
     Write-Log "Fermeture de $($Appli.Nom) demandée depuis la console"
 }
 
@@ -269,11 +276,41 @@ function Start-CaptureConsole([string]$Fichier) {
 $script:ConsoleTimer = New-Object System.Windows.Threading.DispatcherTimer
 $script:ConsoleTimer.Interval = [TimeSpan]::FromMilliseconds(1500)
 $script:ConsoleTimer.Add_Tick({
+    $en = $script:Console.EnFente
+    if ($en) {
+        $a = Get-Appli $en
+        if ($a -and -not (Test-AppliOuverte $a)) {
+            $script:Console.EnFente = $null
+            if ($script:PageCourante -eq $en) { $script:Console.Ejecter = $en; $script:Console.DerniereAppli = $en; Show-Page 'accueil' }
+            else { Invoke-ScriptConsole "window.mindset.jouerEjection('$en')" }
+        }
+    }
     if (-not $script:Console.Vue) { return }
     if ($script:Console.QuitteeA -and ((Get-Date) - $script:Console.QuitteeA).TotalSeconds -ge 60) { Remove-VueConsole 'une minute sur une autre page'; $script:Console.QuitteeA = $null; return }
     try { Send-EtatConsole } catch { Write-Log "Console 3D : état non envoyé ($_)" }
 })
 if ($script:Console.Possible) { $script:ConsoleTimer.Start() }
+
+# Pendant l'animation d'ouverture : sa fenêtre est-elle prête ? (déjà affichée dans Mindset, ou créée par l'appli qui
+# démarre). Alors la console plonge dans l'écran. Une appli qui ne démarre pas : on plonge quand même (Mindset l'explique).
+$script:ConsoleAttenteTimer = New-Object System.Windows.Threading.DispatcherTimer
+$script:ConsoleAttenteTimer.Interval = [TimeSpan]::FromMilliseconds(300)
+$script:ConsoleAttenteTimer.Add_Tick({
+    $id = $script:Console.Attente
+    if (-not $id) { $script:ConsoleAttenteTimer.Stop(); return }
+    $a = Get-Appli $id
+    $i = $script:Integrees[$id]
+    $prete = ($i -and $i.Fenetre -ne [IntPtr]::Zero -and [MSIntegration]::IsWindow($i.Fenetre)) -or ((Find-FenetreAppli $a) -ne [IntPtr]::Zero)
+    $ecoule = ((Get-Date) - $script:Console.AttenteDepuis).TotalSeconds
+    if ($prete -or $ecoule -gt 60 -or ($ecoule -gt 15 -and -not (Test-AppliOuverte $a))) {
+        $script:Console.Attente = $null; $script:ConsoleAttenteTimer.Stop()
+        Invoke-ScriptConsole "window.mindset.appliPrete('$id')"
+        if (-not $prete) { Write-Log "Console 3D : $($a.Nom) pas prête après $([int]$ecoule) s, affichée quand même" }
+    }
+})
+
+# Le bouton Menu (la maison), dans la barre de l'appli : retour à la console (l'appli reste ouverte, en pause)
+$ui.BtnAppliMenu.Add_Click({ Show-Page 'accueil' })
 
 # Mindset caché près de l'horloge ou réduit : la 3D est fermée ; réaffiché sur l'accueil : elle revient
 $Window.Add_IsVisibleChanged({ if (-not $Window.IsVisible) { Remove-VueConsole 'Mindset caché' } elseif ($script:PageCourante -eq 'accueil') { Update-PageConsole } })

@@ -323,6 +323,15 @@
             <DockPanel x:Name="PageAppliCadre" Margin="0,0,10,10" Visibility="Collapsed">
               <!-- Barre de l'appli affichée : la fermer (les applis ne s'ouvrent que dans Mindset) -->
               <DockPanel DockPanel.Dock="Top" Margin="6,0,0,8" LastChildFill="False">
+                <!-- Menu : retour à la console (la maison), l'appli reste ouverte en pause -->
+                <Button x:Name="BtnAppliMenu" DockPanel.Dock="Left" Style="{StaticResource BtnSecondary}" Padding="12,6" ToolTip="Revenir au menu (l'appli reste ouverte)">
+                  <StackPanel Orientation="Horizontal">
+                    <Path Data="M3,10.5 L12,3 L21,10.5 M5,9 L5,20 L10,20 L10,14 L14,14 L14,20 L19,20 L19,9" Stroke="#00E5FF" StrokeThickness="2" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="18" Height="18" Stretch="Uniform" VerticalAlignment="Center" Margin="0,0,8,0">
+                      <Path.Effect><DropShadowEffect Color="#00E5FF" BlurRadius="8" ShadowDepth="0" Opacity="0.7"/></Path.Effect>
+                    </Path>
+                    <TextBlock Text="Menu" VerticalAlignment="Center"/>
+                  </StackPanel>
+                </Button>
                 <Button x:Name="BtnAppliFermer" DockPanel.Dock="Right" Content="Fermer" Style="{StaticResource BtnSecondary}" Padding="14,6"/>
               </DockPanel>
               <Grid x:Name="PageAppliHotes"/>

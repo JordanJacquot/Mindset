@@ -241,12 +241,18 @@ $ui.Fermeture.Add_IsVisibleChanged({ Update-HotesVisibles })
 # dossier de données, qu'elle surveille) et se ferme proprement, comme par son menu « Quitter ». Mindset.ps1 attend
 # ensuite quelques secondes, et ferme lui-même une appli qui ne répond pas (si Windows le lui permet).
 # ---------------------------------------------------------------------------
+function Write-DemandeQuitter($Appli) {
+    foreach ($d in @((Get-DossierDonnees $Appli), $Appli.Donnees) | Select-Object -Unique) {
+        if (-not $d -or -not (Test-Path -LiteralPath $d)) { continue }
+        # (en test, jamais en dehors du dossier d'essai : les vraies applis de l'utilisateur tournent peut-être)
+        if ($EnTest -and -not ($env:MINDSET_DONNEES -and ([IO.Path]::GetFullPath($d)).StartsWith([IO.Path]::GetFullPath($env:MINDSET_DONNEES), [StringComparison]::OrdinalIgnoreCase))) { continue }
+        try { [IO.File]::WriteAllText((Join-Path $d 'quitter.demande'), [string]$PID) } catch {}
+    }
+}
 function Request-FermetureApplis {
     foreach ($a in $script:Applis) {
         if (-not (Test-AppliOuverte $a)) { continue }
-        foreach ($d in @((Get-DossierDonnees $a), $a.Donnees) | Select-Object -Unique) {
-            if ($d -and (Test-Path -LiteralPath $d)) { try { [IO.File]::WriteAllText((Join-Path $d 'quitter.demande'), [string]$PID) } catch {} }
-        }
+        Write-DemandeQuitter $a
         Write-Log "Fermeture de $($a.Nom) demandée (Mindset quitte)"
     }
 }
