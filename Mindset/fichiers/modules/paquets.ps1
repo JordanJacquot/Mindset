@@ -134,8 +134,12 @@ function Install-Paquet([byte[]]$Zip, [byte[]]$Signature, [string]$ClePublique, 
 
     if (Test-Path -LiteralPath $Destination) {
         $ancien = "$Destination.ancien-$suffixe"
-        try { Move-Item -LiteralPath $Destination -Destination $ancien -ErrorAction Stop }
-        catch {
+        # (quelques essais : un programme qui vient de se fermer, comme la 3D de Mindset, lâche ses fichiers un peu après)
+        $deplace = $false
+        for ($n = 0; $n -lt 6 -and -not $deplace; $n++) {
+            try { Move-Item -LiteralPath $Destination -Destination $ancien -ErrorAction Stop; $deplace = $true } catch { Start-Sleep -Milliseconds 500 }
+        }
+        if (-not $deplace) {
             try { Remove-Item -LiteralPath $tmp -Recurse -Force } catch {}
             throw 'L''appli est encore ouverte (ses fichiers sont utilisés) : ferme-la puis réessaie.'
         }
