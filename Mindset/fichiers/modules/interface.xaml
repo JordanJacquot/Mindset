@@ -19,6 +19,16 @@
       <GradientStop Color="#FF2EB5" Offset="1"/>
     </LinearGradientBrush>
 
+    <!-- Le bouton « Menu » (la maison) : retour à la console, depuis une appli ou les Paramètres (console.ps1) -->
+    <DataTemplate x:Key="MaisonMenu">
+      <StackPanel Orientation="Horizontal">
+        <Path Data="M3,10.5 L12,3 L21,10.5 M5,9 L5,20 L10,20 L10,14 L14,14 L14,20 L19,20 L19,9" Stroke="#00E5FF" StrokeThickness="2" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="18" Height="18" Stretch="Uniform" VerticalAlignment="Center" Margin="0,0,8,0">
+          <Path.Effect><DropShadowEffect Color="#00E5FF" BlurRadius="8" ShadowDepth="0" Opacity="0.7"/></Path.Effect>
+        </Path>
+        <TextBlock Text="Menu" VerticalAlignment="Center"/>
+      </StackPanel>
+    </DataTemplate>
+
     <!-- Onglet de la barre de gauche -->
     <Style x:Key="Onglet" TargetType="Button">
       <Setter Property="Foreground" Value="#A9A3C9"/>
@@ -225,12 +235,13 @@
 
     <Grid Grid.Row="1" Margin="0,6,0,0">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="210"/>
+        <ColumnDefinition x:Name="ColonneOnglets" Width="210"/>
         <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
 
-      <!-- Onglets : Accueil, puis une ligne par appli (ajoutées depuis apps.json) ; Paramètres en bas -->
-      <Border Grid.Column="0" Background="#55060510" BorderBrush="#2A2450" BorderThickness="0,1,1,0" CornerRadius="0,14,0,0" Padding="10,14">
+      <!-- Onglets : Accueil, puis une ligne par appli (ajoutées depuis apps.json) ; Paramètres en bas.
+           Avec la console 3D, ils disparaissent : on navigue par la console et le bouton « Menu » (console.ps1) -->
+      <Border x:Name="BarreOnglets" Grid.Column="0" Background="#55060510" BorderBrush="#2A2450" BorderThickness="0,1,1,0" CornerRadius="0,14,0,0" Padding="10,14">
         <DockPanel>
           <StackPanel x:Name="OngletsBas" DockPanel.Dock="Bottom"/>
           <StackPanel x:Name="Onglets"/>
@@ -317,6 +328,7 @@
               <TextBlock x:Name="PageAppliTexte" Foreground="{StaticResource Texte2}" TextWrapping="Wrap" TextAlignment="Center" Margin="0,10,0,18"/>
               <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                 <Button x:Name="BtnPageAppliIci" Content="Afficher ici" Style="{StaticResource BtnPrimary}" Visibility="Collapsed" Margin="0,0,8,0"/>
+                <Button x:Name="BtnPageAppliMenu" Style="{StaticResource BtnSecondary}" Padding="12,6" Visibility="Collapsed" Content="" ContentTemplate="{StaticResource MaisonMenu}" ToolTip="Revenir au menu"/>
               </StackPanel>
               <TextBlock x:Name="PageAppliEtat" Foreground="{StaticResource Texte3}" FontSize="12" HorizontalAlignment="Center" Margin="0,10,0,0"/>
             </StackPanel>
@@ -324,14 +336,7 @@
               <!-- Barre de l'appli affichée : la fermer (les applis ne s'ouvrent que dans Mindset) -->
               <DockPanel DockPanel.Dock="Top" Margin="6,0,0,8" LastChildFill="False">
                 <!-- Menu : retour à la console (la maison), l'appli reste ouverte en pause -->
-                <Button x:Name="BtnAppliMenu" DockPanel.Dock="Left" Style="{StaticResource BtnSecondary}" Padding="12,6" ToolTip="Revenir au menu (l'appli reste ouverte)">
-                  <StackPanel Orientation="Horizontal">
-                    <Path Data="M3,10.5 L12,3 L21,10.5 M5,9 L5,20 L10,20 L10,14 L14,14 L14,20 L19,20 L19,9" Stroke="#00E5FF" StrokeThickness="2" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="18" Height="18" Stretch="Uniform" VerticalAlignment="Center" Margin="0,0,8,0">
-                      <Path.Effect><DropShadowEffect Color="#00E5FF" BlurRadius="8" ShadowDepth="0" Opacity="0.7"/></Path.Effect>
-                    </Path>
-                    <TextBlock Text="Menu" VerticalAlignment="Center"/>
-                  </StackPanel>
-                </Button>
+                <Button x:Name="BtnAppliMenu" DockPanel.Dock="Left" Style="{StaticResource BtnSecondary}" Padding="12,6" ToolTip="Revenir au menu (l'appli reste ouverte)" Content="" ContentTemplate="{StaticResource MaisonMenu}"/>
                 <Button x:Name="BtnAppliFermer" DockPanel.Dock="Right" Content="Fermer" Style="{StaticResource BtnSecondary}" Padding="14,6"/>
               </DockPanel>
               <Grid x:Name="PageAppliHotes"/>
@@ -341,6 +346,7 @@
           <!-- Paramètres : les réglages communs à toute la suite, en onglets (parametres.ps1) -->
           <DockPanel x:Name="PageParametres" Grid.Row="1" Visibility="Collapsed">
             <StackPanel DockPanel.Dock="Top" Margin="32,22,32,0">
+              <Button x:Name="BtnParametresMenu" Style="{StaticResource BtnSecondary}" Padding="12,6" Visibility="Collapsed" HorizontalAlignment="Left" Margin="0,0,0,16" Content="" ContentTemplate="{StaticResource MaisonMenu}" ToolTip="Revenir au menu"/>
               <TextBlock Text="Paramètres" FontSize="26" FontWeight="SemiBold"/>
               <TextBlock Text="Ces réglages valent pour Mindset et toutes ses applis." Foreground="{StaticResource Texte2}" Margin="0,4,0,14"/>
               <WrapPanel x:Name="OngletsParametres"/>

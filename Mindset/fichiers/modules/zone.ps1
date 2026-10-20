@@ -55,7 +55,7 @@ function Update-MenuHorloge {
         [void]$m.Items.Add((New-Object System.Windows.Forms.ToolStripSeparator))
         foreach ($a in $installees) {
             $i = $m.Items.Add("Ouvrir $($a.Nom)"); $i.Tag = $a.Id
-            $i.Add_Click({ param($s) Show-Fenetre; Open-AppliIci $s.Tag })   # (lancée et affichée dans Mindset, dans son onglet)
+            $i.Add_Click({ param($s) Show-Fenetre; Open-AppliConsole $s.Tag })   # (lancée et affichée dans Mindset ; console.ps1)
         }
     }
     [void]$m.Items.Add((New-Object System.Windows.Forms.ToolStripSeparator))
@@ -152,7 +152,7 @@ function Open-BulleAppli {
     if (-not $b) { return }
     $a = Get-Appli $b.Appli
     if (-not $a) { return }
-    Open-AppliIci $a.Id
+    Open-AppliConsole $a.Id
     if ($b.Id) {
         try { [IO.File]::WriteAllText((Join-Path (Get-DossierDonnees $a) $a.AfficherFichier), "notif:$($b.Id)", (New-Object Text.UTF8Encoding $false)) } catch { Write-Log "Notification de $($a.Nom) : $_" }
     }

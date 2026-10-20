@@ -104,7 +104,23 @@ function Stop-Console([string]$Raison) {
     Write-Log "Console 3D : $Raison, accueil classique"
     $script:Console.Possible = $false
     Remove-VueConsole
+    Set-NavigationConsole
     Update-PageConsole
+}
+
+# Avec la console, plus d'onglets : on navigue par la console et le bouton « Menu ». Sans elle, les onglets reviennent.
+function Set-NavigationConsole {
+    $avec = $script:Console.Possible
+    $ui.BarreOnglets.Visibility = if ($avec) { 'Collapsed' } else { 'Visible' }
+    $ui.ColonneOnglets.Width = if ($avec) { New-Object System.Windows.GridLength 0 } else { New-Object System.Windows.GridLength 210 }
+    foreach ($b in $ui.BtnAppliMenu, $ui.BtnPageAppliMenu, $ui.BtnParametresMenu) { $b.Visibility = if ($avec) { 'Visible' } else { 'Collapsed' } }
+}
+
+# Ouvrir une appli sans passer par la console (menu de l'horloge, bulle de notification) : elle s'affiche tout de suite,
+# et sa cartouche est mise dans la fente pour le retour au menu
+function Open-AppliConsole([string]$Id) {
+    if ($script:Console.Possible) { $script:Console.DerniereAppli = $Id; $script:Console.EnFente = $Id }
+    Open-AppliIci $Id
 }
 
 function Invoke-ScriptConsole([string]$Code) {
@@ -309,8 +325,17 @@ $script:ConsoleAttenteTimer.Add_Tick({
     }
 })
 
-# Le bouton Menu (la maison), dans la barre de l'appli : retour à la console (l'appli reste ouverte, en pause)
-$ui.BtnAppliMenu.Add_Click({ Show-Page 'accueil' })
+# Le bouton Menu (la maison), dans la barre de l'appli, sur son écran d'attente et dans les Paramètres : retour à la
+# console (une appli affichée reste ouverte, en pause). Échap fait pareil.
+foreach ($b in $ui.BtnAppliMenu, $ui.BtnPageAppliMenu, $ui.BtnParametresMenu) { $b.Add_Click({ Show-Page 'accueil' }) }
+$Window.Add_PreviewKeyDown({
+    param($s, $e)
+    if ($e.Key -ne [System.Windows.Input.Key]::Escape -or -not $script:Console.Possible -or $script:PageCourante -eq 'accueil') { return }
+    if ($ui.Confirmation.Visibility -eq 'Visible' -or $ui.Fermeture.Visibility -eq 'Visible') { return }
+    $e.Handled = $true
+    Show-Page 'accueil'
+})
+Set-NavigationConsole
 
 # Mindset caché près de l'horloge ou réduit : la 3D est fermée ; réaffiché sur l'accueil : elle revient
 $Window.Add_IsVisibleChanged({ if (-not $Window.IsVisible) { Remove-VueConsole 'Mindset caché' } elseif ($script:PageCourante -eq 'accueil') { Update-PageConsole } })
