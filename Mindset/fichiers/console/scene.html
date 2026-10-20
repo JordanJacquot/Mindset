@@ -30,9 +30,8 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: #07060D; col
 #voile .barre { width: min(420px, 70%); }
 #voile .barre i { display: block; height: 10px; border-radius: 5px; background: rgba(255,255,255,0.18); overflow: hidden; }
 #voile .barre i b { display: block; height: 100%; width: 0; background: #FFB020; border-radius: 5px; transition: width 300ms ease; }
+#voile .barre.ouverture i b { background: linear-gradient(90deg, #00E5FF, #FFFFFF); transition: width 250ms linear; }
 #voile .barre em { display: block; margin-top: 8px; font-style: normal; font-size: 15px; color: rgba(255,255,255,0.85); }
-#voile .roue { width: 42px; height: 42px; border-radius: 50%; border: 4px solid rgba(255,255,255,0.18); border-top-color: #FFFFFF; animation: tourne 0.9s linear infinite; }
-@keyframes tourne { to { transform: rotate(360deg); } }
 /* Les boutons ronds, comme sur une console */
 #ronds { position: absolute; right: 2.5%; bottom: 4%; display: flex; gap: 14px; }
 #ronds button { position: relative; width: 54px; height: 54px; border-radius: 50%; border: 0; cursor: pointer; display: flex; align-items: center; justify-content: center;
@@ -56,7 +55,6 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: #07060D; col
       <button type="button" data-r="veille" aria-label="Mettre Mindset en veille"><svg viewBox="0 0 24 24" fill="none" stroke="#FF5C7A" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 3v9M6.3 7.5a8 8 0 1 0 11.4 0"/></svg><span>Veille (près de l'horloge)</span></button>
     </nav></div>
   <div id="voile" role="dialog" aria-label="L'écran de la console"><img id="voileLogo" alt=""><b id="voileNom"></b><span id="voileTexte"></span>
-    <div class="roue" id="voileRoue" hidden></div>
     <div class="barre" id="voileBarre" hidden><i><b></b></i><em></em></div>
     <div class="actions" id="voileActions"></div></div>
 </div></div>
@@ -210,13 +208,13 @@ let anims = [];
 const anim = (d, maj, fin) => anims.push({ t0: performance.now() / 1000, d: d * vitesse, maj, fin });
 const doux = (p) => p * p * (3 - 2 * p), sortie = (p) => 1 - (1 - p) ** 3;
 let occupe = false, zoome = false, ouverte = null;   // ouverte : l'appli dont l'écran est affiché en grand
-const pretes = {}, demandeOuverture = {};
+const pretes = {}, demandeOuverture = {}, chargement = {};   // chargement : avancée de l'ouverture (0 à 1, donnée par Mindset)
 
 // Cliquer une cartouche : elle s'insère (celle qui était dans la fente ressort d'abord), puis on zoome dans l'écran
 function choisirCartouche(id) {
   const a = APPLIS[id], c = carts[id]; if (!a || !c || occupe || zoome) return;
   // une appli installée et à jour : Mindset la lance tout de suite, pendant l'animation (elle s'affichera à la fin)
-  if (a.installee && !a.maj) { pretes[id] = false; demandeOuverture[id] = true; hote('action', { action: 'ouvrir', id }); }
+  if (a.installee && !a.maj) { pretes[id] = false; chargement[id] = 0; demandeOuverture[id] = true; hote('action', { action: 'ouvrir', id }); }
   inserer(c);
 }
 function inserer(c) {
@@ -278,7 +276,7 @@ function revenirAuMenu() {
 // Ce que montre l'écran en grand : le chargement de l'appli, l'installation, la mise à jour, ou leur avancée
 function remplirEcran() {
   const id = ouverte, a = id && APPLIS[id]; if (!a) return;
-  const texte = document.getElementById('voileTexte'), actions = document.getElementById('voileActions'), barre = document.getElementById('voileBarre'), roue = document.getElementById('voileRoue');
+  const texte = document.getElementById('voileTexte'), actions = document.getElementById('voileActions'), barre = document.getElementById('voileBarre');
   const m = a.maj, charge = m && m.etat !== 'dispo';
   let t, boutons = [], attente = false;
   if (charge) { t = a.installee ? `Mise à jour de ${a.nom}...` : `Installation de ${a.nom}...`; boutons = [['menu', 'Menu', 'second']]; }
@@ -292,17 +290,22 @@ function remplirEcran() {
     actions.innerHTML = boutons.map(([f, txt, cls]) => `<button type="button" class="${cls}" data-f="${f}">${txt}</button>`).join('');
     if (zoome) actions.querySelector('button')?.focus();
   }
-  roue.hidden = !attente; barre.hidden = !charge;
+  barre.hidden = !charge && !attente; barre.classList.toggle('ouverture', attente);
+  if (attente) {   // l'ouverture : la barre suit l'avancée donnée par Mindset ; prête, elle va au bout
+    const p = pretes[id] ? 1 : Math.min(0.99, chargement[id] || 0);
+    barre.querySelector('b').style.width = `${Math.round(p * 100)}%`; barre.querySelector('em').textContent = `Chargement ${Math.round(p * 100)} %`;
+  }
   if (charge) { barre.querySelector('b').style.width = `${Math.round((m.etat === 'installation' ? 1 : m.progres) * 100)}%`; barre.querySelector('em').textContent = m.etat === 'installation' ? 'Installation...' : `Téléchargement ${Math.round(m.progres * 100)} %`; }
   // l'appli ouverte est prête : elle prend la place de la console
-  if (attente && zoome && pretes[id]) { demandeOuverture[id] = false; hote('afficher', { id }); }
+  // (un court instant à 100 %, puis l'appli prend la place de la console)
+  if (attente && zoome && pretes[id] && !plongee[id]) { plongee[id] = true; setTimeout(() => { plongee[id] = false; if (!demandeOuverture[id] || !pretes[id]) return; demandeOuverture[id] = false; hote('afficher', { id }); }, 400); }
 }
 document.getElementById('voileActions').addEventListener('click', (e) => {
   const b = e.target.closest('button'), id = ouverte; if (!b || !id || occupe) return; sons.ok();
   if (b.dataset.f === 'menu') revenirAuMenu();
   if (b.dataset.f === 'installer') hote('action', { action: 'installer', id });
   if (b.dataset.f === 'maj') hote('action', { action: 'maj', id });
-  if (b.dataset.f === 'ouvrir') { pretes[id] = false; demandeOuverture[id] = true; hote('action', { action: 'ouvrir', id }); remplirEcran(); }
+  if (b.dataset.f === 'ouvrir') { pretes[id] = false; chargement[id] = 0; demandeOuverture[id] = true; hote('action', { action: 'ouvrir', id }); remplirEcran(); }
 });
 document.querySelectorAll('#ronds button').forEach((b) => b.addEventListener('click', () => { if (occupe || zoome) return; sons.ok(); hote('action', { action: b.dataset.r }); }));
 
@@ -384,6 +387,8 @@ function etat(e) {
 // Mindset a lancé l'appli (après « ouvrir ») : si la cartouche n'est pas déjà en route, on joue l'insertion
 function jouerOuverture(id) { if (!carts[id] || occupe || zoome || enFente === id && ouverte === id) return; demandeOuverture[id] = true; inserer(carts[id]); }
 function appliPrete(id) { pretes[id] = true; if (zoome) remplirEcran(); }
+function avancee(id, p) { chargement[id] = Math.max(chargement[id] || 0, +p || 0); if (zoome && ouverte === id) remplirEcran(); }
+const plongee = {};
 // Retour d'une appli (bouton Menu de Mindset, ou appli fermée) : la caméra ressort de l'écran ; ejecter : la cartouche ressort
 function jouerRetour(id, ejecter) {
   if (!carts[id]) return;
@@ -398,7 +403,7 @@ function ejecterMaintenant(id) { const c = carts[id]; if (c && enFente === id) e
 function jouerEjection(id) { if (enFente !== id || occupe) return; if (zoome) dezoomer(() => { occupe = true; ejecterMaintenant(id); }); else { occupe = true; ejecterMaintenant(id); } }
 let minuteBulle = 0;
 function message(texte) { const b = document.getElementById('bulle'); b.textContent = String(texte).slice(0, 80); b.classList.add('vu'); clearTimeout(minuteBulle); minuteBulle = setTimeout(() => b.classList.remove('vu'), 2400); }
-window.mindset = { etat, pause, reprendre, message, jouerOuverture, jouerRetour, jouerEjection, appliPrete };
+window.mindset = { etat, pause, reprendre, message, jouerOuverture, jouerRetour, jouerEjection, appliPrete, avancee };
 window.mindsetEssai = { choisirCartouche, cliquer: (f) => document.querySelector(`#voileActions button[data-f="${f}"]`)?.click(), etatScene: () => ({ enFente, zoome, occupe, ouverte }) };   // (pour les essais automatiques)
 
 montrerDecor(); poser();

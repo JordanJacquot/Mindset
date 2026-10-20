@@ -251,7 +251,8 @@ function Receive-MessageConsole([string]$Json) {
     switch ([string]$m.action) {
         'ouvrir'     {
             if ($a -and (Get-Installation $a)) {
-                if (-not (Test-AppliOuverte $a)) { Start-AppliCachee $a }
+                $script:Console.Lancee = -not (Test-AppliOuverte $a); $script:Console.DureeAttendue = $null   # (lancée par ce clic : sa durée d'ouverture est retenue)
+                if ($script:Console.Lancee) { Start-AppliCachee $a }
                 $script:Console.Attente = $a.Id; $script:Console.AttenteDepuis = Get-Date
                 Invoke-ScriptConsole "window.mindset.jouerOuverture('$($a.Id)')"
                 $script:ConsoleAttenteTimer.Start()
@@ -322,6 +323,19 @@ $script:ConsoleTimer.Add_Tick({
 })
 if ($script:Console.Possible) { $script:ConsoleTimer.Start() }
 
+# La barre de chargement d'une appli, sur l'écran de la console : même avancée que la jauge de chargement.ps1 (90 % à
+# la durée de sa dernière ouverture, retenue à chaque fois, puis elle s'approche doucement de 99 %) ; sa fenêtre prête,
+# la barre va au bout et l'appli prend la place de la console
+function Get-AvanceeOuverture($Appli, [double]$Ecoule) {
+    if (-not $script:Console.DureeAttendue) {
+        $d = [double](Get-Setting "Ouverture-$($Appli.Id)" $script:JaugeDureesDefaut[$Appli.Id])
+        $script:Console.DureeAttendue = if ($d -ge 1) { $d } else { 8.0 }
+    }
+    $k = [math]::Max(0.0, $Ecoule / $script:Console.DureeAttendue)
+    $v = if ($k -lt 1) { 0.9 * (1 - [math]::Pow(1 - $k, 2)) } else { 0.9 + 0.09 * (1 - [math]::Exp(-($k - 1))) }
+    [math]::Round($v, 3)
+}
+
 # Pendant l'animation d'ouverture : sa fenêtre est-elle prête ? (déjà affichée dans Mindset, ou créée par l'appli qui
 # démarre). Alors la console plonge dans l'écran. Une appli qui ne démarre pas : on plonge quand même (Mindset l'explique).
 $script:ConsoleAttenteTimer = New-Object System.Windows.Threading.DispatcherTimer
@@ -333,8 +347,10 @@ $script:ConsoleAttenteTimer.Add_Tick({
     $i = $script:Integrees[$id]
     $prete = ($i -and $i.Fenetre -ne [IntPtr]::Zero -and [MSIntegration]::IsWindow($i.Fenetre)) -or ((Find-FenetreAppli $a) -ne [IntPtr]::Zero)
     $ecoule = ((Get-Date) - $script:Console.AttenteDepuis).TotalSeconds
+    if (-not $prete) { Invoke-ScriptConsole "window.mindset.avancee('$id', $((Get-AvanceeOuverture $a $ecoule).ToString([Globalization.CultureInfo]::InvariantCulture)))" }
     if ($prete -or $ecoule -gt 60 -or ($ecoule -gt 15 -and -not (Test-AppliOuverte $a))) {
         $script:Console.Attente = $null; $script:ConsoleAttenteTimer.Stop()
+        if ($prete -and $script:Console.Lancee) { Save-DureeOuverture $a $script:Console.AttenteDepuis }   # (chargement.ps1)
         Invoke-ScriptConsole "window.mindset.appliPrete('$id')"
         if (-not $prete) { Write-Log "Console 3D : $($a.Nom) pas prête après $([int]$ecoule) s, affichée quand même" }
     }
