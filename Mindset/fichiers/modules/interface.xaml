@@ -240,49 +240,59 @@
       <!-- Zone centrale (transparente : le fond et ses lueurs passent derrière) -->
       <Border Grid.Column="1" Background="Transparent">
         <Grid>
+          <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+          <!-- Bandeaux (installer Mindset, mini-installateur, mise à jour de Mindset) : au-dessus de toutes les pages, console comprise -->
+          <StackPanel x:Name="Bandeaux" Grid.Row="0" Margin="32,0,32,0">
+          <!-- Mindset lancé depuis le dossier téléchargé : proposer de l'installer -->
+          <Border x:Name="Bienvenue" Visibility="Collapsed" Background="{StaticResource CardBg}" BorderBrush="#8000E5FF" BorderThickness="1" CornerRadius="22" Padding="24,18" Margin="0,22,0,0" MaxWidth="770" HorizontalAlignment="Left">
+            <DockPanel>
+              <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center" Margin="16,0,0,0">
+                <Button x:Name="BtnBienvenuePlusTard" Content="Plus tard" Style="{StaticResource BtnSecondary}" Margin="0,0,8,0"/>
+                <Button x:Name="BtnInstallerMindset" Content="Installer Mindset" Style="{StaticResource BtnPrimary}"/>
+              </StackPanel>
+              <StackPanel>
+                <TextBlock Text="Installer Mindset sur ce PC" FontSize="16" FontWeight="SemiBold"/>
+                <TextBlock x:Name="BienvenueTexte" TextWrapping="Wrap" Foreground="#A9A3C9" Margin="0,4,0,0"
+                           Text="Mindset s'installe avec ses applis et leurs données sur le disque choisi, crée son raccourci sur le Bureau et dans le menu Démarrer, et se lance avec Windows. Tu pourras ensuite supprimer le dossier téléchargé."/>
+                <TextBlock Text="Où installer Mindset et ses applis ?" FontWeight="SemiBold" FontSize="13" Margin="0,12,0,4"/>
+                <StackPanel x:Name="ChoixDisques"/>
+              </StackPanel>
+            </DockPanel>
+          </Border>
+          <!-- Installation d'avant la 0.2 : activer Mindset en administrateur (tâches planifiées), pour accueillir Nevermind -->
+          <Border x:Name="AdminBandeau" Visibility="Collapsed" Background="{StaticResource CardBg}" BorderBrush="#8000E5FF" BorderThickness="1" CornerRadius="22" Padding="24,16" Margin="0,22,0,0" MaxWidth="770" HorizontalAlignment="Left">
+            <DockPanel>
+              <Button x:Name="BtnActiverAdmin" DockPanel.Dock="Right" Content="Activer" Style="{StaticResource BtnPrimary}" VerticalAlignment="Center" Margin="16,0,0,0"/>
+              <StackPanel VerticalAlignment="Center">
+                <TextBlock Text="Installer sans demande de Windows" FontSize="16" FontWeight="SemiBold"/>
+                <TextBlock x:Name="AdminTexte" TextWrapping="Wrap" Foreground="#A9A3C9" Margin="0,4,0,0"
+                           Text="Mindset crée son mini-installateur : les installations et les mises à jour (seulement des fichiers signés) ne demanderont plus l'autorisation. Une dernière demande de Windows."/>
+              </StackPanel>
+            </DockPanel>
+          </Border>
+          <!-- Mise à jour de Mindset : prête (téléchargée et vérifiée), ou résultat après la relance (mindset.ps1) -->
+          <Border x:Name="MajBandeau" Visibility="Collapsed" Background="{StaticResource CardBg}" BorderBrush="#80B04BFF" BorderThickness="1" CornerRadius="22" Padding="24,16" Margin="0,22,0,0" MaxWidth="770" HorizontalAlignment="Left">
+            <DockPanel>
+              <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center" Margin="16,0,0,0">
+                <Button x:Name="BtnMajFermer" Content="OK" Style="{StaticResource BtnSecondary}" Margin="0,0,8,0"/>
+                <Button x:Name="BtnMajMindset" Content="Redémarrer et mettre à jour" Style="{StaticResource BtnPrimary}"/>
+              </StackPanel>
+              <StackPanel VerticalAlignment="Center">
+                <TextBlock x:Name="MajTitre" FontSize="16" FontWeight="SemiBold"/>
+                <TextBlock x:Name="MajTexte" TextWrapping="Wrap" Foreground="#A9A3C9" Margin="0,4,0,0"/>
+              </StackPanel>
+            </DockPanel>
+          </Border>
+          </StackPanel>
+
+          <!-- La console 3D (console.ps1) : l'accueil de Mindset quand elle peut s'afficher ; sinon l'accueil classique ci-dessous -->
+          <Grid x:Name="PageConsole" Grid.Row="1" Visibility="Collapsed">
+            <TextBlock x:Name="ConsoleAttente" Text="Allumage de la console..." Foreground="{StaticResource Texte3}" FontSize="14" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+          </Grid>
+
           <!-- Accueil -->
-          <ScrollViewer x:Name="PageAccueil" VerticalScrollBarVisibility="Auto">
+          <ScrollViewer x:Name="PageAccueil" Grid.Row="1" VerticalScrollBarVisibility="Auto">
             <StackPanel Margin="32,28">
-              <!-- Mindset lancé depuis le dossier téléchargé : proposer de l'installer -->
-              <Border x:Name="Bienvenue" Visibility="Collapsed" Background="{StaticResource CardBg}" BorderBrush="#8000E5FF" BorderThickness="1" CornerRadius="22" Padding="24,18" Margin="0,0,0,22" MaxWidth="770" HorizontalAlignment="Left">
-                <DockPanel>
-                  <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center" Margin="16,0,0,0">
-                    <Button x:Name="BtnBienvenuePlusTard" Content="Plus tard" Style="{StaticResource BtnSecondary}" Margin="0,0,8,0"/>
-                    <Button x:Name="BtnInstallerMindset" Content="Installer Mindset" Style="{StaticResource BtnPrimary}"/>
-                  </StackPanel>
-                  <StackPanel>
-                    <TextBlock Text="Installer Mindset sur ce PC" FontSize="16" FontWeight="SemiBold"/>
-                    <TextBlock x:Name="BienvenueTexte" TextWrapping="Wrap" Foreground="#A9A3C9" Margin="0,4,0,0"
-                               Text="Mindset s'installe avec ses applis et leurs données sur le disque choisi, crée son raccourci sur le Bureau et dans le menu Démarrer, et se lance avec Windows. Tu pourras ensuite supprimer le dossier téléchargé."/>
-                    <TextBlock Text="Où installer Mindset et ses applis ?" FontWeight="SemiBold" FontSize="13" Margin="0,12,0,4"/>
-                    <StackPanel x:Name="ChoixDisques"/>
-                  </StackPanel>
-                </DockPanel>
-              </Border>
-              <!-- Installation d'avant la 0.2 : activer Mindset en administrateur (tâches planifiées), pour accueillir Nevermind -->
-              <Border x:Name="AdminBandeau" Visibility="Collapsed" Background="{StaticResource CardBg}" BorderBrush="#8000E5FF" BorderThickness="1" CornerRadius="22" Padding="24,16" Margin="0,0,0,22" MaxWidth="770" HorizontalAlignment="Left">
-                <DockPanel>
-                  <Button x:Name="BtnActiverAdmin" DockPanel.Dock="Right" Content="Activer" Style="{StaticResource BtnPrimary}" VerticalAlignment="Center" Margin="16,0,0,0"/>
-                  <StackPanel VerticalAlignment="Center">
-                    <TextBlock Text="Installer sans demande de Windows" FontSize="16" FontWeight="SemiBold"/>
-                    <TextBlock x:Name="AdminTexte" TextWrapping="Wrap" Foreground="#A9A3C9" Margin="0,4,0,0"
-                               Text="Mindset crée son mini-installateur : les installations et les mises à jour (seulement des fichiers signés) ne demanderont plus l'autorisation. Une dernière demande de Windows."/>
-                  </StackPanel>
-                </DockPanel>
-              </Border>
-              <!-- Mise à jour de Mindset : prête (téléchargée et vérifiée), ou résultat après la relance (mindset.ps1) -->
-              <Border x:Name="MajBandeau" Visibility="Collapsed" Background="{StaticResource CardBg}" BorderBrush="#80B04BFF" BorderThickness="1" CornerRadius="22" Padding="24,16" Margin="0,0,0,22" MaxWidth="770" HorizontalAlignment="Left">
-                <DockPanel>
-                  <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center" Margin="16,0,0,0">
-                    <Button x:Name="BtnMajFermer" Content="OK" Style="{StaticResource BtnSecondary}" Margin="0,0,8,0"/>
-                    <Button x:Name="BtnMajMindset" Content="Redémarrer et mettre à jour" Style="{StaticResource BtnPrimary}"/>
-                  </StackPanel>
-                  <StackPanel VerticalAlignment="Center">
-                    <TextBlock x:Name="MajTitre" FontSize="16" FontWeight="SemiBold"/>
-                    <TextBlock x:Name="MajTexte" TextWrapping="Wrap" Foreground="#A9A3C9" Margin="0,4,0,0"/>
-                  </StackPanel>
-                </DockPanel>
-              </Border>
               <!-- Bonjour, et « Actualiser » : chercher tout de suite les nouvelles versions (sans fermer Mindset) -->
               <DockPanel Margin="0,0,18,24">
                 <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
@@ -299,7 +309,7 @@
           </ScrollViewer>
 
           <!-- Page d'une appli : sa vraie fenêtre, accrochée ici (integration.ps1), ou un message en attendant -->
-          <Grid x:Name="PageAppli" Visibility="Collapsed">
+          <Grid x:Name="PageAppli" Grid.Row="1" Visibility="Collapsed">
             <StackPanel x:Name="PageAppliMessage" VerticalAlignment="Center" HorizontalAlignment="Center" MaxWidth="480">
               <!-- Jauge de chargement pendant que l'appli s'ouvre (chargement.ps1) -->
               <Grid x:Name="PageAppliJauge" HorizontalAlignment="Center" Margin="0,0,0,10" Visibility="Collapsed"/>
@@ -320,7 +330,7 @@
           </Grid>
 
           <!-- Paramètres : les réglages communs à toute la suite, en onglets (parametres.ps1) -->
-          <DockPanel x:Name="PageParametres" Visibility="Collapsed">
+          <DockPanel x:Name="PageParametres" Grid.Row="1" Visibility="Collapsed">
             <StackPanel DockPanel.Dock="Top" Margin="32,22,32,0">
               <TextBlock Text="Paramètres" FontSize="26" FontWeight="SemiBold"/>
               <TextBlock Text="Ces réglages valent pour Mindset et toutes ses applis." Foreground="{StaticResource Texte2}" Margin="0,4,0,14"/>

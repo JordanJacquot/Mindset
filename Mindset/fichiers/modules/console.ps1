@@ -1,0 +1,253 @@
+﻿# Mindset : la console 3D, l'accueil de Mindset (fichiers\console\scene.html, affichée par WebView2).
+#
+# La scène est une page locale, hors connexion (hôte virtuel https://mindset.local/ sur le dossier « console », toute
+# autre navigation refusée). Elle ne fait rien d'elle-même : elle envoie à Mindset des actions connues (ouvrir, installer,
+# mettre à jour, fermer...) avec l'identifiant d'une appli, que ce module vérifie avant d'appeler les fonctions habituelles
+# de Mindset. Mindset lui envoie l'état des applis (window.mindset.etat).
+#
+# Économie (mesurée : la 3D seule ≈ 380 Mo et 2 % du processeur quand on la regarde) :
+#   - Mindset caché près de l'horloge ou réduit : la 3D est fermée (plus rien, ni processeur, ni mémoire) ;
+#   - une autre page de Mindset : la 3D est mise en pause, puis fermée au bout d'une minute ;
+#   - elle se recrée en 2 à 3 secondes au retour (« Allumage de la console... » en attendant).
+# Repli : sans WebView2, sans les fichiers de la console, réglage « Animations : aucune », ou si la 3D échoue, c'est
+# l'accueil classique (les cartes), comme avant.
+# Chargé par Mindset.ps1 en dernier (après accueil, integration, parametres et zone).
+
+$ConsoleDir = Join-Path $AppDir 'console'
+$Webview2Dir = Join-Path $AppDir 'lib\webview2'
+$script:Console = @{ Possible = $false; Vue = $null; Pret = $false; DerniereAppli = $null; RetourAJouer = $null; EtatEnvoye = ''; QuitteeA = $null }
+
+# La 3D est-elle possible ici ? (une fois, au démarrage)
+function Test-ConsolePossible {
+    if ([string](Get-Setting 'Animations' 'completes') -eq 'aucune') { return 'réglage Animations : aucune' }
+    if ($EnTest -and -not $env:MINDSET_CONSOLE) { return 'test automatique' }
+    foreach ($f in 'Microsoft.Web.WebView2.Core.dll', 'Microsoft.Web.WebView2.Wpf.dll', 'WebView2Loader.dll') { if (-not (Test-Path -LiteralPath (Join-Path $Webview2Dir $f))) { return "fichier manquant : $f" } }
+    if (-not (Test-Path -LiteralPath (Join-Path $ConsoleDir 'scene.html'))) { return 'fichier manquant : console\scene.html' }
+    try {
+        Add-Type -Path (Join-Path $Webview2Dir 'Microsoft.Web.WebView2.Core.dll')
+        Add-Type -Path (Join-Path $Webview2Dir 'Microsoft.Web.WebView2.Wpf.dll')
+        [Microsoft.Web.WebView2.Core.CoreWebView2Environment]::SetLoaderDllFolderPath($Webview2Dir)
+        $v = [Microsoft.Web.WebView2.Core.CoreWebView2Environment]::GetAvailableBrowserVersionString()
+        if (-not $v) { return 'WebView2 absent de ce PC' }
+        Write-Log "Console 3D : WebView2 $v"
+    } catch { return "WebView2 indisponible ($($_.Exception.Message))" }
+    $null
+}
+$raison = Test-ConsolePossible
+$script:Console.Possible = -not $raison
+if ($raison) { Write-Log "Console 3D désactivée : $raison (accueil classique)" }
+
+# ---------------------------------------------------------------------------
+# Créer et fermer la 3D
+# ---------------------------------------------------------------------------
+function New-VueConsole([string]$VueDepart = 'menu') {
+    if ($script:Console.Vue -or -not $script:Console.Possible) { return }
+    $ui.ConsoleAttente.Visibility = 'Visible'
+    $vue = New-Object Microsoft.Web.WebView2.Wpf.WebView2
+    $vue.DefaultBackgroundColor = [System.Drawing.Color]::FromArgb(255, 7, 6, 13)   # (pas d'éclair blanc à l'allumage)
+    $cp = New-Object Microsoft.Web.WebView2.Wpf.CoreWebView2CreationProperties
+    $cp.UserDataFolder = Join-Path $DataDir 'console-webview'
+    $vue.CreationProperties = $cp
+    $vue.Add_CoreWebView2InitializationCompleted({
+        param($s, $e)
+        if (-not $e.IsSuccess) { Stop-Console "initialisation refusée ($($e.InitializationException.Message))"; return }
+        try {
+            $c = $s.CoreWebView2
+            $r = $c.Settings
+            $r.AreDevToolsEnabled = [bool]$env:MINDSET_CONSOLE_DEV; $r.AreDefaultContextMenusEnabled = $false; $r.IsZoomControlEnabled = $false
+            $r.AreBrowserAcceleratorKeysEnabled = $false; $r.IsStatusBarEnabled = $false; $r.IsPasswordAutosaveEnabled = $false; $r.IsGeneralAutofillEnabled = $false
+            $c.SetVirtualHostNameToFolderMapping('mindset.local', $ConsoleDir, [Microsoft.Web.WebView2.Core.CoreWebView2HostResourceAccessKind]::Deny)
+            # Seule la console s'affiche : toute autre adresse, et toute nouvelle fenêtre, est refusée
+            $c.Add_NavigationStarting({ param($s2, $e2) if (-not $e2.Uri.StartsWith('https://mindset.local/')) { $e2.Cancel = $true; Write-Log "Console 3D : navigation refusée ($($e2.Uri))" } })
+            $c.Add_NewWindowRequested({ param($s2, $e2) $e2.Handled = $true })
+            $c.Add_WebMessageReceived({ param($s2, $e2) try { Receive-MessageConsole $e2.WebMessageAsJson } catch { Write-Log "Console 3D : message ignoré ($_)" } })
+            $c.Add_ProcessFailed({ param($s2, $e2) Stop-Console "processus de la 3D arrêté ($($e2.ProcessFailedKind))" })
+            $anim = [string](Get-Setting 'Animations' 'completes')
+            $c.Navigate("https://mindset.local/scene.html?vue=$VueDepart&animations=$(if ($anim -eq 'express') { 'express' } else { 'completes' })")
+        } catch { Stop-Console "réglage impossible ($($_.Exception.Message))" }
+    })
+    $ui.PageConsole.Children.Add($vue) | Out-Null
+    $script:Console.Vue = $vue; $script:Console.Pret = $false; $script:Console.EtatEnvoye = ''
+    # (WebView2 ne démarre qu'une fois la boucle d'affichage de Mindset lancée : la fenêtre, elle, s'affiche juste avant)
+    [void]$Window.Dispatcher.BeginInvoke([action]{
+        if (-not $script:Console.Vue) { return }
+        try { [void]$script:Console.Vue.EnsureCoreWebView2Async() } catch { Stop-Console "démarrage impossible ($($_.Exception.Message))" }
+    }, [System.Windows.Threading.DispatcherPriority]::Background)
+}
+
+function Remove-VueConsole([string]$Pourquoi) {
+    $vue = $script:Console.Vue
+    if (-not $vue) { return }
+    $script:Console.Vue = $null; $script:Console.Pret = $false
+    try { $ui.PageConsole.Children.Remove($vue) } catch {}
+    try { $vue.Dispose() } catch {}
+    $ui.ConsoleAttente.Visibility = 'Visible'
+    if ($Pourquoi) { Write-Log "Console 3D fermée ($Pourquoi)" }
+}
+
+# Un échec : la 3D est abandonnée jusqu'à la prochaine ouverture de Mindset, et l'accueil classique reprend
+function Stop-Console([string]$Raison) {
+    Write-Log "Console 3D : $Raison, accueil classique"
+    $script:Console.Possible = $false
+    Remove-VueConsole
+    Update-PageConsole
+}
+
+function Invoke-ScriptConsole([string]$Code) {
+    $vue = $script:Console.Vue
+    if (-not $vue -or -not $script:Console.Pret) { return }
+    try { [void]$vue.ExecuteScriptAsync($Code) } catch {}
+}
+
+# ---------------------------------------------------------------------------
+# Quelle page montrer : la console à la place de l'accueil (appelé par Show-Page, accueil.ps1)
+# ---------------------------------------------------------------------------
+function Update-PageConsole {
+    $accueil = $script:PageCourante -eq 'accueil'
+    $avecConsole = $accueil -and $script:Console.Possible
+    $ui.PageConsole.Visibility = if ($avecConsole) { 'Visible' } else { 'Collapsed' }
+    if ($accueil) { $ui.PageAccueil.Visibility = if ($avecConsole) { 'Collapsed' } else { 'Visible' } }
+    if (-not $script:Console.Possible) { return }
+    if ($avecConsole -and $Window.IsVisible -and $Window.WindowState -ne 'Minimized') {
+        $script:Console.QuitteeA = $null
+        if (-not $script:Console.Vue) {
+            # Retour d'une appli : la caméra repart de l'intérieur de l'écran, puis ressort jusqu'au menu
+            $depuis = $script:Console.DerniereAppli
+            $script:Console.RetourAJouer = $depuis
+            New-VueConsole $(if ($depuis) { 'dedans' } else { 'menu' })
+        } else {
+            Invoke-ScriptConsole 'window.mindset.reprendre()'
+            if ($script:Console.DerniereAppli) { Invoke-ScriptConsole "window.mindset.jouerRetour('$($script:Console.DerniereAppli)')" }
+            Send-EtatConsole -Force
+        }
+        $script:Console.DerniereAppli = $null
+        try { [void]$script:Console.Vue.Focus() } catch {}
+    } elseif ($script:Console.Vue) {
+        # Une autre page : pause tout de suite, fermeture au bout d'une minute (ConsoleTimer)
+        Invoke-ScriptConsole 'window.mindset.pause()'
+        if (-not $script:Console.QuitteeA) { $script:Console.QuitteeA = Get-Date }
+    }
+}
+
+# ---------------------------------------------------------------------------
+# L'état des applis, envoyé à la scène quand il change
+# ---------------------------------------------------------------------------
+function Get-EtatConsole {
+    $liste = foreach ($a in $Applis) {
+        $e = Get-EtatCarte $a
+        $logo = if (Test-Path -LiteralPath (Join-Path $ConsoleDir "logos\$($a.Id).png")) { "logos/$($a.Id).png" } else { $null }
+        $maj = if ($e.Occupe) { [ordered]@{ etat = $(if ($e.Occupe -match '^Installation') { 'installation' } else { 'telechargement' }); progres = 0 } }
+               elseif ($e.MajDispo) { [ordered]@{ etat = 'dispo'; progres = 0 } } else { $null }
+        [ordered]@{ id = $a.Id; nom = $a.Nom; c1 = $a.Couleur; c2 = '#B04BFF'; logo = $logo; installee = [bool]$e.Inst
+            etat = $(if ($e.Ouverte) { 'fond' } else { 'ferme' }); maj = $maj }
+    }
+    ConvertTo-Json -InputObject ([ordered]@{ applis = @($liste) }) -Depth 5 -Compress
+}
+function Send-EtatConsole([switch]$Force) {
+    if (-not $script:Console.Vue -or -not $script:Console.Pret) { return }
+    $json = Get-EtatConsole
+    if (-not $Force -and $json -eq $script:Console.EtatEnvoye) { return }
+    $script:Console.EtatEnvoye = $json
+    Invoke-ScriptConsole "window.mindset.etat($json)"
+}
+
+# ---------------------------------------------------------------------------
+# Ce que la scène demande : seulement des actions connues, sur une appli de apps.json
+# ---------------------------------------------------------------------------
+function Receive-MessageConsole([string]$Json) {
+    if (-not $Json -or $Json.Length -gt 2000) { return }
+    $m = $Json | ConvertFrom-Json
+    $type = [string]$m.type
+    if ($type -eq 'pret') {
+        $script:Console.Pret = $true
+        $ui.ConsoleAttente.Visibility = 'Collapsed'
+        Send-EtatConsole -Force
+        if ($script:Console.RetourAJouer) { Invoke-ScriptConsole "window.mindset.jouerRetour('$($script:Console.RetourAJouer)')"; $script:Console.RetourAJouer = $null }
+        Write-Log 'Console 3D prête'
+        if ($EnTest -and $env:MINDSET_CONSOLE_CAPTURE) { Start-CaptureConsole $env:MINDSET_CONSOLE_CAPTURE }
+        return
+    }
+    $id = [string]$m.id
+    $a = if ($id -match '^[a-z0-9-]{1,30}$') { Get-Appli $id } else { $null }
+    if ($type -eq 'afficher') {
+        # Fin de la plongée dans l'écran : l'appli prend la place de la console
+        if ($a) { $script:Console.DerniereAppli = $a.Id; Open-AppliIci $a.Id }
+        return
+    }
+    if ($type -ne 'action') { return }
+    switch ([string]$m.action) {
+        'ouvrir'     { if ($a -and (Get-Installation $a)) { Invoke-ScriptConsole "window.mindset.jouerOuverture('$($a.Id)')" } }
+        'installer'  { if ($a -and -not (Get-Installation $a)) { if ($script:Trouvees[$a.Id]) { Confirm-PriseEnCharge $a } else { Start-InstallAppli $a } } }
+        'maj'        { if ($a) { Confirm-MiseAJour $a } }
+        'fermer'     { if ($a) { Stop-AppliConsole $a } }
+        'parametres' { Show-Page 'parametres' }
+        'actualiser' { Invoke-Actualiser -Clic; Invoke-ScriptConsole "window.mindset.message('Recherche des nouvelles versions...')" }
+        'majTout'    {
+            $aMettre = @($Applis | Where-Object { (Get-EtatCarte $_).MajDispo })
+            if ($aMettre.Count) { Confirm-MiseAJour $aMettre[0] } else { Invoke-ScriptConsole "window.mindset.message('Toutes tes applis sont à jour')" }
+        }
+        'veille'     { Hide-Fenetre }
+    }
+}
+
+# Fermer une appli depuis la console : sa fenêtre affichée dans Mindset reçoit « Fermer », sinon sa demande de fermeture
+function Stop-AppliConsole($Appli) {
+    Invoke-ScriptConsole "window.mindset.jouerEjection('$($Appli.Id)')"
+    $i = $script:Integrees[$Appli.Id]
+    if ($i -and $i.Fenetre -ne [IntPtr]::Zero) { [MSIntegration]::Fermer($i.Fenetre); Write-Log "$($Appli.Nom) fermé depuis la console"; return }
+    if (-not (Test-AppliOuverte $Appli)) { return }
+    foreach ($d in @((Get-DossierDonnees $Appli), $Appli.Donnees) | Select-Object -Unique) {
+        if ($d -and (Test-Path -LiteralPath $d)) { try { [IO.File]::WriteAllText((Join-Path $d 'quitter.demande'), [string]$PID) } catch {} }
+    }
+    Write-Log "Fermeture de $($Appli.Nom) demandée depuis la console"
+}
+
+# Test automatique : image de la 3D (WebView2 se dessine à part : la capture de la fenêtre WPF ne la voit pas), puis Mindset quitte
+function Start-CaptureConsole([string]$Fichier) {
+    $script:CaptureConsoleFichier = $Fichier   # (un paramètre de fonction n'est plus visible dans la minuterie)
+    $t = New-Object System.Windows.Threading.DispatcherTimer
+    $t.Interval = [TimeSpan]::FromMilliseconds([int]$(if ($env:MINDSET_CONSOLE_DELAI) { $env:MINDSET_CONSOLE_DELAI } else { 3000 }))
+    $t.Add_Tick({
+        param($s)
+        if (-not $s.Tag) {
+            $f = [IO.File]::Create($script:CaptureConsoleFichier)
+            $s.Tag = @{ Flux = $f; Tache = $script:Console.Vue.CoreWebView2.CapturePreviewAsync([Microsoft.Web.WebView2.Core.CoreWebView2CapturePreviewImageFormat]::Png, $f) }
+            $s.Interval = [TimeSpan]::FromMilliseconds(200); return
+        }
+        if (-not $s.Tag.Tache.IsCompleted) { return }
+        $s.Stop(); $s.Tag.Flux.Dispose()
+        Write-Log "Console 3D : capture $(if ($s.Tag.Tache.IsFaulted) { 'ratée' } else { 'faite' })"
+        if (-not $env:MINDSET_CONSOLE_RESTER) { Exit-Mindset }
+    })
+    $t.Start()
+}
+
+# ---------------------------------------------------------------------------
+# Surveillance : état des applis (toutes les 1,5 s), fermeture de la 3D quand on ne la regarde plus
+# ---------------------------------------------------------------------------
+$script:ConsoleTimer = New-Object System.Windows.Threading.DispatcherTimer
+$script:ConsoleTimer.Interval = [TimeSpan]::FromMilliseconds(1500)
+$script:ConsoleTimer.Add_Tick({
+    if (-not $script:Console.Vue) { return }
+    if ($script:Console.QuitteeA -and ((Get-Date) - $script:Console.QuitteeA).TotalSeconds -ge 60) { Remove-VueConsole 'une minute sur une autre page'; $script:Console.QuitteeA = $null; return }
+    try { Send-EtatConsole } catch { Write-Log "Console 3D : état non envoyé ($_)" }
+})
+if ($script:Console.Possible) { $script:ConsoleTimer.Start() }
+
+# Mindset caché près de l'horloge ou réduit : la 3D est fermée ; réaffiché sur l'accueil : elle revient
+$Window.Add_IsVisibleChanged({ if (-not $Window.IsVisible) { Remove-VueConsole 'Mindset caché' } elseif ($script:PageCourante -eq 'accueil') { Update-PageConsole } })
+$Window.Add_StateChanged({ if ($Window.WindowState -eq 'Minimized') { Remove-VueConsole 'Mindset réduit' } elseif ($script:PageCourante -eq 'accueil') { Update-PageConsole } })
+$Window.Add_Closed({ Remove-VueConsole })
+
+# Une question de Mindset (confirmation, fermeture) passe par-dessus : la 3D s'efface le temps qu'elle s'en aille
+# (une vue WebView2 se dessine toujours au-dessus du reste de la fenêtre)
+function Update-ConsoleMasquee {
+    if (-not $script:Console.Vue) { return }
+    $dessus = $ui.Confirmation.Visibility -eq 'Visible' -or $ui.Fermeture.Visibility -eq 'Visible'
+    $script:Console.Vue.Visibility = if ($dessus) { 'Hidden' } else { 'Visible' }
+}
+$ui.Confirmation.Add_IsVisibleChanged({ Update-ConsoleMasquee })
+$ui.Fermeture.Add_IsVisibleChanged({ Update-ConsoleMasquee })
+
+# La page d'arrivée est peut-être déjà l'accueil (Show-Page a été appelé avant ce module)
+Update-PageConsole

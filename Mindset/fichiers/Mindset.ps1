@@ -91,7 +91,7 @@ try { Get-ChildItem -LiteralPath $PSScriptRoot -File -Recurse -ErrorAction Silen
 # ---------------------------------------------------------------------------
 $AppDir = $PSScriptRoot
 $ModulesDir = Join-Path $AppDir 'modules'
-$msModules = 'donnees', 'suite', 'packs', 'themes', 'signature', 'paquets', 'taches', 'applis', 'installations', 'mindset', 'interface', 'logo', 'chargement', 'accueil', 'integration', 'parametres', 'zone'
+$msModules = 'donnees', 'suite', 'packs', 'themes', 'signature', 'paquets', 'taches', 'applis', 'installations', 'mindset', 'interface', 'logo', 'chargement', 'accueil', 'integration', 'parametres', 'zone', 'console'
 $missing = @(@('natif.cs', 'interface.xaml') + @($msModules | ForEach-Object { "$_.ps1" }) | Where-Object { -not (Test-Path -LiteralPath (Join-Path $ModulesDir $_)) })
 if (-not (Test-Path -LiteralPath (Join-Path $AppDir 'cle-publique.xml'))) { $missing += 'cle-publique.xml' }
 if ($missing) {

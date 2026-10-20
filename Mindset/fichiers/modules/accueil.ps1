@@ -93,6 +93,8 @@ function Show-Page([string]$Id) {
     # (Paramètres sur l'onglet Général : les interrupteurs « S'ouvre avec Mindset » à jour ; parametres.ps1, chargé après)
     if ($Id -eq 'parametres' -and $script:OngletParametres -eq 'general' -and (Get-Command Update-DemarragesParametres -ErrorAction SilentlyContinue)) { Update-DemarragesParametres }
     $ui.PageAppli.Visibility = if ($Id -in @('accueil', 'parametres')) { 'Collapsed' } else { 'Visible' }
+    # L'accueil en console 3D quand elle peut s'afficher (console.ps1, chargé en dernier)
+    if (Get-Command Update-PageConsole -ErrorAction SilentlyContinue) { Update-PageConsole }
     # Onglet d'une appli : elle s'affiche ici, dans Mindset (integration.ps1, chargé après ce module)
     if (Get-Command Update-HotesVisibles -ErrorAction SilentlyContinue) {
         Update-HotesVisibles

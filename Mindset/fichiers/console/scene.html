@@ -1,0 +1,552 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mindset, la console</title>
+<style>
+/* La console de Mindset : une tablette en 3D, son menu dessiné sur son écran. Affichée par Mindset (WebView2, console.ps1),
+   hors connexion : tout vient du dossier « console ». Elle ne fait rien d'elle-même : elle envoie les clics à Mindset. */
+html, body { margin: 0; height: 100%; overflow: hidden; background: #07060D; }
+canvas { display: block; outline: none; }
+#fondu { position: fixed; inset: 0; pointer-events: none; opacity: 0; background: #FFFFFF; transition: opacity 260ms ease; }
+</style>
+</head>
+<body>
+<div id="scene"></div>
+<div id="fondu"></div>
+<script type="importmap">
+{ "imports": { "three": "./three/three.module.js", "three/addons/": "./three/addons/" } }
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+
+const POLICE = '"Segoe UI Variable Display", "Segoe UI", sans-serif';
+const params = new URLSearchParams(location.search);
+const vitesse = params.get('animations') === 'express' || matchMedia('(prefers-reduced-motion: reduce)').matches ? 0.35 : 1;
+// Messages vers Mindset : seulement des actions connues, avec l'identifiant d'une appli (Mindset vérifie tout)
+const hote = (type, donnees = {}) => { try { window.chrome?.webview?.postMessage({ type, ...donnees }); } catch (e) {} };
+
+// ---------------------------------------------------------------- l'état, donné par Mindset (window.mindset.etat)
+let APPLIS = {};          // id -> { nom, c1, c2, installee, etat: ferme | ouvert | fond, maj: null | { etat, progres, version } }
+let TUILES = [];          // l'ordre des tuiles
+const images = {};
+const enChargement = {};
+function chargerLogo(id, url) {
+  if (!url || images[id] || enChargement[id]) return;
+  enChargement[id] = true;
+  const im = new Image();
+  im.onload = () => { images[id] = im; if (cartouches[id]) rafraichirEtiquette(id); };
+  im.src = url;
+}
+chargerLogo('mindset', 'logos/mindset.png');
+
+// ---------------------------------------------------------------- moteur
+const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.05;
+document.getElementById('scene').appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x07060d);
+scene.fog = new THREE.Fog(0x07060d, 11, 26);
+const pmrem = new THREE.PMREMGenerator(renderer);
+scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+scene.environmentIntensity = 0.32;
+
+const camera = new THREE.PerspectiveCamera(40, innerWidth / innerHeight, 0.05, 100);
+const VUES = {
+  large:  { pos: new THREE.Vector3(0, 0.9, 10.6), vise: new THREE.Vector3(0, 0.15, 0), fov: 40 },
+  menu:   { pos: new THREE.Vector3(0, 0.55, 4.9), vise: new THREE.Vector3(0, 0.55, 0), fov: 40 },
+  boot:   { pos: new THREE.Vector3(0, 0.7, 8.4), vise: new THREE.Vector3(0, 0.55, 0.2), fov: 40 },
+  dedans: { pos: new THREE.Vector3(0, 0.55, 0.62), vise: new THREE.Vector3(0, 0.55, 0.2), fov: 24 },
+};
+const depart = params.get('vue') === 'dedans' ? 'dedans' : 'menu';
+const cam = { pos: VUES[depart].pos.clone(), vise: VUES[depart].vise.clone(), fov: VUES[depart].fov, vue: depart };
+function poserCamera() { camera.position.copy(cam.pos); camera.fov = cam.fov; camera.updateProjectionMatrix(); camera.lookAt(cam.vise); }
+poserCamera();
+
+const cle = new THREE.DirectionalLight(0xffffff, 1.4); cle.position.set(4, 6, 7); scene.add(cle);
+const lumCyan = new THREE.PointLight(0x00e5ff, 60, 22); lumCyan.position.set(-6, 2.5, -1.5); scene.add(lumCyan);
+const lumMagenta = new THREE.PointLight(0xff2eb5, 60, 22); lumMagenta.position.set(6, 2.5, -1.5); scene.add(lumMagenta);
+scene.add(new THREE.AmbientLight(0x6a5cff, 0.15));
+const sol = new THREE.Mesh(new THREE.CircleGeometry(14, 64), new THREE.MeshStandardMaterial({ color: 0x0b0a12, roughness: 0.28, metalness: 0.6 }));
+sol.rotation.x = -Math.PI / 2; sol.position.y = -2.45; scene.add(sol);
+function textureHalo(c) {
+  const cv = document.createElement('canvas'); cv.width = cv.height = 256; const x = cv.getContext('2d');
+  const g = x.createRadialGradient(128, 128, 0, 128, 128, 128); g.addColorStop(0, c); g.addColorStop(1, 'rgba(0,0,0,0)');
+  x.fillStyle = g; x.fillRect(0, 0, 256, 256); const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; return t;
+}
+const halo = new THREE.Mesh(new THREE.PlaneGeometry(11, 5), new THREE.MeshBasicMaterial({ map: textureHalo('rgba(122,91,255,0.55)'), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }));
+halo.rotation.x = -Math.PI / 2; halo.position.y = -2.43; scene.add(halo);
+const poussiere = (() => {
+  const n = 260, pos = new Float32Array(n * 3), col = new Float32Array(n * 3);
+  const a = new THREE.Color(0x00e5ff), b = new THREE.Color(0xff2eb5);
+  for (let i = 0; i < n; i++) {
+    pos[i * 3] = (Math.random() - 0.5) * 30; pos[i * 3 + 1] = Math.random() * 12 - 3; pos[i * 3 + 2] = -4 - Math.random() * 12;
+    const c = a.clone().lerp(b, Math.random()); col[i * 3] = c.r; col[i * 3 + 1] = c.g; col[i * 3 + 2] = c.b;
+  }
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(pos, 3)); g.setAttribute('color', new THREE.BufferAttribute(col, 3));
+  const p = new THREE.Points(g, new THREE.PointsMaterial({ size: 0.06, vertexColors: true, transparent: true, opacity: 0.75, depthWrite: false }));
+  scene.add(p); return p;
+})();
+
+// ---------------------------------------------------------------- la tablette : son écran et sa fente
+const consoleG = new THREE.Group(); consoleG.position.set(0, 0.55, 0); scene.add(consoleG);
+consoleG.add(new THREE.Mesh(new RoundedBoxGeometry(4.4, 2.5, 0.36, 6, 0.14), new THREE.MeshPhysicalMaterial({ color: 0x17151f, roughness: 0.32, metalness: 0.25, clearcoat: 0.7, clearcoatRoughness: 0.25 })));
+const cadre = new THREE.Mesh(new RoundedBoxGeometry(3.95, 2.28, 0.02, 4, 0.06), new THREE.MeshStandardMaterial({ color: 0x050409, roughness: 0.15, metalness: 0.1 }));
+cadre.position.z = 0.181; consoleG.add(cadre);
+const ecranCv = document.createElement('canvas'); ecranCv.width = 1024; ecranCv.height = 576;
+const ex = ecranCv.getContext('2d');
+const ecranTex = new THREE.CanvasTexture(ecranCv); ecranTex.colorSpace = THREE.SRGBColorSpace;
+const ecran = new THREE.Mesh(new THREE.PlaneGeometry(3.72, 2.09), new THREE.MeshBasicMaterial({ map: ecranTex, toneMapped: false }));
+ecran.position.z = 0.193; consoleG.add(ecran);
+const matNoir = new THREE.MeshStandardMaterial({ color: 0x111018, roughness: 0.5, metalness: 0.2 });
+const fente = new THREE.Mesh(new THREE.BoxGeometry(1.0, 0.05, 0.16), new THREE.MeshStandardMaterial({ color: 0x020203, roughness: 1 }));
+fente.position.set(1.05, 1.24, 0); consoleG.add(fente);
+const levre = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.02, 0.22), new THREE.MeshStandardMaterial({ color: 0x2c2840, roughness: 0.4, metalness: 0.5 }));
+levre.position.set(1.05, 1.255, 0); consoleG.add(levre);
+
+// ---------------------------------------------------------------- les cartouches (une par appli de Mindset)
+const cartouches = {};
+const matCoque = new THREE.MeshPhysicalMaterial({ color: 0x24212f, roughness: 0.45, metalness: 0.1, clearcoat: 0.4 });
+function etiquette(id) {
+  const cv = document.createElement('canvas'); cv.width = 256; cv.height = 256; const x = cv.getContext('2d');
+  const a = APPLIS[id];
+  const g = x.createLinearGradient(0, 0, 256, 256); g.addColorStop(0, '#1b1830'); g.addColorStop(1, '#0a0912');
+  x.fillStyle = g; x.fillRect(0, 0, 256, 256);
+  x.strokeStyle = a.c1; x.lineWidth = 6; x.strokeRect(6, 6, 244, 244);
+  x.shadowColor = a.c1; x.shadowBlur = 24;
+  if (images[id]) x.drawImage(images[id], 58, 34, 140, 140);
+  else { x.fillStyle = a.c1; x.font = `700 110px ${POLICE}`; x.textAlign = 'center'; x.fillText(a.nom.charAt(0).toUpperCase(), 128, 145); }
+  x.shadowBlur = 0;
+  x.fillStyle = a.c1; x.font = `700 28px ${POLICE}`; x.textAlign = 'center'; x.fillText(a.nom.toUpperCase(), 128, 220);
+  if (a.maj) {
+    x.save(); x.translate(204, 52); x.rotate(0.35);
+    x.fillStyle = '#FFB020'; x.beginPath(); x.arc(0, 0, 36, 0, Math.PI * 2); x.fill();
+    x.fillStyle = '#1A1206'; x.font = `700 24px ${POLICE}`; x.textAlign = 'center'; x.fillText('MAJ', 0, 8);
+    x.restore();
+  }
+  const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return t;
+}
+function creerCartouche(id) {
+  const g = new THREE.Group();
+  const coque = new THREE.Mesh(new RoundedBoxGeometry(0.82, 1.02, 0.11, 4, 0.045), matCoque); g.add(coque);
+  const tex = etiquette(id);
+  const labMat = new THREE.MeshStandardMaterial({ map: tex, roughness: 0.55, emissive: 0xffffff, emissiveMap: tex, emissiveIntensity: 0.35 });
+  const lab = new THREE.Mesh(new THREE.PlaneGeometry(0.68, 0.68), labMat); lab.position.set(0, 0.1, 0.057); g.add(lab);
+  const encoche = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.04, 0.09), matNoir); encoche.position.set(0, -0.51, 0); g.add(encoche);
+  g.userData = { id, repos: new THREE.Vector3(), phase: Math.random() * 6, anime: false, labMat };
+  coque.userData.cartouche = g; lab.userData.cartouche = g; encoche.userData.cartouche = g;
+  scene.add(g); cartouches[id] = g;
+}
+function placerCartouches() {
+  const ids = TUILES.filter((id) => APPLIS[id].installee), n = ids.length;
+  ids.forEach((id, i) => { const r = cartouches[id].userData.repos; r.set((i - (n - 1) / 2) * 1.45, -1.55, 1.7); });
+  for (const id of Object.keys(cartouches)) cartouches[id].visible = !!(APPLIS[id] && APPLIS[id].installee);
+}
+function rafraichirEtiquette(id) {
+  const c = cartouches[id]; if (!c) return;
+  const m = c.userData.labMat, ancienne = m.map, tex = etiquette(id);
+  m.map = tex; m.emissiveMap = tex; m.needsUpdate = true; ancienne.dispose();
+}
+
+// ---------------------------------------------------------------- le menu, dessiné sur l'écran
+let enFente = null, selection = 0, survol = null, zones = [], toast = null;
+let ecranMode = 'menu';
+let ecranParam = { id: null, progres: 0, flash: 0, ligne: 1 };
+const defil = { x: 0, cible: 0, glisse: false };
+function rond(x, y, w, h, r) { ex.beginPath(); ex.moveTo(x + r, y); ex.arcTo(x + w, y, x + w, y + h, r); ex.arcTo(x + w, y + h, x, y + h, r); ex.arcTo(x, y + h, x, y, r); ex.arcTo(x, y, x + w, y, r); ex.closePath(); }
+function lignes() { ex.fillStyle = 'rgba(0,0,0,0.16)'; for (let y = 0; y < 576; y += 4) ex.fillRect(0, y, 1024, 2); }
+function icone(nom, cx, cy, coul) {
+  ex.save(); ex.strokeStyle = coul; ex.fillStyle = coul; ex.lineWidth = 4; ex.lineCap = 'round';
+  if (nom === 'reglages') {
+    for (let k = 0; k < 8; k++) { ex.save(); ex.translate(cx, cy); ex.rotate(k * Math.PI / 4); ex.fillRect(-3.5, -16, 7, 7); ex.restore(); }
+    ex.beginPath(); ex.arc(cx, cy, 10, 0, Math.PI * 2); ex.stroke();
+  } else if (nom === 'majTout') {
+    ex.beginPath(); ex.moveTo(cx, cy - 13); ex.lineTo(cx, cy + 7); ex.moveTo(cx - 8, cy); ex.lineTo(cx, cy + 8); ex.lineTo(cx + 8, cy); ex.moveTo(cx - 12, cy + 14); ex.lineTo(cx + 12, cy + 14); ex.stroke();
+  } else if (nom === 'actualiser') {
+    ex.beginPath(); ex.arc(cx, cy, 12, -0.3, Math.PI * 1.55); ex.stroke();
+    ex.beginPath(); ex.moveTo(cx + 13, cy - 11); ex.lineTo(cx + 12, cy - 2); ex.lineTo(cx + 4, cy - 5); ex.stroke();
+  } else if (nom === 'veille') {
+    ex.beginPath(); ex.arc(cx, cy + 2, 12, -Math.PI * 0.32, Math.PI * 1.32); ex.stroke();
+    ex.beginPath(); ex.moveTo(cx, cy - 14); ex.lineTo(cx, cy); ex.stroke();
+  }
+  ex.restore();
+}
+// Logos vivants : ils flottent, celui de l'appli choisie respire, et de temps en temps ils « glitchent »
+const hasard = (n) => { const v = Math.sin(n * 12.9898) * 43758.5453; return v - Math.floor(v); };
+function dessinerLogo(id, x, y, l, t, choisie, ph) {
+  const img = images[id], a = APPLIS[id];
+  const echelle = choisie ? 1 + Math.sin(t * 2.4) * 0.025 : 1;
+  const ll = l * echelle, xx = x + (l - ll) / 2;
+  const yy = y + (l - ll) / 2 + (choisie ? Math.sin(t * 2.2) * 4 : Math.sin(t * 1.3 + ph) * 1.6);
+  const glitch = (t * (choisie ? 1.1 : 0.7) + ph) % 3.6 < 0.24;
+  const dessiner = (dx, alpha, teinte) => {
+    if (img) { ex.globalAlpha *= alpha; ex.drawImage(img, xx + dx, yy, ll, ll); ex.globalAlpha /= alpha; return; }
+    ex.save(); ex.globalAlpha *= alpha;
+    rond(xx + dx, yy, ll, ll, ll * 0.22); ex.fillStyle = '#100D22'; ex.fill();
+    ex.fillStyle = teinte || a.c1; ex.font = `700 ${Math.round(ll * 0.55)}px ${POLICE}`; ex.textAlign = 'center';
+    ex.shadowColor = a.c1; ex.shadowBlur = 18; ex.fillText(a.nom.charAt(0).toUpperCase(), xx + dx + ll / 2, yy + ll * 0.7);
+    ex.restore();
+  };
+  if (!glitch) { dessiner(0, 1); return; }
+  const n = Math.floor(t * 24);
+  ex.save(); ex.globalCompositeOperation = 'lighter';
+  dessiner(-6 - hasard(n) * 4, 0.5, '#00E5FF'); dessiner(6 + hasard(n + 1) * 4, 0.5, '#FF2EB5');
+  ex.restore();
+  dessiner(0, 1);
+  if (img) for (let k = 0; k < 3; k++) {
+    const sy = hasard(n * 3 + k) * 0.85, h = 0.05 + hasard(n + k * 7) * 0.07, dx = (hasard(n * 5 + k) - 0.5) * 22;
+    ex.drawImage(img, 0, sy * img.height, img.width, h * img.height, xx + dx, yy + sy * ll, ll, h * ll);
+  }
+}
+const SYSTEME = [['reglages', 'Paramètres'], ['majTout', 'Mises à jour'], ['actualiser', 'Actualiser'], ['veille', 'Veille']];
+function dessinerMenu(t) {
+  zones = [];
+  const g = ex.createLinearGradient(0, 0, 1024, 576); g.addColorStop(0, '#120E28'); g.addColorStop(1, '#05040C');
+  ex.fillStyle = g; ex.fillRect(0, 0, 1024, 576);
+  const b1 = ex.createRadialGradient(120, 60, 0, 120, 60, 380); b1.addColorStop(0, 'rgba(0,229,255,0.16)'); b1.addColorStop(1, 'rgba(0,229,255,0)');
+  ex.fillStyle = b1; ex.fillRect(0, 0, 1024, 576);
+  const b2 = ex.createRadialGradient(930, 540, 0, 930, 540, 420); b2.addColorStop(0, 'rgba(255,46,181,0.14)'); b2.addColorStop(1, 'rgba(255,46,181,0)');
+  ex.fillStyle = b2; ex.fillRect(0, 0, 1024, 576);
+  if (images.mindset) ex.drawImage(images.mindset, 34, 26, 42, 42);
+  ex.fillStyle = '#FFFFFF'; ex.font = `700 26px ${POLICE}`; ex.textAlign = 'left'; ex.fillText('Mindset', 88, 57);
+  const h = new Date(); ex.textAlign = 'right'; ex.fillStyle = '#A9A3C9'; ex.font = `500 26px ${POLICE}`;
+  ex.fillText(`${String(h.getHours()).padStart(2, '0')}:${String(h.getMinutes()).padStart(2, '0')}`, 990, 57);
+  if (!TUILES.length) { ex.textAlign = 'center'; ex.fillStyle = '#A9A3C9'; ex.font = `500 24px ${POLICE}`; ex.fillText('Chargement des applis...', 512, 280); lignes(); return; }
+  selection = Math.min(selection, TUILES.length - 1);
+  // le carrousel des applis : il défile quand elles ne tiennent pas toutes ; l'appli choisie plus grande, cerclée de sa couleur
+  const tailles = TUILES.map((id, i) => (i === selection ? 236 : 196));
+  const ecart = 34, cy = 248, debuts = []; let cumul = 0;
+  tailles.forEach((s) => { debuts.push(cumul); cumul += s + ecart; });
+  const total = cumul - ecart, VG = 48, VD = 976;
+  if (!defil.glisse) {
+    if (total <= VD - VG) defil.cible = -(1024 - total) / 2;
+    else {
+      const g0 = debuts[selection], d0 = g0 + tailles[selection];
+      if (g0 - defil.cible < VG + 70) defil.cible = g0 - VG - 70;
+      if (d0 - defil.cible > VD - 70) defil.cible = d0 - VD + 70;
+      defil.cible = Math.min(total - VD + 20, Math.max(-VG + 20, defil.cible));
+    }
+  }
+  defil.x += (defil.cible - defil.x) * 0.18;
+  defil.debuts = debuts; defil.tailles = tailles;
+  TUILES.forEach((id, i) => {
+    const a = APPLIS[id], s = tailles[i], x = debuts[i] - defil.x, y = cy - s / 2, choisie = i === selection;
+    if (x > 1024 || x + s < 0) return;
+    ex.save();
+    if (choisie) { ex.shadowColor = a.c1; ex.shadowBlur = 34 + Math.sin(t * 3) * 8; }
+    rond(x, y, s, s, 28); ex.fillStyle = choisie ? '#1A1636' : '#141126'; ex.fill();
+    ex.restore();
+    if (choisie) { rond(x, y, s, s, 28); ex.lineWidth = 5; ex.strokeStyle = a.c1; ex.stroke(); }
+    else if (!a.installee) { ex.save(); ex.setLineDash([8, 7]); rond(x, y, s, s, 28); ex.lineWidth = 2; ex.strokeStyle = 'rgba(255,255,255,0.22)'; ex.stroke(); ex.restore(); }
+    const l = s * 0.62;
+    ex.globalAlpha = !choisie && (!a.installee || a.etat === 'ferme') ? 0.72 : 1;
+    dessinerLogo(id, x + (s - l) / 2, y + s * 0.12, l, t, choisie, i * 1.37);
+    ex.globalAlpha = 1;
+    ex.textAlign = 'center'; ex.fillStyle = choisie ? '#FFFFFF' : '#C9C4DD'; ex.font = `700 ${choisie ? 24 : 20}px ${POLICE}`;
+    ex.fillText(a.nom, x + s / 2, y + s * 0.9);
+    const m = a.maj, charge = m && m.etat !== 'dispo', etat = enFente === id ? 'fente' : a.etat;
+    if (m && m.etat === 'dispo') {
+      rond(x + s - 64, y + 12, 52, 26, 13); ex.fillStyle = '#FFB020'; ex.fill();
+      ex.fillStyle = '#1A1206'; ex.font = `700 15px ${POLICE}`; ex.fillText('MAJ', x + s - 38, y + 30);
+    }
+    if (!a.installee || etat !== 'ferme') {
+      const txt = !a.installee ? 'À INSTALLER' : etat === 'fente' ? 'EN PAUSE' : 'EN ARRIÈRE-PLAN', w = !a.installee ? 130 : etat === 'fente' ? 104 : 170;
+      rond(x + s / 2 - w / 2, y - 18, w, 30, 15); ex.fillStyle = etat === 'fente' ? a.c1 : '#2B2648'; ex.fill();
+      ex.fillStyle = etat === 'fente' ? '#08060F' : '#ECEAF7'; ex.font = `700 15px ${POLICE}`; ex.fillText(txt, x + s / 2, y + 2);
+    }
+    zones.push({ x, y, w: s, h: s, action: 'tuile', id });
+    let sous = y + s + 12;
+    if (charge) {   // sous la tuile, en petit : une fine barre, et « Téléchargement » juste dessous
+      const bw = Math.min(s - 20, 200), bx = x + (s - bw) / 2;
+      rond(bx, sous, bw, 6, 3); ex.fillStyle = 'rgba(255,255,255,0.16)'; ex.fill();
+      if (m.progres > 0.01) { rond(bx, sous, Math.max(6, bw * Math.min(1, m.progres)), 6, 3); ex.fillStyle = '#FFB020'; ex.fill(); }
+      ex.font = `500 14px ${POLICE}`; ex.fillStyle = '#C9C4DD';
+      ex.textAlign = 'left'; ex.fillText(m.etat === 'installation' ? 'Installation...' : 'Téléchargement', bx, sous + 23);
+      if (m.etat === 'telechargement' && m.progres > 0) { ex.textAlign = 'right'; ex.fillText(`${Math.floor(m.progres * 100)} %`, bx + bw, sous + 23); }
+      ex.textAlign = 'center'; sous += 34;
+    }
+    if (choisie && !charge) {   // sous la tuile choisie : ses boutons
+      const boutons = [];
+      if (!a.installee) boutons.push({ action: 'installer', texte: 'Installer', w: 120, fond: '#00E5FF', fondDoux: 'rgba(0,229,255,0.18)', encre: '#8FF4FF' });
+      if (m && m.etat === 'dispo') boutons.push({ action: 'maj', texte: 'Mettre à jour', w: 150, fond: '#FFB020', fondDoux: 'rgba(255,176,32,0.2)', encre: '#FFD27A' });
+      if (a.installee && etat !== 'ferme') boutons.push({ action: 'fermer', texte: 'Fermer', w: 108, fond: '#FF5C7A', fondDoux: 'rgba(255,92,122,0.18)', encre: '#FF9BAE' });
+      const largeur = boutons.reduce((lg, b) => lg + b.w, 0) + 10 * Math.max(0, boutons.length - 1);
+      let bx = x + s / 2 - largeur / 2;
+      for (const b of boutons) {
+        const dessus = survol && survol.action === b.action;
+        rond(bx, sous, b.w, 34, 17); ex.fillStyle = dessus ? b.fond : b.fondDoux; ex.fill();
+        ex.fillStyle = dessus ? '#08060F' : b.encre; ex.font = `700 16px ${POLICE}`; ex.fillText(b.texte, bx + b.w / 2, sous + 23);
+        zones.push({ x: bx, y: sous, w: b.w, h: 34, action: b.action, id });
+        bx += b.w + 10;
+      }
+    }
+  });
+  const encoreGauche = defil.x > -VG + 30, encoreDroite = total - defil.x > VD - 10;
+  for (const [cote, visible] of [['g', encoreGauche], ['d', encoreDroite]]) {
+    if (!visible) continue;
+    const x0 = cote === 'g' ? 0 : 1024 - 90, gr = ex.createLinearGradient(x0, 0, x0 + 90, 0);
+    gr.addColorStop(cote === 'g' ? 0 : 1, 'rgba(10,8,24,0.95)'); gr.addColorStop(cote === 'g' ? 1 : 0, 'rgba(10,8,24,0)');
+    ex.fillStyle = gr; ex.fillRect(x0, 110, 90, 330);
+    ex.fillStyle = '#ECEAF7'; ex.font = `700 46px ${POLICE}`; ex.textAlign = 'center';
+    ex.globalAlpha = 0.55 + 0.35 * Math.sin(t * 3); ex.fillText(cote === 'g' ? '‹' : '›', cote === 'g' ? 26 : 998, cy + 14); ex.globalAlpha = 1;
+  }
+  const n = SYSTEME.length, ecartB = 92, x0 = 512 - ((n - 1) * ecartB) / 2;
+  SYSTEME.forEach(([nom, libelle], k) => {
+    const cx = x0 + k * ecartB, cyb = 500, dessus = survol && survol.action === nom;
+    ex.beginPath(); ex.arc(cx, cyb, 30, 0, Math.PI * 2); ex.fillStyle = dessus ? 'rgba(0,229,255,0.22)' : 'rgba(255,255,255,0.07)'; ex.fill();
+    ex.lineWidth = 2; ex.strokeStyle = dessus ? '#00E5FF' : 'rgba(255,255,255,0.22)'; ex.stroke();
+    icone(nom, cx, cyb, dessus ? '#E8FDFF' : '#C9C4DD');
+    if (dessus) { ex.fillStyle = '#ECEAF7'; ex.font = `500 16px ${POLICE}`; ex.textAlign = 'center'; ex.fillText(libelle, cx, cyb + 52); }
+    zones.push({ x: cx - 32, y: cyb - 32, w: 64, h: 64, action: nom });
+  });
+  if (toast && t < toast.fin) {
+    ex.font = `500 20px ${POLICE}`; const w = ex.measureText(toast.texte).width + 44;
+    rond(512 - w / 2, 92, w, 42, 21); ex.fillStyle = 'rgba(12,9,32,0.92)'; ex.fill(); ex.strokeStyle = 'rgba(0,229,255,0.6)'; ex.lineWidth = 2; ex.stroke();
+    ex.fillStyle = '#ECEAF7'; ex.textAlign = 'center'; ex.fillText(toast.texte, 512, 120);
+  }
+  lignes();
+}
+function ecranAppli(id, p, flash) {
+  const a = APPLIS[id];
+  const g = ex.createRadialGradient(512, 240, 20, 512, 288, 640); g.addColorStop(0, a.c1 + '66'); g.addColorStop(0.45, '#0C0920'); g.addColorStop(1, '#06050F');
+  ex.fillStyle = g; ex.fillRect(0, 0, 1024, 576);
+  ex.shadowColor = a.c1; ex.shadowBlur = 50;
+  if (images[id]) ex.drawImage(images[id], 412, 70, 200, 200);
+  else { ex.fillStyle = a.c1; ex.font = `700 160px ${POLICE}`; ex.textAlign = 'center'; ex.fillText(a.nom.charAt(0).toUpperCase(), 512, 230); }
+  ex.shadowBlur = 0;
+  ex.fillStyle = '#FFFFFF'; ex.font = `700 64px ${POLICE}`; ex.textAlign = 'center'; ex.fillText(a.nom, 512, 350);
+  ex.fillStyle = 'rgba(255,255,255,0.14)'; ex.fillRect(312, 400, 400, 10);
+  const b = ex.createLinearGradient(312, 0, 712, 0); b.addColorStop(0, a.c1); b.addColorStop(1, a.c2);
+  ex.fillStyle = b; ex.fillRect(312, 400, 400 * Math.min(1, p), 10);
+  ex.fillStyle = '#A9A3C9'; ex.font = `500 26px ${POLICE}`; ex.fillText(p >= 1 ? 'Prêt' : 'Chargement...', 512, 450);
+  lignes();
+  if (flash > 0) { ex.fillStyle = `rgba(255,255,255,${flash})`; ex.fillRect(0, 0, 1024, 576); }
+}
+function ecranEteint(ligne) {
+  ex.fillStyle = '#020104'; ex.fillRect(0, 0, 1024, 576);
+  if (ligne > 0) { const h = Math.max(2, 576 * ligne * ligne); ex.fillStyle = '#E8FDFF'; ex.fillRect(512 - 512 * Math.min(1, ligne * 1.6), 288 - h / 2, 1024 * Math.min(1, ligne * 1.6), h); }
+}
+
+// ---------------------------------------------------------------- rendu et lueur néon
+const composer = new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene, camera));
+const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 0.6, 0.55, 0.78);
+composer.addPass(bloom);
+composer.addPass(new OutputPass());
+
+// ---------------------------------------------------------------- les animations, en file
+const file = [];
+let etape = null;
+const doux = (p) => (p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2);
+const sortie = (p) => 1 - Math.pow(1 - p, 3);
+function bezier(a, b, c, d, t, out) {
+  const u = 1 - t;
+  return out.set(0, 0, 0).addScaledVector(a, u * u * u).addScaledVector(b, 3 * u * u * t).addScaledVector(c, 3 * u * t * t).addScaledVector(d, t * t * t);
+}
+const occupe = () => etape !== null || file.length > 0;
+const enchainer = (...e) => file.push(...e);
+function versVue(nom, duree, courbe = doux) {
+  return { duree, debut() { this.de = { pos: cam.pos.clone(), vise: cam.vise.clone(), fov: cam.fov }; cam.vue = nom; },
+    maj(p) { const k = courbe(p), v = VUES[nom]; cam.pos.lerpVectors(this.de.pos, v.pos, k); cam.vise.lerpVectors(this.de.vise, v.vise, k); cam.fov = THREE.MathUtils.lerp(this.de.fov, v.fov, k); } };
+}
+const AU_DESSUS = new THREE.Vector3(1.05, 3.15, 0), DEDANS = new THREE.Vector3(1.05, 1.6, 0);
+const fondu = document.getElementById('fondu');
+function etapesEjecter(id) {
+  const c = cartouches[id];
+  return [
+    { duree: 0.28 * vitesse, debut() { c.userData.anime = true; ecranMode = 'eteint'; ecranParam.ligne = 0; }, maj(p) { c.position.lerpVectors(DEDANS, AU_DESSUS, sortie(p)); c.rotation.set(0, 0, Math.sin(p * Math.PI) * 0.12); } },
+    { duree: 0.75 * vitesse, debut() { this.de = c.position.clone(); },
+      maj(p) { const k = doux(p), r = c.userData.repos; bezier(this.de, new THREE.Vector3(this.de.x, this.de.y + 1.0, 0.8), new THREE.Vector3(r.x, r.y + 2.0, r.z + 0.6), r, k, c.position); c.rotation.set(THREE.MathUtils.lerp(0, -0.32, k), -k * Math.PI * 2, 0); },
+      fin() { c.userData.anime = false; enFente = null; } },
+  ];
+}
+function etapesInserer(id) {
+  const c = cartouches[id];
+  return [
+    { duree: 1.15 * vitesse, debut() { c.userData.anime = true; c.visible = true; this.de = c.position.clone(); this.rot = c.rotation.x; c.scale.setScalar(1); },
+      maj(p) { const k = doux(p); bezier(this.de, new THREE.Vector3(this.de.x, this.de.y + 2.2, this.de.z + 1.2), new THREE.Vector3(AU_DESSUS.x, AU_DESSUS.y + 1.2, 1.0), AU_DESSUS, k, c.position); c.rotation.set(THREE.MathUtils.lerp(this.rot, 0, k), k * Math.PI * 2, Math.sin(k * Math.PI) * 0.35); } },
+    { duree: 0.32 * vitesse, maj(p) { c.position.lerpVectors(AU_DESSUS, DEDANS, p * p); c.rotation.set(0, 0, 0); } },
+    { duree: 0.28 * vitesse, debut() { enFente = id; c.userData.anime = false; ecranMode = 'appli'; ecranParam = { id, progres: 0, flash: 1, ligne: 1 }; },
+      maj(p) { consoleG.position.y = 0.55 - Math.sin(p * Math.PI) * 0.06; bloom.strength = 0.6 + Math.sin(p * Math.PI) * 0.9; ecranParam.flash = 1 - p * 0.3; } },
+  ];
+}
+function etapePlonger(id, duree) {
+  return Object.assign(versVue('dedans', duree, (p) => p * p * p), {
+    maj2(p) { ecranMode = 'appli'; ecranParam = { id, progres: 1, flash: 0, ligne: 1 }; fondu.style.background = APPLIS[id].c1; if (p > 0.7) fondu.style.opacity = Math.min(0.85, (p - 0.7) / 0.3); },
+    fin() { hote('afficher', { id }); setTimeout(() => { fondu.style.opacity = 0; }, 400); },
+  });
+}
+// Ouvrir une appli : recul, éjection de celle qui est dans la fente, insertion, démarrage, plongée ; puis Mindset l'affiche
+function jouerOuverture(id) {
+  if (!APPLIS[id] || occupe()) return;
+  selection = Math.max(0, TUILES.indexOf(id));
+  if (enFente === id || !cartouches[id]) { enchainer(etapePlonger(id, 0.85 * vitesse)); return; }
+  enchainer(versVue('large', 0.7 * vitesse));
+  if (enFente && cartouches[enFente]) enchainer(...etapesEjecter(enFente));
+  enchainer(...etapesInserer(id), Object.assign(versVue('boot', 0.95 * vitesse), { maj2(p) { bloom.strength = 0.75; ecranParam.progres = p; ecranParam.flash = Math.max(0, 0.7 - p * 2); } }), etapePlonger(id, 1.3 * vitesse));
+}
+// Revenir de l'appli au menu : la caméra ressort de l'écran
+function jouerRetour(id) {
+  if (id && APPLIS[id] && cartouches[id]) { enFente = id; const c = cartouches[id]; c.visible = true; c.position.copy(DEDANS); c.rotation.set(0, 0, 0); }
+  selection = Math.max(0, TUILES.indexOf(id));
+  cam.pos.copy(VUES.dedans.pos); cam.vise.copy(VUES.dedans.vise); cam.fov = VUES.dedans.fov;
+  ecranMode = 'menu';
+  enchainer(versVue('menu', 1.0 * vitesse, sortie));
+}
+// Fermer l'appli qui est dans la fente : elle s'éjecte, puis retour au menu
+function jouerEjection(id) {
+  if (occupe() || enFente !== id || !cartouches[id]) return;
+  enchainer(versVue('large', 0.7 * vitesse), ...etapesEjecter(id), { duree: 0.1, debut() { ecranMode = 'menu'; } }, versVue('menu', 0.8 * vitesse));
+}
+
+// ---------------------------------------------------------------- la boucle : 30 images par seconde au repos, 60 pendant une animation
+let dernier = 0, enPause = false;
+const v = new THREE.Vector3();
+function image() {
+  const t = performance.now() / 1000;
+  if (!occupe() && t - dernier < 1 / 30) return;
+  dernier = t;
+  poussiere.rotation.y = t * 0.01;
+  if (!etape && file.length) { etape = file.shift(); etape.t0 = t; etape.debut?.(); }
+  if (etape) {
+    const p = Math.min(1, (t - etape.t0) / Math.max(0.01, etape.duree));
+    etape.maj?.(p); etape.maj2?.(p);
+    if (p >= 1) { const e = etape; etape = null; e.fin?.(); }
+  }
+  for (const id of Object.keys(cartouches)) {
+    const c = cartouches[id];
+    if (c.userData.anime || enFente === id || !c.visible) continue;
+    c.position.set(c.userData.repos.x, c.userData.repos.y + Math.sin(t * 1.4 + c.userData.phase) * 0.06, c.userData.repos.z);
+    c.rotation.set(-0.32, Math.sin(t * 0.7 + c.userData.phase) * 0.12, 0);
+    const s = c.userData.survol && !occupe() ? 1.08 : 1; c.scale.lerp(v.set(s, s, s), 0.15);
+    c.userData.labMat.emissiveIntensity = APPLIS[id] && APPLIS[id].etat === 'fond' ? 0.85 + Math.sin(t * 2.5 + c.userData.phase) * 0.3 : 0.35;
+  }
+  if (!occupe() && (cam.vue === 'menu' || cam.vue === 'large')) {
+    const vue = VUES[cam.vue];
+    cam.pos.set(vue.pos.x + Math.sin(t * 0.25) * (cam.vue === 'menu' ? 0.12 : 0.5), vue.pos.y + Math.sin(t * 0.33) * 0.05, vue.pos.z);
+  }
+  poserCamera();
+  if (ecranMode === 'menu') dessinerMenu(t);
+  else if (ecranMode === 'appli') ecranAppli(ecranParam.id, ecranParam.progres, ecranParam.flash);
+  else ecranEteint(ecranParam.ligne);
+  ecranTex.needsUpdate = true;
+  if (bloom.strength > 0.6 && !etape) bloom.strength += (0.6 - bloom.strength) * 0.05;
+  composer.render();
+}
+renderer.setAnimationLoop(image);
+function pause() { if (!enPause) { enPause = true; renderer.setAnimationLoop(null); } }
+function reprendre() { if (enPause) { enPause = false; renderer.setAnimationLoop(image); } }
+document.addEventListener('visibilitychange', () => { if (document.hidden) pause(); else reprendre(); });
+
+// ---------------------------------------------------------------- souris, glisser, molette, clavier
+const rayon = new THREE.Raycaster(), souris = new THREE.Vector2();
+function viser(e) {
+  const r = renderer.domElement.getBoundingClientRect();
+  souris.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+  rayon.setFromCamera(souris, camera);
+  const cibles = [ecran, ...Object.values(cartouches).filter((c) => c.visible).flatMap((c) => c.children)];
+  const h = rayon.intersectObjects(cibles, false)[0];
+  if (!h) return { zone: null, cartouche: null, surEcran: false };
+  if (h.object === ecran) {
+    if (ecranMode !== 'menu') return { zone: null, cartouche: null, surEcran: true };
+    const px = h.uv.x * 1024, py = (1 - h.uv.y) * 576;
+    return { zone: zones.find((z) => px >= z.x && px <= z.x + z.w && py >= z.y && py <= z.y + z.h) || null, cartouche: null, surEcran: true };
+  }
+  return { zone: null, cartouche: h.object.userData.cartouche || null, surEcran: false };
+}
+const prise = { active: false, x0: 0, defil0: 0, aGlisse: false };
+function largeurEcranPixels() {
+  const a = new THREE.Vector3(-1.86, 0, 0.193), b = new THREE.Vector3(1.86, 0, 0.193);
+  consoleG.localToWorld(a); consoleG.localToWorld(b); a.project(camera); b.project(camera);
+  return Math.abs(b.x - a.x) / 2 * renderer.domElement.clientWidth;
+}
+renderer.domElement.addEventListener('pointerdown', (e) => {
+  if (occupe() || ecranMode !== 'menu') return;
+  if (viser(e).surEcran) Object.assign(prise, { active: true, x0: e.clientX, defil0: defil.x, aGlisse: false });
+});
+renderer.domElement.addEventListener('pointermove', (e) => {
+  if (occupe()) { survol = null; return; }
+  if (prise.active && (e.buttons & 1)) {
+    const dx = (e.clientX - prise.x0) * (1024 / Math.max(50, largeurEcranPixels()));
+    if (Math.abs(dx) > 8) prise.aGlisse = true;
+    if (prise.aGlisse) { defil.glisse = true; defil.cible = prise.defil0 - dx; survol = null; renderer.domElement.style.cursor = 'grabbing'; return; }
+  }
+  const { zone, cartouche } = viser(e);
+  survol = zone;
+  if (zone && zone.action === 'tuile' && zone.x >= 40 && zone.x + zone.w <= 984) selection = TUILES.indexOf(zone.id);
+  for (const id of Object.keys(cartouches)) cartouches[id].userData.survol = cartouches[id] === cartouche;
+  renderer.domElement.style.cursor = zone || cartouche ? 'pointer' : 'default';
+});
+addEventListener('pointerup', () => {
+  if (!prise.active) return;
+  prise.active = false;
+  if (!prise.aGlisse || !defil.debuts) return;
+  let meilleur = 0, ecartMin = Infinity;
+  defil.debuts.forEach((d, i) => { const c = d + defil.tailles[i] / 2 - defil.cible; if (Math.abs(c - 512) < ecartMin) { ecartMin = Math.abs(c - 512); meilleur = i; } });
+  selection = meilleur; defil.glisse = false;
+  setTimeout(() => { prise.aGlisse = false; }, 0);
+});
+renderer.domElement.addEventListener('wheel', (e) => {
+  if (occupe() || ecranMode !== 'menu' || !TUILES.length) return;
+  e.preventDefault();
+  selection = Math.min(TUILES.length - 1, Math.max(0, selection + Math.sign(e.deltaY || e.deltaX)));
+}, { passive: false });
+function agir(action, id) {
+  if (occupe()) return;
+  if (action === 'tuile') action = APPLIS[id] && APPLIS[id].installee ? 'ouvrir' : 'installer';
+  hote('action', { action, id: id || '' });
+}
+renderer.domElement.addEventListener('click', (e) => {
+  if (prise.aGlisse || occupe()) return;
+  const { zone, cartouche } = viser(e);
+  if (zone) agir(zone.action, zone.id); else if (cartouche) agir('ouvrir', cartouche.userData.id);
+});
+addEventListener('keydown', (e) => {
+  if (occupe() || !TUILES.length) return;
+  if (e.key === 'ArrowRight') selection = Math.min(TUILES.length - 1, selection + 1);
+  else if (e.key === 'ArrowLeft') selection = Math.max(0, selection - 1);
+  else if (e.key === 'Enter') agir('tuile', TUILES[selection]);
+  else if (e.key === 'Delete') { const id = TUILES[selection]; if (APPLIS[id].etat !== 'ferme') agir('fermer', id); }
+  else return;
+  e.preventDefault();
+});
+addEventListener('resize', () => {
+  camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight); composer.setSize(innerWidth, innerHeight);
+});
+
+// ---------------------------------------------------------------- ce que Mindset peut demander
+function etat(e) {
+  if (!e || !Array.isArray(e.applis)) return;
+  const nouvelles = {};
+  for (const a of e.applis) {
+    if (typeof a.id !== 'string' || !/^[a-z0-9-]{1,30}$/.test(a.id)) continue;
+    nouvelles[a.id] = { nom: String(a.nom || a.id).slice(0, 30), c1: /^#[0-9A-Fa-f]{6}$/.test(a.c1) ? a.c1 : '#00E5FF', c2: /^#[0-9A-Fa-f]{6}$/.test(a.c2) ? a.c2 : '#B04BFF',
+      installee: !!a.installee, etat: ['ferme', 'ouvert', 'fond'].includes(a.etat) ? a.etat : 'ferme', maj: a.maj && ['dispo', 'telechargement', 'installation'].includes(a.maj.etat) ? { etat: a.maj.etat, progres: Number(a.maj.progres) || 0 } : null };
+  }
+  const avant = APPLIS; APPLIS = nouvelles; TUILES = e.applis.map((a) => a.id).filter((id) => APPLIS[id]);
+  for (const a of e.applis) if (APPLIS[a.id]) chargerLogo(a.id, typeof a.logo === 'string' && /^logos\/[a-z0-9-]+\.png$/.test(a.logo) ? a.logo : null);
+  for (const id of TUILES) {
+    if (!cartouches[id]) creerCartouche(id);
+    else if (!avant[id] || !!avant[id].maj !== !!APPLIS[id].maj || avant[id].nom !== APPLIS[id].nom) rafraichirEtiquette(id);
+  }
+  if (enFente && (!APPLIS[enFente] || APPLIS[enFente].etat === 'ferme')) enFente = null;
+  placerCartouches();
+}
+function message(texte) { toast = { texte: String(texte).slice(0, 80), fin: performance.now() / 1000 + 2.4 }; }
+window.mindset = { etat, pause, reprendre, message, jouerOuverture, jouerRetour, jouerEjection };
+hote('pret');
+</script>
+</body>
+</html>
