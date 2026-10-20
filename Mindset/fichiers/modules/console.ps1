@@ -14,6 +14,7 @@
 # Chargé par Mindset.ps1 en dernier (après accueil, integration, parametres et zone).
 
 $ConsoleDir = Join-Path $AppDir 'console'
+$LogosAppliDir = Join-Path $DataDir 'console-logos'   # logos tirés de l'icône d'une appli installée (pas livrés avec Mindset)
 $Webview2Dir = Join-Path $AppDir 'lib\webview2'
 $script:Console = @{ Possible = $false; Vue = $null; Pret = $false; DerniereAppli = $null; RetourAJouer = $null; EtatEnvoye = ''; QuitteeA = $null }
 
@@ -57,6 +58,18 @@ function New-VueConsole([string]$VueDepart = 'menu') {
             $r.AreDevToolsEnabled = [bool]$env:MINDSET_CONSOLE_DEV; $r.AreDefaultContextMenusEnabled = $false; $r.IsZoomControlEnabled = $false
             $r.AreBrowserAcceleratorKeysEnabled = $false; $r.IsStatusBarEnabled = $false; $r.IsPasswordAutosaveEnabled = $false; $r.IsGeneralAutofillEnabled = $false
             $c.SetVirtualHostNameToFolderMapping('mindset.local', $ConsoleDir, [Microsoft.Web.WebView2.Core.CoreWebView2HostResourceAccessKind]::Deny)
+            # Les logos tirés des applis installées (dossier de données) : servis par Mindset lui-même, une image PNG au nom
+            # vérifié, avec l'autorisation qu'exige le navigateur pour les dessiner sur l'écran de la console
+            $c.AddWebResourceRequestedFilter('https://applogos.mindset.local/*', [Microsoft.Web.WebView2.Core.CoreWebView2WebResourceContext]::All)
+            $c.Add_WebResourceRequested({
+                param($s2, $e2)
+                $nom = [IO.Path]::GetFileName(([uri]$e2.Request.Uri).AbsolutePath)
+                $f = Join-Path $LogosAppliDir $nom
+                if ($nom -match '^[a-z0-9-]{1,30}\.png$' -and (Test-Path -LiteralPath $f)) {
+                    $flux = New-Object IO.MemoryStream (, [IO.File]::ReadAllBytes($f))
+                    $e2.Response = $s2.Environment.CreateWebResourceResponse($flux, 200, 'OK', "Content-Type: image/png`r`nAccess-Control-Allow-Origin: https://mindset.local")
+                } else { $e2.Response = $s2.Environment.CreateWebResourceResponse($null, 404, 'Not Found', '') }
+            })
             # Seule la console s'affiche : toute autre adresse, et toute nouvelle fenêtre, est refusée
             $c.Add_NavigationStarting({ param($s2, $e2) if (-not $e2.Uri.StartsWith('https://mindset.local/')) { $e2.Cancel = $true; Write-Log "Console 3D : navigation refusée ($($e2.Uri))" } })
             $c.Add_NewWindowRequested({ param($s2, $e2) $e2.Handled = $true })
@@ -135,13 +148,41 @@ function Update-PageConsole {
 function Get-EtatConsole {
     $liste = foreach ($a in $Applis) {
         $e = Get-EtatCarte $a
-        $logo = if (Test-Path -LiteralPath (Join-Path $ConsoleDir "logos\$($a.Id).png")) { "logos/$($a.Id).png" } else { $null }
-        $maj = if ($e.Occupe) { [ordered]@{ etat = $(if ($e.Occupe -match '^Installation') { 'installation' } else { 'telechargement' }); progres = 0 } }
-               elseif ($e.MajDispo) { [ordered]@{ etat = 'dispo'; progres = 0 } } else { $null }
+        $logo = Get-LogoConsole $a $e.Inst
+        $maj = if ($e.Occupe) {
+                   $pr = $script:Progres[$a.Id]
+                   if ($pr) { [ordered]@{ etat = 'telechargement'; progres = $(if ($pr.Total -gt 0) { [math]::Round([double]$pr.Recu / $pr.Total, 3) } else { 0 }) } }
+                   else { [ordered]@{ etat = 'installation'; progres = 1 } }
+               } elseif ($e.MajDispo) { [ordered]@{ etat = 'dispo'; progres = 0 } } else { $null }
         [ordered]@{ id = $a.Id; nom = $a.Nom; c1 = $a.Couleur; c2 = '#B04BFF'; logo = $logo; installee = [bool]$e.Inst
             etat = $(if ($e.Ouverte) { 'fond' } else { 'ferme' }); maj = $maj }
     }
     ConvertTo-Json -InputObject ([ordered]@{ applis = @($liste) }) -Depth 5 -Compress
+}
+# Le logo d'une appli sur la console : celui livré avec Mindset (console\logos), sinon tiré une fois de l'icône (.ico)
+# de l'appli installée ; sans rien, la console dessine la première lettre de son nom
+function Get-LogoConsole($Appli, $Inst) {
+    if (Test-Path -LiteralPath (Join-Path $ConsoleDir "logos\$($Appli.Id).png")) { return "logos/$($Appli.Id).png" }
+    $f = Join-Path $LogosAppliDir "$($Appli.Id).png"
+    if (Test-Path -LiteralPath $f) { return "https://applogos.mindset.local/$($Appli.Id).png" }
+    if (-not $Inst -or $script:Console["LogoEssaye-$($Appli.Id)"]) { return $null }
+    $script:Console["LogoEssaye-$($Appli.Id)"] = $true
+    try {
+        $ico = Get-ChildItem -LiteralPath (Join-Path $Inst.Dossier 'fichiers') -Filter '*.ico' -File -ErrorAction Stop | Select-Object -First 1
+        if (-not $ico -or $ico.Length -gt 2MB) { return $null }
+        $b = [IO.File]::ReadAllBytes($ico.FullName); $n = [BitConverter]::ToUInt16($b, 4); $meilleur = $null
+        for ($k = 0; $k -lt $n; $k++) {
+            $o = 6 + 16 * $k; $w = if ($b[$o] -eq 0) { 256 } else { $b[$o] }
+            $lg = [BitConverter]::ToUInt32($b, $o + 8); $dp = [BitConverter]::ToUInt32($b, $o + 12)
+            if ($dp + $lg -le $b.Length -and $b[$dp] -eq 0x89 -and (-not $meilleur -or $w -gt $meilleur.W)) { $meilleur = @{ W = $w; Lg = $lg; Dp = $dp } }
+        }
+        if (-not $meilleur) { return $null }   # (une icône sans image PNG : la lettre)
+        $png = New-Object byte[] $meilleur.Lg; [Array]::Copy($b, $meilleur.Dp, $png, 0, $meilleur.Lg)
+        New-Item -ItemType Directory -Force -Path $LogosAppliDir | Out-Null
+        [IO.File]::WriteAllBytes($f, $png)
+        Write-Log "Console 3D : logo de $($Appli.Nom) tiré de son icône"
+        "https://applogos.mindset.local/$($Appli.Id).png"
+    } catch { $null }
 }
 function Send-EtatConsole([switch]$Force) {
     if (-not $script:Console.Vue -or -not $script:Console.Pret) { return }

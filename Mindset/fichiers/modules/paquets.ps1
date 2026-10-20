@@ -45,12 +45,25 @@ function Get-PublicationSansApi([string]$Depot, [string]$Zip) {
     } catch { $null }
 }
 
-function Get-Octets([string]$Url) {
+# $Progres (facultatif, une table partagée avec Mindset) : Recu et Total en octets, mis à jour pendant le téléchargement
+# (la barre de progression de la console)
+function Get-Octets([string]$Url, $Progres = $null) {
     if ($Url -notmatch '^https://(github\.com|objects\.githubusercontent\.com|release-assets\.githubusercontent\.com)/') { throw "Adresse de téléchargement refusée : $Url" }
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-    $wc = New-Object Net.WebClient
-    $wc.Headers['User-Agent'] = 'Mindset'
-    try { $wc.DownloadData($Url) } finally { $wc.Dispose() }
+    if (-not $Progres) {
+        $wc = New-Object Net.WebClient
+        $wc.Headers['User-Agent'] = 'Mindset'
+        try { return , $wc.DownloadData($Url) } finally { $wc.Dispose() }
+    }
+    $req = [Net.HttpWebRequest]::Create($Url)
+    $req.UserAgent = 'Mindset'; $req.AllowAutoRedirect = $true
+    $rep = $req.GetResponse()
+    try {
+        if ($rep.ContentLength -gt 0) { $Progres.Total = $rep.ContentLength }
+        $flux = $rep.GetResponseStream(); $ms = New-Object IO.MemoryStream; $morceau = New-Object byte[] 65536
+        while (($n = $flux.Read($morceau, 0, $morceau.Length)) -gt 0) { $ms.Write($morceau, 0, $n); $Progres.Recu += $n }
+        , $ms.ToArray()
+    } finally { $rep.Dispose() }
 }
 
 function Test-VersionPlusRecente([string]$Distante, [string]$Locale) {

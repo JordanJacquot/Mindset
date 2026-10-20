@@ -42,6 +42,7 @@ function chargerLogo(id, url) {
   if (!url || images[id] || enChargement[id]) return;
   enChargement[id] = true;
   const im = new Image();
+  if (url.startsWith('https://')) im.crossOrigin = 'anonymous';   // (logo servi par Mindset hors du dossier de la console)
   im.onload = () => { images[id] = im; if (cartouches[id]) rafraichirEtiquette(id); };
   im.src = url;
 }
@@ -292,7 +293,8 @@ function dessinerMenu(t) {
       }
     }
   });
-  const encoreGauche = defil.x > -VG + 30, encoreDroite = total - defil.x > VD - 10;
+  const defile = total > VD - VG;   // (fondu et chevron seulement si toutes les applis ne tiennent pas)
+  const encoreGauche = defile && defil.x > -VG + 30, encoreDroite = defile && total - defil.x > VD - 10;
   for (const [cote, visible] of [['g', encoreGauche], ['d', encoreDroite]]) {
     if (!visible) continue;
     const x0 = cote === 'g' ? 0 : 1024 - 90, gr = ex.createLinearGradient(x0, 0, x0 + 90, 0);
@@ -536,7 +538,7 @@ function etat(e) {
       installee: !!a.installee, etat: ['ferme', 'ouvert', 'fond'].includes(a.etat) ? a.etat : 'ferme', maj: a.maj && ['dispo', 'telechargement', 'installation'].includes(a.maj.etat) ? { etat: a.maj.etat, progres: Number(a.maj.progres) || 0 } : null };
   }
   const avant = APPLIS; APPLIS = nouvelles; TUILES = e.applis.map((a) => a.id).filter((id) => APPLIS[id]);
-  for (const a of e.applis) if (APPLIS[a.id]) chargerLogo(a.id, typeof a.logo === 'string' && /^logos\/[a-z0-9-]+\.png$/.test(a.logo) ? a.logo : null);
+  for (const a of e.applis) if (APPLIS[a.id]) chargerLogo(a.id, typeof a.logo === 'string' && /^(logos\/|https:\/\/applogos\.mindset\.local\/)[a-z0-9-]+\.png$/.test(a.logo) ? a.logo : null);
   for (const id of TUILES) {
     if (!cartouches[id]) creerCartouche(id);
     else if (!avant[id] || !!avant[id].maj !== !!APPLIS[id].maj || avant[id].nom !== APPLIS[id].nom) rafraichirEtiquette(id);

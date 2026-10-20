@@ -16,6 +16,7 @@ $script:Publications = @{}   # id -> dernière version publiée (ou erreur)
 $script:Occupe = @{}         # id -> texte de l'opération en cours
 $script:Messages = @{}       # id -> dernier message affiché sur la carte
 $script:EnCours = @{}        # id -> installation en cours (version, zip, ancienne copie)
+$script:Progres = @{}        # id -> progression du téléchargement en cours (Recu, Total ; table partagée avec la tâche de fond)
 
 function Get-DossierGere($Appli) { Join-Path $RacineProgrammes $Appli.Nom }
 
@@ -258,13 +259,14 @@ function Start-InstallAppli($Appli, [string]$AncienDossier) {
     $script:Messages.Remove($Appli.Id)
     Update-Cartes
     New-Item -ItemType Directory -Force -Path $TelechargementsDir | Out-Null
-    $params = @{ Depot = $Appli.Depot; Zip = $Appli.Zip; Cle = $ClePublique; Dossier = $TelechargementsDir; Id = $Appli.Id }
+    $script:Progres[$Appli.Id] = [hashtable]::Synchronized(@{ Recu = 0; Total = 0 })
+    $params = @{ Depot = $Appli.Depot; Zip = $Appli.Zip; Cle = $ClePublique; Dossier = $TelechargementsDir; Id = $Appli.Id; Progres = $script:Progres[$Appli.Id] }
     Start-Tache {
         $p = $args[0]
         $pub = Get-Publication $p.Depot $p.Zip
         if ($pub.Erreur) { throw $pub.Erreur }
         if (-not $pub.UrlSig) { throw "La version $($pub.Version) n'est pas signée : Mindset ne l'installera pas." }
-        $zip = Get-Octets $pub.UrlZip
+        $zip = Get-Octets $pub.UrlZip $p.Progres
         $sig = Get-Octets $pub.UrlSig
         if (-not (Test-Signature $zip $sig $p.Cle)) { throw 'La signature du fichier téléchargé est invalide : rien n''a été installé.' }
         $fz = Join-Path $p.Dossier "$($p.Id).zip"; $fs = "$fz.sig"
@@ -277,6 +279,7 @@ function Start-InstallAppli($Appli, [string]$AncienDossier) {
 }
 
 function Complete-Telechargement($Appli, $Resultat, $Erreur, [string]$AncienDossier) {
+    $script:Progres.Remove($Appli.Id)
     if ($Erreur -or -not $Resultat) { Stop-Operation $Appli "Échec : $Erreur"; return }
     $script:Occupe[$Appli.Id] = $(if (-not $MindsetAdmin -and (Test-TacheInstallation)) { 'Installation...' } else { 'Installation (accepte la demande de Windows)...' })
     Update-Cartes
@@ -398,7 +401,7 @@ function Remove-AncienneCopie($Appli, [string]$Dossier, [string]$Zip) {
 }
 
 function Stop-Operation($Appli, [string]$Message) {
-    $script:Occupe.Remove($Appli.Id)
+    $script:Occupe.Remove($Appli.Id); $script:Progres.Remove($Appli.Id)
     $script:Messages[$Appli.Id] = $Message
     Update-Trouvees
     Update-Cartes
