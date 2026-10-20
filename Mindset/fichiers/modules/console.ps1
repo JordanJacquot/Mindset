@@ -26,9 +26,12 @@ function Test-ConsolePossible {
     foreach ($f in 'Microsoft.Web.WebView2.Core.dll', 'Microsoft.Web.WebView2.Wpf.dll', 'WebView2Loader.dll') { if (-not (Test-Path -LiteralPath (Join-Path $Webview2Dir $f))) { return "fichier manquant : $f" } }
     if (-not (Test-Path -LiteralPath (Join-Path $ConsoleDir 'scene.html'))) { return 'fichier manquant : console\scene.html' }
     try {
-        Add-Type -Path (Join-Path $Webview2Dir 'Microsoft.Web.WebView2.Core.dll')
-        Add-Type -Path (Join-Path $Webview2Dir 'Microsoft.Web.WebView2.Wpf.dll')
-        [Microsoft.Web.WebView2.Core.CoreWebView2Environment]::SetLoaderDllFolderPath($Webview2Dir)
+        if (-not $script:WebView2Charge) {   # (une seule fois : WebView2 refuse ensuite de changer de dossier)
+            Add-Type -Path (Join-Path $Webview2Dir 'Microsoft.Web.WebView2.Core.dll')
+            Add-Type -Path (Join-Path $Webview2Dir 'Microsoft.Web.WebView2.Wpf.dll')
+            [Microsoft.Web.WebView2.Core.CoreWebView2Environment]::SetLoaderDllFolderPath($Webview2Dir)
+            $script:WebView2Charge = $true
+        }
         $v = [Microsoft.Web.WebView2.Core.CoreWebView2Environment]::GetAvailableBrowserVersionString()
         if (-not $v) { return 'WebView2 absent de ce PC' }
         Write-Log "Console 3D : WebView2 $v"
@@ -46,7 +49,7 @@ function New-VueConsole([string]$VueDepart = 'menu') {
     if ($script:Console.Vue -or -not $script:Console.Possible) { return }
     $ui.ConsoleAttente.Visibility = 'Visible'
     $vue = New-Object Microsoft.Web.WebView2.Wpf.WebView2
-    $vue.DefaultBackgroundColor = [System.Drawing.Color]::FromArgb(255, 7, 6, 13)   # (pas d'éclair blanc à l'allumage)
+    $vue.DefaultBackgroundColor = [System.Drawing.ColorTranslator]::FromHtml((ConvertTo-ThemeHex '#07060D'))   # (pas d'éclair blanc à l'allumage)
     $cp = New-Object Microsoft.Web.WebView2.Wpf.CoreWebView2CreationProperties
     $cp.UserDataFolder = Join-Path $DataDir 'console-webview'
     $vue.CreationProperties = $cp
@@ -77,7 +80,7 @@ function New-VueConsole([string]$VueDepart = 'menu') {
             $c.Add_WebMessageReceived({ param($s2, $e2) try { Receive-MessageConsole $e2.WebMessageAsJson } catch { Write-Log "Console 3D : message ignoré ($_)" } })
             $c.Add_ProcessFailed({ param($s2, $e2) Stop-Console "processus de la 3D arrêté ($($e2.ProcessFailedKind))" })
             $anim = [string](Get-Setting 'Animations' 'completes')
-            $c.Navigate("https://mindset.local/scene.html?vue=$VueDepart&animations=$(if ($anim -eq 'express') { 'express' } else { 'completes' })")
+            $c.Navigate("https://mindset.local/scene.html?vue=$VueDepart&animations=$(if ($anim -eq 'express') { 'express' } else { 'completes' })&couleurs=$([uri]::EscapeDataString((Get-CouleursConsole)))")
         } catch { Stop-Console "réglage impossible ($($_.Exception.Message))" }
     })
     $ui.PageConsole.Children.Add($vue) | Out-Null
@@ -87,6 +90,17 @@ function New-VueConsole([string]$VueDepart = 'menu') {
         if (-not $script:Console.Vue) { return }
         try { [void]$script:Console.Vue.EnsureCoreWebView2Async() } catch { Stop-Console "démarrage impossible ($($_.Exception.Message))" }
     }, [System.Windows.Threading.DispatcherPriority]::Background)
+}
+
+# Les couleurs Néon de la scène, traduites dans le thème de la suite (themes.ps1, packs perso compris) : seulement
+# celles qui changent, en JSON ({ "00E5FF": "#FF8A3D", ... }) ; la scène garde les autres
+$CouleursScene = '07060D', '00E5FF', 'FF2EB5', 'B04BFF', '6A5CFF', '7A5BFF', '0B0A12', '17151F', '050409', '111018', '2C2840', '24212F',
+    '1B1830', '0A0912', '100D22', '120E28', '05040C', 'A9A3C9', '1A1636', '141126', 'C9C4DD', '2B2648', '08060F', 'ECEAF7', '8FF4FF',
+    'E8FDFF', '0C0920', '06050F', '0A0818'
+function Get-CouleursConsole {
+    $t = [ordered]@{}
+    foreach ($h in $CouleursScene) { $v = (ConvertTo-ThemeHex "#$h").ToUpper(); if ($v -ne "#$h") { $t[$h] = $v } }
+    $t | ConvertTo-Json -Compress
 }
 
 function Remove-VueConsole([string]$Pourquoi) {
@@ -171,7 +185,7 @@ function Get-EtatConsole {
                    if ($pr) { [ordered]@{ etat = 'telechargement'; progres = $(if ($pr.Total -gt 0) { [math]::Round([double]$pr.Recu / $pr.Total, 3) } else { 0 }) } }
                    else { [ordered]@{ etat = 'installation'; progres = 1 } }
                } elseif ($e.MajDispo) { [ordered]@{ etat = 'dispo'; progres = 0 } } else { $null }
-        [ordered]@{ id = $a.Id; nom = $a.Nom; c1 = $a.Couleur; c2 = '#B04BFF'; logo = $logo; installee = [bool]$e.Inst
+        [ordered]@{ id = $a.Id; nom = $a.Nom; c1 = (ConvertTo-ThemeHex $a.Couleur); c2 = (ConvertTo-ThemeHex '#B04BFF'); logo = $logo; installee = [bool]$e.Inst
             etat = $(if ($e.Ouverte) { 'fond' } else { 'ferme' }); maj = $maj }
     }
     ConvertTo-Json -InputObject ([ordered]@{ applis = @($liste) }) -Depth 5 -Compress
@@ -336,6 +350,36 @@ $Window.Add_PreviewKeyDown({
     Show-Page 'accueil'
 })
 Set-NavigationConsole
+
+# Paramètres > Apparence > Animations : complètes, express (plus rapides), ou aucune (l'accueil classique, sans 3D).
+# Pris en compte tout de suite : la console s'éteint, se rallume, ou repart à la bonne vitesse au retour sur l'accueil.
+function Set-ReglageAnimations([string]$Choix) {
+    Set-Setting 'Animations' $Choix
+    $ui.AnimationsInfo.Text = ''
+    if ($Choix -eq 'aucune') {
+        if (-not $script:Console.Possible) { return }
+        $script:Console.Possible = $false
+        $script:ConsoleTimer.Stop()
+        Remove-VueConsole 'réglage Animations : aucune'
+    } elseif (-not $script:Console.Possible) {
+        $raison = Test-ConsolePossible
+        if ($raison) { $ui.AnimationsInfo.Text = "La console 3D ne peut pas s'afficher sur ce PC ($raison) : l'accueil classique reste."; return }
+        $script:Console.Possible = $true
+        $script:ConsoleTimer.Start()
+    } else {
+        Remove-VueConsole 'réglage Animations changé'   # (recréée à la nouvelle vitesse au retour sur l'accueil)
+        return
+    }
+    Set-NavigationConsole
+    Update-PageConsole
+}
+foreach ($o in @(@('completes', 'Complètes : la console et toutes ses animations'), @('express', 'Express : la console, avec des animations plus rapides'), @('aucune', 'Aucune : l''accueil classique, sans 3D'))) {
+    $rb = New-Object System.Windows.Controls.RadioButton
+    $rb.GroupName = 'Animations'; $rb.Tag = $o[0]; $rb.Content = $o[1]; $rb.Margin = '0,2,0,2'; $rb.Foreground = Get-Brush '#ECEAF7'
+    $rb.IsChecked = ([string](Get-Setting 'Animations' 'completes') -eq $o[0])
+    $rb.Add_Checked({ param($s) if ([string](Get-Setting 'Animations' 'completes') -ne $s.Tag) { Set-ReglageAnimations $s.Tag } })
+    [void]$ui.ChoixAnimations.Children.Add($rb)
+}
 
 # Mindset caché près de l'horloge ou réduit : la 3D est fermée ; réaffiché sur l'accueil : elle revient
 $Window.Add_IsVisibleChanged({ if (-not $Window.IsVisible) { Remove-VueConsole 'Mindset caché' } elseif ($script:PageCourante -eq 'accueil') { Update-PageConsole } })

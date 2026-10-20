@@ -378,6 +378,13 @@
                   <TextBlock x:Name="ThemeInfo" Foreground="{StaticResource Texte3}" FontSize="12" Margin="0,6,0,0"/>
                   <Button x:Name="BtnImporterTheme" Content="Importer un thème (.zip)" Style="{StaticResource BtnSecondary}" HorizontalAlignment="Left" Margin="0,12,0,0"/>
                   <TextBlock TextWrapping="Wrap" Foreground="{StaticResource Texte3}" FontSize="12" Margin="0,8,0,0" Text="Un thème personnalisé de la suite (images, police, personnage) s'installe pour Mindset et toutes ses applis. Il reste sur ce PC."/>
+
+                  <!-- La console 3D de l'accueil : animations complètes, rapides, ou l'accueil classique (console.ps1) -->
+                  <TextBlock Text="Animations" FontSize="17" FontWeight="SemiBold" Margin="0,28,0,4"/>
+                  <TextBlock TextWrapping="Wrap" Foreground="{StaticResource Texte2}" Margin="0,0,0,10"
+                             Text="L'accueil de Mindset est une console en 3D : chaque appli est une cartouche qu'on y insère."/>
+                  <StackPanel x:Name="ChoixAnimations"/>
+                  <TextBlock x:Name="AnimationsInfo" Foreground="{StaticResource Texte3}" FontSize="12" Margin="0,6,0,0" TextWrapping="Wrap"/>
                 </StackPanel>
 
                 <!-- Son -->
