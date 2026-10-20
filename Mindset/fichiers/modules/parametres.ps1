@@ -260,6 +260,8 @@ function Open-PageDemandee {
         Open-AppliIci $id
         return
     }
+    # Retour depuis l'accueil d'une appli (touche B ou Échap dans l'appli) : le menu, la console
+    if ($t -eq 'menu') { Show-Fenetre; Show-Page 'accueil'; return }
     if ($t -notmatch '^parametres(:(general|apparence|son|maj|dossiers))?$') { return }
     $onglet = if ($Matches[2]) { $Matches[2] } else { 'general' }
     Show-Fenetre
