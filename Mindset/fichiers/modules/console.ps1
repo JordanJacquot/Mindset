@@ -16,8 +16,8 @@
 $ConsoleDir = Join-Path $AppDir 'console'
 $LogosAppliDir = Join-Path $DataDir 'console-logos'   # logos tirés de l'icône d'une appli installée (pas livrés avec Mindset)
 $Webview2Dir = Join-Path $AppDir 'lib\webview2'
-$script:Console = @{ Possible = $false; Vue = $null; Pret = $false; DerniereAppli = $null; RetourAJouer = $null; EtatEnvoye = ''; QuitteeA = $null
-    EnFente = $null; Ejecter = $null; Attente = $null; AttenteDepuis = $null }
+$script:Console = @{ Possible = $false; Vue = $null; Pret = $false; DerniereAppli = $null; AJouer = $null; EtatEnvoye = ''; QuitteeA = $null
+    EnFente = $null; Ejecter = $null; Attente = $null; AttenteDepuis = $null; RetourMenu = $false }
 
 # La 3D est-elle possible ici ? (une fois, au démarrage)
 function Test-ConsolePossible {
@@ -155,17 +155,22 @@ function Update-PageConsole {
     if (-not $script:Console.Possible) { return }
     if ($avecConsole -and $Window.IsVisible -and $Window.WindowState -ne 'Minimized') {
         $script:Console.QuitteeA = $null
+        # Ce que la scène joue en revenant : d'une appli qui tourne encore (sa maison, Échap, le bouton Menu de Mindset),
+        # ou des Paramètres ouverts depuis le menu en grand : le menu en grand, dans l'écran (comme un clic sur l'écran),
+        # l'appli reste en pause ; d'une appli fermée : la caméra ressort de l'écran et sa cartouche ressort de la fente
+        $depuis = $script:Console.DerniereAppli
+        $js = if ($depuis -and $script:Console.Ejecter) { "window.mindset.jouerRetour('$depuis', true)" }
+              elseif ($depuis) { "window.mindset.jouerMenu('$depuis')" }
+              elseif ($script:Console.RetourMenu) { 'window.mindset.jouerMenu(null, true)' } else { $null }
+        $script:Console.Ejecter = $null; $script:Console.RetourMenu = $false; $script:Console.DerniereAppli = $null
         if (-not $script:Console.Vue) {
-            # Retour d'une appli : la caméra repart de l'intérieur de l'écran, puis ressort jusqu'au menu
-            $depuis = $script:Console.DerniereAppli
-            $script:Console.RetourAJouer = $depuis
+            $script:Console.AJouer = $js   # (joué quand la scène est prête)
             New-VueConsole $(if ($depuis) { 'dedans' } else { 'menu' })
         } else {
             Invoke-ScriptConsole 'window.mindset.reprendre()'
-            if ($script:Console.DerniereAppli) { Invoke-ScriptConsole "window.mindset.jouerRetour('$($script:Console.DerniereAppli)', $(if ($script:Console.Ejecter) { 'true' } else { 'false' }))"; $script:Console.Ejecter = $null }
+            if ($js) { Invoke-ScriptConsole $js }
             Send-EtatConsole -Force
         }
-        $script:Console.DerniereAppli = $null
         try { [void]$script:Console.Vue.Focus() } catch {}
     } elseif ($script:Console.Vue) {
         # Une autre page : pause tout de suite, fermeture au bout d'une minute (ConsoleTimer)
@@ -235,11 +240,12 @@ function Receive-MessageConsole([string]$Json) {
         $script:Console.Pret = $true
         $ui.ConsoleAttente.Visibility = 'Collapsed'
         Send-EtatConsole -Force
-        if ($script:Console.RetourAJouer) { Invoke-ScriptConsole "window.mindset.jouerRetour('$($script:Console.RetourAJouer)', $(if ($script:Console.Ejecter) { 'true' } else { 'false' }))"; $script:Console.RetourAJouer = $null; $script:Console.Ejecter = $null }
+        if ($script:Console.AJouer) { Invoke-ScriptConsole $script:Console.AJouer; $script:Console.AJouer = $null }
         Write-Log 'Console 3D prête'
         if ($EnTest -and $env:MINDSET_CONSOLE_CAPTURE) { Start-CaptureConsole $env:MINDSET_CONSOLE_CAPTURE }
         return
     }
+    if ($type -eq 'erreur') { Write-Log "Console 3D : erreur du script ($(([string]$m.texte) -replace '\s+', ' '))"; return }
     $id = [string]$m.id
     $a = if ($id -match '^[a-z0-9-]{1,30}$') { Get-Appli $id } else { $null }
     if ($type -eq 'afficher') {
@@ -261,7 +267,7 @@ function Receive-MessageConsole([string]$Json) {
         'installer'  { if ($a -and -not (Get-Installation $a)) { if ($script:Trouvees[$a.Id]) { Confirm-PriseEnCharge $a } else { Start-InstallAppli $a } } }
         'maj'        { if ($a) { Confirm-MiseAJour $a } }
         'fermer'     { if ($a) { Stop-AppliConsole $a } }
-        'parametres' { Show-Page 'parametres' }
+        'parametres' { $script:Console.RetourMenu = [string]$m.depuis -eq 'menu'; Show-Page 'parametres' }   # (depuis le menu en grand : on y revient)
         'actualiser' { Invoke-Actualiser -Clic; Invoke-ScriptConsole "window.mindset.message('Recherche des nouvelles versions...')" }
         'majTout'    {
             $aMettre = @($Applis | Where-Object { (Get-EtatCarte $_).MajDispo })
@@ -356,8 +362,9 @@ $script:ConsoleAttenteTimer.Add_Tick({
     }
 })
 
-# Le bouton Menu (la maison), dans la barre de l'appli, sur son écran d'attente et dans les Paramètres : retour à la
-# console (une appli affichée reste ouverte, en pause). Échap fait pareil.
+# Le bouton Menu (la maison), dans la barre de l'appli, sur son écran d'attente et dans les Paramètres : retour au menu
+# en grand dans l'écran de la console (Update-PageConsole ; une appli affichée reste ouverte, en pause). Échap fait pareil,
+# comme la maison d'une appli (« menu » dans afficher-page.txt, Open-PageDemandee).
 foreach ($b in $ui.BtnAppliMenu, $ui.BtnPageAppliMenu, $ui.BtnParametresMenu) { $b.Add_Click({ Show-Page 'accueil' }) }
 $Window.Add_PreviewKeyDown({
     param($s, $e)
