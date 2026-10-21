@@ -81,6 +81,125 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: #07060D; col
 #voile #carrousel button { height: auto; padding: 14px; border-radius: 26px; font-size: 16px; font-weight: 600; }
 #voile #carrousel button img { width: 52%; }
 #voile #menuGrand span.l { font-size: 64px; color: var(--c); }
+/* Les Paramètres de Mindset, dans l'écran : la DA des pages de Nevermind (« module déplié » : la carte du module à
+   gauche, les réglages à droite, les onglets en pastilles, les bords de plasma). Les règles commencent toutes par
+   #reglagesGrand : celles de l'écran d'une appli (#voile b, span, img, button) ne s'y appliquent pas. Les bords de
+   plasma ne tournent que sur le module et sur ce qui est choisi ou visé (rien de lourd en boucle). */
+#voile.enReglages > :not(#reglagesGrand) { display: none; }
+@property --a-tour { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+@keyframes tourneR { to { --a-tour: 360deg; } }
+@keyframes coule { to { background-position: 300% 0; } }
+@keyframes flotte { 50% { transform: translateY(-8px); } }
+@keyframes tourne2 { to { transform: rotate(360deg); } }
+#reglagesGrand { --P: #00E5FF; --S: #B04BFF; --T: #FF2EB5; --carte: rgba(16, 13, 38, 0.82); --carte2: rgba(28, 23, 62, 0.9); --ligne: #2A2450; --texte: #ECEAF7; --doux: #A9A3C9; --pale: #6F6894; --vert: #3DDC84; --orange: #FFB020; --rouge: #FF5C7A; --fond: #07060D; --fond2: #0C0920;
+  position: absolute; inset: 0; display: flex; flex-direction: column; padding: 3% 5% 2.4%; box-sizing: border-box; text-align: left; color: var(--texte); }
+#reglagesGrand[hidden] { display: none; }
+#reglagesGrand b, #reglagesGrand span { font-size: inherit; color: inherit; max-width: none; }
+#reglagesGrand img { width: auto; height: auto; }
+#reglagesGrand button { height: auto; padding: 0; border: 0; border-radius: 0; background: none; color: inherit; font: inherit; cursor: pointer; text-align: inherit; }
+#reglagesGrand button:focus-visible { outline: none; }
+#reglagesGrand .f:focus-visible { box-shadow: 0 0 0 2px var(--fond), 0 0 0 4px var(--S); }
+#reglagesGrand .tete { display: flex; align-items: center; gap: 16px; margin-bottom: 14px; flex: none; }
+#reglagesGrand .retour { width: 46px; height: 46px; flex: none; border-radius: 50%; border: 1px solid var(--ligne); background: var(--carte); display: grid; place-items: center; transition: all 180ms ease; }
+#reglagesGrand .retour svg { width: 22px; height: 22px; }
+#reglagesGrand .retour:hover, #reglagesGrand .retour:focus { border-color: var(--S); background: color-mix(in srgb, var(--S) 16%, var(--carte)); }
+#reglagesGrand .ic-page { width: 52px; height: 52px; flex: none; border-radius: 16px; display: grid; place-items: center; color: var(--P); }
+#reglagesGrand .ic-page svg { width: 30px; height: 30px; }
+#reglagesGrand h1 { margin: 0; font-size: 30px; font-weight: 800; line-height: 1.15; }
+#reglagesGrand .titres p { margin: 3px 0 0; color: var(--doux); font-size: 15px; }
+#reglagesGrand .tete .hh { margin-left: auto; font-size: 26px; font-weight: 600; color: #C9C4DD; }
+#reglagesGrand #regCorps { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+#reglagesGrand .pastilles-o { display: flex; gap: 8px; flex-wrap: wrap; margin: 0 0 18px 62px; flex: none; }
+#reglagesGrand .pastilles-o button { font-size: 14px; font-weight: 700; color: var(--doux); background: rgba(255,255,255,0.06); padding: 9px 18px; border-radius: 99px; transition: all 200ms ease; }
+#reglagesGrand .pastilles-o button:hover, #reglagesGrand .pastilles-o button:focus { color: var(--texte); background: rgba(255,255,255,0.1); }
+#reglagesGrand .pastilles-o button.oui { color: #0B0820; background: linear-gradient(90deg, var(--P), var(--S) 60%, var(--T)); box-shadow: 0 0 14px color-mix(in srgb, var(--S) 45%, transparent); }
+/* le bord de plasma */
+#reglagesGrand .plasma-bord, #reglagesGrand .plaque { position: relative; border-radius: 20px; background: var(--carte); isolation: isolate; }
+#reglagesGrand .plasma-bord::before, #reglagesGrand .plaque::before { content: ""; position: absolute; inset: -1.5px; border-radius: inherit; padding: 1.5px; pointer-events: none;
+  background: conic-gradient(from var(--a-tour), var(--P), var(--S), var(--T), var(--P));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude;
+  animation: tourneR 7s linear infinite paused; opacity: 0.4; transition: opacity 250ms ease; }
+#reglagesGrand .plasma-bord::before { opacity: 1; animation-play-state: running; }
+#reglagesGrand .plasma-bord::after, #reglagesGrand .plaque.oui::after, #reglagesGrand .plaque.f:focus-visible::after { content: ""; position: absolute; inset: -4px; border-radius: inherit; padding: 4px; pointer-events: none; z-index: -1; filter: blur(10px);
+  background: conic-gradient(from var(--a-tour), var(--P), var(--S), var(--T), var(--P));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; opacity: 0.4; }
+#reglagesGrand .plaque.f:hover::before, #reglagesGrand .plaque.f:focus::before, #reglagesGrand .plaque.oui::before { opacity: 1; animation-play-state: running; }
+#reglagesGrand .plaque.f:focus-visible { box-shadow: none; }
+#reglagesGrand .reflet { position: absolute; left: 18px; right: 18px; top: 7px; height: 2px; border-radius: 2px; background: rgba(255,255,255,0.1); pointer-events: none; }
+/* le module déplié : le module à gauche, le contenu à droite (lui seul défile, avec un fondu en bas) */
+#reglagesGrand .deplie { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(250px, 0.8fr) 1.7fr; grid-template-rows: minmax(0, 1fr); gap: 24px; }
+#reglagesGrand .module { align-self: start; padding: 24px 22px 22px; text-align: center; }
+#reglagesGrand .module h3 { margin: 14px 0 4px; font-size: 22px; font-weight: 800; }
+#reglagesGrand .module p { margin: 0 0 16px; color: var(--doux); line-height: 1.45; font-size: 14.5px; }
+#reglagesGrand .grande-ic { width: 170px; height: 170px; margin: 4px auto 0; display: grid; place-items: center; position: relative; color: var(--P); }
+#reglagesGrand .grande-ic svg { width: 92px; height: 92px; filter: drop-shadow(0 0 16px color-mix(in srgb, var(--P) 55%, transparent)); animation: flotte 4s ease-in-out infinite; }
+#reglagesGrand .grande-ic::before { content: ""; position: absolute; inset: 12px; border-radius: 50%; border: 1px dashed color-mix(in srgb, var(--S) 50%, transparent); animation: tourne2 30s linear infinite; }
+#reglagesGrand .apercu { width: 190px; height: 120px; margin: 8px auto 0; border-radius: 18px; background: var(--fondT); border: 1px solid var(--ligne); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; }
+#reglagesGrand .apercu .pts i { width: 22px; height: 22px; margin: 0 5px; }
+#reglagesGrand .apercu img { max-height: 54px; max-width: 120px; }
+#reglagesGrand .resume { display: grid; grid-template-columns: 1fr; gap: 8px; text-align: left; }
+#reglagesGrand .resume div { padding: 9px 12px; border-radius: 12px; background: rgba(255,255,255,0.04); font-size: 13px; color: var(--doux); min-width: 0; }
+#reglagesGrand .resume b { display: block; color: var(--texte); font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#reglagesGrand .boutons-v { display: flex; flex-direction: column; gap: 10px; align-items: center; }
+#reglagesGrand .contenu { min-height: 0; height: 100%; overflow-y: auto; padding: 4px 12px 30px 6px; box-sizing: border-box; scrollbar-width: thin; scrollbar-color: var(--ligne) transparent;
+  -webkit-mask-image: linear-gradient(#000 calc(100% - 26px), transparent); mask-image: linear-gradient(#000 calc(100% - 26px), transparent); }
+/* les blocs */
+#reglagesGrand .titre-bloc { margin: 22px 0 12px; font-size: 13px; font-weight: 800; letter-spacing: 1.6px; text-transform: uppercase; color: var(--doux); }
+#reglagesGrand .contenu > .titre-bloc:first-child { margin-top: 4px; }
+#reglagesGrand .texte { margin: 0 0 14px; color: var(--doux); font-size: 15px; line-height: 1.5; }
+#reglagesGrand .note { margin: 4px 0 14px; padding: 12px 16px; border-radius: 14px; border: 1px dashed var(--ligne); color: var(--doux); font-size: 13.5px; line-height: 1.5; }
+#reglagesGrand .info { margin: 2px 0 14px; color: var(--P); font-size: 14px; line-height: 1.45; }
+#reglagesGrand .reglages { padding: 16px 18px; margin-bottom: 14px; }
+#reglagesGrand .rang { display: flex; align-items: center; gap: 14px; }
+#reglagesGrand .rang + .rang { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--ligne); }
+#reglagesGrand .rang.col { flex-direction: column; align-items: flex-start; gap: 10px; }
+#reglagesGrand .rang .txt { flex: 1; min-width: 0; } #reglagesGrand .rang .txt b { display: block; font-size: 15.5px; font-weight: 700; }
+#reglagesGrand .rang .n { display: block; color: var(--doux); font-size: 13.5px; margin-top: 2px; line-height: 1.4; }
+/* l'interrupteur de plasma */
+#reglagesGrand .bascule { width: 52px; height: 30px; flex: none; border-radius: 99px; background: #1A1738; border: 1px solid var(--ligne); position: relative; transition: background 250ms ease; box-sizing: border-box; }
+#reglagesGrand .bascule::after { content: ""; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: #CFCDE0; transition: transform 260ms cubic-bezier(.3, 1.4, .5, 1); }
+#reglagesGrand .bascule.oui { border-color: transparent; background: linear-gradient(90deg, var(--P), var(--S), var(--T), var(--P)) 0 0 / 300% 100%; animation: coule 3s linear infinite; box-shadow: 0 0 12px color-mix(in srgb, var(--S) 55%, transparent); }
+#reglagesGrand .bascule.oui::after { transform: translateX(22px); background: #fff; }
+/* un choix en pilules, en cartes */
+#reglagesGrand .choix-p { display: inline-flex; gap: 6px; padding: 5px; border-radius: 99px; background: #100D26; border: 1px solid var(--ligne); flex-wrap: wrap; }
+#reglagesGrand .choix-p button { font-size: 14px; font-weight: 700; color: var(--doux); padding: 9px 16px; border-radius: 99px; }
+#reglagesGrand .choix-p button:hover, #reglagesGrand .choix-p button:focus { color: var(--texte); }
+#reglagesGrand .choix-p button.oui { color: #0B0820; background: linear-gradient(90deg, var(--P), var(--S) 60%, var(--T)); }
+#reglagesGrand .cartes-choix { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin-bottom: 14px; }
+#reglagesGrand .carte-choix { padding: 14px 16px; text-align: left; } #reglagesGrand .carte-choix b { display: block; font-size: 16px; font-weight: 800; } #reglagesGrand .carte-choix span { display: block; color: var(--doux); font-size: 13px; margin-top: 3px; }
+/* les cartes des thèmes, dans leurs propres couleurs */
+#reglagesGrand .themes { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; margin-bottom: 12px; }
+#reglagesGrand .theme { background: var(--fondT); padding: 12px 16px; min-height: 80px; display: flex; flex-direction: column; justify-content: center; gap: 8px; }
+#reglagesGrand .theme .haut-t { display: flex; align-items: center; justify-content: space-between; height: 34px; }
+#reglagesGrand .pts { display: inline-flex; } #reglagesGrand .pts i { width: 14px; height: 14px; border-radius: 50%; margin-right: 6px; display: inline-block; }
+#reglagesGrand .theme img { max-height: 34px; max-width: 52px; }
+#reglagesGrand .theme b { font-size: 14.5px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#reglagesGrand .theme small { color: var(--P); font-weight: 700; font-size: 12.5px; }
+/* une ligne (appareil, version) */
+#reglagesGrand .ligne { display: flex; align-items: center; gap: 14px; width: 100%; box-sizing: border-box; min-height: 58px; padding: 9px 16px; margin-bottom: 8px; text-align: left; }
+#reglagesGrand .ligne .txt { flex: 1; min-width: 0; } #reglagesGrand .ligne .txt b { display: block; font-size: 15.5px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#reglagesGrand .ligne .n { display: block; color: var(--doux); font-size: 13.5px; margin-top: 2px; }
+#reglagesGrand .ligne .fin { margin-left: auto; flex: none; white-space: nowrap; font-weight: 700; font-size: 14px; color: var(--doux); }
+#reglagesGrand .ligne.oui .fin { color: var(--P); }
+#reglagesGrand .ic { width: 40px; height: 40px; flex: none; border-radius: 12px; display: grid; place-items: center; background: rgba(255,255,255,0.05); color: var(--a, var(--P)); }
+#reglagesGrand .ic svg { width: 21px; height: 21px; } #reglagesGrand .ic .l { font-size: 19px; font-weight: 900; }
+#reglagesGrand .etiquette { display: inline-block; font-size: 12.5px; font-weight: 800; padding: 4px 11px; border-radius: 99px; background: rgba(255,255,255,0.07); color: var(--doux); white-space: nowrap; }
+#reglagesGrand .etiquette.ok { background: color-mix(in srgb, var(--vert) 13%, transparent); color: var(--vert); }
+#reglagesGrand .etiquette.attention { background: color-mix(in srgb, var(--orange) 15%, transparent); color: var(--orange); }
+#reglagesGrand .etiquette.urgent { background: color-mix(in srgb, var(--rouge) 16%, transparent); color: var(--rouge); }
+/* les boutons pilule */
+#reglagesGrand .boutons { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin: 12px 0 16px; }
+#reglagesGrand .btn { display: inline-flex; align-items: center; gap: 8px; height: 44px; padding: 0 22px; border-radius: 99px; font-weight: 800; font-size: 15px; white-space: nowrap; color: #0B0820; background: linear-gradient(90deg, var(--P), var(--S) 55%, var(--T)); transition: transform 150ms ease, filter 150ms ease; }
+#reglagesGrand .btn svg { width: 17px; height: 17px; }
+#reglagesGrand .btn:hover, #reglagesGrand .btn:focus { transform: translateY(-2px); filter: brightness(1.12); }
+#reglagesGrand .btn.second { color: var(--texte); background: var(--carte2); border: 1px solid var(--ligne); }
+#reglagesGrand .btn.danger { color: #1A0610; background: var(--rouge); }
+/* en bas : Retour et OK, comme le menu */
+#reglagesGrand .bas { flex: none; margin-top: 10px; display: flex; justify-content: space-between; align-items: center; color: var(--doux); font-size: 15px; }
+#reglagesGrand .aides { display: flex; gap: 22px; color: var(--texte); }
+#reglagesGrand .aides button { display: flex; align-items: center; gap: 8px; font-size: 16px; }
+#reglagesGrand .aides i { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(180deg, #FFFFFF, #CFCDE0); color: #14102A; font-style: normal; font-weight: 800; font-size: 14px; display: flex; align-items: center; justify-content: center; }
+@media (prefers-reduced-motion: reduce) { #reglagesGrand .grande-ic svg, #reglagesGrand .grande-ic::before, #reglagesGrand .bascule.oui { animation: none; } }
 @media (prefers-reduced-motion: reduce) { #voile .roue { animation-duration: 3s; } }
 </style>
 </head>
@@ -98,7 +217,12 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: #07060D; col
     <div class="actions" id="voileActions"></div>
     <div id="menuGrand" hidden><div class="tete"><img id="menuLogo" alt=""><span>Mindset</span><span class="hh" id="menuHeure"></span></div>
       <div class="nomSel" id="menuNom"></div><div id="carrousel" role="listbox" aria-label="Tes applis"></div>
-      <div class="bas"><span id="menuConsigne"></span><div class="aides"><button type="button" id="menuB"><i>B</i>Retour</button><button type="button" id="menuA"><i>A</i>OK</button></div></div></div></div>
+      <div class="bas"><span id="menuConsigne"></span><div class="aides"><button type="button" id="menuB"><i>B</i>Retour</button><button type="button" id="menuA"><i>A</i>OK</button></div></div></div>
+    <div id="reglagesGrand" hidden><div class="tete"><button type="button" class="retour f" data-a="retour" aria-label="Revenir au menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button>
+        <div class="ic-page plasma-bord"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></div>
+        <div class="titres"><h1>Paramètres</h1><p>Ces réglages valent pour Mindset et toutes ses applis.</p></div><span class="hh" id="regHeure"></span></div>
+      <div id="regCorps"></div>
+      <div class="bas"><span>Choisis un réglage</span><div class="aides"><button type="button" data-a="retour"><i>B</i>Retour</button><button type="button" data-a="ok"><i>A</i>OK</button></div></div></div></div>
 </div></div>
 <div id="bulle" role="status" aria-live="polite"></div>
 <script type="importmap">
@@ -110,7 +234,8 @@ import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.j
 
 const POLICE = '"Segoe UI Variable Display", "Segoe UI", sans-serif';
 const params = new URLSearchParams(location.search);
-const vitesse = params.get('animations') === 'express' || matchMedia('(prefers-reduced-motion: reduce)').matches ? 0.4 : 1;
+const reduit = matchMedia('(prefers-reduced-motion: reduce)').matches;
+let vitesse = params.get('animations') === 'express' || reduit ? 0.4 : 1;   // (changée par les Paramètres : window.mindset.vitesse)
 // Messages vers Mindset : seulement des actions connues, avec l'identifiant d'une appli (Mindset vérifie tout)
 const hote = (type, donnees = {}) => { try { window.chrome?.webview?.postMessage({ type, ...donnees }); } catch (e) {} };
 // (une erreur du script est notée dans le journal de Mindset)
@@ -297,7 +422,7 @@ function placerEnFente(id) {   // (sans animation : une vue rouverte alors qu'un
 const ZOOM = 8;
 function origineZoom() { const p = ecran.getWorldPosition(new THREE.Vector3()).project(camera); plan.style.transformOrigin = `${(p.x + 1) / 2 * 100}% ${(1 - p.y) / 2 * 100}%`; }
 function zoomer(id) {
-  const a = APPLIS[id]; origineZoom(); ouverte = id;
+  const a = APPLIS[id]; quitterReglages(); origineZoom(); ouverte = id;
   document.getElementById('voileLogo').src = logosDemandes[id] || ''; document.getElementById('voileNom').textContent = a.nom;
   voile.style.background = `radial-gradient(circle at 50% 45%, ${a.c}55, #07060D 70%)`;
   remplirEcran();
@@ -308,7 +433,7 @@ function zoomer(id) {
 function dezoomer(ensuite) {
   occupe = true; voile.style.pointerEvents = 'none'; ouverte = null;
   anim(0.8, (q) => { const k = 1 - doux(q); plan.style.transform = `scale(${1 + k * ZOOM})`; plan.style.filter = `blur(${Math.max(0, k - 0.6) * 10}px)`; voile.style.opacity = Math.max(0, 1 - q * 2.2); }, () => {
-    plan.style.transform = ''; plan.style.filter = ''; zoome = false; demarrage = 0; occupe = false; ensuite?.();
+    plan.style.transform = ''; plan.style.filter = ''; zoome = false; demarrage = 0; occupe = false; quitterReglages(); ensuite?.();
   });
 }
 // ---------------------------------------------------------------- le menu en grand : un clic sur l'écran de la console zoome dedans
@@ -388,6 +513,7 @@ function zoomerMenu() {
 function jouerMenu(id, parametres) {
   if (id && carts[id]) { demandeOuverture[id] = false; if (enFente !== id) placerEnFente(id); }
   if (!TUILES.length) return;
+  quitterReglages();
   if (!zoome) { origineZoom(); plan.style.transform = `scale(${1 + ZOOM})`; plan.style.filter = 'blur(4px)'; voile.style.opacity = 0; zoome = true; }
   const deja = ouverte === MENU;
   ouverte = MENU; voile.classList.add('menu'); document.getElementById('menuGrand').hidden = false;
@@ -405,7 +531,7 @@ function sortirDuMenu() {
   dezoomer(() => { quitterMenu(); const a = id && APPLIS[id]; if (id && carts[id] && (!a || a.etat === 'ferme')) { occupe = true; ejecter(carts[id], () => { occupe = false; }); } });
 }
 function choisirDepuisMenu(id) {
-  if (id === PARAM) { if (occupe) return; sons.ok(); hote('action', { action: 'parametres', depuis: 'menu' }); return; }
+  if (id === PARAM) { if (occupe) return; sons.ok(); ouvrirReglagesIci(); return; }   // (les Paramètres, dans l'écran)
   const a = APPLIS[id]; if (!a || occupe) return; sons.ok();
   if (id === enFente) {   // déjà dans la fente : son écran, sans ressortir
     quitterMenu(); ouverte = id;
@@ -488,7 +614,184 @@ document.getElementById('voileActions').addEventListener('click', (e) => {
   if (b.dataset.f === 'maj') hote('action', { action: 'maj', id });
   if (b.dataset.f === 'ouvrir') { pretes[id] = false; chargement[id] = 0; demandeOuverture[id] = true; hote('action', { action: 'ouvrir', id }); remplirEcran(); }
 });
-document.querySelectorAll('#ronds button').forEach((b) => b.addEventListener('click', () => { if (occupe || zoome) return; sons.ok(); hote('action', { action: b.dataset.r }); }));
+document.querySelectorAll('#ronds button').forEach((b) => b.addEventListener('click', () => { if (occupe || zoome) return; sons.ok(); if (b.dataset.r === 'parametres') ouvrirReglagesIci(); else hote('action', { action: b.dataset.r }); }));
+
+// ---------------------------------------------------------------- les Paramètres de Mindset, dans l'écran (comme le menu en grand)
+// Dessinés ici dans la DA des pages de Nevermind avec l'état que Mindset envoie (window.mindset.reglages) ; chaque geste
+// lui est renvoyé ({ type: 'reglage', quoi, valeur }) et c'est lui qui règle (parametres.ps1 : les mêmes fonctions que
+// sa page Paramètres d'avant, qui reste cachée derrière). Retour (flèche, Échap, B) : le menu en grand, sur la tuile Paramètres.
+const REGL = '__reglages';
+const elReg = document.getElementById('reglagesGrand'), elRegCorps = document.getElementById('regCorps');
+const REG = { etat: null, onglet: 'general', images: {}, html: '', htmlOnglet: '' };
+const ONGLETS = [['general', 'Général'], ['apparence', 'Apparence'], ['son', 'Son'], ['maj', 'Mises à jour'], ['dossiers', 'Dossiers']];
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+const hex = (c, d) => typeof c === 'string' && /^#[0-9A-Fa-f]{6}$/.test(c) ? c : d;
+const ton = (t) => ['ok', 'attention', 'urgent'].includes(t) ? t : '';
+const IC = {
+  reglages: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',
+  son: '<path d="M4 9v6h4l5 4V5L8 9zM16 9a4 4 0 0 1 0 6M19 6a8 8 0 0 1 0 12"/>',
+  micro: '<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/>',
+  casque: '<path d="M4 15v-3a8 8 0 0 1 16 0v3"/><rect x="3" y="14" width="4" height="7" rx="1.5"/><rect x="17" y="14" width="4" height="7" rx="1.5"/>',
+  actu: '<path d="M20 12a8 8 0 1 1-2.3-5.7M20 4v5h-5"/>',
+  dossier: '<path d="M3 6a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+  poubelle: '<path d="M4 7h16M9 7V4h6v3M6 7l1 14h10l1-14"/>',
+  importer: '<path d="M12 15V3M7 8l5-5 5 5M5 21h14"/>',
+  telecharger: '<path d="M12 3v12M7 10l5 5 5-5M5 21h14"/>',
+};
+const icone = (n) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[n]}</svg>`;
+const bascule = (k, quoi, oui, nom, id = '') => `<button type="button" class="bascule f${oui ? ' oui' : ''}" role="switch" aria-checked="${oui ? 'true' : 'false'}" aria-label="${esc(nom)}" data-k="${esc(k)}" data-a="${quoi}" data-v="${oui ? '0' : '1'}"${id ? ` data-id="${esc(id)}"` : ''}></button>`;
+const rang = (titre, note, droite) => `<div class="rang"><div class="txt"><b>${esc(titre)}</b>${note ? `<span class="n">${esc(note)}</span>` : ''}</div>${droite}</div>`;
+const titreBloc = (t) => `<div class="titre-bloc">${esc(t)}</div>`;
+const texte = (t) => `<p class="texte">${esc(t)}</p>`;
+const info = (t) => t ? `<p class="info" role="status">${esc(t)}</p>` : '';
+const btn = (quoi, t, style = '', ic = '') => `<button type="button" class="btn f ${style}" data-k="${quoi}" data-a="${quoi}">${ic ? icone(ic) : ''}${esc(t)}</button>`;
+const pilules = (quoi, valeur, options) => `<div class="choix-p" role="radiogroup">${options.map(([v, t]) => `<button type="button" class="f${v === valeur ? ' oui' : ''}" role="radio" aria-checked="${v === valeur}" data-k="${quoi}:${v}" data-a="${quoi}" data-v="${v}">${esc(t)}</button>`).join('')}</div>`;
+const grandeIc = (n) => `<div class="grande-ic">${icone(n)}</div>`;
+const pts = (t) => (t.couleurs || []).slice(0, 3).map((c) => `<i style="background:${hex(c, '#6F6894')}"></i>`).join('');
+const imgTheme = (t) => { const u = t.image && REG.images[t.cle]; return typeof u === 'string' && u.startsWith('data:image/png;base64,') ? `<img src="${u}" alt="">` : ''; };
+const heure = () => new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+
+const PAGES = {
+  general(e) {
+    const g = e.general || {};
+    return [`${grandeIc('reglages')}<h3>Mindset ${esc(e.version)}</h3><p>Ces réglages valent pour Mindset et toutes ses applis.</p>`,
+      titreBloc('Réduire et fermer')
+      + `<div class="reglages plaque">${rang('Réduire Mindset près de l\'horloge', 'Au lieu de la barre des tâches. Caché près de l\'horloge, Mindset continue de veiller sur tes applis : un clic sur son icône le rouvre.', bascule('reduire', 'reduire', g.reduire, 'Réduire Mindset près de l\'horloge'))}`
+      + `<div class="rang col"><div class="txt"><b>Quand je clique sur la croix</b></div>${pilules('fermeture', g.fermeture, [['demander', 'Me demander à chaque fois'], ['reduire', 'Réduire près de l\'horloge'], ['quitter', 'Tout quitter (Mindset et ses applis)']])}</div></div>`
+      + titreBloc('Démarrage avec Windows')
+      + texte('Choisis si Mindset se lance avec Windows (caché près de l\'horloge), et quelles applis s\'ouvrent avec lui : elles démarrent en arrière-plan à chaque ouverture de Mindset (le même réglage que sur leur carte de l\'accueil).')
+      + `<div class="reglages plaque">${rang('Mindset se lance avec Windows', 'Caché près de l\'horloge, il ouvre en même temps les applis cochées ci-dessous.', bascule('windows', 'windows', g.windows, 'Mindset se lance avec Windows'))}`
+      + (g.applis || []).map((a) => rang(`${a.nom} s'ouvre avec Mindset`, '', bascule(`d:${a.id}`, 'demarrage', a.oui, `${a.nom} s'ouvre avec Mindset`, a.id))).join('') + '</div>'];
+  },
+  apparence(e) {
+    const p = e.apparence || {}, themes = p.themes || [], act = themes.find((t) => t.cle === p.actuel);
+    const cartes = themes.map((t) => { const oui = t.cle === p.actuel;
+      return `<button type="button" class="plaque f theme${oui ? ' oui' : ''}" role="radio" aria-checked="${oui}" data-k="t:${esc(t.cle)}" data-a="theme" data-v="${esc(t.cle)}" title="${esc(t.desc || t.nom)}" style="--fondT:${hex(t.fond, '#0C0920')}"><span class="haut-t"><span class="pts">${pts(t)}</span>${imgTheme(t)}</span><b>${esc(t.nom)}${oui ? ' <small>(actuel)</small>' : ''}</b></button>`; }).join('');
+    const anims = [['completes', 'Complètes', 'La console et toutes ses animations'], ['express', 'Express', 'La console, avec des animations plus rapides'], ['aucune', 'Aucune', 'L\'accueil classique, sans 3D']];
+    return [`${act ? `<div class="apercu" style="--fondT:${hex(act.fond, '#0C0920')}"><span class="pts">${pts(act)}</span>${imgTheme(act)}</div>` : grandeIc('reglages')}<h3>${esc(act ? act.nom : 'Thème')}</h3><p>Le thème de la suite : le même pour Mindset et toutes ses applis.</p>`,
+      titreBloc('Thème de la suite') + texte('Le même pour Mindset et toutes ses applis : le changer ici relance chaque appli ouverte avec ce thème.')
+      + `<div class="themes" role="radiogroup">${cartes}</div>${info(p.info)}`
+      + `<div class="boutons">${btn('importer', 'Importer un thème (.zip)', 'second', 'importer')}</div>`
+      + '<p class="note">Un thème personnalisé de la suite (images, police, personnage) s\'installe pour Mindset et toutes ses applis. Il reste sur ce PC.</p>'
+      + titreBloc('Animations') + texte('L\'accueil de Mindset est une console en 3D : chaque appli est une cartouche qu\'on y insère.')
+      + `<div class="cartes-choix" role="radiogroup">${anims.map(([v, t, n]) => `<button type="button" class="plaque f carte-choix${p.animations === v ? ' oui' : ''}" role="radio" aria-checked="${p.animations === v}" data-k="a:${v}" data-a="animations" data-v="${v}"><b>${t}</b><span>${n}</span></button>`).join('')}</div>${info(p.animInfo)}`];
+  },
+  son(e) {
+    const s = e.son || {}, choisi = (l) => (l || []).find((x) => x.oui)?.nom || 'Celui de Windows';
+    const liste = (quoi, l, ic) => (l || []).map((x, i) => `<button type="button" class="plaque f ligne${x.oui ? ' oui' : ''}" role="radio" aria-checked="${!!x.oui}" data-k="${quoi}:${i}" data-a="${quoi}" data-v="${esc(x.cle)}"><span class="ic">${icone(ic)}</span><span class="txt"><b>${esc(x.nom)}</b></span><span class="fin">${x.oui ? '✓ choisi' : 'choisir'}</span></button>`).join('');
+    return [`${grandeIc('son')}<h3>Son de la suite</h3><p>Le micro et le casque d'Evermind, choisis ici pour toute la suite.</p><div class="resume"><div>Micro<b>${esc(choisi(s.micros))}</b></div><div>Casque<b>${esc(choisi(s.casques))}</b></div></div>`,
+      titreBloc('Micro') + texte('Celui qu\'Evermind écoute (dictée, « OK Evermind »). Débranché, c\'est celui de Windows qui sert en attendant.') + liste('micro', s.micros, 'micro')
+      + titreBloc('Casque ou haut-parleurs') + texte('Là où Evermind te parle et sonne tes rappels.') + liste('casque', s.casques, 'casque')
+      + `<div class="boutons">${btn('sonActualiser', 'Actualiser la liste', 'second', 'actu')}</div>`];
+  },
+  maj(e) {
+    const m = e.maj || {}, mm = m.mindset || {};
+    const ligne = (nom, c, version, t, tn) => `<div class="plaque ligne"><span class="ic" style="--a:${hex(c, '#ECEAF7')}"><span class="l">${esc(String(nom).charAt(0).toUpperCase())}</span></span><span class="txt"><b style="color:${hex(c, '#ECEAF7')}">${esc(nom)}</b><span class="n">${esc(version)}</span></span><span class="etiquette ${ton(tn)}">${esc(t)}</span></div>`;
+    return [`${grandeIc('actu')}<h3>Mindset ${esc(e.version)}</h3><p><span class="etiquette ${ton(mm.ton)}">${esc(mm.texte)}</span></p>`
+      + `<div class="boutons-v">${btn('verifier', 'Vérifier maintenant', '', 'actu')}${m.prete ? btn('majMindset', `Installer Mindset ${m.prete}`, 'second', 'telecharger') : ''}</div>${info(m.info)}`,
+      titreBloc('Versions') + texte('Mindset cherche les nouvelles versions au démarrage puis toutes les 6 heures. Elles sont signées : une version qui ne l\'est pas n\'est jamais installée.')
+      + ligne('Mindset', '#ECEAF7', `version ${e.version}`, mm.texte, mm.ton) + (m.applis || []).map((a) => ligne(a.nom, a.couleur, a.version, a.texte, a.ton)).join('')];
+  },
+  dossiers(e) {
+    return [`${grandeIc('dossier')}<h3>Dossiers</h3><p>Où sont Mindset, ses applis et leurs données sur ce PC.</p>`,
+      titreBloc('Dossiers') + texte(e.dossiers?.texte || '')
+      + `<div class="boutons">${btn('dossierProgrammes', 'Ouvrir le dossier des programmes', 'second', 'dossier')}${btn('dossierDonnees', 'Ouvrir le dossier des données', 'second', 'dossier')}</div>`
+      + titreBloc('Désinstaller Mindset') + texte('Désinstalle d\'abord les applis depuis l\'accueil. Les données restent sur le PC : une réinstallation les retrouve.')
+      + `<div class="boutons">${btn('desinstaller', 'Désinstaller Mindset', 'danger', 'poubelle')}</div>`];
+  },
+};
+function htmlReglages() {
+  const o = REG.onglet, onglets = `<div class="pastilles-o" role="tablist">${ONGLETS.map(([id, nom]) => `<button type="button" class="f${id === o ? ' oui' : ''}" role="tab" aria-selected="${id === o}" data-k="o:${id}" data-a="onglet" data-v="${id}">${nom}</button>`).join('')}</div>`;
+  if (!REG.etat) return `${onglets}<p class="texte">Chargement des réglages...</p>`;
+  let mod = '', cont = '';
+  try { [mod, cont] = PAGES[o](REG.etat); } catch (x) { hote('erreur', { texte: `Paramètres : ${x.message}` }); }
+  return `${onglets}<div class="deplie"><div class="module plasma-bord"><div class="reflet"></div>${mod}</div><div class="contenu">${cont}</div></div>`;
+}
+// Redessiné seulement si quelque chose a changé ; le réglage visé et la position dans la liste restent
+function remplirReglages(focusOnglet) {
+  document.getElementById('regHeure').textContent = heure();
+  const html = htmlReglages();
+  if (html !== REG.html) {
+    const k = elReg.contains(document.activeElement) ? document.activeElement.dataset.k : null;
+    const haut = elRegCorps.querySelector('.contenu')?.scrollTop || 0, meme = REG.htmlOnglet === REG.onglet;
+    elRegCorps.innerHTML = html; REG.html = html; REG.htmlOnglet = REG.onglet;
+    const c = elRegCorps.querySelector('.contenu'); if (c && meme) c.scrollTop = haut;
+    if (k && !focusOnglet) elRegCorps.querySelector(`[data-k="${CSS.escape(k)}"]`)?.focus({ preventScroll: true });
+  }
+  if (focusOnglet) elRegCorps.querySelector(`[data-k="o:${REG.onglet}"]`)?.focus({ preventScroll: true });
+}
+setInterval(() => { if (ouverte === REGL) document.getElementById('regHeure').textContent = heure(); }, 20000);
+// Ouvrir : depuis le menu en grand (fondu), de loin (la caméra plonge dans l'écran), ou tout de suite (vue recréée)
+function afficherReglages(instant) {
+  if (ouverte === REGL && !elReg.hidden) { remplirReglages(); return; }
+  if (ouverte === MENU) quitterMenu();
+  ouverte = REGL; voile.classList.add('enReglages'); elReg.hidden = false;
+  voile.style.background = 'radial-gradient(circle at 50% 30%, #1E1A3E, #07060D 75%)';
+  REG.html = ''; remplirReglages();
+  const fini = () => { occupe = false; voile.style.pointerEvents = 'auto'; remplirReglages(true); };
+  if (zoome || instant) {
+    if (!zoome) { origineZoom(); plan.style.transform = `scale(${1 + ZOOM})`; plan.style.filter = 'blur(4px)'; zoome = true; }
+    occupe = true; voile.style.pointerEvents = 'none'; voile.style.opacity = 0;
+    anim(0.3, (q) => { voile.style.opacity = q; }, fini);
+    return;
+  }
+  origineZoom(); occupe = true; sons.allume();
+  anim(1.0, (q) => { const k = q * q * q; plan.style.transform = `scale(${1 + k * ZOOM})`; plan.style.filter = `blur(${Math.max(0, q - 0.6) * 10}px)`; voile.style.opacity = Math.max(0, (q - 0.55) / 0.45); }, () => { zoome = true; fini(); });
+}
+function ouvrirReglagesIci() { REG.onglet = 'general'; afficherReglages(false); hote('action', { action: 'parametres' }); }
+function quitterReglages() { voile.classList.remove('enReglages'); elReg.hidden = true; if (ouverte === REGL) ouverte = null; }
+// Retour : le menu en grand, sur la tuile Paramètres
+function retourReglages() {
+  if (ouverte !== REGL || occupe) return;
+  sons.ok(); hote('action', { action: 'parametresFermes' });
+  quitterReglages();
+  if (!TUILES.length) { dezoomer(); return; }
+  ouverte = MENU; voile.classList.add('menu'); document.getElementById('menuGrand').hidden = false;
+  ouvrirMenuSur(listeMenu().length - 1); remplirMenu(false);
+  occupe = true; voile.style.opacity = 0;
+  anim(0.3, (q) => { voile.style.opacity = q; }, () => { occupe = false; voile.style.pointerEvents = 'auto'; remplirMenu(true); });
+}
+// Les flèches : d'un réglage à l'autre ; sur les onglets, gauche et droite changent d'onglet
+function naviguerReglages(touche) {
+  const f = document.activeElement, liste = [...elReg.querySelectorAll('.f')].filter((x) => x.offsetParent);
+  if (f?.dataset.a === 'onglet' && (touche === 'ArrowLeft' || touche === 'ArrowRight')) {
+    const i = ONGLETS.findIndex((o) => o[0] === REG.onglet), n = ONGLETS[Math.max(0, Math.min(ONGLETS.length - 1, i + (touche === 'ArrowRight' ? 1 : -1)))];
+    elRegCorps.querySelector(`[data-k="o:${n[0]}"]`)?.click(); return;
+  }
+  const i = liste.indexOf(f), d = touche === 'ArrowDown' || touche === 'ArrowRight' ? 1 : -1;
+  const x = liste[i < 0 ? 0 : Math.max(0, Math.min(liste.length - 1, i + d))];
+  if (x) { x.focus(); x.scrollIntoView({ block: 'nearest' }); sons.survol(); }
+}
+// Un geste : l'écran change tout de suite, Mindset règle puis renvoie l'état
+elReg.addEventListener('pointerdown', (ev) => { if (ev.target.closest('[data-a="ok"]')) ev.preventDefault(); });   // (A garde le réglage visé)
+elReg.addEventListener('click', (ev) => {
+  const el = ev.target.closest('[data-a]'); if (!el || ouverte !== REGL || !zoome || occupe) return;
+  const a = el.dataset.a, v = el.dataset.v ?? '', e = REG.etat;
+  if (a === 'retour') { retourReglages(); return; }
+  if (a === 'ok') { const f = document.activeElement; if (f && f !== el && elReg.contains(f) && f.dataset.a && f.dataset.a !== 'ok') f.click(); return; }
+  if (a === 'onglet') {
+    if (v !== REG.onglet && ONGLETS.some((o) => o[0] === v)) { sons.survol(); REG.onglet = v; remplirReglages(true); hote('reglage', { quoi: 'onglet', valeur: v }); }
+    return;
+  }
+  sons.ok();
+  if (a === 'reduire' || a === 'windows' || a === 'demarrage') {
+    const oui = v === '1';
+    if (e) { if (a === 'reduire') e.general.reduire = oui; else if (a === 'windows') e.general.windows = oui; else { const x = e.general.applis.find((p) => p.id === el.dataset.id); if (x) x.oui = oui; } remplirReglages(); }
+    hote('reglage', { quoi: a, valeur: oui, id: el.dataset.id || '' }); return;
+  }
+  if (e && a === 'fermeture') { e.general.fermeture = v; remplirReglages(); }
+  if (e && a === 'animations') { e.apparence.animations = v; remplirReglages(); }
+  if (e && (a === 'micro' || a === 'casque')) { (a === 'micro' ? e.son.micros : e.son.casques).forEach((x) => { x.oui = x.cle === v; }); remplirReglages(); }
+  hote('reglage', { quoi: a, valeur: v });
+});
+// Ce que Mindset envoie : l'état (e), l'onglet à ouvrir (ouvre les Paramètres), tout de suite ou non, les images des thèmes perso
+function reglages(e, onglet, instant, images) {
+  if (e && typeof e === 'object') REG.etat = e;
+  if (images && typeof images === 'object') { REG.images = images; REG.html = ''; }
+  if (typeof onglet === 'string') { if (ONGLETS.some((o) => o[0] === onglet)) REG.onglet = onglet; afficherReglages(!!instant); return; }
+  if (ouverte === REGL) remplirReglages();
+}
+function vitesseAnimations(v) { vitesse = v === 'express' || reduit ? 0.4 : 1; }
 
 // ---------------------------------------------------------------- souris et clavier
 const souris = new THREE.Vector2(9, 9), rayon = new THREE.Raycaster(); let vise = null, visConsole = false;
@@ -499,6 +802,12 @@ cv.addEventListener('click', () => {
   if (!occupe && !zoome && visConsole) zoomerMenu();
 });
 addEventListener('keydown', (e) => {
+  if (ouverte === REGL) {   // les Paramètres : Échap ou Retour arrière (B) ramène au menu en grand ; les flèches vont d'un réglage à l'autre
+    if (!zoome || occupe) return;
+    if (e.key === 'Escape' || e.key === 'Backspace') { e.preventDefault(); retourReglages(); return; }
+    if (e.key.startsWith('Arrow')) { e.preventDefault(); naviguerReglages(e.key); }
+    return;
+  }
   if (ouverte === MENU && zoome && !occupe) {
     if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { e.preventDefault(); deplacerMenu(e.key === 'ArrowRight' ? 1 : -1); return; }
     if (e.key === 'Home' || e.key === 'End') { e.preventDefault(); allerMenu(e.key === 'Home' ? 0 : listeMenu().length - 1); return; }
@@ -595,21 +904,23 @@ function jouerRetour(id, ejecter) {
 function ejecterMaintenant(id) { const c = carts[id]; if (c && enFente === id) ejecter(c, () => { occupe = false; }); else occupe = false; }
 function jouerEjection(id) {
   if (enFente !== id || occupe) return;
-  if (zoome && ouverte === MENU) {   // (dans le menu en grand : la cartouche retourne à sa place sans qu'on ressorte, le menu se met à jour)
+  if (zoome && (ouverte === MENU || ouverte === REGL)) {   // (dans le menu en grand ou les Paramètres : la cartouche retourne à sa place sans qu'on ressorte)
     const c = carts[id]; enFente = null; demarrage = 0;
     if (c) { c.etat = 'repos'; c.g.rotation.set(0, 0, 0); c.g.position.copy(c.repos); c.g.scale.setScalar(c.echelleRepos); }
-    remplirMenu(false); return;
+    if (ouverte === MENU) remplirMenu(false); return;
   }
   if (zoome) dezoomer(() => { occupe = true; ejecterMaintenant(id); }); else { occupe = true; ejecterMaintenant(id); } }
 let minuteBulle = 0;
 function message(texte) { const b = document.getElementById('bulle'); b.textContent = String(texte).slice(0, 80); b.classList.add('vu'); clearTimeout(minuteBulle); minuteBulle = setTimeout(() => b.classList.remove('vu'), 2400); }
-window.mindset = { etat, pause, reprendre, message, jouerOuverture, jouerRetour, jouerMenu, jouerEjection, appliPrete, avancee };
+window.mindset = { etat, pause, reprendre, message, jouerOuverture, jouerRetour, jouerMenu, jouerEjection, appliPrete, avancee, reglages, vitesse: vitesseAnimations };
 // (pour les essais automatiques : glisser simule un geste de souris sur la rangée, de dx pixels en ms millisecondes)
 const glisserEssai = (dx, ms = 250) => { const r = elCar.getBoundingClientRect(), x0 = r.left + r.width / 2, y = r.top + r.height / 2, n = 12, ev = (t, x) => new PointerEvent(t, { clientX: x, clientY: y, button: 0, pointerId: 1, bubbles: true, pointerType: 'mouse' });
   elCar.dispatchEvent(ev('pointerdown', x0)); for (let k = 1; k <= n; k++) setTimeout(() => { elCar.dispatchEvent(ev('pointermove', x0 + dx * k / n)); if (k === n) elCar.dispatchEvent(ev('pointerup', x0 + dx)); }, ms * k / n); };
 window.mindsetEssai = { choisirCartouche, zoomerMenu, choisirDepuisMenu, glisser: glisserEssai, touche: (key) => dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true })),
   cliquerTuile: (i) => { const bs = elCar.querySelectorAll('button'), b = bs[i < 0 ? bs.length + i : i], r = b?.getBoundingClientRect(); if (!r) return; const o = { clientX: r.left + r.width / 2, clientY: r.top + r.height / 2, button: 0, pointerId: 1, bubbles: true }; b.dispatchEvent(new PointerEvent('pointerdown', o)); elCar.dispatchEvent(new PointerEvent('pointerup', o)); },
-  cliquer: (f) => document.querySelector(`#voileActions button[data-f="${f}"]`)?.click(), etatScene: () => ({ enFente, zoome, occupe, ouverte, menuSel, pos: +car.pos.toFixed(2), tuile: ouverte === MENU ? listeMenu()[menuSel] : null }) };   // (pour les essais automatiques)
+  cliquer: (f) => document.querySelector(`#voileActions button[data-f="${f}"]`)?.click(), etatScene: () => ({ enFente, zoome, occupe, ouverte, menuSel, pos: +car.pos.toFixed(2), tuile: ouverte === MENU ? listeMenu()[menuSel] : null, onglet: ouverte === REGL ? REG.onglet : null, vitesse }),
+  reglage: (k) => elReg.querySelector(`[data-k="${CSS.escape(k)}"]`)?.click(), viser: (k) => elReg.querySelector(`[data-k="${CSS.escape(k)}"]`)?.focus(),
+  defiler: (y) => { const c = elReg.querySelector('.contenu'); if (c) c.scrollTop = y; } };   // (pour les essais automatiques)
 
 montrerDecor(); poser();
 renderer.setAnimationLoop(image);

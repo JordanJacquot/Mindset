@@ -45,15 +45,17 @@ function New-ChoixTheme([string]$Cle, [string]$Id, [string]$Nom, [string]$Desc, 
     [void]$sp.Children.Add($n)
     $b.ToolTip = $Nom
     $b.Content = $sp
-    $b.Add_Click({
-        $cle = $this.Tag
-        if ($cle -eq $ThemeSetting) { return }
-        if ($script:Occupe.Count) { $ui.ThemeInfo.Text = 'Une installation est en cours : réessaie quand elle sera finie.'; return }
-        Set-SuiteTheme $cle
-        if ($EnTest) { $ui.ThemeInfo.Text = "Thème « $cle » choisi (test : pas de relance)."; return }
-        Restart-Mindset
-    })
+    $b.Add_Click({ Select-ThemeSuite $this.Tag })
     [void]$ui.Themes.Children.Add($b)
+}
+
+# Choisir le thème de la suite (carte d'un thème, ici ou dans l'écran de la console) : suite.json, puis Mindset se relance
+function Select-ThemeSuite([string]$Cle) {
+    if (-not $Cle -or $Cle -eq $ThemeSetting) { return }
+    if ($script:Occupe.Count) { $ui.ThemeInfo.Text = 'Une installation est en cours : réessaie quand elle sera finie.'; return }
+    Set-SuiteTheme $Cle
+    if ($EnTest) { $ui.ThemeInfo.Text = "Thème « $Cle » choisi (test : pas de relance)."; return }
+    Restart-Mindset
 }
 
 # Les 5 thèmes de base, puis les thèmes personnalisés importés
@@ -65,17 +67,25 @@ function Update-ChoixThemes {
 Update-ChoixThemes
 
 # « Importer un thème » : un zip de la suite, installé pour Mindset, Nevermind et Evermind
-$ui.BtnImporterTheme.Add_Click({
+# (la fenêtre de Windows qui choisit le fichier : son chemin, ou rien si on annule)
+function Select-FichierThemeSuite {
     $dlg = New-Object Microsoft.Win32.OpenFileDialog
     $dlg.Title = 'Choisis le thème de la suite (.zip)'; $dlg.Filter = 'Thème de la suite (*.zip)|*.zip'
     foreach ($d in @('D:\Projets\Thème-Mindset', (Join-Path ([Environment]::GetFolderPath('Desktop')) 'Thème-Mindset'))) { if (Test-Path -LiteralPath $d) { $dlg.InitialDirectory = $d; break } }
-    if (-not $dlg.ShowDialog()) { return }
+    if (-not $dlg.ShowDialog()) { return $null }
+    $dlg.FileName
+}
+function Import-ThemeSuite {
+    $f = Select-FichierThemeSuite
+    if (-not $f) { return }
     try {
-        $id = Import-PackSuite $dlg.FileName
+        $id = Import-PackSuite $f
         Update-ChoixThemes
+        $script:ThemesConsole = $null   # (la liste des thèmes de l'écran de la console est refaite)
         $ui.ThemeInfo.Text = "« $((Get-ThemePack $id).Name) » est importé pour Mindset et toutes ses applis : clique dessus pour le choisir."
     } catch { $ui.ThemeInfo.Text = "Ce thème n'a pas pu être importé : $($_.Exception.Message)" }
-})
+}
+$ui.BtnImporterTheme.Add_Click({ Import-ThemeSuite })
 
 # Démarrage avec Windows : le même interrupteur « S'ouvre avec Mindset » que sur les cartes de l'accueil, pour chaque
 # appli que Mindset peut ouvrir (une version qui demande encore les droits administrateur : non). Refait à chaque
@@ -112,8 +122,11 @@ function Update-DemarragesParametres {
 Update-DemarragesParametres
 
 $ui.DossiersTexte.Text = "Les programmes sont dans $RacineProgrammes (protégé : seul un administrateur peut les modifier). Les données de Mindset et de chaque appli sont dans $SuiteDir, un dossier par appli."
-$ui.BtnDossierProgrammes.Add_Click({ $d = $RacineProgrammes; if (-not (Test-Path -LiteralPath $d)) { $d = Split-Path $AppDir -Parent }; Start-Process explorer.exe "`"$d`"" })
-$ui.BtnDossierDonnees.Add_Click({ Start-Process explorer.exe "`"$SuiteDir`"" })
+function Open-DossierExplorateur([string]$Dossier) { Start-Process explorer.exe "`"$Dossier`"" }
+function Open-DossierProgrammes { $d = $RacineProgrammes; if (-not (Test-Path -LiteralPath $d)) { $d = Split-Path $AppDir -Parent }; Open-DossierExplorateur $d }
+function Open-DossierDonnees { Open-DossierExplorateur $SuiteDir }
+$ui.BtnDossierProgrammes.Add_Click({ Open-DossierProgrammes })
+$ui.BtnDossierDonnees.Add_Click({ Open-DossierDonnees })
 $ui.BtnDesinstallerMindset.Add_Click({ Confirm-DesinstallMindset })
 
 # Bandeau de bienvenue : Mindset lancé depuis le dossier téléchargé (pas installé, pas un dossier de travail)
@@ -237,12 +250,13 @@ function Update-ListeVersions {
         [void]$ui.ListeVersions.Children.Add((New-LigneVersion $a.Nom $a.Couleur $inst $etat[0] $etat[1]))
     }
 }
-$ui.BtnVerifierMaj.Add_Click({
+function Invoke-VerifierMaj {
     Invoke-Actualiser -Clic
     $ui.MajInfo.Text = "Vérifié à $((Get-Date).ToString('HH:mm'))"
     $t = New-Object System.Windows.Threading.DispatcherTimer; $t.Interval = [TimeSpan]::FromSeconds(4)
     $t.Add_Tick({ $this.Stop(); if ($script:OngletParametres -eq 'maj') { Update-ListeVersions } }); $t.Start()
-})
+}
+$ui.BtnVerifierMaj.Add_Click({ Invoke-VerifierMaj })
 
 # ---------------------------------------------------------------------------
 # Une appli demande d'ouvrir un onglet des Paramètres (« Ouvrir les réglages de Mindset ») : elle écrit
@@ -265,8 +279,8 @@ function Open-PageDemandee {
     if ($t -notmatch '^parametres(:(general|apparence|son|maj|dossiers))?$') { return }
     $onglet = if ($Matches[2]) { $Matches[2] } else { 'general' }
     Show-Fenetre
+    Show-OngletParametres $onglet   # (d'abord l'onglet : avec la console, Show-Page les ouvre dans son écran sur cet onglet)
     Show-Page 'parametres'
-    Show-OngletParametres $onglet
 }
 
 Show-OngletParametres $(if ($EnTest -and $env:MINDSET_ONGLET) { $env:MINDSET_ONGLET } else { 'general' })
@@ -295,3 +309,125 @@ function Enable-MindsetAdmin {
 
 $ui.AdminBandeau.Visibility = if (((Test-MindsetInstalle) -and -not $EnTest -and -not (Test-TacheMindset)) -or ($EnTest -and $env:MINDSET_ADMIN_TEST)) { 'Visible' } else { 'Collapsed' }
 $ui.BtnActiverAdmin.Add_Click({ Enable-MindsetAdmin })
+
+# ---------------------------------------------------------------------------
+# Les Paramètres dans l'écran de la console (console\scene.html, dans la DA des pages de Nevermind) : la page les
+# dessine avec ce que Mindset lui envoie (Get-EtatParametres) et renvoie chaque geste (Invoke-ReglageConsole), qui
+# appelle les mêmes fonctions que la page ci-dessus. Celle-ci reste derrière, cachée : elle ne sert plus que sans la
+# console (pas de WebView2, ou Animations : aucune). Ses textes d'information (ThemeInfo, AnimationsInfo, MajInfo)
+# sont repris tels quels.
+# ---------------------------------------------------------------------------
+$script:ThemesConsole = $null; $script:ImagesThemesConsole = @{}; $script:AppareilsConsole = $null
+
+# L'image d'un thème perso sur sa carte (sa mascotte ou son logo, la première image) : en PNG dans le texte envoyé
+function Get-ImageThemeConsole($Pack) {
+    if (-not $Pack) { return '' }
+    if ($script:ImagesThemesConsole.ContainsKey($Pack.Id)) { return $script:ImagesThemesConsole[$Pack.Id] }
+    $url = ''
+    try {
+        $image = if ($Pack.Mascotte) { @($Pack.Mascotte.File, $Pack.Mascotte.Frames) } elseif ($Pack.Logo) { @($Pack.Logo, $Pack.LogoFrames) } else { $null }
+        if ($image) {
+            $src = (Get-SheetFrames $image[0] $image[1])[0]
+            if ($Pack.Mascotte -and $Pack.Logo -and $src.PixelWidth -gt 2 * $src.PixelHeight) { $src = (Get-SheetFrames $Pack.Logo $Pack.LogoFrames)[0] }   # (comme sur la carte ci-dessus)
+            $k = [math]::Min(1.0, 96.0 / [math]::Max(1, $src.PixelHeight))
+            if ($k -lt 1) { $src = New-Object System.Windows.Media.Imaging.TransformedBitmap $src, (New-Object System.Windows.Media.ScaleTransform $k, $k) }
+            $enc = New-Object System.Windows.Media.Imaging.PngBitmapEncoder
+            $enc.Frames.Add([System.Windows.Media.Imaging.BitmapFrame]::Create($src))
+            $ms = New-Object IO.MemoryStream; $enc.Save($ms)
+            $url = 'data:image/png;base64,' + [Convert]::ToBase64String($ms.ToArray())
+        }
+    } catch {}
+    $script:ImagesThemesConsole[$Pack.Id] = $url
+    $url
+}
+
+# Les thèmes proposés (les mêmes que les cartes ci-dessus : ceux de base, puis les thèmes perso importés)
+function Get-ThemesConsole {
+    foreach ($id in @($AppThemes.Keys | Where-Object { -not $AppThemes[$_].Pack })) { $th = $AppThemes[$id]
+        [ordered]@{ cle = $id; nom = [string]$th.Name; desc = [string]$th.Desc; fond = (ConvertTo-ThemeHex '#0C0920' $id); couleurs = @([string]$th.P, [string]$th.S, [string]$th.T); image = '' } }
+    foreach ($pk in @(Get-ThemePacks)) { $th = $AppThemes[$pk.Base]
+        [ordered]@{ cle = "pack:$($pk.Id)"; nom = [string]$pk.Name; desc = [string]$pk.Desc; fond = (ConvertTo-ThemeHex '#0C0920' $pk.Base); couleurs = @([string]$th.P, [string]$th.S, [string]$th.T); image = (Get-ImageThemeConsole $pk) } }
+}
+
+# Les micros et les sorties du PC (relus en ouvrant l'onglet Son et avec « Actualiser la liste », comme ci-dessus)
+function Update-AppareilsConsole { $script:AppareilsConsole = @{ micro = @([MSAudio]::Micros()); casque = @([MSAudio]::Sorties()) } }
+function Get-ChoixSonConsole($Noms, [string]$Choisi) {
+    [ordered]@{ cle = ''; nom = 'Celui de Windows'; oui = (-not $Choisi) }
+    foreach ($n in @($Noms) | Select-Object -Unique) { if ($n) { [ordered]@{ cle = [string]$n; nom = (Get-NomAppareil $n); oui = ($n -eq $Choisi) } } }
+    if ($Choisi -and @($Noms) -notcontains $Choisi) { [ordered]@{ cle = $Choisi; nom = "$(Get-NomAppareil $Choisi) (débranché)"; oui = $true } }
+}
+
+# Les applis dont on règle le démarrage (les mêmes que dans l'onglet Général ci-dessus)
+function Get-ApplisDemarrage { @($Applis | Where-Object { (Get-Installation $_) -and (-not (Test-AppliAdmin $_) -or $MindsetAdmin) }) }
+
+# Tout ce que l'écran des Paramètres affiche, en JSON. Les images des thèmes perso partent à part (Get-ImagesThemesConsole) :
+# ce texte-ci est refait toutes les 1,5 s tant que les Paramètres sont ouverts, il reste léger.
+function Get-EtatParametres {
+    if ($null -eq $script:ThemesConsole) { $script:ThemesConsole = @(Get-ThemesConsole) }
+    if ($null -eq $script:AppareilsConsole) { Update-AppareilsConsole }
+    $son = Get-SuiteSon
+    $etatMindset = if ($script:MajMindset) { @("$($script:MajMindset.Version) prête", 'attention') } elseif ($script:MajMindsetEnCours) { @('recherche...', '') } else { @('à jour', 'ok') }
+    $etat = [ordered]@{
+        version = $AppVersion
+        general = [ordered]@{
+            reduire = [bool](Get-Setting 'ReduireHorloge' $true); fermeture = [string](Get-Setting 'Fermeture' 'demander'); windows = [bool](Get-LancerAvecWindows)
+            applis = @(foreach ($a in Get-ApplisDemarrage) { [ordered]@{ id = $a.Id; nom = $a.Nom; oui = [bool](Get-DemarrageAppli $a.Id) } })
+        }
+        apparence = [ordered]@{
+            actuel = [string]$ThemeSetting; info = [string]$ui.ThemeInfo.Text
+            themes = @(foreach ($t in $script:ThemesConsole) { [ordered]@{ cle = $t.cle; nom = $t.nom; desc = $t.desc; fond = $t.fond; couleurs = $t.couleurs; image = [bool]$t.image } })
+            animations = [string](Get-Setting 'Animations' 'completes'); animInfo = [string]$ui.AnimationsInfo.Text
+        }
+        son = [ordered]@{ micros = @(Get-ChoixSonConsole $script:AppareilsConsole.micro ([string]$son.Micro)); casques = @(Get-ChoixSonConsole $script:AppareilsConsole.casque ([string]$son.Casque)) }
+        maj = [ordered]@{
+            mindset = [ordered]@{ texte = $etatMindset[0]; ton = $etatMindset[1] }; prete = $(if ($script:MajMindset) { [string]$script:MajMindset.Version } else { '' }); info = [string]$ui.MajInfo.Text
+            applis = @(foreach ($a in $Applis) {
+                $i = Get-Installation $a; $p = $script:Publications[$a.Id]
+                $inst = if ($i) { "version $(if ($i.Version) { $i.Version } else { '?' })" } else { 'pas installé' }
+                $e = if (-not $p) { @('pas encore vérifié', '') } elseif ($p.Erreur) { @('GitHub injoignable', 'urgent') }
+                     elseif ($i -and $i.Version -and (Test-VersionPlusRecente $p.Version $i.Version)) { @("$($p.Version) disponible", 'attention') }
+                     elseif ($i) { @('à jour', 'ok') } else { @("dernière : $($p.Version)", '') }
+                [ordered]@{ nom = $a.Nom; couleur = (ConvertTo-ThemeHex $a.Couleur); version = $inst; texte = $e[0]; ton = $e[1] } })
+        }
+        dossiers = [ordered]@{ texte = [string]$ui.DossiersTexte.Text }
+    }
+    ConvertTo-Json -InputObject $etat -Depth 6 -Compress
+}
+function Get-ImagesThemesConsole {
+    if ($null -eq $script:ThemesConsole) { $script:ThemesConsole = @(Get-ThemesConsole) }
+    $m = [ordered]@{}
+    foreach ($t in $script:ThemesConsole) { if ($t.image) { $m[$t.cle] = $t.image } }
+    ConvertTo-Json -InputObject $m -Compress
+}
+
+# Un geste dans l'écran des Paramètres : seulement des réglages connus, avec des valeurs vérifiées
+function Invoke-ReglageConsole($M) {
+    $quoi = [string]$M.quoi; $v = $M.valeur
+    switch ($quoi) {
+        'onglet'      { if ($OngletsParametres.Contains([string]$v)) { $script:OngletParametres = [string]$v; if ($v -eq 'son') { Update-AppareilsConsole } } }
+        'reduire'     { Set-Setting 'ReduireHorloge' ([bool]$v); $ui.ReduireHorloge.IsChecked = [bool]$v }
+        'fermeture'   { if ([string]$v -in 'demander', 'reduire', 'quitter') { Set-Setting 'Fermeture' ([string]$v); Update-ReglageFermeture } }
+        'windows'     { Set-LancerAvecWindows ([bool]$v) }
+        'demarrage'   {
+            $a = Get-ApplisDemarrage | Where-Object { $_.Id -eq [string]$M.id } | Select-Object -First 1
+            if ($a) { Set-DemarrageAppli $a.Id ([bool]$v); foreach ($x in $script:Interrupteurs) { if ($x.Tag -eq $a.Id) { $x.IsChecked = [bool]$v } } }
+        }
+        'theme'       { if ($script:ThemesConsole | Where-Object { $_.cle -eq [string]$v }) { Select-ThemeSuite ([string]$v) } }
+        'importer'    { Import-ThemeSuite; Send-ImagesThemesConsole }
+        'animations'  {
+            if ([string]$v -notin 'completes', 'express', 'aucune') { return }
+            Set-ReglageAnimations ([string]$v)
+            foreach ($rb in $ui.ChoixAnimations.Children) { $rb.IsChecked = ($rb.Tag -eq [string](Get-Setting 'Animations' 'completes')) }
+            # Sans 3D, plus de console : la page des Paramètres d'avant prend le relais, sur Apparence (pour revenir en arrière)
+            if (-not $script:Console.Possible) { $script:Console.Parametres = $false; Show-OngletParametres 'apparence'; Show-Page 'parametres'; return }
+        }
+        { $_ -in 'micro', 'casque' } { Set-SuiteSon $quoi ([string]$v) }
+        'sonActualiser'     { Update-AppareilsConsole }
+        'verifier'          { Invoke-VerifierMaj }
+        'majMindset'        { Start-MajMindset }
+        'dossierProgrammes' { Open-DossierProgrammes }
+        'dossierDonnees'    { Open-DossierDonnees }
+        'desinstaller'      { Confirm-DesinstallMindset }
+    }
+    Send-ParametresConsole -Force
+}

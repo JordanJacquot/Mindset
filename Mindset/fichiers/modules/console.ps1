@@ -17,7 +17,7 @@ $ConsoleDir = Join-Path $AppDir 'console'
 $LogosAppliDir = Join-Path $DataDir 'console-logos'   # logos tirés de l'icône d'une appli installée (pas livrés avec Mindset)
 $Webview2Dir = Join-Path $AppDir 'lib\webview2'
 $script:Console = @{ Possible = $false; Vue = $null; Pret = $false; DerniereAppli = $null; AJouer = $null; EtatEnvoye = ''; QuitteeA = $null
-    EnFente = $null; Ejecter = $null; Attente = $null; AttenteDepuis = $null; RetourMenu = $false }
+    EnFente = $null; Ejecter = $null; Attente = $null; AttenteDepuis = $null; Parametres = $false; ParametresEnvoyes = '' }
 
 # La 3D est-elle possible ici ? (une fois, au démarrage)
 function Test-ConsolePossible {
@@ -155,14 +155,20 @@ function Update-PageConsole {
     if (-not $script:Console.Possible) { return }
     if ($avecConsole -and $Window.IsVisible -and $Window.WindowState -ne 'Minimized') {
         $script:Console.QuitteeA = $null
-        # Ce que la scène joue en revenant : d'une appli qui tourne encore (sa maison, Échap, le bouton Menu de Mindset),
-        # ou des Paramètres ouverts depuis le menu en grand : le menu en grand, dans l'écran (comme un clic sur l'écran),
-        # l'appli reste en pause ; d'une appli fermée : la caméra ressort de l'écran et sa cartouche ressort de la fente
+        # Ce que la scène joue en revenant : d'une appli qui tourne encore (sa maison, Échap, le bouton Menu de Mindset) :
+        # le menu en grand, dans l'écran (comme un clic sur l'écran), l'appli reste en pause ; d'une appli fermée : la
+        # caméra ressort de l'écran et sa cartouche ressort de la fente. Les Paramètres demandés : ils s'ouvrent ensuite
+        # dans l'écran (Open-ParametresConsole), sur leur onglet.
         $depuis = $script:Console.DerniereAppli
         $js = if ($depuis -and $script:Console.Ejecter) { "window.mindset.jouerRetour('$depuis', true)" }
-              elseif ($depuis) { "window.mindset.jouerMenu('$depuis')" }
-              elseif ($script:Console.RetourMenu) { 'window.mindset.jouerMenu(null, true)' } else { $null }
-        $script:Console.Ejecter = $null; $script:Console.RetourMenu = $false; $script:Console.DerniereAppli = $null
+              elseif ($depuis) { "window.mindset.jouerMenu('$depuis')" } else { $null }
+        $script:Console.Ejecter = $null; $script:Console.DerniereAppli = $null
+        if ($script:Console.Parametres) {
+            $onglet = if ($OngletsParametres.Contains([string]$script:OngletParametres)) { $script:OngletParametres } else { 'general' }
+            $etat = Get-EtatParametres; $script:Console.ParametresEnvoyes = $etat
+            $r = "window.mindset.reglages($etat, '$onglet', $(if ($script:Console.Vue) { 'false' } else { 'true' }), $(Get-ImagesThemesConsole))"
+            $js = if ($js) { "$js; $r" } else { $r }
+        }
         if (-not $script:Console.Vue) {
             $script:Console.AJouer = $js   # (joué quand la scène est prête)
             New-VueConsole $(if ($depuis) { 'dedans' } else { 'menu' })
@@ -172,10 +178,13 @@ function Update-PageConsole {
             Send-EtatConsole -Force
         }
         try { [void]$script:Console.Vue.Focus() } catch {}
-    } elseif ($script:Console.Vue) {
-        # Une autre page : pause tout de suite, fermeture au bout d'une minute (ConsoleTimer)
-        Invoke-ScriptConsole 'window.mindset.pause()'
-        if (-not $script:Console.QuitteeA) { $script:Console.QuitteeA = Get-Date }
+    } else {
+        if (-not $accueil) { $script:Console.Parametres = $false }   # (une appli affichée : les Paramètres sont quittés)
+        if ($script:Console.Vue) {
+            # Une autre page : pause tout de suite, fermeture au bout d'une minute (ConsoleTimer)
+            Invoke-ScriptConsole 'window.mindset.pause()'
+            if (-not $script:Console.QuitteeA) { $script:Console.QuitteeA = Get-Date }
+        }
     }
 }
 
@@ -246,6 +255,7 @@ function Receive-MessageConsole([string]$Json) {
         return
     }
     if ($type -eq 'erreur') { Write-Log "Console 3D : erreur du script ($(([string]$m.texte) -replace '\s+', ' '))"; return }
+    if ($type -eq 'reglage') { if ($script:Console.Parametres) { Invoke-ReglageConsole $m }; return }   # (parametres.ps1)
     $id = [string]$m.id
     $a = if ($id -match '^[a-z0-9-]{1,30}$') { Get-Appli $id } else { $null }
     if ($type -eq 'afficher') {
@@ -267,7 +277,8 @@ function Receive-MessageConsole([string]$Json) {
         'installer'  { if ($a -and -not (Get-Installation $a)) { if ($script:Trouvees[$a.Id]) { Confirm-PriseEnCharge $a } else { Start-InstallAppli $a } } }
         'maj'        { if ($a) { Confirm-MiseAJour $a } }
         'fermer'     { if ($a) { Stop-AppliConsole $a } }
-        'parametres' { $script:Console.RetourMenu = [string]$m.depuis -eq 'menu'; Show-Page 'parametres' }   # (depuis le menu en grand : on y revient)
+        'parametres' { $script:OngletParametres = 'general'; Show-Page 'parametres' }   # (tuile du menu en grand ou bouton rond : dans l'écran)
+        'parametresFermes' { $script:Console.Parametres = $false }   # (retour au menu en grand, sur la tuile Paramètres)
         'actualiser' { Invoke-Actualiser -Clic; Invoke-ScriptConsole "window.mindset.message('Recherche des nouvelles versions...')" }
         'majTout'    {
             $aMettre = @($Applis | Where-Object { (Get-EtatCarte $_).MajDispo })
@@ -326,6 +337,7 @@ $script:ConsoleTimer.Add_Tick({
     if (-not $script:Console.Vue) { return }
     if ($script:Console.QuitteeA -and ((Get-Date) - $script:Console.QuitteeA).TotalSeconds -ge 60) { Remove-VueConsole 'une minute sur une autre page'; $script:Console.QuitteeA = $null; return }
     try { Send-EtatConsole } catch { Write-Log "Console 3D : état non envoyé ($_)" }
+    if ($script:Console.Parametres -and $script:PageCourante -eq 'accueil') { try { Send-ParametresConsole } catch { Write-Log "Console 3D : Paramètres non envoyés ($_)" } }
 })
 if ($script:Console.Possible) { $script:ConsoleTimer.Start() }
 
@@ -362,6 +374,27 @@ $script:ConsoleAttenteTimer.Add_Tick({
     }
 })
 
+# ---------------------------------------------------------------------------
+# Les Paramètres de Mindset, dans l'écran de la console (comme le menu en grand) : la tuile Paramètres, le bouton rond,
+# et toute autre demande (Show-Page 'parametres', afficher-page.txt « parametres:son »...) les y ouvrent. Retour (flèche,
+# Échap, B) ramène au menu en grand, sur la tuile Paramètres. Ce que l'écran affiche et ce qu'il demande : parametres.ps1.
+# ---------------------------------------------------------------------------
+function Open-ParametresConsole {
+    $script:Console.Parametres = $true
+    $script:ThemesConsole = $null   # (relus à chaque ouverture, comme la page d'avant : un thème importé ou un micro branché y est)
+    if ($script:OngletParametres -eq 'son') { Update-AppareilsConsole }
+    if ($script:PageCourante -ne 'accueil') { Show-Page 'accueil' } else { Update-PageConsole }   # (Update-PageConsole les ouvre)
+}
+# L'état des réglages, renvoyé quand il change (après un geste, une recherche de versions, un appareil branché...)
+function Send-ParametresConsole([switch]$Force) {
+    if (-not $script:Console.Parametres -or -not $script:Console.Vue -or -not $script:Console.Pret) { return }
+    $json = Get-EtatParametres
+    if (-not $Force -and $json -eq $script:Console.ParametresEnvoyes) { return }
+    $script:Console.ParametresEnvoyes = $json
+    Invoke-ScriptConsole "window.mindset.reglages($json)"
+}
+function Send-ImagesThemesConsole { if ($script:Console.Parametres) { Invoke-ScriptConsole "window.mindset.reglages(null, null, false, $(Get-ImagesThemesConsole))" } }
+
 # Le bouton Menu (la maison), dans la barre de l'appli, sur son écran d'attente et dans les Paramètres : retour au menu
 # en grand dans l'écran de la console (Update-PageConsole ; une appli affichée reste ouverte, en pause). Échap fait pareil,
 # comme la maison d'une appli (« menu » dans afficher-page.txt, Open-PageDemandee).
@@ -391,7 +424,10 @@ function Set-ReglageAnimations([string]$Choix) {
         $script:Console.Possible = $true
         $script:ConsoleTimer.Start()
     } else {
-        Remove-VueConsole 'réglage Animations changé'   # (recréée à la nouvelle vitesse au retour sur l'accueil)
+        # La console à l'écran (le réglage vient de ses Paramètres) : elle change de vitesse sans s'éteindre ; sinon elle
+        # est recréée à la nouvelle vitesse au retour sur l'accueil
+        if ($script:Console.Vue -and $script:Console.Pret -and $script:PageCourante -eq 'accueil') { Invoke-ScriptConsole "window.mindset.vitesse('$Choix')"; return }
+        Remove-VueConsole 'réglage Animations changé'
         return
     }
     Set-NavigationConsole

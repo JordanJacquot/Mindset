@@ -82,6 +82,8 @@ function New-Onglet([string]$Id, [string]$Texte, [string]$Couleur, $Panneau = $u
 }
 
 function Show-Page([string]$Id) {
+    # Avec la console 3D, les Paramètres s'ouvrent dans son écran (console.ps1, chargé après) : la page d'avant reste cachée
+    if ($Id -eq 'parametres' -and $script:Console.Possible -and (Get-Command Open-ParametresConsole -ErrorAction SilentlyContinue)) { Open-ParametresConsole; return }
     $script:PageCourante = $Id
     foreach ($k in $script:Onglets.Keys) {
         $b = $script:Onglets[$k]; $on = ($k -eq $Id)
