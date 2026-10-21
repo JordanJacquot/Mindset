@@ -65,9 +65,12 @@ function New-VueConsole([string]$VueDepart = 'menu') {
             # Les logos tirés des applis installées (dossier de données) : servis par Mindset lui-même, une image PNG au nom
             # vérifié, avec l'autorisation qu'exige le navigateur pour les dessiner sur l'écran de la console
             $c.AddWebResourceRequestedFilter('https://applogos.mindset.local/*', [Microsoft.Web.WebView2.Core.CoreWebView2WebResourceContext]::All)
+            $c.AddWebResourceRequestedFilter('https://theme.mindset.local/*', [Microsoft.Web.WebView2.Core.CoreWebView2WebResourceContext]::All)
             $c.Add_WebResourceRequested({
                 param($s2, $e2)
-                $nom = [IO.Path]::GetFileName(([uri]$e2.Request.Uri).AbsolutePath)
+                $u = [uri]$e2.Request.Uri
+                if ($u.Host -eq 'theme.mindset.local') { $e2.Response = Get-ReponseThemeConsole $s2 $u; return }   # (les images du thème perso)
+                $nom = [IO.Path]::GetFileName($u.AbsolutePath)
                 $f = Join-Path $LogosAppliDir $nom
                 if ($nom -match '^[a-z0-9-]{1,30}\.png$' -and (Test-Path -LiteralPath $f)) {
                     $flux = New-Object IO.MemoryStream (, [IO.File]::ReadAllBytes($f))
@@ -80,7 +83,10 @@ function New-VueConsole([string]$VueDepart = 'menu') {
             $c.Add_WebMessageReceived({ param($s2, $e2) try { Receive-MessageConsole $e2.WebMessageAsJson } catch { Write-Log "Console 3D : message ignoré ($_)" } })
             $c.Add_ProcessFailed({ param($s2, $e2) Stop-Console "processus de la 3D arrêté ($($e2.ProcessFailedKind))" })
             $anim = [string](Get-Setting 'Animations' 'completes')
-            $c.Navigate("https://mindset.local/scene.html?vue=$VueDepart&animations=$(if ($anim -eq 'express') { 'express' } else { 'completes' })&couleurs=$([uri]::EscapeDataString((Get-CouleursConsole)))")
+            $th = Get-ThemeConsole
+            # (les couleurs du thème de la suite valent pour tous les thèmes, de base ou perso ; les images, seulement un pack avec un bloc Console)
+            $suite = "&couleurs=$([uri]::EscapeDataString((Get-CouleursConsole)))" + $(if ($th) { "&theme=$([uri]::EscapeDataString($th))" } else { '' })
+            $c.Navigate("https://mindset.local/scene.html?vue=$VueDepart&animations=$(if ($anim -eq 'express') { 'express' } else { 'completes' })$suite")
         } catch { Stop-Console "réglage impossible ($($_.Exception.Message))" }
     })
     $ui.PageConsole.Children.Add($vue) | Out-Null
@@ -92,15 +98,64 @@ function New-VueConsole([string]$VueDepart = 'menu') {
     }, [System.Windows.Threading.DispatcherPriority]::Background)
 }
 
-# Les couleurs Néon de la scène, traduites dans le thème de la suite (themes.ps1, packs perso compris) : seulement
-# celles qui changent, en JSON ({ "00E5FF": "#FF8A3D", ... }) ; la scène garde les autres
-$CouleursScene = '07060D', '00E5FF', 'FF2EB5', 'B04BFF', '6A5CFF', '7A5BFF', '0B0A12', '17151F', '050409', '111018', '2C2840', '24212F',
-    '1B1830', '0A0912', '100D22', '120E28', '05040C', 'A9A3C9', '1A1636', '141126', 'C9C4DD', '2B2648', '08060F', 'ECEAF7', '8FF4FF',
-    'E8FDFF', '0C0920', '06050F', '0A0818'
+# Le thème de la suite dans la console : ses couleurs pour tous les thèmes ; ses images et sa police seulement pour un thème
+# perso qui a un bloc « Console » (packs.ps1).
+#   - ses couleurs : chaque couleur Néon de la scène (toutes celles écrites dans scene.html), traduite dans le thème,
+#     seulement celles qui changent, en JSON ({ "00E5FF": "#FF8A3D", ... }) ; les icônes restent les mêmes ;
+#   - ses images (fond de l'écran en grand, mascotte du menu, image de chargement, logo) et sa police : servies en
+#     lecture seule depuis le dossier du pack (https://theme.mindset.local/<nom>), seulement les fichiers nommés ici.
 function Get-CouleursConsole {
     $t = [ordered]@{}
-    foreach ($h in $CouleursScene) { $v = (ConvertTo-ThemeHex "#$h").ToUpper(); if ($v -ne "#$h") { $t[$h] = $v } }
+    $html = [IO.File]::ReadAllText((Join-Path $ConsoleDir 'scene.html'), [Text.Encoding]::UTF8)
+    foreach ($m in [regex]::Matches($html, '#([0-9A-Fa-f]{6})\b')) {
+        $h = $m.Groups[1].Value.ToUpper()
+        $v = (ConvertTo-ThemeHex "#$h").ToUpper()
+        if ($v -ne "#$h" -and -not $t.Contains($h)) { $t[$h] = $v }
+    }
     $t | ConvertTo-Json -Compress
+}
+$script:FichiersThemeConsole = @{}; $script:ImagesAnimees = @{}
+function Get-ThemeConsole {
+    $script:FichiersThemeConsole = @{}
+    if (-not $ThemePack -or -not $ThemePack.Console) { return $null }
+    $c = $ThemePack.Console
+    $url = { param($f) if (-not $f) { return '' }; $n = [IO.Path]::GetFileName($f); $script:FichiersThemeConsole[$n] = $f; "https://theme.mindset.local/$([uri]::EscapeDataString($n))" }
+    $t = [ordered]@{
+        fond = (& $url $c.Fond); opacite = [double]$c.FondOpacite
+        mascotte = (& $url $c.Mascotte); mascotteAnimee = (Test-ImageAnimee $c.Mascotte)
+        chargement = $(if ($c.Chargement) { & $url $c.Chargement.File } else { '' }); effet = $(if ($c.Chargement) { [string]$c.Chargement.Effet } else { '' })
+        logo = $(if ($ThemePack.Logo -and $ThemePack.LogoFrames -le 1) { & $url $ThemePack.Logo } else { '' })   # (une planche animée : le logo de Mindset reste)
+        police = $(if ($ThemePack.Font) { & $url $ThemePack.Font } else { '' })
+    }
+    $t | ConvertTo-Json -Compress
+}
+# Une image animée (GIF à plusieurs images, WebP ou PNG animé) ? La mascotte fixe flotte, une animée reste en place
+function Test-ImageAnimee([string]$Fichier) {
+    if (-not $Fichier) { return $false }
+    if ($script:ImagesAnimees.ContainsKey($Fichier)) { return $script:ImagesAnimees[$Fichier] }
+    $oui = $false
+    try {
+        $b = [IO.File]::ReadAllBytes($Fichier)
+        $s = [Text.Encoding]::GetEncoding(28591).GetString($b)
+        $format = Get-FormatImagePack $b
+        if ($format -eq 'gif') { $gce = [string][char]0x21 + [char]0xF9 + [char]0x04; $i = $s.IndexOf($gce, [StringComparison]::Ordinal); $oui = $i -ge 0 -and $s.IndexOf($gce, $i + 3, [StringComparison]::Ordinal) -ge 0 }
+        elseif ($format -eq 'webp') { $oui = $s.Substring(12, 4) -eq 'VP8X' -and [bool]($b[20] -band 0x02) }
+        elseif ($format -eq 'png') { $a = $s.IndexOf('acTL', [StringComparison]::Ordinal); $d = $s.IndexOf('IDAT', [StringComparison]::Ordinal); $oui = $a -ge 0 -and ($d -lt 0 -or $a -lt $d) }
+    } catch {}
+    $script:ImagesAnimees[$Fichier] = $oui
+    $oui
+}
+# Un fichier du thème demandé par la scène : seulement ceux de Get-ThemeConsole, avec son type et l'autorisation
+# qu'exige le navigateur pour le dessiner (écran de la console) ou s'en servir comme police
+function Get-ReponseThemeConsole($Vue, [uri]$Uri) {
+    $f = $null
+    try { $f = $script:FichiersThemeConsole[[uri]::UnescapeDataString($Uri.AbsolutePath.TrimStart('/'))] } catch {}
+    if (-not $f -or -not (Test-Path -LiteralPath $f)) { return $Vue.Environment.CreateWebResourceResponse($null, 404, 'Not Found', '') }
+    $b = [IO.File]::ReadAllBytes($f)
+    $type = if ($f -match '\.ttf$') { 'font/ttf' } elseif ($f -match '\.otf$') { 'font/otf' } else { switch (Get-FormatImagePack $b) { 'png' { 'image/png' } 'jpeg' { 'image/jpeg' } 'gif' { 'image/gif' } 'webp' { 'image/webp' } default { $null } } }
+    if (-not $type) { return $Vue.Environment.CreateWebResourceResponse($null, 404, 'Not Found', '') }
+    $flux = New-Object IO.MemoryStream (, $b)
+    $Vue.Environment.CreateWebResourceResponse($flux, 200, 'OK', "Content-Type: $type`r`nAccess-Control-Allow-Origin: https://mindset.local`r`nCache-Control: max-age=3600")
 }
 
 function Remove-VueConsole([string]$Pourquoi) {

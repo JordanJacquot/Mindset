@@ -76,7 +76,7 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: #07060D; col
 #menuGrand .aides i { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(180deg, #FFFFFF, #CFCDE0); color: #14102A; font-style: normal; font-weight: 800; font-size: 14px; display: flex; align-items: center; justify-content: center; }
 #voile.menu > :not(#menuGrand) { display: none; }
 /* (les règles de l'écran d'une appli, #voile img, b, span et button, ne s'appliquent pas au menu) */
-#voile #menuGrand img { width: auto; height: auto; } #voile #menuGrand .tete img { width: 48px; height: 48px; }
+#voile #menuGrand img { width: auto; height: auto; } #voile #menuGrand .tete img { width: 48px; height: 48px; object-fit: contain; }
 #voile #menuGrand b { font-size: 19px; } #voile #menuGrand span { font-size: inherit; color: inherit; max-width: none; }
 #voile #carrousel button { height: auto; padding: 14px; border-radius: 26px; font-size: 16px; font-weight: 600; }
 #voile #carrousel button img { width: 52%; }
@@ -201,6 +201,24 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: #07060D; col
 #reglagesGrand .aides i { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(180deg, #FFFFFF, #CFCDE0); color: #14102A; font-style: normal; font-weight: 800; font-size: 14px; display: flex; align-items: center; justify-content: center; }
 @media (prefers-reduced-motion: reduce) { #reglagesGrand .grande-ic svg, #reglagesGrand .grande-ic::before, #reglagesGrand .bascule.oui { animation: none; } }
 @media (prefers-reduced-motion: reduce) { #voile .roue { animation-duration: 3s; } }
+/* Un thème perso avec un bloc « Console » (Mindset l'envoie : paramètre « theme ») : son fond sous l'écran en grand, sa
+   mascotte dans un coin du menu en grand (elle flotte si elle est fixe ; une image opaque devient une vignette arrondie),
+   son image de chargement à côté de la barre d'ouverture d'une appli (« tourne » : sur elle-même, avec une lueur aux
+   couleurs du thème), sa police sur les titres. Les tuiles restent les logos des applis, les icônes des boutons restent
+   les mêmes : seules leurs couleurs suivent le thème (paramètre « couleurs »). Pas de personnage qui marche en bas. */
+#voile.avecFond { isolation: isolate; }
+#voile.avecFond::before { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; background: var(--fondTheme) center / cover no-repeat; opacity: var(--fondOpacite, 0.35); }
+#voile #menuGrand img.mascotte { position: absolute; right: 5%; top: 14%; width: auto; height: clamp(90px, 21vh, 200px); max-width: 24%; object-fit: contain; pointer-events: none; z-index: 0; filter: drop-shadow(0 10px 18px rgba(0,0,0,0.55)); }
+#voile #menuGrand img.mascotte[hidden] { display: none; }
+#voile #menuGrand img.mascotte.flotte { animation: flotte 4.5s ease-in-out infinite; }
+#voile #menuGrand img.mascotte.vignette { border-radius: 22px; border: 2px solid color-mix(in srgb, #00E5FF 55%, transparent); box-shadow: 0 0 22px color-mix(in srgb, #B04BFF 45%, transparent), 0 12px 24px rgba(0,0,0,0.5); filter: none; }
+#voile .barre img.charge { display: none; }
+#voile .barre.avecImage.ouverture:not([hidden]) { display: grid; grid-template-columns: auto 1fr; column-gap: 20px; align-items: center; width: min(520px, 78%); text-align: left; }
+#voile .barre.avecImage.ouverture img.charge { display: block; grid-row: span 2; width: 84px; height: 84px; object-fit: contain; }
+#voile .barre.avecImage.ouverture img.charge.tourne { animation: tourneY 2.6s linear infinite; filter: drop-shadow(0 0 8px #00E5FF) drop-shadow(0 0 18px color-mix(in srgb, #B04BFF 70%, transparent)); }
+@keyframes tourneY { from { transform: perspective(500px) rotateY(0deg); } to { transform: perspective(500px) rotateY(360deg); } }
+.policeTheme #menuGrand .tete span:not(.hh), .policeTheme #menuGrand .nomSel, .policeTheme #voileNom, .policeTheme #reglagesGrand h1, .policeTheme #reglagesGrand .module h3 { font-family: "PoliceTheme", "Segoe UI Variable Display", "Segoe UI", sans-serif; }
+@media (prefers-reduced-motion: reduce) { #voile #menuGrand img.mascotte.flotte, #voile .barre img.charge.tourne { animation: none; } }
 </style>
 </head>
 <body>
@@ -213,9 +231,9 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: #07060D; col
       <button type="button" data-r="veille" aria-label="Mettre Mindset en veille"><svg viewBox="0 0 24 24" fill="none" stroke="#FF5C7A" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 3v9M6.3 7.5a8 8 0 1 0 11.4 0"/></svg><span>Veille (près de l'horloge)</span></button>
     </nav></div>
   <div id="voile" role="dialog" aria-label="L'écran de la console"><img id="voileLogo" alt=""><b id="voileNom"></b><span id="voileTexte"></span>
-    <div class="barre" id="voileBarre" hidden><i><b></b></i><em></em></div>
+    <div class="barre" id="voileBarre" hidden><img id="voileCharge" class="charge" alt="" draggable="false"><i><b></b></i><em></em></div>
     <div class="actions" id="voileActions"></div>
-    <div id="menuGrand" hidden><div class="tete"><img id="menuLogo" alt=""><span>Mindset</span><span class="hh" id="menuHeure"></span></div>
+    <div id="menuGrand" hidden><img id="mascotte" class="mascotte" alt="" draggable="false" hidden><div class="tete"><img id="menuLogo" alt=""><span>Mindset</span><span class="hh" id="menuHeure"></span></div>
       <div class="nomSel" id="menuNom"></div><div id="carrousel" role="listbox" aria-label="Tes applis"></div>
       <div class="bas"><span id="menuConsigne"></span><div class="aides"><button type="button" id="menuB"><i>B</i>Retour</button><button type="button" id="menuA"><i>A</i>OK</button></div></div></div>
     <div id="reglagesGrand" hidden><div class="tete"><button type="button" class="retour f" data-a="retour" aria-label="Revenir au menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button>
@@ -235,6 +253,14 @@ import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.j
 const POLICE = '"Segoe UI Variable Display", "Segoe UI", sans-serif';
 const params = new URLSearchParams(location.search);
 const reduit = matchMedia('(prefers-reduced-motion: reduce)').matches;
+// Le thème de la suite, seulement pour un thème perso avec un bloc « Console » (sinon Mindset n'envoie rien : Néon) :
+// « couleurs » traduit chaque couleur Néon de la page (styles et dessins), « theme » donne ses images (servies par
+// Mindset depuis le dossier du pack, https://theme.mindset.local/) et sa police
+const COULEURS = {};
+try { for (const [k, v] of Object.entries(JSON.parse(params.get('couleurs') || '{}'))) if (/^[0-9A-F]{6}$/.test(k) && /^#[0-9A-F]{6}$/i.test(v)) COULEURS[k] = v; } catch (e) {}
+const C = (h) => COULEURS[h.slice(1).toUpperCase()] || h;   // '#RRGGBB' dans le thème
+if (Object.keys(COULEURS).length) { const st = document.querySelector('style'); st.textContent = st.textContent.replace(/#[0-9A-Fa-f]{6}\b/g, C); document.querySelectorAll('#ronds svg').forEach((g) => g.setAttribute('stroke', C(g.getAttribute('stroke')))); }
+const THEME = (() => { try { const t = JSON.parse(params.get('theme') || 'null'); return t && typeof t === 'object' ? t : null; } catch (e) { return null; } })();
 let vitesse = params.get('animations') === 'express' || reduit ? 0.4 : 1;   // (changée par les Paramètres : window.mindset.vitesse)
 // Messages vers Mindset : seulement des actions connues, avec l'identifiant d'une appli (Mindset vérifie tout)
 const hote = (type, donnees = {}) => { try { window.chrome?.webview?.postMessage({ type, ...donnees }); } catch (e) {} };
@@ -307,30 +333,30 @@ ombre.rotation.x = -Math.PI / 2; ombre.position.set(0, 0.01, 0.3); cons.add(ombr
 // Le menu sur l'écran de la console : Mindset et l'heure en haut, une tuile par appli avec son état, la consigne en bas
 let enFente = null, demarrage = 0;
 function dessinerEcran(t) {
-  const g = ex.createLinearGradient(0, 0, 1024, 576); g.addColorStop(0, '#120E28'); g.addColorStop(1, '#05040C'); ex.fillStyle = g; ex.fillRect(0, 0, 1024, 576);
+  const g = ex.createLinearGradient(0, 0, 1024, 576); g.addColorStop(0, C('#120E28')); g.addColorStop(1, C('#05040C')); ex.fillStyle = g; ex.fillRect(0, 0, 1024, 576);
   const a = enFente && APPLIS[enFente];
   if (a && demarrage > 0) {
     const r = ex.createRadialGradient(512, 288, 10, 512, 288, 600); r.addColorStop(0, a.c + 'AA'); r.addColorStop(1, 'rgba(0,0,0,0)'); ex.globalAlpha = Math.min(1, demarrage); ex.fillStyle = r; ex.fillRect(0, 0, 1024, 576);
     if (logos[enFente]) ex.drawImage(logos[enFente], 402, 130, 220, 220);
-    ex.fillStyle = '#FFFFFF'; ex.font = `800 60px ${POLICE}`; ex.textAlign = 'center'; ex.textBaseline = 'alphabetic'; ex.fillText(a.nom, 512, 440); ex.globalAlpha = 1; return;
+    ex.fillStyle = C('#FFFFFF'); ex.font = `800 60px ${POLICE}`; ex.textAlign = 'center'; ex.textBaseline = 'alphabetic'; ex.fillText(a.nom, 512, 440); ex.globalAlpha = 1; return;
   }
-  if (logos.mindset) ex.drawImage(logos.mindset, 52, 34, 64, 64);
-  ex.textBaseline = 'middle'; ex.textAlign = 'left'; ex.fillStyle = '#FFFFFF'; ex.font = `700 40px ${POLICE}`; ex.fillText('Mindset', 130, 67);
-  ex.textAlign = 'right'; ex.fillStyle = '#C9C4DD'; ex.font = `600 40px ${POLICE}`; ex.fillText(new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }), 972, 67);
+  if (logos.mindset) { const L = logos.mindset, k = Math.min(64 / (L.naturalWidth || 64), 64 / (L.naturalHeight || 64)), w = (L.naturalWidth || 64) * k, h = (L.naturalHeight || 64) * k; ex.drawImage(L, 52 + (64 - w) / 2, 34 + (64 - h) / 2, w, h); }
+  ex.textBaseline = 'middle'; ex.textAlign = 'left'; ex.fillStyle = C('#FFFFFF'); ex.font = `700 40px ${POLICE}`; ex.fillText('Mindset', 130, 67);
+  ex.textAlign = 'right'; ex.fillStyle = C('#C9C4DD'); ex.font = `600 40px ${POLICE}`; ex.fillText(new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }), 972, 67);
   const n = Math.max(1, TUILES.length), s = Math.min(220, Math.floor((900 - (n - 1) * 36) / n)), ecart = n > 1 ? Math.min(50, (900 - n * s) / (n - 1)) : 0, x0 = 512 - (n * s + (n - 1) * ecart) / 2;
   TUILES.forEach((id, i) => {
     const app = APPLIS[id], X = x0 + i * (s + ecart), Y = 140, choisi = a ? id === enFente : i === Math.floor(t / 2.5) % n;
-    ex.fillStyle = choisi ? '#1E1A3E' : '#141126'; ex.beginPath(); ex.roundRect(X, Y, s, s, 30); ex.fill();
+    ex.fillStyle = choisi ? C('#1E1A3E') : C('#141126'); ex.beginPath(); ex.roundRect(X, Y, s, s, 30); ex.fill();
     if (choisi) { ex.lineWidth = 7; ex.strokeStyle = app.c; ex.stroke(); }
     if (logos[id]) { ex.globalAlpha = app.installee ? 1 : 0.5; ex.drawImage(logos[id], X + s * 0.18, Y + s * 0.12, s * 0.64, s * 0.64); ex.globalAlpha = 1; }
     else { ex.fillStyle = app.c; ex.font = `900 ${Math.round(s * 0.45)}px ${POLICE}`; ex.textAlign = 'center'; ex.fillText(app.nom.charAt(0).toUpperCase(), X + s / 2, Y + s * 0.45); }
-    ex.textAlign = 'center'; ex.fillStyle = choisi ? '#FFFFFF' : '#C9C4DD'; ex.font = `700 ${Math.round(s * 0.135)}px ${POLICE}`; ex.fillText(app.nom, X + s / 2, Y + s - s * 0.11);
+    ex.textAlign = 'center'; ex.fillStyle = choisi ? C('#FFFFFF') : C('#C9C4DD'); ex.font = `700 ${Math.round(s * 0.135)}px ${POLICE}`; ex.fillText(app.nom, X + s / 2, Y + s - s * 0.11);
     const m = app.maj;
-    if (m && m.etat !== 'dispo') { ex.fillStyle = 'rgba(255,255,255,0.18)'; ex.beginPath(); ex.roundRect(X + 20, Y + s + 16, s - 40, 10, 5); ex.fill(); ex.fillStyle = '#FFB020'; ex.beginPath(); ex.roundRect(X + 20, Y + s + 16, Math.max(10, (s - 40) * (m.etat === 'installation' ? 1 : m.progres)), 10, 5); ex.fill(); }
-    else if (!app.installee) { ex.fillStyle = '#A9A3C9'; ex.font = `600 24px ${POLICE}`; ex.fillText('À installer', X + s / 2, Y + s + 34); }
-    else if (m) { ex.fillStyle = '#FFB020'; ex.beginPath(); ex.roundRect(X + s / 2 - 80, Y + s + 12, 160, 36, 18); ex.fill(); ex.fillStyle = '#1A1206'; ex.font = `800 22px ${POLICE}`; ex.fillText('Mise à jour', X + s / 2, Y + s + 31); }
+    if (m && m.etat !== 'dispo') { ex.fillStyle = 'rgba(255,255,255,0.18)'; ex.beginPath(); ex.roundRect(X + 20, Y + s + 16, s - 40, 10, 5); ex.fill(); ex.fillStyle = C('#FFB020'); ex.beginPath(); ex.roundRect(X + 20, Y + s + 16, Math.max(10, (s - 40) * (m.etat === 'installation' ? 1 : m.progres)), 10, 5); ex.fill(); }
+    else if (!app.installee) { ex.fillStyle = C('#A9A3C9'); ex.font = `600 24px ${POLICE}`; ex.fillText('À installer', X + s / 2, Y + s + 34); }
+    else if (m) { ex.fillStyle = C('#FFB020'); ex.beginPath(); ex.roundRect(X + s / 2 - 80, Y + s + 12, 160, 36, 18); ex.fill(); ex.fillStyle = C('#1A1206'); ex.font = `800 22px ${POLICE}`; ex.fillText('Mise à jour', X + s / 2, Y + s + 31); }
   });
-  ex.textAlign = 'center'; ex.fillStyle = '#ECEAF7'; ex.font = `600 34px ${POLICE}`;
+  ex.textAlign = 'center'; ex.fillStyle = C('#ECEAF7'); ex.font = `600 34px ${POLICE}`;
   ex.fillText(!TUILES.length ? 'Chargement des applis...' : a ? `${a.nom} est en pause : clique sur l\'écran` : 'Clique sur l\'écran ou sur une cartouche', 512, 470);
   ex.textBaseline = 'alphabetic';
 }
@@ -338,9 +364,9 @@ function dessinerEcran(t) {
 // ---------------------------------------------------------------- les cartouches (une par appli) : en relief, une étiquette avec le logo et le nom
 function etiquette(id) {
   const a = APPLIS[id], c = document.createElement('canvas'); c.width = 256; c.height = 300; const k = c.getContext('2d');
-  k.fillStyle = '#1b1830'; k.fillRect(0, 0, 256, 300); k.fillStyle = a.c; k.fillRect(0, 0, 256, 34); k.strokeStyle = a.c; k.lineWidth = 8; k.strokeRect(4, 4, 248, 292);
+  k.fillStyle = C('#1b1830'); k.fillRect(0, 0, 256, 300); k.fillStyle = a.c; k.fillRect(0, 0, 256, 34); k.strokeStyle = a.c; k.lineWidth = 8; k.strokeRect(4, 4, 248, 292);
   if (logos[id]) k.drawImage(logos[id], 48, 56, 160, 160); else { k.fillStyle = a.c; k.font = `900 120px ${POLICE}`; k.textAlign = 'center'; k.fillText(a.nom.charAt(0).toUpperCase(), 128, 180); }
-  k.fillStyle = '#FFFFFF'; k.textAlign = 'center'; let taille = 34; k.font = `800 ${taille}px ${POLICE}`; while (k.measureText(a.nom).width > 230 && taille > 16) { taille -= 2; k.font = `800 ${taille}px ${POLICE}`; }
+  k.fillStyle = C('#FFFFFF'); k.textAlign = 'center'; let taille = 34; k.font = `800 ${taille}px ${POLICE}`; while (k.measureText(a.nom).width > 230 && taille > 16) { taille -= 2; k.font = `800 ${taille}px ${POLICE}`; }
   k.fillText(a.nom, 128, 266);
   const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return t;
 }
@@ -424,7 +450,7 @@ function origineZoom() { const p = ecran.getWorldPosition(new THREE.Vector3()).p
 function zoomer(id) {
   const a = APPLIS[id]; quitterReglages(); origineZoom(); ouverte = id;
   document.getElementById('voileLogo').src = logosDemandes[id] || ''; document.getElementById('voileNom').textContent = a.nom;
-  voile.style.background = `radial-gradient(circle at 50% 45%, ${a.c}55, #07060D 70%)`;
+  voile.style.background = `radial-gradient(circle at 50% 45%, ${a.c}55, ${C('#07060D')} 70%)`;
   remplirEcran();
   anim(1.0, (q) => { const k = q * q * q; plan.style.transform = `scale(${1 + k * ZOOM})`; plan.style.filter = `blur(${Math.max(0, q - 0.6) * 10}px)`; voile.style.opacity = Math.max(0, (q - 0.55) / 0.45); }, () => {
     zoome = true; occupe = false; voile.style.pointerEvents = 'auto'; remplirEcran(); voile.querySelector('#voileActions button')?.focus();
@@ -451,7 +477,7 @@ function etatTuile(a, id) {
 }
 // Après les applis, une tuile « Paramètres » : les réglages de Mindset (thème de la suite...) ; en revenir ramène ici
 const PARAM = '__parametres';
-const ROUE = '<svg class="roue" viewBox="0 0 24 24" fill="none" stroke="#C9C4DD" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>';
+const ROUE = '<svg class="roue" viewBox="0 0 24 24" fill="none" stroke="' + C('#C9C4DD') + '" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>';
 const listeMenu = () => [...TUILES, PARAM];
 // La rangée : pos suit cible en douceur ; tenu : la rangée est tenue à la souris (vitesse retenue pour l'élan)
 const car = { pos: 0, cible: 0, tenu: null, boucle: 0 };
@@ -459,7 +485,7 @@ const elCar = document.getElementById('carrousel');
 const borne = (v) => Math.max(0, Math.min(listeMenu().length - 1, v));
 function nomMenu() {
   const id = listeMenu()[menuSel], n = document.getElementById('menuNom');
-  n.textContent = id === PARAM ? 'Paramètres de Mindset' : APPLIS[id]?.nom || ''; n.style.setProperty('--c', id === PARAM ? '#C9C4DD' : APPLIS[id]?.c || '#00E5FF');
+  n.textContent = id === PARAM ? 'Paramètres de Mindset' : APPLIS[id]?.nom || ''; n.style.setProperty('--c', id === PARAM ? C('#C9C4DD') : APPLIS[id]?.c || C('#00E5FF'));
 }
 function placerCarrousel() {
   const bs = [...elCar.children]; if (!bs.length) return;
@@ -484,7 +510,7 @@ function deplacerMenu(d) { car.cible = borne(Math.round(car.cible) + d); animerC
 function allerMenu(i, tout) { car.cible = borne(i); if (tout) { car.pos = car.cible; menuSel = car.cible; } nomMenu(); animerCarrousel(); placerCarrousel(); }
 function remplirMenu(focus) {
   const html = listeMenu().map((id, i) => {
-    if (id === PARAM) return `<button type="button" role="option" tabindex="-1" data-id="${PARAM}" data-i="${i}" style="--c:#8F88B8">${ROUE}<b>Paramètres</b><em>Réglages, thème</em></button>`;
+    if (id === PARAM) return `<button type="button" role="option" tabindex="-1" data-id="${PARAM}" data-i="${i}" style="--c:${C('#8F88B8')}">${ROUE}<b>Paramètres</b><em>Réglages, thème</em></button>`;
     const a = APPLIS[id], [cl, t] = etatTuile(a, id);
     return `<button type="button" role="option" tabindex="-1" data-id="${id}" data-i="${i}" class="${a.installee ? '' : 'pasla'}" style="--c:${a.c}">${logosDemandes[id] ? `<img src="${logosDemandes[id]}" alt="" draggable="false">` : `<span class="l">${a.nom.charAt(0).toUpperCase()}</span>`}<b>${a.nom}</b><em class="${cl}">${t}</em></button>`; }).join('');
   if (elCar.dataset.html !== html) { elCar.innerHTML = html; elCar.dataset.html = html; }
@@ -500,7 +526,7 @@ function ouvrirMenuSur(i) { menuSel = borne(i); car.pos = car.cible = menuSel; c
 function zoomerMenu() {
   if (occupe || zoome || !TUILES.length) return;
   origineZoom(); ouverte = MENU; voile.classList.add('menu'); document.getElementById('menuGrand').hidden = false;
-  voile.style.background = 'radial-gradient(circle at 50% 30%, #1E1A3E, #07060D 75%)';
+  voile.style.background = `radial-gradient(circle at 50% 30%, ${C('#1E1A3E')}, ${C('#07060D')} 75%)`;
   ouvrirMenuSur(Math.max(0, TUILES.indexOf(enFente))); remplirMenu(false); sons.allume();
   occupe = true;
   anim(1.0, (q) => { const k = q * q * q; plan.style.transform = `scale(${1 + k * ZOOM})`; plan.style.filter = `blur(${Math.max(0, q - 0.6) * 10}px)`; voile.style.opacity = Math.max(0, (q - 0.55) / 0.45); }, () => {
@@ -517,7 +543,7 @@ function jouerMenu(id, parametres) {
   if (!zoome) { origineZoom(); plan.style.transform = `scale(${1 + ZOOM})`; plan.style.filter = 'blur(4px)'; voile.style.opacity = 0; zoome = true; }
   const deja = ouverte === MENU;
   ouverte = MENU; voile.classList.add('menu'); document.getElementById('menuGrand').hidden = false;
-  voile.style.background = 'radial-gradient(circle at 50% 30%, #1E1A3E, #07060D 75%)';
+  voile.style.background = `radial-gradient(circle at 50% 30%, ${C('#1E1A3E')}, ${C('#07060D')} 75%)`;
   if (!deja) { ouvrirMenuSur(parametres ? listeMenu().length - 1 : Math.max(0, TUILES.indexOf(id || enFente))); voile.style.opacity = 0; }
   remplirMenu(false);
   if (deja && !occupe) { voile.style.opacity = 1; voile.style.pointerEvents = 'auto'; remplirMenu(true); return; }
@@ -536,7 +562,7 @@ function choisirDepuisMenu(id) {
   if (id === enFente) {   // déjà dans la fente : son écran, sans ressortir
     quitterMenu(); ouverte = id;
     document.getElementById('voileLogo').src = logosDemandes[id] || ''; document.getElementById('voileNom').textContent = a.nom;
-    voile.style.background = `radial-gradient(circle at 50% 45%, ${a.c}55, #07060D 70%)`;
+    voile.style.background = `radial-gradient(circle at 50% 45%, ${a.c}55, ${C('#07060D')} 70%)`;
     if (a.installee && !a.maj) { pretes[id] = false; chargement[id] = 0; demandeOuverture[id] = true; hote('action', { action: 'ouvrir', id }); }
     remplirEcran(); voile.querySelector('#voileActions button')?.focus(); return;
   }
@@ -726,7 +752,7 @@ function afficherReglages(instant) {
   if (ouverte === REGL && !elReg.hidden) { remplirReglages(); return; }
   if (ouverte === MENU) quitterMenu();
   ouverte = REGL; voile.classList.add('enReglages'); elReg.hidden = false;
-  voile.style.background = 'radial-gradient(circle at 50% 30%, #1E1A3E, #07060D 75%)';
+  voile.style.background = `radial-gradient(circle at 50% 30%, ${C('#1E1A3E')}, ${C('#07060D')} 75%)`;
   REG.html = ''; remplirReglages();
   const fini = () => { occupe = false; voile.style.pointerEvents = 'auto'; remplirReglages(true); };
   if (zoome || instant) {
@@ -922,6 +948,25 @@ window.mindsetEssai = { choisirCartouche, zoomerMenu, choisirDepuisMenu, glisser
   reglage: (k) => elReg.querySelector(`[data-k="${CSS.escape(k)}"]`)?.click(), viser: (k) => elReg.querySelector(`[data-k="${CSS.escape(k)}"]`)?.focus(),
   defiler: (y) => { const c = elReg.querySelector('.contenu'); if (c) c.scrollTop = y; } };   // (pour les essais automatiques)
 
+// ---------------------------------------------------------------- le thème perso (bloc « Console »), une fois au démarrage
+const urlTheme = (u) => typeof u === 'string' && /^https:\/\/theme\.mindset\.local\/[\w.%()-]{1,240}$/.test(u) ? u : '';
+// une image sans transparence (photo, GIF de film) : en vignette arrondie
+function opaque(im) {
+  try { const c = document.createElement('canvas'); c.width = c.height = 24; const k = c.getContext('2d', { willReadFrequently: true }); k.drawImage(im, 0, 0, 24, 24); const d = k.getImageData(0, 0, 24, 24).data; for (let i = 3; i < d.length; i += 4) if (d[i] < 245) return false; return true; } catch (e) { return false; }
+}
+function appliquerTheme() {
+  if (!THEME) return;
+  const fondT = urlTheme(THEME.fond);
+  if (fondT) { voile.classList.add('avecFond'); voile.style.setProperty('--fondTheme', `url("${fondT}")`); voile.style.setProperty('--fondOpacite', String(Math.min(1, Math.max(0.05, +THEME.opacite || 0.35)))); }
+  const masc = urlTheme(THEME.mascotte), elM = document.getElementById('mascotte');
+  if (masc) { elM.crossOrigin = 'anonymous'; elM.onload = () => { elM.classList.toggle('flotte', !THEME.mascotteAnimee); elM.classList.toggle('vignette', opaque(elM)); elM.hidden = false; }; elM.src = masc; }
+  const ch = urlTheme(THEME.chargement);
+  if (ch) { const im = document.getElementById('voileCharge'); im.src = ch; im.classList.toggle('tourne', THEME.effet === 'tourne'); document.getElementById('voileBarre').classList.add('avecImage'); }
+  const logo = urlTheme(THEME.logo); if (logo) chargerLogo('mindset', logo);
+  const pol = urlTheme(THEME.police);
+  if (pol) { try { new FontFace('PoliceTheme', `url("${pol}")`).load().then((f) => { document.fonts.add(f); document.body.classList.add('policeTheme'); }).catch(() => {}); } catch (e) {} }
+}
+appliquerTheme();
 montrerDecor(); poser();
 renderer.setAnimationLoop(image);
 hote('pret');

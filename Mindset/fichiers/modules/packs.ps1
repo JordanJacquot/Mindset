@@ -18,6 +18,11 @@
 #   TabIcons          icônes des onglets de gauche { accueil, nevermind, evermind, parametres = { File, Frames, Delay } }
 #   Background        image de fond sous un voile (BackgroundOpacity 0 à 1, BackgroundAlign « bas-droite »...)
 #   Font, FontScope   police : sur les titres (« titres ») ou partout (« tout ») ; FontPixel false : police lisse
+#   Console           (facultatif) les images de la nouvelle interface, la console de Mindset et l'accueil de Nevermind :
+#                     { Tuiles { pc, perf... = image }, Mascotte, Chargement { File, Effet « tourne » ou « aucun » },
+#                       Fond, FondOpacite }. Sans Fond : Background et BackgroundOpacity. Un pack sans ce bloc reste valable.
+#                     Mindset s'en sert dans sa console (console.ps1) : fond de l'écran en grand, mascotte du menu,
+#                     image de chargement à l'ouverture d'une appli, logo, couleurs et police du pack.
 # Chargé par Mindset.ps1 avant themes.ps1 (qui choisit le thème) ; les visuels sont posés après la fenêtre.
 
 $PacksDir = Join-Path $DataDir 'packs'
@@ -60,6 +65,23 @@ function Get-ThemePack([string]$Id) {
     $p.BackgroundAlignY = if ($al -match 'bas') { 'Bottom' } elseif ($al -match 'haut') { 'Top' } else { 'Center' }
     if (& $fichier $j.Font) { $p.Font = & $fichier $j.Font; if ([string]$j.FontScope -eq 'tout') { $p.FontScope = 'tout' } }
     $p.FontPixel = if ($null -ne $j.FontPixel) { [bool]$j.FontPixel } else { $true }
+    # Bloc « Console » : seulement des images du dossier du pack, aux extensions attendues (le reste est ignoré)
+    $p.Console = $null
+    if ($j.Console -and $j.Console -isnot [string]) {
+        $c = $j.Console
+        $image = { param($n, $ext) $f = & $fichier $n; if ($f -and $f -match "\.($ext)$") { $f } else { $null } }
+        $tuiles = @{}
+        if ($c.Tuiles) { foreach ($pr in $c.Tuiles.PSObject.Properties) { $f = & $image $pr.Value 'png|webp'; if ($pr.Name -match '^[a-z]{1,20}$' -and $f) { $tuiles[$pr.Name] = $f } } }
+        $ch = $null
+        $chf = if ($c.Chargement -is [string]) { $c.Chargement } elseif ($c.Chargement) { $c.Chargement.File } else { $null }
+        $f = & $image $chf 'png|webp|gif|jpe?g'
+        if ($f) { $ch = @{ File = $f; Effet = $(if ($c.Chargement -isnot [string] -and [string]$c.Chargement.Effet -eq 'tourne') { 'tourne' } else { 'aucun' }) } }
+        $fond = & $image $c.Fond 'png|webp|gif|jpe?g'
+        $op = $null
+        if ($fond -and $null -ne $c.FondOpacite) { try { $op = [math]::Min(1.0, [math]::Max(0.05, [double]$c.FondOpacite)) } catch {} }
+        if (-not $fond -and $p.Background) { $fond = $p.Background; $op = $p.BackgroundOpacity }
+        $p.Console = @{ Tuiles = $tuiles; Mascotte = (& $image $c.Mascotte 'png|webp|gif|jpe?g'); Chargement = $ch; Fond = $fond; FondOpacite = $(if ($null -ne $op) { $op } else { 0.35 }) }
+    }
     # Couleurs propres au pack : un thème « pack-<id> » ajouté à la liste (jamais proposé comme thème de base)
     if ($j.Colors -and $j.Colors.P -and $j.Colors.S -and $j.Colors.T -and $AppThemes) {
         $map = @{}
@@ -79,6 +101,21 @@ function Get-ThemePacks {
     @(Get-ChildItem -LiteralPath $PacksDir -Directory | ForEach-Object { Get-ThemePack $_.Name } | Where-Object { $_ })
 }
 
+# Le format d'une image d'après ses premiers octets : png, jpeg, gif, webp, ou rien
+function Get-FormatImagePack([byte[]]$B) {
+    if (-not $B -or $B.Length -lt 12) { return $null }
+    if ($B[0] -eq 0x89 -and $B[1] -eq 0x50 -and $B[2] -eq 0x4E -and $B[3] -eq 0x47) { return 'png' }
+    if ($B[0] -eq 0xFF -and $B[1] -eq 0xD8 -and $B[2] -eq 0xFF) { return 'jpeg' }
+    $t = [Text.Encoding]::ASCII.GetString($B, 0, 12)
+    if ($t.StartsWith('GIF8')) { return 'gif' }
+    if ($t.StartsWith('RIFF') -and $t.Substring(8, 4) -eq 'WEBP') { return 'webp' }
+    $null
+}
+function Read-DebutEntree($Entree) {
+    $s = $Entree.Open()
+    try { $b = New-Object byte[] 12; $n = 0; while ($n -lt 12) { $k = $s.Read($b, $n, 12 - $n); if ($k -le 0) { break }; $n += $k }; if ($n -lt 12) { $null } else { , $b } } finally { $s.Dispose() }
+}
+
 # ---------------------------------------------------------------------------
 # Importer un pack de la suite (zip) : vérifié, puis installé pour Mindset et pour chaque appli qu'il prévoit
 # ---------------------------------------------------------------------------
@@ -95,9 +132,13 @@ function Import-PackSuite([string]$Zip) {
         }
         $total = ($entrees | Measure-Object Length -Sum).Sum
         if ($total -gt 60MB) { throw 'Ce thème est trop lourd (plus de 60 Mo).' }
-        # Seulement des fichiers simples (pas de dossier) aux extensions attendues
+        # Seulement des fichiers simples (pas de dossier) aux extensions attendues, chacun d'un poids raisonnable ; une
+        # image est vraiment une image (PNG, JPEG, GIF ou WebP, quelle que soit son extension parmi celles-ci)
         foreach ($e in $entrees) {
-            if ($e.FullName -ne $e.Name -or -not (Test-NomFichierPack $e.Name) -or $e.Name -notmatch '\.(png|jpe?g|gif|ttf|otf|json)$') { throw "Fichier inattendu dans le thème : $($e.FullName)" }
+            if ($e.FullName -ne $e.Name -or -not (Test-NomFichierPack $e.Name) -or $e.Name -notmatch '\.(png|jpe?g|gif|webp|ttf|otf|json)$') { throw "Fichier inattendu dans le thème : $($e.FullName)" }
+            $max = if ($e.Name -match '\.json$') { 1MB } elseif ($e.Name -match '\.(ttf|otf)$') { 10MB } else { 15MB }
+            if ($e.Length -gt $max) { throw "Ce fichier du thème est trop lourd : $($e.Name) (plus de $($max / 1MB) Mo)." }
+            if ($e.Name -match '\.(png|jpe?g|gif|webp)$' -and -not (Get-FormatImagePack (Read-DebutEntree $e))) { throw "Ce fichier du thème n'est pas une image : $($e.Name)" }
         }
         $installes = @()
         $fichiers = Get-PackAppliFichiers
