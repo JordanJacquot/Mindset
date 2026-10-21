@@ -334,7 +334,7 @@
             </StackPanel>
             <DockPanel x:Name="PageAppliCadre" Margin="0,0,10,10" Visibility="Collapsed">
               <!-- Barre de l'appli affichée : la fermer (les applis ne s'ouvrent que dans Mindset) -->
-              <DockPanel DockPanel.Dock="Top" Margin="6,0,0,8" LastChildFill="False">
+              <DockPanel x:Name="BarreAppli" DockPanel.Dock="Top" Margin="6,0,0,8" LastChildFill="False">
                 <!-- Menu : retour à la console (la maison), l'appli reste ouverte en pause -->
                 <Button x:Name="BtnAppliMenu" DockPanel.Dock="Left" Style="{StaticResource BtnSecondary}" Padding="12,6" ToolTip="Revenir au menu (l'appli reste ouverte)" Content="" ContentTemplate="{StaticResource MaisonMenu}"/>
                 <Button x:Name="BtnAppliFermer" DockPanel.Dock="Right" Content="Fermer" Style="{StaticResource BtnSecondary}" Padding="14,6"/>

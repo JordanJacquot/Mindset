@@ -142,6 +142,15 @@ function Update-HotesVisibles {
     if ($script:Jauge -and ($montree -or $script:Jauge.Id -ne $script:PageCourante)) { Stop-JaugeAppli }
     $ui.PageAppliMessage.Visibility = if ($montree) { 'Collapsed' } else { 'Visible' }
     $ui.PageAppliCadre.Visibility = if ($montree) { 'Visible' } else { 'Collapsed' }
+    Update-BarreAppli
+}
+
+# Une seule barre : celle de Mindset (Menu, Fermer) s'efface quand l'appli affichée a la sienne
+function Update-BarreAppli {
+    $affichee = $script:Integrees[$script:PageCourante]
+    $propre = $affichee -and [MSIntegration]::BarrePropre($affichee.Fenetre)
+    $v = if ($propre) { 'Collapsed' } else { 'Visible' }
+    if ($ui.BarreAppli.Visibility -ne $v) { $ui.BarreAppli.Visibility = $v }
 }
 
 # Barre de l'appli : la fermer (sa propre règle s'applique : elle demande, se réduit ou quitte)
@@ -175,6 +184,7 @@ $script:IntegrationTimer = New-Object System.Windows.Threading.DispatcherTimer
 $script:IntegrationTimer.Interval = [TimeSpan]::FromMilliseconds(400)
 $script:IntegrationTimer.Add_Tick({
     $attente = $false
+    Update-BarreAppli   # (l'appli pose sa marque un peu après avoir été accrochée)
     foreach ($i in @($script:Integrees.Values)) {
         $a = Get-Appli $i.Id
         if ($i.Fenetre -ne [IntPtr]::Zero -and -not [MSIntegration]::IsWindow($i.Fenetre)) {

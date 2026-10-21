@@ -108,6 +108,10 @@ public static class MSIntegration
 
     // L'appli s'est cachée elle-même (réduite près de l'horloge) ? Son propre drapeau « visible », pas celui de ses
     // parents : quand Mindset se cache, la fenêtre accrochée ne compte pas comme cachée.
+    // L'appli affichée a sa propre barre (Menu, Fermer) : propriété « Mindset.BarrePropre » posée sur sa fenêtre
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)] static extern IntPtr GetProp(IntPtr h, string nom);
+    public static bool BarrePropre(IntPtr fenetre) { return fenetre != IntPtr.Zero && GetProp(fenetre, "Mindset.BarrePropre") != IntPtr.Zero; }
+
     public static bool EstMontree(IntPtr fenetre) { return (GetWindowLongPtr(fenetre, GWL_STYLE).ToInt64() & WS_VISIBLE) != 0; }
 
     // Demande à l'appli de se fermer, comme un clic sur sa croix (elle applique sa propre règle : demander, réduire, quitter)
