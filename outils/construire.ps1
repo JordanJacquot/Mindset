@@ -18,6 +18,21 @@ $manif   = Join-Path $PSScriptRoot 'lanceur.manifest'
 # L'icône (le M glitché), pour Mindset.exe, la fenêtre, la barre des tâches et le raccourci
 & (Join-Path $PSScriptRoot 'icone.ps1') -OutDir $icones | Out-Null
 Copy-Item (Join-Path $icones 'Mindset.ico') (Join-Path $app 'fichiers\Mindset.ico') -Force
+# Fichiers d'autres auteurs : chacun doit avoir l'empreinte et la signature notées dans son SOURCES.md, sinon rien
+# n'est construit (un fichier remplacé par erreur ou par un tiers ne part jamais chez les utilisateurs)
+$tiers = @(
+    ,@('lib\webview2\\Microsoft.Web.WebView2.Core.dll', 'D60E6E94245078CB56E44EBD5F360DC04BF18E460136BE93BFC4CFCA43B98505', 'Microsoft Corporation')
+    ,@('lib\webview2\\Microsoft.Web.WebView2.Wpf.dll', 'F05A06BBC03AFCB83DC98168B8D343D9015B2A533EDBFAC90C52D88894B653E4', 'Microsoft Corporation')
+    ,@('lib\webview2\\WebView2Loader.dll', '3426DCC55FDFB8B5E7AC623CF33B4CCF283FBF68A0C5A65BDDFDB4D749A8ABEE', 'Microsoft Corporation')
+)
+foreach ($t in $tiers) {
+    $f = Join-Path (Join-Path $app 'fichiers') $t[0]
+    if (-not (Test-Path -LiteralPath $f)) { throw "Fichier tiers absent : $($t[0])" }
+    $h = (Get-FileHash -LiteralPath $f -Algorithm SHA256).Hash
+    if ($h -ne $t[1]) { throw "Fichier tiers modifié : $($t[0]) (empreinte $h, attendue $($t[1]) : voir son SOURCES.md)" }
+    $s = Get-AuthenticodeSignature -LiteralPath $f
+    if ($s.Status -ne 'Valid' -or $s.SignerCertificate.Subject -notmatch "CN=$([regex]::Escape($t[2]))(,|$)") { throw "Fichier tiers mal signé : $($t[0]) ($($s.Status), $($s.SignerCertificate.Subject))" }
+}
 
 $exe = Join-Path $app 'Mindset.exe'
 # Mindset.exe exécute le code lui même : il a besoin du moteur PowerShell de Windows
