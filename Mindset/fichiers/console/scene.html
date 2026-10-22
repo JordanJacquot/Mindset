@@ -746,7 +746,8 @@ const PAGES = {
     const ligne = (nom, c, version, t, tn) => `<div class="plaque ligne"><span class="ic" style="--a:${hex(c, '#ECEAF7')}"><span class="l">${esc(String(nom).charAt(0).toUpperCase())}</span></span><span class="txt"><b style="color:${hex(c, '#ECEAF7')}">${esc(nom)}</b><span class="n">${esc(version)}</span></span><span class="etiquette ${ton(tn)}">${esc(t)}</span></div>`;
     return [`${grandeIc('actu')}<h3>Mindset ${esc(e.version)}</h3><p><span class="etiquette ${ton(mm.ton)}">${esc(mm.texte)}</span></p>`
       + `<div class="boutons-v">${btn('verifier', 'Vérifier maintenant', '', 'actu')}${m.prete ? btn('majMindset', `Installer Mindset ${m.prete}`, 'second', 'telecharger') : ''}</div>${info(m.info)}`,
-      titreBloc('Versions') + texte('Mindset cherche les nouvelles versions au démarrage puis toutes les 6 heures. Elles sont signées : une version qui ne l\'est pas n\'est jamais installée.')
+      titreBloc('Automatiques') + `<div class="reglages plaque">${rang('Mises à jour automatiques', 'Mindset installe tout seul les nouvelles versions : une appli fermée tout de suite, une appli qui tourne quand tu ne te sers pas du PC, et lui-même quand il est caché. Jamais pendant un jeu. Une notification te dit ce qui a changé.', bascule('majauto', 'majauto', m.auto !== false, 'Mises à jour automatiques'))}</div>`
+      + titreBloc('Versions') + texte('Mindset cherche les nouvelles versions au démarrage puis toutes les heures. Elles sont signées : une version qui ne l\'est pas n\'est jamais installée.')
       + ligne('Mindset', '#ECEAF7', `version ${e.version}`, mm.texte, mm.ton) + (m.applis || []).map((a) => ligne(a.nom, a.couleur, a.version, a.texte, a.ton)).join('')];
   },
   dossiers(e) {
@@ -831,9 +832,9 @@ elReg.addEventListener('click', (ev) => {
     return;
   }
   sons.ok();
-  if (a === 'reduire' || a === 'windows' || a === 'demarrage') {
+  if (a === 'reduire' || a === 'windows' || a === 'demarrage' || a === 'majauto') {
     const oui = v === '1';
-    if (e) { if (a === 'reduire') e.general.reduire = oui; else if (a === 'windows') e.general.windows = oui; else { const x = e.general.applis.find((p) => p.id === el.dataset.id); if (x) x.oui = oui; } remplirReglages(); }
+    if (e) { if (a === 'majauto') e.maj.auto = oui; else if (a === 'reduire') e.general.reduire = oui; else if (a === 'windows') e.general.windows = oui; else { const x = e.general.applis.find((p) => p.id === el.dataset.id); if (x) x.oui = oui; } remplirReglages(); }
     hote('reglage', { quoi: a, valeur: oui, id: el.dataset.id || '' }); return;
   }
   if (e && a === 'fermeture') { e.general.fermeture = v; remplirReglages(); }

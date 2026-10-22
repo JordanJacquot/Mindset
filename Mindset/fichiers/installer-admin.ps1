@@ -29,7 +29,7 @@ param(
     [string]$Resultat, [string]$Demande,
     [string]$Zip, [string]$Signature, [string]$Destination, [string]$DossierZip, [string]$Exe, [string]$AncienExe,
     [string]$Source, [string]$Version, [int]$AttendrePid, [string]$TacheAide, [string]$ExeAide,
-    [ValidatePattern('^[A-Za-z]?$')][string]$Disque, [string]$Sid
+    [ValidatePattern('^[A-Za-z]?$')][string]$Disque, [string]$Sid, [switch]$Cache
 )
 $ErrorActionPreference = 'Stop'
 $CleDesinstall = 'HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\Mindset'
@@ -172,6 +172,7 @@ if ($Action -eq 'demande') {
             if ($v -and $v.Value -is [string]) { Set-Variable -Name $n -Value ([string]$v.Value) }
         }
         if ($j.AttendrePid) { $AttendrePid = [int]$j.AttendrePid }
+        if ([string]$j.Cache -eq '1') { $Cache = [switch]$true }
         $Sid = [Security.Principal.WindowsIdentity]::GetCurrent().User.Value
     } catch { Write-Resultat $false "Demande illisible : $($_.Exception.Message)"; exit }
 }
@@ -253,8 +254,11 @@ try {
                 Write-Resultat $true $Version
             } catch { Write-Resultat $false $_.Exception.Message }
             finally {
-                # Relancé dans tous les cas : la nouvelle version, ou l'ancienne si la mise à jour a échoué
-                Start-Process -FilePath "$env:SystemRoot\explorer.exe" -ArgumentList "`"$([IO.Path]::GetFullPath($relance))`""
+                # Relancé dans tous les cas : la nouvelle version, ou l'ancienne si la mise à jour a échoué. Mise à jour
+                # automatique (Mindset était caché) : par sa tâche de démarrage, qui le lance caché près de l'horloge
+                $fait = $false
+                if ($Cache) { $null = & "$env:SystemRoot\System32\schtasks.exe" /Run /TN '\Mindset\Mindset (démarrage)' 2>&1; $fait = ($LASTEXITCODE -eq 0) }
+                if (-not $fait) { Start-Process -FilePath "$env:SystemRoot\explorer.exe" -ArgumentList "`"$([IO.Path]::GetFullPath($relance))`"" }
             }
             return
         }

@@ -424,6 +424,7 @@ function Get-EtatParametres {
         }
         son = [ordered]@{ micros = @(Get-ChoixSonConsole $script:AppareilsConsole.micro ([string]$son.Micro)); casques = @(Get-ChoixSonConsole $script:AppareilsConsole.casque ([string]$son.Casque)) }
         maj = [ordered]@{
+            auto = [bool](Test-MajAutoActive)
             mindset = [ordered]@{ texte = $etatMindset[0]; ton = $etatMindset[1] }; prete = $(if ($script:MajMindset) { [string]$script:MajMindset.Version } else { '' }); info = [string]$ui.MajInfo.Text
             applis = @(foreach ($a in $Applis) {
                 $i = Get-Installation $a; $p = $script:Publications[$a.Id]
@@ -452,6 +453,7 @@ function Invoke-ReglageConsole($M) {
         'reduire'     { Set-Setting 'ReduireHorloge' ([bool]$v); $ui.ReduireHorloge.IsChecked = [bool]$v }
         'fermeture'   { if ([string]$v -in 'demander', 'reduire', 'quitter') { Set-Setting 'Fermeture' ([string]$v); Update-ReglageFermeture } }
         'windows'     { Set-LancerAvecWindows ([bool]$v) }
+        'majauto'     { Set-Setting 'MajAuto' ([bool]$v); Write-Log "Mises à jour automatiques : $(if ([bool]$v) { 'oui' } else { 'non' })" }
         'demarrage'   {
             $a = Get-ApplisDemarrage | Where-Object { $_.Id -eq [string]$M.id } | Select-Object -First 1
             if ($a) { Set-DemarrageAppli $a.Id ([bool]$v); foreach ($x in $script:Interrupteurs) { if ($x.Tag -eq $a.Id) { $x.IsChecked = [bool]$v } } }

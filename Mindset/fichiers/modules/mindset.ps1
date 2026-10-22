@@ -142,7 +142,8 @@ function Start-VerifMajMindset {
     }
 }
 
-function Start-MajMindset {
+# -Cache : mise à jour automatique faite pendant que Mindset est caché : il revient caché près de l'horloge
+function Start-MajMindset([switch]$Cache) {
     $m = $script:MajMindset
     if (-not $m -or $script:Occupe.Count) { if ($script:Occupe.Count) { $ui.MajTexte.Text = 'Une installation est en cours : réessaie quand elle sera finie.' }; return }
     Remove-Item -LiteralPath $FichierMajMindset -Force -ErrorAction SilentlyContinue
@@ -150,6 +151,7 @@ function Start-MajMindset {
     if (-not $MindsetAdmin -and (Test-TacheInstallation)) {
         $id = [guid]::NewGuid().ToString('N')
         $c = @{ Id = $id; Action = 'mindset-maj'; Zip = [string]$m.Zip; Signature = [string]$m.Sig; Destination = [string]$DossierMindset; Version = [string]$m.Version; AttendrePid = [string]$PID }
+        if ($Cache) { $c.Cache = '1' }
         try {
             [IO.File]::WriteAllText($FichierDemande, (ConvertTo-Json -InputObject $c -Compress), (New-Object Text.UTF8Encoding $false))
             $null = & "$env:SystemRoot\System32\schtasks.exe" /Run /TN $TacheInstallation 2>&1
@@ -190,4 +192,73 @@ function Show-ResultatMajMindset {
     else { $ui.MajTitre.Text = 'La mise à jour de Mindset n''a pas pu se faire'; $ui.MajTexte.Text = "$($r.message) Mindset garde sa version actuelle et réessaiera plus tard." }
     Write-Log "Résultat de la mise à jour de Mindset : $(if ($r.ok) { 'réussie' } else { $r.message })"
     $ui.MajBandeau.Visibility = 'Visible'
+}
+
+# ---------------------------------------------------------------------------
+# Mises à jour automatiques (réglage « MajAuto », activé par défaut ; Paramètres, Mises à jour) : vérifié toutes les
+# 30 secondes. Une appli fermée est mise à jour dès que sa nouvelle version est connue ; une appli qui tourne (souvent
+# cachée près de l'horloge) quand personne ne touche au PC depuis 5 minutes, puis elle est relancée cachée ; Mindset
+# lui-même quand il est caché, et il revient caché. Jamais pendant un jeu ou une vidéo en plein écran, jamais pendant
+# une autre installation, et seulement par le mini-installateur (aucune demande de Windows). Une à la fois ; une
+# version ratée n'est pas réessayée avant 6 heures. Une notification (ou la bulle de la console) dit ce qui a changé.
+# ---------------------------------------------------------------------------
+$script:MajAuto = @{}          # id -> version en cours de mise à jour automatique
+$script:MajAutoEssais = @{}    # id -> @{ Version; Quand } (dernier essai)
+$script:MajAutoDerniere = [datetime]::MinValue
+function Test-MajAutoActive { [bool](Get-Setting 'MajAuto' $true) }
+
+function Test-MajAutoRecente([string]$Id, [string]$Version) {
+    $d = $script:MajAutoEssais[$Id]
+    $d -and $d.Version -eq $Version -and ((Get-Date) - $d.Quand).TotalHours -lt 6
+}
+
+function Invoke-MajAuto {
+    if ($EnTest -and -not $env:MINDSET_MAJAUTO_TEST) { return }
+    if (-not (Test-MajAutoActive) -or $MindsetAdmin -or -not (Test-TacheInstallation)) { return }
+    if (((Get-Date) - $script:MajAutoDerniere).TotalSeconds -lt 30) { return }
+    $script:MajAutoDerniere = Get-Date
+    if ($script:Occupe.Count -or $script:AttentesAdmin.Count -or $script:MajAuto.Count) { return }
+    try { if ([MSActivite]::PleinEcranDevant()) { return }; $inactif = [MSActivite]::SecondesInactif() } catch { return }
+    foreach ($a in $Applis) {
+        $e = Get-EtatCarte $a
+        if (-not $e.MajDispo -or $e.Occupe) { continue }
+        $v = [string]$e.Pub.Version
+        if (Test-MajAutoRecente $a.Id $v) { continue }
+        if ($e.Ouverte) {
+            if ($inactif -lt 300) { continue }                                                     # on s'en sert peut-être
+            if ($script:PageCourante -eq $a.Id -and $Window.IsVisible -and $Window.WindowState -ne 'Minimized') { continue }   # à l'écran dans Mindset
+        }
+        $script:MajAutoEssais[$a.Id] = @{ Version = $v; Quand = Get-Date }
+        $script:MajAuto[$a.Id] = $v
+        Write-Log "Mise à jour automatique : $($a.Nom) $v$(if ($e.Ouverte) { ' (elle tournait, relancée cachée)' })"
+        Start-InstallAppli $a
+        return
+    }
+    # Mindset lui-même, seulement caché (près de l'horloge, ou réduit)
+    $m = $script:MajMindset
+    if ($m -and -not ($Window.IsVisible -and $Window.WindowState -ne 'Minimized') -and -not (Test-MajAutoRecente 'mindset' ([string]$m.Version))) {
+        $script:MajAutoEssais['mindset'] = @{ Version = [string]$m.Version; Quand = Get-Date }
+        Write-Log "Mise à jour automatique : Mindset $($m.Version)"
+        Start-MajMindset -Cache
+    }
+}
+
+# Fin d'une mise à jour automatique (appelé par Stop-Operation) : la notification, ou la bulle de la console
+function Complete-MajAuto($Appli, [string]$Message) {
+    $v = $script:MajAuto[$Appli.Id]; $script:MajAuto.Remove($Appli.Id)
+    if ($Message -notmatch 'est installé') { Write-Log "Mise à jour automatique de $($Appli.Nom) $v ratée : $Message"; return }
+    $titre = "$($Appli.Nom) est passé en $v"
+    $notes = [string]$script:Publications[$Appli.Id].Notes
+    $resume = (($notes -split "`r?`n" | Where-Object { $_.Trim() } | Select-Object -First 1) -replace '^[-*#\s]+', '').Trim()
+    if ($resume.Length -gt 180) { $resume = $resume.Substring(0, 177) + '...' }
+    Show-BulleMajAuto $titre $resume
+}
+
+function Show-BulleMajAuto([string]$Titre, [string]$Texte) {
+    Write-Log "Mise à jour automatique : $Titre"
+    if ($Window.IsVisible -and $Window.WindowState -ne 'Minimized' -and $script:Console.Pret) {
+        Invoke-ScriptConsole "window.mindset.message($(ConvertTo-Json -InputObject $Titre -Compress))"
+    } elseif ($script:IconeHorloge) {
+        try { $script:IconeHorloge.ShowBalloonTip(6000, $Titre, $(if ($Texte) { $Texte } else { 'Mise à jour faite toute seule.' }), [System.Windows.Forms.ToolTipIcon]::Info) } catch {}
+    }
 }

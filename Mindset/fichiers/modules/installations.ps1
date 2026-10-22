@@ -402,6 +402,7 @@ function Remove-AncienneCopie($Appli, [string]$Dossier, [string]$Zip) {
 
 function Stop-Operation($Appli, [string]$Message) {
     $script:Occupe.Remove($Appli.Id); $script:Progres.Remove($Appli.Id)
+    if ($script:MajAuto -and $script:MajAuto[$Appli.Id]) { Complete-MajAuto $Appli $Message }
     $script:Messages[$Appli.Id] = $Message
     Update-Trouvees
     Update-Cartes

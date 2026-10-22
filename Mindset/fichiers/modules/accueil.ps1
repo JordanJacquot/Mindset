@@ -480,6 +480,7 @@ $script:EtatTimer.Interval = [TimeSpan]::FromSeconds(2)
 $script:EtatTimer.Add_Tick({
     Update-Cartes; Update-Greeting
     if (((Get-Date) - $script:DernieresPublications).TotalHours -ge 1) { Invoke-Actualiser }
+    try { Invoke-MajAuto } catch { Write-Log "Mise à jour automatique : $_" }
     # Thème de la suite changé ailleurs : Mindset le prend aussi (sauf pendant une opération). Comparé au thème choisi
     # (« pack:dofus »), pas à ses couleurs (« pack-dofus ») ; et jamais deux relances pour le même thème en une minute,
     # pour qu'un thème qui ne se charge pas ne fasse pas tourner Mindset en boucle.

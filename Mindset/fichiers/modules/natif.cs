@@ -261,3 +261,40 @@ public static class MSNative
         finally { Marshal.ReleaseComObject(store); }
     }
 }
+
+// Mises à jour automatiques : depuis combien de temps personne ne touche au PC, et si un jeu ou une vidéo est en plein écran
+public static class MSActivite
+{
+    [StructLayout(LayoutKind.Sequential)] struct LASTINPUTINFO { public uint cbSize; public uint dwTime; }
+    [StructLayout(LayoutKind.Sequential)] struct RECTA { public int Left, Top, Right, Bottom; }
+    [StructLayout(LayoutKind.Sequential)] struct MONITORINFOA { public int cbSize; public RECTA rcMonitor, rcWork; public uint dwFlags; }
+    [DllImport("user32.dll")] static extern bool GetLastInputInfo(ref LASTINPUTINFO p);
+    [DllImport("user32.dll")] static extern IntPtr GetForegroundWindow();
+    [DllImport("user32.dll")] static extern IntPtr GetShellWindow();
+    [DllImport("user32.dll")] static extern IntPtr GetDesktopWindow();
+    [DllImport("user32.dll")] static extern bool GetWindowRect(IntPtr h, out RECTA r);
+    [DllImport("user32.dll")] static extern IntPtr MonitorFromWindow(IntPtr h, uint flags);
+    [DllImport("user32.dll")] static extern bool GetMonitorInfo(IntPtr m, ref MONITORINFOA i);
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)] static extern int GetClassName(IntPtr h, System.Text.StringBuilder s, int n);
+
+    public static double SecondesInactif()
+    {
+        var l = new LASTINPUTINFO(); l.cbSize = (uint)Marshal.SizeOf(typeof(LASTINPUTINFO));
+        if (!GetLastInputInfo(ref l)) return 0;
+        return unchecked((uint)Environment.TickCount - l.dwTime) / 1000.0;
+    }
+
+    // La fenêtre de devant couvre tout son écran (jeu, vidéo, présentation), et ce n'est pas le Bureau
+    public static bool PleinEcranDevant()
+    {
+        IntPtr h = GetForegroundWindow();
+        if (h == IntPtr.Zero || h == GetShellWindow() || h == GetDesktopWindow()) return false;
+        var c = new System.Text.StringBuilder(64); GetClassName(h, c, 64);
+        string cl = c.ToString();
+        if (cl == "Progman" || cl == "WorkerW" || cl == "Shell_TrayWnd") return false;
+        RECTA r; if (!GetWindowRect(h, out r)) return false;
+        var mi = new MONITORINFOA(); mi.cbSize = Marshal.SizeOf(typeof(MONITORINFOA));
+        if (!GetMonitorInfo(MonitorFromWindow(h, 2), ref mi)) return false;
+        return r.Left <= mi.rcMonitor.Left && r.Top <= mi.rcMonitor.Top && r.Right >= mi.rcMonitor.Right && r.Bottom >= mi.rcMonitor.Bottom;
+    }
+}
