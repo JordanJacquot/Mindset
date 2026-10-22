@@ -13,7 +13,8 @@
     -Action mindset-maj     met Mindset à jour : attend la fin du processus -AttendrePid, installe -Zip/-Signature (vérifiés ici)
                             dans -Destination (…\Mindset), puis relance Mindset sans les droits administrateur
     -Action supprimer       supprime une appli gérée (-Destination, -Exe) ou Mindset lui-même (-Destination ...\Mindset)
-                            après avoir attendu la fin du processus -AttendrePid
+                            après avoir attendu la fin du processus -AttendrePid. Pour Mindset lui-même, ce n'est que le
+                            chemin de secours (sans « Desinstaller Mindset.exe ») : ce qui reste est affiché ici.
     -Action demande         lancé par la tâche « \Mindset\Mindset (installation) » (Mindset sans droits) : lit la demande
                             dans -Demande (fichier JSON écrit par Mindset : Id, Action parmi appli, mindset-maj, supprimer,
                             taches, et ses paramètres). Le fichier est modifiable sans droits : tout y est revérifié comme
@@ -131,10 +132,20 @@ function Register-TachesMindset([string]$DossierMindset, [string]$Sid) {
 }
 function Unregister-TachesMindset {
     foreach ($t in $TachesMindset) { Unregister-ScheduledTask -TaskPath '\Mindset\' -TaskName $t -Confirm:$false -ErrorAction SilentlyContinue }
-    # Et celles des parties administrateur des applis (« \Mindset\Nevermind (aide) »)
-    foreach ($t in @(Get-ScheduledTask -TaskPath '\Mindset\' -ErrorAction SilentlyContinue | Where-Object { $_.TaskName -like '* (aide)' })) {
+    # Et toutes les autres du dossier : celles des parties administrateur des applis (« \Mindset\Nevermind (aide) »)...
+    foreach ($t in @(Get-ScheduledTask -TaskPath '\Mindset\' -ErrorAction SilentlyContinue)) {
         Unregister-ScheduledTask -TaskPath '\Mindset\' -TaskName $t.TaskName -Confirm:$false -ErrorAction SilentlyContinue
     }
+    # ...puis le dossier « \Mindset\ » lui-même, devenu vide
+    try { $s = New-Object -ComObject Schedule.Service; $s.Connect(); $s.GetFolder('\').DeleteFolder('Mindset', 0) } catch {}
+}
+
+# Le désinstalleur autonome (outils\desinstalleur.cs), livré à côté de Mindset.exe : c'est lui que lance « Applications
+# installées ». Sans lui (une copie d'avant), Mindset.exe -Desinstaller.
+$NomDesinstalleur = 'Desinstaller Mindset.exe'
+function Get-CommandeDesinstallation([string]$DossierMindset) {
+    $d = Join-Path $DossierMindset $NomDesinstalleur
+    if (Test-Path -LiteralPath $d) { "`"$d`"" } else { "`"$(Join-Path $DossierMindset 'Mindset.exe')`" -Desinstaller" }
 }
 
 # La partie administrateur d'une appli (son programme d'aide), à la demande (l'appli lance la tâche quand elle en a besoin),
@@ -189,7 +200,7 @@ try {
             $sig = [IO.File]::ReadAllBytes($Signature)
             Stop-Programme $Exe   # Mindset a demandé confirmation avant de fermer l'appli
             if ($ExeAide) { Stop-Programme $ExeAide }   # sa partie administrateur tient son programme ouvert
-            $installe = Install-Paquet -Zip $octets -Signature $sig -ClePublique (Join-Path $PSScriptRoot 'cle-publique.xml') -Destination $dest -DossierZip $DossierZip -Exe $Exe
+            $installe = Install-Paquet -Zip $octets -Signature $sig -ClePublique (Join-Path $PSScriptRoot 'cles-publiques') -Destination $dest -DossierZip $DossierZip -Exe $Exe
             # Prise en charge : les tâches planifiées qui lançaient l'ancienne copie (en administrateur, que Mindset
             # sans droits ne peut pas modifier) lancent désormais la nouvelle
             if ($AncienExe) {
@@ -217,18 +228,19 @@ try {
             New-Item -ItemType Directory -Force -Path $tmp | Out-Null
             Copy-Item -LiteralPath (Join-Path $src 'Mindset.exe') -Destination $tmp
             Copy-Item -LiteralPath (Join-Path $src 'fichiers') -Destination $tmp -Recurse
-            foreach ($f in 'LISEZMOI.txt') { if (Test-Path -LiteralPath (Join-Path $src $f)) { Copy-Item -LiteralPath (Join-Path $src $f) -Destination $tmp } }
+            foreach ($f in 'LISEZMOI.txt', $NomDesinstalleur) { if (Test-Path -LiteralPath (Join-Path $src $f)) { Copy-Item -LiteralPath (Join-Path $src $f) -Destination $tmp } }
             if (Test-Path -LiteralPath $dest) {
                 $ancien = "$dest.ancien-$([guid]::NewGuid().ToString('N').Substring(0, 8))"
                 Move-Item -LiteralPath $dest -Destination $ancien
                 Move-Item -LiteralPath $tmp -Destination $dest
                 try { Remove-Item -LiteralPath $ancien -Recurse -Force } catch {}
             } else { Move-Item -LiteralPath $tmp -Destination $dest }
-            # « Applications installées » de Windows : Mindset s'y désinstalle comme un vrai programme
+            # « Applications installées » de Windows : Mindset s'y désinstalle comme un vrai programme, par son désinstalleur
+            # autonome (il marche même si le code de Mindset est abîmé ; sans lui, par Mindset.exe -Desinstaller)
             $exe = Join-Path $dest 'Mindset.exe'
             New-Item -Path $CleDesinstall -Force | Out-Null
             foreach ($p in @{ DisplayName = 'Mindset'; DisplayVersion = $Version; Publisher = 'Jordan Jacquot'; InstallLocation = $dest
-                              DisplayIcon = "`"$exe`",0"; UninstallString = "`"$exe`" -Desinstaller"; NoModify = 1; NoRepair = 1 }.GetEnumerator()) {
+                              DisplayIcon = "`"$exe`",0"; UninstallString = (Get-CommandeDesinstallation $dest); NoModify = 1; NoRepair = 1 }.GetEnumerator()) {
                 if ($p.Value -is [int]) { New-ItemProperty -Path $CleDesinstall -Name $p.Key -Value $p.Value -PropertyType DWord -Force | Out-Null }
                 else { New-ItemProperty -Path $CleDesinstall -Name $p.Key -Value ([string]$p.Value) -PropertyType String -Force | Out-Null }
             }
@@ -247,8 +259,10 @@ try {
                 Start-Sleep -Milliseconds 500
                 $octets = [IO.File]::ReadAllBytes($Zip)
                 $sig = [IO.File]::ReadAllBytes($Signature)
-                [void](Install-Paquet -Zip $octets -Signature $sig -ClePublique (Join-Path $PSScriptRoot 'cle-publique.xml') -Destination $dest -DossierZip 'Mindset' -Exe 'Mindset.exe')
+                [void](Install-Paquet -Zip $octets -Signature $sig -ClePublique (Join-Path $PSScriptRoot 'cles-publiques') -Destination $dest -DossierZip 'Mindset' -Exe 'Mindset.exe')
                 if ($Version) { Set-ItemProperty -Path $CleDesinstall -Name 'DisplayVersion' -Value $Version -ErrorAction SilentlyContinue }
+                # (une installation d'avant le désinstalleur autonome passe à lui avec cette mise à jour)
+                Set-ItemProperty -Path $CleDesinstall -Name 'UninstallString' -Value (Get-CommandeDesinstallation $dest) -ErrorAction SilentlyContinue
                 # Tâches à jour avec la nouvelle version (demande passée par la tâche : l'utilisateur est connu)
                 if ($Sid) { try { Register-TachesMindset $dest $Sid } catch {} }
                 Write-Resultat $true $Version
@@ -273,8 +287,29 @@ try {
             $dest = Test-DossierMindset $Destination
             if ($AttendrePid) { try { Wait-Process -Id $AttendrePid -Timeout 30 -ErrorAction Stop } catch {} }
             if ($Exe) { Stop-Programme $Exe }
-            if (Test-Path -LiteralPath $dest) { Remove-Item -LiteralPath $dest -Recurse -Force }
-            if ((Split-Path $dest -Leaf) -eq 'Mindset') { Remove-Item -Path $CleDesinstall -Recurse -Force -ErrorAction SilentlyContinue; Unregister-TachesMindset }
+            if ((Split-Path $dest -Leaf) -ne 'Mindset') {
+                if (Test-Path -LiteralPath $dest) { Remove-Item -LiteralPath $dest -Recurse -Force }
+            } else {
+                # Mindset lui-même, sans son désinstalleur autonome (une copie d'avant lui). Mindset est déjà fermé et ne
+                # lira pas la réponse : chaque étape est tentée, puis ce qui n'a pas pu être retiré est affiché ici.
+                $restes = @()
+                if (Test-Path -LiteralPath $dest) { try { Remove-Item -LiteralPath $dest -Recurse -Force -ErrorAction Stop } catch { $restes += "le dossier $dest ($($_.Exception.Message))" } }
+                Unregister-TachesMindset
+                foreach ($t in @(Get-ScheduledTask -TaskPath '\Mindset\' -ErrorAction SilentlyContinue)) { $restes += "la tâche planifiée « \Mindset\$($t.TaskName) »" }
+                # (l'entrée « Applications installées » reste tant que le dossier est là : elle sert à relancer la désinstallation)
+                foreach ($c in @('HKLM:\SOFTWARE\Mindset') + @(if (-not (Test-Path -LiteralPath $dest)) { $CleDesinstall })) {
+                    try { if (Test-Path -Path $c) { Remove-Item -Path $c -Recurse -Force -ErrorAction Stop } } catch { $restes += "la clé du registre $c" }
+                }
+                $IdDemande = ''   # (la réponse irait dans HKLM:\SOFTWARE\Mindset, qui vient d'être retiré)
+                if ($restes) {
+                    try {
+                        Add-Type -AssemblyName System.Windows.Forms
+                        [void][System.Windows.Forms.MessageBox]::Show("Mindset n'a pas pu être retiré entièrement. Ce qui reste :`n`n- $($restes -join "`n- ")`n`nRedémarre l'ordinateur, puis relance la désinstallation de Mindset (Paramètres de Windows, « Applications installées »).", 'Désinstaller Mindset', 'OK', 'Warning')
+                    } catch {}
+                    Write-Resultat $false "Il reste : $($restes -join ' ; ')"
+                    return
+                }
+            }
             # Dossier des programmes vide : retiré aussi (les données, elles, restent)
             $base = Split-Path $dest -Parent
             if ((Test-Path -LiteralPath $base) -and -not @(Get-ChildItem -LiteralPath $base -Force).Count) { Remove-Item -LiteralPath $base -Force }

@@ -423,7 +423,7 @@
 
                   <TextBlock Text="Désinstaller Mindset" FontSize="17" FontWeight="SemiBold" Margin="0,28,0,4"/>
                   <TextBlock TextWrapping="Wrap" Foreground="{StaticResource Texte2}" Margin="0,0,0,10"
-                             Text="Désinstalle d'abord les applis depuis l'accueil. Les données restent sur le PC : une réinstallation les retrouve."/>
+                             Text="Retire Mindset et les applis qu'il a installées. Tu pourras choisir de garder tes données."/>
                   <Button x:Name="BtnDesinstallerMindset" Content="Désinstaller Mindset" Style="{StaticResource BtnSecondary}" HorizontalAlignment="Left"/>
                 </StackPanel>
               </Grid>

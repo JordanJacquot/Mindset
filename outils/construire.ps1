@@ -3,6 +3,7 @@
 #
 #   Mindset\
 #     Mindset.exe                 <- à lancer
+#     Desinstaller Mindset.exe    <- le désinstalleur autonome (outils\desinstalleur.cs)
 #     fichiers\Mindset.ps1        <- le point d'entrée
 #     fichiers\apps.json          <- la liste des applis de la suite
 #     fichiers\modules\           <- le code découpé par partie
@@ -39,6 +40,18 @@ $exe = Join-Path $app 'Mindset.exe'
 $sma = [psobject].Assembly.Location
 & $csc /nologo /target:winexe /optimize+ /platform:anycpu "/win32icon:$(Join-Path $icones 'Mindset.ico')" "/win32manifest:$manif" /reference:System.Windows.Forms.dll "/reference:$sma" "/out:$exe" $source
 if ($LASTEXITCODE) { throw "Échec de compilation de $exe" }
+
+# Le désinstalleur autonome, à côté de Mindset.exe (« Applications installées » le lance) : il ne dépend ni de
+# Mindset.exe ni du code PowerShell, pour retirer Mindset même quand celui-ci ne démarre plus. Il porte le numéro de
+# version de Mindset.ps1 (ajouté à la compilation, pour que publier.ps1 n'ait qu'un numéro à changer).
+$desinst = Join-Path $app 'Desinstaller Mindset.exe'
+$version = if ([IO.File]::ReadAllText((Join-Path $app 'fichiers\Mindset.ps1'), [Text.Encoding]::UTF8) -match "(?m)^\`$AppVersion = '([\d.]+)'") { $Matches[1] } else { '0.0.0' }
+$infos = Join-Path $env:TEMP "mindset-desinstalleur-$PID.cs"
+[IO.File]::WriteAllText($infos, "[assembly: System.Reflection.AssemblyVersion(`"$version.0`")]`n[assembly: System.Reflection.AssemblyFileVersion(`"$version.0`")]`n", (New-Object Text.UTF8Encoding $true))
+try {
+    & $csc /nologo /target:winexe /optimize+ /platform:anycpu "/win32icon:$(Join-Path $icones 'Mindset.ico')" "/win32manifest:$(Join-Path $PSScriptRoot 'desinstalleur.manifest')" /reference:System.Windows.Forms.dll /reference:System.Drawing.dll /reference:System.Web.Extensions.dll /reference:Microsoft.CSharp.dll /reference:System.Core.dll "/out:$desinst" (Join-Path $PSScriptRoot 'desinstalleur.cs') $infos
+    if ($LASTEXITCODE) { throw "Échec de compilation de $desinst" }
+} finally { Remove-Item -LiteralPath $infos -Force -ErrorAction SilentlyContinue }
 
 $release = Join-Path $racine 'release'
 New-Item -ItemType Directory -Force -Path $release | Out-Null

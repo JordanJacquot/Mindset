@@ -57,27 +57,66 @@ function Install-Mindset([string]$Disque) {
     }
 }
 
-# Désinstaller Mindset : seulement quand plus aucune appli n'est gérée par lui (elles n'ont plus d'autre accès)
+# Désinstaller Mindset : par son désinstalleur autonome (Desinstaller Mindset.exe, à côté de Mindset.exe), qui retire
+# aussi les applis (en lançant leur propre désinstalleur), propose de garder les données et affiche ce qui n'a pas pu
+# être retiré. Mindset se ferme pour lui laisser la place.
 function Get-ApplisGerees { @($Applis | Where-Object { $i = Get-Installation $_; $i -and $i.Gere }) }
+$DesinstalleurMindset = Join-Path (Split-Path $AppDir -Parent) 'Desinstaller Mindset.exe'
 
 function Confirm-DesinstallMindset {
+    if ((Test-MindsetInstalle) -and (Test-Path -LiteralPath $DesinstalleurMindset)) {
+        $g = @(Get-ApplisGerees)
+        $applis = if ($g.Count) { " Les applis qu'il a installées ($(($g | ForEach-Object Nom) -join ', ')) seront retirées aussi." } else { '' }
+        Show-Confirmation 'Désinstaller Mindset ?' "Mindset va se fermer et ouvrir son désinstalleur (accepte la demande de Windows).$applis Tu pourras choisir de garder tes données." 'Continuer' {
+            if ($EnTest) { return }
+            try { Start-Process -FilePath $DesinstalleurMindset -WorkingDirectory $env:SystemRoot -ErrorAction Stop }
+            catch { Show-Confirmation 'Le désinstalleur ne s''ouvre pas' "Windows n'a pas pu lancer $DesinstalleurMindset ($($_.Exception.Message))." 'Réessayer' { Confirm-DesinstallMindset }; return }
+            Write-Log 'Désinstallation de Mindset : désinstalleur lancé'
+            Exit-Mindset -AvecApplis
+        }
+        return
+    }
+    # Sans désinstalleur autonome (copie de travail, copie pas installée, ou d'avant lui) : comme avant, mais ce qui ne
+    # part pas est dit à l'utilisateur au lieu d'être seulement noté dans le journal
     $g = @(Get-ApplisGerees)
     if ($g.Count) {
         Show-Confirmation 'Désinstalle d''abord les applis' "Mindset gère encore $(($g | ForEach-Object Nom) -join ' et ') : désinstalle-les depuis l'accueil, puis reviens ici. Leurs données sont gardées." 'Aller à l''accueil' { Show-Page 'accueil' }
         return
     }
     Show-Confirmation 'Désinstaller Mindset ?' "Mindset, son raccourci et son lancement au démarrage vont être retirés. Ses données (et celles des applis) restent dans $SuiteDir : une réinstallation les retrouve." 'Désinstaller' {
-        foreach ($l in $RaccourcisMindset) { Remove-Item -LiteralPath $l -Force -ErrorAction SilentlyContinue }
-        Remove-ItemProperty -Path $CleRun -Name 'Mindset' -ErrorAction SilentlyContinue
+        $restes = @()
+        foreach ($l in $RaccourcisMindset) {
+            try { if (Test-Path -LiteralPath $l) { Remove-Item -LiteralPath $l -Force -ErrorAction Stop } } catch { $restes += "le raccourci $l" }
+        }
+        try { if ($null -ne (Get-ItemProperty -Path $CleRun -Name 'Mindset' -ErrorAction SilentlyContinue)) { Remove-ItemProperty -Path $CleRun -Name 'Mindset' -ErrorAction Stop } }
+        catch { $restes += 'le lancement avec Windows (registre)' }
+        if ($restes) {
+            Write-Log "Désinstallation de Mindset : il reste $($restes -join ', ')"
+            Show-Confirmation 'Désinstallation pas finie' "Ces éléments n'ont pas pu être retirés : $($restes -join ', '). Ferme les programmes qui pourraient les utiliser, puis réessaie." 'Réessayer' { Confirm-DesinstallMindset }
+            return
+        }
         if (Test-MindsetInstalle) {
-            # Le dossier est supprimé en administrateur une fois ce Mindset fermé
-            Invoke-Admin 'supprimer' @{ Destination = $DossierMindset; AttendrePid = $PID } { param($Ok, $Message) if (-not $Ok) { Write-Log "Désinstallation de Mindset : $Message" } }
+            # Le dossier est supprimé en administrateur une fois ce Mindset fermé ; si la demande ne part même pas
+            # (autorisation refusée, mini-installateur absent), Mindset reste ouvert et le dit.
+            # (Une fois Mindset fermé, installer-admin.ps1 affiche lui-même ce qui n'a pas pu être retiré.)
+            $script:DesinstallEchec = $null
+            Invoke-Admin 'supprimer' @{ Destination = $DossierMindset; AttendrePid = $PID } {
+                param($Ok, $Message)
+                if (-not $Ok) { Write-Log "Désinstallation de Mindset : $Message"; $script:DesinstallEchec = $Message }
+            }
             $t = New-Object System.Windows.Threading.DispatcherTimer
             $t.Interval = [TimeSpan]::FromSeconds(2)
-            $t.Add_Tick({ $this.Stop(); Exit-Mindset })
+            $t.Add_Tick({
+                $this.Stop()
+                if ($script:DesinstallEchec) {
+                    Show-Confirmation 'Désinstallation impossible' "Le dossier $DossierMindset et les tâches planifiées de Mindset n'ont pas pu être retirés : $($script:DesinstallEchec)" 'Réessayer' { Confirm-DesinstallMindset }
+                    return
+                }
+                Write-Log 'Mindset désinstallé'
+                Exit-Mindset
+            })
             $t.Start()
-        } else { Exit-Mindset }
-        Write-Log 'Mindset désinstallé'
+        } else { Write-Log 'Mindset désinstallé'; Exit-Mindset }
     }
 }
 

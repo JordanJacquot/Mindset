@@ -6,7 +6,8 @@
     La liste des applis est dans fichiers\apps.json. Les réglages et le journal sont dans %LOCALAPPDATA%\Mindset\Mindset.
 
     Mindset.ps1 -Demarrage     lancé avec Windows : démarre en arrière-plan les applis choisies et reste caché près de l'horloge
-    Mindset.ps1 -Desinstaller  depuis « Applications installées » de Windows : ouvre la désinstallation de Mindset
+    Mindset.ps1 -Desinstaller  depuis « Applications installées » de Windows : lance le désinstalleur autonome
+                               (Desinstaller Mindset.exe), ou sans lui, ouvre la désinstallation dans Mindset
 #>
 param([switch]$Demarrage, [switch]$Desinstaller)
 
@@ -16,6 +17,13 @@ $MainScript = $PSCommandPath
 $AppExe = Join-Path (Split-Path $PSScriptRoot -Parent) 'Mindset.exe'   # le programme qui exécute ce script
 $EnTest = [bool]$env:MINDSET_TEST      # test automatique : rien n'est modifié sur le PC
 if ($EnTest -and $env:MINDSET_VERSION) { $AppVersion = $env:MINDSET_VERSION }   # (test de la mise à jour de Mindset)
+
+# « -Desinstaller » : le désinstalleur autonome (Desinstaller Mindset.exe, à côté de Mindset.exe) fait tout, Mindset ne
+# s'ouvre pas. (Mindset.exe le lance déjà lui-même ; ceci sert quand ce script est lancé directement.)
+$Desinstalleur = Join-Path (Split-Path $PSScriptRoot -Parent) 'Desinstaller Mindset.exe'
+if ($Desinstaller -and -not $EnTest -and (Test-Path -LiteralPath $Desinstalleur)) {
+    try { Start-Process -FilePath $Desinstalleur -WorkingDirectory $env:SystemRoot -ErrorAction Stop; exit } catch {}
+}
 
 # ---------------------------------------------------------------------------
 # Mindset tourne sans les droits administrateur. Seul son mini-installateur (tâche « \Mindset\Mindset (installation) »)
@@ -93,7 +101,7 @@ $AppDir = $PSScriptRoot
 $ModulesDir = Join-Path $AppDir 'modules'
 $msModules = 'donnees', 'suite', 'packs', 'themes', 'signature', 'paquets', 'taches', 'applis', 'installations', 'mindset', 'interface', 'logo', 'chargement', 'accueil', 'integration', 'parametres', 'zone', 'console'
 $missing = @(@('natif.cs', 'interface.xaml') + @($msModules | ForEach-Object { "$_.ps1" }) | Where-Object { -not (Test-Path -LiteralPath (Join-Path $ModulesDir $_)) })
-if (-not (Test-Path -LiteralPath (Join-Path $AppDir 'cle-publique.xml'))) { $missing += 'cle-publique.xml' }
+if (-not @(Get-ChildItem -LiteralPath (Join-Path $AppDir 'cles-publiques') -Filter '*.xml' -File -ErrorAction SilentlyContinue).Count) { $missing += 'cles-publiques' }
 if ($missing) {
     [System.Windows.MessageBox]::Show("Des fichiers de Mindset sont manquants :`n`n$($missing -join ', ')`n`nRetélécharge Mindset et remplace tout le dossier.", 'Mindset', 'OK', 'Error') | Out-Null
     exit

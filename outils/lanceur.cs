@@ -26,6 +26,22 @@ static class Lanceur
         string dossier = AppDomain.CurrentDomain.BaseDirectory;
         string script = Path.Combine(Path.Combine(dossier, "fichiers"), "Mindset.ps1");
 
+        // « Mindset.exe -Desinstaller » (ancienne entrée de « Applications installées ») : le désinstalleur autonome,
+        // sans passer par le code de Mindset (il marche même si fichiers\Mindset.ps1 est supprimé ou abîmé)
+        string desinstalleur = Path.Combine(dossier, "Desinstaller Mindset.exe");
+        foreach (string a in args)
+        {
+            if (!string.Equals(a, "-Desinstaller", StringComparison.OrdinalIgnoreCase) || !File.Exists(desinstalleur)) continue;
+            try
+            {
+                System.Diagnostics.ProcessStartInfo psi = new System.Diagnostics.ProcessStartInfo(desinstalleur);
+                psi.WorkingDirectory = Environment.SystemDirectory;   // (pas le dossier de Mindset : il doit pouvoir être supprimé)
+                System.Diagnostics.Process.Start(psi);
+                return 0;
+            }
+            catch (Exception e) { Journal("Désinstalleur : " + e.Message); }
+        }
+
         if (!File.Exists(script))
         {
             MessageBox.Show(
@@ -50,7 +66,8 @@ static class Lanceur
                 {
                     ps.Runspace = rs;
                     ps.AddCommand(script);
-                    // « Mindset.exe -Demarrage » (lancé avec Windows), « -Desinstaller » (Applications installées)
+                    // « Mindset.exe -Demarrage » (lancé avec Windows), « -Desinstaller » (Applications installées, sans
+                    // le désinstalleur autonome à côté)
                     foreach (string a in args)
                     {
                         if (string.Equals(a, "-Demarrage", StringComparison.OrdinalIgnoreCase)) ps.AddParameter("Demarrage");

@@ -754,7 +754,7 @@ const PAGES = {
     return [`${grandeIc('dossier')}<h3>Dossiers</h3><p>Où sont Mindset, ses applis et leurs données sur ce PC.</p>`,
       titreBloc('Dossiers') + texte(e.dossiers?.texte || '')
       + `<div class="boutons">${btn('dossierProgrammes', 'Ouvrir le dossier des programmes', 'second', 'dossier')}${btn('dossierDonnees', 'Ouvrir le dossier des données', 'second', 'dossier')}</div>`
-      + titreBloc('Désinstaller Mindset') + texte('Désinstalle d\'abord les applis depuis l\'accueil. Les données restent sur le PC : une réinstallation les retrouve.')
+      + titreBloc('Désinstaller Mindset') + texte('Retire Mindset et les applis qu\'il a installées. Tu pourras choisir de garder tes données.')
       + `<div class="boutons">${btn('desinstaller', 'Désinstaller Mindset', 'danger', 'poubelle')}</div>`];
   },
 };
