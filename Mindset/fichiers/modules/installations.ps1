@@ -11,7 +11,7 @@
 
 $InstallFile = Join-Path $DataDir 'installations.json'
 $TelechargementsDir = Join-Path $DataDir 'telechargements'
-$ClePublique = Join-Path $AppDir 'cle-publique.xml'
+$ClePublique = Join-Path $AppDir 'cles-publiques'   # la liste des clés publiques (voir signature.ps1)
 $script:Publications = @{}   # id -> dernière version publiée (ou erreur)
 $script:Occupe = @{}         # id -> texte de l'opération en cours
 $script:Messages = @{}       # id -> dernier message affiché sur la carte

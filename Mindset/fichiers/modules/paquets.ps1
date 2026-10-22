@@ -104,6 +104,7 @@ function Get-VersionDossier([string]$Dossier) {
 #   Seul le contenu du dossier principal du zip (« OptiGame\... », « Evermind\... ») est extrait, et tout chemin qui
 #   sortirait du dossier d'arrivée est refusé.
 #   Le nouveau dossier est préparé à côté puis échangé avec l'ancien : une erreur en route laisse l'ancien intact.
+#   -ClePublique : le dossier des clés publiques de la suite (fichiers\cles-publiques), voir signature.ps1.
 # Renomme un dossier d'un seul bloc, en réessayant pendant 3 secondes : un programme qui vient de se fermer (la 3D de
 # Mindset) ou l'antivirus qui analyse un exe tout juste extrait garde ses fichiers ouverts un court moment. (Un seul bloc :
 # un fichier ouvert fait échouer le renommage sans rien déplacer ; Move-Item, lui, déplaçait déjà une partie des fichiers

@@ -76,6 +76,7 @@ $tmp = Join-Path $env:TEMP "mindset-tests-$([guid]::NewGuid().ToString('N').Subs
 New-Item -ItemType Directory -Force -Path $tmp | Out-Null
 # (en nom long : sur GitHub, TEMP est en nom court « RUNNER~1 », qu'Install-Paquet rend en nom long)
 $tmp = [IO.Path]::GetFullPath($tmp)
+$appdataVrai = $env:APPDATA   # (détourné vers $tmp pour les tests des outils de clé, remis à la fin)
 $sha256 = [System.Security.Cryptography.CryptoConfig]::MapNameToOID('SHA256')
 
 # Une paire de clés RSA de test (en mémoire seulement), au même format XML que celle de outils\cle.ps1
@@ -152,11 +153,67 @@ try {
     Test-Cas 'fichier de clé illisible refusé (sans planter)' { -not (Test-Signature $donnees $sig $fIllisible) }
     Test-Cas 'signature vide refusée' { -not (Test-Signature $donnees ([byte[]]@()) $fPublique) }
     Test-Cas 'données vides refusées' { -not (Test-Signature ([byte[]]@()) $sig $fPublique) }
-    Test-Cas 'la clé livrée avec Mindset est publique seulement et fait au moins 3072 bits' {
-        $rsa = New-Object System.Security.Cryptography.RSACryptoServiceProvider
-        try { $rsa.FromXmlString([IO.File]::ReadAllText((Join-Path $fichiers 'cle-publique.xml'), [Text.Encoding]::UTF8)); $rsa.PublicOnly -and $rsa.KeySize -ge 3072 }
-        finally { $rsa.Dispose() }
+    Test-Cas 'les clés livrées avec Mindset (cles-publiques) sont publiques seulement et font au moins 3072 bits' {
+        $livrees = @(Get-ChildItem -LiteralPath (Join-Path $fichiers 'cles-publiques') -File -Force | Where-Object { $_.Extension -eq '.xml' })
+        $ok = $livrees.Count -ge 1
+        foreach ($f in $livrees) {
+            $rsa = New-Object System.Security.Cryptography.RSACryptoServiceProvider
+            try { $rsa.FromXmlString([IO.File]::ReadAllText($f.FullName, [Text.Encoding]::UTF8)); if (-not $rsa.PublicOnly -or $rsa.KeySize -lt 3072) { $ok = $false } }
+            catch { $ok = $false } finally { $rsa.Dispose() }
+        }
+        $ok
     }
+    Test-Cas 'plus de clé unique cle-publique.xml à côté de la liste (une seule source de vérité)' { -not (Test-Path -LiteralPath (Join-Path $fichiers 'cle-publique.xml')) }
+
+    # =============================================================================================================
+    Write-Partie 'Liste de clés : changement de clé et retrait (issue #3)'
+    # =============================================================================================================
+    $cleB = New-CleTest 3072
+    $sigB = Get-SignatureTest $donnees $cleB.Privee
+    # Un dossier de clés de test : $Contenu = [ordered]@{ 'nom.xml' = 'XML' }
+    function New-ListeTest([string]$Nom, $Contenu) {
+        $d = Join-Path $tmp "listes\$Nom"
+        New-Item -ItemType Directory -Force -Path $d | Out-Null
+        foreach ($k in $Contenu.Keys) { [IO.File]::WriteAllText((Join-Path $d $k), [string]$Contenu[$k], (New-Object Text.UTF8Encoding $false)) }
+        $d
+    }
+    $listeAB = New-ListeTest 'AB' ([ordered]@{ 'a.xml' = $cle.Publique; 'b.xml' = $cleB.Publique })
+    $listeA = New-ListeTest 'A' ([ordered]@{ 'a.xml' = $cle.Publique })
+
+    Test-Cas 'signée avec la clé B, acceptée par un Mindset qui connaît A et B' { Test-Signature $donnees $sigB $listeAB }
+    Test-Cas 'signée avec la clé A, toujours acceptée par un Mindset qui connaît A et B' { Test-Signature $donnees $sig $listeAB }
+    Test-Cas 'clé B retirée de la liste : sa signature n''est plus acceptée' { -not (Test-Signature $donnees $sigB $listeA) }
+    Test-Cas 'clé B retirée : la clé A reste acceptée' { Test-Signature $donnees $sig $listeA }
+    Test-Cas 'liste vide : tout refusé' { -not (Test-Signature $donnees $sig (New-ListeTest 'vide' ([ordered]@{}))) }
+    Test-Cas 'dossier de clés absent : tout refusé' { -not (Test-Signature $donnees $sig (Join-Path $tmp 'listes\absente')) }
+    Test-Cas 'fichier de clé abîmé dans la liste : tout refusé, même une signature juste' {
+        -not (Test-Signature $donnees $sig (New-ListeTest 'abimee' ([ordered]@{ 'a.xml' = $cle.Publique; 'b.xml' = '<RSAKeyValue><Modulus>pas une clé</Modulus>' })))
+    }
+    Test-Cas 'fichier de clé vide dans la liste : tout refusé' {
+        -not (Test-Signature $donnees $sig (New-ListeTest 'fichier-vide' ([ordered]@{ 'a.xml' = $cle.Publique; 'b.xml' = '' })))
+    }
+    Test-Cas 'clé privée glissée dans la liste : tout refusé, même la signature de la clé publique voisine' {
+        -not (Test-Signature $donnees $sig (New-ListeTest 'privee' ([ordered]@{ 'a.xml' = $cle.Publique; 'z.xml' = $cleB.Privee })))
+    }
+    Test-Cas 'clé privée glissée dans la liste : sa propre signature refusée aussi' {
+        -not (Test-Signature $donnees $sigB (New-ListeTest 'privee-seule' ([ordered]@{ 'b.xml' = $cleB.Privee })))
+    }
+    Test-Cas 'clé trop courte (2048 bits) glissée dans la liste : tout refusé' {
+        $s = Get-SignatureTest $donnees $cleCourte.Privee
+        $l = New-ListeTest 'courte' ([ordered]@{ 'a.xml' = $cle.Publique; 'c.xml' = $cleCourte.Publique })
+        -not (Test-Signature $donnees $sig $l) -and -not (Test-Signature $donnees $s $l)
+    }
+    Test-Cas 'clé privée cachée (fichier caché) dans la liste : tout refusé' {
+        $l = New-ListeTest 'cachee' ([ordered]@{ 'a.xml' = $cle.Publique; 'cachee.xml' = $cleB.Privee })
+        (Get-Item -LiteralPath (Join-Path $l 'cachee.xml')).Attributes = 'Hidden'
+        -not (Test-Signature $donnees $sig $l)
+    }
+    Test-Cas 'autre fichier que .xml dans le dossier (LISEZMOI.txt, b.xml.ancien) : pas une clé, ignoré' {
+        $l = New-ListeTest 'autres' ([ordered]@{ 'a.xml' = $cle.Publique; 'LISEZMOI.txt' = 'texte'; 'b.xml.ancien' = $cleB.Publique })
+        (Test-Signature $donnees $sig $l) -and -not (Test-Signature $donnees $sigB $l)
+    }
+    Test-Cas 'signature d''une autre clé, absente de la liste : refusée' { -not (Test-Signature $donnees (Get-SignatureTest $donnees $autreCle.Privee) $listeAB) }
+    Test-Cas 'liste de clés : fichier modifié d''un octet refusé' { -not (Test-Signature $modifie $sigB $listeAB) }
 
     # =============================================================================================================
     Write-Partie 'Install-Paquet (modules\paquets.ps1)'
@@ -277,6 +334,52 @@ try {
         ($r -eq $dest2) -and ((Get-VersionDossier $dest2) -eq '1.0.0')
     }
 
+    # Changement de clé de bout en bout : chaque version livre sa liste (fichiers\cles-publiques), et c'est la liste de
+    # la version installée qui décide de la suivante. A = clé de tous les jours, S = clé de secours, B puis C = suivantes.
+    $cleS = New-CleTest 3072
+    $destR = Join-Path $tmp 'Rotation\Appli'
+    $listeR = Join-Path $destR 'fichiers\cles-publiques'
+    function New-ZipListe([string]$Version, $Cles) {
+        $e = [ordered]@{}
+        foreach ($k in $Cles.Keys) { $e["Appli/fichiers/cles-publiques/$k.xml"] = $Cles[$k].Publique }
+        New-ZipAppli $Version $e
+    }
+    function Install-Rotation([byte[]]$Zip, $CleSignature, [string]$Liste = $listeR) {
+        Install-Paquet -Zip $Zip -Signature (Get-SignatureTest $Zip $CleSignature.Privee) -ClePublique $Liste -Destination $destR -DossierZip 'Appli' -Exe 'Appli.exe'
+    }
+    $listeAS = New-ListeTest 'AS' ([ordered]@{ 'a.xml' = $cle.Publique; 's.xml' = $cleS.Publique })
+    Test-Cas 'rotation : première installation (signée A, liste A + S) avec la liste du dossier' {
+        $null = Install-Rotation (New-ZipListe '1.0.0' ([ordered]@{ a = $cle; s = $cleS })) $cle $listeAS
+        ((Get-VersionDossier $destR) -eq '1.0.0') -and @(Get-ChildItem -LiteralPath $listeR -Filter '*.xml').Count -eq 2
+    }
+    Test-Cas 'rotation : signée avec B avant que B soit dans la liste installée, refusée' {
+        (Test-Refus { Install-Rotation (New-ZipListe '1.1.0' ([ordered]@{ a = $cle; b = $cleB; s = $cleS })) $cleB } 'signature') -and ((Get-VersionDossier $destR) -eq '1.0.0')
+    }
+    Test-Cas 'rotation, étape 1 : version signée A qui ajoute B, acceptée' {
+        $null = Install-Rotation (New-ZipListe '1.1.0' ([ordered]@{ a = $cle; b = $cleB; s = $cleS })) $cle
+        (Get-VersionDossier $destR) -eq '1.1.0'
+    }
+    Test-Cas 'rotation, étape 2 : version signée B qui retire A, acceptée' {
+        $null = Install-Rotation (New-ZipListe '1.2.0' ([ordered]@{ b = $cleB; s = $cleS })) $cleB
+        ((Get-VersionDossier $destR) -eq '1.2.0') -and -not (Test-Path -LiteralPath (Join-Path $listeR 'a.xml'))
+    }
+    Test-Cas 'rotation : l''ancienne clé A, retirée, n''est plus acceptée' {
+        (Test-Refus { Install-Rotation (New-ZipListe '1.3.0' ([ordered]@{ a = $cle; s = $cleS })) $cle } 'signature') -and ((Get-VersionDossier $destR) -eq '1.2.0')
+    }
+    Test-Cas 'révocation avec la clé de secours : version signée S qui retire B et ajoute C, acceptée' {
+        $cleC = New-CleTest 3072
+        $script:CleC = $cleC
+        $null = Install-Rotation (New-ZipListe '1.3.0' ([ordered]@{ c = $cleC; s = $cleS })) $cleS
+        (Get-VersionDossier $destR) -eq '1.3.0'
+    }
+    Test-Cas 'révocation : la clé B, retirée (volée), n''est plus acceptée' {
+        (Test-Refus { Install-Rotation (New-ZipListe '9.9.9' ([ordered]@{ b = $cleB })) $cleB } 'signature') -and ((Get-VersionDossier $destR) -eq '1.3.0')
+    }
+    Test-Cas 'révocation : la nouvelle clé C est acceptée' {
+        $null = Install-Rotation (New-ZipListe '1.4.0' ([ordered]@{ c = $script:CleC; s = $cleS })) $script:CleC
+        (Get-VersionDossier $destR) -eq '1.4.0'
+    }
+
     # Le reste de paquets.ps1 qui protège quelque chose
     Test-Cas 'téléchargement refusé hors de GitHub (sans aller sur Internet)' {
         $ok = $true
@@ -320,7 +423,117 @@ try {
     Test-Cas 'D:\Mindset\Programmes\..\Donnees refusé' { Test-Refus { Test-DossierMindset 'D:\Mindset\Programmes\..\Donnees' } 'Dossier refusé' }
     Test-Cas 'D:\Mindset\Donnees\X (les données, pas les programmes) refusé' { Test-Refus { Test-DossierMindset 'D:\Mindset\Donnees\X' } 'Dossier refusé' }
     Test-Cas 'D:\Autre\Mindset\Programmes\X (pas à la racine du disque) refusé' { Test-Refus { Test-DossierMindset 'D:\Autre\Mindset\Programmes\X' } 'Dossier refusé' }
+
+    # =============================================================================================================
+    Write-Partie 'Outils de clé (outils\cle.ps1 et outils\signer.ps1), dans une copie sous %TEMP%'
+    # =============================================================================================================
+    # Une copie des outils dans un faux dépôt, et APPDATA détourné vers le dossier de test (pour ce processus seulement) :
+    # la vraie clé privée, la vraie liste et le vrai mot de passe ne sont jamais touchés.
+    $depot = Join-Path $tmp 'depot'
+    New-Item -ItemType Directory -Force -Path (Join-Path $depot 'outils'), (Join-Path $depot 'Mindset\fichiers\modules') | Out-Null
+    Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'cle.ps1'), (Join-Path $PSScriptRoot 'signer.ps1') -Destination (Join-Path $depot 'outils')
+    Copy-Item -LiteralPath (Join-Path $fichiers 'modules\signature.ps1') -Destination (Join-Path $depot 'Mindset\fichiers\modules')
+    $env:APPDATA = Join-Path $tmp 'AppData'
+    $clesDepot = Join-Path $depot 'Mindset\fichiers\cles-publiques'
+    $priveeTest = Join-Path $env:APPDATA 'Mindset-signature\cle-privee.bin'
+    $mdpTest = ConvertTo-SecureString 'mot de passe de test 123' -AsPlainText -Force
+    $mdpFaux = ConvertTo-SecureString 'pas le bon mot de passe' -AsPlainText -Force
+    # Garde-fou : jamais un outil de clé lancé si APPDATA n'est pas dans le dossier de test
+    function Invoke-OutilCle([string]$Outil, [hashtable]$Params) {
+        if (-not $env:APPDATA.StartsWith($tmp, [StringComparison]::OrdinalIgnoreCase)) { throw 'APPDATA n''est pas détourné : test arrêté.' }
+        & (Join-Path $depot "outils\$Outil") @Params
+    }
+    function Get-ListeDepot { @(Get-ChildItem -LiteralPath $clesDepot -Filter '*.xml' -File -ErrorAction SilentlyContinue) }
+    $zipSigne = Join-Path $tmp 'a-signer.zip'
+    [IO.File]::WriteAllBytes($zipSigne, (New-ZipAppli '3.0.0'))
+    function Test-SigneParListe { (Test-Path -LiteralPath "$zipSigne.sig") -and (Test-Signature ([IO.File]::ReadAllBytes($zipSigne)) ([IO.File]::ReadAllBytes("$zipSigne.sig")) $clesDepot) }
+
+    Test-Cas 'cle.ps1 crée la clé de tous les jours : privée chiffrée sous APPDATA, publique dans la liste' {
+        $null = Invoke-OutilCle 'cle.ps1' @{}
+        $l = Get-ListeDepot
+        (Test-Path -LiteralPath $priveeTest) -and $l.Count -eq 1 -and $l[0].Name -like 'principale-*.xml' -and
+            -not ([IO.File]::ReadAllText($l[0].FullName) -match '<P>|<D>') -and -not ([Text.Encoding]::UTF8.GetString([IO.File]::ReadAllBytes($priveeTest)) -match 'RSAKeyValue')
+    }
+    Test-Cas 'cle.ps1 refuse de créer une deuxième clé de tous les jours par dessus la première' { Test-Refus { Invoke-OutilCle 'cle.ps1' @{} } 'existe déjà' }
+    $msk = Join-Path $tmp 'usb\secours.msk'
+    New-Item -ItemType Directory -Force -Path (Split-Path $msk -Parent) | Out-Null
+    Test-Cas 'cle.ps1 -Secours : clé de secours écrite seulement dans son fichier protégé, sa clé publique dans la liste' {
+        $avant = @(Get-ChildItem -LiteralPath (Join-Path $env:APPDATA 'Mindset-signature') -File).Count
+        $null = Invoke-OutilCle 'cle.ps1' @{ Secours = $msk; MotDePasse = $mdpTest }
+        $o = [IO.File]::ReadAllBytes($msk)
+        $sec = @(Get-ListeDepot | Where-Object { $_.Name -like 'secours-*.xml' })
+        $rsa = New-Object System.Security.Cryptography.RSACryptoServiceProvider
+        try { $rsa.FromXmlString([IO.File]::ReadAllText($sec[0].FullName)); $bonne = $rsa.PublicOnly -and $rsa.KeySize -ge 4096 } finally { $rsa.Dispose() }
+        ([Text.Encoding]::ASCII.GetString($o, 0, 4) -eq 'MSK1') -and -not ([Text.Encoding]::UTF8.GetString($o) -match 'RSAKeyValue') -and
+            $sec.Count -eq 1 -and $bonne -and (Get-ListeDepot).Count -eq 2 -and
+            @(Get-ChildItem -LiteralPath (Join-Path $env:APPDATA 'Mindset-signature') -File).Count -eq $avant
+    }
+    Test-Cas 'cle.ps1 -Secours n''écrase jamais une clé de secours existante' { Test-Refus { Invoke-OutilCle 'cle.ps1' @{ Secours = $msk; MotDePasse = $mdpTest } } 'existe déjà' }
+    Test-Cas 'cle.ps1 -Secours refuse un mot de passe trop court' {
+        $court = ConvertTo-SecureString 'court' -AsPlainText -Force
+        (Test-Refus { Invoke-OutilCle 'cle.ps1' @{ Secours = (Join-Path $tmp 'usb\court.msk'); MotDePasse = $court } } 'trop court') -and -not (Test-Path -LiteralPath (Join-Path $tmp 'usb\court.msk'))
+    }
+    Test-Cas 'signer.ps1 signe avec la clé de ce PC, signature acceptée par la liste' {
+        $null = Invoke-OutilCle 'signer.ps1' @{ Fichier = $zipSigne }
+        Test-SigneParListe
+    }
+    Test-Cas 'signer.ps1 -Secours signe avec la clé de secours, signature acceptée par la liste' {
+        Remove-Item -LiteralPath "$zipSigne.sig"
+        $null = Invoke-OutilCle 'signer.ps1' @{ Fichier = $zipSigne; Secours = $msk; MotDePasse = $mdpTest }
+        $s = [IO.File]::ReadAllBytes("$zipSigne.sig")
+        # (vérifiée par la clé de secours seule, pas par la clé de tous les jours)
+        $seule = New-ListeTest 'secours-seule' ([ordered]@{ 's.xml' = [IO.File]::ReadAllText(@(Get-ListeDepot | Where-Object { $_.Name -like 'secours-*' })[0].FullName) })
+        (Test-SigneParListe) -and (Test-Signature ([IO.File]::ReadAllBytes($zipSigne)) $s $seule)
+    }
+    Test-Cas 'signer.ps1 -Secours avec un faux mot de passe : refusé, aucune signature écrite' {
+        Remove-Item -LiteralPath "$zipSigne.sig"
+        (Test-Refus { Invoke-OutilCle 'signer.ps1' @{ Fichier = $zipSigne; Secours = $msk; MotDePasse = $mdpFaux } } 'Mot de passe incorrect') -and -not (Test-Path -LiteralPath "$zipSigne.sig")
+    }
+    Test-Cas 'cle.ps1 -Liste montre les deux clés et celle de ce PC' {
+        $t = (Invoke-OutilCle 'cle.ps1' @{ Liste = $true }) -join "`n"
+        ($t -match 'principale-.*3072 bits, la clé de ce PC') -and ($t -match 'secours-.*4096 bits')
+    }
+    Test-Cas 'cle.ps1 -Retirer refuse de retirer la clé de ce PC' {
+        $n = @(Get-ListeDepot | Where-Object { $_.Name -like 'principale-*' })[0].Name
+        (Test-Refus { Invoke-OutilCle 'cle.ps1' @{ Retirer = $n } } 'clé de ce PC') -and (Get-ListeDepot).Count -eq 2
+    }
+    Test-Cas 'cle.ps1 -Nouvelle (étape 1) : la clé suivante entre dans la liste, ce PC signe encore avec l''ancienne' {
+        $null = Invoke-OutilCle 'cle.ps1' @{ Nouvelle = $true }
+        $null = Invoke-OutilCle 'signer.ps1' @{ Fichier = $zipSigne }
+        $script:AncienneSig = [IO.File]::ReadAllBytes("$zipSigne.sig")
+        (Get-ListeDepot).Count -eq 3 -and (Test-Path -LiteralPath (Join-Path $env:APPDATA 'Mindset-signature\cle-privee-suivante.bin')) -and (Test-SigneParListe)
+    }
+    Test-Cas 'cle.ps1 -Basculer (étape 2) : l''ancienne clé quitte la liste, ce PC signe avec la nouvelle' {
+        $null = Invoke-OutilCle 'cle.ps1' @{ Basculer = $true }
+        $null = Invoke-OutilCle 'signer.ps1' @{ Fichier = $zipSigne }
+        (Get-ListeDepot).Count -eq 2 -and -not (Test-Path -LiteralPath (Join-Path $env:APPDATA 'Mindset-signature\cle-privee-suivante.bin')) -and
+            (Test-SigneParListe) -and -not (Test-Signature ([IO.File]::ReadAllBytes($zipSigne)) $script:AncienneSig $clesDepot)
+    }
+    Test-Cas 'cle.ps1 -Retirer retire la clé de secours (volée), puis refuse de retirer la dernière clé' {
+        $s = @(Get-ListeDepot | Where-Object { $_.Name -like 'secours-*' })[0].Name
+        $null = Invoke-OutilCle 'cle.ps1' @{ Retirer = $s }
+        $reste = Get-ListeDepot
+        Move-Item -LiteralPath $priveeTest -Destination "$priveeTest.copie"   # (sans clé sur ce PC, seule la règle « dernière clé » peut refuser)
+        $refus = Test-Refus { Invoke-OutilCle 'cle.ps1' @{ Retirer = $reste[0].Name } } 'dernière clé'
+        $reste.Count -eq 1 -and $refus -and (Get-ListeDepot).Count -eq 1
+    }
+    Test-Cas 'signer.ps1 refuse de signer avec une clé retirée de la liste (la clé de secours retirée) : aucune signature écrite' {
+        $null = Invoke-OutilCle 'cle.ps1' @{ Importer = $msk; MotDePasse = $mdpTest }
+        Remove-Item -LiteralPath "$zipSigne.sig" -ErrorAction SilentlyContinue
+        (Test-Refus { Invoke-OutilCle 'signer.ps1' @{ Fichier = $zipSigne } } 'aucune clé de la liste') -and -not (Test-Path -LiteralPath "$zipSigne.sig")
+    }
+    Test-Cas 'signer.ps1 refuse de signer si une clé privée est glissée dans la liste, puis signe une fois retirée' {
+        Move-Item -LiteralPath "$priveeTest.copie" -Destination $priveeTest -Force   # (la clé de la liste revient sur ce PC)
+        $f = Join-Path $clesDepot 'piege.xml'
+        [IO.File]::WriteAllText($f, $cleB.Privee)
+        $refus = (Test-Refus { Invoke-OutilCle 'signer.ps1' @{ Fichier = $zipSigne } } 'aucune clé de la liste') -and -not (Test-Path -LiteralPath "$zipSigne.sig")
+        $liste = (Invoke-OutilCle 'cle.ps1' @{ Liste = $true }) -join "`n"
+        Remove-Item -LiteralPath $f
+        $null = Invoke-OutilCle 'signer.ps1' @{ Fichier = $zipSigne }
+        $refus -and ($liste -match 'piege\.xml : ERREUR : clé PRIVÉE') -and (Test-SigneParListe)
+    }
 } finally {
+    $env:APPDATA = $appdataVrai
     try { Remove-Item -LiteralPath $tmp -Recurse -Force -ErrorAction Stop } catch { Write-Host "Dossier de test non supprimé : $tmp ($($_.Exception.Message))" -ForegroundColor Yellow }
 }
 
