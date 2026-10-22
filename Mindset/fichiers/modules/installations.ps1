@@ -477,8 +477,11 @@ function Complete-Desinstallation($Appli) {
     Save-Installation $Appli.Id $null $false
     Set-SuiteAppli $Appli.Id $null
     Set-DemarrageAppli $Appli.Id $false
-    Write-Log "$($Appli.Nom) désinstallé"
-    Stop-Operation $Appli "$($Appli.Nom) est désinstallé. Ses données sont gardées dans $(Join-Path $SuiteDir $Appli.Nom) : une réinstallation les retrouve."
+    # Le message dit ce qui s'est vraiment passé : le désinstalleur de l'appli garde ses données, ou les supprime (Nevermind)
+    $donnees = Join-Path $SuiteDir $Appli.Nom
+    $gardees = [IO.Directory]::Exists($donnees) -and @([IO.Directory]::EnumerateFileSystemEntries($donnees)).Count
+    Write-Log "$($Appli.Nom) désinstallé (données $(if ($gardees) { 'gardées' } else { 'supprimées' }))"
+    Stop-Operation $Appli $(if ($gardees) { "$($Appli.Nom) est désinstallé. Ses données sont gardées dans $donnees : une réinstallation les retrouve." } else { "$($Appli.Nom) est désinstallé, avec ses données (réglages, journal, sauvegarde)." })
 }
 
 $script:DesinstallTimer = New-Object System.Windows.Threading.DispatcherTimer

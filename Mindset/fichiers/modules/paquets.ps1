@@ -41,8 +41,25 @@ function Get-PublicationSansApi([string]$Depot, [string]$Zip) {
             $q2 = [Net.HttpWebRequest]::Create("$base/$Zip.sig"); $q2.Method = 'HEAD'; $q2.AllowAutoRedirect = $false; $q2.UserAgent = 'Mindset'; $q2.Timeout = 15000
             $r2 = $q2.GetResponse(); if ([int]$r2.StatusCode -in 200, 301, 302) { $sig = "$base/$Zip.sig" }; $r2.Close()
         } catch {}
-        @{ Version = $version; UrlZip = "$base/$Zip"; UrlSig = $sig; Notes = '' }
+        @{ Version = $version; UrlZip = "$base/$Zip"; UrlSig = $sig; Notes = (Get-NotesPage $Depot $version) }
     } catch { $null }
+}
+
+# Les notes d'une version lues sur sa page GitHub (quand l'API refuse) ; introuvables : le lien vers la page
+function Get-NotesPage([string]$Depot, [string]$Version) {
+    $page = "https://github.com/$Depot/releases/tag/v$Version"
+    $notes = ''
+    try {
+        $wc = New-Object Net.WebClient; $wc.Headers['User-Agent'] = 'Mindset'; $wc.Encoding = [Text.Encoding]::UTF8
+        try { $html = $wc.DownloadString($page) } finally { $wc.Dispose() }
+        if ($html -match '(?s)<div[^>]*class="markdown-body[^"]*"[^>]*>(.*?)</div>') {
+            $t = $Matches[1] -replace '(?i)<br\s*/?>|</p>|</li>|</h\d>', "`n" -replace '(?i)<li[^>]*>', '- ' -replace '<[^>]+>', ''
+            $notes = ([Net.WebUtility]::HtmlDecode($t) -replace "[ \t]+\r?\n", "`n" -replace "(\r?\n){3,}", "`n`n").Trim()
+        }
+    } catch {}
+    if ($notes.Length -gt 4000) { $notes = $notes.Substring(0, 4000) + '...' }
+    if (-not $notes) { $notes = "Les nouveautés de cette version : $page" }
+    $notes
 }
 
 # $Progres (facultatif, une table partagée avec Mindset) : Recu et Total en octets, mis à jour pendant le téléchargement
