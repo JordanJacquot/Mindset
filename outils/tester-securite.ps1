@@ -74,6 +74,8 @@ function Write-Partie([string]$Titre) { Write-Host ''; Write-Host $Titre -Foregr
 # ---------------------------------------------------------------------------------------------------------------
 $tmp = Join-Path $env:TEMP "mindset-tests-$([guid]::NewGuid().ToString('N').Substring(0, 8))"
 New-Item -ItemType Directory -Force -Path $tmp | Out-Null
+# (en nom long : sur GitHub, TEMP est en nom court « RUNNER~1 », qu'Install-Paquet rend en nom long)
+$tmp = [IO.Path]::GetFullPath($tmp)
 $sha256 = [System.Security.Cryptography.CryptoConfig]::MapNameToOID('SHA256')
 
 # Une paire de clés RSA de test (en mémoire seulement), au même format XML que celle de outils\cle.ps1
