@@ -855,22 +855,26 @@ cv.addEventListener('click', () => {
   if (vise) { choisirCartouche(vise.id); return; }
   if (!occupe && !zoome && visConsole) zoomerMenu();
 });
+// Les lettres A et B du clavier valent les boutons (A) OK et (B) Retour affichés en bas de l'écran (pas dans un champ)
+const toucheManette = (e) => (/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName) || e.target.isContentEditable || e.ctrlKey || e.altKey || e.metaKey) ? e.key : ({ a: 'Enter', A: 'Enter', b: 'Escape', B: 'Escape' }[e.key] || e.key);
 addEventListener('keydown', (e) => {
+  const touche = toucheManette(e);
   if (ouverte === REGL) {   // les Paramètres : Échap ou Retour arrière (B) ramène au menu en grand ; les flèches vont d'un réglage à l'autre
     if (!zoome || occupe) return;
-    if (e.key === 'Escape' || e.key === 'Backspace') { e.preventDefault(); retourReglages(); return; }
+    if (touche === 'Escape' || e.key === 'Backspace') { e.preventDefault(); retourReglages(); return; }
     if (e.key.startsWith('Arrow')) { e.preventDefault(); naviguerReglages(e.key); }
+    if (touche === 'Enter' && e.key !== 'Enter') { e.preventDefault(); document.querySelector('#reglagesGrand .aides [data-a="ok"]')?.click(); }
     return;
   }
   if (ouverte === MENU && zoome && !occupe) {
     if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { e.preventDefault(); deplacerMenu(e.key === 'ArrowRight' ? 1 : -1); return; }
     if (e.key === 'Home' || e.key === 'End') { e.preventDefault(); allerMenu(e.key === 'Home' ? 0 : listeMenu().length - 1); return; }
-    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); if (!e.repeat) choisirDepuisMenu(listeMenu()[borne(Math.round(car.cible))]); return; }
-    if (e.key === 'Escape' || e.key === 'Backspace') { e.preventDefault(); sortirDuMenu(); return; }
+    if (touche === 'Enter' || e.key === ' ') { e.preventDefault(); if (!e.repeat) choisirDepuisMenu(listeMenu()[borne(Math.round(car.cible))]); return; }
+    if (touche === 'Escape' || e.key === 'Backspace') { e.preventDefault(); sortirDuMenu(); return; }
     return;
   }
-  if (!zoome && !occupe && (e.key === 'Enter' || e.key === ' ') && document.activeElement === document.body) { e.preventDefault(); zoomerMenu(); return; }
-  if (e.key === 'Escape' && zoome && !occupe && !demandeOuverture[ouverte]) { e.preventDefault(); revenirAuMenu(); return; }
+  if (!zoome && !occupe && (touche === 'Enter' || e.key === ' ') && document.activeElement === document.body) { e.preventDefault(); zoomerMenu(); return; }
+  if (touche === 'Escape' && zoome && !occupe && !demandeOuverture[ouverte]) { e.preventDefault(); revenirAuMenu(); return; }
   const n = parseInt(e.key, 10); if (n >= 1 && n <= TUILES.length && !zoome) choisirCartouche(TUILES[n - 1]);
 });
 
