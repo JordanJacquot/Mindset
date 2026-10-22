@@ -425,6 +425,127 @@ try {
     Test-Cas 'D:\Autre\Mindset\Programmes\X (pas à la racine du disque) refusé' { Test-Refus { Test-DossierMindset 'D:\Autre\Mindset\Programmes\X' } 'Dossier refusé' }
 
     # =============================================================================================================
+    Write-Partie 'Chercher les nouvelles versions : coupé, rien ne part tout seul vers GitHub (accueil.ps1, mindset.ps1)'
+    # =============================================================================================================
+    # Les fonctions de Mindset sont prises dans leurs fichiers (par l'analyseur : les modules exécutent du code au
+    # chargement) ; ce qui touche le réseau ou Windows est remplacé par de faux qui comptent leurs appels.
+    $modules = Join-Path $fichiers 'modules'
+    $asts = @{}
+    foreach ($m in @(Get-ChildItem -LiteralPath $modules -Filter '*.ps1' -File)) {
+        $e = $null
+        $asts[$m.Name] = [System.Management.Automation.Language.Parser]::ParseInput([IO.File]::ReadAllText($m.FullName, [Text.Encoding]::UTF8), [ref]$null, [ref]$e)
+        if ($e) { throw "$($m.Name) illisible : $($e[0].Message)" }
+    }
+    function Import-FonctionsMindset([string]$Fichier, [string[]]$Noms) {
+        $d = @($asts[$Fichier].FindAll({ param($n) $n -is [System.Management.Automation.Language.FunctionDefinitionAst] -and $n.Name -in $Noms }, $true))
+        if ($d.Count -ne $Noms.Count) { throw "$Fichier : fonctions introuvables ($($Noms -join ', '))." }
+        foreach ($x in $d) { . ([scriptblock]::Create($x.Extent.Text)) }
+        # (définies dans la portée du script, comme celles de Mindset)
+        foreach ($x in $d) { Set-Item -Path "function:script:$($x.Name)" -Value (Get-Item "function:$($x.Name)").ScriptBlock }
+    }
+    Import-FonctionsMindset 'accueil.ps1' @('Invoke-Actualiser', 'Update-InfoActualiser')
+    Import-FonctionsMindset 'mindset.ps1' @('Test-VerifVersionsActive', 'Test-MajAutoActive', 'Test-MajAutoRecente', 'Invoke-MajAuto')
+
+    # Les faux : réglages en mémoire, appels réseau comptés
+    $script:ReglagesTest = @{}
+    function Get-Setting([string]$Nom, $Defaut = $null) { if ($script:ReglagesTest.ContainsKey($Nom)) { $script:ReglagesTest[$Nom] } else { $Defaut } }
+    function Write-Log([string]$Texte) {}
+    $script:AppelsReseau = New-Object Collections.Generic.List[string]
+    function Update-Publications { $script:AppelsReseau.Add('Update-Publications') }
+    function Start-VerifMajMindset { $script:AppelsReseau.Add('Start-VerifMajMindset') }
+    function Get-Publication { $script:AppelsReseau.Add('Get-Publication') }
+    function Start-InstallAppli($Appli) { $script:AppelsReseau.Add("Start-InstallAppli $($Appli.Id)") }
+    function Start-MajMindset { $script:AppelsReseau.Add('Start-MajMindset') }
+    function Test-TacheInstallation { $true }
+    function Get-EtatCarte($Appli) { @{ MajDispo = $true; Occupe = $null; Ouverte = $false; Pub = @{ Version = '9.9.9' } } }
+    if (-not ('MSActivite' -as [type])) {
+        Add-Type -TypeDefinition 'public static class MSActivite { public static bool PleinEcranDevant() { return false; } public static uint SecondesInactif() { return 3600; } }'
+    }
+    $ui = @{ ActualiserInfo = [pscustomobject]@{ Text = '' } }
+    $Applis = @([pscustomobject]@{ Id = 'appli'; Nom = 'Appli' })
+    $MindsetAdmin = $false; $EnTest = $false; $Window = [pscustomobject]@{ IsVisible = $true; WindowState = 'Normal' }
+    $sansReseau = $env:MINDSET_SANS_RESEAU; $env:MINDSET_SANS_RESEAU = $null
+    function Reset-EtatActualiser([hashtable]$Reglages, [bool]$Bienvenue = $false) {
+        $script:ReglagesTest = $Reglages; $script:AppelsReseau.Clear()
+        $script:DernieresPublications = [datetime]::MinValue; $script:VerifieA = $null; $script:AttenteBienvenue = $Bienvenue
+        $script:Occupe = @{}; $script:AttentesAdmin = New-Object Collections.ArrayList; $script:MajAuto = @{}; $script:MajAutoEssais = @{}
+        $script:MajAutoDerniere = [datetime]::MinValue; $script:MajMindset = $null; $script:PageCourante = 'accueil'
+        $ui.ActualiserInfo.Text = ''
+    }
+    try {
+        Test-Cas 'activé par défaut (aucun réglage enregistré)' { Reset-EtatActualiser @{}; Test-VerifVersionsActive }
+        Test-Cas 'activé : la recherche tout seul (démarrage, toutes les heures, retour) interroge GitHub' {
+            Reset-EtatActualiser @{}
+            Invoke-Actualiser
+            ($script:AppelsReseau -join ',') -eq 'Update-Publications,Start-VerifMajMindset'
+        }
+        Test-Cas 'coupé : la recherche tout seul ne lance aucun appel réseau, et l''accueil le dit' {
+            Reset-EtatActualiser @{ VerifVersions = $false }
+            Invoke-Actualiser; Invoke-Actualiser   # (démarrage, puis la minuterie de l'heure ou le retour depuis l'horloge)
+            Update-InfoActualiser
+            $script:AppelsReseau.Count -eq 0 -and $ui.ActualiserInfo.Text -eq 'Recherche automatique coupée'
+        }
+        Test-Cas 'coupé : « Actualiser » ou « Vérifier maintenant » (un clic) cherche quand même' {
+            Reset-EtatActualiser @{ VerifVersions = $false }
+            Invoke-Actualiser -Clic
+            ($script:AppelsReseau -join ',') -eq 'Update-Publications,Start-VerifMajMindset' -and $ui.ActualiserInfo.Text -like 'Vérifié à *(recherche automatique coupée)'
+        }
+        Test-Cas 'activé, mais bandeau d''installation pas encore répondu : rien ne part tout seul' {
+            Reset-EtatActualiser @{} $true
+            Invoke-Actualiser
+            $script:AppelsReseau.Count -eq 0
+        }
+        Test-Cas 'activé, mises à jour automatiques activées : une nouvelle version s''installe toute seule (le faux marche)' {
+            Reset-EtatActualiser @{ MajAuto = $true }
+            Invoke-MajAuto
+            ($script:AppelsReseau -join ',') -eq 'Start-InstallAppli appli'
+        }
+        Test-Cas 'coupé : les mises à jour automatiques ne tournent pas, même activées' {
+            Reset-EtatActualiser @{ VerifVersions = $false; MajAuto = $true }
+            Invoke-MajAuto
+            $script:MajMindset = @{ Version = '9.9.9' }; $Window.IsVisible = $false   # (et Mindset lui-même, caché)
+            $script:MajAutoDerniere = [datetime]::MinValue
+            Invoke-MajAuto
+            $Window.IsVisible = $true
+            $script:AppelsReseau.Count -eq 0
+        }
+    } finally { $env:MINDSET_SANS_RESEAU = $sansReseau }
+
+    # Qui appelle quoi : les fonctions qui vont sur GitHub ne sont appelées que d'endroits connus. Une recherche ajoutée
+    # ailleurs (une nouvelle minuterie, par exemple) passerait à côté du réglage : ce cas la signale.
+    function Get-Appelants([string]$Commande) {
+        $r = foreach ($k in $asts.Keys) {
+            foreach ($c in @($asts[$k].FindAll({ param($n) $n -is [System.Management.Automation.Language.CommandAst] -and $n.GetCommandName() -eq $Commande }, $true))) {
+                $p = $c.Parent; while ($p -and $p -isnot [System.Management.Automation.Language.FunctionDefinitionAst]) { $p = $p.Parent }
+                "$k`:$(if ($p) { $p.Name } else { '(hors fonction)' })"
+            }
+        }
+        @($r | Sort-Object -Unique)
+    }
+    $attendus = [ordered]@{
+        'Get-Publication'       = @('installations.ps1:Start-InstallAppli', 'installations.ps1:Update-Publications', 'mindset.ps1:Start-VerifMajMindset')
+        'Get-Octets'            = @('installations.ps1:Start-InstallAppli', 'mindset.ps1:Start-VerifMajMindset')
+        'Update-Publications'   = @('accueil.ps1:Invoke-Actualiser')
+        'Start-VerifMajMindset' = @('accueil.ps1:Invoke-Actualiser')
+    }
+    foreach ($cmd in $attendus.Keys) {
+        Test-Cas "$cmd n'est appelé que depuis $($attendus[$cmd] -join ', ')" {
+            $trouves = Get-Appelants $cmd
+            if (Compare-Object $trouves $attendus[$cmd]) { Write-Host "         appelé depuis : $($trouves -join ', ')" -ForegroundColor Yellow; return $false }
+            $true
+        }
+    }
+    # Start-InstallAppli : un geste de l'utilisateur (carte, console, confirmation) ou la mise à jour automatique (gardée
+    # par le réglage, voir plus haut)
+    Test-Cas 'Start-InstallAppli n''est appelé que par un geste de l''utilisateur ou Invoke-MajAuto' {
+        $trouves = Get-Appelants 'Start-InstallAppli'
+        $permis = @('accueil.ps1:Update-Carte', 'accueil.ps1:Confirm-MiseAJour', 'console.ps1:Receive-MessageConsole', 'mindset.ps1:Invoke-MajAuto')
+        $hors = @($trouves | Where-Object { $_ -notin $permis })
+        if ($hors.Count) { Write-Host "         aussi appelé depuis : $($hors -join ', ')" -ForegroundColor Yellow }
+        $hors.Count -eq 0
+    }
+
+    # =============================================================================================================
     Write-Partie 'Outils de clé (outils\cle.ps1 et outils\signer.ps1), dans une copie sous %TEMP%'
     # =============================================================================================================
     # Une copie des outils dans un faux dépôt, et APPDATA détourné vers le dossier de test (pour ce processus seulement) :

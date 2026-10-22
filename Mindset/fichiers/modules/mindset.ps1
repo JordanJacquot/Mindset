@@ -41,6 +41,7 @@ function Install-Mindset([string]$Disque) {
         if (-not $Ok) { $ui.BienvenueTexte.Text = "Installation impossible : $Message"; return }
         # Le dossier où Mindset a été installé, et « |sans-taches » si ses tâches planifiées n'ont pas pu être créées
         $dossier, $sansTaches = $Message -split '\|', 2
+        Copy-ReglageVerif $dossier
         $exe = Join-Path $dossier 'Mindset.exe'
         $sh = New-Object -ComObject WScript.Shell
         foreach ($l in $RaccourcisMindset) {
@@ -55,6 +56,21 @@ function Install-Mindset([string]$Disque) {
         $script:LancerApres = $exe
         Exit-Mindset
     }
+}
+
+# « Chercher les nouvelles versions » coupé dans le bandeau d'installation : le choix suit Mindset installé sur un autre
+# disque, où sont alors ses réglages (X:\Mindset\Donnees\Mindset). Activé, rien à faire : c'est la valeur par défaut.
+function Copy-ReglageVerif([string]$Dossier) {
+    if (Test-VerifVersionsActive) { return }
+    $f = Join-Path (Join-Path (Get-RacinesDepuis $Dossier).Donnees 'Mindset') 'reglages.json'
+    if ($f -ieq $SettingsFile) { return }
+    try {
+        $r = [ordered]@{}
+        if (Test-Path -LiteralPath $f) { $j = [IO.File]::ReadAllText($f, [Text.Encoding]::UTF8) | ConvertFrom-Json; foreach ($p in $j.PSObject.Properties) { $r[$p.Name] = $p.Value } }
+        $r['VerifVersions'] = $false
+        New-Item -ItemType Directory -Force -Path (Split-Path $f) | Out-Null
+        [IO.File]::WriteAllText($f, ($r | ConvertTo-Json -Depth 5), (New-Object Text.UTF8Encoding $false))
+    } catch { Write-Log "Réglage « Chercher les nouvelles versions » non repris dans $f : $_" }
 }
 
 # Désinstaller Mindset : par son désinstalleur autonome (Desinstaller Mindset.exe, à côté de Mindset.exe), qui retire
@@ -141,7 +157,8 @@ function Start-Demarrage {
 }
 
 # ---------------------------------------------------------------------------
-# Mise à jour de Mindset lui-même (au démarrage, puis toutes les 6 heures avec les applis) :
+# Mise à jour de Mindset lui-même (au démarrage, puis toutes les heures avec les applis, si « Chercher les nouvelles
+# versions » est activé ; sinon seulement avec « Actualiser » ou « Vérifier maintenant ») :
 # la nouvelle version est téléchargée et sa signature vérifiée en arrière-plan, puis un bandeau la propose.
 # Un clic : Mindset se ferme, installer-admin.ps1 (une demande de Windows) vérifie à nouveau et installe, puis le relance.
 # ---------------------------------------------------------------------------
@@ -246,6 +263,28 @@ $script:MajAutoEssais = @{}    # id -> @{ Version; Quand } (dernier essai)
 $script:MajAutoDerniere = [datetime]::MinValue
 function Test-MajAutoActive { [bool](Get-Setting 'MajAuto' $true) }
 
+# « Chercher les nouvelles versions » (réglage « VerifVersions », activé par défaut ; Paramètres, Mises à jour, et le
+# bandeau d'installation) : coupé, Mindset ne demande plus rien à GitHub de lui-même (ni au démarrage, ni toutes les
+# heures, ni en revenant de l'horloge), et les mises à jour automatiques ne tournent plus (elles en dépendent). Les
+# gestes de l'utilisateur restent possibles : « Actualiser », « Vérifier maintenant », installer, mettre à jour.
+function Test-VerifVersionsActive { [bool](Get-Setting 'VerifVersions' $true) }
+function Set-VerifVersions([bool]$Oui) {
+    Set-Setting 'VerifVersions' $Oui
+    Write-Log "Chercher les nouvelles versions tout seul : $(if ($Oui) { 'oui' } else { 'non' })"
+    if (Get-Command Update-InfoActualiser -ErrorAction SilentlyContinue) { Update-InfoActualiser }
+}
+
+# La page qui dit ce que Mindset (et chaque appli) envoie sur Internet, ouverte dans le navigateur. Seulement une adresse
+# connue : celle de Mindset, ou celle d'une appli de apps.json (vérifiée par applis.ps1).
+$PageConfidentialite = 'https://github.com/JordanJacquot/Mindset/blob/main/CODE_SIGNING.md'
+function Open-PageConfidentialite([string]$Id) {
+    $url = $PageConfidentialite
+    if ($Id) { $a = Get-Appli $Id; if ($a -and $a.Confidentialite) { $url = $a.Confidentialite } }
+    Write-Log "Page de confidentialité ouverte : $url"
+    if ($EnTest) { return }
+    try { Start-Process -FilePath $url } catch { Write-Log "Navigateur : $($_.Exception.Message)" }
+}
+
 function Test-MajAutoRecente([string]$Id, [string]$Version) {
     $d = $script:MajAutoEssais[$Id]
     $d -and $d.Version -eq $Version -and ((Get-Date) - $d.Quand).TotalHours -lt 6
@@ -253,7 +292,7 @@ function Test-MajAutoRecente([string]$Id, [string]$Version) {
 
 function Invoke-MajAuto {
     if ($EnTest -and -not $env:MINDSET_MAJAUTO_TEST) { return }
-    if (-not (Test-MajAutoActive) -or $MindsetAdmin -or -not (Test-TacheInstallation)) { return }
+    if (-not (Test-MajAutoActive) -or -not (Test-VerifVersionsActive) -or $MindsetAdmin -or -not (Test-TacheInstallation)) { return }
     if (((Get-Date) - $script:MajAutoDerniere).TotalSeconds -lt 30) { return }
     $script:MajAutoDerniere = Get-Date
     if ($script:Occupe.Count -or $script:AttentesAdmin.Count -or $script:MajAuto.Count) { return }

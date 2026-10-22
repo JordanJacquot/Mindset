@@ -114,6 +114,7 @@ function New-Text([string]$Text, [double]$Size = 14, [string]$Couleur = '#ECEAF7
 function Start-Capture([string]$Path) {
     $Window.WindowStartupLocation = 'Manual'
     $Window.Left = -10000; $Window.Top = 0; $Window.ShowActivated = $false
+    if ($env:MINDSET_CONSOLE_CAPTURE) { return }   # (capture de la console 3D, hors écran aussi : c'est elle qui enregistre et ferme Mindset)
     $Window.Add_ContentRendered({
         $script:CaptureTimer = New-Object System.Windows.Threading.DispatcherTimer
         $script:CaptureTimer.Interval = [TimeSpan]::FromMilliseconds(500)

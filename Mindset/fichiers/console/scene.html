@@ -22,6 +22,7 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: #07060D; col
 #voile b { font-size: 34px; }
 #voile span { font-size: 16px; color: rgba(255,255,255,0.8); max-width: 44ch; }
 #voileTexte { white-space: pre-line; }
+#voileReseau { margin: 0; font-size: 13px; line-height: 1.45; color: rgba(255,255,255,0.62); max-width: 62ch; }
 #voile .actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 10px; }
 #voile button { height: 46px; padding: 0 24px; border-radius: 23px; border: 0; font: inherit; font-size: 15px; font-weight: 700; cursor: pointer; }
 #voile .principal { background: #FFFFFF; color: #0A0812; }
@@ -162,6 +163,7 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: #07060D; col
 #reglagesGrand .bascule::after { content: ""; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: #CFCDE0; transition: transform 260ms cubic-bezier(.3, 1.4, .5, 1); }
 #reglagesGrand .bascule.oui { border-color: transparent; background: linear-gradient(90deg, var(--P), var(--S), var(--T), var(--P)) 0 0 / 300% 100%; animation: coule 3s linear infinite; box-shadow: 0 0 12px color-mix(in srgb, var(--S) 55%, transparent); }
 #reglagesGrand .bascule.oui::after { transform: translateX(22px); background: #fff; }
+#reglagesGrand .bascule:disabled { opacity: 0.35; cursor: not-allowed; }
 /* un choix en pilules, en cartes */
 #reglagesGrand .choix-p { display: inline-flex; gap: 6px; padding: 5px; border-radius: 99px; background: #100D26; border: 1px solid var(--ligne); flex-wrap: wrap; }
 #reglagesGrand .choix-p button { font-size: 14px; font-weight: 700; color: var(--doux); padding: 9px 16px; border-radius: 99px; }
@@ -238,6 +240,7 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: #07060D; col
   <div id="voile" role="dialog" aria-label="L'écran de la console"><img id="voileLogo" alt=""><b id="voileNom"></b><span id="voileTexte"></span>
     <div class="barre" id="voileBarre" hidden><img id="voileCharge" class="charge" alt="" draggable="false"><i><b></b></i><em></em></div>
     <div class="actions" id="voileActions"></div>
+    <p id="voileReseau" hidden></p>
     <div id="menuGrand" hidden><img id="mascotte" class="mascotte" alt="" draggable="false" hidden><div class="tete"><img id="menuLogo" alt=""><span>Mindset</span><span class="hh" id="menuHeure"></span></div>
       <div class="nomSel" id="menuNom"></div><div class="descSel" id="menuDesc"></div><div id="carrousel" role="listbox" aria-label="Tes applis"></div>
       <div class="bas"><span id="menuConsigne"></span><div class="aides"><button type="button" id="menuB"><i>B</i>Retour</button><button type="button" id="menuA"><i>A</i>OK</button></div></div></div>
@@ -640,14 +643,17 @@ function remplirEcran() {
   const m = a.maj, charge = m && m.etat !== 'dispo';
   let t, boutons = [], attente = false;
   if (charge) { t = a.installee ? `Mise à jour de ${a.nom}...` : `Installation de ${a.nom}...`; boutons = [['menu', 'Menu', 'second']]; }
-  else if (!a.installee) { t = `${a.desc ? `${a.desc}\n\n` : ''}${a.nom} n'est pas encore installée.`; boutons = [['installer', `Installer ${a.nom}`, 'principal'], ['menu', 'Retirer la cartouche', 'second']]; }
+  else if (!a.installee) { t = `${a.desc ? `${a.desc}\n\n` : ''}${a.nom} n'est pas encore installée.`; boutons = [['installer', `Installer ${a.nom}`, 'principal'], ['menu', 'Retirer la cartouche', 'second']]; if (a.reseau) boutons.push(['confidentialite', a.lien || 'Ce qui part sur Internet', 'second']); }
   else if (demandeOuverture[id]) { t = `Ouverture de ${a.nom}...`; attente = true; }
   else if (m) { t = `Une nouvelle version de ${a.nom} est prête.`; boutons = [['maj', 'Mettre à jour', 'maj'], ['ouvrir', 'Ouvrir sans mettre à jour', 'second'], ['menu', 'Menu', 'second']]; }
   else { t = `${a.nom} est prête.`; boutons = [['ouvrir', `Ouvrir ${a.nom}`, 'principal'], ['menu', 'Menu', 'second']]; }
-  const cleEcran = t + boutons.map((x) => x[0]).join();
+  // (pas encore installée : ce qui partira sur Internet, sous les boutons)
+  const reseau = !charge && !a.installee ? a.reseau : '', elReseau = document.getElementById('voileReseau');
+  const cleEcran = t + boutons.map((x) => x[0]).join() + reseau;
   if (actions.dataset.cle !== cleEcran) {
     texte.textContent = t; actions.dataset.cle = cleEcran;
-    actions.innerHTML = boutons.map(([f, txt, cls]) => `<button type="button" class="${cls}" data-f="${f}">${txt}</button>`).join('');
+    elReseau.textContent = reseau; elReseau.hidden = !reseau;
+    actions.innerHTML = boutons.map(([f, txt, cls]) => `<button type="button" class="${cls}" data-f="${f}">${esc(txt)}</button>`).join('');
     if (zoome) actions.querySelector('button')?.focus();
   }
   barre.hidden = !charge && !attente; barre.classList.toggle('ouverture', attente);
@@ -665,6 +671,7 @@ document.getElementById('voileActions').addEventListener('click', (e) => {
   if (b.dataset.f === 'menu') revenirAuMenu();
   if (b.dataset.f === 'installer') hote('action', { action: 'installer', id });
   if (b.dataset.f === 'maj') hote('action', { action: 'maj', id });
+  if (b.dataset.f === 'confidentialite') hote('action', { action: 'confidentialite', id });
   if (b.dataset.f === 'ouvrir') { pretes[id] = false; chargement[id] = 0; demandeOuverture[id] = true; hote('action', { action: 'ouvrir', id }); remplirEcran(); }
 });
 document.querySelectorAll('#ronds button').forEach((b) => b.addEventListener('click', () => { if (occupe || zoome) return; sons.ok(); if (b.dataset.r === 'parametres') ouvrirReglagesIci(); else hote('action', { action: b.dataset.r }); }));
@@ -692,7 +699,7 @@ const IC = {
   telecharger: '<path d="M12 3v12M7 10l5 5 5-5M5 21h14"/>',
 };
 const icone = (n) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[n]}</svg>`;
-const bascule = (k, quoi, oui, nom, id = '') => `<button type="button" class="bascule f${oui ? ' oui' : ''}" role="switch" aria-checked="${oui ? 'true' : 'false'}" aria-label="${esc(nom)}" data-k="${esc(k)}" data-a="${quoi}" data-v="${oui ? '0' : '1'}"${id ? ` data-id="${esc(id)}"` : ''}></button>`;
+const bascule = (k, quoi, oui, nom, id = '', grise = false) => `<button type="button" class="bascule f${oui ? ' oui' : ''}" role="switch" aria-checked="${oui ? 'true' : 'false'}" aria-label="${esc(nom)}" data-k="${esc(k)}" data-a="${quoi}" data-v="${oui ? '0' : '1'}"${id ? ` data-id="${esc(id)}"` : ''}${grise ? ' disabled' : ''}></button>`;
 const rang = (titre, note, droite) => `<div class="rang"><div class="txt"><b>${esc(titre)}</b>${note ? `<span class="n">${esc(note)}</span>` : ''}</div>${droite}</div>`;
 const titreBloc = (t) => `<div class="titre-bloc">${esc(t)}</div>`;
 const texte = (t) => `<p class="texte">${esc(t)}</p>`;
@@ -742,12 +749,14 @@ const PAGES = {
       + `<div class="boutons">${btn('sonActualiser', 'Actualiser la liste', 'second', 'actu')}</div>`];
   },
   maj(e) {
-    const m = e.maj || {}, mm = m.mindset || {};
+    const m = e.maj || {}, mm = m.mindset || {}, verif = m.verif !== false;
     const ligne = (nom, c, version, t, tn) => `<div class="plaque ligne"><span class="ic" style="--a:${hex(c, '#ECEAF7')}"><span class="l">${esc(String(nom).charAt(0).toUpperCase())}</span></span><span class="txt"><b style="color:${hex(c, '#ECEAF7')}">${esc(nom)}</b><span class="n">${esc(version)}</span></span><span class="etiquette ${ton(tn)}">${esc(t)}</span></div>`;
     return [`${grandeIc('actu')}<h3>Mindset ${esc(e.version)}</h3><p><span class="etiquette ${ton(mm.ton)}">${esc(mm.texte)}</span></p>`
       + `<div class="boutons-v">${btn('verifier', 'Vérifier maintenant', '', 'actu')}${m.prete ? btn('majMindset', `Installer Mindset ${m.prete}`, 'second', 'telecharger') : ''}</div>${info(m.info)}`,
-      titreBloc('Automatiques') + `<div class="reglages plaque">${rang('Mises à jour automatiques', 'Mindset installe tout seul les nouvelles versions : une appli fermée tout de suite, une appli qui tourne quand tu ne te sers pas du PC, et lui-même quand il est caché. Jamais pendant un jeu. Une notification te dit ce qui a changé.', bascule('majauto', 'majauto', m.auto !== false, 'Mises à jour automatiques'))}</div>`
-      + titreBloc('Versions') + texte('Mindset cherche les nouvelles versions au démarrage puis toutes les heures. Elles sont signées : une version qui ne l\'est pas n\'est jamais installée.')
+      titreBloc('Automatiques') + `<div class="reglages plaque">${rang('Chercher les nouvelles versions', 'Mindset demande à GitHub, au démarrage puis toutes les heures, s\'il existe une nouvelle version de lui-même et de tes applis. Rien d\'autre n\'est envoyé. Coupé, il ne cherche que quand tu cliques sur « Vérifier maintenant ».', bascule('verif', 'verif', verif, 'Chercher les nouvelles versions'))}`
+      + `${rang('Mises à jour automatiques', verif ? 'Mindset installe tout seul les nouvelles versions : une appli fermée tout de suite, une appli qui tourne quand tu ne te sers pas du PC, et lui-même quand il est caché. Jamais pendant un jeu. Une notification te dit ce qui a changé.' : 'Elles ne peuvent pas tourner tant que « Chercher les nouvelles versions » est coupé : Mindset ne sait pas qu\'une nouvelle version existe. Tu peux toujours mettre à jour toi-même.', bascule('majauto', 'majauto', verif && m.auto !== false, 'Mises à jour automatiques', '', !verif))}</div>`
+      + `<div class="boutons">${btn('confidentialite', 'Ce qui part sur Internet', 'second')}</div>`
+      + titreBloc('Versions') + texte(verif ? 'Mindset cherche les nouvelles versions au démarrage puis toutes les heures. Elles sont signées : une version qui ne l\'est pas n\'est jamais installée.' : 'Mindset ne cherche plus les nouvelles versions tout seul : clique sur « Vérifier maintenant » quand tu veux. Elles sont signées : une version qui ne l\'est pas n\'est jamais installée.')
       + ligne('Mindset', '#ECEAF7', `version ${e.version}`, mm.texte, mm.ton) + (m.applis || []).map((a) => ligne(a.nom, a.couleur, a.version, a.texte, a.ton)).join('')];
   },
   dossiers(e) {
@@ -832,9 +841,9 @@ elReg.addEventListener('click', (ev) => {
     return;
   }
   sons.ok();
-  if (a === 'reduire' || a === 'windows' || a === 'demarrage' || a === 'majauto') {
+  if (a === 'reduire' || a === 'windows' || a === 'demarrage' || a === 'majauto' || a === 'verif') {
     const oui = v === '1';
-    if (e) { if (a === 'majauto') e.maj.auto = oui; else if (a === 'reduire') e.general.reduire = oui; else if (a === 'windows') e.general.windows = oui; else { const x = e.general.applis.find((p) => p.id === el.dataset.id); if (x) x.oui = oui; } remplirReglages(); }
+    if (e) { if (a === 'majauto') e.maj.auto = oui; else if (a === 'verif') e.maj.verif = oui; else if (a === 'reduire') e.general.reduire = oui; else if (a === 'windows') e.general.windows = oui; else { const x = e.general.applis.find((p) => p.id === el.dataset.id); if (x) x.oui = oui; } remplirReglages(); }
     hote('reglage', { quoi: a, valeur: oui, id: el.dataset.id || '' }); return;
   }
   if (e && a === 'fermeture') { e.general.fermeture = v; remplirReglages(); }
@@ -936,7 +945,7 @@ function etat(e) {
   for (const a of e.applis) {
     if (typeof a.id !== 'string' || !/^[a-z0-9-]{1,30}$/.test(a.id)) continue;
     nouvelles[a.id] = { nom: String(a.nom || a.id).slice(0, 30), c: /^#[0-9A-Fa-f]{6}$/.test(a.c1) ? a.c1 : '#00E5FF',
-      desc: String(a.desc || '').slice(0, 300), installee: !!a.installee, etat: ['ferme', 'ouvert', 'fond'].includes(a.etat) ? a.etat : 'ferme',
+      desc: String(a.desc || '').slice(0, 300), reseau: String(a.reseau || '').slice(0, 500), lien: String(a.lien || '').slice(0, 60), installee: !!a.installee, etat: ['ferme', 'ouvert', 'fond'].includes(a.etat) ? a.etat : 'ferme',
       maj: a.maj && ['dispo', 'telechargement', 'installation'].includes(a.maj.etat) ? { etat: a.maj.etat, progres: Number(a.maj.progres) || 0 } : null };
   }
   const avant = APPLIS; APPLIS = nouvelles; TUILES = e.applis.map((a) => a.id).filter((id) => APPLIS[id]);

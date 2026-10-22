@@ -265,6 +265,10 @@
                 <TextBlock Text="Installer Mindset sur ce PC" FontSize="16" FontWeight="SemiBold"/>
                 <TextBlock x:Name="BienvenueTexte" TextWrapping="Wrap" Foreground="#A9A3C9" Margin="0,4,0,0"
                            Text="Mindset s'installe avec ses applis et leurs données sur le disque choisi, crée son raccourci sur le Bureau et dans le menu Démarrer, et se lance avec Windows. Tu pourras ensuite supprimer le dossier téléchargé."/>
+                <!-- Ce qui part sur Internet, dit avant l'installation, et le choix de le couper (réglage « VerifVersions ») -->
+                <TextBlock Text="Ce qui part sur Internet" FontWeight="SemiBold" FontSize="13" Margin="0,12,0,4"/>
+                <TextBlock x:Name="BienvenueReseau" TextWrapping="Wrap" Foreground="#A9A3C9">Mindset vérifie sur GitHub s'il existe une nouvelle version de lui-même et de tes applis. Rien d'autre n'est envoyé. Tu peux couper cette vérification ici, ou plus tard dans les Paramètres. <Hyperlink x:Name="LienReseauBienvenue" Foreground="#ECEAF7" Cursor="Hand">En savoir plus</Hyperlink></TextBlock>
+                <CheckBox x:Name="BienvenueVerif" IsChecked="True" Content="Chercher les nouvelles versions" Foreground="#ECEAF7" Margin="0,6,0,0"/>
                 <TextBlock Text="Où installer Mindset et ses applis ?" FontWeight="SemiBold" FontSize="13" Margin="0,12,0,4"/>
                 <StackPanel x:Name="ChoixDisques"/>
               </StackPanel>
@@ -403,8 +407,11 @@
                 <!-- Mises à jour -->
                 <StackPanel x:Name="PanMaj" Visibility="Collapsed">
                   <TextBlock Text="Versions" FontSize="17" FontWeight="SemiBold" Margin="0,0,0,4"/>
-                  <TextBlock TextWrapping="Wrap" Foreground="{StaticResource Texte2}" Margin="0,0,0,12"
-                             Text="Mindset cherche les nouvelles versions au démarrage puis toutes les 6 heures. Elles sont signées : une version qui ne l'est pas n'est jamais installée."/>
+                  <TextBlock x:Name="MajTexteVersions" TextWrapping="Wrap" Foreground="{StaticResource Texte2}" Margin="0,0,0,12"
+                             Text="Mindset cherche les nouvelles versions au démarrage puis toutes les heures. Elles sont signées : une version qui ne l'est pas n'est jamais installée."/>
+                  <CheckBox x:Name="VerifVersions" Content="Chercher les nouvelles versions (sur GitHub, au démarrage puis toutes les heures)" Foreground="#ECEAF7" Margin="0,0,0,8"/>
+                  <CheckBox x:Name="MajAuto" Content="Mises à jour automatiques (les nouvelles versions s'installent toutes seules, jamais pendant un jeu)" Foreground="#ECEAF7" Margin="0,0,0,4"/>
+                  <TextBlock x:Name="MajAutoNote" TextWrapping="Wrap" Foreground="{StaticResource Texte3}" FontSize="12" Margin="0,0,0,12"/>
                   <StackPanel x:Name="ListeVersions"/>
                   <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
                     <Button x:Name="BtnVerifierMaj" Content="Vérifier maintenant" Style="{StaticResource BtnPrimary}"/>

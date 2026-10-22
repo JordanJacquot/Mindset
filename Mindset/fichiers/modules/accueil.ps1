@@ -365,6 +365,8 @@ function Update-Carte($Appli) {
         else { [void]$actions.Children.Add((New-Action 'Prendre en charge' 'BtnSecondary' $Appli.Id { $a = Get-Appli $this.Tag; Confirm-PriseEnCharge $a (Get-Installation $a).Dossier })) }
     }
     if ($actions.Children.Count) { [void]$sp.Children.Add($actions) }
+    # Pas encore installée : ce qui partira sur Internet, avant le clic
+    if (-not $e.Inst -and -not $e.Occupe) { [void]$sp.Children.Add((New-PhraseReseau $Appli)) }
 
     # « S'ouvre avec Mindset » : l'appli démarre en arrière-plan à l'ouverture de Mindset (et donc avec Windows)
     if ($e.Inst -and $e.Inst.Gere -and -not $e.Occupe -and (-not (Test-AppliAdmin $Appli $e.Inst) -or $MindsetAdmin)) {
@@ -411,6 +413,27 @@ function Update-Trouvees {
 }
 
 # ---------------------------------------------------------------------------
+# Ce qui part sur Internet quand Mindset installe une appli (sa carte, l'écran de la console, la prise en charge),
+# avec le lien vers sa page de confidentialité (ou celle de Mindset)
+# ---------------------------------------------------------------------------
+function Get-PhraseReseauAppli($Appli) {
+    $t = "$($Appli.Nom) se télécharge depuis GitHub. Ensuite, Mindset vérifie sur GitHub s'il en existe une nouvelle version. Rien d'autre n'est envoyé par Mindset, et tu peux couper cette vérification dans les Paramètres."
+    if ($Appli.Confidentialite) { $t += " Ce que $($Appli.Nom) envoie lui-même sur Internet est expliqué sur sa page." }
+    $t
+}
+function Get-LienReseauAppli($Appli) { if ($Appli.Confidentialite) { "La page de $($Appli.Nom)" } else { 'Ce qui part sur Internet' } }
+
+function New-PhraseReseau($Appli) {
+    $t = New-Text (Get-PhraseReseauAppli $Appli) 11.5 '#6F6894'; $t.TextWrapping = 'Wrap'; $t.Margin = '0,12,0,0'
+    $l = New-Object System.Windows.Documents.Hyperlink
+    [void]$l.Inlines.Add((Get-LienReseauAppli $Appli))
+    $l.Tag = $Appli.Id; $l.Foreground = Get-Brush '#A9A3C9'; $l.Cursor = 'Hand'
+    $l.Add_Click({ Open-PageConfidentialite $this.Tag })
+    [void]$t.Inlines.Add(' '); [void]$t.Inlines.Add($l)
+    $t
+}
+
+# ---------------------------------------------------------------------------
 # Confirmations
 # ---------------------------------------------------------------------------
 function Confirm-MiseAJour($Appli) {
@@ -428,6 +451,7 @@ function Confirm-PriseEnCharge($Appli, [string]$Dossier) {
     $txt += if (Test-DossierTravail $Dossier) { "`n`n$Dossier est un dossier de travail : il est gardé tel quel." }
             else { "`n`nL'ancienne copie ($Dossier) est ensuite supprimée (seulement les fichiers de $($Appli.Nom))." }
     if (Test-AppliOuverte $Appli) { $txt += " $($Appli.Nom) va être fermé pendant l'opération." }
+    $txt += "`n`n$(Get-PhraseReseauAppli $Appli)"
     Show-Confirmation "Prendre en charge $($Appli.Nom) ?" $txt 'Prendre en charge' ([scriptblock]::Create("Start-InstallAppli (Get-Appli '$($Appli.Id)') '$($Dossier -replace "'", "''")'"))
 }
 
@@ -460,21 +484,36 @@ Show-Page $(if ($EnTest -and $env:MINDSET_PAGE) { $env:MINDSET_PAGE } else { 'ac
 # l'horloge (si la dernière fois date de plus de 15 minutes), et avec « Actualiser » sur l'accueil. Les bandeaux et les
 # cartes se mettent à jour d'eux-mêmes quand les réponses arrivent : plus besoin de fermer Mindset pour les voir.
 # GitHub accepte 60 questions par heure : une recherche en pose une par appli, plus une pour Mindset.
+# Tout seul, seulement si « Chercher les nouvelles versions » est activé (mindset.ps1, Test-VerifVersionsActive), et pas
+# tant que le bandeau d'installation de Mindset (qui présente ce réglage) est affiché. Un clic (-Clic) : toujours.
+# C'est le seul chemin vers GitHub qui ne vient pas d'un geste de l'utilisateur (outils\tester-securite.ps1 le vérifie).
 # ---------------------------------------------------------------------------
 $script:DernieresPublications = [datetime]::MinValue
+$script:VerifieA = $null
+# Mindset lancé depuis le dossier téléchargé : le bandeau d'installation s'affiche (parametres.ps1)
+$script:AttenteBienvenue = ((-not (Test-MindsetInstalle) -and -not (Test-MindsetDeveloppement) -and -not $EnTest) -or ($EnTest -and [bool]$env:MINDSET_BIENVENUE))
+function Update-InfoActualiser {
+    $auto = Test-VerifVersionsActive
+    $ui.ActualiserInfo.Text = if ($script:VerifieA) { "Vérifié à $($script:VerifieA.ToString('HH:mm'))$(if (-not $auto) { ' (recherche automatique coupée)' })" }
+                              elseif (-not $auto) { 'Recherche automatique coupée' } else { '' }
+}
 function Invoke-Actualiser([switch]$Clic) {
     if ($env:MINDSET_SANS_RESEAU) { return }
+    if (-not $Clic -and (-not (Test-VerifVersionsActive) -or $script:AttenteBienvenue)) { return }
     if ($Clic -and ((Get-Date) - $script:DernieresPublications).TotalSeconds -lt 20) { return }   # (clics répétés)
     $script:DernieresPublications = Get-Date
     Update-Publications
     Start-VerifMajMindset
-    $ui.ActualiserInfo.Text = "Vérifié à $((Get-Date).ToString('HH:mm'))"
+    $script:VerifieA = Get-Date
+    Update-InfoActualiser
     if ($Clic) { Write-Log 'Actualiser : recherche des nouvelles versions' }
 }
 $ui.BtnActualiser.Add_Click({ Invoke-Actualiser -Clic })
+Update-InfoActualiser
 Invoke-Actualiser
 
-# État des applis relu toutes les 2 secondes ; versions publiées toutes les heures ; thème de la suite surveillé
+# État des applis relu toutes les 2 secondes ; versions publiées toutes les heures (si la recherche est activée :
+# Invoke-Actualiser) ; mises à jour automatiques (seulement si la recherche l'est aussi) ; thème de la suite surveillé
 $script:EtatTimer = New-Object System.Windows.Threading.DispatcherTimer
 $script:EtatTimer.Interval = [TimeSpan]::FromSeconds(2)
 $script:EtatTimer.Add_Tick({

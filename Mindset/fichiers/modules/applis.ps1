@@ -24,6 +24,10 @@ function Get-Applis {
         # dessiné au trait épais comme les lettres de Nevermind et d'Evermind. Mal formé : ignoré, la lettre reste.
         $logo = if ([string]$a.logo -match '^[ML0-9., ]{3,240}$' -and [string]$a.logo -match '^M') { [string]$a.logo } else { '' }
         if ($a.logo -and -not $logo) { Write-Log "apps.json : logo de $($a.id) ignoré (tracé non compris)" }
+        # Sa page de confidentialité (ce que l'appli envoie sur Internet), montrée avant de l'installer : seulement une page
+        # du compte GitHub de la suite, sinon ignorée (la phrase renvoie alors à celle de Mindset)
+        $confidentialite = if ([string]$a.confidentialite -cmatch '^https://github\.com/JordanJacquot/[\w.-]+/blob/main/[\w.-]+\.md$') { [string]$a.confidentialite } else { '' }
+        if ($a.confidentialite -and -not $confidentialite) { Write-Log "apps.json : page de confidentialité de $($a.id) ignorée (adresse non acceptée)" }
         $epaisseur = 0.0
         if (-not [double]::TryParse([string]$a.logo_epaisseur, [Globalization.NumberStyles]::Float, [Globalization.CultureInfo]::InvariantCulture, [ref]$epaisseur) -or $epaisseur -lt 4 -or $epaisseur -gt 25) { $epaisseur = 12.0 }
         [pscustomobject]@{
@@ -47,6 +51,7 @@ function Get-Applis {
             Aide            = [string]$a.aide       # tâche planifiée de sa partie administrateur (« \Mindset\<aide> »)
             AideExe         = [string]$a.aide_exe   # le programme qu'elle lance, à côté de l'exe de l'appli
             CacheDepuis     = [string]$a.cache_depuis   # version à partir de laquelle l'appli lancée cachée se dessine une fois affichée dans Mindset
+            Confidentialite = $confidentialite   # page qui dit ce que l'appli envoie sur Internet (ou rien)
             Logo            = $logo        # tracé du logo (grille de 100), sinon sa première lettre
             LogoEpaisseur   = $epaisseur / 100
         }

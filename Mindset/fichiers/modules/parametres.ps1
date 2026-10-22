@@ -174,7 +174,12 @@ $ui.BtnDossierDonnees.Add_Click({ Open-DossierDonnees })
 $ui.BtnDesinstallerMindset.Add_Click({ Confirm-DesinstallMindset })
 
 # Bandeau de bienvenue : Mindset lancé depuis le dossier téléchargé (pas installé, pas un dossier de travail)
-$ui.Bienvenue.Visibility = if ((-not (Test-MindsetInstalle) -and -not (Test-MindsetDeveloppement) -and -not $EnTest) -or ($EnTest -and $env:MINDSET_BIENVENUE)) { 'Visible' } else { 'Collapsed' }
+$ui.Bienvenue.Visibility = if ($script:AttenteBienvenue) { 'Visible' } else { 'Collapsed' }   # (accueil.ps1)
+# Ce qui part sur Internet : la recherche des nouvelles versions, qu'on peut couper ici avant d'installer. Tant que le
+# bandeau est là, Mindset ne la lance pas tout seul (accueil.ps1, Invoke-Actualiser).
+$ui.BienvenueVerif.IsChecked = Test-VerifVersionsActive
+$ui.BienvenueVerif.Add_Click({ Set-VerifVersions ([bool]$this.IsChecked); Update-ReglagesMaj })
+$ui.LienReseauBienvenue.Add_Click({ Open-PageConfidentialite '' })
 # Un bouton radio par disque : celui de l'installation existante (réinstallation), sinon C:
 $disques = @(Get-DisquesInstallation)
 $coche = if ($disques | Where-Object { $_.Lettre -eq $Racines.Disque }) { $Racines.Disque } else { '' }
@@ -189,7 +194,7 @@ $ui.BtnInstallerMindset.Add_Click({
     $choix = @($ui.ChoixDisques.Children | Where-Object { $_.IsChecked }) | Select-Object -First 1
     Install-Mindset $(if ($choix) { [string]$choix.Tag } else { '' })
 })
-$ui.BtnBienvenuePlusTard.Add_Click({ $ui.Bienvenue.Visibility = 'Collapsed' })
+$ui.BtnBienvenuePlusTard.Add_Click({ $ui.Bienvenue.Visibility = 'Collapsed'; $script:AttenteBienvenue = $false })
 
 # Mise à jour de Mindset (mindset.ps1) : le bandeau de l'accueil
 $ui.BtnMajMindset.Add_Click({ Start-MajMindset })
@@ -210,7 +215,7 @@ function Show-OngletParametres([string]$Id) {
     foreach ($k in $PanneauxParametres.Keys) { $ui[$PanneauxParametres[$k]].Visibility = if ($k -eq $Id) { 'Visible' } else { 'Collapsed' } }
     if ($Id -eq 'general') { Update-DemarragesParametres }
     if ($Id -eq 'son') { Update-ChoixSon }
-    if ($Id -eq 'maj') { Update-ListeVersions }
+    if ($Id -eq 'maj') { Update-ListeVersions; Update-ReglagesMaj }
 }
 foreach ($k in $OngletsParametres.Keys) {
     $b = New-Button $OngletsParametres[$k] 'BtnSecondary'
@@ -283,7 +288,8 @@ function New-LigneVersion([string]$Nom, [string]$Couleur, [string]$Installee, [s
 
 function Update-ListeVersions {
     $ui.ListeVersions.Children.Clear()
-    $etatMindset = if ($script:MajMindset) { @("$($script:MajMindset.Version) prête : voir l'accueil", '#FFB020') } elseif ($script:MajMindsetEnCours) { @('recherche...', '#A6A1BC') } else { @('à jour', '#3DDC84') }
+    $etatMindset = if ($script:MajMindset) { @("$($script:MajMindset.Version) prête : voir l'accueil", '#FFB020') } elseif ($script:MajMindsetEnCours) { @('recherche...', '#A6A1BC') }
+                   elseif (-not (Test-VerifVersionsActive) -and -not $script:VerifieA) { @('pas encore vérifié', '#A6A1BC') } else { @('à jour', '#3DDC84') }
     [void]$ui.ListeVersions.Children.Add((New-LigneVersion 'Mindset' '#ECEAF7' "version $AppVersion" $etatMindset[0] $etatMindset[1]))
     foreach ($a in $Applis) {
         $i = Get-Installation $a; $p = $script:Publications[$a.Id]
@@ -301,6 +307,22 @@ function Invoke-VerifierMaj {
     $t.Add_Tick({ $this.Stop(); if ($script:OngletParametres -eq 'maj') { Update-ListeVersions } }); $t.Start()
 }
 $ui.BtnVerifierMaj.Add_Click({ Invoke-VerifierMaj })
+
+# « Chercher les nouvelles versions » et « Mises à jour automatiques » (cette page, sans la console) : coupée, la
+# recherche emporte les mises à jour automatiques, dont l'interrupteur est grisé et expliqué
+function Update-ReglagesMaj {
+    $verif = Test-VerifVersionsActive
+    $ui.VerifVersions.IsChecked = $verif
+    $ui.MajAuto.IsChecked = $verif -and (Test-MajAutoActive)
+    $ui.MajAuto.IsEnabled = $verif
+    $ui.MajAutoNote.Text = if ($verif) { '' } else { 'Les mises à jour automatiques ne peuvent pas tourner tant que la recherche des nouvelles versions est coupée.' }
+    $ui.MajTexteVersions.Text = if ($verif) { 'Mindset cherche les nouvelles versions au démarrage puis toutes les heures. Elles sont signées : une version qui ne l''est pas n''est jamais installée.' }
+                                else { 'Mindset ne cherche plus les nouvelles versions tout seul : clique sur « Vérifier maintenant » quand tu veux. Elles sont signées : une version qui ne l''est pas n''est jamais installée.' }
+    $ui.BienvenueVerif.IsChecked = $verif
+}
+$ui.VerifVersions.Add_Click({ Set-VerifVersions ([bool]$this.IsChecked); Update-ReglagesMaj })
+$ui.MajAuto.Add_Click({ Set-Setting 'MajAuto' ([bool]$this.IsChecked); Write-Log "Mises à jour automatiques : $(if ([bool]$this.IsChecked) { 'oui' } else { 'non' })" })
+Update-ReglagesMaj
 
 # ---------------------------------------------------------------------------
 # Une appli demande d'ouvrir un onglet des Paramètres (« Ouvrir les réglages de Mindset ») : elle écrit
@@ -410,7 +432,9 @@ function Get-EtatParametres {
     if ($null -eq $script:ThemesConsole) { $script:ThemesConsole = @(Get-ThemesConsole) }
     if ($null -eq $script:AppareilsConsole) { Update-AppareilsConsole }
     $son = Get-SuiteSon
-    $etatMindset = if ($script:MajMindset) { @("$($script:MajMindset.Version) prête", 'attention') } elseif ($script:MajMindsetEnCours) { @('recherche...', '') } else { @('à jour', 'ok') }
+    $verif = Test-VerifVersionsActive
+    $etatMindset = if ($script:MajMindset) { @("$($script:MajMindset.Version) prête", 'attention') } elseif ($script:MajMindsetEnCours) { @('recherche...', '') }
+                   elseif (-not $verif -and -not $script:VerifieA) { @('pas encore vérifié', '') } else { @('à jour', 'ok') }
     $etat = [ordered]@{
         version = $AppVersion
         general = [ordered]@{
@@ -424,7 +448,7 @@ function Get-EtatParametres {
         }
         son = [ordered]@{ micros = @(Get-ChoixSonConsole $script:AppareilsConsole.micro ([string]$son.Micro)); casques = @(Get-ChoixSonConsole $script:AppareilsConsole.casque ([string]$son.Casque)) }
         maj = [ordered]@{
-            auto = [bool](Test-MajAutoActive)
+            auto = [bool](Test-MajAutoActive); verif = [bool]$verif
             mindset = [ordered]@{ texte = $etatMindset[0]; ton = $etatMindset[1] }; prete = $(if ($script:MajMindset) { [string]$script:MajMindset.Version } else { '' }); info = [string]$ui.MajInfo.Text
             applis = @(foreach ($a in $Applis) {
                 $i = Get-Installation $a; $p = $script:Publications[$a.Id]
@@ -453,7 +477,9 @@ function Invoke-ReglageConsole($M) {
         'reduire'     { Set-Setting 'ReduireHorloge' ([bool]$v); $ui.ReduireHorloge.IsChecked = [bool]$v }
         'fermeture'   { if ([string]$v -in 'demander', 'reduire', 'quitter') { Set-Setting 'Fermeture' ([string]$v); Update-ReglageFermeture } }
         'windows'     { Set-LancerAvecWindows ([bool]$v) }
-        'majauto'     { Set-Setting 'MajAuto' ([bool]$v); Write-Log "Mises à jour automatiques : $(if ([bool]$v) { 'oui' } else { 'non' })" }
+        'majauto'     { Set-Setting 'MajAuto' ([bool]$v); Write-Log "Mises à jour automatiques : $(if ([bool]$v) { 'oui' } else { 'non' })"; Update-ReglagesMaj }
+        'verif'       { Set-VerifVersions ([bool]$v); Update-ReglagesMaj }
+        'confidentialite' { Open-PageConfidentialite '' }
         'demarrage'   {
             $a = Get-ApplisDemarrage | Where-Object { $_.Id -eq [string]$M.id } | Select-Object -First 1
             if ($a) { Set-DemarrageAppli $a.Id ([bool]$v); foreach ($x in $script:Interrupteurs) { if ($x.Tag -eq $a.Id) { $x.IsChecked = [bool]$v } } }

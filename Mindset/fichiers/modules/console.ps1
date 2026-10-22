@@ -228,6 +228,8 @@ function Update-PageConsole {
         if (-not $script:Console.Vue) {
             $script:Console.AJouer = $js   # (joué quand la scène est prête)
             New-VueConsole $(if ($depuis) { 'dedans' } else { 'menu' })
+        } elseif (-not $script:Console.Pret) {
+            if ($js) { $script:Console.AJouer = $js }   # (la scène se charge encore : joué quand elle sera prête, sinon perdu)
         } else {
             Invoke-ScriptConsole 'window.mindset.reprendre()'
             if ($js) { Invoke-ScriptConsole $js }
@@ -258,6 +260,7 @@ function Get-EtatConsole {
                } elseif ($e.MajDispo) { [ordered]@{ etat = 'dispo'; progres = 0 } } else { $null }
         [ordered]@{ id = $a.Id; nom = $a.Nom; c1 = (ConvertTo-ThemeHex $a.Couleur); c2 = (ConvertTo-ThemeHex '#B04BFF'); logo = $logo; installee = [bool]$e.Inst
             desc = $(if ($a.Presentation) { $a.Presentation } else { $a.Description })
+            reseau = $(if (-not $e.Inst) { Get-PhraseReseauAppli $a } else { '' }); lien = $(if (-not $e.Inst) { Get-LienReseauAppli $a } else { '' })   # (avant de l'installer : ce qui part sur Internet)
             etat = $(if ($e.Ouverte) { 'fond' } else { 'ferme' }); maj = $maj }
     }
     ConvertTo-Json -InputObject ([ordered]@{ applis = @($liste) }) -Depth 5 -Compress
@@ -333,6 +336,7 @@ function Receive-MessageConsole([string]$Json) {
         }
         'installer'  { if ($a -and -not (Get-Installation $a)) { if ($script:Trouvees[$a.Id]) { Confirm-PriseEnCharge $a } else { Start-InstallAppli $a } } }
         'maj'        { if ($a) { Confirm-MiseAJour $a } }
+        'confidentialite' { if ($a) { Open-PageConfidentialite $a.Id } }   # (la page de l'appli, ou celle de Mindset)
         'fermer'     { if ($a) { Stop-AppliConsole $a } }
         'parametres' { $script:OngletParametres = 'general'; Show-Page 'parametres' }   # (tuile du menu en grand ou bouton rond : dans l'écran)
         'parametresFermes' { $script:Console.Parametres = $false }   # (retour au menu en grand, sur la tuile Paramètres)

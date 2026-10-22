@@ -9,7 +9,8 @@
 Add-Type -AssemblyName System.Windows.Forms
 
 function Show-Fenetre {
-    # Rouvert depuis l'horloge après un moment : les nouvelles versions sont cherchées tout de suite (accueil.ps1)
+    # Rouvert depuis l'horloge après un moment : les nouvelles versions sont cherchées tout de suite (accueil.ps1), si
+    # « Chercher les nouvelles versions » est activé (sinon Invoke-Actualiser ne fait rien)
     if (-not $Window.IsVisible -and ((Get-Date) - $script:DernieresPublications).TotalMinutes -ge 15 -and (Get-Command Invoke-Actualiser -ErrorAction SilentlyContinue)) { Invoke-Actualiser }
     $Window.ShowInTaskbar = $true
     $Window.Show()
