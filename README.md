@@ -71,3 +71,7 @@ Ajouter une appli à la suite : une entrée de plus dans `apps.json` (id, nom, c
 mutex, dossier de données, besoin des droits administrateur).
 
 Les réglages et le journal sont dans `%LOCALAPPDATA%\Mindset`.
+
+## Licence
+
+Mindset est sous licence MIT (voir le fichier `LICENSE`) : tu peux lire, réutiliser, modifier et redistribuer le code, en gardant la mention de licence. Les composants d'autres auteurs gardent leur propre licence : WebView2 (Microsoft) et Three.js (MIT), avec leurs fichiers de licence dans le dossier de l'appli.
