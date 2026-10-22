@@ -104,6 +104,17 @@ function Get-VersionDossier([string]$Dossier) {
 #   Seul le contenu du dossier principal du zip (« OptiGame\... », « Evermind\... ») est extrait, et tout chemin qui
 #   sortirait du dossier d'arrivée est refusé.
 #   Le nouveau dossier est préparé à côté puis échangé avec l'ancien : une erreur en route laisse l'ancien intact.
+# Renomme un dossier d'un seul bloc, en réessayant pendant 3 secondes : un programme qui vient de se fermer (la 3D de
+# Mindset) ou l'antivirus qui analyse un exe tout juste extrait garde ses fichiers ouverts un court moment. (Un seul bloc :
+# un fichier ouvert fait échouer le renommage sans rien déplacer ; Move-Item, lui, déplaçait déjà une partie des fichiers
+# avant d'échouer, et l'appli installée restait incomplète.)
+function Move-DossierEssais([string]$De, [string]$Vers) {
+    for ($n = 0; $n -lt 6; $n++) {
+        try { [IO.Directory]::Move($De, $Vers); return $true } catch { Start-Sleep -Milliseconds 500 }
+    }
+    $false
+}
+
 function Install-Paquet([byte[]]$Zip, [byte[]]$Signature, [string]$ClePublique, [string]$Destination, [string]$DossierZip, [string]$Exe) {
     if (-not (Test-Signature $Zip $Signature $ClePublique)) { throw 'La signature du fichier téléchargé est invalide : rien n''a été installé.' }
     Add-Type -AssemblyName System.IO.Compression, System.IO.Compression.FileSystem
@@ -152,20 +163,19 @@ function Install-Paquet([byte[]]$Zip, [byte[]]$Signature, [string]$ClePublique, 
     if (Test-Path -LiteralPath $Destination) {
         $ancien = "$Destination.ancien-$suffixe"
         # (quelques essais : un programme qui vient de se fermer, comme la 3D de Mindset, lâche ses fichiers un peu après)
-        $deplace = $false
-        for ($n = 0; $n -lt 6 -and -not $deplace; $n++) {
-            # (un renommage d'un seul bloc : un fichier ouvert le fait échouer sans rien déplacer ; Move-Item, lui, déplaçait déjà
-            # une partie des fichiers avant d'échouer, et l'appli installée restait incomplète)
-            try { [IO.Directory]::Move($Destination, $ancien); $deplace = $true } catch { Start-Sleep -Milliseconds 500 }
-        }
-        if (-not $deplace) {
+        if (-not (Move-DossierEssais $Destination $ancien)) {
             try { Remove-Item -LiteralPath $tmp -Recurse -Force } catch {}
             throw 'L''appli est encore ouverte (ses fichiers sont utilisés) : ferme-la puis réessaie.'
         }
-        [IO.Directory]::Move($tmp, $Destination)
+        if (-not (Move-DossierEssais $tmp $Destination)) {
+            [IO.Directory]::Move($ancien, $Destination)   # on remet l'ancienne version telle quelle
+            try { Remove-Item -LiteralPath $tmp -Recurse -Force } catch {}
+            throw 'La nouvelle version n''a pas pu être mise en place (fichiers bloqués) : réessaie dans un moment.'
+        }
         try { Remove-Item -LiteralPath $ancien -Recurse -Force -ErrorAction Stop } catch {}   # sinon, nettoyé la prochaine fois
-    } else {
-        Move-Item -LiteralPath $tmp -Destination $Destination
+    } elseif (-not (Move-DossierEssais $tmp $Destination)) {
+        try { Remove-Item -LiteralPath $tmp -Recurse -Force } catch {}
+        throw 'L''appli n''a pas pu être mise en place (fichiers bloqués) : réessaie dans un moment.'
     }
     $Destination
 }
