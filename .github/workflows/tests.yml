@@ -20,7 +20,15 @@ jobs:
       - name: Analyse du code (PSScriptAnalyzer, erreurs seulement)
         run: |
           $ErrorActionPreference = 'Stop'
-          Install-Module PSScriptAnalyzer -Force -Scope CurrentUser
+          [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+          if (-not (Get-Module -ListAvailable PSScriptAnalyzer)) {
+            Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force -Scope CurrentUser | Out-Null
+            # (la galerie PowerShell répond parfois mal : jusqu'à 3 essais)
+            for ($n = 1; $n -le 3; $n++) {
+              try { Install-Module PSScriptAnalyzer -Repository PSGallery -Force -Scope CurrentUser; break }
+              catch { if ($n -eq 3) { throw }; Start-Sleep -Seconds 15 }
+            }
+          }
           $erreurs = @(Invoke-ScriptAnalyzer -Path Mindset -Recurse -Severity Error)
           $erreurs | Format-Table -AutoSize RuleName, ScriptName, Line, Message | Out-String -Width 300 | Write-Host
           if ($erreurs.Count) { Write-Host "$($erreurs.Count) erreur(s) trouvée(s) par PSScriptAnalyzer."; exit 1 }
