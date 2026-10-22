@@ -58,6 +58,16 @@ function Select-ThemeSuite([string]$Cle) {
     Restart-Mindset
 }
 
+# Les thèmes supprimés dont un dossier était encore pris (une appli ouverte s'en servait) : retirés maintenant, puis
+# une dernière fois 30 secondes plus tard (le temps que les applis relancées sur le nouveau thème les lâchent)
+Clear-PacksARetirer
+if (@(Get-PacksARetirer).Count) {
+    $script:PacksARetirerTimer = New-Object System.Windows.Threading.DispatcherTimer
+    $script:PacksARetirerTimer.Interval = [TimeSpan]::FromSeconds(30)
+    $script:PacksARetirerTimer.Add_Tick({ $this.Stop(); Clear-PacksARetirer })
+    $script:PacksARetirerTimer.Start()
+}
+
 # Les 5 thèmes de base, puis les thèmes personnalisés importés
 function Update-ChoixThemes {
     $ui.Themes.Children.Clear()
@@ -82,10 +92,44 @@ function Import-ThemeSuite {
         $id = Import-PackSuite $f
         Update-ChoixThemes
         $script:ThemesConsole = $null   # (la liste des thèmes de l'écran de la console est refaite)
-        $ui.ThemeInfo.Text = "« $((Get-ThemePack $id).Name) » est importé pour Mindset et toutes ses applis : clique dessus pour le choisir."
+        $script:ImagesThemesConsole.Remove($id)   # (et l'image de sa carte, si c'est une nouvelle version)
+        $nom = (Get-ThemePack $id).Name
+        # Déjà installé : la nouvelle version remplace l'ancienne. Si c'est le thème actuel, rien n'est relancé : Mindset
+        # et les applis ouvertes gardent l'ancienne version chargée jusqu'à leur prochaine ouverture.
+        $ui.ThemeInfo.Text = if (-not $script:PackRemplace) { "Thème « $nom » ajouté pour Mindset et toutes ses applis : clique dessus pour le choisir." }
+            elseif ((Read-Suite).theme -eq "pack:$id") { "Thème « $nom » mis à jour : la nouvelle version remplace l'ancienne. C'est le thème actuel : Mindset et les applis ouvertes la prendront à leur prochaine ouverture." }
+            else { "Thème « $nom » mis à jour : la nouvelle version remplace l'ancienne." }
     } catch { $ui.ThemeInfo.Text = "Ce thème n'a pas pu être importé : $($_.Exception.Message)" }
 }
 $ui.BtnImporterTheme.Add_Click({ Import-ThemeSuite })
+
+# Supprimer un thème perso (bouton « Supprimer » de sa ligne, dans l'écran de la console) : après la question, il est
+# retiré de Mindset et de toutes les applis. Le thème actuel : la suite repasse d'abord sur Néon (suite.json, comme un
+# changement de thème : les applis ouvertes se relancent avec lui), et Mindset se relance.
+function Confirm-SuppressionTheme([string]$Id) {
+    $pk = Get-ThemePacks | Where-Object { $_.Id -ceq $Id } | Select-Object -First 1
+    if (-not $pk) { return }
+    $actuel = (Read-Suite).theme -eq "pack:$Id"
+    $script:ThemeASupprimer = $Id
+    Show-Confirmation "Supprimer le thème « $($pk.Name) » ?" ("Il sera retiré de Mindset et de toutes les applis." + $(if ($actuel) { " C'est le thème actuel : la suite repasse d'abord sur le thème $($AppThemes['neon'].Name), et Mindset se relance." } else { '' })) 'Supprimer' {
+        $id = $script:ThemeASupprimer; $script:ThemeASupprimer = $null
+        if ($id) { Remove-ThemeSuite $id }
+    }
+}
+function Remove-ThemeSuite([string]$Id) {
+    $pk = Get-ThemePacks | Where-Object { $_.Id -ceq $Id } | Select-Object -First 1
+    if (-not $pk) { return }
+    if ($script:Occupe.Count) { $ui.ThemeInfo.Text = 'Une installation est en cours : réessaie quand elle sera finie.'; return }
+    $actuel = (Read-Suite).theme -eq "pack:$Id"
+    if ($actuel) { Set-SuiteTheme 'neon' }   # (d'abord : plus aucune appli ne le cherche)
+    $ok = Remove-PackSuite $Id
+    $script:ImagesThemesConsole.Remove($Id); $script:ThemesConsole = $null
+    Update-ChoixThemes
+    $ui.ThemeInfo.Text = "Thème « $($pk.Name) » supprimé de Mindset et de toutes les applis." + $(if ($actuel) { " La suite repasse sur le thème $($AppThemes['neon'].Name)." } else { '' }) +
+        $(if (-not $ok) { ' Une appli ouverte s''en sert encore : il finira d''être retiré au prochain démarrage de Mindset.' } else { '' })
+    if ($actuel -and -not $EnTest) { Restart-Mindset; return }
+    if (Get-Command Send-ParametresConsole -ErrorAction SilentlyContinue) { Send-ParametresConsole -Force; Send-ImagesThemesConsole }
+}
 
 # Démarrage avec Windows : le même interrupteur « S'ouvre avec Mindset » que sur les cartes de l'accueil, pour chaque
 # appli que Mindset peut ouvrir (une version qui demande encore les droits administrateur : non). Refait à chaque
@@ -414,6 +458,7 @@ function Invoke-ReglageConsole($M) {
         }
         'theme'       { if ($script:ThemesConsole | Where-Object { $_.cle -eq [string]$v }) { Select-ThemeSuite ([string]$v) } }
         'importer'    { Import-ThemeSuite; Send-ImagesThemesConsole }
+        'supprimerTheme' { if ([string]$v -cmatch '^pack:([a-z0-9-]{1,40})$') { Confirm-SuppressionTheme $Matches[1] } }   # (seulement un thème perso installé : vérifié là)
         'animations'  {
             if ([string]$v -notin 'completes', 'express', 'aucune') { return }
             Set-ReglageAnimations ([string]$v)

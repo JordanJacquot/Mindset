@@ -175,6 +175,10 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: #07060D; col
 #reglagesGrand .theme img { max-height: 34px; max-width: 52px; }
 #reglagesGrand .theme b { font-size: 14.5px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 #reglagesGrand .theme small { color: var(--P); font-weight: 700; font-size: 12.5px; }
+/* les thèmes perso installés : une ligne chacun, avec son bouton Supprimer */
+#reglagesGrand .ligne .ic img { max-width: 32px; max-height: 32px; }
+#reglagesGrand .ligne .btn { height: 38px; padding: 0 16px; font-size: 14px; flex: none; }
+#reglagesGrand .ligne .btn:hover, #reglagesGrand .ligne .btn:focus { color: var(--rouge); border-color: var(--rouge); }
 /* une ligne (appareil, version) */
 #reglagesGrand .ligne { display: flex; align-items: center; gap: 14px; width: 100%; box-sizing: border-box; min-height: 58px; padding: 9px 16px; margin-bottom: 8px; text-align: left; }
 #reglagesGrand .ligne .txt { flex: 1; min-width: 0; } #reglagesGrand .ligne .txt b { display: block; font-size: 15.5px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -713,12 +717,16 @@ const PAGES = {
     const p = e.apparence || {}, themes = p.themes || [], act = themes.find((t) => t.cle === p.actuel);
     const cartes = themes.map((t) => { const oui = t.cle === p.actuel;
       return `<button type="button" class="plaque f theme${oui ? ' oui' : ''}" role="radio" aria-checked="${oui}" data-k="t:${esc(t.cle)}" data-a="theme" data-v="${esc(t.cle)}" title="${esc(t.desc || t.nom)}" style="--fondT:${hex(t.fond, '#0C0920')}"><span class="haut-t"><span class="pts">${pts(t)}</span>${imgTheme(t)}</span><b>${esc(t.nom)}${oui ? ' <small>(actuel)</small>' : ''}</b></button>`; }).join('');
+    const persos = themes.filter((t) => String(t.cle).startsWith('pack:'));
+    const lignesPerso = persos.map((t) => { const oui = t.cle === p.actuel;
+      return `<div class="plaque ligne"><span class="ic" style="background:${hex(t.fond, '#0C0920')}">${imgTheme(t) || `<span class="l">${esc(String(t.nom).charAt(0).toUpperCase())}</span>`}</span><span class="txt"><b>${esc(t.nom)}</b><span class="n">${oui ? 'Le thème actuel : la suite repassera sur Néon' : 'Installé pour Mindset et toutes ses applis'}</span></span><button type="button" class="btn f second" data-k="s:${esc(t.cle)}" data-a="supprimerTheme" data-v="${esc(t.cle)}" aria-label="Supprimer le thème ${esc(t.nom)}">${icone('poubelle')}Supprimer</button></div>`; }).join('');
     const anims = [['completes', 'Complètes', 'La console et toutes ses animations'], ['express', 'Express', 'La console, avec des animations plus rapides'], ['aucune', 'Aucune', 'L\'accueil classique, sans 3D']];
     return [`${act ? `<div class="apercu" style="--fondT:${hex(act.fond, '#0C0920')}"><span class="pts">${pts(act)}</span>${imgTheme(act)}</div>` : grandeIc('reglages')}<h3>${esc(act ? act.nom : 'Thème')}</h3><p>Le thème de la suite : le même pour Mindset et toutes ses applis.</p>`,
       titreBloc('Thème de la suite') + texte('Le même pour Mindset et toutes ses applis : le changer ici relance chaque appli ouverte avec ce thème.')
       + `<div class="themes" role="radiogroup">${cartes}</div>${info(p.info)}`
       + `<div class="boutons">${btn('importer', 'Importer un thème (.zip)', 'second', 'importer')}</div>`
-      + '<p class="note">Un thème personnalisé de la suite (images, police, personnage) s\'installe pour Mindset et toutes ses applis. Il reste sur ce PC.</p>'
+      + '<p class="note">Un thème personnalisé de la suite (images, police, personnage) s\'installe pour Mindset et toutes ses applis. Il reste sur ce PC. Importer à nouveau un thème déjà installé le met à jour.</p>'
+      + (persos.length ? titreBloc('Thèmes perso installés') + texte('Supprimer un thème le retire de Mindset et de toutes les applis. Une question te le fera confirmer.') + lignesPerso : '')
       + titreBloc('Animations') + texte('L\'accueil de Mindset est une console en 3D : chaque appli est une cartouche qu\'on y insère.')
       + `<div class="cartes-choix" role="radiogroup">${anims.map(([v, t, n]) => `<button type="button" class="plaque f carte-choix${p.animations === v ? ' oui' : ''}" role="radio" aria-checked="${p.animations === v}" data-k="a:${v}" data-a="animations" data-v="${v}"><b>${t}</b><span>${n}</span></button>`).join('')}</div>${info(p.animInfo)}`];
   },

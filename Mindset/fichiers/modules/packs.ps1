@@ -101,7 +101,8 @@ function Get-ThemePack([string]$Id) {
 
 function Get-ThemePacks {
     if (-not (Test-Path -LiteralPath $PacksDir)) { return @() }
-    @(Get-ChildItem -LiteralPath $PacksDir -Directory | ForEach-Object { Get-ThemePack $_.Name } | Where-Object { $_ })
+    $aRetirer = @(Get-PacksARetirer)   # (un thème supprimé dont un dossier était encore pris n'est plus proposé)
+    @(Get-ChildItem -LiteralPath $PacksDir -Directory | Where-Object { $aRetirer -notcontains $_.Name } | ForEach-Object { Get-ThemePack $_.Name } | Where-Object { $_ })
 }
 
 # Le format d'une image d'après ses premiers octets : png, jpeg, gif, webp, ou rien
@@ -126,6 +127,8 @@ function Import-PackSuite([string]$Zip) {
     Add-Type -AssemblyName System.IO.Compression.FileSystem
     $id = (([IO.Path]::GetFileNameWithoutExtension($Zip) -replace '^(?i)th[eè]me-', '').Normalize([Text.NormalizationForm]::FormD) -replace '\p{Mn}', '' -replace '[^\w\-]', '-').ToLower().Trim('-')
     if ($id -notmatch '^[a-z0-9-]{1,40}$') { throw 'Le nom de ce fichier ne convient pas pour un thème (lettres, chiffres et tirets).' }
+    # Un thème déjà installé sous ce nom est remplacé par la nouvelle version (dit ensuite dans la page : « mis à jour »)
+    $script:PackRemplace = [bool](Get-ThemePack $id) -and (@(Get-PacksARetirer) -notcontains $id)
     $za = [IO.Compression.ZipFile]::OpenRead($Zip)
     try {
         $entrees = @($za.Entries | Where-Object { $_.Name })
@@ -144,6 +147,8 @@ function Import-PackSuite([string]$Zip) {
             if ($e.Name -match '\.(png|jpe?g|gif|webp)$' -and -not (Get-FormatImagePack (Read-DebutEntree $e))) { throw "Ce fichier du thème n'est pas une image : $($e.Name)" }
         }
         $installes = @()
+        # Réimporté après une suppression pas finie : ce qui restait de l'ancien est retiré d'abord, et il n'est plus à retirer
+        if (@(Get-PacksARetirer) -contains $id) { [void](Remove-DossiersPack $id); Set-PacksARetirer @(Get-PacksARetirer | Where-Object { $_ -ne $id }) }
         $fichiers = Get-PackAppliFichiers
         foreach ($appli in $fichiers.Keys) {
             $reglage = $entrees | Where-Object { $_.Name -eq $fichiers[$appli] } | Select-Object -First 1
@@ -163,8 +168,67 @@ function Import-PackSuite([string]$Zip) {
         }
     } finally { $za.Dispose() }
     if (-not (Get-ThemePack $id)) { throw 'Le réglage de ce thème pour Mindset (pack-mindset.json) est illisible.' }
-    Write-Log "Thème de la suite importé : $id ($($installes -join ', '))"
+    Write-Log "Thème de la suite $(if ($script:PackRemplace) { 'mis à jour' } else { 'importé' }) : $id ($($installes -join ', '))"
     $id
+}
+
+# ---------------------------------------------------------------------------
+# Supprimer un thème de la suite : son dossier là où Import-PackSuite l'a installé (<données>\Mindset\packs\<id> et
+# <données>\<Appli>\packs\<id> pour chaque appli de apps.json), et rien d'autre. Un dossier encore pris (une appli
+# ouverte qui s'en sert) est noté dans packs-a-retirer.txt : Mindset le retire à son prochain démarrage.
+# ---------------------------------------------------------------------------
+$FichierPacksARetirer = Join-Path $DataDir 'packs-a-retirer.txt'
+function Get-PacksARetirer {
+    if (-not (Test-Path -LiteralPath $FichierPacksARetirer)) { return @() }
+    try { @([IO.File]::ReadAllLines($FichierPacksARetirer) | ForEach-Object { $_.Trim() } | Where-Object { $_ -cmatch '^[a-z0-9-]{1,40}$' } | Select-Object -Unique) } catch { @() }
+}
+function Set-PacksARetirer($Ids) {
+    $l = @($Ids | Where-Object { $_ -cmatch '^[a-z0-9-]{1,40}$' } | Select-Object -Unique)
+    try {
+        if ($l.Count) { [IO.File]::WriteAllLines($FichierPacksARetirer, [string[]]$l) }
+        elseif (Test-Path -LiteralPath $FichierPacksARetirer) { Remove-Item -LiteralPath $FichierPacksARetirer -Force }
+    } catch { Write-Log "Liste des thèmes à retirer : $_" }
+}
+
+# Les dossiers d'un pack, chacun vérifié : juste sous le dossier « packs » de Mindset ou d'une appli de apps.json
+function Get-DossiersPackSuite([string]$Id) {
+    if ($Id -cnotmatch '^[a-z0-9-]{1,40}$') { return @() }
+    $fichiers = Get-PackAppliFichiers
+    @(foreach ($appli in $fichiers.Keys) {
+        $racine = if ($appli -eq 'Mindset') { $PacksDir } else { Join-Path $SuiteDir "$appli\packs" }
+        try { $r = [IO.Path]::GetFullPath($racine).TrimEnd([char]92) + [char]92; $d = [IO.Path]::GetFullPath((Join-Path $racine $Id)) } catch { continue }
+        if ((Split-Path $racine -Leaf) -eq 'packs' -and $d.StartsWith($r, [StringComparison]::OrdinalIgnoreCase) -and $d.Substring($r.Length) -ceq $Id) { $d }
+    })
+}
+
+# Retire les dossiers du pack (et un import interrompu, « <id>.nouveau ») : $true si tout est parti
+function Remove-DossiersPack([string]$Id) {
+    $tout = $true
+    foreach ($d in Get-DossiersPackSuite $Id) {
+        foreach ($x in $d, "$d.nouveau") {
+            if (-not (Test-Path -LiteralPath $x)) { continue }
+            try { Remove-Item -LiteralPath $x -Recurse -Force -ErrorAction Stop; Write-Log "Thème $Id retiré : $x" }
+            catch { $tout = $false; Write-Log "Thème $Id : $x pas encore retiré ($($_.Exception.Message))" }
+        }
+    }
+    $tout
+}
+
+function Remove-PackSuite([string]$Id) {
+    if ($Id -cnotmatch '^[a-z0-9-]{1,40}$') { return $false }
+    $ok = Remove-DossiersPack $Id
+    $l = @(Get-PacksARetirer | Where-Object { $_ -ne $Id })
+    if (-not $ok) { $l += $Id }
+    Set-PacksARetirer $l
+    Write-Log "Thème de la suite supprimé : $Id$(if (-not $ok) { ' (des dossiers encore pris, retirés plus tard)' })"
+    $ok
+}
+
+# Au démarrage (une fois apps.json lu) : les thèmes supprimés dont un dossier était encore pris
+function Clear-PacksARetirer {
+    $l = @(Get-PacksARetirer)
+    if (-not $l.Count) { return }
+    Set-PacksARetirer @($l | Where-Object { -not (Remove-DossiersPack $_) })
 }
 
 # ---------------------------------------------------------------------------
