@@ -1,0 +1,33 @@
+name: Tests
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: powershell
+    steps:
+      - name: Récupérer le dépôt
+        uses: actions/checkout@v4
+
+      - name: Analyse du code (PSScriptAnalyzer, erreurs seulement)
+        run: |
+          $ErrorActionPreference = 'Stop'
+          Install-Module PSScriptAnalyzer -Force -Scope CurrentUser
+          $erreurs = @(Invoke-ScriptAnalyzer -Path Mindset -Recurse -Severity Error)
+          $erreurs | Format-Table -AutoSize RuleName, ScriptName, Line, Message | Out-String -Width 300 | Write-Host
+          if ($erreurs.Count) { Write-Host "$($erreurs.Count) erreur(s) trouvée(s) par PSScriptAnalyzer."; exit 1 }
+          Write-Host 'Aucune erreur.'
+
+      - name: Vérifications (syntaxe, fenêtre, tirets, encodage, licence)
+        run: .\outils\verifier.ps1
+
+      - name: Tests de sécurité (signature, installation des zips, dossiers acceptés)
+        run: .\outils\tester-securite.ps1

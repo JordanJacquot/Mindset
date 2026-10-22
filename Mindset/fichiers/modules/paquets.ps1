@@ -154,13 +154,15 @@ function Install-Paquet([byte[]]$Zip, [byte[]]$Signature, [string]$ClePublique, 
         # (quelques essais : un programme qui vient de se fermer, comme la 3D de Mindset, lâche ses fichiers un peu après)
         $deplace = $false
         for ($n = 0; $n -lt 6 -and -not $deplace; $n++) {
-            try { Move-Item -LiteralPath $Destination -Destination $ancien -ErrorAction Stop; $deplace = $true } catch { Start-Sleep -Milliseconds 500 }
+            # (un renommage d'un seul bloc : un fichier ouvert le fait échouer sans rien déplacer ; Move-Item, lui, déplaçait déjà
+            # une partie des fichiers avant d'échouer, et l'appli installée restait incomplète)
+            try { [IO.Directory]::Move($Destination, $ancien); $deplace = $true } catch { Start-Sleep -Milliseconds 500 }
         }
         if (-not $deplace) {
             try { Remove-Item -LiteralPath $tmp -Recurse -Force } catch {}
             throw 'L''appli est encore ouverte (ses fichiers sont utilisés) : ferme-la puis réessaie.'
         }
-        Move-Item -LiteralPath $tmp -Destination $Destination
+        [IO.Directory]::Move($tmp, $Destination)
         try { Remove-Item -LiteralPath $ancien -Recurse -Force -ErrorAction Stop } catch {}   # sinon, nettoyé la prochaine fois
     } else {
         Move-Item -LiteralPath $tmp -Destination $Destination
