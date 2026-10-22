@@ -20,7 +20,9 @@
 #   Font, FontScope   police : sur les titres (« titres ») ou partout (« tout ») ; FontPixel false : police lisse
 #   Console           (facultatif) les images de la nouvelle interface, la console de Mindset et l'accueil de Nevermind :
 #                     { Tuiles { pc, perf... = image }, Mascotte, Chargement { File, Effet « tourne » ou « aucun » },
-#                       Fond, FondOpacite }. Sans Fond : Background et BackgroundOpacity. Un pack sans ce bloc reste valable.
+#                       Fond, FondOpacite, Logo }. Sans Fond : Background et BackgroundOpacity. Un pack sans ce bloc reste valable.
+#                     Logo : le logo de la nouvelle interface (PNG, WebP, GIF, animé possible), à la place de Logo, qui reste
+#                     l'image fixe des fenêtres.
 #                     Mindset s'en sert dans sa console (console.ps1) : fond de l'écran en grand, mascotte du menu,
 #                     image de chargement à l'ouverture d'une appli, logo, couleurs et police du pack.
 # Chargé par Mindset.ps1 avant themes.ps1 (qui choisit le thème) ; les visuels sont posés après la fenêtre.
@@ -80,7 +82,8 @@ function Get-ThemePack([string]$Id) {
         $op = $null
         if ($fond -and $null -ne $c.FondOpacite) { try { $op = [math]::Min(1.0, [math]::Max(0.05, [double]$c.FondOpacite)) } catch {} }
         if (-not $fond -and $p.Background) { $fond = $p.Background; $op = $p.BackgroundOpacity }
-        $p.Console = @{ Tuiles = $tuiles; Mascotte = (& $image $c.Mascotte 'png|webp|gif|jpe?g'); Chargement = $ch; Fond = $fond; FondOpacite = $(if ($null -ne $op) { $op } else { 0.35 }) }
+        $p.Console = @{ Tuiles = $tuiles; Mascotte = (& $image $c.Mascotte 'png|webp|gif|jpe?g'); Chargement = $ch; Fond = $fond; FondOpacite = $(if ($null -ne $op) { $op } else { 0.35 })
+            Logo = (& $image $c.Logo 'png|webp|gif') }
     }
     # Couleurs propres au pack : un thème « pack-<id> » ajouté à la liste (jamais proposé comme thème de base)
     if ($j.Colors -and $j.Colors.P -and $j.Colors.S -and $j.Colors.T -and $AppThemes) {

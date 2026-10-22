@@ -203,7 +203,7 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: #07060D; col
 @media (prefers-reduced-motion: reduce) { #voile .roue { animation-duration: 3s; } }
 /* Un thème perso avec un bloc « Console » (Mindset l'envoie : paramètre « theme ») : son fond sous l'écran en grand, sa
    mascotte dans un coin du menu en grand (elle flotte si elle est fixe ; une image opaque devient une vignette arrondie),
-   son image de chargement à côté de la barre d'ouverture d'une appli (« tourne » : sur elle-même, avec une lueur aux
+   son image de chargement, petite et centrée au-dessus de la barre d'ouverture d'une appli (« tourne » : sur elle-même, avec une lueur aux
    couleurs du thème), sa police sur les titres. Les tuiles restent les logos des applis, les icônes des boutons restent
    les mêmes : seules leurs couleurs suivent le thème (paramètre « couleurs »). Pas de personnage qui marche en bas. */
 #voile.avecFond { isolation: isolate; }
@@ -213,8 +213,7 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: #07060D; col
 #voile #menuGrand img.mascotte.flotte { animation: flotte 4.5s ease-in-out infinite; }
 #voile #menuGrand img.mascotte.vignette { border-radius: 22px; border: 2px solid color-mix(in srgb, #00E5FF 55%, transparent); box-shadow: 0 0 22px color-mix(in srgb, #B04BFF 45%, transparent), 0 12px 24px rgba(0,0,0,0.5); filter: none; }
 #voile .barre img.charge { display: none; }
-#voile .barre.avecImage.ouverture:not([hidden]) { display: grid; grid-template-columns: auto 1fr; column-gap: 20px; align-items: center; width: min(520px, 78%); text-align: left; }
-#voile .barre.avecImage.ouverture img.charge { display: block; grid-row: span 2; width: 84px; height: 84px; object-fit: contain; }
+#voile .barre.avecImage.ouverture img.charge { display: block; width: 64px; height: 64px; margin: 6px auto 16px; object-fit: contain; }
 #voile .barre.avecImage.ouverture img.charge.tourne { animation: tourneY 2.6s linear infinite; filter: drop-shadow(0 0 8px #00E5FF) drop-shadow(0 0 18px color-mix(in srgb, #B04BFF 70%, transparent)); }
 @keyframes tourneY { from { transform: perspective(500px) rotateY(0deg); } to { transform: perspective(500px) rotateY(360deg); } }
 .policeTheme #menuGrand .tete span:not(.hh), .policeTheme #menuGrand .nomSel, .policeTheme #voileNom, .policeTheme #reglagesGrand h1, .policeTheme #reglagesGrand .module h3 { font-family: "PoliceTheme", "Segoe UI Variable Display", "Segoe UI", sans-serif; }
@@ -292,6 +291,26 @@ function chargerLogo(id, url) {
   im.src = url;
 }
 chargerLogo('mindset', 'logos/mindset.png');
+// Un logo animé du thème perso (WebP, GIF) : un canvas n'en dessine que la première image, alors l'écran de la console
+// reçoit ses images une à une (décodées une fois) ; logosAnimes[id]() pose l'image du moment et rend le canvas à dessiner
+const logosAnimes = {};
+async function animerLogo(id, url) {
+  if (!('ImageDecoder' in window)) return;
+  try {
+    const r = await fetch(url), type = (r.headers.get('Content-Type') || '').split(';')[0];
+    if (!/^image\/(webp|gif|png)$/.test(type) || !(await ImageDecoder.isTypeSupported(type))) return;
+    const dec = new ImageDecoder({ data: await r.arrayBuffer(), type });
+    await dec.tracks.ready;
+    const n = dec.tracks.selectedTrack?.frameCount || 1;
+    if (n < 2 || n > 120) { dec.close(); return; }
+    const images = [], durees = [];
+    for (let i = 0; i < n; i++) { const { image } = await dec.decode({ frameIndex: i }); images.push(await createImageBitmap(image)); durees.push(Math.max(30, (image.duration || 100000) / 1000)); image.close(); }
+    dec.close();
+    const c = document.createElement('canvas'), k = c.getContext('2d'), total = durees.reduce((a, b) => a + b, 0);
+    c.width = images[0].width; c.height = images[0].height;
+    logosAnimes[id] = () => { let t = performance.now() % total, i = 0; while (i < n - 1 && t >= durees[i]) t -= durees[i++]; k.clearRect(0, 0, c.width, c.height); k.drawImage(images[i], 0, 0); return c; };
+  } catch (e) {}
+}
 
 // ---------------------------------------------------------------- petits sons de console (après le premier clic)
 const son = { ctx: null, bip(f, d, v, type = 'triangle', f2) { if (!this.ctx) return; try { const t = this.ctx.currentTime, o = this.ctx.createOscillator(), g = this.ctx.createGain(); o.type = type; o.frequency.setValueAtTime(f, t); if (f2) o.frequency.exponentialRampToValueAtTime(f2, t + d); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(v, t + 0.006); g.gain.exponentialRampToValueAtTime(0.0001, t + d); o.connect(g).connect(this.ctx.destination); o.start(t); o.stop(t + d + 0.02); } catch (e) {} } };
@@ -340,7 +359,8 @@ function dessinerEcran(t) {
     if (logos[enFente]) ex.drawImage(logos[enFente], 402, 130, 220, 220);
     ex.fillStyle = C('#FFFFFF'); ex.font = `800 60px ${POLICE}`; ex.textAlign = 'center'; ex.textBaseline = 'alphabetic'; ex.fillText(a.nom, 512, 440); ex.globalAlpha = 1; return;
   }
-  if (logos.mindset) { const L = logos.mindset, k = Math.min(64 / (L.naturalWidth || 64), 64 / (L.naturalHeight || 64)), w = (L.naturalWidth || 64) * k, h = (L.naturalHeight || 64) * k; ex.drawImage(L, 52 + (64 - w) / 2, 34 + (64 - h) / 2, w, h); }
+  const L = logosAnimes.mindset?.() || logos.mindset;
+  if (L) { const lw = L.naturalWidth || L.width || 64, lh = L.naturalHeight || L.height || 64, k = Math.min(64 / lw, 64 / lh), w = lw * k, h = lh * k; ex.drawImage(L, 52 + (64 - w) / 2, 34 + (64 - h) / 2, w, h); }
   ex.textBaseline = 'middle'; ex.textAlign = 'left'; ex.fillStyle = C('#FFFFFF'); ex.font = `700 40px ${POLICE}`; ex.fillText('Mindset', 130, 67);
   ex.textAlign = 'right'; ex.fillStyle = C('#C9C4DD'); ex.font = `600 40px ${POLICE}`; ex.fillText(new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }), 972, 67);
   const n = Math.max(1, TUILES.length), s = Math.min(220, Math.floor((900 - (n - 1) * 36) / n)), ecart = n > 1 ? Math.min(50, (900 - n * s) / (n - 1)) : 0, x0 = 512 - (n * s + (n - 1) * ecart) / 2;
@@ -962,7 +982,7 @@ function appliquerTheme() {
   if (masc) { elM.crossOrigin = 'anonymous'; elM.onload = () => { elM.classList.toggle('flotte', !THEME.mascotteAnimee); elM.classList.toggle('vignette', opaque(elM)); elM.hidden = false; }; elM.src = masc; }
   const ch = urlTheme(THEME.chargement);
   if (ch) { const im = document.getElementById('voileCharge'); im.src = ch; im.classList.toggle('tourne', THEME.effet === 'tourne'); document.getElementById('voileBarre').classList.add('avecImage'); }
-  const logo = urlTheme(THEME.logo); if (logo) chargerLogo('mindset', logo);
+  const logo = urlTheme(THEME.logo); if (logo) { chargerLogo('mindset', logo); animerLogo('mindset', logo); }
   const pol = urlTheme(THEME.police);
   if (pol) { try { new FontFace('PoliceTheme', `url("${pol}")`).load().then((f) => { document.fonts.add(f); document.body.classList.add('policeTheme'); }).catch(() => {}); } catch (e) {} }
 }

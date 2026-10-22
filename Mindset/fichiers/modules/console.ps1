@@ -124,7 +124,8 @@ function Get-ThemeConsole {
         fond = (& $url $c.Fond); opacite = [double]$c.FondOpacite
         mascotte = (& $url $c.Mascotte); mascotteAnimee = (Test-ImageAnimee $c.Mascotte)
         chargement = $(if ($c.Chargement) { & $url $c.Chargement.File } else { '' }); effet = $(if ($c.Chargement) { [string]$c.Chargement.Effet } else { '' })
-        logo = $(if ($ThemePack.Logo -and $ThemePack.LogoFrames -le 1) { & $url $ThemePack.Logo } else { '' })   # (une planche animée : le logo de Mindset reste)
+        # Console.Logo (animé possible) avant Logo ; une planche animée : le logo de Mindset reste
+        logo = $(if ($c.Logo) { & $url $c.Logo } elseif ($ThemePack.Logo -and $ThemePack.LogoFrames -le 1) { & $url $ThemePack.Logo } else { '' })
         police = $(if ($ThemePack.Font) { & $url $ThemePack.Font } else { '' })
     }
     $t | ConvertTo-Json -Compress
