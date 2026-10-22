@@ -21,6 +21,7 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: #07060D; col
 #voile img { width: 120px; height: 120px; }
 #voile b { font-size: 34px; }
 #voile span { font-size: 16px; color: rgba(255,255,255,0.8); max-width: 44ch; }
+#voileTexte { white-space: pre-line; }
 #voile .actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 10px; }
 #voile button { height: 46px; padding: 0 24px; border-radius: 23px; border: 0; font: inherit; font-size: 15px; font-weight: 700; cursor: pointer; }
 #voile .principal { background: #FFFFFF; color: #0A0812; }
@@ -48,6 +49,7 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: #07060D; col
 #menuGrand .tete { display: flex; align-items: center; gap: 14px; font-size: 26px; font-weight: 700; }
 #menuGrand .tete img { width: 48px; height: 48px; } #menuGrand .tete .hh { margin-left: auto; color: #C9C4DD; font-weight: 600; }
 #menuGrand .nomSel { margin-top: auto; height: 34px; font-size: 24px; font-weight: 800; color: var(--c, #00E5FF); text-align: center; white-space: nowrap; }
+#menuGrand .descSel { min-height: 42px; max-width: 640px; margin: 2px auto 0; padding: 0 16px; font-size: 14px; line-height: 1.45; color: rgba(255,255,255,0.75); text-align: center; }
 /* La rangée des applis (comme l'accueil de Nevermind) : l'appli choisie au centre, on fait glisser la rangée à la
    souris (avec élan), à la molette ou aux flèches ; un clic sur une tuile de côté l'amène au centre, sur celle du
    centre (ou Entrée) la choisit. Les tuiles sont placées par le script (transform). */
@@ -237,7 +239,7 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: #07060D; col
     <div class="barre" id="voileBarre" hidden><img id="voileCharge" class="charge" alt="" draggable="false"><i><b></b></i><em></em></div>
     <div class="actions" id="voileActions"></div>
     <div id="menuGrand" hidden><img id="mascotte" class="mascotte" alt="" draggable="false" hidden><div class="tete"><img id="menuLogo" alt=""><span>Mindset</span><span class="hh" id="menuHeure"></span></div>
-      <div class="nomSel" id="menuNom"></div><div id="carrousel" role="listbox" aria-label="Tes applis"></div>
+      <div class="nomSel" id="menuNom"></div><div class="descSel" id="menuDesc"></div><div id="carrousel" role="listbox" aria-label="Tes applis"></div>
       <div class="bas"><span id="menuConsigne"></span><div class="aides"><button type="button" id="menuB"><i>B</i>Retour</button><button type="button" id="menuA"><i>A</i>OK</button></div></div></div>
     <div id="reglagesGrand" hidden><div class="tete"><button type="button" class="retour f" data-a="retour" aria-label="Revenir au menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button>
         <div class="ic-page plasma-bord"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></div>
@@ -509,7 +511,8 @@ const elCar = document.getElementById('carrousel');
 const borne = (v) => Math.max(0, Math.min(listeMenu().length - 1, v));
 function nomMenu() {
   const id = listeMenu()[menuSel], n = document.getElementById('menuNom');
-  n.textContent = id === PARAM ? 'Paramètres de Mindset' : APPLIS[id]?.nom || ''; n.style.setProperty('--c', id === PARAM ? C('#C9C4DD') : APPLIS[id]?.c || C('#00E5FF'));
+  n.textContent = id === PARAM ? 'Paramètres de Mindset' : APPLIS[id]?.nom || '';
+  document.getElementById('menuDesc').textContent = id === PARAM ? 'Le thème, le son, le micro, les applis installées et la place sur le disque.' : APPLIS[id]?.desc || ''; n.style.setProperty('--c', id === PARAM ? C('#C9C4DD') : APPLIS[id]?.c || C('#00E5FF'));
 }
 function placerCarrousel() {
   const bs = [...elCar.children]; if (!bs.length) return;
@@ -637,7 +640,7 @@ function remplirEcran() {
   const m = a.maj, charge = m && m.etat !== 'dispo';
   let t, boutons = [], attente = false;
   if (charge) { t = a.installee ? `Mise à jour de ${a.nom}...` : `Installation de ${a.nom}...`; boutons = [['menu', 'Menu', 'second']]; }
-  else if (!a.installee) { t = `${a.nom} n'est pas encore installée.`; boutons = [['installer', `Installer ${a.nom}`, 'principal'], ['menu', 'Retirer la cartouche', 'second']]; }
+  else if (!a.installee) { t = `${a.desc ? `${a.desc}\n\n` : ''}${a.nom} n'est pas encore installée.`; boutons = [['installer', `Installer ${a.nom}`, 'principal'], ['menu', 'Retirer la cartouche', 'second']]; }
   else if (demandeOuverture[id]) { t = `Ouverture de ${a.nom}...`; attente = true; }
   else if (m) { t = `Une nouvelle version de ${a.nom} est prête.`; boutons = [['maj', 'Mettre à jour', 'maj'], ['ouvrir', 'Ouvrir sans mettre à jour', 'second'], ['menu', 'Menu', 'second']]; }
   else { t = `${a.nom} est prête.`; boutons = [['ouvrir', `Ouvrir ${a.nom}`, 'principal'], ['menu', 'Menu', 'second']]; }
@@ -932,7 +935,7 @@ function etat(e) {
   for (const a of e.applis) {
     if (typeof a.id !== 'string' || !/^[a-z0-9-]{1,30}$/.test(a.id)) continue;
     nouvelles[a.id] = { nom: String(a.nom || a.id).slice(0, 30), c: /^#[0-9A-Fa-f]{6}$/.test(a.c1) ? a.c1 : '#00E5FF',
-      installee: !!a.installee, etat: ['ferme', 'ouvert', 'fond'].includes(a.etat) ? a.etat : 'ferme',
+      desc: String(a.desc || '').slice(0, 300), installee: !!a.installee, etat: ['ferme', 'ouvert', 'fond'].includes(a.etat) ? a.etat : 'ferme',
       maj: a.maj && ['dispo', 'telechargement', 'installation'].includes(a.maj.etat) ? { etat: a.maj.etat, progres: Number(a.maj.progres) || 0 } : null };
   }
   const avant = APPLIS; APPLIS = nouvelles; TUILES = e.applis.map((a) => a.id).filter((id) => APPLIS[id]);

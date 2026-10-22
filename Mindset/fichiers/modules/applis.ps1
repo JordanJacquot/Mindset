@@ -31,6 +31,7 @@ function Get-Applis {
             Nom             = [string]$a.nom
             Couleur         = [string]$a.couleur
             Description     = [string]$a.description
+            Presentation    = [string]$a.presentation   # ce que fait l'appli, en une phrase (console : menu en grand, écran « pas encore installée »)
             Depot           = [string]$a.depot
             Zip             = [string]$a.zip
             DossierZip      = [string]$a.dossier_zip

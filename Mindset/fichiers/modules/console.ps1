@@ -257,6 +257,7 @@ function Get-EtatConsole {
                    else { [ordered]@{ etat = 'installation'; progres = 1 } }
                } elseif ($e.MajDispo) { [ordered]@{ etat = 'dispo'; progres = 0 } } else { $null }
         [ordered]@{ id = $a.Id; nom = $a.Nom; c1 = (ConvertTo-ThemeHex $a.Couleur); c2 = (ConvertTo-ThemeHex '#B04BFF'); logo = $logo; installee = [bool]$e.Inst
+            desc = $(if ($a.Presentation) { $a.Presentation } else { $a.Description })
             etat = $(if ($e.Ouverte) { 'fond' } else { 'ferme' }); maj = $maj }
     }
     ConvertTo-Json -InputObject ([ordered]@{ applis = @($liste) }) -Depth 5 -Compress
