@@ -42,3 +42,6 @@ jobs:
 
       - name: "Tests du désinstalleur (faux environnement, sans droits)"
         run: .\outils\tester-desinstallation.ps1
+
+      - name: "Refus du mini-installateur administrateur (faux PC, sans droits)"
+        run: .\outils\tester-installer.ps1

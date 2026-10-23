@@ -150,8 +150,12 @@ function Get-CommandeDesinstallation([string]$DossierMindset) {
 
 # La partie administrateur d'une appli (son programme d'aide), à la demande (l'appli lance la tâche quand elle en a besoin),
 # pour l'utilisateur $Sid seulement, depuis le dossier protégé où l'appli vient d'être installée. Une seule à la fois.
+# (\z et non $ : $ laisserait passer un retour à la ligne final)
+$RegleTacheAide = '^[A-Za-z0-9 ]{1,40} \(aide\)\z'
+$RegleProgramme = '^[^\\/:*?"<>|\x00-\x1f]+\.exe\z'
+
 function Register-TacheAide([string]$Nom, [string]$ExeAide, [string]$Sid) {
-    if ($Nom -cnotmatch '^[A-Za-z0-9 ]{1,40} \(aide\)$') { throw 'Nom de tâche refusé.' }
+    if ($Nom -cnotmatch $RegleTacheAide) { throw 'Nom de tâche refusé.' }
     if ($Sid -notmatch '^S-1-5-21-\d+-\d+-\d+-\d+$') { throw 'Utilisateur inconnu.' }
     if (-not (Test-Path -LiteralPath $ExeAide)) { throw "Programme introuvable : $ExeAide" }
     $pr = New-ScheduledTaskPrincipal -UserId $Sid -LogonType Interactive -RunLevel Highest
@@ -161,7 +165,7 @@ function Register-TacheAide([string]$Nom, [string]$ExeAide, [string]$Sid) {
 }
 
 function Stop-Programme([string]$Nom) {
-    if ($Nom -notmatch '^[^\\/:*?"<>|]+\.exe$') { throw 'Nom de programme refusé.' }
+    if ($Nom -notmatch $RegleProgramme) { throw 'Nom de programme refusé.' }
     Get-Process -Name ([IO.Path]::GetFileNameWithoutExtension($Nom)) -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
     Start-Sleep -Milliseconds 800
 }
@@ -174,7 +178,7 @@ if ($Action -eq 'demande') {
         if (-not $fi.Exists -or $fi.Length -gt 16KB -or ($fi.Attributes -band [IO.FileAttributes]::ReparsePoint)) { exit }
         $j = [IO.File]::ReadAllText($Demande, [Text.Encoding]::UTF8) | ConvertFrom-Json
         try { [IO.File]::Delete($Demande) } catch {}
-        if ([string]$j.Id -notmatch '^[0-9a-f]{8,32}$') { exit }
+        if ([string]$j.Id -notmatch '^[0-9a-f]{8,32}\z') { exit }
         $IdDemande = [string]$j.Id
         if ([string]$j.Action -notin 'appli', 'mindset-maj', 'supprimer', 'taches') { Write-Resultat $false 'Demande refusée.'; exit }
         $Action = [string]$j.Action
@@ -198,6 +202,11 @@ try {
             if ($DossierZip -match '[\\/:*?"<>|]') { throw 'Nom de dossier refusé.' }
             $octets = [IO.File]::ReadAllBytes($Zip)
             $sig = [IO.File]::ReadAllBytes($Signature)
+            # Tout est vérifié AVANT d'arrêter quoi que ce soit : noms, tâche d'aide, puis la signature du zip (sinon une
+            # demande écrite sans droits ferait arrêter en administrateur n'importe quel programme, même avec un faux zip)
+            foreach ($n in @($Exe, $ExeAide) | Where-Object { $_ }) { if ($n -notmatch $RegleProgramme) { throw 'Nom de programme refusé.' } }
+            if ($TacheAide -and $TacheAide -cnotmatch $RegleTacheAide) { throw 'Nom de tâche refusé.' }
+            if (-not (Test-Signature $octets $sig (Join-Path $PSScriptRoot 'cles-publiques'))) { throw 'La signature du fichier téléchargé est invalide : rien n''a été installé.' }
             Stop-Programme $Exe   # Mindset a demandé confirmation avant de fermer l'appli
             if ($ExeAide) { Stop-Programme $ExeAide }   # sa partie administrateur tient son programme ouvert
             $installe = Install-Paquet -Zip $octets -Signature $sig -ClePublique (Join-Path $PSScriptRoot 'cles-publiques') -Destination $dest -DossierZip $DossierZip -Exe $Exe
