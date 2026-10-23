@@ -9,7 +9,7 @@ Free code signing provided by [SignPath.io](https://about.signpath.io), certific
 
 ## What is signed
 
-- `Mindset.exe` and the PowerShell scripts (`.ps1`) of Mindset, all built from this repository.
+- `Mindset.exe`, the uninstaller `Desinstaller Mindset.exe` and the PowerShell scripts (`.ps1`) of Mindset, all built from this repository.
 - Files from other authors are never signed with this certificate: the Microsoft WebView2 libraries
   (`fichiers\lib\webview2`, already signed by Microsoft Corporation) and Three.js (JavaScript, MIT license).
 
@@ -78,7 +78,7 @@ Signature gratuite du code fournie par [SignPath.io](https://about.signpath.io),
 
 ## Ce qui est signé
 
-- `Mindset.exe` et les scripts PowerShell (`.ps1`) de Mindset, tous construits depuis ce dépôt.
+- `Mindset.exe`, le désinstalleur `Desinstaller Mindset.exe` et les scripts PowerShell (`.ps1`) de Mindset, tous construits depuis ce dépôt.
 - Les fichiers d'autres auteurs ne sont jamais signés avec ce certificat : les bibliothèques WebView2 de Microsoft
   (`fichiers\lib\webview2`, déjà signées par Microsoft Corporation) et Three.js (JavaScript, licence MIT).
 
