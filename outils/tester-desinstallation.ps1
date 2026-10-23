@@ -236,6 +236,9 @@ static class Faux {
     $b = Invoke-Desinstalleur $e $e.Exe @('-EssaiFenetre', '0')
     Test-Cas 'Le bilan est bon (rien ne reste)' { $b.ok -eq $true -and @($b.restes).Count -eq 0 }
     Test-Cas 'La case « Supprimer aussi mes données » est décochée au départ' { $b.caseDonneesAuDepart -eq $false -and $b.donneesSupprimees -eq $false }
+    Test-Cas 'Case décochée : l''accueil dit que les données sont gardées, jusqu''au clic' {
+        $b.accueilAuDepart -match 'Tes données sont gardées' -and $b.accueilAuLancement -eq $b.accueilAuDepart -and $b.accueilAuLancement -notmatch 'effacées'
+    }
     Test-Cas 'Mindset qui tournait est fermé' { $mindsetOuvert.WaitForExit(5000) }
     Test-Cas 'Tout est retiré : programmes (C: et X:), tâches, registre, lancement avec Windows, raccourcis' { Test-ToutRetire $e }
     Test-Cas 'Ce qui ne vient pas de Mindset reste (autre valeur Run, autre raccourci)' { (Test-Valeur "HKCU:\$CleTest\Run" 'Autre programme') -and (Test-Path -LiteralPath (Join-Path $e.Bureau 'Autre programme.lnk')) }
@@ -277,6 +280,9 @@ static class Faux {
         (Test-Absent (Join-Path $e.Bureau 'Mindset.lnk')) -and (Test-Absent (Join-Path $e.RacineX 'Programmes'))
     }
     Test-Cas 'Case cochée : le désinstalleur de l''appli reçoit -SupprimerDonnees' { (Get-Texte (Join-Path $marques 'Désinstaller Appli.txt')) -eq 'lancé -SupprimerDonnees' }
+    Test-Cas 'Case cochée : l''accueil ne promet plus de les garder, il dit qu''elles seront effacées' {
+        $b.accueilAuDepart -match 'Tes données sont gardées' -and $b.accueilAuLancement -match 'Tes données seront effacées' -and $b.accueilAuLancement -notmatch 'gardées'
+    }
     Test-Cas 'Case cochée : les données sont supprimées' { $b.donneesSupprimees -eq $true -and (Test-Absent $e.Donnees) -and (Test-Absent (Join-Path $e.RacineX 'Donnees')) }
     Test-Cas 'Le lien dans les données n''a pas été suivi (le dossier visé est intact)' { Test-Path -LiteralPath (Join-Path $e.Precieux 'important.txt') }
     Test-Cas 'Le désinstalleur et l''entrée « Applications installées » restent, pour relancer' {

@@ -308,7 +308,7 @@ static class Desinstalleur
             t.Executer(o.SupprimerDonnees);
             code = b.Restes.Count == 0 ? 0 : 1;
             string texte = TexteBilan(t);
-            Ecrire(o.Rapport, t, null, o.SupprimerDonnees, texte);
+            Ecrire(o.Rapport, t, null, o.SupprimerDonnees, texte, null, null);
             if (!o.Silencieux) MessageBox.Show(texte, "Désinstaller Mindset", MessageBoxButtons.OK, b.Restes.Count == 0 ? MessageBoxIcon.Information : MessageBoxIcon.Warning);
         }
         else
@@ -316,7 +316,7 @@ static class Desinstalleur
             Fenetre f = new Fenetre(t, o.EssaiFenetre);
             Application.Run(f);
             code = f.Annule ? 2 : (b.Restes.Count == 0 ? 0 : 1);
-            Ecrire(o.Rapport, t, f.CaseAuDepart, f.Annule ? false : f.DonneesDemandees, f.Annule ? "(annulé)" : f.TexteAffiche);
+            Ecrire(o.Rapport, t, f.CaseAuDepart, f.Annule ? false : f.DonneesDemandees, f.Annule ? "(annulé)" : f.TexteAffiche, f.AccueilAuDepart, f.AccueilAuLancement);
         }
 
         // La copie temporaire se supprime une fois finie (par l'invite de commandes, quelques secondes après)
@@ -408,7 +408,7 @@ static class Desinstalleur
         return s.ToString().TrimEnd();
     }
 
-    static void Ecrire(string fichier, Travail t, object caseAuDepart, bool donnees, string texte)
+    static void Ecrire(string fichier, Travail t, object caseAuDepart, bool donnees, string texte, string accueilAuDepart, string accueilAuLancement)
     {
         if (string.IsNullOrEmpty(fichier)) return;
         try
@@ -420,6 +420,7 @@ static class Desinstalleur
             r["donneesSupprimees"] = donnees;
             r["donneesSupprimeesPar"] = t.DonneesSupprimeesPar;
             r["texteAffiche"] = texte;
+            r["accueilAuDepart"] = accueilAuDepart; r["accueilAuLancement"] = accueilAuLancement;   // (texte d'accueil à l'ouverture, puis au clic)
             string tmp = fichier + ".tmp";
             File.WriteAllText(tmp, new JavaScriptSerializer().Serialize(r), new UTF8Encoding(false));
             if (File.Exists(fichier)) File.Delete(fichier);
@@ -904,7 +905,7 @@ class Fenetre : Form
     readonly TextBox bilan;
     readonly Button btnOui, btnNon, btnFermer;
     public bool CaseAuDepart, DonneesDemandees, Annule = true;
-    public string TexteAffiche = "";
+    public string TexteAffiche = "", AccueilAuDepart = "", AccueilAuLancement = "";
 
     public Fenetre(Travail t, int essai)
     {
@@ -936,13 +937,11 @@ class Fenetre : Form
         texte = new Label
         {
             AutoSize = true, MaximumSize = new Size(largeur, 0), Margin = new Padding(0, 0, 0, 14),
-            Text = "Mindset va être retiré de ce PC, avec les applis qu'il a installées (Nevermind, Evermind...) : " +
-                   "les programmes, les raccourcis et le lancement avec Windows.\r\n\r\n" +
-                   "Tes données sont gardées : si tu réinstalles Mindset plus tard, tu retrouveras tout."
+            Text = TexteAccueil(false)
         };
         caseDonnees = new CheckBox { Text = "Supprimer aussi mes données (réglages, rendez-vous, sauvegardes)", AutoSize = true, Checked = false, Margin = new Padding(0, 0, 0, 4) };
         attention = new Label { Text = "Attention : tes données seront effacées pour de bon.", ForeColor = Color.FromArgb(176, 0, 32), AutoSize = true, Visible = false, Margin = new Padding(18, 0, 0, 0) };
-        caseDonnees.CheckedChanged += delegate { attention.Visible = caseDonnees.Checked; };
+        caseDonnees.CheckedChanged += delegate { attention.Visible = caseDonnees.Checked; texte.Text = TexteAccueil(caseDonnees.Checked); };
         etape = new Label { AutoSize = true, MaximumSize = new Size(largeur, 0), Visible = false, Margin = new Padding(0, 6, 0, 8) };
         barre = new ProgressBar { Style = ProgressBarStyle.Marquee, Width = largeur, Height = 14, Visible = false };
         bilan = new TextBox { Multiline = true, ReadOnly = true, ScrollBars = ScrollBars.Vertical, Width = largeur, Height = 170, Visible = false, BackColor = Color.White, BorderStyle = BorderStyle.None };
@@ -960,6 +959,7 @@ class Fenetre : Form
         CancelButton = btnNon;
         ActiveControl = btnNon;   // (Entrée par erreur = Annuler)
         CaseAuDepart = caseDonnees.Checked;
+        AccueilAuDepart = texte.Text;
 
         Shown += delegate
         {
@@ -970,13 +970,23 @@ class Fenetre : Form
         FormClosing += delegate(object s, FormClosingEventArgs e) { if (enCours) e.Cancel = true; };   // (pas de fermeture au milieu)
     }
 
-    protected override bool ShowWithoutActivation { get { return essai >= 0; } }
+    // Le texte d'accueil suit la case : il ne promet de garder les données que si elle est décochée
+    static string TexteAccueil(bool supprimerDonnees)
+    {
+        return "Mindset va être retiré de ce PC, avec les applis qu'il a installées (Nevermind, Evermind...) : " +
+               "les programmes, les raccourcis et le lancement avec Windows.\r\n\r\n" +
+               (supprimerDonnees
+                   ? "Tes données seront effacées aussi : si tu réinstalles Mindset plus tard, tu repartiras de zéro."
+                   : "Tes données sont gardées : si tu réinstalles Mindset plus tard, tu retrouveras tout.");
+    }
 
+    protected override bool ShowWithoutActivation { get { return essai >= 0; } }
     bool enCours;
     void Lancer()
     {
         Annule = false; enCours = true;
         DonneesDemandees = caseDonnees.Checked;
+        AccueilAuLancement = texte.Text;
         caseDonnees.Visible = false; attention.Visible = false; btnOui.Visible = false; btnNon.Visible = false;
         texte.Text = "Mindset est en train d'être retiré. Si une appli ouvre son propre désinstalleur, suis ses étapes.";
         etape.Visible = true; barre.Visible = true;

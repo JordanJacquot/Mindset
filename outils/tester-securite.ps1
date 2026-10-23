@@ -334,6 +334,68 @@ try {
         ($r -eq $dest2) -and ((Get-VersionDossier $dest2) -eq '1.0.0')
     }
 
+    # Le nouveau dossier ne peut pas prendre sa place : un programme (comme un antivirus) garde un de ses fichiers ouvert,
+    # ce qui empêche de renommer le dossier mais pas de l'effacer. Un fil à part attend que « Appli.exe » soit extrait
+    # dans « Appli.nouveau-* » et l'ouvre ; les 300 fichiers extraits après lui laissent le temps de le prendre.
+    Add-Type -TypeDefinition @'
+public static class BloqueurTest {
+    static System.Threading.Thread fil;
+    static volatile bool fin;
+    static System.IO.FileStream ouvert;
+    public static volatile bool Pris;
+    public static void Demarrer(string parent, string prefixe, string fichier) {
+        Arreter(); fin = false; Pris = false;
+        fil = new System.Threading.Thread(() => {
+            var limite = System.DateTime.Now.AddSeconds(60);
+            while (!fin && ouvert == null && System.DateTime.Now < limite) {
+                try {
+                    foreach (var d in System.IO.Directory.GetDirectories(parent, prefixe + "*")) {
+                        try { ouvert = new System.IO.FileStream(System.IO.Path.Combine(d, fichier), System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.ReadWrite | System.IO.FileShare.Delete); Pris = true; break; } catch { }
+                    }
+                } catch { }
+                System.Threading.Thread.Sleep(2);
+            }
+        });
+        fil.IsBackground = true; fil.Start();
+    }
+    public static void Arreter() {
+        fin = true;
+        if (fil != null) { fil.Join(5000); fil = null; }
+        if (ouvert != null) { ouvert.Dispose(); ouvert = null; }
+    }
+}
+'@
+    $remplissage = [ordered]@{}
+    for ($i = 1; $i -le 300; $i++) { $remplissage["Appli/remplissage/fichier-$i.txt"] = "$i" }
+    function Get-Empreintes([string]$Dossier) {
+        @(Get-ChildItem -LiteralPath $Dossier -Recurse -File -Force | Sort-Object FullName | ForEach-Object { "$($_.FullName.Substring($Dossier.Length))=$((Get-FileHash -LiteralPath $_.FullName).Hash)" }) -join '|'
+    }
+
+    $avant = Get-Empreintes $dest
+    [BloqueurTest]::Demarrer($programmes, 'Appli.nouveau-', 'Appli.exe')
+    try { $refusMiseEnPlace = Test-Refus { Install-Test (New-ZipAppli '2.3.0' $remplissage) } 'La nouvelle version n''a pas pu être mise en place (fichiers bloqués) : réessaie dans un moment.' }
+    finally { $prisMaj = [BloqueurTest]::Pris; [BloqueurTest]::Arreter() }
+    Test-Cas 'mise à jour qui ne peut pas prendre la place de l''ancienne : refus clair' { $prisMaj -and $refusMiseEnPlace }
+    Test-Cas 'l''ancienne version est remise, intacte et complète, sans reste à côté' {
+        $prisMaj -and ((Get-VersionInstallee) -eq '2.2.0') -and ((Get-Empreintes $dest) -eq $avant) -and $avant -and (Test-SansReste)
+    }
+    Test-Cas 'ensuite, la mise à jour passe' {
+        $null = Install-Test (New-ZipAppli '2.3.0')
+        ((Get-VersionInstallee) -eq '2.3.0') -and (Test-SansReste)
+    }
+
+    $programmes3 = Join-Path $tmp 'Neuf3\Programmes'
+    $dest3 = Join-Path $programmes3 'Appli'
+    [BloqueurTest]::Demarrer($programmes3, 'Appli.nouveau-', 'Appli.exe')
+    try {
+        $z = New-ZipAppli '1.0.0' $remplissage
+        $refusNeuf = Test-Refus { Install-Paquet -Zip $z -Signature (Get-SignatureTest $z $cle.Privee) -ClePublique $fPublique -Destination $dest3 -DossierZip 'Appli' -Exe 'Appli.exe' } 'L''appli n''a pas pu être mise en place (fichiers bloqués) : réessaie dans un moment.'
+    } finally { $prisNeuf = [BloqueurTest]::Pris; [BloqueurTest]::Arreter() }
+    Test-Cas 'première installation qui ne peut pas être mise en place : refus clair' { $prisNeuf -and $refusNeuf }
+    Test-Cas 'première installation refusée : aucun reste (ni l''appli, ni dossier temporaire)' {
+        $prisNeuf -and -not (Test-Path -LiteralPath $dest3) -and -not @(Get-ChildItem -LiteralPath $programmes3 -Force).Count
+    }
+
     # Changement de clé de bout en bout : chaque version livre sa liste (fichiers\cles-publiques), et c'est la liste de
     # la version installée qui décide de la suivante. A = clé de tous les jours, S = clé de secours, B puis C = suivantes.
     $cleS = New-CleTest 3072
