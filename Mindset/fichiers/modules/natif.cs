@@ -404,6 +404,98 @@ public static class MSActivite
         if (!GetMonitorInfo(MonitorFromWindow(h, 2), ref mi)) return false;
         return r.Left <= mi.rcMonitor.Left && r.Top <= mi.rcMonitor.Top && r.Right >= mi.rcMonitor.Right && r.Bottom >= mi.rcMonitor.Bottom;
     }
+
+    // ---------------------------------------------------------------------------------------------------------------
+    // Un jeu en plein écran sur N'IMPORTE QUEL écran, même s'il n'est pas devant (on joue sur un écran, on regarde
+    // l'autre). Les fenêtres visibles, ni réduites, ni agrandies (une fenêtre agrandie n'est pas un jeu), ni cachées par
+    // Windows (bureaux virtuels, applis suspendues), ni transparentes aux clics ou « fenêtres outils » (les calques des
+    // pilotes graphiques, de Steam ou de Discord couvrent tout l'écran sans être un jeu).
+    // ---------------------------------------------------------------------------------------------------------------
+    delegate bool EnumProc(IntPtr h, IntPtr p);
+    [DllImport("user32.dll")] static extern bool EnumWindows(EnumProc f, IntPtr p);
+    [DllImport("user32.dll")] static extern bool IsWindowVisible(IntPtr h);
+    [DllImport("user32.dll")] static extern bool IsIconic(IntPtr h);
+    [DllImport("user32.dll")] static extern bool IsZoomed(IntPtr h);
+    [DllImport("user32.dll", EntryPoint = "GetWindowLongW")] static extern int GetWindowLong(IntPtr h, int i);
+    [DllImport("dwmapi.dll")] static extern int DwmGetWindowAttribute(IntPtr h, int a, out int v, int taille);
+
+    public static bool EstPleinEcran(IntPtr h)
+    {
+        if (h == IntPtr.Zero || h == GetShellWindow() || h == GetDesktopWindow()) return false;
+        if (!IsWindowVisible(h) || IsIconic(h) || IsZoomed(h)) return false;
+        int ex = GetWindowLong(h, -20);   // (GWL_EXSTYLE)
+        if ((ex & 0x80) != 0 || (ex & 0x20) != 0 || (ex & 0x08000000) != 0) return false;   // (outil, transparente aux clics, jamais activée)
+        int cache; if (DwmGetWindowAttribute(h, 14, out cache, 4) == 0 && cache != 0) return false;   // (DWMWA_CLOAKED)
+        var c = new System.Text.StringBuilder(64); GetClassName(h, c, 64);
+        string cl = c.ToString();
+        if (cl == "Progman" || cl == "WorkerW" || cl == "Shell_TrayWnd" || cl == "Shell_SecondaryTrayWnd" || cl == "Windows.UI.Core.CoreWindow") return false;
+        RECTA r; if (!GetWindowRect(h, out r)) return false;
+        var mi = new MONITORINFOA(); mi.cbSize = Marshal.SizeOf(typeof(MONITORINFOA));
+        if (!GetMonitorInfo(MonitorFromWindow(h, 0), ref mi)) return false;   // (MONITOR_DEFAULTTONULL : hors de tout écran, rien)
+        return CouvreEcran(r.Left, r.Top, r.Right, r.Bottom, mi.rcMonitor.Left, mi.rcMonitor.Top, mi.rcMonitor.Right, mi.rcMonitor.Bottom);
+    }
+
+    public static bool CouvreEcran(int l, int t, int r, int b, int el, int et, int er, int eb)
+    {
+        return er > el && eb > et && l <= el && t <= et && r >= er && b >= eb;
+    }
+
+    public static bool PleinEcranQuelquePart()
+    {
+        bool trouve = false;
+        EnumWindows((h, p) => { if (EstPleinEcran(h)) { trouve = true; return false; } return true; }, IntPtr.Zero);
+        return trouve;
+    }
+
+    // ---------------------------------------------------------------------------------------------------------------
+    // La manette (XInput : manettes Xbox et la plupart des autres) : GetLastInputInfo ne la voit pas. Relevée toutes les
+    // 2 secondes par Mindset ; un changement de boutons, de gâchettes ou de sticks (au-delà d'une zone morte, pour qu'un
+    // stick qui « dérive » au repos ne compte pas) ou une manette qui s'allume, c'est quelqu'un qui joue.
+    // ---------------------------------------------------------------------------------------------------------------
+    [StructLayout(LayoutKind.Sequential)] struct XINPUT_GAMEPAD { public ushort wButtons; public byte bLeftTrigger, bRightTrigger; public short sThumbLX, sThumbLY, sThumbRX, sThumbRY; }
+    [StructLayout(LayoutKind.Sequential)] struct XINPUT_STATE { public uint dwPacketNumber; public XINPUT_GAMEPAD Gamepad; }
+    [DllImport("xinput1_4.dll", EntryPoint = "XInputGetState")] static extern uint XInputGetState14(uint i, out XINPUT_STATE s);
+    [DllImport("xinput9_1_0.dll", EntryPoint = "XInputGetState")] static extern uint XInputGetState910(uint i, out XINPUT_STATE s);
+    static readonly long[] signatures = { -1, -1, -1, -1 };
+    static DateTime derniereManette = DateTime.MinValue;
+    static int xinput = 14;   // (14 : xinput1_4, 9 : xinput9_1_0, 0 : aucune)
+
+    static long Axe(short v) { int a = v; return Math.Abs(a) < 8000 ? 0 : (a < 0 ? 1 : 2) + (Math.Abs(a) >= 24000 ? 2 : 0); }
+    public static long Signature(ushort boutons, byte gauche, byte droite, short lx, short ly, short rx, short ry)
+    {
+        return boutons | ((long)(gauche > 40 ? 1 : 0) << 16) | ((long)(droite > 40 ? 1 : 0) << 17)
+             | (Axe(lx) << 18) | (Axe(ly) << 21) | (Axe(rx) << 24) | (Axe(ry) << 27);
+    }
+
+    // Une manette vue (connectée ou non, et son état résumé) : rend vrai si c'est un signe d'activité
+    public static bool Noter(int i, bool connectee, long signature)
+    {
+        if (i < 0 || i > 3) return false;
+        if (!connectee) { signatures[i] = -1; return false; }
+        bool actif = signatures[i] != signature;   // (allumée à l'instant, ou état changé)
+        signatures[i] = signature;
+        if (actif) derniereManette = DateTime.UtcNow;
+        return actif;
+    }
+
+    public static void ReleverManette()
+    {
+        for (uint i = 0; i < 4 && xinput != 0; i++)
+        {
+            XINPUT_STATE s; uint r;
+            try { r = xinput == 14 ? XInputGetState14(i, out s) : XInputGetState910(i, out s); }
+            catch (DllNotFoundException) { xinput = xinput == 14 ? 9 : 0; i--; continue; }
+            catch (EntryPointNotFoundException) { xinput = xinput == 14 ? 9 : 0; i--; continue; }
+            var g = s.Gamepad;
+            Noter((int)i, r == 0, Signature(g.wButtons, g.bLeftTrigger, g.bRightTrigger, g.sThumbLX, g.sThumbLY, g.sThumbRX, g.sThumbRY));
+        }
+    }
+
+    // Depuis combien de secondes une manette a servi (très grand : jamais vue)
+    public static double SecondesManette()
+    {
+        return derniereManette == DateTime.MinValue ? double.MaxValue : (DateTime.UtcNow - derniereManette).TotalSeconds;
+    }
 }
 
 // Les programmes de la suite qui tournent, trouvés par leur CHEMIN (jamais par leur nom : l'hôte de chaque appli s'appelle
@@ -579,6 +671,26 @@ public static class MSProcessus
             if (Array.FindIndex(noms, n => string.Equals(n, p.Nom, StringComparison.OrdinalIgnoreCase)) < 0) continue;
             string c = CheminGarde(p);
             if (c != null && !r.Contains(c)) r.Add(c);
+        }
+        return r.ToArray();
+    }
+
+    // Les jeux qui tournent (mises à jour automatiques : jamais pendant une partie), trouvés par leur chemin : un programme
+    // lancé depuis un dossier de jeux (« morceaux » : \steamapps\common\, \Epic Games\...) sauf ceux des lanceurs qui
+    // restent ouverts en fond (« exclus »), ou un des « programmes » donnés en entier (les jeux ajoutés dans Nevermind)
+    public static string[] JeuxOuverts(string[] morceaux, string[] exclus, string[] programmes)
+    {
+        var r = new System.Collections.Generic.List<string>();
+        var liste = Releve();
+        Oublier(liste);
+        foreach (var p in liste)
+        {
+            string c = CheminGarde(p);
+            if (c == null) continue;
+            bool jeu = programmes != null && Array.FindIndex(programmes, x => string.Equals(x, c, StringComparison.OrdinalIgnoreCase)) >= 0;
+            if (!jeu && morceaux != null && Array.FindIndex(morceaux, m => !string.IsNullOrEmpty(m) && c.IndexOf(m, StringComparison.OrdinalIgnoreCase) >= 0) >= 0)
+                jeu = exclus == null || Array.FindIndex(exclus, m => !string.IsNullOrEmpty(m) && c.IndexOf(m, StringComparison.OrdinalIgnoreCase) >= 0) < 0;
+            if (jeu && !r.Contains(c)) r.Add(c);
         }
         return r.ToArray();
     }

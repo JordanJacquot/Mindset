@@ -51,3 +51,6 @@ jobs:
 
       - name: "Nom de chaque appli dans la barre des tâches (faux menu Démarrer, fenêtre de test hors de l'écran)"
         run: .\outils\tester-raccourcis.ps1
+
+      - name: "Démarrage des applis, mises à jour et filet contre les plantages (faux PC, Mindset de test hors de l'écran)"
+        run: .\outils\tester-mises-a-jour.ps1

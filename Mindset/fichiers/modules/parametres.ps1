@@ -158,7 +158,7 @@ function Update-DemarragesParametres {
         $sw = New-InterrupteurOuverture $a.Id
         [System.Windows.Controls.DockPanel]::SetDock($sw, 'Right')
         [void]$ligne.Children.Add($sw)
-        $t = New-Text "$($a.Nom) s'ouvre avec Mindset" 13 '#ECEAF7'; $t.VerticalAlignment = 'Center'; $t.Margin = '0,0,16,0'
+        $t = New-Text "$($a.Nom) s'ouvre avec Mindset$(if ($a.Rappels) { ' (sinon ses rappels ne sonnent pas)' })" 13 '#ECEAF7'; $t.VerticalAlignment = 'Center'; $t.Margin = '0,0,16,0'
         [void]$ligne.Children.Add($t)
         [void]$ui.Demarrages.Children.Add($ligne)
     }
@@ -538,7 +538,7 @@ function Get-EtatParametres {
         version = $AppVersion
         general = [ordered]@{
             reduire = [bool](Get-Setting 'ReduireHorloge' $true); fermeture = [string](Get-Setting 'Fermeture' 'demander'); windows = [bool](Get-LancerAvecWindows)
-            applis = @(foreach ($a in Get-ApplisDemarrage) { [ordered]@{ id = $a.Id; nom = $a.Nom; oui = [bool](Get-DemarrageAppli $a.Id) } })
+            applis = @(foreach ($a in Get-ApplisDemarrage) { [ordered]@{ id = $a.Id; nom = $a.Nom; oui = [bool](Get-DemarrageAppli $a.Id); note = $(if ($a.Rappels) { 'Sinon ses rappels ne sonnent pas.' } else { '' }) } })
         }
         apparence = [ordered]@{
             actuel = [string]$ThemeSetting; info = [string]$ui.ThemeInfo.Text

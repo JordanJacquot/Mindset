@@ -722,7 +722,7 @@ const PAGES = {
       + titreBloc('Démarrage avec Windows')
       + texte('Choisis si Mindset se lance avec Windows (caché près de l\'horloge), et quelles applis s\'ouvrent avec lui : elles démarrent en arrière-plan à chaque ouverture de Mindset (le même réglage que sur leur carte de l\'accueil).')
       + `<div class="reglages plaque">${rang('Mindset se lance avec Windows', 'Caché près de l\'horloge, il ouvre en même temps les applis cochées ci-dessous.', bascule('windows', 'windows', g.windows, 'Mindset se lance avec Windows'))}`
-      + (g.applis || []).map((a) => rang(`${a.nom} s'ouvre avec Mindset`, '', bascule(`d:${a.id}`, 'demarrage', a.oui, `${a.nom} s'ouvre avec Mindset`, a.id))).join('') + '</div>'];
+      + (g.applis || []).map((a) => rang(`${a.nom} s'ouvre avec Mindset`, a.note || '', bascule(`d:${a.id}`, 'demarrage', a.oui, `${a.nom} s'ouvre avec Mindset`, a.id))).join('') + '</div>'];
   },
   apparence(e) {
     const p = e.apparence || {}, themes = p.themes || [], act = themes.find((t) => t.cle === p.actuel);

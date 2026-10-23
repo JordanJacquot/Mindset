@@ -379,8 +379,8 @@ function Update-Carte($Appli) {
         [void]$ligne.Children.Add($sw)
         $txt = New-Object System.Windows.Controls.StackPanel
         $txt.VerticalAlignment = 'Center'
-        [void]$txt.Children.Add((New-Text "S'ouvre avec Mindset" 13 '#ECEAF7'))
-        $aide = if ($Appli.Id -eq 'evermind') { 'En arrière-plan : ses rappels sonnent même avant que tu ouvres son onglet.' } else { 'En arrière-plan, prêt dans son onglet.' }
+        [void]$txt.Children.Add((New-Text $(if ($Appli.Rappels) { "S'ouvre avec Mindset (sinon tes rappels ne sonnent pas)" } else { "S'ouvre avec Mindset" }) 13 '#ECEAF7'))
+        $aide = if ($Appli.Rappels) { 'En arrière-plan : ses rappels sonnent même avant que tu ouvres son onglet.' } else { 'En arrière-plan, prêt dans son onglet.' }
         $a2 = New-Text $aide 11.5 '#6F6894'; $a2.TextWrapping = 'Wrap'; $a2.Margin = '0,2,12,0'
         [void]$txt.Children.Add($a2)
         [void]$ligne.Children.Add($txt)
@@ -449,7 +449,7 @@ function Confirm-PriseEnCharge($Appli, [string]$Dossier) {
     if (-not $Dossier) { $Dossier = $script:Trouvees[$Appli.Id] }
     if (-not $Dossier) { return }
     $ou = Get-DossierGere $Appli
-    $txt = "Mindset installe la dernière version signée de $($Appli.Nom) dans $ou. Ses raccourcis directs et son lancement au démarrage sont retirés : il s'ouvrira depuis Mindset. Ses réglages et ses données sont gardés (ils rejoignent $SuiteDir\$($Appli.Nom))."
+    $txt = "Mindset installe la dernière version signée de $($Appli.Nom) dans $ou. Ses raccourcis directs sont retirés : il s'ouvrira depuis Mindset. S'il se lançait avec Windows, c'est Mindset qui le lancera. Ses réglages et ses données sont gardés (ils rejoignent $SuiteDir\$($Appli.Nom))."
     $txt += if (Test-DossierTravail $Dossier) { "`n`n$Dossier est un dossier de travail : il est gardé tel quel." }
             else { "`n`nL'ancienne copie ($Dossier) est ensuite supprimée (seulement les fichiers de $($Appli.Nom))." }
     if (Test-AppliOuverte $Appli) { $txt += " $($Appli.Nom) va être fermé pendant l'opération." }

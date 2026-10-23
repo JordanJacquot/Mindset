@@ -48,6 +48,7 @@ function Get-Applis {
             Desinstalleur   = [string]$a.desinstalleur
             Donnees         = [Environment]::ExpandEnvironmentVariables([string]$a.donnees)
             Admin           = [bool]$a.admin
+            Rappels         = ($a.rappels -eq $true)   # appli de rappels (Evermind) : elle doit tourner pour qu'ils sonnent, donc s'ouvre avec Mindset d'office
             SansDroitsDepuis = [string]$a.sans_droits_depuis   # version à partir de laquelle elle n'a plus besoin des droits (son Aide les a)
             Aide            = [string]$a.aide       # tâche planifiée de sa partie administrateur (« \Mindset\<aide> »)
             AideExe         = [string]$a.aide_exe   # le programme qu'elle lance, à côté de l'exe de l'appli

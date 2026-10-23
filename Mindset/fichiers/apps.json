@@ -37,6 +37,7 @@
     "afficher_signal": "Local\\Evermind-Afficher",
     "donnees": "%LOCALAPPDATA%\\Evermind",
     "admin": false,
+    "rappels": true,
     "cache_depuis": "0.12.6"
   },
   {

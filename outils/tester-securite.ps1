@@ -519,7 +519,9 @@ public static class BloqueurTest {
     function Start-InstallAppli($Appli) { $script:AppelsReseau.Add("Start-InstallAppli $($Appli.Id)") }
     function Start-MajMindset { $script:AppelsReseau.Add('Start-MajMindset') }
     function Test-TacheInstallation { $true }
-    function Get-EtatCarte($Appli) { @{ MajDispo = $true; Occupe = $null; Ouverte = $false; Pub = @{ Version = '9.9.9' } } }
+    $script:OuverteTest = $false; $script:JeuTest = ''
+    function Get-EtatCarte($Appli) { @{ MajDispo = $true; Occupe = $null; Ouverte = $script:OuverteTest; Pub = @{ Version = '9.9.9' } } }
+    function Get-JeuEnCours { $script:JeuTest }
     if (-not ('MSActivite' -as [type])) {
         Add-Type -TypeDefinition 'public static class MSActivite { public static bool PleinEcranDevant() { return false; } public static uint SecondesInactif() { return 3600; } }'
     }
@@ -532,7 +534,16 @@ public static class BloqueurTest {
         $script:DernieresPublications = [datetime]::MinValue; $script:VerifieA = $null; $script:AttenteBienvenue = $Bienvenue
         $script:Occupe = @{}; $script:AttentesAdmin = New-Object Collections.ArrayList; $script:MajAuto = @{}; $script:MajAutoEssais = @{}
         $script:MajAutoDerniere = [datetime]::MinValue; $script:MajMindset = $null; $script:PageCourante = 'accueil'
+        $script:OuverteTest = $false; $script:JeuTest = ''; $script:MajMindsetEnCours = $false
         $ui.ActualiserInfo.Text = ''
+    }
+    function Test-CasMajAuto([string]$Nom, [bool]$Ouverte, [string]$Jeu, [string]$Attendu) {
+        Test-Cas $Nom {
+            Reset-EtatActualiser @{ MajAuto = $true }
+            $script:OuverteTest = $Ouverte; $script:JeuTest = $Jeu
+            Invoke-MajAuto
+            ($script:AppelsReseau -join ',') -eq $Attendu
+        }
     }
     try {
         Test-Cas 'activé par défaut (aucun réglage enregistré)' { Reset-EtatActualiser @{}; Test-VerifVersionsActive }
@@ -567,6 +578,28 @@ public static class BloqueurTest {
             Invoke-MajAuto
             $script:MajMindset = @{ Version = '9.9.9' }; $Window.IsVisible = $false   # (et Mindset lui-même, caché)
             $script:MajAutoDerniere = [datetime]::MinValue
+            Invoke-MajAuto
+            $Window.IsVisible = $true
+            $script:AppelsReseau.Count -eq 0
+        }
+        # Pendant une partie (Get-JeuEnCours : plein écran sur n'importe quel écran, manette, jeu ouvert en fenêtre),
+        # même si le clavier et la souris ne bougent plus depuis une heure : rien ne se met à jour
+        Test-CasMajAuto 'appli ouverte, personne au clavier, pas de jeu : mise à jour (le faux marche)' $true '' 'Start-InstallAppli appli'
+        Test-CasMajAuto 'appli ouverte pendant un jeu (manette, autre écran, fenêtre) : pas de mise à jour' $true 'un jeu ouvert (JeuTest.exe)' ''
+        Test-CasMajAuto 'appli fermée pendant un jeu : pas de mise à jour non plus' $false 'une manette utilisée il y a moins de 5 minutes' ''
+        Test-Cas 'Mindset lui-même pendant un jeu : pas de mise à jour' {
+            Reset-EtatActualiser @{ MajAuto = $true }
+            $script:JeuTest = 'une fenêtre en plein écran (jeu ou vidéo)'
+            $script:MajMindset = @{ Version = '9.9.9' }; $Window.IsVisible = $false
+            $Applis = @()
+            Invoke-MajAuto
+            $Window.IsVisible = $true
+            $script:AppelsReseau.Count -eq 0
+        }
+        Test-Cas 'Mindset lui-même, pas pendant qu''une version plus récente se télécharge (elle remplacera celle qui est prête)' {
+            Reset-EtatActualiser @{ MajAuto = $true }
+            $script:MajMindset = @{ Version = '9.9.9' }; $script:MajMindsetEnCours = $true; $Window.IsVisible = $false
+            $Applis = @()
             Invoke-MajAuto
             $Window.IsVisible = $true
             $script:AppelsReseau.Count -eq 0

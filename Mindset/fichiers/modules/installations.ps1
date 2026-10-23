@@ -259,8 +259,10 @@ $script:AdminTimer.Add_Tick({
 # $AncienDossier : copie existante qu'on prend en charge
 function Start-InstallAppli($Appli, [string]$AncienDossier) {
     if ($script:Occupe[$Appli.Id]) { return }
-    # Ouverte, ou qui s'ouvre avec Mindset : relancée une fois installée (l'installation la ferme)
-    $script:ARelancer[$Appli.Id] = [bool]((Test-AppliOuverte $Appli) -or (Get-DemarrageAppli $Appli.Id))
+    # Ouverte, ou qui s'ouvre avec Mindset : relancée une fois installée (l'installation la ferme). Mise à jour
+    # automatique : seulement si elle était ouverte (une appli que l'utilisateur a fermée reste fermée).
+    $ouverte = Test-AppliOuverte $Appli
+    $script:ARelancer[$Appli.Id] = if ($script:MajAuto -and $script:MajAuto[$Appli.Id]) { [bool]$ouverte } else { [bool]($ouverte -or (Get-DemarrageAppli $Appli.Id)) }
     $script:Occupe[$Appli.Id] = 'Téléchargement...'
     $script:Messages.Remove($Appli.Id)
     Update-Cartes
@@ -287,14 +289,61 @@ function Start-InstallAppli($Appli, [string]$AncienDossier) {
 function Complete-Telechargement($Appli, $Resultat, $Erreur, [string]$AncienDossier) {
     $script:Progres.Remove($Appli.Id)
     if ($Erreur -or -not $Resultat) { Stop-Operation $Appli "Échec : $Erreur"; return }
-    $script:Occupe[$Appli.Id] = $(if (-not $MindsetAdmin -and (Test-TacheInstallation)) { 'Installation...' } else { 'Installation (accepte la demande de Windows)...' })
-    Update-Cartes
-    $script:EnCours[$Appli.Id] = @{ Appli = $Appli; Ancien = $AncienDossier; Version = $Resultat.Version; Zip = $Resultat.Zip }
     $p = [ordered]@{ Zip = $Resultat.Zip; Signature = $Resultat.Sig; Destination = (Get-DossierGere $Appli); DossierZip = $Appli.DossierZip; Exe = $Appli.Exe }
     if ($AncienDossier) { $p.AncienExe = Join-Path $AncienDossier $Appli.Exe }
     # Appli avec une partie administrateur (Nevermind) : sa tâche planifiée est créée ou remise à jour à chaque installation
     if ($Appli.Aide) { $p.TacheAide = $Appli.Aide; $p.ExeAide = $Appli.AideExe; $p.Sid = [Security.Principal.WindowsIdentity]::GetCurrent().User.Value }
-    Invoke-Admin 'appli' $p ([scriptblock]::Create(@"
+    # Première installation ou prise en charge : l'appli qui se lançait avec Windows s'ouvrira avec Mindset (sinon, prise
+    # en charge, elle ne démarrerait plus du tout : plus de rappels pour Evermind). Regardé maintenant, avant que ses
+    # anciens démarrages ne soient retirés. Une appli de rappels l'est d'office, sauf si elle avait été coupée.
+    $inst = Get-Installation $Appli
+    $demarrage = $false
+    if (-not ($inst -and $inst.Gere) -and -not (Get-DemarrageAppli $Appli.Id)) {
+        $avant = Get-DemarrageWindowsAppli $Appli
+        $demarrage = if ($null -ne $avant) { [bool]$avant } else { [bool]$Appli.Rappels }
+    }
+    $script:EnCours[$Appli.Id] = @{ Appli = $Appli; Ancien = $AncienDossier; Version = $Resultat.Version; Zip = $Resultat.Zip; Parametres = $p; Demarrage = $demarrage }
+    # Ouverte (ou son ancienne copie) : d'abord priée de quitter proprement (quitter.demande, comme quand on quitte
+    # Mindset), le temps d'enregistrer ce qu'elle fait. L'installateur ne ferme de force que ce qui reste ouvert après.
+    if (Test-AppliOuverte $Appli) {
+        Write-DemandeQuitter $Appli
+        Write-Log "$($Appli.Nom) : fermeture demandée avant l'installation"
+        $script:Occupe[$Appli.Id] = "Fermeture de $($Appli.Nom)..."
+        Update-Cartes
+        $script:AttentesFermeture[$Appli.Id] = Get-Date
+        $script:FermetureTimer.Start()
+        return
+    }
+    Send-InstallationAppli $Appli
+}
+
+# Attente de la fermeture des applis avant leur installation : par leur mutex et leur chemin (Test-AppliOuverte),
+# $DelaiFermetureAppli secondes au plus ; ensuite l'installation part quand même (l'installateur ferme ce qui reste)
+$DelaiFermetureAppli = 10
+$script:AttentesFermeture = @{}
+$script:FermetureTimer = New-Object System.Windows.Threading.DispatcherTimer
+$script:FermetureTimer.Interval = [TimeSpan]::FromMilliseconds(300)
+$script:FermetureTimer.Add_Tick({
+    foreach ($id in @($script:AttentesFermeture.Keys)) {
+        $a = Get-Appli $id
+        $ouverte = $a -and (Test-AppliOuverte $a)
+        $ecoule = ((Get-Date) - $script:AttentesFermeture[$id]).TotalSeconds
+        if ($ouverte -and $ecoule -lt $DelaiFermetureAppli) { continue }
+        $script:AttentesFermeture.Remove($id)
+        if (-not $a) { continue }
+        if ($ouverte) { Write-Log "$($a.Nom) ne s'est pas fermé en $DelaiFermetureAppli s : l'installateur le fermera" }
+        else { Write-Log "$($a.Nom) s'est fermé proprement ($([math]::Round($ecoule, 1)) s)" }
+        try { Send-InstallationAppli $a } catch { Write-Log "Installation de $($a.Nom) : $_"; Stop-Operation $a "Échec : $($_.Exception.Message)" }
+    }
+    if (-not $script:AttentesFermeture.Count) { $script:FermetureTimer.Stop() }
+})
+
+function Send-InstallationAppli($Appli) {
+    $c = $script:EnCours[$Appli.Id]
+    if (-not $c) { return }
+    $script:Occupe[$Appli.Id] = $(if (-not $MindsetAdmin -and (Test-TacheInstallation)) { 'Installation...' } else { 'Installation (accepte la demande de Windows)...' })
+    Update-Cartes
+    Invoke-Admin 'appli' $c.Parametres ([scriptblock]::Create(@"
         param(`$Ok, `$Message)
         `$a = Get-Appli '$($Appli.Id)'
         if (`$Ok) { Complete-Installation `$a `$Message } else { Stop-Operation `$a "Échec : `$Message" }
@@ -311,6 +360,14 @@ function Complete-Installation($Appli, [string]$Dossier) {
     if ($ancien) { $notes += Remove-AncienneCopie $Appli $ancien $c.Zip }
     foreach ($f in @(Get-ChildItem -LiteralPath $TelechargementsDir -Filter "$($Appli.Id).*" -ErrorAction SilentlyContinue)) { Remove-Item -LiteralPath $f.FullName -Force -ErrorAction SilentlyContinue }
     Write-Log "$($Appli.Nom) $($c.Version) installé dans $Dossier$(if ($ancien) { " (pris en charge depuis $ancien)" })"
+    # Elle se lançait avec Windows (ou c'est une appli de rappels) : elle s'ouvre maintenant avec Mindset, et tout de
+    # suite, en arrière-plan (sans attendre le prochain démarrage du PC)
+    if ($c -and $c.Demarrage -and -not (Get-DemarrageAppli $Appli.Id)) {
+        Set-DemarrageAppli $Appli.Id $true
+        $script:ARelancer[$Appli.Id] = $true
+        Write-Log "$($Appli.Nom) s'ouvre avec Mindset (il se lançait avec Windows, ou ses rappels en ont besoin)"
+        foreach ($x in $script:Interrupteurs) { if ($x.Tag -eq $Appli.Id) { $x.IsChecked = $true } }
+    }
     $fin = (@("$($Appli.Nom) $($c.Version) est installé.") + $notes | Where-Object { $_ }) -join ' '
     Move-DonneesAppli $Appli $fin
 }
@@ -356,7 +413,7 @@ function Remove-Doublons($Appli) {
     foreach ($r in @(Get-RaccourcisAppli $Appli)) { try { Remove-Item -LiteralPath $r.Lien -Force -ErrorAction Stop; $n++ } catch { Write-Log "Raccourci non retiré : $($r.Lien)" } }
     $demarrage = @(Get-DemarragesAppli $Appli)
     foreach ($d in $demarrage) { try { Remove-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Run' -Name $d.Nom -ErrorAction Stop } catch {} }
-    # (son ancien lancement avec Windows n'est pas repris : l'interrupteur « S'ouvre avec Mindset » reste éteint, à chacun de l'allumer)
+    # (son ancien lancement avec Windows est repris par « S'ouvre avec Mindset » : vu avant, dans Complete-Telechargement)
     if ($n) { "$n raccourci$(if ($n -gt 1) { 's' }) direct$(if ($n -gt 1) { 's' }) retiré$(if ($n -gt 1) { 's' }) : $($Appli.Nom) s'ouvre maintenant depuis Mindset." }
 }
 
@@ -474,9 +531,55 @@ $script:ARelancer = @{}
 # « S'ouvre avec Mindset » (interrupteur des cartes de l'accueil) : l'appli démarre en arrière-plan quand Mindset s'ouvre,
 # donc aussi au démarrage de Windows (Mindset.exe -Demarrage), voir Start-Demarrage dans mindset.ps1
 # ---------------------------------------------------------------------------
-# Nevermind avait sa propre tâche de démarrage : un Mindset administrateur la retire (une seule règle, la sienne ;
-# éteinte au départ, comme pour toute appli : à chacun de l'allumer)
+# Nevermind avait sa propre tâche de démarrage : un Mindset administrateur la retire (une seule règle, la sienne), et
+# l'appli qui démarrait par elle s'ouvre avec Mindset (sinon elle ne démarrerait plus du tout)
 $TachesDemarrageAppli = @{ nevermind = @('Nevermind (démarrage)', 'OptiGame (démarrage)', 'Nexo (démarrage)') }
+
+# Ses tâches de démarrage qui existent encore
+function Get-TachesDemarrageAppli([string]$Id) {
+    @(foreach ($n in @($TachesDemarrageAppli[$Id] | Where-Object { $_ })) {
+        & "$env:SystemRoot\System32\schtasks.exe" /Query /TN "\$n" 2>$null | Out-Null
+        if ($LASTEXITCODE -eq 0) { $n }
+    })
+}
+
+# L'appli se lançait-elle avec Windows par elle-même ? $true, $false, ou $null (on ne sait pas : jamais lancée)
+#   - une entrée « Run » de l'utilisateur qui lance son programme (ancienne copie, avant sa prise en charge) ;
+#   - Mindset administrateur : sa propre tâche de démarrage (Nevermind) ;
+#   - son réglage « DemarrageWindows » (Evermind le garde dans reglages.json, même quand Mindset l'a pris en charge et
+#     qu'elle a retiré son entrée « Run » elle-même).
+# Rien n'est modifié ici : seulement lu.
+function Get-DemarrageWindowsAppli($Appli) {
+    if (@(Get-DemarragesAppli $Appli).Count) { return $true }
+    if ($MindsetAdmin -and @(Get-TachesDemarrageAppli $Appli.Id).Count) { return $true }
+    foreach ($d in @((Get-DossierDonnees $Appli), $Appli.Donnees) | Where-Object { $_ } | Select-Object -Unique) {
+        foreach ($n in 'reglages.json', 'parametres.json') {
+            $f = Join-Path $d $n
+            if (-not [IO.File]::Exists($f)) { continue }
+            try { $j = [IO.File]::ReadAllText($f, [Text.Encoding]::UTF8) | ConvertFrom-Json } catch { continue }
+            $v = $j.PSObject.Properties['DemarrageWindows']
+            if ($v -and $v.Value -is [bool]) { return [bool]$v.Value }
+        }
+    }
+    $null
+}
+
+# Une fois (réglage « DemarrageRepris ») : les applis prises en charge avant que Mindset ne reprenne leur démarrage
+# (Evermind : il retirait son démarrage avec Windows, et Mindset ne le lançait pas, donc plus de rappels).
+# Celles qui se lançaient avec Windows (ou une appli de rappels qui ne l'avait pas coupé) s'ouvrent avec Mindset.
+function Repair-DemarrageApplis {
+    if (Get-Setting 'DemarrageRepris' $false) { return }
+    foreach ($a in $Applis) {
+        $i = Get-Installation $a
+        if (-not ($i -and $i.Gere) -or (Get-DemarrageAppli $a.Id)) { continue }
+        $avant = Get-DemarrageWindowsAppli $a
+        $oui = if ($null -ne $avant) { [bool]$avant } else { [bool]$a.Rappels }
+        if (-not $oui) { continue }
+        Set-DemarrageAppli $a.Id $true
+        Write-Log "$($a.Nom) s'ouvre avec Mindset (il se lançait avec Windows avant d'être pris en charge)"
+    }
+    Set-Setting 'DemarrageRepris' $true
+}
 
 function Get-DemarrageAppli([string]$Id) { $Id -in @(Get-Setting 'Demarrage' @()) }
 function Set-DemarrageAppli([string]$Id, [bool]$Oui) {
@@ -493,13 +596,18 @@ function Remove-TachesDemarrageAppli([string]$Id) {
     }
 }
 
-# Mindset administrateur : une appli gérée qui avait sa propre tâche de démarrage la perd ; son interrupteur
-# « S'ouvre avec Mindset » n'est pas allumé pour autant (rien ne démarre sans que l'utilisateur l'ait choisi dans Mindset)
+# Mindset administrateur : une appli gérée qui avait sa propre tâche de démarrage la perd, et son interrupteur
+# « S'ouvre avec Mindset » s'allume à la place (elle démarrait avec Windows : elle continue, par Mindset)
 function Move-TachesDemarrage {
     if (-not $MindsetAdmin) { return }
     foreach ($id in @($TachesDemarrageAppli.Keys)) {
         $a = Get-Appli $id; $i = if ($a) { Get-Installation $a } else { $null }
-        if ($i -and $i.Gere) { Remove-TachesDemarrageAppli $id }
+        if (-not ($i -and $i.Gere)) { continue }
+        if (@(Get-TachesDemarrageAppli $id).Count -and -not (Get-DemarrageAppli $id)) {
+            Set-DemarrageAppli $id $true
+            Write-Log "$($a.Nom) s'ouvre avec Mindset (sa tâche de démarrage est reprise)"
+        }
+        Remove-TachesDemarrageAppli $id
     }
 }
 

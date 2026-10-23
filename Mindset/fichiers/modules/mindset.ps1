@@ -160,6 +160,8 @@ function Start-Demarrage {
     # Les raccourcis du menu Démarrer (le nom de chaque appli dans la barre des tâches), réparés s'il le faut
     Update-RaccourcisApplis
     Update-RaccourcisMindset
+    # (une fois : les applis prises en charge avant que Mindset ne reprenne leur démarrage, et qui se lançaient avec Windows s'ouvrent avec Mindset)
+    Repair-DemarrageApplis
     $marque = Join-Path $DataDir 'relance.marque'
     if (Test-Path -LiteralPath $marque) {
         $recente = ((Get-Date) - (Get-Item -LiteralPath $marque).LastWriteTime).TotalSeconds -lt 120
@@ -183,10 +185,15 @@ function Start-Demarrage {
 # ---------------------------------------------------------------------------
 $FichierMajMindset = Join-Path $TelechargementsDir 'maj-mindset.json'
 
+# Une version déjà prête (téléchargée, pas encore installée) n'arrête pas la recherche : si une plus récente sort entre-
+# temps, elle la remplace (sinon Mindset installerait une version déjà dépassée). Le nouveau zip est écrit à côté
+# (.nouveau), puis mis à la place de l'ancien d'un coup, dans la fenêtre : une installation lancée pendant le
+# téléchargement prend toujours un zip complet.
 function Start-VerifMajMindset {
-    if (-not ((Test-MindsetInstalle) -or ($EnTest -and $env:MINDSET_MAJ_TEST)) -or $script:MajMindset -or $script:MajMindsetEnCours) { return }
+    if (-not ((Test-MindsetInstalle) -or ($EnTest -and $env:MINDSET_MAJ_TEST)) -or $script:MajMindsetEnCours) { return }
     $script:MajMindsetEnCours = $true
     New-Item -ItemType Directory -Force -Path $TelechargementsDir | Out-Null
+    $deja = if ($script:MajMindset -and (Test-VersionPlusRecente ([string]$script:MajMindset.Version) $AppVersion)) { [string]$script:MajMindset.Version } else { $AppVersion }
     Start-Tache {
         $p = $args[0]
         $pub = Get-Publication 'JordanJacquot/Mindset' 'Mindset.zip'
@@ -195,10 +202,10 @@ function Start-VerifMajMindset {
         if (-not $pub.UrlSig) { throw "la version $($pub.Version) n'est pas signée" }
         $zip = Get-Octets $pub.UrlZip; $sig = Get-Octets $pub.UrlSig
         if (-not (Test-Signature $zip $sig $p.Cle)) { throw "la signature de la version $($pub.Version) est invalide" }
-        $fz = Join-Path $p.Dossier 'mindset.zip'
+        $fz = Join-Path $p.Dossier 'mindset.zip.nouveau'
         [IO.File]::WriteAllBytes($fz, $zip); [IO.File]::WriteAllBytes("$fz.sig", $sig)
         @{ Version = $pub.Version; Zip = $fz; Sig = "$fz.sig"; Notes = $pub.Notes }
-    } @{ Version = $AppVersion; Cle = $ClePublique; Dossier = $TelechargementsDir } {
+    } @{ Version = $deja; Cle = $ClePublique; Dossier = $TelechargementsDir } {
         param($Resultat, $Erreur)
         $script:MajMindsetEnCours = $false
         if ($script:OngletParametres -eq 'maj') { Update-ListeVersions }
@@ -208,6 +215,19 @@ function Start-VerifMajMindset {
             return
         }
         if (-not $Resultat.Version) { return }
+        # Le zip vérifié prend la place de celui d'avant (une version plus ancienne, prête mais pas installée)
+        $fz = Join-Path $TelechargementsDir 'mindset.zip'
+        try {
+            Move-Item -LiteralPath $Resultat.Zip -Destination $fz -Force -ErrorAction Stop
+            Move-Item -LiteralPath $Resultat.Sig -Destination "$fz.sig" -Force -ErrorAction Stop
+        } catch {
+            Write-Log "Mise à jour de Mindset : le zip de la version $($Resultat.Version) n'a pas pu remplacer l'ancien ($($_.Exception.Message))"
+            foreach ($f in $Resultat.Zip, $Resultat.Sig) { Remove-Item -LiteralPath $f -Force -ErrorAction SilentlyContinue }
+            return
+        }
+        $avant = $script:MajMindset
+        $Resultat.Zip = $fz; $Resultat.Sig = "$fz.sig"
+        if ($avant) { Write-Log "Mindset $($avant.Version) était prêt, remplacé par la $($Resultat.Version), plus récente" }
         $script:MajMindset = $Resultat
         Write-Log "Mindset $($Resultat.Version) téléchargé et vérifié, prêt à installer"
         $ui.MajTitre.Text = "Mindset $($Resultat.Version) est prêt"
@@ -261,7 +281,7 @@ function Show-ResultatMajMindset {
         try { $r = [IO.File]::ReadAllText($FichierMajMindset, [Text.Encoding]::UTF8) | ConvertFrom-Json } catch { return }
         Remove-Item -LiteralPath $FichierMajMindset -Force -ErrorAction SilentlyContinue
     }
-    foreach ($f in 'mindset.zip', 'mindset.zip.sig') { Remove-Item -LiteralPath (Join-Path $TelechargementsDir $f) -Force -ErrorAction SilentlyContinue }
+    foreach ($f in 'mindset.zip', 'mindset.zip.sig', 'mindset.zip.nouveau', 'mindset.zip.nouveau.sig') { Remove-Item -LiteralPath (Join-Path $TelechargementsDir $f) -Force -ErrorAction SilentlyContinue }
     $ui.BtnMajMindset.Visibility = 'Collapsed'; $ui.BtnMajFermer.Content = 'OK'
     if ($r.ok) { $ui.MajTitre.Text = "Mindset est à jour (version $AppVersion)"; $ui.MajTexte.Text = 'La mise à jour s''est bien passée.' }
     else { $ui.MajTitre.Text = 'La mise à jour de Mindset n''a pas pu se faire'; $ui.MajTexte.Text = "$($r.message) Mindset garde sa version actuelle et réessaiera plus tard." }
@@ -273,8 +293,9 @@ function Show-ResultatMajMindset {
 # Mises à jour automatiques (réglage « MajAuto », activé par défaut ; Paramètres, Mises à jour) : vérifié toutes les
 # 30 secondes. Une appli fermée est mise à jour dès que sa nouvelle version est connue ; une appli qui tourne (souvent
 # cachée près de l'horloge) quand personne ne touche au PC depuis 5 minutes, puis elle est relancée cachée ; Mindset
-# lui-même quand il est caché, et il revient caché. Jamais pendant un jeu ou une vidéo en plein écran, jamais pendant
-# une autre installation, et seulement par le mini-installateur (aucune demande de Windows). Une à la fois ; une
+# lui-même quand il est caché, et il revient caché. Jamais pendant un jeu (Get-JeuEnCours : plein écran sur n'importe
+# quel écran, manette, jeu ouvert en fenêtre), jamais pendant une autre installation, et seulement par le
+# mini-installateur (aucune demande de Windows). Une appli fermée par l'utilisateur n'est pas rouverte. Une à la fois ; une
 # version ratée n'est pas réessayée avant 6 heures. Une notification (ou la bulle de la console) dit ce qui a changé.
 # ---------------------------------------------------------------------------
 $script:MajAuto = @{}          # id -> version en cours de mise à jour automatique
@@ -309,13 +330,62 @@ function Test-MajAutoRecente([string]$Id, [string]$Version) {
     $d -and $d.Version -eq $Version -and ((Get-Date) - $d.Quand).TotalHours -lt 6
 }
 
+# ---------------------------------------------------------------------------
+# Un jeu en cours ? (rien ne se met à jour tout seul pendant une partie) Rend la raison, ou '' :
+#   - une fenêtre en plein écran sur n'importe quel écran (même pas devant : un jeu sur l'autre écran) ;
+#   - une manette utilisée il y a moins de 5 minutes (le clavier et la souris ne bougent pas quand on joue à la manette) ;
+#   - un jeu ouvert, même dans une fenêtre : un programme lancé depuis un dossier de jeux des lanceurs connus, ou un
+#     des jeux ajoutés à la main dans la bibliothèque de Nevermind (ses réglages, s'il est installé).
+# ---------------------------------------------------------------------------
+$DossiersJeux = @('\steamapps\common\', '\Epic Games\', '\EA Games\', '\Riot Games\', '\Ubisoft Game Launcher\games\', '\GOG Galaxy\Games\', '\XboxGames\', '\Rockstar Games\')
+# (dans ces dossiers, les lanceurs et services qui restent ouverts en fond ne sont pas des jeux)
+$DossiersPasJeux = @('\Epic Games\Launcher\', '\Epic Games\Epic Online Services\', '\Riot Games\Riot Client\', '\Rockstar Games\Launcher\', '\Rockstar Games\Social Club\', '\steamapps\common\Steamworks Shared\', '\steamapps\common\wallpaper_engine\')
+
+# Les jeux ajoutés à la main dans Nevermind (réglage « CustomGames » de son parametres.json : nom et programme)
+function Get-JeuxNevermind {
+    $a = Get-Appli 'nevermind'
+    if (-not $a) { return @() }
+    foreach ($d in @((Get-DossierDonnees $a), $a.Donnees) | Where-Object { $_ } | Select-Object -Unique) {
+        $f = Join-Path $d 'parametres.json'
+        try {
+            $i = New-Object IO.FileInfo $f
+            if (-not $i.Exists -or $i.Length -gt 4MB) { continue }
+            if ($script:JeuxNevermindCle -ne "$f|$($i.LastWriteTimeUtc.Ticks)") {
+                $j = [IO.File]::ReadAllText($f, [Text.Encoding]::UTF8) | ConvertFrom-Json
+                $script:JeuxNevermind = @(@($j.CustomGames) | Where-Object { $_ -and $_.Exe -is [string] -and $_.Exe -match '^[A-Za-z]:\\.+\.exe$' } | ForEach-Object { [string]$_.Exe })
+                $script:JeuxNevermindCle = "$f|$($i.LastWriteTimeUtc.Ticks)"
+            }
+            return $script:JeuxNevermind
+        } catch { $script:JeuxNevermindCle = ''; return @() }
+    }
+    @()
+}
+
+function Get-JeuEnCours {
+    try { if ([MSActivite]::PleinEcranQuelquePart()) { return 'une fenêtre en plein écran (jeu ou vidéo)' } } catch {}
+    try { if ([MSActivite]::SecondesManette() -lt 300) { return 'une manette utilisée il y a moins de 5 minutes' } } catch {}
+    try {
+        $j = @([MSProcessus]::JeuxOuverts([string[]]$DossiersJeux, [string[]]$DossiersPasJeux, [string[]]@(Get-JeuxNevermind)))
+        if ($j.Count) { return "un jeu ouvert ($([IO.Path]::GetFileName($j[0])))" }
+    } catch {}
+    ''
+}
+
 function Invoke-MajAuto {
     if ($EnTest -and -not $env:MINDSET_MAJAUTO_TEST) { return }
     if (-not (Test-MajAutoActive) -or -not (Test-VerifVersionsActive) -or $MindsetAdmin -or -not (Test-TacheInstallation)) { return }
+    try { [MSActivite]::ReleverManette() } catch {}   # (toutes les 2 secondes : une manette qui sert se voit)
     if (((Get-Date) - $script:MajAutoDerniere).TotalSeconds -lt 30) { return }
     $script:MajAutoDerniere = Get-Date
     if ($script:Occupe.Count -or $script:AttentesAdmin.Count -or $script:MajAuto.Count) { return }
-    try { if ([MSActivite]::PleinEcranDevant()) { return }; $inactif = [MSActivite]::SecondesInactif() } catch { return }
+    # Pendant une partie : rien (ni les applis, ouvertes ou non, ni Mindset) ; on réessaie 30 secondes plus tard
+    $jeu = Get-JeuEnCours
+    if ($jeu) {
+        if ($script:MajAutoJeuNote -ne $jeu) { Write-Log "Mises à jour automatiques en attente : $jeu"; $script:MajAutoJeuNote = $jeu }
+        return
+    }
+    $script:MajAutoJeuNote = $null
+    try { $inactif = [MSActivite]::SecondesInactif() } catch { return }
     foreach ($a in $Applis) {
         $e = Get-EtatCarte $a
         if (-not $e.MajDispo -or $e.Occupe) { continue }
@@ -332,8 +402,9 @@ function Invoke-MajAuto {
         return
     }
     # Mindset lui-même, seulement caché (près de l'horloge, ou réduit)
+    # (pas pendant qu'une version plus récente se télécharge : elle remplacera celle qui est prête)
     $m = $script:MajMindset
-    if ($m -and -not ($Window.IsVisible -and $Window.WindowState -ne 'Minimized') -and -not (Test-MajAutoRecente 'mindset' ([string]$m.Version))) {
+    if ($m -and -not $script:MajMindsetEnCours -and -not ($Window.IsVisible -and $Window.WindowState -ne 'Minimized') -and -not (Test-MajAutoRecente 'mindset' ([string]$m.Version))) {
         $script:MajAutoEssais['mindset'] = @{ Version = [string]$m.Version; Quand = Get-Date }
         Write-Log "Mise à jour automatique : Mindset $($m.Version)"
         Start-MajMindset -Cache
