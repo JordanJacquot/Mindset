@@ -45,6 +45,16 @@ Paramètres > Désinstaller Mindset). Le désinstalleur retire Mindset et les ap
 raccourcis, lancement avec Windows, tâches planifiées et traces dans le registre. Tes données (réglages, rendez-vous,
 sauvegardes) sont gardées, sauf si tu coches « Supprimer aussi mes données ».
 
+Nevermind remet d'abord comme avant les réglages de Windows qu'il avait changés, avec son propre désinstalleur : Mindset
+lui passe ton choix (`-GarderDonnees` ou `-SupprimerDonnees`), il ne pose donc pas la question une deuxième fois. Même
+quand tes données sont gardées, la sauvegarde de ces réglages part : ils viennent d'être remis comme avant, et une
+réinstallation ne doit pas remettre des valeurs vieilles de plusieurs mois. Une ancienne version de Nevermind qui
+supprime quand même ses données est repérée : le message de fin le dit.
+
+Pour désinstaller une seule appli, utilise le bouton Désinstaller de sa carte dans Mindset. Le désinstalleur de
+Nevermind te demande alors si tu gardes tes données (gardées si tu ne coches rien), et Mindset te dit à la fin ce qui a
+été gardé. Les autres applis gardent toujours leurs données.
+
 Il marche même si Mindset ne démarre plus. Si quelque chose n'a pas pu être retiré, il te le dit : redémarre
 l'ordinateur, puis relance la désinstallation.
 

@@ -464,7 +464,8 @@ function Select-DossierAppli($Appli) {
 }
 
 function Confirm-Desinstallation($Appli) {
-    $txt = if ($Appli.Desinstalleur) { "Le désinstalleur de $($Appli.Nom) va s'ouvrir : il remet comme avant les réglages de Windows qu'il a modifiés, puis supprime ses fichiers." }
+    # (le désinstalleur de l'appli pose lui-même la question des données : Complete-Desinstallation dit ensuite ce qu'il a fait)
+    $txt = if ($Appli.Desinstalleur) { "Le désinstalleur de $($Appli.Nom) va s'ouvrir : il remet comme avant les réglages de Windows qu'il a modifiés, puis supprime ses fichiers. Il te demande aussi si tu gardes tes données : elles sont gardées si tu ne coches rien." }
            else { "$($Appli.Nom) va être fermé et ses fichiers supprimés (une demande de Windows). Ses données (réglages, rendez-vous) sont gardées : une réinstallation les retrouve." }
     Show-Confirmation "Désinstaller $($Appli.Nom) ?" $txt 'Désinstaller' ([scriptblock]::Create("Start-DesinstallAppli (Get-Appli '$($Appli.Id)')"))
 }

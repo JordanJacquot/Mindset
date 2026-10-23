@@ -15,6 +15,9 @@
 #   - tout est retiré (tâches, clés, valeur Run, raccourcis, programmes, X:\Mindset vide), même sans Mindset.ps1 ;
 #   - les données sont gardées quand la case est décochée (elle l'est au départ), supprimées quand elle est cochée ;
 #   - le désinstalleur d'une appli est lancé ; s'il échoue, la désinstallation continue et le signale ;
+#   - il reçoit le choix de la case (-GarderDonnees ou -SupprimerDonnees, issue #2) ; une ancienne version qui supprime
+#     quand même ses données est repérée, et le message de fin le dit ;
+#   - Mindset (bouton Désinstaller d'une carte) dit à la fin si les données de l'appli sont gardées ou supprimées ;
 #   - un échec d'une étape est affiché avec ce qui reste à retirer, et la désinstallation peut être relancée ;
 #   - -Nettoyer marche sur une installation à moitié cassée, deux fois de suite (idempotent) ;
 #   - un lien (point de jonction) dans les données n'est jamais suivi.
@@ -87,7 +90,9 @@ try {
     if ($LASTEXITCODE) { $sortie | Write-Host; throw 'Compilation impossible.' }
 
     # Un faux programme : nommé « ...sinstaller ... », il joue un désinstalleur d'appli (efface les .exe de son dossier,
-    # ou échoue si son nom contient « Autre ») ; sinon il attend 10 minutes sans rien faire (un Mindset qui tourne)
+    # ou échoue si son nom contient « Autre ») ; sinon il attend 10 minutes sans rien faire (un Mindset qui tourne).
+    # Il note ses options dans sa marque, et fait comme Nevermind pour ses données (<LocalAppData>\Mindset\<Appli>) :
+    # supprimées avec -SupprimerDonnees, gardées sinon ; toujours supprimées si MINDSET_TEST_ANCIEN=1 (ancienne version)
     $sourceFaux = Join-Path $outils 'faux.cs'
     Save-Fichier $sourceFaux @'
 using System; using System.IO; using System.Threading;
@@ -97,8 +102,15 @@ static class Faux {
         string nom = Path.GetFileNameWithoutExtension(moi);
         if (nom.IndexOf("sinstaller", StringComparison.OrdinalIgnoreCase) < 0) { Thread.Sleep(600000); return 0; }
         string marques = Environment.GetEnvironmentVariable("MINDSET_TEST_MARQUES");
-        if (!string.IsNullOrEmpty(marques)) File.WriteAllText(Path.Combine(marques, nom + ".txt"), "lancé");
+        string[] options = Environment.GetCommandLineArgs();
+        string recu = string.Join(" ", options, 1, options.Length - 1);
+        if (!string.IsNullOrEmpty(marques)) File.WriteAllText(Path.Combine(marques, nom + ".txt"), "lancé " + recu);
         if (nom.IndexOf("Autre", StringComparison.OrdinalIgnoreCase) >= 0) return 3;
+        string dossier = Path.GetDirectoryName(moi);
+        string env = Path.GetDirectoryName(Path.GetDirectoryName(Path.GetDirectoryName(dossier)));
+        string donnees = Path.Combine(Path.Combine(Path.Combine(env, "LocalAppData"), "Mindset"), Path.GetFileName(dossier));
+        if ((recu.Contains("-SupprimerDonnees") || Environment.GetEnvironmentVariable("MINDSET_TEST_ANCIEN") == "1") && Directory.Exists(donnees))
+            Directory.Delete(donnees, true);
         foreach (string f in Directory.GetFiles(Path.GetDirectoryName(moi), "*.exe"))
             if (!string.Equals(f, moi, StringComparison.OrdinalIgnoreCase)) File.Delete(f);
         return 0;
@@ -157,6 +169,7 @@ static class Faux {
         Save-Fichier (Join-Path $e.Donnees 'Mindset\installation.demande') '{}'
         Save-Fichier (Join-Path $e.Donnees 'Mindset\telechargements\appli.zip') 'zip'
         Save-Fichier (Join-Path $e.Donnees 'Evermind\rendez-vous.json') '[]'
+        Save-Fichier (Join-Path $e.Donnees 'Appli\parametres.json') '{}'   # (gardées ou supprimées par le désinstalleur de l'appli)
         # Un point de jonction dans les données, vers un dossier précieux hors de Mindset : jamais suivi
         $e.Precieux = Join-Path $e.Dossier 'precieux'
         Save-Fichier (Join-Path $e.Precieux 'important.txt') 'à garder'
@@ -232,6 +245,10 @@ static class Faux {
     }
     Test-Cas 'Les téléchargements en cours et la demande d''installation sont retirés' { (Test-Absent (Join-Path $e.Donnees 'Mindset\telechargements')) -and (Test-Absent (Join-Path $e.Donnees 'Mindset\installation.demande')) }
     Test-Cas 'Le désinstalleur de l''appli a été lancé' { Test-Path -LiteralPath (Join-Path $marques 'Désinstaller Appli.txt') }
+    Test-Cas 'Case décochée : il reçoit -GarderDonnees (il ne pose pas la question)' { (Get-Texte (Join-Path $marques 'Désinstaller Appli.txt')) -eq 'lancé -GarderDonnees' }
+    Test-Cas 'Case décochée : les données de l''appli sont gardées, et le bilan ne dit rien d''autre' {
+        (Test-Path -LiteralPath (Join-Path $e.Donnees 'Appli\parametres.json')) -and @($b.donneesSupprimeesPar).Count -eq 0 -and $b.texteAffiche -match 'tu retrouveras tout' -and $b.texteAffiche -notmatch 'sauf'
+    }
     Test-Cas 'Le désinstalleur d''appli qui échoue est signalé à l''écran, et la désinstallation a continué' {
         (Test-Path -LiteralPath (Join-Path $marques 'Désinstaller Autre.txt')) -and (@($b.alertes) -match 'Autre').Count -eq 1 -and $b.texteAffiche -match 'Autre' -and (Test-Absent (Join-Path $e.RacineC 'Autre'))
     }
@@ -259,6 +276,7 @@ static class Faux {
         -not (Test-DossierTachesPresent) -and (Test-Absent "HKCU:\$CleTest\Mindset") -and -not (Test-Valeur "HKCU:\$CleTest\Run" 'Mindset') -and
         (Test-Absent (Join-Path $e.Bureau 'Mindset.lnk')) -and (Test-Absent (Join-Path $e.RacineX 'Programmes'))
     }
+    Test-Cas 'Case cochée : le désinstalleur de l''appli reçoit -SupprimerDonnees' { (Get-Texte (Join-Path $marques 'Désinstaller Appli.txt')) -eq 'lancé -SupprimerDonnees' }
     Test-Cas 'Case cochée : les données sont supprimées' { $b.donneesSupprimees -eq $true -and (Test-Absent $e.Donnees) -and (Test-Absent (Join-Path $e.RacineX 'Donnees')) }
     Test-Cas 'Le lien dans les données n''a pas été suivi (le dossier visé est intact)' { Test-Path -LiteralPath (Join-Path $e.Precieux 'important.txt') }
     Test-Cas 'Le désinstalleur et l''entrée « Applications installées » restent, pour relancer' {
@@ -269,6 +287,21 @@ static class Faux {
     $b = Invoke-Desinstalleur $e $e.Exe @('-Nettoyer', '-SupprimerDonnees', '-Silencieux')
     Test-Cas 'Relancé une fois le fichier libéré : tout est retiré' { $b.ok -eq $true -and (Test-ToutRetire $e) -and (Test-Absent $e.Exe) }
     Test-Cas 'X:\Mindset, vide, est retiré aussi' { Test-Absent $e.RacineX }
+
+    # -------------------------------------------------------------------------------------------------------------
+    Write-Partie 'Une ancienne version d''appli supprime ses données malgré la case décochée : le bilan le dit'
+    # -------------------------------------------------------------------------------------------------------------
+    $e = New-Environnement 'ancien' -Script 'normal'
+    $env:MINDSET_TEST_ANCIEN = '1'
+    try { $b = Invoke-Desinstalleur $e $e.Exe @('-EssaiFenetre', '0') } finally { Remove-Item env:MINDSET_TEST_ANCIEN -ErrorAction SilentlyContinue }
+    Test-Cas 'Ses données sont bien parties (ancienne version)' { Test-Absent (Join-Path $e.Donnees 'Appli') }
+    Test-Cas 'Le bilan note l''appli dont les données ont été supprimées' { (@($b.donneesSupprimeesPar) -join ',') -eq 'Appli' }
+    Test-Cas 'Le texte affiché le dit, au lieu de « tu retrouveras tout »' {
+        $b.texteAffiche -match 'sauf celles de Appli, que son désinstalleur a supprimées' -and $b.texteAffiche -notmatch 'tu retrouveras tout'
+    }
+    Test-Cas 'Les autres données restent' { (Test-Path -LiteralPath (Join-Path $e.Donnees 'Evermind\rendez-vous.json')) -and (Test-Path -LiteralPath (Join-Path $e.Donnees 'Mindset\reglages.json')) }
+    $b = Invoke-Desinstalleur (New-Environnement 'ancien-coche' -Script 'normal') $desinstalleur @('-Nettoyer', '-Silencieux', '-SupprimerDonnees')
+    Test-Cas 'Données supprimées à la demande : rien de spécial à dire' { @($b.donneesSupprimeesPar).Count -eq 0 }
 
     # -------------------------------------------------------------------------------------------------------------
     Write-Partie 'Nettoyage de secours (-Nettoyer) sur une installation à moitié cassée'
@@ -292,6 +325,33 @@ static class Faux {
     Test-Cas 'L''installation le copie et l''inscrit dans « Applications installées »' { $admin -match [regex]::Escape("'$NomExe'") -and $admin -match 'UninstallString' }
     Test-Cas 'construire.ps1 le compile' { (Get-Texte (Join-Path $PSScriptRoot 'construire.ps1')) -match 'desinstalleur\.cs' }
     Test-Cas 'Mindset.exe -Desinstaller le lance (même sans Mindset.ps1)' { (Get-Texte (Join-Path $PSScriptRoot 'lanceur.cs')) -match [regex]::Escape($NomExe) }
+
+    # -------------------------------------------------------------------------------------------------------------
+    Write-Partie 'Désinstaller une seule appli depuis Mindset : le message de fin dit ce qui a été fait'
+    # -------------------------------------------------------------------------------------------------------------
+    # Complete-Desinstallation lue dans installations.ps1 et lancée sur un faux dossier de données ; ce qu'elle appelle
+    # d'autre est remplacé par une fausse version (rien n'est écrit ailleurs)
+    $tok = $null; $err = $null
+    $ast = [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $fichiers 'modules\installations.ps1'), [ref]$tok, [ref]$err)
+    $fn = $ast.Find({ param($n) $n -is [System.Management.Automation.Language.FunctionDefinitionAst] -and $n.Name -eq 'Complete-Desinstallation' }, $false)
+    Test-Cas 'Complete-Desinstallation est lisible' { -not $err -and $null -ne $fn }
+    $script:MessageFin = $null
+    function Save-Installation { }
+    function Set-SuiteAppli { }
+    function Set-DemarrageAppli { }
+    function Write-Log { }
+    function Stop-Operation($Appli, [string]$Message) { $script:MessageFin = $Message }
+    Invoke-Expression $fn.Extent.Text
+    $SuiteDir = Join-Path $tmp 'suite'
+    $appli = [pscustomobject]@{ Id = 'appli'; Nom = 'Appli' }
+    Save-Fichier (Join-Path $SuiteDir 'Appli\journal.txt') 'gardé'
+    Complete-Desinstallation $appli
+    Test-Cas 'Données gardées par le désinstalleur : « Ses données sont gardées dans ... »' { $script:MessageFin -match 'Ses données sont gardées dans' -and $script:MessageFin -match [regex]::Escape((Join-Path $SuiteDir 'Appli')) }
+    Remove-Item -LiteralPath (Join-Path $SuiteDir 'Appli') -Recurse -Force
+    Complete-Desinstallation $appli
+    Test-Cas 'Données supprimées par le désinstalleur : « désinstallé, avec ses données »' { $script:MessageFin -match 'désinstallé, avec ses données' -and $script:MessageFin -notmatch 'gardées' }
+    $accueil = Get-Texte (Join-Path $fichiers 'modules\accueil.ps1')
+    Test-Cas 'La confirmation annonce que le désinstalleur de l''appli demande si les données sont gardées' { $accueil -match 'Il te demande aussi si tu gardes tes données' }
 }
 catch {
     $script:Echoues += "Arrêt inattendu : $($_.Exception.Message)"

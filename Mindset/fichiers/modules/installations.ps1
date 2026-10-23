@@ -457,7 +457,9 @@ function Start-DesinstallAppli($Appli) {
     $inst = Get-Installation $Appli
     if (-not $inst -or -not $inst.Gere -or $inst.Dossier -ine (Get-DossierGere $Appli)) { return }
     if ($Appli.Desinstalleur) {
-        # Nevermind a son propre désinstalleur : il remet les réglages de Windows comme avant, puis supprime ses fichiers
+        # Nevermind a son propre désinstalleur : il remet les réglages de Windows comme avant, puis supprime ses fichiers.
+        # Lancé sans option : c'est lui qui demande si les données sont gardées (sans droits, il se relance en
+        # administrateur et une option ne suivrait pas). Complete-Desinstallation regarde ensuite ce qu'il a fait.
         try { Start-Process -FilePath (Join-Path $inst.Dossier $Appli.Desinstalleur) -WorkingDirectory $inst.Dossier -ErrorAction Stop } catch { Stop-Operation $Appli 'Désinstallation annulée.'; return }
         $script:Occupe[$Appli.Id] = 'Désinstallation (suis les étapes de son désinstalleur)...'
         $script:AttenteDesinstall = @{ Appli = $Appli; Dossier = $inst.Dossier; Debut = Get-Date }
@@ -478,7 +480,9 @@ function Complete-Desinstallation($Appli) {
     Save-Installation $Appli.Id $null $false
     Set-SuiteAppli $Appli.Id $null
     Set-DemarrageAppli $Appli.Id $false
-    # Le message dit ce qui s'est vraiment passé : le désinstalleur de l'appli garde ses données, ou les supprime (Nevermind)
+    # Le message dit ce qui s'est vraiment passé : le désinstalleur de l'appli a gardé ses données ou les a supprimées,
+    # selon le choix fait dans sa fenêtre (une ancienne version de Nevermind les supprime toujours). Sans désinstalleur
+    # propre (Evermind...), seuls les programmes sont supprimés : les données restent.
     $donnees = Join-Path $SuiteDir $Appli.Nom
     $gardees = [IO.Directory]::Exists($donnees) -and @([IO.Directory]::EnumerateFileSystemEntries($donnees)).Count
     Write-Log "$($Appli.Nom) désinstallé (données $(if ($gardees) { 'gardées' } else { 'supprimées' }))"

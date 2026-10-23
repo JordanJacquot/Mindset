@@ -13,8 +13,10 @@
 // Ce qui est retiré (le même tableau que l'issue #1) :
 //   programmes        <Program Files>\Mindset (Mindset et ses applis) et X:\Mindset\Programmes sur chaque disque fixe
 //   applis            le désinstalleur de chaque appli qui en a un (champ « desinstalleur » de apps.json, Nevermind) est
-//                     lancé d'abord ; s'il échoue, la désinstallation continue et le signale
-//   tâches            tout le dossier « \Mindset\ » du Planificateur (démarrage, installation, « <Appli> (aide) »...)
+//                     lancé d'abord ; s'il échoue, la désinstallation continue et le signale. Il reçoit le choix de la
+//                     case : -GarderDonnees ou -SupprimerDonnees (il ne pose alors pas la question). Une ancienne version
+//                     qui supprime quand même ses données est repérée (son dossier de données a disparu) et le bilan le dit
+//   tâches          tout le dossier « \Mindset\ » du Planificateur (démarrage, installation, « <Appli> (aide) »...)
 //   registre          HKLM\SOFTWARE\Mindset, HKLM\...\Uninstall\Mindset, la valeur « Mindset » de HKCU\...\Run
 //   raccourcis        Mindset.lnk sur le Bureau et dans le menu Démarrer
 //   données (option)  %LOCALAPPDATA%\Mindset et X:\Mindset\Donnees ; sinon seuls les téléchargements en cours partent
@@ -378,7 +380,19 @@ static class Desinstalleur
         if (b.Restes.Count == 0)
         {
             s.Append(b.Faits.Count == 0 ? "Il ne restait plus rien de Mindset sur ce PC." : "Mindset est désinstallé.");
-            if (t.DonneesGardees.Count > 0) s.Append("\r\n\r\nTes données sont gardées (" + string.Join(", ", t.DonneesGardees.ToArray()) + ") : si tu réinstalles Mindset, tu retrouveras tout.");
+            if (t.DonneesGardees.Count > 0)
+            {
+                string ou = string.Join(", ", t.DonneesGardees.ToArray());
+                if (t.DonneesSupprimeesPar.Count == 0) s.Append("\r\n\r\nTes données sont gardées (" + ou + ") : si tu réinstalles Mindset, tu retrouveras tout.");
+                else
+                {
+                    // (une ancienne version d'une appli a supprimé ses données malgré le choix : on le dit)
+                    bool une = t.DonneesSupprimeesPar.Count == 1;
+                    s.Append("\r\n\r\nTes données sont gardées (" + ou + "), sauf celles de " + string.Join(" et de ", t.DonneesSupprimeesPar.ToArray()) +
+                             (une ? ", que son désinstalleur a supprimées" : ", que leurs désinstalleurs ont supprimées") +
+                             ". Si tu réinstalles Mindset, tu retrouveras le reste.");
+                }
+            }
         }
         else
         {
@@ -404,6 +418,7 @@ static class Desinstalleur
             r["faits"] = t.Bilan.Faits; r["restes"] = t.Bilan.Restes; r["alertes"] = t.Bilan.Alertes;
             r["caseDonneesAuDepart"] = caseAuDepart;
             r["donneesSupprimees"] = donnees;
+            r["donneesSupprimeesPar"] = t.DonneesSupprimeesPar;
             r["texteAffiche"] = texte;
             string tmp = fichier + ".tmp";
             File.WriteAllText(tmp, new JavaScriptSerializer().Serialize(r), new UTF8Encoding(false));
@@ -421,6 +436,7 @@ class Travail
     public Bilan Bilan;
     public string Garder;                                    // ce programme, s'il est dans un dossier des programmes
     public List<string> DonneesGardees = new List<string>();
+    public List<string> DonneesSupprimeesPar = new List<string>();   // applis dont le désinstalleur a supprimé les données
     public string ConseilRelance = "";
 
     public Travail(Lieux l, Bilan b, string original)
@@ -449,7 +465,7 @@ class Travail
         // 1. Mindset d'abord (il relancerait ses applis), puis le désinstalleur de chaque appli qui en a un, puis le reste
         Bilan.Etape("Fermeture de Mindset...");
         FermerProgrammes(programmes, "Mindset.exe");
-        foreach (AppliGeree a in ApplisAvecDesinstalleur(programmes)) LancerDesinstalleur(a);
+        foreach (AppliGeree a in ApplisAvecDesinstalleur(programmes)) LancerDesinstalleur(a, supprimerDonnees);
         Bilan.Etape("Fermeture des applis...");
         FermerProgrammes(programmes, null);
 
@@ -659,18 +675,37 @@ class Travail
         return d.TryGetValue(cle, out v) ? v as string : null;
     }
 
+    // Les dossiers de données d'une appli qui ont quelque chose dedans (<racine des données>\<Appli>)
+    List<string> DossiersDonneesPleins(AppliGeree a)
+    {
+        List<string> r = new List<string>();
+        foreach (string racine in Lieux.RacinesDonnees())
+        {
+            try
+            {
+                string d = Path.Combine(racine, a.Nom);
+                if (Directory.Exists(d) && Directory.GetFileSystemEntries(d).Length > 0) r.Add(d);
+            }
+            catch { }
+        }
+        return r;
+    }
+
     // Lance le désinstalleur de l'appli et attend sa fin (10 minutes au plus). Il a réussi si le programme de l'appli
     // n'est plus là (ou, sans programme connu, s'il a fini sans erreur). Sinon la désinstallation continue quand même.
-    void LancerDesinstalleur(AppliGeree a)
+    // Il reçoit le choix de la case (-GarderDonnees ou -SupprimerDonnees) : il ne pose pas la question. Données à garder
+    // mais parties quand même (ancienne version de l'appli, qui ignore ce choix) : noté, pour que le bilan dise la vérité.
+    void LancerDesinstalleur(AppliGeree a, bool supprimerDonnees)
     {
         string exeAppli = a.Exe != null ? Path.Combine(a.Dossier, a.Exe) : null;
         if (exeAppli != null && !File.Exists(exeAppli)) return;   // (déjà désinstallée : ses restes partent avec le dossier)
         Bilan.Etape("Désinstallation de " + a.Nom + " (suis les étapes de son désinstalleur)...");
+        List<string> donneesAvant = supprimerDonnees ? new List<string>() : DossiersDonneesPleins(a);
         DateTime limite = DateTime.Now.AddMinutes(10);
         Process p;
         try
         {
-            ProcessStartInfo psi = new ProcessStartInfo(Path.Combine(a.Dossier, a.Desinstalleur));
+            ProcessStartInfo psi = new ProcessStartInfo(Path.Combine(a.Dossier, a.Desinstalleur), supprimerDonnees ? "-SupprimerDonnees" : "-GarderDonnees");
             psi.UseShellExecute = false; psi.WorkingDirectory = a.Dossier;
             p = Process.Start(psi);
         }
@@ -702,6 +737,15 @@ class Travail
             ok = !File.Exists(exeAppli);
         }
         else ok = code == 0;
+        if (donneesAvant.Count > 0)
+        {
+            List<string> encore = DossiersDonneesPleins(a);
+            if (!donneesAvant.TrueForAll(d => encore.Exists(x => string.Equals(x, d, StringComparison.OrdinalIgnoreCase))))
+            {
+                DonneesSupprimeesPar.Add(a.Nom);
+                Bilan.Fait("Données de " + a.Nom + " supprimées par son désinstalleur (malgré le choix de les garder)");
+            }
+        }
         if (ok) Bilan.Fait(a.Nom + " désinstallé par son désinstalleur");
         else Bilan.Alerte("Le désinstalleur de " + a.Nom + " n'a pas fini (annulé, ou en erreur" + (code != 0 ? " : code " + code : "") + ") : ses fichiers sont retirés quand même, mais les réglages de Windows qu'il avait changés sont peut-être restés.");
     }
