@@ -176,6 +176,7 @@ static class Faux {
         $null = & "$env:SystemRoot\System32\cmd.exe" /c mklink /J "$(Join-Path $e.Donnees 'Mindset\lien')" "$($e.Precieux)" 2>&1
         # Raccourcis (celui d'un autre programme doit rester)
         foreach ($d in $e.Bureau, $e.Menu) { Save-Fichier (Join-Path $d 'Mindset.lnk') 'raccourci' }
+        foreach ($a in 'Nevermind', 'Evermind') { Save-Fichier (Join-Path $e.Menu "Mindset\$a.lnk") 'raccourci' }   # (ceux des applis, écrits par Mindset)
         Save-Fichier (Join-Path $e.Bureau 'Autre programme.lnk') 'raccourci'
         # Registre de test
         $r = "HKCU:\$CleTest"
@@ -222,7 +223,7 @@ static class Faux {
     function Test-ToutRetire($E) {
         (Test-Absent $E.RacineC) -and (Test-Absent (Join-Path $E.RacineX 'Programmes')) -and -not (Test-DossierTachesPresent) -and
         (Test-Absent "HKCU:\$CleTest\Uninstall\Mindset") -and (Test-Absent "HKCU:\$CleTest\Mindset") -and -not (Test-Valeur "HKCU:\$CleTest\Run" 'Mindset') -and
-        (Test-Absent (Join-Path $E.Bureau 'Mindset.lnk')) -and (Test-Absent (Join-Path $E.Menu 'Mindset.lnk'))
+        (Test-Absent (Join-Path $E.Bureau 'Mindset.lnk')) -and (Test-Absent (Join-Path $E.Menu 'Mindset.lnk')) -and (Test-Absent (Join-Path $E.Menu 'Mindset'))
     }
     Test-Cas 'Le faux environnement se prépare (tâches de test comprises)' { $e0 = New-Environnement 'essai'; (Test-DossierTachesPresent) -and (Test-Path -LiteralPath $e0.Exe) }
 
@@ -241,6 +242,7 @@ static class Faux {
     }
     Test-Cas 'Mindset qui tournait est fermé' { $mindsetOuvert.WaitForExit(5000) }
     Test-Cas 'Tout est retiré : programmes (C: et X:), tâches, registre, lancement avec Windows, raccourcis' { Test-ToutRetire $e }
+    Test-Cas 'Les raccourcis des applis (dossier « Mindset » du menu Démarrer) sont retirés, avec le dossier' { (Test-Absent (Join-Path $e.Menu 'Mindset\Nevermind.lnk')) -and (Test-Absent (Join-Path $e.Menu 'Mindset')) }
     Test-Cas 'Ce qui ne vient pas de Mindset reste (autre valeur Run, autre raccourci)' { (Test-Valeur "HKCU:\$CleTest\Run" 'Autre programme') -and (Test-Path -LiteralPath (Join-Path $e.Bureau 'Autre programme.lnk')) }
     Test-Cas 'Les données sont gardées (réglages, rendez-vous, suite.json, sur C: et sur X:)' {
         (Test-Path -LiteralPath (Join-Path $e.Donnees 'suite.json')) -and (Test-Path -LiteralPath (Join-Path $e.Donnees 'Mindset\reglages.json')) -and
@@ -375,6 +377,7 @@ static class Faux {
     function Save-Installation { }
     function Set-SuiteAppli { }
     function Set-DemarrageAppli { }
+    function Remove-RaccourciAppli { }   # (vérifié par tester-raccourcis.ps1)
     function Write-Log { }
     function Stop-Operation($Appli, [string]$Message) { $script:MessageFin = $Message }
     Invoke-Expression $fn.Extent.Text

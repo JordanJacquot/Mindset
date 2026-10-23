@@ -306,6 +306,7 @@ function Complete-Installation($Appli, [string]$Dossier) {
     $ancien = if ($c -and $c.Appli.Id -eq $Appli.Id) { $c.Ancien } else { '' }
     Save-Installation $Appli.Id $Dossier $true
     Set-SuiteAppli $Appli.Id $Dossier
+    Update-RaccourciAppli $Appli
     $notes = @(Remove-Doublons $Appli)
     if ($ancien) { $notes += Remove-AncienneCopie $Appli $ancien $c.Zip }
     foreach ($f in @(Get-ChildItem -LiteralPath $TelechargementsDir -Filter "$($Appli.Id).*" -ErrorAction SilentlyContinue)) { Remove-Item -LiteralPath $f.FullName -Force -ErrorAction SilentlyContinue }
@@ -358,6 +359,52 @@ function Remove-Doublons($Appli) {
     # (son ancien lancement avec Windows n'est pas repris : l'interrupteur « S'ouvre avec Mindset » reste éteint, à chacun de l'allumer)
     if ($n) { "$n raccourci$(if ($n -gt 1) { 's' }) direct$(if ($n -gt 1) { 's' }) retiré$(if ($n -gt 1) { 's' }) : $($Appli.Nom) s'ouvre maintenant depuis Mindset." }
 }
+
+# ---------------------------------------------------------------------------
+# Le nom de l'appli dans la barre des tâches : son raccourci du menu Démarrer (Mindset\<Appli>.lnk)
+# ---------------------------------------------------------------------------
+# L'hôte de chaque appli s'appelle Mindset.exe (pour que le Gestionnaire des tâches range la suite sur une ligne). Pour
+# nommer le bouton d'une appli, Windows cherche dans le menu Démarrer un raccourci qui porte la même identité qu'elle
+# (AppUserModelID, ex. JordanJacquot.Nevermind) et prend son nom et son icône ; sans lui, il prend la description de
+# son programme : « Mindset » pour toutes. Mindset écrit donc ce raccourci pour chaque appli gérée qui a son hôte
+# Mindset.exe (installation, mise à jour, prise en charge, et à chaque démarrage pour réparer), et le retire quand
+# elle est désinstallée ou n'est plus gérée. (En test, seulement dans le dossier donné par MINDSET_TEST_MENU.)
+$MenuApplis = if ($EnTest) { [string]$env:MINDSET_TEST_MENU } else { Join-Path ([Environment]::GetFolderPath('Programs')) 'Mindset' }
+
+function Get-RaccourciMenu($Appli) { if ($MenuApplis) { Join-Path $MenuApplis "$($Appli.Nom).lnk" } }
+
+function Update-RaccourciAppli($Appli) {
+    $lien = Get-RaccourciMenu $Appli
+    if (-not $lien) { return }
+    $inst = Get-Installation $Appli
+    $hote = if ($inst -and $inst.Gere) { Join-Path $inst.Dossier 'Mindset.exe' } else { '' }
+    if (-not $hote -or -not (Test-Path -LiteralPath $hote -PathType Leaf)) { Remove-RaccourciAppli $Appli; return }
+    # Déjà juste (même programme, même icône, même identité) : il n'est pas réécrit
+    $l = $null
+    if (Test-Path -LiteralPath $lien) { try { $l = [MSRaccourci]::Lire($lien) } catch {} }
+    if ($l -and $l[0] -ieq $hote -and $l[1] -ieq "$hote,0" -and $l[2] -ceq $Appli.AppId) { return }
+    # Sinon il est remplacé (un ancien raccourci du même nom, sans identité ou vers un autre dossier, ne reste pas)
+    try {
+        New-Item -ItemType Directory -Force -Path $MenuApplis | Out-Null
+        if (Test-Path -LiteralPath $lien) { Remove-Item -LiteralPath $lien -Force -ErrorAction Stop }
+        [MSRaccourci]::Ecrire($lien, $hote, $inst.Dossier, $hote, $Appli.Description, $Appli.AppId)
+        Write-Log "Raccourci de $($Appli.Nom) dans le menu Démarrer : $lien"
+    } catch { Write-Log "Raccourci de $($Appli.Nom) dans le menu Démarrer : $($_.Exception.Message)" }
+}
+
+function Remove-RaccourciAppli($Appli) {
+    $lien = Get-RaccourciMenu $Appli
+    if (-not $lien) { return }
+    if (Test-Path -LiteralPath $lien) {
+        try { Remove-Item -LiteralPath $lien -Force -ErrorAction Stop; Write-Log "Raccourci de $($Appli.Nom) retiré du menu Démarrer" }
+        catch { Write-Log "Raccourci $lien pas retiré : $($_.Exception.Message)" }
+    }
+    # Le dossier Mindset du menu Démarrer, une fois vide
+    try { if ((Test-Path -LiteralPath $MenuApplis) -and -not @(Get-ChildItem -LiteralPath $MenuApplis -Force).Count) { Remove-Item -LiteralPath $MenuApplis -Force -ErrorAction Stop } } catch {}
+}
+
+# Au démarrage de Mindset : les installations d'avant (ou un raccourci supprimé, cassé, d'une autre version) sont réparées
+function Update-RaccourcisApplis { foreach ($a in $Applis) { Update-RaccourciAppli $a } }
 
 # Un dossier que Mindset (peut-être administrateur) accepte de vider : ni dossier de Windows ou de programmes, ni point de
 # jonction ou lien symbolique (sur lui ou sur un de ses parents), qui pourrait renvoyer ailleurs que là où il semble être
@@ -494,6 +541,7 @@ function Complete-Desinstallation($Appli) {
     Save-Installation $Appli.Id $null $false
     Set-SuiteAppli $Appli.Id $null
     Set-DemarrageAppli $Appli.Id $false
+    Remove-RaccourciAppli $Appli
     # Le message dit ce qui s'est vraiment passé : le désinstalleur de l'appli a gardé ses données ou les a supprimées,
     # selon le choix fait dans sa fenêtre (une ancienne version de Nevermind les supprime toujours). Sans désinstalleur
     # propre (Evermind...), seuls les programmes sont supprimés : les données restent.
@@ -529,5 +577,6 @@ $script:DesinstallTimer.Add_Tick({
 function Use-InstallationTrouvee($Appli, [string]$Dossier) {
     if (-not (Test-DossierAppli $Dossier $Appli)) { Stop-Operation $Appli "Ce dossier ne contient pas $($Appli.Nom)."; return }
     Save-Installation $Appli.Id $Dossier $false
+    Update-RaccourciAppli $Appli   # (plus gérée : son raccourci du menu Démarrer part)
     Stop-Operation $Appli "Mindset ouvrira la copie de $Dossier. Elle se met à jour toute seule et garde son propre thème."
 }

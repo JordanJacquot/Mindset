@@ -48,3 +48,6 @@ jobs:
 
       - name: "Programmes trouvés par leur chemin, jamais par leur nom (vrais programmes d'essai, sans droits)"
         run: .\outils\tester-processus.ps1
+
+      - name: "Nom de chaque appli dans la barre des tâches (faux menu Démarrer, fenêtre de test hors de l'écran)"
+        run: .\outils\tester-raccourcis.ps1

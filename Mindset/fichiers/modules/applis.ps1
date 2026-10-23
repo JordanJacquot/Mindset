@@ -34,6 +34,7 @@ function Get-Applis {
             Id              = [string]$a.id
             Nom             = [string]$a.nom
             Couleur         = [string]$a.couleur
+            AppId           = 'JordanJacquot.' + ([string]$a.nom -replace '[^A-Za-z0-9]', '')   # son identité dans la barre des tâches (celle que l'appli se donne)
             Description     = [string]$a.description
             Presentation    = [string]$a.presentation   # ce que fait l'appli, en une phrase (console : menu en grand, écran « pas encore installée »)
             Depot           = [string]$a.depot

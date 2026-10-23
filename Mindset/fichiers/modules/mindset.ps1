@@ -9,6 +9,23 @@
 $DossierMindset = Join-Path $RacineProgrammes 'Mindset'
 $RaccourcisMindset = @((Join-Path ([Environment]::GetFolderPath('Desktop')) 'Mindset.lnk'), (Join-Path ([Environment]::GetFolderPath('Programs')) 'Mindset.lnk'))
 $CleRun = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Run'
+$DescriptionRaccourciMindset = 'Mindset : toutes tes applis au même endroit'
+
+# Ses raccourcis portent son identité dans la barre des tâches (JordanJacquot.Mindset), comme sa fenêtre : épinglé
+# depuis le menu Démarrer, il garde un seul bouton. Ceux d'avant (sans identité) sont réécrits au démarrage, seulement
+# s'ils lancent ce Mindset installé (un raccourci supprimé n'est pas recréé).
+function Update-RaccourcisMindset {
+    if (-not (Test-MindsetInstalle)) { return }
+    foreach ($l in $RaccourcisMindset) {
+        if (-not (Test-Path -LiteralPath $l)) { continue }
+        try {
+            $r = [MSRaccourci]::Lire($l)
+            if ($r[0] -ine $AppExe -or $r[2] -ceq $AppId) { continue }
+            [MSRaccourci]::Ecrire($l, $AppExe, (Split-Path $AppExe -Parent), $AppExe, $DescriptionRaccourciMindset, $AppId)
+            Write-Log "Raccourci $l : identité ajoutée"
+        } catch { Write-Log "Raccourci $l : $($_.Exception.Message)" }
+    }
+}
 
 function Test-MindsetInstalle { (Split-Path $AppDir -Parent) -ieq $DossierMindset }
 
@@ -43,9 +60,8 @@ function Install-Mindset([string]$Disque) {
         $dossier, $sansTaches = $Message -split '\|', 2
         Copy-ReglageVerif $dossier
         $exe = Join-Path $dossier 'Mindset.exe'
-        $sh = New-Object -ComObject WScript.Shell
         foreach ($l in $RaccourcisMindset) {
-            try { $s = $sh.CreateShortcut($l); $s.TargetPath = $exe; $s.WorkingDirectory = $dossier; $s.IconLocation = "$exe,0"; $s.Description = 'Mindset : toutes tes applis au même endroit'; $s.Save() }
+            try { [MSRaccourci]::Ecrire($l, $exe, $dossier, $exe, $DescriptionRaccourciMindset, $AppId) }
             catch { Write-Log "Raccourci $l : $_" }
         }
         # Lancement avec Windows : par sa tâche planifiée (en administrateur), sinon par le registre (sans les droits)
@@ -141,6 +157,9 @@ function Confirm-DesinstallMindset {
 # Une appli administrateur (Nevermind) seulement si Mindset l'est aussi : sinon Windows demanderait l'autorisation.
 function Start-Demarrage {
     if ($EnTest) { return }
+    # Les raccourcis du menu Démarrer (le nom de chaque appli dans la barre des tâches), réparés s'il le faut
+    Update-RaccourcisApplis
+    Update-RaccourcisMindset
     $marque = Join-Path $DataDir 'relance.marque'
     if (Test-Path -LiteralPath $marque) {
         $recente = ((Get-Date) - (Get-Item -LiteralPath $marque).LastWriteTime).TotalSeconds -lt 120

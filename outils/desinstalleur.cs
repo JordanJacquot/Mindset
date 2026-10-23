@@ -18,7 +18,7 @@
 //                     qui supprime quand même ses données est repérée (son dossier de données a disparu) et le bilan le dit
 //   tâches          tout le dossier « \Mindset\ » du Planificateur (démarrage, installation, « <Appli> (aide) »...)
 //   registre          HKLM\SOFTWARE\Mindset, HKLM\...\Uninstall\Mindset, la valeur « Mindset » de HKCU\...\Run
-//   raccourcis        Mindset.lnk sur le Bureau et dans le menu Démarrer
+//   raccourcis        Mindset.lnk sur le Bureau et dans le menu Démarrer, et ceux des applis (dossier « Mindset » du menu)
 //   données (option)  %LOCALAPPDATA%\Mindset et X:\Mindset\Donnees ; sinon seuls les téléchargements en cours partent
 //   X:\Mindset        retiré s'il est vide
 // Un élément qui ne part pas est affiché à la fin (« ce qui reste »), jamais seulement noté dans le journal. Dans ce cas,
@@ -500,6 +500,21 @@ class Travail
             if (!File.Exists(l)) continue;
             try { File.SetAttributes(l, FileAttributes.Normal); File.Delete(l); Bilan.Fait("Raccourci retiré : " + l); }
             catch (Exception e) { Bilan.Reste("Le raccourci " + l + " (" + e.Message + ")"); }
+        }
+        // Le dossier « Mindset » du menu Démarrer : les raccourcis des applis (leur nom dans la barre des tâches), écrits
+        // par Mindset. Seuls les raccourcis partent ; le dossier aussi s'il est alors vide.
+        if (!string.IsNullOrEmpty(Lieux.Menu))
+        {
+            string m = Path.Combine(Lieux.Menu, "Mindset");
+            if (Directory.Exists(m))
+            {
+                foreach (string l in Directory.GetFiles(m, "*.lnk"))
+                {
+                    try { File.SetAttributes(l, FileAttributes.Normal); File.Delete(l); Bilan.Fait("Raccourci retiré : " + l); }
+                    catch (Exception e) { Bilan.Reste("Le raccourci " + l + " (" + e.Message + ")"); }
+                }
+                try { if (Directory.GetFileSystemEntries(m).Length == 0) Directory.Delete(m); } catch { }
+            }
         }
 
         // 5. Les données : toutes si c'est demandé, sinon seulement les téléchargements en cours de Mindset

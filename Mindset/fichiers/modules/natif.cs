@@ -262,6 +262,113 @@ public static class MSNative
     }
 }
 
+// Raccourcis du menu Démarrer qui portent l'identité d'une appli (System.AppUserModel.ID), voir installations.ps1.
+// L'hôte de chaque appli s'appelle Mindset.exe : pour nommer son bouton dans la barre des tâches, Windows cherche un
+// raccourci du menu Démarrer de la même identité et prend son nom ; sans lui, il prend la description du programme
+// (« Mindset » pour toutes). WScript.Shell ne sait pas écrire cette identité : le raccourci est écrit ici.
+public static class MSRaccourci
+{
+    [ComImport, Guid("00021401-0000-0000-C000-000000000046")]
+    class ShellLink { }
+
+    [ComImport, Guid("000214F9-0000-0000-C000-000000000046"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+    interface IShellLinkW
+    {
+        void GetPath([Out, MarshalAs(UnmanagedType.LPWStr)] System.Text.StringBuilder file, int cch, IntPtr findData, uint flags);
+        void GetIDList(out IntPtr pidl);
+        void SetIDList(IntPtr pidl);
+        void GetDescription([Out, MarshalAs(UnmanagedType.LPWStr)] System.Text.StringBuilder name, int cch);
+        void SetDescription([MarshalAs(UnmanagedType.LPWStr)] string name);
+        void GetWorkingDirectory([Out, MarshalAs(UnmanagedType.LPWStr)] System.Text.StringBuilder dir, int cch);
+        void SetWorkingDirectory([MarshalAs(UnmanagedType.LPWStr)] string dir);
+        void GetArguments([Out, MarshalAs(UnmanagedType.LPWStr)] System.Text.StringBuilder args, int cch);
+        void SetArguments([MarshalAs(UnmanagedType.LPWStr)] string args);
+        void GetHotkey(out short hotkey);
+        void SetHotkey(short hotkey);
+        void GetShowCmd(out int showCmd);
+        void SetShowCmd(int showCmd);
+        void GetIconLocation([Out, MarshalAs(UnmanagedType.LPWStr)] System.Text.StringBuilder iconPath, int cch, out int icon);
+        void SetIconLocation([MarshalAs(UnmanagedType.LPWStr)] string iconPath, int icon);
+        void SetRelativePath([MarshalAs(UnmanagedType.LPWStr)] string pathRel, int reserved);
+        void Resolve(IntPtr hwnd, uint flags);
+        void SetPath([MarshalAs(UnmanagedType.LPWStr)] string file);
+    }
+
+    [StructLayout(LayoutKind.Sequential, Pack = 4)]
+    struct PROPERTYKEY { public Guid fmtid; public uint pid; }
+
+    [StructLayout(LayoutKind.Explicit)]
+    struct PROPVARIANT
+    {
+        [FieldOffset(0)] public ushort vt;
+        [FieldOffset(8)] public IntPtr p;
+        [FieldOffset(8)] public long pad1;
+        [FieldOffset(16)] public long pad2;
+    }
+
+    [ComImport, Guid("886D8EEB-8CF2-4446-8D02-CDBA1DBDCF99"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+    interface IPropertyStore
+    {
+        void GetCount(out uint count);
+        void GetAt(uint index, out PROPERTYKEY key);
+        void GetValue(ref PROPERTYKEY key, out PROPVARIANT value);
+        void SetValue(ref PROPERTYKEY key, ref PROPVARIANT value);
+        void Commit();
+    }
+
+    [DllImport("ole32.dll")] static extern int PropVariantClear(ref PROPVARIANT pv);
+
+    // PKEY_AppUserModel_ID : {9F4C2855-9F79-4B39-A8D0-E1D42DE1D5F3}, 5
+    static PROPERTYKEY CleAppId() { return new PROPERTYKEY { fmtid = new Guid("9F4C2855-9F79-4B39-A8D0-E1D42DE1D5F3"), pid = 5 }; }
+
+    // Écrit (ou remplace) le raccourci : programme, dossier de travail, icône (index 0), commentaire et identité
+    public static void Ecrire(string lien, string cible, string dossier, string icone, string description, string appId)
+    {
+        object o = new ShellLink();
+        try
+        {
+            IShellLinkW l = (IShellLinkW)o;
+            l.SetPath(cible);
+            l.SetArguments("");
+            l.SetWorkingDirectory(dossier ?? "");
+            l.SetIconLocation(icone ?? cible, 0);
+            l.SetDescription(description ?? "");
+            IPropertyStore store = (IPropertyStore)o;
+            PROPERTYKEY k = CleAppId();
+            PROPVARIANT v = new PROPVARIANT { vt = 31, p = Marshal.StringToCoTaskMemUni(appId) };   // 31 = VT_LPWSTR
+            try { store.SetValue(ref k, ref v); store.Commit(); }
+            finally { Marshal.FreeCoTaskMem(v.p); }
+            ((System.Runtime.InteropServices.ComTypes.IPersistFile)o).Save(lien, true);
+        }
+        finally { Marshal.ReleaseComObject(o); }
+    }
+
+    // Ce que contient un raccourci : { programme, "icône,index", identité } (identité vide s'il n'en a pas)
+    public static string[] Lire(string lien)
+    {
+        object o = new ShellLink();
+        try
+        {
+            ((System.Runtime.InteropServices.ComTypes.IPersistFile)o).Load(lien, 0);   // STGM_READ
+            IShellLinkW l = (IShellLinkW)o;
+            var cible = new System.Text.StringBuilder(1024);
+            l.GetPath(cible, cible.Capacity, IntPtr.Zero, 4);   // SLGP_RAWPATH
+            var icone = new System.Text.StringBuilder(1024);
+            int index;
+            l.GetIconLocation(icone, icone.Capacity, out index);
+            string appId = "";
+            IPropertyStore store = (IPropertyStore)o;
+            PROPERTYKEY k = CleAppId();
+            PROPVARIANT v;
+            store.GetValue(ref k, out v);
+            try { if (v.vt == 31 && v.p != IntPtr.Zero) appId = Marshal.PtrToStringUni(v.p); }
+            finally { PropVariantClear(ref v); }
+            return new string[] { cible.ToString(), icone.ToString() + "," + index, appId };
+        }
+        finally { Marshal.ReleaseComObject(o); }
+    }
+}
+
 // Mises à jour automatiques : depuis combien de temps personne ne touche au PC, et si un jeu ou une vidéo est en plein écran
 public static class MSActivite
 {
