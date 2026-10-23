@@ -133,17 +133,15 @@ if ($Desinstaller) { Show-Page 'parametres'; Confirm-DesinstallMindset }
 # Quitté pour de bon : les applis ont reçu leur demande de fermeture (integration.ps1) ; on leur laisse 6 secondes,
 # puis on ferme celles qui tournent encore (une appli en administrateur ne peut l'être que par un Mindset administrateur)
 if ($script:FermerApplis -and -not $EnTest) {   # (jamais en test : les vraies applis de l'utilisateur tournent peut-être)
-    $noms = @($Applis | ForEach-Object { [IO.Path]::GetFileNameWithoutExtension($_.Exe) })
-    # Seulement les programmes installés par Mindset (une copie de travail ou de test du même nom n'est pas touchée)
-    $miens = @{}
-    foreach ($a in $Applis) { $i = Get-Installation $a; if ($i) { $miens[(Join-Path $i.Dossier $a.Exe).ToLower()] = $a.Nom } }
-    $aFermer = { @(Get-Process -Name $noms -ErrorAction SilentlyContinue | Where-Object { $c = try { [string]$_.Path } catch { '' }; -not $c -or $miens.ContainsKey($c.ToLower()) }) }
+    # Seulement les programmes lancés depuis le dossier où chaque appli est installée, trouvés par leur chemin (leur hôte
+    # s'appelle Mindset.exe, comme Mindset : jamais par leur nom ; une copie de travail ou de test ailleurs n'est pas touchée)
+    $aFermer = { @(foreach ($a in $Applis) { foreach ($p in @(Get-ProcessusAppli $a -Hote)) { [pscustomobject]@{ Appli = $a.Nom; P = $p } } }) }
     $limite = (Get-Date).AddSeconds(6)
     while ((Get-Date) -lt $limite -and (& $aFermer).Count) { Start-Sleep -Milliseconds 300 }
     # Une ligne par appli (avant : une par processus, d'où des lignes en double)
     $fermes = @{}; $refuses = @{}
-    foreach ($p in (& $aFermer)) {
-        try { $p.Kill(); $fermes[$p.ProcessName] = 1 + [int]$fermes[$p.ProcessName] } catch { $refuses[$p.ProcessName] = 1 + [int]$refuses[$p.ProcessName] }
+    foreach ($x in (& $aFermer)) {
+        try { $x.P.Kill(); $fermes[$x.Appli] = 1 + [int]$fermes[$x.Appli] } catch { $refuses[$x.Appli] = 1 + [int]$refuses[$x.Appli] }
     }
     foreach ($n in $fermes.Keys) { Write-Log "$n ne répondait pas : fermé par Mindset$(if ($fermes[$n] -gt 1) { " ($($fermes[$n]) processus)" })" }
     foreach ($n in $refuses.Keys) { Write-Log "$n tourne encore (fermeture refusée par Windows)" }

@@ -94,6 +94,8 @@ function Show-Page([string]$Id) {
     $ui.PageParametres.Visibility = if ($Id -eq 'parametres') { 'Visible' } else { 'Collapsed' }
     # (Paramètres sur l'onglet Général : les interrupteurs « S'ouvre avec Mindset » à jour ; parametres.ps1, chargé après)
     if ($Id -eq 'parametres' -and $script:OngletParametres -eq 'general' -and (Get-Command Update-DemarragesParametres -ErrorAction SilentlyContinue)) { Update-DemarragesParametres }
+    # (Paramètres sur l'onglet Consommation : les mesures reprennent ; elles s'arrêtent d'elles-mêmes quand il n'est plus à l'écran)
+    if ($Id -eq 'parametres' -and $script:OngletParametres -eq 'conso' -and (Get-Command Start-ConsoSuite -ErrorAction SilentlyContinue)) { Start-ConsoSuite }
     $ui.PageAppli.Visibility = if ($Id -in @('accueil', 'parametres')) { 'Collapsed' } else { 'Visible' }
     # L'accueil en console 3D quand elle peut s'afficher (console.ps1, chargé en dernier)
     if (Get-Command Update-PageConsole -ErrorAction SilentlyContinue) { Update-PageConsole }

@@ -122,6 +122,7 @@ function Start-Capture([string]$Path) {
         $script:CaptureTimer.Add_Tick({
             # (on attend la fin des travaux de fond, téléchargements compris, 30 secondes au plus)
             if ($script:Taches.Count -and ((Get-Date) - $script:CaptureDebut).TotalSeconds -lt 30) { return }
+            if ($env:MINDSET_CAPTURE_DELAI -and ((Get-Date) - $script:CaptureDebut).TotalSeconds -lt [double]$env:MINDSET_CAPTURE_DELAI) { return }   # (une page qui se met à jour : Consommation)
             $script:CaptureTimer.Stop()
             try {
                 $root = $Window.Content

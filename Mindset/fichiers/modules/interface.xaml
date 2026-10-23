@@ -419,6 +419,16 @@
                   </StackPanel>
                 </StackPanel>
 
+                <!-- Consommation : ce que consomme toute la suite (parametres.ps1, mesuré seulement quand cet onglet est à l'écran) -->
+                <StackPanel x:Name="PanConso" Visibility="Collapsed">
+                  <TextBlock Text="Ce que consomme la suite" FontSize="17" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                  <TextBlock TextWrapping="Wrap" Foreground="{StaticResource Texte2}" Margin="0,0,0,12"
+                             Text="Mindset et ses applis, comme dans le Gestionnaire des tâches de Windows. Mis à jour toutes les 2 secondes."/>
+                  <TextBlock x:Name="ConsoTotal" FontSize="15" FontWeight="SemiBold" Foreground="#ECEAF7" Margin="0,0,0,2"/>
+                  <TextBlock x:Name="ConsoProcesseur" Foreground="{StaticResource Texte2}" Margin="0,0,0,16"/>
+                  <StackPanel x:Name="ConsoDetail"/>
+                </StackPanel>
+
                 <!-- Dossiers -->
                 <StackPanel x:Name="PanDossiers" Visibility="Collapsed">
                   <TextBlock Text="Dossiers" FontSize="17" FontWeight="SemiBold" Margin="0,0,0,4"/>

@@ -465,7 +465,12 @@ class Travail
 
         // 1. Mindset d'abord (il relancerait ses applis), puis le désinstalleur de chaque appli qui en a un, puis le reste
         Bilan.Etape("Fermeture de Mindset...");
-        FermerProgrammes(programmes, "Mindset.exe");
+        // (seulement le Mindset.exe du dossier de Mindset : l'hôte de chaque appli s'appelle aussi Mindset.exe, et son
+        // désinstalleur la ferme lui-même, proprement)
+        FermerProgrammes(programmes.ConvertAll(r => Path.Combine(r, "Mindset")), "Mindset.exe");
+        // Données à supprimer : les programmes d'aide lancés depuis les données (Evermind : voix\Mindset.exe...) les
+        // tiendraient ouvertes ; fermés par leur chemin avant les désinstalleurs des applis
+        if (supprimerDonnees) FermerProgrammes(Lieux.RacinesDonnees(), null);
         foreach (AppliGeree a in ApplisAvecDesinstalleur(programmes)) LancerDesinstalleur(a, supprimerDonnees);
         Bilan.Etape("Fermeture des applis...");
         FermerProgrammes(programmes, null);
@@ -499,6 +504,7 @@ class Travail
 
         // 5. Les données : toutes si c'est demandé, sinon seulement les téléchargements en cours de Mindset
         Bilan.Etape(supprimerDonnees ? "Suppression des données..." : "Rangement des données...");
+        if (supprimerDonnees) FermerWebView2(Lieux.RacinesDonnees());   // (le dossier WebView2 commun est dans les données)
         foreach (string d in Lieux.RacinesDonnees())
         {
             if (supprimerDonnees) { SupprimerDossier(d, "Le dossier des données " + d); continue; }
@@ -591,6 +597,66 @@ class Travail
             return QueryFullProcessImageName(h, 0, sb, ref n) ? sb.ToString() : null;
         }
         finally { CloseHandle(h); }
+    }
+
+    [DllImport("ntdll.dll")]
+    static extern int NtQueryInformationProcess(IntPtr h, int classe, IntPtr tampon, int taille, out int requis);
+
+    // La ligne de commande d'un processus (null si Windows refuse)
+    static string LigneCommande(int pid)
+    {
+        IntPtr h = OpenProcess(0x1000, false, pid);
+        if (h == IntPtr.Zero) return null;
+        try
+        {
+            int requis;
+            NtQueryInformationProcess(h, 60, IntPtr.Zero, 0, out requis);   // (ProcessCommandLineInformation : la taille d'abord)
+            if (requis <= 0 || requis > 1024 * 1024) return null;
+            IntPtr t = Marshal.AllocHGlobal(requis);
+            try
+            {
+                if (NtQueryInformationProcess(h, 60, t, requis, out requis) != 0) return null;
+                int longueur = Marshal.ReadInt16(t) & 0xFFFF;
+                IntPtr texte = Marshal.ReadIntPtr(t, IntPtr.Size);
+                return texte == IntPtr.Zero ? "" : Marshal.PtrToStringUni(texte, longueur / 2);
+            }
+            finally { Marshal.FreeHGlobal(t); }
+        }
+        finally { CloseHandle(h); }
+    }
+
+    // Les WebView2 de la suite (msedgewebview2.exe dont la ligne de commande contient un dossier de données de la suite :
+    // le dossier commun WebView2, console-webview, ecran-webview...) tiennent leurs fichiers ouverts : avant de supprimer les
+    // données, on leur laisse 5 secondes pour s'arrêter d'eux-mêmes (leur appli est fermée), puis ils sont fermés. Trouvés
+    // par leur ligne de commande, jamais par leur seul nom (les WebView2 des autres programmes du PC ne sont pas touchés).
+    void FermerWebView2(List<string> racines)
+    {
+        DateTime limite = DateTime.Now.AddSeconds(5);
+        while (true)
+        {
+            List<Process> restants = new List<Process>();
+            foreach (Process p in Process.GetProcesses())
+            {
+                try
+                {
+                    string c = CheminProcessus(p.Id);
+                    if (c == null || !string.Equals(Path.GetFileName(c), "msedgewebview2.exe", StringComparison.OrdinalIgnoreCase)) continue;
+                    string cmd = LigneCommande(p.Id);
+                    if (cmd == null) continue;
+                    foreach (string r in racines)
+                        if (cmd.IndexOf(r.TrimEnd('\\') + "\\", StringComparison.OrdinalIgnoreCase) >= 0) { restants.Add(p); break; }
+                }
+                catch { }
+            }
+            if (restants.Count == 0) return;
+            if (DateTime.Now < limite) { Thread.Sleep(300); continue; }
+            foreach (Process p in restants)
+            {
+                try { p.Kill(); p.WaitForExit(3000); Bilan.Fait("WebView2 de la suite fermé (" + p.Id + ")"); }
+                catch (Exception e) { Bilan.Journal("WebView2 de la suite : fermeture impossible (" + p.Id + ") : " + e.Message); }
+            }
+            return;
+        }
     }
 
     // Ferme les programmes lancés depuis les dossiers des programmes de Mindset (seulement ceux-là : une copie de travail

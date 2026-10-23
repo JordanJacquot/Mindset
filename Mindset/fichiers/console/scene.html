@@ -683,7 +683,7 @@ document.querySelectorAll('#ronds button').forEach((b) => b.addEventListener('cl
 const REGL = '__reglages';
 const elReg = document.getElementById('reglagesGrand'), elRegCorps = document.getElementById('regCorps');
 const REG = { etat: null, onglet: 'general', images: {}, html: '', htmlOnglet: '' };
-const ONGLETS = [['general', 'Général'], ['apparence', 'Apparence'], ['son', 'Son'], ['maj', 'Mises à jour'], ['dossiers', 'Dossiers']];
+const ONGLETS = [['general', 'Général'], ['apparence', 'Apparence'], ['son', 'Son'], ['maj', 'Mises à jour'], ['conso', 'Consommation'], ['dossiers', 'Dossiers']];
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 const hex = (c, d) => typeof c === 'string' && /^#[0-9A-Fa-f]{6}$/.test(c) ? c : d;
 const ton = (t) => ['ok', 'attention', 'urgent'].includes(t) ? t : '';
@@ -697,6 +697,7 @@ const IC = {
   poubelle: '<path d="M4 7h16M9 7V4h6v3M6 7l1 14h10l1-14"/>',
   importer: '<path d="M12 15V3M7 8l5-5 5 5M5 21h14"/>',
   telecharger: '<path d="M12 3v12M7 10l5 5 5-5M5 21h14"/>',
+  conso: '<rect x="7" y="7" width="10" height="10" rx="1.5"/><path d="M10 3v4M14 3v4M10 17v4M14 17v4M3 10h4M3 14h4M17 10h4M17 14h4"/>',
 };
 const icone = (n) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[n]}</svg>`;
 const bascule = (k, quoi, oui, nom, id = '', grise = false) => `<button type="button" class="bascule f${oui ? ' oui' : ''}" role="switch" aria-checked="${oui ? 'true' : 'false'}" aria-label="${esc(nom)}" data-k="${esc(k)}" data-a="${quoi}" data-v="${oui ? '0' : '1'}"${id ? ` data-id="${esc(id)}"` : ''}${grise ? ' disabled' : ''}></button>`;
@@ -758,6 +759,14 @@ const PAGES = {
       + `<div class="boutons">${btn('confidentialite', 'Ce qui part sur Internet', 'second')}</div>`
       + titreBloc('Versions') + texte(verif ? 'Mindset cherche les nouvelles versions au démarrage puis toutes les heures. Elles sont signées : une version qui ne l\'est pas n\'est jamais installée.' : 'Mindset ne cherche plus les nouvelles versions tout seul : clique sur « Vérifier maintenant » quand tu veux. Elles sont signées : une version qui ne l\'est pas n\'est jamais installée.')
       + ligne('Mindset', '#ECEAF7', `version ${e.version}`, mm.texte, mm.ton) + (m.applis || []).map((a) => ligne(a.nom, a.couleur, a.version, a.texte, a.ton)).join('')];
+  },
+  conso(e) {
+    const c = e.conso;
+    const ligne = (l) => `<div class="plaque ligne"><span class="ic"><span class="l">${esc(String(l.nom).charAt(0).toUpperCase())}</span></span><span class="txt"><b>${esc(l.nom)}</b><span class="n">${esc(l.detail)}</span></span><span class="etiquette">${esc(l.memoire)} · ${esc(l.processeur)}</span></div>`;
+    return [`${grandeIc('conso')}<h3>Ce que consomme la suite</h3><p>Mindset et ses applis, comme dans le Gestionnaire des tâches de Windows.</p>`
+      + (c ? `<div class="resume"><div>Mémoire<b>${esc(c.memoire)}</b></div><div>Processeur<b>${esc(c.processeur)}</b></div></div>` : ''),
+      titreBloc('Toute la suite') + (c ? texte(`Mémoire utilisée par la suite : ${c.memoire}. Processeur : ${c.processeur} de l'ordinateur. Mis à jour toutes les 2 secondes.`) : texte('Mesure en cours...'))
+      + titreBloc('Le détail') + (c ? (c.lignes || []).map(ligne).join('') : '')];
   },
   dossiers(e) {
     return [`${grandeIc('dossier')}<h3>Dossiers</h3><p>Où sont Mindset, ses applis et leurs données sur ce PC.</p>`,

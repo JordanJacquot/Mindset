@@ -56,7 +56,7 @@ function Write-Partie([string]$Titre) { Write-Host ''; Write-Host $Titre -Foregr
 # Le lanceur : l'autre PowerShell où tourne la copie d'installer-admin.ps1, avec ses fausses fonctions
 # ---------------------------------------------------------------------------------------------------------------
 $texteLanceur = @'
-param([string]$Script, [string]$Parametres, [string]$Journal, [string]$Dossier, [string]$Lettre, [string]$LettreAmovible)
+param([string]$Script, [string]$Parametres, [string]$Journal, [string]$Dossier, [string]$Lettre, [string]$LettreAmovible, [switch]$VraisProgrammes)
 $global:TJournal = $Journal
 $global:TPermis = @(($Dossier.TrimEnd('\') + '\'), "$($Lettre):\")
 $global:TLettre = $Lettre; $global:TLettreAmovible = $LettreAmovible
@@ -143,8 +143,23 @@ function global:Unregister-ScheduledTask { Add-Journal "ACTION tâche retirée :
 function global:Set-ScheduledTask { Add-Journal "ACTION tâche modifiée : $(Get-TexteArgs $args)" }
 function global:Get-ScheduledTask { Add-Journal "LECTURE tâches $(Get-TexteArgs $args)" }
 # Programmes
-function global:Get-Process { [CmdletBinding()] param([string[]]$Name) Add-Journal "ACTION arrêt du programme $Name" }
-function global:Stop-Process { process { Add-Journal 'ACTION arrêt forcé' } }
+# (de faux programmes ouverts, avec leur chemin : Mindset lui-même, l'hôte Mindset.exe et l'ancien Appli.exe de l'appli,
+# son aide, une autre appli au nom proche « AppliBis », des copies ailleurs, un processus au chemin illisible)
+# -VraisProgrammes : les vrais Get-Process et Stop-Process, sur des programmes d'essai lancés par le test sous %TEMP%
+if (-not $VraisProgrammes) {
+    $pmt = Join-Path $env:ProgramFiles 'Mindset'
+    $global:TProcessus = @(
+        [pscustomobject]@{ Id = 101; Path = "$pmt\Mindset\Mindset.exe" }
+        [pscustomobject]@{ Id = 102; Path = "$pmt\Appli\Mindset.exe" }
+        [pscustomobject]@{ Id = 103; Path = "$pmt\Appli\Appli.exe" }
+        [pscustomobject]@{ Id = 104; Path = "$pmt\Appli\Aide.exe" }
+        [pscustomobject]@{ Id = 105; Path = "$pmt\AppliBis\Appli.exe" }
+        [pscustomobject]@{ Id = 106; Path = "$Dossier\ailleurs\Appli.exe" }
+        [pscustomobject]@{ Id = 107; Path = "$Dossier\ailleurs\Mindset.exe" }
+        [pscustomobject]@{ Id = 108; Path = $null })
+    function global:Get-Process { [CmdletBinding()] param([string[]]$Name) Add-Journal "LECTURE programmes ouverts $Name"; $global:TProcessus }
+    function global:Stop-Process { [CmdletBinding()] param([Parameter(ValueFromPipeline = $true)]$InputObject, [switch]$Force) process { Add-Journal "ACTION arrêt du programme $($InputObject.Path)" } }
+}
 function global:Wait-Process { Add-Journal "LECTURE attente $(Get-TexteArgs $args)" }
 function global:Start-Process { [CmdletBinding()] param([string]$FilePath, [string[]]$ArgumentList) Add-Journal "ACTION lancement $FilePath $ArgumentList" }
 function global:Start-Sleep { }
@@ -265,7 +280,7 @@ function Get-Version([string]$Dossier) {
 # Rend : Lignes (le journal), Actions (ce qui aurait été fait sur Windows), Reponse (la réponse : registre pour une
 # demande, sinon le fichier -Resultat), Inchange (aucun fichier créé, modifié ou retiré), Erreur.
 $script:NumeroCas = 0
-function Invoke-Installateur([hashtable]$Parametres, [scriptblock]$Preparer = $null, [switch]$SansResultat) {
+function Invoke-Installateur([hashtable]$Parametres, [scriptblock]$Preparer = $null, [switch]$SansResultat, [switch]$VraisProgrammes) {
     $n = ++$script:NumeroCas
     Initialize-Etat
     if ($Preparer) { & $Preparer }
@@ -277,7 +292,7 @@ function Invoke-Installateur([hashtable]$Parametres, [scriptblock]$Preparer = $n
     $eap = $ErrorActionPreference; $ErrorActionPreference = 'Continue'
     try {
         $sortie = & "$env:SystemRoot\System32\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -NonInteractive -ExecutionPolicy Bypass -File $lanceur `
-            -Script $installeur -Parametres $fp -Journal $journal -Dossier $tmp -Lettre $L -LettreAmovible $LA 2>&1
+            -Script $installeur -Parametres $fp -Journal $journal -Dossier $tmp -Lettre $L -LettreAmovible $LA @(if ($VraisProgrammes) { '-VraisProgrammes' }) 2>&1
     } finally { $ErrorActionPreference = $eap }
     $lignes = @([IO.File]::ReadAllLines($journal, [Text.Encoding]::UTF8) | Where-Object { $_ })
     $reponse = $null
@@ -661,7 +676,7 @@ public static class MindsetTestPointAnalyse {
     # =============================================================================================================
     Test-Cas 'suppression d''une appli acceptée : son dossier retiré, Mindset gardé' {
         $r = Invoke-Demande @{ Id = (New-Id); Action = 'supprimer'; Destination = (Join-Path $PM 'Appli'); Exe = 'Appli.exe' }
-        $r.Reponse.ok -and -not (Test-Path -LiteralPath (Join-Path $PM 'Appli')) -and (Test-Path -LiteralPath (Join-Path $PM 'Mindset\Mindset.exe')) -and (Test-Action $r 'arrêt du programme Appli')
+        $r.Reponse.ok -and -not (Test-Path -LiteralPath (Join-Path $PM 'Appli')) -and (Test-Path -LiteralPath (Join-Path $PM 'Mindset\Mindset.exe')) -and (Test-Action $r "arrêt du programme $PM\Appli\")
     }
     Test-Cas 'suppression de Mindset lui-même acceptée : dossier, tâches et clés retirés (sans fenêtre ni réponse)' {
         $r = Invoke-Demande @{ Id = (New-Id); Action = 'supprimer'; Destination = (Join-Path $PM 'Mindset') }
@@ -685,7 +700,57 @@ public static class MindsetTestPointAnalyse {
         $r = Invoke-Demande @{ Id = (New-Id); Action = 'supprimer'; Destination = (Join-Path $PM 'Appli'); Exe = '..\Appli.exe' }
         (Test-Refuse $r 'Nom de programme refusé.') -and (Test-RienFait $r)
     }
+
+    # =============================================================================================================
+    Write-Partie 'Programmes fermés : par leur chemin (le dossier de l''appli), jamais par leur nom'
+    # =============================================================================================================
+    # L'hôte de chaque appli s'appelle Mindset.exe, comme Mindset : fermer « Mindset » ou « Appli » par nom fermerait
+    # Mindset lui-même, ou en administrateur n'importe quel programme du même nom. Seuls ceux du dossier de l'appli partent.
+    $attendus = @("$PM\Appli\Mindset.exe", "$PM\Appli\Appli.exe", "$PM\Appli\Aide.exe")
+    function Get-Arrets($R) { @($R.Actions | Where-Object { $_ -like 'ACTION arrêt du programme *' } | ForEach-Object { $_.Substring('ACTION arrêt du programme '.Length) } | Sort-Object) }
+    Test-Cas 'installation : seuls l''hôte Mindset.exe, Appli.exe et l''aide du dossier de l''appli sont fermés' {
+        $r = Invoke-Demande (Get-Appli @{ TacheAide = 'Appli (aide)'; ExeAide = 'Aide.exe' })
+        $r.Reponse.ok -and ((Get-Arrets $r) -join '|') -eq ((@($attendus) | Sort-Object) -join '|')
+    }
+    Test-Cas 'installation : ni Mindset, ni l''appli au nom proche (AppliBis), ni les copies ailleurs, ni un programme au chemin illisible' {
+        $r = Invoke-Demande (Get-Appli @{})
+        $a = Get-Arrets $r
+        $r.Reponse.ok -and $a.Count -eq 3 -and -not ($a | Where-Object { $_ -like "*\Mindset\Mindset\*" -or $_ -like '*AppliBis*' -or $_ -like '*ailleurs*' -or -not $_ })
+    }
+    Test-Cas 'suppression d''une appli : seuls les programmes de son dossier sont fermés' {
+        $r = Invoke-Demande @{ Id = (New-Id); Action = 'supprimer'; Destination = (Join-Path $PM 'Appli'); Exe = 'Appli.exe' }
+        $r.Reponse.ok -and ((Get-Arrets $r) -join '|') -eq ((@($attendus) | Sort-Object) -join '|')
+    }
+    Test-Cas 'demande refusée (signature fausse) : aucun programme fermé' {
+        $r = Invoke-Demande (Get-Appli @{ Signature = $sigFausse })
+        (Test-Refuse $r 'signature') -and -not (Get-Arrets $r).Count
+    }
+
+    # De vrais programmes d'essai (compilés ici, lancés depuis le dossier de test) avec les vrais Get-Process et Stop-Process
+    $essaiExe = Join-Path $tmp 'essai.exe'
+    Add-Type -OutputType WindowsApplication -OutputAssembly $essaiExe -TypeDefinition 'static class Essai { static void Main() { System.Threading.Thread.Sleep(600000); } }'
+    $script:Essais = @{}
+    $lancer = {
+        param([string]$Chemin)
+        New-Item -ItemType Directory -Force -Path (Split-Path $Chemin -Parent) | Out-Null
+        Copy-Item -LiteralPath $essaiExe -Destination $Chemin -Force
+        $script:Essais[$Chemin] = Start-Process -FilePath $Chemin -PassThru
+    }
+    $f = New-Demande (Get-Appli @{})
+    $r = Invoke-Installateur @{ Action = 'demande'; Demande = $f } -VraisProgrammes -Preparer {
+        foreach ($c in "$PM\Appli\Mindset.exe", "$PM\Appli\Appli.exe", "$PM\Mindset\Mindset.exe", "$PM\AppliBis\Appli.exe", (Join-Path $tmp 'ailleurs\Mindset.exe')) { & $lancer $c }
+        Start-Sleep -Milliseconds 500
+    }
+    $e = $script:Essais
+    Test-Cas 'vrais programmes : l''hôte Mindset.exe et Appli.exe du dossier de l''appli sont fermés, l''appli installée' {
+        $r.Reponse.ok -and $e["$PM\Appli\Mindset.exe"].WaitForExit(5000) -and $e["$PM\Appli\Appli.exe"].WaitForExit(5000) -and (Get-Version (Join-Path $PM 'Appli')) -eq '2.0.0'
+    }
+    Test-Cas 'vrais programmes : Mindset (Mindset.exe de son dossier), AppliBis et la copie ailleurs tournent toujours' {
+        -not $e["$PM\Mindset\Mindset.exe"].HasExited -and -not $e["$PM\AppliBis\Appli.exe"].HasExited -and -not $e[(Join-Path $tmp 'ailleurs\Mindset.exe')].HasExited
+    }
+    foreach ($p in $script:Essais.Values) { try { if (-not $p.HasExited) { $p.Kill(); [void]$p.WaitForExit(3000) } } catch {} }
 } finally {
+    foreach ($p in @($script:Essais.Values)) { try { if (-not $p.HasExited) { $p.Kill(); [void]$p.WaitForExit(3000) } } catch {} }
     try { Remove-Item -LiteralPath $tmp -Recurse -Force -ErrorAction Stop } catch { Write-Host "Dossier de test non supprimé : $tmp ($($_.Exception.Message))" -ForegroundColor Yellow }
 }
 

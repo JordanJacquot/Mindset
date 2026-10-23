@@ -325,6 +325,36 @@ static class Faux {
     Test-Cas 'Le désinstalleur lancé hors des programmes est gardé' { Test-Path -LiteralPath $desinstalleur }
 
     # -------------------------------------------------------------------------------------------------------------
+    Write-Partie 'Hôtes Mindset.exe des applis et WebView2 de la suite (fermés par leur chemin, jamais par leur nom)'
+    # -------------------------------------------------------------------------------------------------------------
+    # L'hôte d'une appli s'appelle Mindset.exe, comme Mindset : seul celui du dossier de Mindset est fermé d'abord ; celui
+    # d'une appli l'est avec les programmes. Le WebView2 commun (dans les données) est fermé avant de les supprimer ; un
+    # WebView2 d'un autre programme du PC (autre dossier de données) n'est pas touché.
+    $e = New-Environnement 'hotes' -Script 'normal'
+    Copy-Item -LiteralPath $faux -Destination (Join-Path $e.RacineC 'Evermind\Mindset.exe') -Force
+    $hote = Start-Process -FilePath (Join-Path $e.RacineC 'Evermind\Mindset.exe') -PassThru
+    $mindsetOuvert = Start-Process -FilePath (Join-Path $e.Mindset 'Mindset.exe') -PassThru
+    $edge = Join-Path $tmp 'edge'; New-Item -ItemType Directory -Force -Path $edge | Out-Null
+    Copy-Item -LiteralPath $faux -Destination (Join-Path $edge 'msedgewebview2.exe') -Force
+    Save-Fichier (Join-Path $e.Donnees 'WebView2\Mindset\profil.txt') 'profil'
+    $wvSuite = Start-Process -FilePath (Join-Path $edge 'msedgewebview2.exe') -ArgumentList "--type=renderer `"--user-data-dir=$(Join-Path $e.Donnees 'WebView2')\EBWebView`"" -PassThru
+    $wvAutre = Start-Process -FilePath (Join-Path $edge 'msedgewebview2.exe') -ArgumentList "--type=renderer `"--user-data-dir=$(Join-Path $tmp 'autre-programme')\EBWebView`"" -PassThru
+    New-Item -ItemType Directory -Force -Path (Join-Path $e.Donnees 'Evermind\voix') | Out-Null
+    Copy-Item -LiteralPath $faux -Destination (Join-Path $e.Donnees 'Evermind\voix\Mindset.exe') -Force
+    $aideDonnees = Start-Process -FilePath (Join-Path $e.Donnees 'Evermind\voix\Mindset.exe') -PassThru
+    $script:Processus += $hote, $mindsetOuvert, $wvSuite, $wvAutre, $aideDonnees
+    $b = Invoke-Desinstalleur $e $e.Exe @('-Nettoyer', '-SupprimerDonnees', '-Silencieux')
+    Test-Cas 'Mindset (Mindset.exe de son dossier) est fermé' { $mindsetOuvert.WaitForExit(5000) }
+    Test-Cas 'L''hôte Mindset.exe d''une appli est fermé avec les programmes, et son dossier retiré' { $hote.WaitForExit(5000) -and (Test-Absent (Join-Path $e.RacineC 'Evermind')) }
+    Test-Cas 'Le WebView2 de la suite est fermé, et le dossier WebView2 commun supprimé avec les données' { $wvSuite.WaitForExit(5000) -and (Test-Absent (Join-Path $e.Donnees 'WebView2')) }
+    Test-Cas 'Le WebView2 d''un autre programme tourne toujours' { -not $wvAutre.HasExited }
+    Test-Cas 'Un programme d''aide Mindset.exe lancé depuis les données d''une appli est fermé, et ses données supprimées' { $aideDonnees.WaitForExit(5000) -and (Test-Absent (Join-Path $e.Donnees 'Evermind')) }
+    $desinst = Get-Texte (Join-Path $PSScriptRoot 'desinstalleur.cs')
+    Test-Cas 'Le désinstalleur ne cherche jamais un programme à fermer par son nom (GetProcessesByName seulement pour attendre)' {
+        @([regex]::Matches($desinst, 'GetProcessesByName')).Count -le 1 -and $desinst -notmatch 'taskkill'
+    }
+
+    # -------------------------------------------------------------------------------------------------------------
     Write-Partie 'Mindset passe par le désinstalleur'
     # -------------------------------------------------------------------------------------------------------------
     $admin = Get-Texte (Join-Path $fichiers 'installer-admin.ps1')

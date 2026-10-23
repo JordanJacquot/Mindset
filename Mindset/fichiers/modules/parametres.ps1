@@ -202,10 +202,107 @@ $ui.BtnMajFermer.Add_Click({ $ui.MajBandeau.Visibility = 'Collapsed' })
 Show-ResultatMajMindset
 
 # ---------------------------------------------------------------------------
-# Onglets : Général, Apparence, Son, Mises à jour, Dossiers
+# Consommation : ce que consomme toute la suite (mémoire et processeur), comme le Gestionnaire des tâches, et le détail :
+# Mindset, chaque appli ouverte (ses programmes, trouvés par leur chemin), le WebView2 de la suite (les msedgewebview2.exe
+# qui utilisent un dossier de données WebView2 de la suite) et les programmes d'aide lancés depuis les dossiers de la suite.
+# Mesuré toutes les 2 secondes, SEULEMENT quand l'onglet est à l'écran (page Paramètres ou écran de la console) ; une
+# mesure prend quelques millisecondes (MSProcessus.Mesurer, natif.cs : un seul relevé des processus de Windows).
 # ---------------------------------------------------------------------------
-$OngletsParametres = [ordered]@{ general = 'Général'; apparence = 'Apparence'; son = 'Son'; maj = 'Mises à jour'; dossiers = 'Dossiers' }
-$PanneauxParametres = @{ general = 'PanGeneral'; apparence = 'PanApparence'; son = 'PanSon'; maj = 'PanMaj'; dossiers = 'PanDossiers' }
+$script:ConsoEtat = $null
+$script:ConsoPremiere = $true
+$NomAideConso = 'Programmes d''aide'
+$NomWebViewConso = 'WebView2 de la suite'
+function Format-MemoireConso([long]$Octets) {
+    $fr = [Globalization.CultureInfo]::GetCultureInfo('fr-FR')
+    $mo = $Octets / 1MB
+    if ($mo -lt 1000) { return "$([math]::Round($mo).ToString('0', $fr)) Mo" }
+    "$([math]::Round($mo / 1024, 1).ToString('0.#', $fr)) Go"
+}
+function Format-ProcesseurConso([double]$Pourcent) {
+    $fr = [Globalization.CultureInfo]::GetCultureInfo('fr-FR')
+    if ($Pourcent -lt 10) { "$([math]::Round($Pourcent, 1).ToString('0.#', $fr)) %" } else { "$([math]::Round($Pourcent).ToString('0', $fr)) %" }
+}
+function Measure-ConsoSuite {
+    $noms = New-Object Collections.Generic.List[string]; $dossiers = New-Object Collections.Generic.List[string]
+    $marqueurs = New-Object Collections.Generic.List[string]
+    foreach ($m in @($ConsoleWebviewCommun, (Join-Path $SuiteDir 'WebView2'), $ConsoleWebviewPropre)) { if ($m) { $marqueurs.Add($m.TrimEnd('\') + '\') } }
+    # Chaque appli : son dossier des programmes ET son dossier de données (ses programmes d'aide y tournent, parfois sous le
+    # nom Mindset.exe : Evermind voix\Mindset.exe...) ; puis le reste des dossiers de la suite. Mindset lui-même : seulement
+    # ce processus et son propre dossier (MSProcessus.Mesurer), jamais un Mindset.exe d'ailleurs.
+    foreach ($a in $Applis) {
+        $i = Get-Installation $a
+        if ($i -and $i.Dossier) { $noms.Add($a.Nom); $dossiers.Add($i.Dossier) }
+        foreach ($d in @((Get-DossierDonnees $a), $a.Donnees) | Select-Object -Unique) {
+            if (-not $d -or $d.TrimEnd('\') -ieq $SuiteDir.TrimEnd('\')) { continue }
+            $noms.Add($(if ($i) { $a.Nom } else { $NomAideConso })); $dossiers.Add($d)
+            $marqueurs.Add((Join-Path $d 'ecran-webview') + '\')   # (l'ancien dossier WebView2 de Nevermind)
+        }
+    }
+    foreach ($d in @($SuiteDir, $RacineProgrammes)) { if ($d) { $noms.Add($NomAideConso); $dossiers.Add($d) } }
+    $chrono = [Diagnostics.Stopwatch]::StartNew()
+    $parties = [MSProcessus]::Mesurer($PID, 'Mindset', $MonDossier, $noms.ToArray(), $dossiers.ToArray(), $NomWebViewConso, $marqueurs.ToArray())
+    $chrono.Stop()
+    $premiere = $script:ConsoPremiere; $script:ConsoPremiere = $false
+    if (-not $script:ConsoMesureNotee) { $script:ConsoMesureNotee = $true; Write-Log "Consommation de la suite mesurée en $($chrono.ElapsedMilliseconds) ms" }
+    $memoire = 0L; $cpu = 0.0
+    $lignes = @(foreach ($p in $parties) {
+        if (-not $p.Nombre) { continue }
+        $memoire += $p.Memoire; $cpu += $p.Processeur
+        $detail = if ($p.Nom -eq 'Mindset') { 'le portail' } elseif ($p.Nom -eq $NomWebViewConso) { 'l''affichage de la console et des écrans' } elseif ($p.Nom -eq $NomAideConso) { 'lancés depuis les dossiers de la suite' } else { 'ouvert' }
+        if ($p.Nombre -gt 1) { $detail = "$detail, $($p.Nombre) programmes" }
+        [ordered]@{ nom = $p.Nom; detail = $detail; memoire = (Format-MemoireConso $p.Memoire); processeur = $(if ($premiere) { '...' } else { Format-ProcesseurConso $p.Processeur }) }
+    })
+    $script:ConsoEtat = [ordered]@{ memoire = (Format-MemoireConso $memoire); processeur = $(if ($premiere) { '...' } else { Format-ProcesseurConso $cpu }); lignes = $lignes }
+}
+# L'onglet est-il à l'écran ? (page Paramètres d'avant, ou Paramètres dans l'écran de la console)
+function Test-ConsoVisible {
+    $Window.IsVisible -and $Window.WindowState -ne 'Minimized' -and $script:OngletParametres -eq 'conso' -and
+        ($script:PageCourante -eq 'parametres' -or ($script:Console.Parametres -and $script:PageCourante -eq 'accueil'))
+}
+function Update-ConsoPage {
+    $e = $script:ConsoEtat
+    if (-not $e) { return }
+    $ui.ConsoTotal.Text = "Mémoire utilisée par la suite : $($e.memoire)"
+    $ui.ConsoProcesseur.Text = "Processeur : $($e.processeur) de l'ordinateur"
+    $ui.ConsoDetail.Children.Clear()
+    foreach ($l in $e.lignes) {
+        $ligne = New-Object System.Windows.Controls.DockPanel
+        $ligne.Margin = '0,0,0,8'; $ligne.Width = 520; $ligne.HorizontalAlignment = 'Left'
+        $chiffres = New-Text "$($l.memoire)   ·   $($l.processeur)" 13 '#ECEAF7'
+        [System.Windows.Controls.DockPanel]::SetDock($chiffres, 'Right')
+        [void]$ligne.Children.Add($chiffres)
+        $txt = New-Object System.Windows.Controls.StackPanel; $txt.Margin = '0,0,16,0'
+        [void]$txt.Children.Add((New-Text $l.nom 13 '#ECEAF7' 'SemiBold'))
+        [void]$txt.Children.Add((New-Text $l.detail 11.5 '#6F6894'))
+        [void]$ligne.Children.Add($txt)
+        [void]$ui.ConsoDetail.Children.Add($ligne)
+    }
+}
+$script:ConsoTimer = New-Object System.Windows.Threading.DispatcherTimer
+$script:ConsoTimer.Interval = [TimeSpan]::FromSeconds(2)
+$script:ConsoTimer.Add_Tick({
+    if (-not (Test-ConsoVisible)) { $script:ConsoTimer.Stop(); return }
+    try { Measure-ConsoSuite } catch { Write-Log "Consommation non mesurée : $_"; return }
+    if ($script:PageCourante -eq 'parametres') { Update-ConsoPage }
+    elseif (Get-Command Send-ParametresConsole -ErrorAction SilentlyContinue) { Send-ParametresConsole }
+})
+# L'onglet s'affiche : une première mesure tout de suite (le processeur arrive à la suivante), puis toutes les 2 secondes
+function Start-ConsoSuite {
+    if ($script:ConsoTimer.IsEnabled) { return }
+    $script:ConsoPremiere = $true
+    try { Measure-ConsoSuite } catch { Write-Log "Consommation non mesurée : $_" }
+    Update-ConsoPage
+    $script:ConsoTimer.Start()
+}
+# (Mindset réaffiché, ou rouvert depuis la barre des tâches, sur cet onglet : les mesures reprennent)
+$Window.Add_IsVisibleChanged({ if (Test-ConsoVisible) { Start-ConsoSuite } })
+$Window.Add_StateChanged({ if (Test-ConsoVisible) { Start-ConsoSuite } })
+
+# ---------------------------------------------------------------------------
+# Onglets : Général, Apparence, Son, Mises à jour, Consommation, Dossiers
+# ---------------------------------------------------------------------------
+$OngletsParametres = [ordered]@{ general = 'Général'; apparence = 'Apparence'; son = 'Son'; maj = 'Mises à jour'; conso = 'Consommation'; dossiers = 'Dossiers' }
+$PanneauxParametres = @{ general = 'PanGeneral'; apparence = 'PanApparence'; son = 'PanSon'; maj = 'PanMaj'; conso = 'PanConso'; dossiers = 'PanDossiers' }
 $script:OngletParametres = 'general'
 
 function Show-OngletParametres([string]$Id) {
@@ -216,6 +313,7 @@ function Show-OngletParametres([string]$Id) {
     if ($Id -eq 'general') { Update-DemarragesParametres }
     if ($Id -eq 'son') { Update-ChoixSon }
     if ($Id -eq 'maj') { Update-ListeVersions; Update-ReglagesMaj }
+    if ($Id -eq 'conso') { Start-ConsoSuite }
 }
 foreach ($k in $OngletsParametres.Keys) {
     $b = New-Button $OngletsParametres[$k] 'BtnSecondary'
@@ -342,7 +440,7 @@ function Open-PageDemandee {
     }
     # Retour depuis l'accueil d'une appli (touche B ou Échap dans l'appli) : le menu, la console
     if ($t -eq 'menu') { Show-Fenetre; Show-Page 'accueil'; return }
-    if ($t -notmatch '^parametres(:(general|apparence|son|maj|dossiers))?$') { return }
+    if ($t -notmatch '^parametres(:(general|apparence|son|maj|conso|dossiers))?$') { return }
     $onglet = if ($Matches[2]) { $Matches[2] } else { 'general' }
     Show-Fenetre
     Show-OngletParametres $onglet   # (d'abord l'onglet : avec la console, Show-Page les ouvre dans son écran sur cet onglet)
@@ -431,6 +529,7 @@ function Get-ApplisDemarrage { @($Applis | Where-Object { (Get-Installation $_) 
 function Get-EtatParametres {
     if ($null -eq $script:ThemesConsole) { $script:ThemesConsole = @(Get-ThemesConsole) }
     if ($null -eq $script:AppareilsConsole) { Update-AppareilsConsole }
+    if ($script:OngletParametres -eq 'conso' -and -not $script:ConsoTimer.IsEnabled -and (Test-ConsoVisible)) { Start-ConsoSuite }
     $son = Get-SuiteSon
     $verif = Test-VerifVersionsActive
     $etatMindset = if ($script:MajMindset) { @("$($script:MajMindset.Version) prête", 'attention') } elseif ($script:MajMindsetEnCours) { @('recherche...', '') }
@@ -459,6 +558,7 @@ function Get-EtatParametres {
                 [ordered]@{ nom = $a.Nom; couleur = (ConvertTo-ThemeHex $a.Couleur); version = $inst; texte = $e[0]; ton = $e[1] } })
         }
         dossiers = [ordered]@{ texte = [string]$ui.DossiersTexte.Text }
+        conso = $script:ConsoEtat   # (mesuré seulement quand l'onglet Consommation est à l'écran)
     }
     ConvertTo-Json -InputObject $etat -Depth 6 -Compress
 }

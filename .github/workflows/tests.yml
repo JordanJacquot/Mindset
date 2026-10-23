@@ -45,3 +45,6 @@ jobs:
 
       - name: "Refus du mini-installateur administrateur (faux PC, sans droits)"
         run: .\outils\tester-installer.ps1
+
+      - name: "Programmes trouvés par leur chemin, jamais par leur nom (vrais programmes d'essai, sans droits)"
+        run: .\outils\tester-processus.ps1

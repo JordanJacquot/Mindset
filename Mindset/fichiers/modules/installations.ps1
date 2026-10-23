@@ -105,8 +105,11 @@ function Find-InstallationExistante($Appli) {
     $candidats = New-Object System.Collections.Generic.List[string]
     foreach ($r in @(Get-RaccourcisAppli $Appli)) { $candidats.Add((Split-Path $r.Cible -Parent)) }
     foreach ($r in @(Get-DemarragesAppli $Appli)) { $candidats.Add((Split-Path $r.Cible -Parent)) }
-    foreach ($pr in @(Get-Process -Name ([IO.Path]::GetFileNameWithoutExtension($Appli.Exe)) -ErrorAction SilentlyContinue)) {
-        try { if ($pr.Path) { $candidats.Add((Split-Path $pr.Path -Parent)) } } catch {}   # (illisible si elle tourne en administrateur)
+    # Un programme ouvert : son dossier (l'ancien <Appli>.exe, ou l'hôte Mindset.exe d'une appli récente), vérifié ensuite
+    # comme les autres candidats (Test-DossierAppli) ; jamais le dossier de Mindset lui-même
+    foreach ($c in @([MSProcessus]::Chemins([string[]]@($Appli.Exe, 'Mindset.exe')))) {
+        $d = Split-Path $c -Parent
+        if ($d -ine $MonDossier) { $candidats.Add($d) }
     }
     $telech = Join-Path $env:USERPROFILE 'Downloads'
     foreach ($l in @($telech, [Environment]::GetFolderPath('Desktop'), [Environment]::GetFolderPath('MyDocuments'))) {
@@ -140,7 +143,10 @@ function Open-Appli($Appli, [switch]$Demarrage) {
             try { $f = Join-Path (Get-DossierDonnees $Appli) $Appli.AfficherFichier; New-Item -ItemType Directory -Force -Path (Split-Path $f) | Out-Null; [IO.File]::WriteAllText($f, [string]$PID); return } catch {}
         }
     }
-    $exe = Join-Path $inst.Dossier $Appli.Exe
+    # Une appli récente a son hôte Mindset.exe dans son dossier (<Appli>.exe n'y est plus qu'un relais vers lui) : lancé
+    # directement ; une ancienne version, par son <Appli>.exe
+    $exe = Join-Path $inst.Dossier 'Mindset.exe'
+    if (-not (Test-Path -LiteralPath $exe) -or $inst.Dossier -ieq $MonDossier) { $exe = Join-Path $inst.Dossier $Appli.Exe }
     # Mindset administrateur : seule une appli administrateur installée par lui (dossier protégé) hérite de ses droits.
     # Les autres (Evermind, une copie de travail) sont lancées avec les droits de l'utilisateur.
     $avecDroits = (Test-AppliAdmin $Appli $inst) -and $inst.Gere -and $inst.Dossier -ieq (Get-DossierGere $Appli)
@@ -456,6 +462,14 @@ function Move-TachesDemarrage {
 function Start-DesinstallAppli($Appli) {
     $inst = Get-Installation $Appli
     if (-not $inst -or -not $inst.Gere -or $inst.Dossier -ine (Get-DossierGere $Appli)) { return }
+    # Ses programmes d'aide lancés depuis son dossier de données (ils tiendraient ses données ouvertes si elles sont
+    # supprimées) : fermés d'abord, par leur chemin. Le reste (son hôte, son dossier des programmes) est fermé par son
+    # désinstalleur ou par le mini-installateur.
+    if (-not $EnTest) {
+        foreach ($p in @(Get-ProcessusDonneesAppli $Appli)) {
+            try { $p.Kill(); [void]$p.WaitForExit(3000); Write-Log "Désinstallation de $($Appli.Nom) : programme d'aide fermé ($($p.Id))" } catch { Write-Log "Désinstallation de $($Appli.Nom) : programme d'aide $($p.Id) pas fermé ($_)" }
+        }
+    }
     if ($Appli.Desinstalleur) {
         # Nevermind a son propre désinstalleur : il remet les réglages de Windows comme avant, puis supprime ses fichiers.
         # Lancé sans option : c'est lui qui demande si les données sont gardées (sans droits, il se relance en
@@ -486,6 +500,14 @@ function Complete-Desinstallation($Appli) {
     $donnees = Join-Path $SuiteDir $Appli.Nom
     $gardees = [IO.Directory]::Exists($donnees) -and @([IO.Directory]::EnumerateFileSystemEntries($donnees)).Count
     Write-Log "$($Appli.Nom) désinstallé (données $(if ($gardees) { 'gardées' } else { 'supprimées' }))"
+    # Ses données supprimées : son profil dans le WebView2 commun de la suite aussi (Nevermind : profil « Nevermind » ;
+    # le dossier commun, lui, reste pour Mindset). Si WebView2 le tient encore ouvert, il reste : sans danger.
+    if (-not $gardees) {
+        $profil = Join-Path $SuiteDir "WebView2\EBWebView\WV2Profile_$($Appli.Nom.ToLower())"   # (nom que WebView2 donne au dossier du profil)
+        if ([IO.Directory]::Exists($profil)) {
+            try { Remove-Item -LiteralPath $profil -Recurse -Force -ErrorAction Stop; Write-Log "Profil WebView2 de $($Appli.Nom) retiré" } catch { Write-Log "Profil WebView2 de $($Appli.Nom) pas retiré ($($_.Exception.Message))" }
+        }
+    }
     Stop-Operation $Appli $(if ($gardees) { "$($Appli.Nom) est désinstallé. Ses données sont gardées dans $donnees : une réinstallation les retrouve." } else { "$($Appli.Nom) est désinstallé, avec ses données (réglages, journal, sauvegarde)." })
 }
 

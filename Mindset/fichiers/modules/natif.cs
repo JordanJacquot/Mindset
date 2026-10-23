@@ -298,3 +298,236 @@ public static class MSActivite
         return r.Left <= mi.rcMonitor.Left && r.Top <= mi.rcMonitor.Top && r.Right >= mi.rcMonitor.Right && r.Bottom >= mi.rcMonitor.Bottom;
     }
 }
+
+// Les programmes de la suite qui tournent, trouvés par leur CHEMIN (jamais par leur nom : l'hôte de chaque appli s'appelle
+// Mindset.exe, comme Mindset lui-même), et ce qu'ils consomment (Paramètres > Consommation).
+// Tout part du relevé des processus de Windows (NtQuerySystemInformation) : il donne pour chacun son nom, sa mémoire et son
+// temps de processeur sans rien ouvrir, même pour un programme lancé en administrateur. Le chemin (et pour WebView2 la ligne
+// de commande) se lit avec le droit le plus faible (PROCESS_QUERY_LIMITED_INFORMATION), une seule fois par processus
+// (gardé en mémoire tant qu'il tourne).
+public static class MSProcessus
+{
+    [StructLayout(LayoutKind.Sequential)]
+    struct InfoProcessus
+    {
+        public uint Suivant; public uint Fils;
+        public long PriveWS; public uint Defauts; public uint FilsMax; public ulong Cycles;
+        public long Creation; public long TempsUtilisateur; public long TempsNoyau;
+        public ushort NomLongueur; public ushort NomMax; public IntPtr Nom;
+        public int Priorite; public IntPtr Pid; public IntPtr Parent;
+    }
+    [DllImport("ntdll.dll")] static extern int NtQuerySystemInformation(int classe, IntPtr tampon, int taille, out int requis);
+    [DllImport("ntdll.dll")] static extern int NtQueryInformationProcess(IntPtr h, int classe, IntPtr tampon, int taille, out int requis);
+    [DllImport("kernel32.dll")] static extern IntPtr OpenProcess(int acces, bool herite, int pid);
+    [DllImport("kernel32.dll")] static extern bool CloseHandle(IntPtr h);
+    [DllImport("kernel32.dll", CharSet = CharSet.Unicode)] static extern bool QueryFullProcessImageName(IntPtr h, int flags, System.Text.StringBuilder s, ref int n);
+
+    public class Processus { public int Pid; public string Nom; public long Memoire; public long Temps; public long Creation; }
+
+    // Tous les processus du PC, en un seul appel
+    public static System.Collections.Generic.List<Processus> Releve()
+    {
+        var r = new System.Collections.Generic.List<Processus>();
+        int taille = 512 * 1024;
+        for (int essai = 0; essai < 6; essai++)
+        {
+            IntPtr t = Marshal.AllocHGlobal(taille);
+            try
+            {
+                int requis;
+                int s = NtQuerySystemInformation(5, t, taille, out requis);   // (SystemProcessInformation)
+                if (s == unchecked((int)0xC0000004)) { taille = Math.Max(taille * 2, requis + 64 * 1024); continue; }
+                if (s != 0) return r;
+                long o = 0;
+                while (true)
+                {
+                    IntPtr p = new IntPtr(t.ToInt64() + o);
+                    var i = (InfoProcessus)Marshal.PtrToStructure(p, typeof(InfoProcessus));
+                    int pid = i.Pid.ToInt32();
+                    if (pid != 0)
+                        r.Add(new Processus { Pid = pid, Nom = i.Nom == IntPtr.Zero ? "" : Marshal.PtrToStringUni(i.Nom, i.NomLongueur / 2),
+                            Memoire = i.PriveWS, Temps = i.TempsUtilisateur + i.TempsNoyau, Creation = i.Creation });
+                    if (i.Suivant == 0) break;
+                    o += i.Suivant;
+                }
+                return r;
+            }
+            finally { Marshal.FreeHGlobal(t); }
+        }
+        return r;
+    }
+
+    static readonly System.Collections.Generic.Dictionary<string, string> chemins = new System.Collections.Generic.Dictionary<string, string>();
+    static readonly System.Collections.Generic.Dictionary<string, string> commandes = new System.Collections.Generic.Dictionary<string, string>();
+
+    // Le chemin complet du programme d'un processus (null si Windows refuse : processus protégé, ou déjà terminé)
+    public static string Chemin(int pid)
+    {
+        IntPtr h = OpenProcess(0x1000, false, pid);   // (PROCESS_QUERY_LIMITED_INFORMATION)
+        if (h == IntPtr.Zero) return null;
+        try
+        {
+            var s = new System.Text.StringBuilder(1024); int n = s.Capacity;
+            return QueryFullProcessImageName(h, 0, s, ref n) ? s.ToString() : null;
+        }
+        finally { CloseHandle(h); }
+    }
+
+    // La ligne de commande d'un processus (null si Windows refuse)
+    public static string LigneCommande(int pid)
+    {
+        IntPtr h = OpenProcess(0x1000, false, pid);
+        if (h == IntPtr.Zero) return null;
+        try
+        {
+            int requis;
+            NtQueryInformationProcess(h, 60, IntPtr.Zero, 0, out requis);   // (ProcessCommandLineInformation : la taille d'abord)
+            if (requis <= 0 || requis > 1024 * 1024) return null;
+            IntPtr t = Marshal.AllocHGlobal(requis);
+            try
+            {
+                if (NtQueryInformationProcess(h, 60, t, requis, out requis) != 0) return null;
+                int longueur = Marshal.ReadInt16(t) & 0xFFFF;
+                IntPtr texte = Marshal.ReadIntPtr(t, IntPtr.Size);   // (UNICODE_STRING : Length, MaximumLength, puis Buffer aligné)
+                return texte == IntPtr.Zero ? "" : Marshal.PtrToStringUni(texte, longueur / 2);
+            }
+            finally { Marshal.FreeHGlobal(t); }
+        }
+        finally { CloseHandle(h); }
+    }
+
+    static string Cle(Processus p) { return p.Pid + ":" + p.Creation; }
+    static string CheminGarde(Processus p)
+    {
+        string k = Cle(p), c;
+        if (chemins.TryGetValue(k, out c)) return c;
+        c = Chemin(p.Pid);
+        if (c != null) { try { c = System.IO.Path.GetFullPath(c); } catch { } }
+        chemins[k] = c;
+        return c;
+    }
+    static string CommandeGardee(Processus p)
+    {
+        string k = Cle(p), c;
+        if (commandes.TryGetValue(k, out c)) return c;
+        c = LigneCommande(p.Pid);
+        commandes[k] = c;
+        return c;
+    }
+    // (les processus terminés sont oubliés)
+    static void Oublier(System.Collections.Generic.List<Processus> liste)
+    {
+        var vivants = new System.Collections.Generic.HashSet<string>();
+        foreach (var p in liste) vivants.Add(Cle(p));
+        foreach (var d in new[] { chemins, commandes })
+        {
+            var morts = new System.Collections.Generic.List<string>();
+            foreach (string k in d.Keys) if (!vivants.Contains(k)) morts.Add(k);
+            foreach (string k in morts) d.Remove(k);
+        }
+    }
+
+    static string Dossier(string d)
+    {
+        if (string.IsNullOrEmpty(d)) return null;
+        try { return System.IO.Path.GetFullPath(d).TrimEnd('\\') + "\\"; } catch { return null; }
+    }
+    public static bool Dans(string chemin, string dossier)
+    {
+        string d = Dossier(dossier);
+        return chemin != null && d != null && chemin.StartsWith(d, StringComparison.OrdinalIgnoreCase);
+    }
+
+    // Les processus lancés depuis ce dossier (sous-dossiers compris). noms : seulement ces programmes-là, directement dans
+    // le dossier. Jamais le processus « exclu » (Mindset lui-même), ni un programme du dossier « interdit » (celui de Mindset).
+    public static int[] DansDossier(string dossier, string[] noms, int exclu, string interdit)
+    {
+        var r = new System.Collections.Generic.List<int>();
+        string d = Dossier(dossier);
+        if (d == null) return r.ToArray();
+        var liste = Releve();
+        Oublier(liste);
+        foreach (var p in liste)
+        {
+            if (p.Pid == exclu) continue;
+            if (noms != null && Array.FindIndex(noms, n => string.Equals(n, p.Nom, StringComparison.OrdinalIgnoreCase)) < 0) continue;
+            string c = CheminGarde(p);
+            if (c == null || !c.StartsWith(d, StringComparison.OrdinalIgnoreCase)) continue;
+            if (noms != null && !string.Equals(System.IO.Path.GetDirectoryName(c).TrimEnd('\\') + "\\", d, StringComparison.OrdinalIgnoreCase)) continue;
+            if (Dans(c, interdit)) continue;
+            r.Add(p.Pid);
+        }
+        return r.ToArray();
+    }
+
+    // Les chemins des programmes qui tournent sous ces noms de fichier (pour trouver une copie d'une appli déjà ouverte :
+    // son dossier est ensuite vérifié comme les autres)
+    public static string[] Chemins(string[] noms)
+    {
+        var r = new System.Collections.Generic.List<string>();
+        var liste = Releve();
+        Oublier(liste);
+        foreach (var p in liste)
+        {
+            if (Array.FindIndex(noms, n => string.Equals(n, p.Nom, StringComparison.OrdinalIgnoreCase)) < 0) continue;
+            string c = CheminGarde(p);
+            if (c != null && !r.Contains(c)) r.Add(c);
+        }
+        return r.ToArray();
+    }
+
+    // ---------------------------------------------------------------------------------------------------------------
+    // Ce que consomme la suite, par partie : Mindset (le processus « moi » et les programmes de son dossier), chaque partie
+    // de « dossiers » (dans l'ordre : le premier dossier qui contient le programme l'emporte), et WebView2 (les
+    // msedgewebview2.exe dont la ligne de commande contient un des « marqueurs », les dossiers de données WebView2 de la
+    // suite). Le processeur : en % de tout le PC depuis la mesure précédente (0 à la première).
+    // ---------------------------------------------------------------------------------------------------------------
+    public class Partie { public string Nom; public int Nombre; public long Memoire; public double Processeur; }
+    static System.Collections.Generic.Dictionary<string, long> tempsAvant = new System.Collections.Generic.Dictionary<string, long>();
+    static long horlogeAvant;
+
+    public static Partie[] Mesurer(int moi, string nomMoi, string dossierMoi, string[] noms, string[] dossiers, string nomWebView, string[] marqueurs)
+    {
+        var parties = new System.Collections.Generic.List<Partie>();
+        var index = new System.Collections.Generic.Dictionary<string, Partie>();
+        Func<string, Partie> partie = n => { Partie x; if (!index.TryGetValue(n, out x)) { x = new Partie { Nom = n }; index[n] = x; parties.Add(x); } return x; };
+        partie(nomMoi);
+        foreach (string n in noms) partie(n);
+        partie(nomWebView);
+        string[] ds = Array.ConvertAll(dossiers, Dossier);
+        string dm = Dossier(dossierMoi);
+
+        var liste = Releve();
+        long horloge = DateTime.UtcNow.Ticks;
+        Oublier(liste);
+        var temps = new System.Collections.Generic.Dictionary<string, long>();
+        double ecoule = horlogeAvant > 0 ? (double)(horloge - horlogeAvant) * Environment.ProcessorCount : 0;
+        foreach (var p in liste)
+        {
+            string nom = null;
+            if (p.Pid == moi) nom = nomMoi;
+            else if (string.Equals(p.Nom, "msedgewebview2.exe", StringComparison.OrdinalIgnoreCase))
+            {
+                string cmd = CommandeGardee(p);
+                if (cmd != null) foreach (string m in marqueurs) if (!string.IsNullOrEmpty(m) && cmd.IndexOf(m, StringComparison.OrdinalIgnoreCase) >= 0) { nom = nomWebView; break; }
+            }
+            else
+            {
+                string c = CheminGarde(p);
+                if (c != null)
+                {
+                    if (dm != null && c.StartsWith(dm, StringComparison.OrdinalIgnoreCase)) nom = nomMoi;
+                    else for (int i = 0; i < ds.Length; i++) if (ds[i] != null && c.StartsWith(ds[i], StringComparison.OrdinalIgnoreCase)) { nom = noms[i]; break; }
+                }
+            }
+            if (nom == null) continue;
+            Partie x = partie(nom);
+            x.Nombre++; x.Memoire += p.Memoire;
+            string k = Cle(p); long avant;
+            temps[k] = p.Temps;
+            if (ecoule > 0 && tempsAvant.TryGetValue(k, out avant) && p.Temps >= avant) x.Processeur += (p.Temps - avant) / ecoule * 100.0;
+        }
+        tempsAvant = temps; horlogeAvant = horloge;
+        return parties.ToArray();
+    }
+}

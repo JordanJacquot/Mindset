@@ -33,7 +33,7 @@ function Get-Integration([string]$Id) {
 
 # La fenêtre principale de l'appli si elle tourne (même cachée près de l'horloge)
 function Find-FenetreAppli($Appli) {
-    foreach ($p in @(Get-Process -Name ([IO.Path]::GetFileNameWithoutExtension($Appli.Exe)) -ErrorAction SilentlyContinue)) {
+    foreach ($p in @(Get-ProcessusAppli $Appli -Hote)) {   # (par son chemin : son hôte s'appelle Mindset.exe, comme Mindset)
         $h = [MSIntegration]::Trouver($p.Id, $Appli.Nom)
         if ($h -ne [IntPtr]::Zero) { return $h }
     }
@@ -53,12 +53,10 @@ function Start-AppliCachee($Appli) {
 function Stop-AppliBloquee($Appli) {
     $inst = Get-Installation $Appli
     if (-not $inst) { return 0 }
-    $chemin = (Join-Path $inst.Dossier $Appli.Exe).ToLower()
     $n = 0
-    foreach ($p in @(Get-Process -Name ([IO.Path]::GetFileNameWithoutExtension($Appli.Exe)) -ErrorAction SilentlyContinue)) {
+    foreach ($p in @(Get-ProcessusAppli $Appli -Hote)) {   # (son programme principal, dans ce dossier : jamais Mindset)
         $age = try { ((Get-Date) - $p.StartTime).TotalSeconds } catch { 0 }
-        $c = try { [string]$p.Path } catch { '' }
-        if ($age -lt 60 -or $c.ToLower() -ne $chemin -or [MSIntegration]::Trouver($p.Id, $Appli.Nom) -ne [IntPtr]::Zero) { continue }
+        if ($age -lt 60 -or [MSIntegration]::Trouver($p.Id, $Appli.Nom) -ne [IntPtr]::Zero) { continue }
         try { $p.Kill(); [void]$p.WaitForExit(3000); $n++ } catch { Write-Log "$($Appli.Nom) bloqué sans fenêtre, arrêt refusé par Windows : $_" }
     }
     $n
@@ -162,7 +160,7 @@ $ui.BtnAppliFermer.Add_Click({
 
 # Un nouveau processus de l'appli (relance après un thème ou une mise à jour), pas celui dont la fenêtre vient de partir
 function Test-NouveauProcessus($Appli, $i) {
-    foreach ($p in @(Get-Process -Name ([IO.Path]::GetFileNameWithoutExtension($Appli.Exe)) -ErrorAction SilentlyContinue)) {
+    foreach ($p in @(Get-ProcessusAppli $Appli -Hote)) {
         if ($p.Id -eq $i.Pid) { continue }
         try { if ($p.StartTime -ge $i.Depuis.AddSeconds(-10)) { return $true } } catch {}
     }

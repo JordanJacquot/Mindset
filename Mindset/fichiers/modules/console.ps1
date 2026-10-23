@@ -16,6 +16,9 @@
 $ConsoleDir = Join-Path $AppDir 'console'
 $LogosAppliDir = Join-Path $DataDir 'console-logos'   # logos tirés de l'icône d'une appli installée (pas livrés avec Mindset)
 $Webview2Dir = Join-Path $AppDir 'lib\webview2'
+$ConsoleWebviewCommun = Join-Path $SuiteDir 'WebView2'          # le dossier WebView2 de toute la suite (profil « Mindset »)
+$ConsoleWebviewPropre = Join-Path $DataDir 'console-webview'    # filet de sécurité : l'ancien dossier propre à Mindset
+if ($EnTest -and $env:MINDSET_WEBVIEW_COMMUN) { $ConsoleWebviewCommun = $env:MINDSET_WEBVIEW_COMMUN }   # (test du filet : un dossier commun impossible)
 $script:Console = @{ Possible = $false; Vue = $null; Pret = $false; DerniereAppli = $null; AJouer = $null; EtatEnvoye = ''; QuitteeA = $null
     EnFente = $null; Ejecter = $null; Attente = $null; AttenteDepuis = $null; Parametres = $false; ParametresEnvoyes = '' }
 
@@ -45,17 +48,54 @@ if ($raison) { Write-Log "Console 3D désactivée : $raison (accueil classique)"
 # ---------------------------------------------------------------------------
 # Créer et fermer la 3D
 # ---------------------------------------------------------------------------
+# Peut-on écrire dans ce dossier de données WebView2 ? (créé s'il manque ; un petit fichier témoin écrit puis effacé
+# dans le dossier et dans son EBWebView s'il existe, là où WebView2 écrit). $null si oui, sinon la raison.
+function Test-DossierWebviewEcrivable([string]$Dossier) {
+    try {
+        [void][IO.Directory]::CreateDirectory($Dossier)
+        foreach ($d in @($Dossier, (Join-Path $Dossier 'EBWebView'))) {
+            if (-not [IO.Directory]::Exists($d)) { continue }
+            $t = Join-Path $d "ecriture-$PID.tmp"
+            [IO.File]::WriteAllText($t, '1')
+            [IO.File]::Delete($t)
+        }
+        $null
+    } catch { $_.Exception.Message }
+}
 function New-VueConsole([string]$VueDepart = 'menu') {
     if ($script:Console.Vue -or -not $script:Console.Possible) { return }
     $ui.ConsoleAttente.Visibility = 'Visible'
     $vue = New-Object Microsoft.Web.WebView2.Wpf.WebView2
     $vue.DefaultBackgroundColor = [System.Drawing.ColorTranslator]::FromHtml((ConvertTo-ThemeHex '#07060D'))   # (pas d'éclair blanc à l'allumage)
+    # Un seul WebView2 pour la suite : le dossier commun (WebView2 dans les données de la suite), partagé avec Nevermind,
+    # avec un profil à Mindset (stockages séparés). Les options d'environnement doivent rester les MÊMES que chez Nevermind
+    # (aujourd'hui aucune) : sinon WebView2 refuse de partager. Filet : si la création échoue avec ce dossier (options
+    # différentes, ancienne version de Nevermind ouverte, dossier illisible), l'ancien dossier propre à Mindset
+    # (console-webview) prend le relais jusqu'à la fermeture de Mindset : la console ne reste jamais vide.
     $cp = New-Object Microsoft.Web.WebView2.Wpf.CoreWebView2CreationProperties
-    $cp.UserDataFolder = Join-Path $DataDir 'console-webview'
+    # Le dossier commun doit pouvoir s'écrire AVANT d'être donné à WebView2 : sinon le moteur affiche lui-même une boîte
+    # d'erreur (« ne peut pas lire et écrire dans son répertoire de données ») avant que le filet ne prenne le relais
+    if (-not $script:Console.DossierPropre) {
+        $refus = Test-DossierWebviewEcrivable $ConsoleWebviewCommun
+        if ($refus) { $script:Console.DossierPropre = $true; Write-Log "Console 3D : dossier WebView2 commun de la suite pas utilisable ($refus), dossier console-webview utilisé" }
+    }
+    if ($script:Console.DossierPropre) { $cp.UserDataFolder = $ConsoleWebviewPropre }
+    else { $cp.UserDataFolder = $ConsoleWebviewCommun; $cp.ProfileName = 'Mindset' }
     $vue.CreationProperties = $cp
+    $vue.Tag = $VueDepart
     $vue.Add_CoreWebView2InitializationCompleted({
         param($s, $e)
-        if (-not $e.IsSuccess) { Stop-Console "initialisation refusée ($($e.InitializationException.Message))"; return }
+        if (-not $e.IsSuccess) {
+            if (-not $script:Console.DossierPropre) {
+                $script:Console.DossierPropre = $true
+                Write-Log "Console 3D : WebView2 commun de la suite refusé ($($e.InitializationException.Message)), retour au dossier console-webview"
+                $depart = [string]$s.Tag
+                [void]$Window.Dispatcher.BeginInvoke([action]{ Remove-VueConsole; New-VueConsole $depart }, [System.Windows.Threading.DispatcherPriority]::Background)
+                return
+            }
+            Stop-Console "initialisation refusée ($($e.InitializationException.Message))"; return
+        }
+        Write-Log "Console 3D : WebView2 dans $(if ($script:Console.DossierPropre) { 'son propre dossier (console-webview)' } else { 'le dossier commun de la suite' })"
         try {
             $c = $s.CoreWebView2
             $r = $c.Settings
@@ -94,7 +134,14 @@ function New-VueConsole([string]$VueDepart = 'menu') {
     # (WebView2 ne démarre qu'une fois la boucle d'affichage de Mindset lancée : la fenêtre, elle, s'affiche juste avant)
     [void]$Window.Dispatcher.BeginInvoke([action]{
         if (-not $script:Console.Vue) { return }
-        try { [void]$script:Console.Vue.EnsureCoreWebView2Async() } catch { Stop-Console "démarrage impossible ($($_.Exception.Message))" }
+        try { [void]$script:Console.Vue.EnsureCoreWebView2Async() }
+        catch {
+            if ($script:Console.DossierPropre) { Stop-Console "démarrage impossible ($($_.Exception.Message))"; return }
+            $script:Console.DossierPropre = $true   # (le filet : l'ancien dossier propre à Mindset)
+            Write-Log "Console 3D : WebView2 commun de la suite impossible ($($_.Exception.Message)), retour au dossier console-webview"
+            $depart = [string]$script:Console.Vue.Tag
+            Remove-VueConsole; New-VueConsole $depart
+        }
     }, [System.Windows.Threading.DispatcherPriority]::Background)
 }
 

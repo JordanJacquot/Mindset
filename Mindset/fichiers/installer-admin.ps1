@@ -164,9 +164,20 @@ function Register-TacheAide([string]$Nom, [string]$ExeAide, [string]$Sid) {
     Register-ScheduledTask -TaskPath '\Mindset\' -TaskName $Nom -Action $act -Principal $pr -Settings $set -Description 'Partie administrateur de l''appli : ne fait que les actions de sa liste stricte, à la demande de l''appli.' -Force | Out-Null
 }
 
-function Stop-Programme([string]$Nom) {
+# Ferme les programmes lancés depuis $Dossier (sous-dossiers compris), et seulement eux : trouvés par leur CHEMIN, jamais
+# par leur nom (l'hôte de chaque appli s'appelle Mindset.exe, comme Mindset lui-même ; un nom ferait fermer en
+# administrateur n'importe quel programme du même nom sur le PC). $Dossier est toujours un dossier déjà vérifié par
+# Test-DossierMindset (directement dans le dossier protégé des programmes). $Nom ne sert qu'à valider la demande.
+function Stop-Programme([string]$Nom, [string]$Dossier) {
     if ($Nom -notmatch $RegleProgramme) { throw 'Nom de programme refusé.' }
-    Get-Process -Name ([IO.Path]::GetFileNameWithoutExtension($Nom)) -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
+    if (-not $Dossier) { throw 'Dossier refusé.' }
+    $dans = [IO.Path]::GetFullPath($Dossier).TrimEnd('\') + '\'
+    $liste = @(Get-Process -ErrorAction SilentlyContinue | Where-Object {
+        $c = try { [string]$_.Path } catch { '' }
+        $_.Id -ne $PID -and $c -and $c.StartsWith($dans, [StringComparison]::OrdinalIgnoreCase)
+    })
+    if (-not $liste.Count) { return }
+    $liste | Stop-Process -Force -ErrorAction SilentlyContinue
     Start-Sleep -Milliseconds 800
 }
 
@@ -207,8 +218,9 @@ try {
             foreach ($n in @($Exe, $ExeAide) | Where-Object { $_ }) { if ($n -notmatch $RegleProgramme) { throw 'Nom de programme refusé.' } }
             if ($TacheAide -and $TacheAide -cnotmatch $RegleTacheAide) { throw 'Nom de tâche refusé.' }
             if (-not (Test-Signature $octets $sig (Join-Path $PSScriptRoot 'cles-publiques'))) { throw 'La signature du fichier téléchargé est invalide : rien n''a été installé.' }
-            Stop-Programme $Exe   # Mindset a demandé confirmation avant de fermer l'appli
-            if ($ExeAide) { Stop-Programme $ExeAide }   # sa partie administrateur tient son programme ouvert
+            # Mindset a demandé confirmation avant de fermer l'appli : tout ce qui tourne depuis son dossier (son hôte, l'ancien
+            # <Appli>.exe, sa partie administrateur qui tient son programme ouvert), rien d'autre
+            Stop-Programme $Exe $dest
             $installe = Install-Paquet -Zip $octets -Signature $sig -ClePublique (Join-Path $PSScriptRoot 'cles-publiques') -Destination $dest -DossierZip $DossierZip -Exe $Exe
             # Prise en charge : les tâches planifiées qui lançaient l'ancienne copie (en administrateur, que Mindset
             # sans droits ne peut pas modifier) lancent désormais la nouvelle
@@ -295,7 +307,7 @@ try {
         'supprimer' {
             $dest = Test-DossierMindset $Destination
             if ($AttendrePid) { try { Wait-Process -Id $AttendrePid -Timeout 30 -ErrorAction Stop } catch {} }
-            if ($Exe) { Stop-Programme $Exe }
+            if ($Exe) { Stop-Programme $Exe $dest }   # (seulement les programmes de ce dossier)
             if ((Split-Path $dest -Leaf) -ne 'Mindset') {
                 if (Test-Path -LiteralPath $dest) { Remove-Item -LiteralPath $dest -Recurse -Force }
             } else {

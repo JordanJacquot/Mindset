@@ -68,9 +68,31 @@ function Test-AppliAdmin($Appli, $Inst = $null) {
     Test-VersionPlusRecente $Appli.SansDroitsDepuis $Inst.Version
 }
 
+# Les programmes de l'appli qui tournent, trouvés par leur CHEMIN, jamais par leur nom : l'hôte de chaque appli s'appelle
+# Mindset.exe (comme Mindset lui-même, pour que le Gestionnaire des tâches regroupe la suite sur une ligne), et l'ancien
+# <Appli>.exe n'est plus qu'un relais. Ce sont ceux lancés depuis le dossier où elle est installée ; -Hote : seulement son
+# programme principal (l'hôte Mindset.exe ou l'ancien <Appli>.exe, directement dans ce dossier), pas ses programmes d'aide.
+# Jamais Mindset lui-même (ce processus, ni un programme du dossier de Mindset). Rend des objets Process.
+function Get-ProcessusAppli($Appli, [switch]$Hote) {
+    $inst = Get-Installation $Appli
+    if (-not $inst -or -not $inst.Dossier) { return @() }
+    $noms = if ($Hote) { [string[]]@($Appli.Exe, 'Mindset.exe') } else { $null }
+    @(foreach ($id in [MSProcessus]::DansDossier($inst.Dossier, $noms, $PID, $MonDossier)) { try { Get-Process -Id $id -ErrorAction Stop } catch {} })
+}
+
+# Les programmes d'aide qu'une appli lance depuis son dossier de DONNÉES (Evermind : voix\Mindset.exe, voix\ia\..., Mindcare :
+# ia\...), eux aussi trouvés par leur chemin : ils s'appellent parfois Mindset.exe, et ne sont jamais Mindset lui-même
+# (ni ce processus, ni un programme du dossier de Mindset). Rend des objets Process.
+function Get-ProcessusDonneesAppli($Appli) {
+    @(foreach ($d in @((Get-DossierDonnees $Appli), $Appli.Donnees) | Where-Object { $_ } | Select-Object -Unique) {
+        if ($SuiteDir -and ($d.TrimEnd('\') -ieq $SuiteDir.TrimEnd('\'))) { continue }   # (jamais toutes les données de la suite)
+        foreach ($id in [MSProcessus]::DansDossier($d, $null, $PID, $MonDossier)) { try { Get-Process -Id $id -ErrorAction Stop } catch {} }
+    })
+}
+
 # Ouverte ou non : chaque appli garde un mutex tant qu'elle tourne (« une seule à la fois »).
 # Si l'appli tourne en administrateur, Windows refuse de nous l'ouvrir : il existe, donc elle tourne.
-# Sinon, on cherche son programme par son nom (une instance de test, par exemple, ne prend pas le mutex).
+# Sinon, on cherche son programme par son chemin (une instance de test, par exemple, ne prend pas le mutex).
 function Test-AppliOuverte($Appli) {
     if ($Appli.Mutex) {
         try { $m = [System.Threading.Mutex]::OpenExisting($Appli.Mutex); $m.Dispose(); return $true }
@@ -79,8 +101,7 @@ function Test-AppliOuverte($Appli) {
             if ($e -is [System.UnauthorizedAccessException]) { return $true }
         }
     }
-    $nom = [IO.Path]::GetFileNameWithoutExtension($Appli.Exe)
-    [bool]($nom -and (Get-Process -Name $nom -ErrorAction SilentlyContinue))
+    [bool]@(Get-ProcessusAppli $Appli -Hote).Count
 }
 
 $Applis = @(Get-Applis)
