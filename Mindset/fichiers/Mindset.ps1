@@ -119,6 +119,9 @@ $AppId = 'JordanJacquot.Mindset'
 try { [MSNative]::SetAppId($AppId) } catch {}
 
 foreach ($msModule in $msModules -ne 'donnees') { . (Join-Path $ModulesDir "$msModule.ps1") }
+# (test seulement : un script d'essai chargé après les modules, par exemple outils\essai-maj-console.ps1, qui remplace ce
+# qui touche au PC par du faux : fausses applis, fausses mises à jour)
+if ($EnTest -and $env:MINDSET_TEST_SCRIPT -and (Test-Path -LiteralPath $env:MINDSET_TEST_SCRIPT)) { . $env:MINDSET_TEST_SCRIPT }
 
 # ---------------------------------------------------------------------------
 # Lancement

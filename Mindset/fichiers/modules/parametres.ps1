@@ -397,6 +397,20 @@ function Update-ListeVersions {
                 elseif ($i) { @('à jour', '#3DDC84') } else { @("dernière : $($p.Version)", '#A6A1BC') }
         [void]$ui.ListeVersions.Children.Add((New-LigneVersion $a.Nom $a.Couleur $inst $etat[0] $etat[1]))
     }
+    # Les dernières mises à jour (mindset.ps1, Read-HistoriqueMaj)
+    $h = @(Get-HistoriqueMajAffiche)
+    $t = New-Text 'Dernières mises à jour' 17 '#ECEAF7' 'SemiBold'; $t.Margin = '0,18,0,8'
+    [void]$ui.ListeVersions.Children.Add($t)
+    if (-not $h.Count) { [void]$ui.ListeVersions.Children.Add((New-Text 'Aucune mise à jour pour l''instant.' 13 '#A6A1BC')) }
+    foreach ($e in $h) { [void]$ui.ListeVersions.Children.Add((New-LigneVersion $e.nom $e.brut "version $($e.version)" "$($e.quand) · $(if ($e.auto) { 'automatique' } else { 'faite par toi' })" $(if ($e.auto) { '#7FF4FF' } else { '#A6A1BC' }))) }
+}
+# L'historique tel qu'il s'affiche (ici et dans l'écran de la console) : nom, couleur, version, quand, automatique ou non
+function Get-HistoriqueMajAffiche {
+    foreach ($e in @((Read-HistoriqueMaj).Liste)) {
+        $a = Get-AppliMaj $e.id $e.nom
+        $q = Format-QuandMaj $e.quand -Long
+        [ordered]@{ nom = $a.Nom; couleur = (ConvertTo-ThemeHex $a.Couleur); brut = $a.Couleur; version = $e.version; quand = $q.Substring(0, 1).ToUpper() + $q.Substring(1); auto = [bool]$e.auto }
+    }
 }
 function Invoke-VerifierMaj {
     Invoke-Actualiser -Clic
@@ -556,6 +570,7 @@ function Get-EtatParametres {
                      elseif ($i -and $i.Version -and (Test-VersionPlusRecente $p.Version $i.Version)) { @("$($p.Version) disponible", 'attention') }
                      elseif ($i) { @('à jour', 'ok') } else { @("dernière : $($p.Version)", '') }
                 [ordered]@{ nom = $a.Nom; couleur = (ConvertTo-ThemeHex $a.Couleur); version = $inst; texte = $e[0]; ton = $e[1] } })
+            historique = @(Get-HistoriqueMajAffiche)
         }
         dossiers = [ordered]@{ texte = [string]$ui.DossiersTexte.Text }
         conso = $script:ConsoEtat   # (mesuré seulement quand l'onglet Consommation est à l'écran)

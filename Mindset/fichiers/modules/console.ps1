@@ -20,7 +20,7 @@ $ConsoleWebviewCommun = Join-Path $SuiteDir 'WebView2'          # le dossier Web
 $ConsoleWebviewPropre = Join-Path $DataDir 'console-webview'    # filet de sécurité : l'ancien dossier propre à Mindset
 if ($EnTest -and $env:MINDSET_WEBVIEW_COMMUN) { $ConsoleWebviewCommun = $env:MINDSET_WEBVIEW_COMMUN }   # (test du filet : un dossier commun impossible)
 $script:Console = @{ Possible = $false; Vue = $null; Pret = $false; DerniereAppli = $null; AJouer = $null; EtatEnvoye = ''; QuitteeA = $null
-    EnFente = $null; Ejecter = $null; Attente = $null; AttenteDepuis = $null; Parametres = $false; ParametresEnvoyes = '' }
+    EnFente = $null; Ejecter = $null; Attente = $null; AttenteDepuis = $null; Parametres = $false; ParametresEnvoyes = ''; MajEnvoye = '' }
 
 # La 3D est-elle possible ici ? (une fois, au démarrage)
 function Test-ConsolePossible {
@@ -126,11 +126,12 @@ function New-VueConsole([string]$VueDepart = 'menu') {
             $th = Get-ThemeConsole
             # (les couleurs du thème de la suite valent pour tous les thèmes, de base ou perso ; les images, seulement un pack avec un bloc Console)
             $suite = "&couleurs=$([uri]::EscapeDataString((Get-CouleursConsole)))" + $(if ($th) { "&theme=$([uri]::EscapeDataString($th))" } else { '' })
-            $c.Navigate("https://mindset.local/scene.html?vue=$VueDepart&animations=$(if ($anim -eq 'express') { 'express' } else { 'completes' })$suite")
+            $decor = if ($EnTest -and $env:MINDSET_TEST_DECOR -match '^(jour|soir|nuit)$') { "&decor=$($Matches[1])" } else { '' }   # (test : le décor, quelle que soit l'heure)
+            $c.Navigate("https://mindset.local/scene.html?vue=$VueDepart&animations=$(if ($anim -eq 'express') { 'express' } else { 'completes' })$suite$decor")
         } catch { Stop-Console "réglage impossible ($($_.Exception.Message))" }
     })
     $ui.PageConsole.Children.Add($vue) | Out-Null
-    $script:Console.Vue = $vue; $script:Console.Pret = $false; $script:Console.EtatEnvoye = ''
+    $script:Console.Vue = $vue; $script:Console.Pret = $false; $script:Console.EtatEnvoye = ''; $script:Console.MajEnvoye = ''
     # (WebView2 ne démarre qu'une fois la boucle d'affichage de Mindset lancée : la fenêtre, elle, s'affiche juste avant)
     [void]$Window.Dispatcher.BeginInvoke([action]{
         if (-not $script:Console.Vue) { return }
@@ -340,9 +341,94 @@ function Get-LogoConsole($Appli, $Inst) {
 function Send-EtatConsole([switch]$Force) {
     if (-not $script:Console.Vue -or -not $script:Console.Pret) { return }
     $json = Get-EtatConsole
-    if (-not $Force -and $json -eq $script:Console.EtatEnvoye) { return }
-    $script:Console.EtatEnvoye = $json
-    Invoke-ScriptConsole "window.mindset.etat($json)"
+    if ($Force -or $json -ne $script:Console.EtatEnvoye) { $script:Console.EtatEnvoye = $json; Invoke-ScriptConsole "window.mindset.etat($json)" }
+    try { Send-MajConsole -Force:$Force } catch { Write-Log "Console 3D : état des mises à jour non envoyé ($_)" }   # (après : les logos des applis sont connus)
+}
+
+# ---------------------------------------------------------------------------
+# Les mises à jour, visibles dans la console (window.mindset.majAuto, la carte dans la poutre du haut de la scène) :
+#   - la pastille « Mise à jour automatique » : le réglage MajAuto (le même que Paramètres > Mises à jour) ; grisée si
+#     « Chercher les nouvelles versions » est coupé (elles ne peuvent pas tourner) ;
+#   - ce qui se passe, par ordre d'importance : un téléchargement (avec son %) ou une installation, d'une appli ou de
+#     Mindset lui-même (la carte suit celle en cours) ; une recherche des nouvelles versions ; une version disponible,
+#     « prête » avec son bouton si les mises à jour automatiques ne la feront pas (pastille décochée, ou essai raté il
+#     y a moins de 6 heures), sinon « en attente » avec la raison (un jeu, une appli dont on se sert, Mindset à l'écran,
+#     ou dans un instant) ; la recherche coupée ; sinon tout est à jour ;
+#   - la dernière mise à jour faite, pendant 12 heures (mindset.ps1, Get-DerniereMaj), avec ses nouveautés.
+# Envoyé avec l'état des applis (toutes les 1,5 s, seulement s'il a changé), et tout de suite après un geste.
+# ---------------------------------------------------------------------------
+function Get-EtatMajConsole {
+    $verif = [bool](Test-VerifVersionsActive)
+    $auto = [bool](Test-MajAutoActive)
+    $autoPossible = $auto -and $verif -and -not $MindsetAdmin -and (Test-TacheInstallation)
+    $infos = { param($Id, $Nom, $Couleur, $Version) [ordered]@{ id = $Id; nom = $Nom; c = (ConvertTo-ThemeHex $Couleur); version = [string]$Version } }
+    $phase = ''; $appli = $null; $progres = 0.0; $raison = ''
+    # 1. Ce qui se télécharge ou s'installe (pas une désinstallation : ni téléchargement, ni installation en cours)
+    $occupees = @($Applis | Where-Object { $script:Occupe[$_.Id] -and ($script:Progres[$_.Id] -or $script:EnCours[$_.Id]) })
+    $a = @($occupees | Where-Object { $script:Progres[$_.Id] }) + $occupees | Select-Object -First 1   # (d'abord celle qui télécharge)
+    if ($a) {
+        $pr = $script:Progres[$a.Id]; $c = $script:EnCours[$a.Id]; $pub = $script:Publications[$a.Id]
+        $v = if ($c -and $c.Version) { $c.Version } elseif ($pub -and $pub.Version) { $pub.Version } else { [string]$script:MajAuto[$a.Id] }
+        $appli = & $infos $a.Id $a.Nom $a.Couleur $v
+        if ($pr) { $phase = 'telechargement'; if ($pr.Total -gt 0) { $progres = [math]::Min(1.0, [double]$pr.Recu / $pr.Total) } }
+        else { $phase = 'installation'; $progres = 1.0 }
+    } elseif ($script:MajMindsetEnCours -and $script:ProgresMindset -and $script:ProgresMindset.Version) {
+        # Mindset lui-même : sa nouvelle version se télécharge (elle sera ensuite « prête »)
+        $pr = $script:ProgresMindset
+        $appli = & $infos 'mindset' 'Mindset' '#ECEAF7' $pr.Version
+        $phase = 'telechargement'; if ($pr.Total -gt 0) { $progres = [math]::Min(1.0, [double]$pr.Recu / $pr.Total) }
+    }
+    # 2. Une recherche en cours (une question à GitHub sans réponse depuis moins de 2 minutes ; au moins 2 secondes)
+    if (-not $phase) {
+        $enRecherche = @($script:Recherches.Values | Where-Object { ((Get-Date) - $_).TotalMinutes -lt 2 }).Count -or ($script:MajMindsetEnCours -and -not ($script:ProgresMindset -and $script:ProgresMindset.Version))
+        if ($enRecherche -or ((Get-Date) - $script:RechercheDepuis).TotalSeconds -lt 2) { $phase = 'recherche' }
+    }
+    # 3. Une version disponible : prête (c'est à toi de lancer) ou en attente (elle se fera toute seule)
+    if (-not $phase) {
+        $dispo = @(foreach ($x in $Applis) {
+            $e = Get-EtatCarte $x
+            if ($e.MajDispo -and -not $e.Occupe) { @{ Id = $x.Id; Nom = $x.Nom; Couleur = $x.Couleur; Version = [string]$e.Pub.Version } }
+        })
+        $m = $script:MajMindset
+        if ($m -and (Test-VersionPlusRecente ([string]$m.Version) $AppVersion)) { $dispo += @{ Id = 'mindset'; Nom = 'Mindset'; Couleur = '#ECEAF7'; Version = [string]$m.Version } }
+        $d = $dispo | Select-Object -First 1
+        if ($d) {
+            $appli = & $infos $d.Id $d.Nom $d.Couleur $d.Version
+            if (-not $autoPossible -or (Test-MajAutoRecente $d.Id $d.Version)) { $phase = 'prete' }
+            else {
+                $phase = 'attente'
+                $raison = if ($script:MajAutoJeu) { 'jeu' } elseif ($d.Id -eq 'mindset') { 'veille' } elseif ($script:MajAutoAttentes[$d.Id]) { $script:MajAutoAttentes[$d.Id] } else { 'bientot' }
+            }
+        }
+    }
+    if (-not $phase) { $phase = if ($verif) { 'ajour' } else { 'coupee' } }
+    # La dernière mise à jour faite (12 heures), et ses nouveautés
+    $fait = $null; $f = Get-DerniereMaj
+    if ($f) { $x = Get-AppliMaj $f.id $f.nom; $fait = & $infos $x.Id $x.Nom $x.Couleur $f.version; $fait.quand = Format-QuandMaj $f.quand; $fait.auto = [bool]$f.auto; $fait.notes = [string]$f.notes }
+    ConvertTo-Json -InputObject ([ordered]@{ auto = $auto; verif = $verif; phase = $phase; raison = $raison; appli = $appli
+        progres = [math]::Round($progres, 3); fait = $fait }) -Depth 4 -Compress
+}
+function Send-MajConsole([switch]$Force) {
+    if (-not $script:Console.Vue -or -not $script:Console.Pret) { return }
+    $json = Get-EtatMajConsole
+    if (-not $Force -and $json -eq $script:Console.MajEnvoye) { return }
+    $script:Console.MajEnvoye = $json
+    Invoke-ScriptConsole "window.mindset.majAuto($json)"
+}
+# Un clic sur la pastille : le réglage change (le même que Paramètres > Mises à jour, qui suit). Recherche coupée : la
+# pastille ne peut pas tourner à vide, elle ne change pas (la carte propose les réglages).
+function Set-MajAutoConsole([bool]$Oui) {
+    if (Test-VerifVersionsActive) {
+        Set-Setting 'MajAuto' $Oui
+        Write-Log "Mises à jour automatiques : $(if ($Oui) { 'oui' } else { 'non' }) (pastille de la console)"
+        Update-ReglagesMaj
+    }
+    Send-MajConsole -Force
+    Send-ParametresConsole -Force
+}
+# « Mettre à jour » sur la carte, pour Mindset lui-même : il se ferme le temps de la mise à jour, une question d'abord
+function Confirm-MajMindsetConsole {
+    Show-Confirmation 'Mettre à jour Mindset ?' "Mindset va se fermer, se mettre à jour (version $($script:MajMindset.Version)) puis se rouvrir tout seul. Tes applis restent ouvertes." 'Mettre à jour' { Start-MajMindset }
 }
 
 # ---------------------------------------------------------------------------
@@ -382,12 +468,19 @@ function Receive-MessageConsole([string]$Json) {
             }
         }
         'installer'  { if ($a -and -not (Get-Installation $a)) { if ($script:Trouvees[$a.Id]) { Confirm-PriseEnCharge $a } else { Start-InstallAppli $a } } }
-        'maj'        { if ($a) { Confirm-MiseAJour $a } }
+        'maj'        { if ($a) { Confirm-MiseAJour $a } elseif ($id -eq 'mindset' -and $script:MajMindset) { Confirm-MajMindsetConsole } }
         'confidentialite' { if ($a) { Open-PageConfidentialite $a.Id } }   # (la page de l'appli, ou celle de Mindset)
         'fermer'     { if ($a) { Stop-AppliConsole $a } }
         'parametres' { $script:OngletParametres = 'general'; Show-Page 'parametres' }   # (tuile du menu en grand ou bouton rond : dans l'écran)
         'parametresFermes' { $script:Console.Parametres = $false }   # (retour au menu en grand, sur la tuile Paramètres)
-        'actualiser' { Invoke-Actualiser -Clic; Invoke-ScriptConsole "window.mindset.message('Recherche des nouvelles versions...')" }
+        'actualiser' {
+            $avant = $script:DernieresPublications
+            Invoke-Actualiser -Clic
+            $t = if ($script:DernieresPublications -ne $avant) { 'Recherche des nouvelles versions...' } else { 'Tout vient d''être vérifié' }   # (clics répétés : Invoke-Actualiser)
+            Invoke-ScriptConsole "window.mindset.message($(ConvertTo-Json -InputObject $t -Compress))"
+        }
+        'majAuto'    { Set-MajAutoConsole ([bool]$m.valeur) }   # (la pastille « Mise à jour automatique »)
+        'majReglages' { Show-OngletParametres 'maj'; Show-Page 'parametres' }   # (recherche coupée : les réglages des mises à jour)
         'majTout'    {
             $aMettre = @($Applis | Where-Object { (Get-EtatCarte $_).MajDispo })
             if ($aMettre.Count) { Confirm-MiseAJour $aMettre[0] } else { Invoke-ScriptConsole "window.mindset.message('Toutes tes applis sont à jour')" }

@@ -510,7 +510,11 @@ function Invoke-Actualiser([switch]$Clic) {
     $script:VerifieA = Get-Date
     Update-InfoActualiser
     if ($Clic) { Write-Log 'Actualiser : recherche des nouvelles versions' }
+    # La console le montre tout de suite (« Recherche des mises à jour... », au moins 2 secondes : GitHub répond vite)
+    $script:RechercheDepuis = Get-Date
+    if (Get-Command Send-MajConsole -ErrorAction SilentlyContinue) { Send-MajConsole }
 }
+$script:RechercheDepuis = [datetime]::MinValue
 $ui.BtnActualiser.Add_Click({ Invoke-Actualiser -Clic })
 Update-InfoActualiser
 Invoke-Actualiser

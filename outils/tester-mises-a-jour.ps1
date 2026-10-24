@@ -14,6 +14,11 @@
 #      manette ; une mise à jour automatique ne rouvre pas une appli que l'utilisateur avait fermée ;
 #   5. une erreur imprévue dans une minuterie ne ferme plus Mindset (vrai Mindset de test, fenêtre hors de l'écran) :
 #      notée au journal 3 fois au plus, un seul message.
+#   6. les mises à jour visibles dans la console : l'état envoyé à la carte (fausses applis, faux zips, fausse
+#      progression, faux jeu), le clic sur la pastille, plusieurs applis à la suite, Mindset lui-même, l'historique
+#      (écriture sûre, relecture, fichier abîmé, 12 heures sur la carte) ;
+#   7. la vraie console reçoit l'état : un Mindset de test par étape (hors écran, outils\essai-maj-console.ps1), ce que
+#      la carte affiche est relu dans la page avant la capture (ignoré si la console 3D n'est pas possible sur ce PC).
 # Rien sur le vrai PC : ni ses réglages, ni ses applis, ni leurs processus (seuls les programmes d'essai lancés ici
 # sont fermés), ni le registre. Code de sortie 1 si un cas échoue (utilisé par la CI de GitHub).
 param([string]$Fichiers)
@@ -177,7 +182,13 @@ static class Essai {
     $script:Pubs = @{}
     $script:Telecharges = New-Object Collections.Generic.List[string]
     function Get-Publication([string]$Depot, [string]$Zip) { $v = $script:Pubs[$Depot]; @{ Version = $v; UrlZip = "zip $Depot $v"; UrlSig = "sig $Depot $v"; Notes = '' } }
-    function Get-Octets([string]$Url, $Progres = $null) { $script:Telecharges.Add($Url); [Text.Encoding]::UTF8.GetBytes($Url) }
+    # (avec une table de progression : une fausse progression, 650 octets sur 1000, et $script:PendantTelechargement est appelé)
+    function Get-Octets([string]$Url, $Progres = $null) {
+        $script:Telecharges.Add($Url)
+        if ($Progres) { $Progres.Total = 1000; $Progres.Recu = 650; if ($script:PendantTelechargement) { & $script:PendantTelechargement } }
+        [Text.Encoding]::UTF8.GetBytes($Url)
+    }
+    $script:PendantTelechargement = $null
     function Test-Signature { $true }
     . ([scriptblock]::Create(($asts['paquets.ps1'].FindAll({ param($n) $n -is [System.Management.Automation.Language.FunctionDefinitionAst] -and $n.Name -eq 'Test-VersionPlusRecente' }, $true) | Select-Object -First 1).Extent.Text))
     $script:Interrupteurs = New-Object Collections.ArrayList
@@ -188,13 +199,18 @@ static class Essai {
     Import-Fonctions 'installations.ps1' @('Start-InstallAppli', 'Complete-Telechargement', 'Send-InstallationAppli', 'Complete-Installation', 'Get-DemarrageAppli', 'Set-DemarrageAppli',
         'Get-DemarrageWindowsAppli', 'Repair-DemarrageApplis', 'Move-TachesDemarrage', 'Get-DossierGere')
     Import-Fonctions 'integration.ps1' @('Write-DemandeQuitter')
-    Import-Fonctions 'mindset.ps1' @('Start-VerifMajMindset', 'Get-JeuxNevermind', 'Get-JeuEnCours')
+    Import-Fonctions 'mindset.ps1' @('Start-VerifMajMindset', 'Get-JeuxNevermind', 'Get-JeuEnCours', 'ConvertTo-EntreeMaj', 'Read-HistoriqueMaj', 'Save-HistoriqueMaj', 'Add-HistoriqueMaj',
+        'Set-MajMindsetAttendue', 'Resolve-MajMindsetAttendue', 'Get-DerniereMaj', 'Format-QuandMaj', 'Get-AppliMaj')
     function Get-TachesDemarrageAppli([string]$Id) { @($script:TachesFaux[$Id] | Where-Object { $_ }) }   # (après l'import : jamais les vraies tâches)
     function Test-MindsetInstalle { $true }
     $RacineProgrammes = $prog
     . (Get-Lignes 'installations.ps1' 'DelaiFermetureAppli|AttentesFermeture|FermetureTimer|^\$TachesDemarrageAppli')
     . (Get-Lignes 'mindset.ps1' '^\$DossiersJeux|^\$DossiersPasJeux')
     $script:Occupe = @{}; $script:Messages = @{}; $script:EnCours = @{}; $script:Progres = @{}; $script:ARelancer = @{}; $script:MajAuto = @{}
+    # L'historique des mises à jour : dans le dossier de test (le vrai Complete-Installation y écrit)
+    $DataDir = $tmp
+    . (Get-Lignes 'mindset.ps1' '^\$FichierHistoriqueMaj|^\$HistoriqueMajMax|^\$DureeDerniereMaj')
+    $script:HistoriqueMaj = $null
     Test-Cas 'Les réglages de test ne sont jamais ceux du PC (Set-Setting est un faux, en mémoire)' { (Get-Command Set-Setting).ScriptBlock.ToString() -notmatch 'WriteAllText' }
 
     function Reset-Pc {
@@ -398,6 +414,214 @@ static class Essai {
         $n -eq 3 -and $journal -match 'elle se répète : plus notée'
     }
     Test-Cas 'Un seul message pour l''utilisateur, en mots simples' { ([regex]::Matches($journal, 'Message montré : Un petit problème est survenu')).Count -eq 1 }
+
+    # -------------------------------------------------------------------------------------------------------------
+    Write-Partie '6. Les mises à jour visibles dans la console : états envoyés, pastille, historique'
+    # -------------------------------------------------------------------------------------------------------------
+    $script:Journal = New-Object Collections.Generic.List[string]   # (« $journal » de la partie 5 est la même variable)
+    Import-Fonctions 'console.ps1' @('Get-EtatMajConsole', 'Send-MajConsole', 'Set-MajAutoConsole', 'Receive-MessageConsole')
+    Import-Fonctions 'accueil.ps1' @('Get-EtatCarte', 'Confirm-MiseAJour')
+    Import-Fonctions 'mindset.ps1' @('Invoke-MajAuto', 'Test-MajAutoActive', 'Test-VerifVersionsActive', 'Set-VerifVersions', 'Test-MajAutoRecente')
+    Import-Fonctions 'installations.ps1' @('Update-Publications')
+    Import-Fonctions 'parametres.ps1' @('Get-HistoriqueMajAffiche')
+    function ConvertTo-ThemeHex([string]$Hex) { $Hex }
+    function Get-EtatAppli { $null }
+    $script:SyncReglages = 0
+    function Update-ReglagesMaj { $script:SyncReglages++ }
+    function Send-ParametresConsole { }
+    function Get-JeuEnCours { $script:JeuFaux }   # (après les imports : jamais le vrai PC, où un jeu tourne peut-être)
+    $script:Envoye = New-Object Collections.Generic.List[string]
+    function Invoke-ScriptConsole([string]$Code) { $script:Envoye.Add($Code) }
+    function Get-Maj { Get-EtatMajConsole | ConvertFrom-Json }
+    function Reset-Maj {
+        Reset-Pc
+        $script:Pubs['JordanJacquot/Evermind'] = '0.15.0'; $script:Pubs['JordanJacquot/Mindcare'] = '0.12.0'
+        $script:Installs['evermind'] = @{ Dossier = "$prog\Evermind"; Gere = $true; Version = '0.14.0' }
+        $script:Installs['mindcare'] = @{ Dossier = "$prog\Mindcare"; Gere = $true; Version = '0.11.0' }
+        $script:Publications = @{}; foreach ($k in $script:Installs.Keys) { $script:Publications[$k] = @{ Version = $script:Installs[$k].Version; Notes = '' } }
+        $script:Trouvees = @{}; $script:Recherches = @{}; $script:RechercheDepuis = [datetime]::MinValue; $script:Progres = @{}
+        $script:MajAutoJeu = ''; $script:MajAutoAttentes = @{}; $script:MajAutoEssais = @{}; $script:MajAutoDerniere = [datetime]::MinValue; $script:JeuFaux = ''
+        $script:MajMindset = $null; $script:MajMindsetEnCours = $false; $script:ProgresMindset = $null; $script:AttentesAdmin = New-Object Collections.ArrayList
+        $script:Console = @{ Vue = $true; Pret = $true; MajEnvoye = '' }; $script:Envoye.Clear(); $script:Telecharges.Clear(); $script:SyncReglages = 0; $script:PendantTelechargement = $null
+        $script:HistoriqueMaj = $null; Remove-Item -Path "$FichierHistoriqueMaj*" -Force -ErrorAction SilentlyContinue
+    }
+    function Set-Pub([string]$Id, [string]$Version) { $script:Publications[$Id] = @{ Version = $Version; UrlZip = 'zip'; UrlSig = 'sig'; Notes = "- Nouveautés de $Version" } }
+    $ancienMajAuto = $env:MINDSET_MAJAUTO_TEST; $env:MINDSET_MAJAUTO_TEST = '1'   # (Invoke-MajAuto, ici seulement avec ses faux)
+    try {
+        Reset-Maj
+        $m = Get-Maj
+        Test-Cas 'Tout est à jour : phase « ajour », pastille cochée (réglage par défaut), recherche activée, rien de fait' { $m.phase -eq 'ajour' -and $m.auto -and $m.verif -and -not $m.fait }
+        Set-Pub 'evermind' '0.15.0'; $script:Reglages['MajAuto'] = $false
+        $m = Get-Maj
+        Test-Cas 'Pastille décochée, Evermind 0.15.0 publié : « prête », pour Evermind 0.15.0 (le bouton Mettre à jour)' { $m.phase -eq 'prete' -and $m.appli.id -eq 'evermind' -and $m.appli.version -eq '0.15.0' -and -not $m.auto }
+        $script:Reglages['MajAuto'] = $true
+        $m = Get-Maj
+        Test-Cas 'Pastille cochée : « en attente », dans un instant (elle se fera toute seule)' { $m.phase -eq 'attente' -and $m.raison -eq 'bientot' }
+        $script:JeuFaux = 'un jeu ouvert (test)'
+        Invoke-MajAuto
+        $m = Get-Maj
+        Test-Cas 'Un faux jeu : Invoke-MajAuto repousse, la carte dit « après ta partie », rien n''est téléchargé' { $m.phase -eq 'attente' -and $m.raison -eq 'jeu' -and $script:Telecharges.Count -eq 0 -and -not $script:Occupe.Count }
+        $script:JeuFaux = ''; $script:MajAutoJeu = ''
+        $script:MajAutoEssais['evermind'] = @{ Version = '0.15.0'; Quand = Get-Date }
+        $m = Get-Maj
+        Test-Cas 'Une mise à jour automatique ratée il y a moins de 6 heures : « prête », avec son bouton' { $m.phase -eq 'prete' }
+
+        # Le vrai téléchargement (Start-InstallAppli) : sa progression arrive sur la carte
+        Reset-Maj; Set-Pub 'evermind' '0.15.0'; $script:AdminRepond = $false
+        $script:PendantTelechargement = { $script:Pendant = Get-Maj }
+        $script:Pendant = $null
+        Start-InstallAppli $evermind
+        Test-Cas 'Pendant le téléchargement (fausse progression) : « telechargement », Evermind 0.15.0, 65 %' { $script:Pendant.phase -eq 'telechargement' -and $script:Pendant.appli.id -eq 'evermind' -and $script:Pendant.appli.version -eq '0.15.0' -and [double]$script:Pendant.progres -eq 0.65 }
+        $m = Get-Maj
+        Test-Cas 'Puis l''installation par l''Aide administrateur : « installation » (sans %), Evermind 0.15.0' { $m.phase -eq 'installation' -and $m.appli.version -eq '0.15.0' }
+        Reset-Maj; Set-Pub 'evermind' '0.15.0'
+        Start-InstallAppli $evermind
+        $h = @((Read-HistoriqueMaj).Liste)
+        $m = Get-Maj
+        Test-Cas 'Une mise à jour faite par l''utilisateur : notée (Evermind 0.15.0, pas automatique, ses nouveautés)' { $h.Count -eq 1 -and $h[0].id -eq 'evermind' -and $h[0].version -eq '0.15.0' -and -not $h[0].auto -and $h[0].notes -match '0\.15\.0' }
+        Test-Cas '... et la carte la garde : « Evermind 0.15.0 mis à jour à HH h MM »' { $m.phase -eq 'ajour' -and $m.fait.id -eq 'evermind' -and -not $m.fait.auto -and $m.fait.quand -match '^à \d\d h \d\d$' -and $m.fait.notes }
+        Reset-Maj; Set-Pub 'evermind' '0.15.0'; $script:Installs.Remove('mindcare')
+        Start-InstallAppli $mindcare
+        Test-Cas 'Une première installation (rien avant) n''est pas une mise à jour : rien dans l''historique' { -not @((Read-HistoriqueMaj).Liste | Where-Object { $_.id -eq 'mindcare' }).Count }
+        Reset-Maj; Set-Pub 'evermind' '0.15.0'
+        Invoke-MajAuto
+        $h = @((Read-HistoriqueMaj).Liste)
+        Test-Cas 'Une mise à jour automatique (Invoke-MajAuto, pas de jeu) : notée « automatique »' { $h.Count -eq 1 -and $h[0].auto -and (Get-Maj).fait.auto }
+
+        # Plusieurs applis l'une après l'autre : la carte suit celle en cours
+        Reset-Maj; Set-Pub 'evermind' '0.15.0'; Set-Pub 'mindcare' '0.12.0'; $script:AdminRepond = $false
+        Invoke-MajAuto
+        $m1 = Get-Maj
+        $script:Occupe.Remove('evermind'); $script:EnCours.Remove('evermind'); $script:MajAuto.Remove('evermind'); $script:Installs['evermind'].Version = '0.15.0'
+        $m2 = Get-Maj
+        $script:MajAutoDerniere = [datetime]::MinValue
+        Invoke-MajAuto
+        $m3 = Get-Maj
+        Test-Cas 'Deux applis à mettre à jour : la carte montre Evermind, puis Mindcare qui attend, puis Mindcare en cours' { $m1.appli.id -eq 'evermind' -and $m1.phase -eq 'installation' -and $m2.appli.id -eq 'mindcare' -and $m2.phase -eq 'attente' -and $m3.appli.id -eq 'mindcare' -and $m3.phase -eq 'installation' }
+
+        # Mindset lui-même
+        Reset-Maj; $script:Pubs['JordanJacquot/Mindset'] = '2.7.0'
+        $script:PendantTelechargement = { $script:Pendant = Get-Maj }; $script:Pendant = $null
+        Start-VerifMajMindset
+        Test-Cas 'Mindset télécharge sa nouvelle version (le vrai Start-VerifMajMindset) : « telechargement », Mindset 2.7.0, 65 %' { $script:Pendant.phase -eq 'telechargement' -and $script:Pendant.appli.id -eq 'mindset' -and $script:Pendant.appli.version -eq '2.7.0' -and [double]$script:Pendant.progres -eq 0.65 }
+        $m = Get-Maj
+        Test-Cas 'Puis Mindset 2.7.0 est prête ; Mindset à l''écran : « à la prochaine mise en veille »' { $m.phase -eq 'attente' -and $m.appli.id -eq 'mindset' -and $m.raison -eq 'veille' }
+        Reset-Maj; $script:MajMindsetEnCours = $true; $script:ProgresMindset = @{ Version = ''; Recu = 0; Total = 0 }
+        Test-Cas 'Mindset demande à GitHub (version pas encore connue) : « recherche »' { (Get-Maj).phase -eq 'recherche' }
+
+        # La recherche : les vraies questions (Update-Publications), dont la réponse tarde
+        Reset-Maj
+        $script:Differees = New-Object Collections.ArrayList
+        function Start-Tache([scriptblock]$Travail, [hashtable]$Parametres, [scriptblock]$Fin) { [void]$script:Differees.Add($Fin) }
+        Update-Publications
+        $m1 = Get-Maj
+        foreach ($f in @($script:Differees)) { & $f @{ Version = '0.1.0' } $null }
+        $m2 = Get-Maj
+        Test-Cas 'Pendant les questions à GitHub : « recherche » ; les réponses arrivées : plus de recherche' { $m1.phase -eq 'recherche' -and $m2.phase -ne 'recherche' -and -not $script:Recherches.Count }
+        function Start-Tache([scriptblock]$Travail, [hashtable]$Parametres, [scriptblock]$Fin) { $r = $null; $err = $null; try { $r = & $Travail $Parametres } catch { $err = $_.Exception.Message }; & $Fin $r $err }
+        $script:RechercheDepuis = Get-Date
+        Test-Cas 'Une recherche qui vient de partir se voit au moins 2 secondes (GitHub répond vite)' { (Get-Maj).phase -eq 'recherche' }
+
+        # La recherche coupée, et la pastille
+        Reset-Maj; $script:Reglages['VerifVersions'] = $false
+        $m = Get-Maj
+        Set-MajAutoConsole $false
+        Test-Cas 'Recherche coupée : « coupee » (la carte le dit), et la pastille ne peut pas changer le réglage' { $m.phase -eq 'coupee' -and -not $m.verif -and -not $script:Reglages.ContainsKey('MajAuto') }
+        Reset-Maj; Set-Pub 'evermind' '0.15.0'
+        Receive-MessageConsole '{"type":"action","action":"majAuto","valeur":false}'
+        $apres = $script:Envoye | Select-Object -Last 1
+        Test-Cas 'Clic sur la pastille (message de la page) : MajAuto coupé, Paramètres > Mises à jour suit, la console reçoit « prête »' {
+            $script:Reglages['MajAuto'] -eq $false -and $script:SyncReglages -eq 1 -and $apres -match '^window\.mindset\.majAuto\(' -and $apres -match '"auto":false' -and $apres -match '"phase":"prete"'
+        }
+        Receive-MessageConsole '{"type":"action","action":"majAuto","valeur":true}'
+        Test-Cas 'Clic à nouveau : MajAuto remis, la console reçoit « en attente »' { $script:Reglages['MajAuto'] -eq $true -and ($script:Envoye | Select-Object -Last 1) -match '"phase":"attente"' }
+        $n = $script:Envoye.Count; Send-MajConsole; Send-MajConsole
+        Test-Cas 'L''état n''est renvoyé que s''il a changé' { $script:Envoye.Count -eq $n }
+
+        # L'historique : écriture sûre, relecture, fichier abîmé
+        Reset-Maj
+        for ($i = 1; $i -le 25; $i++) { Add-HistoriqueMaj 'nevermind' 'Nevermind' "1.0.$i" ($i % 2 -eq 0) "notes $i" }
+        $script:HistoriqueMaj = $null
+        $h = @((Read-HistoriqueMaj).Liste)
+        Test-Cas 'Historique : les 20 dernières, la plus récente d''abord, relues du fichier (aucun .tmp ne traîne)' { $h.Count -eq 20 -and $h[0].version -eq '1.0.25' -and $h[19].version -eq '1.0.6' -and $h[1].auto -and -not (Test-Path -LiteralPath "$FichierHistoriqueMaj.tmp") }
+        [IO.File]::WriteAllText($FichierHistoriqueMaj, '{ "historique": [ { "id": "evermind", "vers')
+        $script:HistoriqueMaj = $null
+        $vide = @((Read-HistoriqueMaj).Liste).Count
+        Add-HistoriqueMaj 'evermind' 'Evermind' '0.15.0' $true ''
+        $relu = [IO.File]::ReadAllText($FichierHistoriqueMaj) | ConvertFrom-Json
+        Test-Cas 'Fichier abîmé : mis de côté (.abime), l''historique repart de zéro et le suivant s''écrit bien' { $vide -eq 0 -and (Test-Path -LiteralPath "$FichierHistoriqueMaj.abime") -and @($relu.historique).Count -eq 1 }
+        $q = (Get-Date).ToString('s')
+        [IO.File]::WriteAllText($FichierHistoriqueMaj, (ConvertTo-Json -Depth 4 -InputObject @{ historique = @(
+            @{ id = 'evermind'; nom = 'Evermind'; version = '0.15.0'; quand = $q; auto = $true }, @{ id = '..\x'; nom = 'X'; version = '1.0'; quand = $q },
+            @{ id = 'mindcare'; nom = 'Mindcare'; version = 'abc'; quand = $q }, @{ id = 'mindcare'; nom = 'Mindcare'; version = '1.0'; quand = 'hier' }, 'texte') }))
+        $script:HistoriqueMaj = $null
+        Test-Cas 'Une entrée qui n''a pas la forme attendue (nom, version, date) est ignorée' { @((Read-HistoriqueMaj).Liste).Count -eq 1 }
+        Reset-Maj
+        Set-MajMindsetAttendue '2.7.0' $true '- Nouveautés de Mindset'
+        $script:HistoriqueMaj = $null
+        $avantVersion = $AppVersion; $AppVersion = '2.7.0'
+        Resolve-MajMindsetAttendue
+        $AppVersion = $avantVersion
+        $h = @((Read-HistoriqueMaj).Liste)
+        Test-Cas 'Mindset s''est mis à jour (attendue avant de se fermer, 2.7.0 au redémarrage) : noté automatique' { $h.Count -eq 1 -and $h[0].id -eq 'mindset' -and $h[0].version -eq '2.7.0' -and $h[0].auto -and -not (Read-HistoriqueMaj).Attendue }
+        Reset-Maj
+        Set-MajMindsetAttendue '2.8.0' $false ''
+        Resolve-MajMindsetAttendue
+        Test-Cas 'Mise à jour de Mindset ratée (il redémarre dans son ancienne version) : rien de noté' { -not @((Read-HistoriqueMaj).Liste).Count -and -not (Read-HistoriqueMaj).Attendue }
+        Reset-Maj
+        $o = @{ historique = @(@{ id = 'evermind'; nom = 'Evermind'; version = '0.15.0'; quand = (Get-Date).AddHours(-13).ToString('s'); auto = $true }) }
+        [IO.File]::WriteAllText($FichierHistoriqueMaj, (ConvertTo-Json -Depth 4 -InputObject $o)); $script:HistoriqueMaj = $null
+        $vieux = Get-Maj
+        $o.historique[0].quand = (Get-Date).AddHours(-11).ToString('s')
+        [IO.File]::WriteAllText($FichierHistoriqueMaj, (ConvertTo-Json -Depth 4 -InputObject $o)); $script:HistoriqueMaj = $null
+        $recent = Get-Maj
+        Test-Cas 'La dernière mise à jour reste sur la carte 12 heures, pas plus' { -not $vieux.fait -and $recent.fait.version -eq '0.15.0' }
+        $aff = @(Get-HistoriqueMajAffiche)
+        Test-Cas 'Paramètres > Mises à jour : la liste dit l''appli, la version, quand, et « automatique »' { $aff.Count -eq 1 -and $aff[0].nom -eq 'Evermind' -and $aff[0].version -eq '0.15.0' -and $aff[0].auto -and $aff[0].quand -match '^(Aujourd''hui|Hier) à \d\d h \d\d$' }
+        Test-Cas 'Les heures en mots simples : « à 00 h 16 », « hier à 21 h 05 », « le 18 octobre à 09 h 30 »' {
+            (Format-QuandMaj ((Get-Date).Date.AddMinutes(16).ToString('s'))) -eq 'à 00 h 16' -and (Format-QuandMaj ((Get-Date).Date.AddDays(-1).AddHours(21).AddMinutes(5).ToString('s'))) -eq 'hier à 21 h 05' -and
+            (Format-QuandMaj '2026-10-18T09:30:00') -match '^le 18 octobre à 09 h 30$|^hier|^à'
+        }
+    } finally { $env:MINDSET_MAJAUTO_TEST = $ancienMajAuto }
+
+    # -------------------------------------------------------------------------------------------------------------
+    Write-Partie '7. La vraie console reçoit l''état (Mindset de test hors de l''écran, outils\essai-maj-console.ps1)'
+    # -------------------------------------------------------------------------------------------------------------
+    # Chaque étape : un Mindset de test avec la console 3D, de fausses applis et de fausses mises à jour ; ce que la carte
+    # affiche est relu dans la page juste avant la capture (« Essai : carte = ... » au journal)
+    $etapes = [ordered]@{
+        telechargement = @('Evermind 0\.15\.0 65 %', 'majCharge')
+        attente        = @('Evermind 0\.15\.0 : après ta partie', '')
+        prete          = @('Nouvelle version d''Evermind prête Mettre à jour', '')
+        clic           = @('dans un instant', '')
+        termine        = @('Evermind 0\.15\.0 mis à jour tout seul à \d\d h \d\d Nouveautés', '')
+        recherche      = @('Recherche des mises à jour', 'majCherche')
+    }
+    $sansConsole = $false
+    foreach ($e in $etapes.Keys) {
+        if ($sansConsole) { break }
+        $dossier = Join-Path $tmp "console-$e"
+        New-Item -ItemType Directory -Force -Path $dossier | Out-Null
+        $png = Join-Path $dossier 'console.png'
+        $vars = @{ MINDSET_TEST = '1'; MINDSET_SANS_RESEAU = '1'; MINDSET_DONNEES = $dossier; MINDSET_CONSOLE = '1'; MINDSET_CAPTURE = (Join-Path $dossier 'inutile.png')
+            MINDSET_CONSOLE_CAPTURE = $png; MINDSET_CONSOLE_DELAI = '5000'; MINDSET_TEST_SCRIPT = (Join-Path $PSScriptRoot 'essai-maj-console.ps1'); MINDSET_TEST_ETAPE = $e
+            MINDSET_MAJAUTO_TEST = $(if ($e -in 'telechargement', 'attente') { '1' } else { '' }) }
+        $avant = @{}; foreach ($k in $vars.Keys) { $avant[$k] = [Environment]::GetEnvironmentVariable($k); [Environment]::SetEnvironmentVariable($k, $vars[$k]) }
+        try {
+            $p = Start-Process -FilePath "$env:SystemRoot\System32\WindowsPowerShell\v1.0\powershell.exe" -ArgumentList '-NoProfile', '-ExecutionPolicy', 'Bypass', '-STA', '-File', "`"$(Join-Path $fichiers 'Mindset.ps1')`"" -PassThru -WindowStyle Hidden -RedirectStandardError (Join-Path $dossier 'erreurs.txt')
+            $null = $p.Handle
+            $script:Lances += $p
+            if (-not $p.WaitForExit(90000)) { $p.Kill() }
+        } finally { foreach ($k in $vars.Keys) { [Environment]::SetEnvironmentVariable($k, $avant[$k]) } }
+        $journal = try { [IO.File]::ReadAllText((Join-Path $dossier 'Mindset\journal.txt'), [Text.Encoding]::UTF8) } catch { '' }
+        if ($journal -match 'Console 3D désactivée : (.*)') { Write-Host "  IGNORÉ la console 3D n'est pas possible ici ($($Matches[1].Trim()))" -ForegroundColor Yellow; $sansConsole = $true; break }
+        $carte = if ($journal -match 'Essai : carte = (.*)') { $Matches[1].Trim() } else { '' }
+        $bouton = if ($journal -match 'Essai : bouton Chercher = (.*)') { $Matches[1].Trim() } else { '' }
+        $attendu = $etapes[$e]
+        Test-Cas "Étape $e : la carte affiche « $($attendu[0] -replace '\\', '') » (capture faite)" { (Test-Path -LiteralPath $png) -and $carte -match $attendu[0] -and $carte -match '^Mise à jour automatique' -and (-not $attendu[1] -or $bouton -match $attendu[1]) }
+        if ($e -eq 'clic') { Test-Cas '... le clic sur la pastille dans la page a coché le réglage' { $journal -match 'Mises à jour automatiques : oui \(pastille de la console\)' -and $journal -match 'Essai : pastille = true' } }
+        if ($e -eq 'telechargement') { Test-Cas '... la mise à jour vient du vrai Invoke-MajAuto, et rien n''est installé pour de vrai' { $journal -match 'Mise à jour automatique : Evermind 0\.15\.0' -and $journal -notmatch 'Essai : .* refusé' } }
+    }
 }
 catch {
     $script:Echoues += "Arrêt inattendu : $($_.Exception.Message)"

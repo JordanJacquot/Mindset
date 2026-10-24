@@ -163,10 +163,14 @@ function Open-Appli($Appli, [switch]$Demarrage) {
 # ---------------------------------------------------------------------------
 # Versions publiées (au démarrage, puis toutes les 6 heures)
 # ---------------------------------------------------------------------------
+# (pendant la question, $script:Recherches[id] : la console montre « Recherche des mises à jour... »)
+$script:Recherches = @{}
 function Update-Publications {
     foreach ($a in $Applis) {
+        $script:Recherches[$a.Id] = Get-Date
         Start-Tache { $p = $args[0]; Get-Publication $p.Depot $p.Zip } @{ Depot = $a.Depot; Zip = $a.Zip } ([scriptblock]::Create(@"
             param(`$Resultat, `$Erreur)
+            `$script:Recherches.Remove('$($a.Id)')
             `$script:Publications['$($a.Id)'] = if (`$Erreur) { @{ Erreur = `$Erreur } } else { `$Resultat }
             # GitHub limite les questions (60 par heure et par connexion) : refusé, on réessaie dans 30 minutes
             if ("`$Erreur `$(`$Resultat.Erreur)" -match '403|429') { `$script:DernieresPublications = (Get-Date).AddHours(-0.5) }
@@ -302,7 +306,8 @@ function Complete-Telechargement($Appli, $Resultat, $Erreur, [string]$AncienDoss
         $avant = Get-DemarrageWindowsAppli $Appli
         $demarrage = if ($null -ne $avant) { [bool]$avant } else { [bool]$Appli.Rappels }
     }
-    $script:EnCours[$Appli.Id] = @{ Appli = $Appli; Ancien = $AncienDossier; Version = $Resultat.Version; Zip = $Resultat.Zip; Parametres = $p; Demarrage = $demarrage }
+    # (Avant : la version d'avant, pour l'historique des mises à jour ; rien pour une première installation)
+    $script:EnCours[$Appli.Id] = @{ Appli = $Appli; Ancien = $AncienDossier; Version = $Resultat.Version; Zip = $Resultat.Zip; Parametres = $p; Demarrage = $demarrage; Avant = $(if ($inst) { [string]$inst.Version } else { '' }) }
     # Ouverte (ou son ancienne copie) : d'abord priée de quitter proprement (quitter.demande, comme quand on quitte
     # Mindset), le temps d'enregistrer ce qu'elle fait. L'installateur ne ferme de force que ce qui reste ouvert après.
     if (Test-AppliOuverte $Appli) {
@@ -360,6 +365,12 @@ function Complete-Installation($Appli, [string]$Dossier) {
     if ($ancien) { $notes += Remove-AncienneCopie $Appli $ancien $c.Zip }
     foreach ($f in @(Get-ChildItem -LiteralPath $TelechargementsDir -Filter "$($Appli.Id).*" -ErrorAction SilentlyContinue)) { Remove-Item -LiteralPath $f.FullName -Force -ErrorAction SilentlyContinue }
     Write-Log "$($Appli.Nom) $($c.Version) installé dans $Dossier$(if ($ancien) { " (pris en charge depuis $ancien)" })"
+    # Une mise à jour (une version plus récente que celle d'avant) : notée dans l'historique, automatique ou non, avec ses nouveautés
+    if ($c -and $c.Avant -and (Test-VersionPlusRecente ([string]$c.Version) $c.Avant)) {
+        $pub = if ($script:Publications) { $script:Publications[$Appli.Id] }
+        $notes = if ($pub -and [string]$pub.Version -eq [string]$c.Version) { [string]$pub.Notes } else { '' }
+        Add-HistoriqueMaj $Appli.Id $Appli.Nom ([string]$c.Version) ([bool]($script:MajAuto -and $script:MajAuto[$Appli.Id])) $notes
+    }
     # Elle se lançait avec Windows (ou c'est une appli de rappels) : elle s'ouvre maintenant avec Mindset, et tout de
     # suite, en arrière-plan (sans attendre le prochain démarrage du PC)
     if ($c -and $c.Demarrage -and -not (Get-DemarrageAppli $Appli.Id)) {

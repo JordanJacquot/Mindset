@@ -189,25 +189,30 @@ $FichierMajMindset = Join-Path $TelechargementsDir 'maj-mindset.json'
 # temps, elle la remplace (sinon Mindset installerait une version déjà dépassée). Le nouveau zip est écrit à côté
 # (.nouveau), puis mis à la place de l'ancien d'un coup, dans la fenêtre : une installation lancée pendant le
 # téléchargement prend toujours un zip complet.
+# Pendant le téléchargement, $script:ProgresMindset (table partagée avec la tâche de fond : Version, Recu, Total) donne
+# la barre et le % de la carte des mises à jour de la console (console.ps1, Get-EtatMajConsole).
+$script:ProgresMindset = $null
 function Start-VerifMajMindset {
     if (-not ((Test-MindsetInstalle) -or ($EnTest -and $env:MINDSET_MAJ_TEST)) -or $script:MajMindsetEnCours) { return }
     $script:MajMindsetEnCours = $true
     New-Item -ItemType Directory -Force -Path $TelechargementsDir | Out-Null
     $deja = if ($script:MajMindset -and (Test-VersionPlusRecente ([string]$script:MajMindset.Version) $AppVersion)) { [string]$script:MajMindset.Version } else { $AppVersion }
+    $script:ProgresMindset = [hashtable]::Synchronized(@{ Version = ''; Recu = 0; Total = 0 })
     Start-Tache {
         $p = $args[0]
         $pub = Get-Publication 'JordanJacquot/Mindset' 'Mindset.zip'
         if ($pub.Erreur) { throw $pub.Erreur }
         if (-not (Test-VersionPlusRecente $pub.Version $p.Version)) { return @{ AJour = $true } }
         if (-not $pub.UrlSig) { throw "la version $($pub.Version) n'est pas signée" }
-        $zip = Get-Octets $pub.UrlZip; $sig = Get-Octets $pub.UrlSig
+        $p.Progres.Version = [string]$pub.Version   # (la recherche est finie : c'est maintenant un téléchargement)
+        $zip = Get-Octets $pub.UrlZip $p.Progres; $sig = Get-Octets $pub.UrlSig
         if (-not (Test-Signature $zip $sig $p.Cle)) { throw "la signature de la version $($pub.Version) est invalide" }
         $fz = Join-Path $p.Dossier 'mindset.zip.nouveau'
         [IO.File]::WriteAllBytes($fz, $zip); [IO.File]::WriteAllBytes("$fz.sig", $sig)
         @{ Version = $pub.Version; Zip = $fz; Sig = "$fz.sig"; Notes = $pub.Notes }
-    } @{ Version = $deja; Cle = $ClePublique; Dossier = $TelechargementsDir } {
+    } @{ Version = $deja; Cle = $ClePublique; Dossier = $TelechargementsDir; Progres = $script:ProgresMindset } {
         param($Resultat, $Erreur)
-        $script:MajMindsetEnCours = $false
+        $script:MajMindsetEnCours = $false; $script:ProgresMindset = $null
         if ($script:OngletParametres -eq 'maj') { Update-ListeVersions }
         if ($Erreur) {
             Write-Log "Mise à jour de Mindset : $Erreur"
@@ -242,6 +247,7 @@ function Start-MajMindset([switch]$Cache) {
     $m = $script:MajMindset
     if (-not $m -or $script:Occupe.Count) { if ($script:Occupe.Count) { $ui.MajTexte.Text = 'Une installation est en cours : réessaie quand elle sera finie.' }; return }
     Remove-Item -LiteralPath $FichierMajMindset -Force -ErrorAction SilentlyContinue
+    Set-MajMindsetAttendue ([string]$m.Version) ([bool]$Cache) ([string]$m.Notes)   # (l'historique, au redémarrage)
     # Par le mini-installateur (sans demande de Windows) : il attend la fermeture de Mindset, installe, puis le relance
     if (-not $MindsetAdmin -and (Test-TacheInstallation)) {
         $id = [guid]::NewGuid().ToString('N')
@@ -268,6 +274,7 @@ function Start-MajMindset([switch]$Cache) {
 
 # Après une mise à jour : le résultat laissé par installer-admin.ps1
 function Show-ResultatMajMindset {
+    Resolve-MajMindsetAttendue
     $r = $null
     # Mise à jour faite par le mini-installateur : sa réponse dans le registre, reconnue à son numéro
     $id = [string](Get-Setting 'MajMindsetDemande' '')
@@ -301,6 +308,10 @@ function Show-ResultatMajMindset {
 $script:MajAuto = @{}          # id -> version en cours de mise à jour automatique
 $script:MajAutoEssais = @{}    # id -> @{ Version; Quand } (dernier essai)
 $script:MajAutoDerniere = [datetime]::MinValue
+# Pourquoi une mise à jour attend (vu au dernier passage, montré par la console : Get-EtatMajConsole) : le jeu en cours
+# (sa raison, ou ''), et pour chaque appli (ou « mindset ») « utilise » (on s'en sert) ou « veille » (Mindset à l'écran)
+$script:MajAutoJeu = ''
+$script:MajAutoAttentes = @{}
 function Test-MajAutoActive { [bool](Get-Setting 'MajAuto' $true) }
 
 # « Chercher les nouvelles versions » (réglage « VerifVersions », activé par défaut ; Paramètres, Mises à jour, et le
@@ -380,21 +391,24 @@ function Invoke-MajAuto {
     if ($script:Occupe.Count -or $script:AttentesAdmin.Count -or $script:MajAuto.Count) { return }
     # Pendant une partie : rien (ni les applis, ouvertes ou non, ni Mindset) ; on réessaie 30 secondes plus tard
     $jeu = Get-JeuEnCours
+    $script:MajAutoJeu = [string]$jeu
     if ($jeu) {
         if ($script:MajAutoJeuNote -ne $jeu) { Write-Log "Mises à jour automatiques en attente : $jeu"; $script:MajAutoJeuNote = $jeu }
         return
     }
     $script:MajAutoJeuNote = $null
     try { $inactif = [MSActivite]::SecondesInactif() } catch { return }
+    $attentes = @{}
     foreach ($a in $Applis) {
         $e = Get-EtatCarte $a
         if (-not $e.MajDispo -or $e.Occupe) { continue }
         $v = [string]$e.Pub.Version
         if (Test-MajAutoRecente $a.Id $v) { continue }
         if ($e.Ouverte) {
-            if ($inactif -lt 300) { continue }                                                     # on s'en sert peut-être
-            if ($script:PageCourante -eq $a.Id -and $Window.IsVisible -and $Window.WindowState -ne 'Minimized') { continue }   # à l'écran dans Mindset
+            if ($inactif -lt 300) { $attentes[$a.Id] = 'utilise'; continue }                                                     # on s'en sert peut-être
+            if ($script:PageCourante -eq $a.Id -and $Window.IsVisible -and $Window.WindowState -ne 'Minimized') { $attentes[$a.Id] = 'utilise'; continue }   # à l'écran dans Mindset
         }
+        $script:MajAutoAttentes = $attentes
         $script:MajAutoEssais[$a.Id] = @{ Version = $v; Quand = Get-Date }
         $script:MajAuto[$a.Id] = $v
         Write-Log "Mise à jour automatique : $($a.Nom) $v$(if ($e.Ouverte) { ' (elle tournait, relancée cachée)' })"
@@ -404,6 +418,8 @@ function Invoke-MajAuto {
     # Mindset lui-même, seulement caché (près de l'horloge, ou réduit)
     # (pas pendant qu'une version plus récente se télécharge : elle remplacera celle qui est prête)
     $m = $script:MajMindset
+    if ($m -and $Window.IsVisible -and $Window.WindowState -ne 'Minimized') { $attentes['mindset'] = 'veille' }
+    $script:MajAutoAttentes = $attentes
     if ($m -and -not $script:MajMindsetEnCours -and -not ($Window.IsVisible -and $Window.WindowState -ne 'Minimized') -and -not (Test-MajAutoRecente 'mindset' ([string]$m.Version))) {
         $script:MajAutoEssais['mindset'] = @{ Version = [string]$m.Version; Quand = Get-Date }
         Write-Log "Mise à jour automatique : Mindset $($m.Version)"
@@ -429,4 +445,111 @@ function Show-BulleMajAuto([string]$Titre, [string]$Texte) {
     } elseif ($script:IconeHorloge) {
         try { $script:IconeHorloge.ShowBalloonTip(6000, $Titre, $(if ($Texte) { $Texte } else { 'Mise à jour faite toute seule.' }), [System.Windows.Forms.ToolTipIcon]::Info) } catch {}
     }
+}
+
+# ---------------------------------------------------------------------------
+# L'historique des mises à jour (mises-a-jour.json, dans les données de Mindset) : les 20 dernières, de Mindset et de ses
+# applis, la plus récente d'abord, avec leur heure, automatique ou faite par l'utilisateur, et leurs nouveautés (le texte
+# de la version, pour le bouton « Nouveautés » de la console). La dernière reste sur la carte de la console pendant
+# $DureeDerniereMaj heures (Get-DerniereMaj) ; toutes dans Paramètres > Mises à jour.
+# Écrit à côté puis remplacé d'un coup : jamais un fichier à moitié écrit. Un fichier abîmé est mis de côté (.abime) et
+# l'historique repart de zéro ; une entrée qui n'a pas la forme attendue est ignorée.
+# Mindset lui-même se ferme pour se mettre à jour : sa mise à jour est notée « attendue » avant (Set-MajMindsetAttendue),
+# puis ajoutée au redémarrage si c'est bien cette version qui tourne (Resolve-MajMindsetAttendue).
+# ---------------------------------------------------------------------------
+$FichierHistoriqueMaj = Join-Path $DataDir 'mises-a-jour.json'
+$HistoriqueMajMax = 20
+$DureeDerniereMaj = 12
+$script:HistoriqueMaj = $null
+
+# Une entrée relue ou ajoutée : seulement des valeurs attendues ($null sinon)
+function ConvertTo-EntreeMaj($X) {
+    if (-not $X -or [string]$X.id -notmatch '^[a-z0-9-]{1,30}$' -or [string]$X.version -notmatch '^\d+(\.\d+){1,3}$') { return $null }
+    $quand = [datetime]::MinValue
+    if (-not [datetime]::TryParseExact([string]$X.quand, 's', [Globalization.CultureInfo]::InvariantCulture, [Globalization.DateTimeStyles]::None, [ref]$quand)) { return $null }
+    $nom = [string]$X.nom; if ($nom.Length -gt 30) { $nom = $nom.Substring(0, 30) }
+    $notes = [string]$X.notes; if ($notes.Length -gt 2000) { $notes = $notes.Substring(0, 1997) + '...' }
+    [ordered]@{ id = [string]$X.id; nom = $nom; version = [string]$X.version; quand = $quand.ToString('s'); auto = [bool]$X.auto; notes = $notes }
+}
+
+function Read-HistoriqueMaj {
+    if ($null -ne $script:HistoriqueMaj) { return $script:HistoriqueMaj }
+    $h = @{ Liste = @(); Attendue = $null }
+    if (Test-Path -LiteralPath $FichierHistoriqueMaj) {
+        try {
+            $j = [IO.File]::ReadAllText($FichierHistoriqueMaj, [Text.Encoding]::UTF8) | ConvertFrom-Json -ErrorAction Stop
+            if ($j -isnot [System.Management.Automation.PSCustomObject]) { throw 'ce n''est pas un historique' }
+            $h.Liste = @(@($j.historique) | ForEach-Object { ConvertTo-EntreeMaj $_ } | Where-Object { $_ } | Select-Object -First $HistoriqueMajMax)
+            if ($j.mindsetAttendu) { $h.Attendue = ConvertTo-EntreeMaj $j.mindsetAttendu }
+        } catch {
+            Write-Log "Historique des mises à jour illisible, mis de côté ($($_.Exception.Message))"
+            if (-not $EnTest -or $env:MINDSET_DONNEES) { try { Move-Item -LiteralPath $FichierHistoriqueMaj -Destination "$FichierHistoriqueMaj.abime" -Force -ErrorAction Stop } catch {} }
+        }
+    }
+    $script:HistoriqueMaj = $h
+    $h
+}
+
+function Save-HistoriqueMaj {
+    $h = Read-HistoriqueMaj
+    if ($EnTest -and -not $env:MINDSET_DONNEES) { return }   # (test sans dossier à part : rien n'est écrit)
+    $texte = ConvertTo-Json -InputObject ([ordered]@{ historique = @($h.Liste); mindsetAttendu = $h.Attendue }) -Depth 4
+    $tmp = "$FichierHistoriqueMaj.tmp"
+    try {
+        [IO.File]::WriteAllText($tmp, $texte, (New-Object Text.UTF8Encoding $false))
+        if (Test-Path -LiteralPath $FichierHistoriqueMaj) { [IO.File]::Replace($tmp, $FichierHistoriqueMaj, [NullString]::Value) } else { [IO.File]::Move($tmp, $FichierHistoriqueMaj) }
+    } catch {
+        Write-Log "Historique des mises à jour non enregistré : $($_.Exception.Message)"
+        Remove-Item -LiteralPath $tmp -Force -ErrorAction SilentlyContinue
+    }
+}
+
+function Add-HistoriqueMaj([string]$Id, [string]$Nom, [string]$Version, [bool]$Auto, [string]$Notes) {
+    $e = ConvertTo-EntreeMaj ([pscustomobject]@{ id = $Id; nom = $Nom; version = $Version; quand = (Get-Date).ToString('s'); auto = $Auto; notes = $Notes })
+    if (-not $e) { Write-Log "Historique des mises à jour : $Nom $Version pas noté (valeurs inattendues)"; return }
+    $h = Read-HistoriqueMaj
+    $h.Liste = @(@($e) + @($h.Liste) | Select-Object -First $HistoriqueMajMax)
+    Save-HistoriqueMaj
+    Write-Log "Historique des mises à jour : $Nom $Version ($(if ($Auto) { 'automatique' } else { 'faite par l''utilisateur' }))"
+}
+
+function Set-MajMindsetAttendue([string]$Version, [bool]$Auto, [string]$Notes) {
+    $h = Read-HistoriqueMaj
+    $h.Attendue = ConvertTo-EntreeMaj ([pscustomobject]@{ id = 'mindset'; nom = 'Mindset'; version = $Version; quand = (Get-Date).ToString('s'); auto = $Auto; notes = $Notes })
+    Save-HistoriqueMaj
+}
+
+# Au démarrage : la mise à jour de Mindset attendue est faite si c'est cette version qui tourne ; sinon elle est oubliée
+function Resolve-MajMindsetAttendue {
+    $h = Read-HistoriqueMaj
+    $a = $h.Attendue
+    if (-not $a) { return }
+    $h.Attendue = $null
+    if ($a.version -eq $AppVersion) { Add-HistoriqueMaj 'mindset' 'Mindset' $a.version $a.auto $a.notes } else { Save-HistoriqueMaj }
+}
+
+# La dernière mise à jour, si elle date de moins de $DureeDerniereMaj heures ($null sinon)
+function Get-DerniereMaj {
+    $e = @((Read-HistoriqueMaj).Liste) | Select-Object -First 1
+    if (-not $e) { return $null }
+    $age = ((Get-Date) - [datetime]::ParseExact($e.quand, 's', [Globalization.CultureInfo]::InvariantCulture)).TotalHours
+    if ($age -lt 0 -or $age -ge $DureeDerniereMaj) { return $null }
+    $e
+}
+
+# « à 00 h 16 », « hier à 21 h 05 », « le 18 octobre à 09 h 30 » (-Long : « aujourd'hui à 00 h 16 »)
+function Format-QuandMaj([string]$Quand, [switch]$Long) {
+    $q = [datetime]::ParseExact($Quand, 's', [Globalization.CultureInfo]::InvariantCulture)
+    $h = $q.ToString("HH' h 'mm", [Globalization.CultureInfo]::InvariantCulture)
+    $jours = ((Get-Date).Date - $q.Date).TotalDays
+    if ($jours -eq 0) { return "$(if ($Long) { 'aujourd''hui ' })à $h" }
+    if ($jours -eq 1) { return "hier à $h" }
+    "le $($q.ToString('d MMMM', [Globalization.CultureInfo]::GetCultureInfo('fr-FR'))) à $h"
+}
+
+# Le nom et la couleur d'une entrée : ceux de l'appli de apps.json (ou de Mindset), sinon le nom noté
+function Get-AppliMaj([string]$Id, [string]$Nom) {
+    if ($Id -eq 'mindset') { return @{ Id = 'mindset'; Nom = 'Mindset'; Couleur = '#ECEAF7' } }
+    $a = Get-Appli $Id
+    if ($a) { @{ Id = $a.Id; Nom = $a.Nom; Couleur = $a.Couleur } } else { @{ Id = $Id; Nom = $Nom; Couleur = '#A9A3C9' } }
 }
