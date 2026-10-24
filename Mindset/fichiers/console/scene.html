@@ -76,7 +76,7 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: #07060D; col
 #menuGrand .bas { margin-top: auto; display: flex; justify-content: space-between; align-items: center; color: #A9A3C9; font-size: 16px; }
 #menuGrand .aides { display: flex; gap: 22px; color: #ECEAF7; }
 #menuGrand .aides button { all: unset; display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 16px; }
-#menuGrand .aides i { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(180deg, #FFFFFF, #CFCDE0); color: #14102A; font-style: normal; font-weight: 800; font-size: 14px; display: flex; align-items: center; justify-content: center; }
+#menuGrand .aides i { min-width: 28px; height: 28px; padding: 0 9px; box-sizing: border-box; border-radius: 8px; background: linear-gradient(180deg, #FFFFFF, #CFCDE0); color: #14102A; font-style: normal; font-weight: 800; font-size: 14px; display: flex; align-items: center; justify-content: center; }
 #voile.menu > :not(#menuGrand) { display: none; }
 /* (les règles de l'écran d'une appli, #voile img, b, span et button, ne s'appliquent pas au menu) */
 #voile #menuGrand img { width: auto; height: auto; } #voile #menuGrand .tete img { width: 48px; height: 48px; object-fit: contain; }
@@ -206,7 +206,7 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: #07060D; col
 #reglagesGrand .bas { flex: none; margin-top: 10px; display: flex; justify-content: space-between; align-items: center; color: var(--doux); font-size: 15px; }
 #reglagesGrand .aides { display: flex; gap: 22px; color: var(--texte); }
 #reglagesGrand .aides button { display: flex; align-items: center; gap: 8px; font-size: 16px; }
-#reglagesGrand .aides i { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(180deg, #FFFFFF, #CFCDE0); color: #14102A; font-style: normal; font-weight: 800; font-size: 14px; display: flex; align-items: center; justify-content: center; }
+#reglagesGrand .aides i { min-width: 28px; height: 28px; padding: 0 9px; box-sizing: border-box; border-radius: 8px; background: linear-gradient(180deg, #FFFFFF, #CFCDE0); color: #14102A; font-style: normal; font-weight: 800; font-size: 14px; display: flex; align-items: center; justify-content: center; }
 @media (prefers-reduced-motion: reduce) { #reglagesGrand .grande-ic svg, #reglagesGrand .grande-ic::before, #reglagesGrand .bascule.oui { animation: none; } }
 @media (prefers-reduced-motion: reduce) { #voile .roue { animation-duration: 3s; } }
 /* Un thème perso avec un bloc « Console » (Mindset l'envoie : paramètre « theme ») : son fond sous l'écran en grand, sa
@@ -309,12 +309,12 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: #07060D; col
     <p id="voileReseau" hidden></p>
     <div id="menuGrand" hidden><img id="mascotte" class="mascotte" alt="" draggable="false" hidden><div class="tete"><img id="menuLogo" alt=""><span>Mindset</span><span class="hh" id="menuHeure"></span></div>
       <div class="nomSel" id="menuNom"></div><div class="descSel" id="menuDesc"></div><div id="carrousel" role="listbox" aria-label="Tes applis"></div>
-      <div class="bas"><span id="menuConsigne"></span><div class="aides"><button type="button" id="menuB"><i>B</i>Retour</button><button type="button" id="menuA"><i>A</i>OK</button></div></div></div>
+      <div class="bas"><span id="menuConsigne"></span><div class="aides"><button type="button" id="menuB"><i>Échap</i>Retour</button><button type="button" id="menuA"><i>Entrée</i>OK</button></div></div></div>
     <div id="reglagesGrand" hidden><div class="tete"><button type="button" class="retour f" data-a="retour" aria-label="Revenir au menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button>
         <div class="ic-page plasma-bord"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></div>
         <div class="titres"><h1>Paramètres</h1><p>Ces réglages valent pour Mindset et toutes ses applis.</p></div><span class="hh" id="regHeure"></span></div>
       <div id="regCorps"></div>
-      <div class="bas"><span>Choisis un réglage</span><div class="aides"><button type="button" data-a="retour"><i>B</i>Retour</button><button type="button" data-a="ok"><i>A</i>OK</button></div></div></div></div>
+      <div class="bas"><span>Choisis un réglage</span><div class="aides"><button type="button" data-a="retour"><i>Échap</i>Retour</button><button type="button" data-a="ok"><i>Entrée</i>OK</button></div></div></div></div>
 </div></div>
 <div id="bulle" role="status" aria-live="polite"></div>
 <script type="importmap">
