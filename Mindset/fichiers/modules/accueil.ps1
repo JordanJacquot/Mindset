@@ -542,9 +542,7 @@ function Update-RythmeMinuteries {
     $etat = [TimeSpan]::FromSeconds($(if ($cache) { $script:RythmeCache } else { 2 }))
     $console = if ($cache) { [TimeSpan]::FromSeconds($script:RythmeCache) } else { [TimeSpan]::FromMilliseconds(1500) }
     if ($script:EtatTimer.Interval -ne $etat) {
-        $script:EtatTimer.Interval = $etat   # (une minuterie en marche repart de zéro avec son nouveau rythme)
-        if ($EnTest) { Write-Log "Rythme des minuteries : $($etat.TotalSeconds) s (visible $($Window.IsVisible), $($Window.WindowState))" }   # (tests : comprendre un échec)
-        if (-not $cache) { try { Update-Cartes; Update-Greeting } catch { Write-ErreurImprevue $_.Exception } }
+        $script:EtatTimer.Interval = $etat   # (une minuterie en marche repart de zéro avec son nouveau rythme)        if (-not $cache) { try { Update-Cartes; Update-Greeting } catch { Write-ErreurImprevue $_.Exception } }
     }
     if ($script:ConsoleTimer -and $script:ConsoleTimer.Interval -ne $console) { $script:ConsoleTimer.Interval = $console }
 }

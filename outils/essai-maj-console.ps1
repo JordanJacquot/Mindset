@@ -83,6 +83,9 @@ function Write-HistoriqueEssai([object[]]$Entrees) {
 $histoAncien = @(@('nevermind', 'Nevermind', '1.0.121', 1500, $true), @('mindset', 'Mindset', '2.6.0', 1620, $false), @('mindcare', 'Mindcare', '0.3.1', 4400, $true))
 
 # --- Les étapes ---
+# Un Mindset comme chez l'utilisateur, sans les droits administrateur : sur GitHub, les tests tournent en administrateur,
+# et un Mindset administrateur ne fait aucune mise à jour automatique (la carte restait « prête »)
+$MindsetAdmin = $false
 Set-Setting 'MajAuto' $true; Set-Setting 'VerifVersions' $true
 switch ($script:Essai.Etape) {
     { $_ -in 'telechargement', 'installation', 'attente' } { Set-PublicationEssai 'evermind' '0.15.0' }
