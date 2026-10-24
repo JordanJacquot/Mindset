@@ -110,8 +110,10 @@ if ($missing) {
 # Les réglages d'abord : lancé par Windows alors que « Mindset se lance avec Windows » est coupé (Paramètres > Général),
 # il s'arrête là, avant d'avoir créé la fenêtre ou l'icône près de l'horloge (sinon une icône morte y resterait).
 # (la tâche « \Mindset\Mindset (démarrage) » reste : Mindset, sans les droits, ne peut pas la changer)
+# Sauf juste après une mise à jour faite pendant qu'il était caché (« MajMindsetDemande » rempli) : le mini-installateur
+# le relance par cette même tâche, et il doit revenir caché près de l'horloge (les notifications des applis y passent).
 . (Join-Path $ModulesDir 'donnees.ps1')
-if ($Demarrage -and -not (Get-LancerAvecWindows)) { Write-Log 'Lancé avec Windows, mais « Mindset se lance avec Windows » est coupé : rien n''est ouvert'; exit }
+if ($Demarrage -and -not (Get-LancerAvecWindows) -and -not (Get-Setting 'MajMindsetDemande' '')) { Write-Log 'Lancé avec Windows, mais « Mindset se lance avec Windows » est coupé : rien n''est ouvert'; exit }
 
 # Fonctions natives (barre de titre sombre, identité dans la barre des tâches)
 Add-Type -TypeDefinition ([IO.File]::ReadAllText((Join-Path $ModulesDir 'natif.cs'), [Text.Encoding]::UTF8))

@@ -121,7 +121,7 @@ function New-VueConsole([string]$VueDepart = 'menu') {
             $c.Add_NavigationStarting({ param($s2, $e2) if (-not $e2.Uri.StartsWith('https://mindset.local/')) { $e2.Cancel = $true; Write-Log "Console 3D : navigation refusée ($($e2.Uri))" } })
             $c.Add_NewWindowRequested({ param($s2, $e2) $e2.Handled = $true })
             $c.Add_WebMessageReceived({ param($s2, $e2) try { Receive-MessageConsole $e2.WebMessageAsJson } catch { Write-Log "Console 3D : message ignoré ($_)" } })
-            $c.Add_ProcessFailed({ param($s2, $e2) Stop-Console "processus de la 3D arrêté ($($e2.ProcessFailedKind))" })
+            $c.Add_ProcessFailed({ param($s2, $e2) Receive-IncidentConsole ([string]$e2.ProcessFailedKind) })
             $anim = [string](Get-Setting 'Animations' 'completes')
             $th = Get-ThemeConsole
             # (les couleurs du thème de la suite valent pour tous les thèmes, de base ou perso ; les images, seulement un pack avec un bloc Console)
@@ -217,13 +217,49 @@ function Remove-VueConsole([string]$Pourquoi) {
     if ($Pourquoi) { Write-Log "Console 3D fermée ($Pourquoi)" }
 }
 
-# Un échec : la 3D est abandonnée jusqu'à la prochaine ouverture de Mindset, et l'accueil classique reprend
+# Un échec : l'accueil classique reprend. La 3D est réessayée quand Mindset est rouvert (depuis l'horloge, ou réduit puis
+# remis) au moins 10 minutes plus tard (avant : abandonnée jusqu'au prochain démarrage de Mindset).
 function Stop-Console([string]$Raison) {
     Write-Log "Console 3D : $Raison, accueil classique"
     $script:Console.Possible = $false
+    $script:Console.ArreteeA = Get-Date
     Remove-VueConsole
     Set-NavigationConsole
     Update-PageConsole
+}
+function Resume-ConsoleArretee {
+    if (-not $script:Console.ArreteeA -or $script:Console.Possible) { return }
+    if (((Get-Date) - $script:Console.ArreteeA).TotalMinutes -lt 10) { return }
+    $script:Console.ArreteeA = $null; $script:Console.Incidents = @()
+    $raison = Test-ConsolePossible
+    if ($raison) { Write-Log "Console 3D : toujours impossible ($raison)"; return }
+    Write-Log 'Console 3D : nouvel essai après un incident'
+    $script:Console.Possible = $true
+    $script:ConsoleTimer.Start()
+    Set-NavigationConsole   # (la page d'accueil la remontre : Update-PageConsole, appelé ensuite)
+}
+
+# Un incident de WebView2 (un de ses processus s'est arrêté) :
+#   - le processus principal ou celui qui dessine la page (arrêté, ou qui ne répond plus) : la 3D est recréée tout de
+#     suite, au plus 3 fois en 10 minutes ; au-delà, l'accueil classique (Stop-Console) ;
+#   - un autre (carte graphique, après un jeu ou une mise à jour du pilote ; un utilitaire...) : WebView2 le relance
+#     tout seul, la 3D continue.
+# (Avant, n'importe lequel abandonnait la 3D jusqu'au prochain démarrage de Mindset.)
+function Get-ReactionIncidentConsole([string]$Genre) {
+    if ($Genre -in 'BrowserProcessExited', 'RenderProcessExited', 'RenderProcessUnresponsive') { 'recreer' } else { 'continuer' }
+}
+function Receive-IncidentConsole([string]$Genre) {
+    if ((Get-ReactionIncidentConsole $Genre) -eq 'continuer') { Write-Log "Console 3D : incident sans gravité ($Genre), elle continue"; return }
+    $maintenant = Get-Date
+    $script:Console.Incidents = @(@($script:Console.Incidents) | Where-Object { $_ -and ($maintenant - $_).TotalMinutes -lt 10 }) + $maintenant
+    # (la vue est retirée après l'événement de WebView2, pas pendant)
+    if ($script:Console.Incidents.Count -gt 3) {
+        $script:Console.Incidents = @()
+        [void]$Window.Dispatcher.BeginInvoke([action]{ Stop-Console 'processus de la 3D arrêté 4 fois en 10 minutes' })
+        return
+    }
+    Write-Log "Console 3D : processus de la 3D arrêté ($Genre), elle redémarre"
+    [void]$Window.Dispatcher.BeginInvoke([action]{ Remove-VueConsole; Update-PageConsole })   # (recréée si l'accueil est à l'écran, sinon au retour)
 }
 
 # Avec la console, plus d'onglets : on navigue par la console et le bouton « Menu ». Sans elle, les onglets reviennent.
@@ -541,6 +577,7 @@ $script:ConsoleTimer.Add_Tick({
     if ($script:Console.Parametres -and $script:PageCourante -eq 'accueil') { try { Send-ParametresConsole } catch { Write-Log "Console 3D : Paramètres non envoyés ($_)" } }
 })
 if ($script:Console.Possible) { $script:ConsoleTimer.Start() }
+Update-RythmeMinuteries   # (Mindset caché : plus lentement, accueil.ps1)
 
 # La barre de chargement d'une appli, sur l'écran de la console : même avancée que la jauge de chargement.ps1 (90 % à
 # la durée de sa dernière ouverture, retenue à chaque fois, puis elle s'approche doucement de 99 %) ; sa fenêtre prête,
@@ -643,8 +680,9 @@ foreach ($o in @(@('completes', 'Complètes : la console et toutes ses animation
 }
 
 # Mindset caché près de l'horloge ou réduit : la 3D est fermée ; réaffiché sur l'accueil : elle revient
-$Window.Add_IsVisibleChanged({ if (-not $Window.IsVisible) { Remove-VueConsole 'Mindset caché' } elseif ($script:PageCourante -eq 'accueil') { Update-PageConsole } })
-$Window.Add_StateChanged({ if ($Window.WindowState -eq 'Minimized') { Remove-VueConsole 'Mindset réduit' } elseif ($script:PageCourante -eq 'accueil') { Update-PageConsole } })
+# (rouvert : une 3D arrêtée par un incident est réessayée, Resume-ConsoleArretee)
+$Window.Add_IsVisibleChanged({ if (-not $Window.IsVisible) { Remove-VueConsole 'Mindset caché' } else { Resume-ConsoleArretee; if ($script:PageCourante -eq 'accueil') { Update-PageConsole } } })
+$Window.Add_StateChanged({ if ($Window.WindowState -eq 'Minimized') { Remove-VueConsole 'Mindset réduit' } else { Resume-ConsoleArretee; if ($script:PageCourante -eq 'accueil') { Update-PageConsole } } })
 $Window.Add_Closed({ Remove-VueConsole })
 
 # Une question de Mindset (confirmation, fermeture) passe par-dessus : la 3D s'efface le temps qu'elle s'en aille

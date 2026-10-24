@@ -99,6 +99,8 @@ function Import-ThemeSuite {
         $ui.ThemeInfo.Text = if (-not $script:PackRemplace) { "Thème « $nom » ajouté pour Mindset et toutes ses applis : clique dessus pour le choisir." }
             elseif ((Read-Suite).theme -eq "pack:$id") { "Thème « $nom » mis à jour : la nouvelle version remplace l'ancienne. C'est le thème actuel : Mindset et les applis ouvertes la prendront à leur prochaine ouverture." }
             else { "Thème « $nom » mis à jour : la nouvelle version remplace l'ancienne." }
+        # (une appli ouverte se servait de l'ancienne version : la nouvelle sera mise en place au prochain démarrage de Mindset)
+        if (@($script:PackEnAttente).Count) { $ui.ThemeInfo.Text = "Thème « $nom » mis à jour. $(@($script:PackEnAttente) -join ' et ') s'en $(if (@($script:PackEnAttente).Count -gt 1) { 'servent' } else { 'sert' }) en ce moment : la nouvelle version sera prise au prochain démarrage de Mindset." }
     } catch { $ui.ThemeInfo.Text = "Ce thème n'a pas pu être importé : $($_.Exception.Message)" }
 }
 $ui.BtnImporterTheme.Add_Click({ Import-ThemeSuite })

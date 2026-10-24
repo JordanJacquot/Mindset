@@ -83,8 +83,11 @@ function Start-JaugeBoucle($Cible, $Propriete, [double]$De, [double]$A, [int]$Ms
     $an.RepeatBehavior = [System.Windows.Media.Animation.RepeatBehavior]::Forever
     if ($Retour) { $e = New-Object System.Windows.Media.Animation.SineEase; $e.EasingMode = 'EaseInOut'; $an.EasingFunction = $e }
     [System.Windows.Media.Animation.Timeline]::SetDesiredFrameRate($an, 30)
-    $Cible.BeginAnimation($Propriete, $an)
-    [void]$script:Jauge.Boucles.Add(@{ T = $Cible; P = $Propriete })
+    # (par une horloge, arrêtée puis retirée avec la jauge : un simple BeginAnimation(..., $null) laissait WPF compter le
+    # temps, et Mindset prenait du processeur en continu après chaque ouverture d'appli)
+    $h = $an.CreateClock()
+    $Cible.ApplyAnimationClock($Propriete, $h)
+    [void]$script:Jauge.Boucles.Add(@{ T = $Cible; P = $Propriete; H = $h })
 }
 
 function New-JaugeTexte([double]$Taille) {
@@ -302,7 +305,7 @@ function Stop-JaugeAppli {
     if (-not $J) { return }
     $script:Jauge = $null
     foreach ($t in $J.Timers) { $t.Stop() }
-    foreach ($b in $J.Boucles) { try { $b.T.BeginAnimation($b.P, $null) } catch {} }
+    foreach ($b in $J.Boucles) { try { $b.H.Controller.Stop(); $b.H.Controller.Remove(); $b.T.ApplyAnimationClock($b.P, $null) } catch {} }
     $ui.PageAppliJauge.Children.Clear()
     $ui.PageAppliJauge.Visibility = 'Collapsed'
 }

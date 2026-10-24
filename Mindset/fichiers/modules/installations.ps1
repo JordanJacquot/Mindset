@@ -67,6 +67,9 @@ function Get-Installation($Appli) {
     if ($r -and (Test-DossierAppli $r.Dossier $Appli)) {
         return @{ Dossier = $r.Dossier; Gere = $r.Gere; Version = (Get-VersionDans $r.Dossier $Appli) }
     }
+    # Pendant une opération sur l'appli (installation, mise à jour, désinstallation), son dossier peut manquer quelques
+    # secondes (échange de l'ancien et du nouveau) : elle reste notée, c'est la fin de l'opération qui décide
+    if ($r -and $script:Occupe -and $script:Occupe[$Appli.Id]) { return @{ Dossier = $r.Dossier; Gere = $r.Gere; Version = $null } }
     if ($r) { Save-Installation $Appli.Id $null $false; if ($r.Gere) { Set-SuiteAppli $Appli.Id $null } }
     # Copie gérée présente mais oubliée (installations.json effacé)
     $g = Get-DossierGere $Appli

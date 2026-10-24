@@ -190,7 +190,7 @@ $script:IntegrationTimer.Add_Tick({
             if ($i.Fenetre -ne [IntPtr]::Zero -and -not [MSIntegration]::IsWindow($i.Fenetre)) {
                 # Fermée (sa croix, son menu Quitter) ou relancée (mise à jour) : l'écran « Ouvrir », et si un nouveau
                 # processus démarre, c'est une relance : la jauge, puis sa nouvelle fenêtre est raccrochée
-                $i.Fenetre = [IntPtr]::Zero; $i.Styles = $null; $i.Etat = 'relance'; $i.Depuis = Get-Date
+                $i.Fenetre = [IntPtr]::Zero; $i.Styles = $null; $i.Etat = 'relance'; $i.Depuis = Get-Date; $i.Relancee = $false
                 Update-HotesVisibles
                 Show-EcranOuvrir $a "$($a.Nom) est fermé."
             } elseif ($i.Fenetre -ne [IntPtr]::Zero -and -not [MSIntegration]::EstMontree($i.Fenetre)) {
@@ -203,7 +203,8 @@ $script:IntegrationTimer.Add_Tick({
             if ($i.Etat -in 'lancement', 'relance') {
                 $h = Find-FenetreAppli $a
                 if ($h -ne [IntPtr]::Zero) { Connect-Fenetre $a $h; continue }
-                if ($i.Etat -eq 'relance' -and $script:Jauge -and $script:Jauge.Ecran -and $script:Jauge.Id -eq $a.Id -and (Test-NouveauProcessus $a $i)) { Show-JaugeAppli $a 'Relance...' }
+                if ($i.Etat -eq 'relance' -and -not $i.Relancee -and (Test-NouveauProcessus $a $i)) { $i.Relancee = $true }
+                if ($i.Etat -eq 'relance' -and $i.Relancee -and $script:Jauge -and $script:Jauge.Ecran -and $script:Jauge.Id -eq $a.Id) { Show-JaugeAppli $a 'Relance...' }
                 $ecoule = ((Get-Date) - $i.Depuis).TotalSeconds
                 # Un programme de l'appli resté ouvert sans fenêtre (fermée, mais son processus ne s'est pas terminé) : la
                 # fenêtre attendue ne viendra jamais, et un nouveau lancement caché s'arrête en le voyant. Il est arrêté, puis
@@ -221,7 +222,9 @@ $script:IntegrationTimer.Add_Tick({
                 $vivant = Test-AppliOuverte $a
                 $limite = if ($i.Etat -eq 'lancement' -and -not $vivant) { 15 } else { 60 }
                 if ($ecoule -gt $limite) {
-                    $echec = $i.Etat -eq 'lancement' -or -not ($script:Jauge -and $script:Jauge.Ecran)
+                    # (relance : un échec seulement si un nouveau programme de l'appli a démarré sans montrer sa fenêtre ; sans
+                    # nouveau programme, elle a simplement été fermée, même si la jauge a été effacée entre temps)
+                    $echec = $i.Etat -eq 'lancement' -or $i.Relancee
                     $i.Etat = 'vide'
                     if ($echec) {
                         Show-EcranOuvrir $a "$($a.Nom) n'a pas pu s'ouvrir."

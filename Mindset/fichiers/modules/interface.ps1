@@ -21,6 +21,33 @@ foreach ($node in $Xaml.SelectNodes('//*[@*[local-name()="Name"]]')) {
 }
 $ui.Version.Text = "version $AppVersion"
 
+# Taille de la fenêtre selon l'écran : elle tient toujours dans la zone utile (l'écran sans la barre des tâches), même sur
+# un portable réglé à 125 % ou 150 %, ou sur un écran 1366 x 768 (avant, le haut de la fenêtre, avec sa barre de titre et
+# sa croix, sortait de l'écran, et le bas était coupé). La zone est en unités de la fenêtre (déjà divisée par l'échelle
+# de Windows) ; la taille minimale descend avec, et la fenêtre reste centrée (CenterScreen, dans la zone utile).
+function Get-TailleFenetre([double]$Largeur, [double]$Hauteur, [double]$MinLargeur, [double]$MinHauteur, [double]$ZoneLargeur, [double]$ZoneHauteur) {
+    $l = [math]::Floor([math]::Min($Largeur, $ZoneLargeur)); $h = [math]::Floor([math]::Min($Hauteur, $ZoneHauteur))
+    @{ Largeur = $l; Hauteur = $h; MinLargeur = [math]::Min($MinLargeur, $l); MinHauteur = [math]::Min($MinHauteur, $h) }
+}
+function Set-TailleFenetre {
+    $zone = [System.Windows.SystemParameters]::WorkArea
+    if ($EnTest -and $env:MINDSET_TEST_ECRAN -match '^(\d+)x(\d+)$') { $zone = New-Object System.Windows.Rect 0, 0, ([double]$Matches[1]), ([double]$Matches[2]) }   # (test : un autre écran, simulé)
+    if ($zone.Width -lt 100 -or $zone.Height -lt 100) { return }   # (zone inconnue : la taille d'origine)
+    $t = Get-TailleFenetre $Window.Width $Window.Height $Window.MinWidth $Window.MinHeight $zone.Width $zone.Height
+    $Window.MinWidth = $t.MinLargeur; $Window.MinHeight = $t.MinHauteur
+    $Window.Width = $t.Largeur; $Window.Height = $t.Hauteur
+}
+try { Set-TailleFenetre } catch { Write-Log "Taille de la fenêtre : $_" }
+
+# Dossier de travail neutre (le dossier de Windows) : ni Mindset ni ce qu'il lance (applis, navigateur, relance) ne garde
+# son dossier des programmes ou celui des téléchargements comme dossier de travail. Un dossier de travail ne peut être ni
+# renommé ni supprimé tant que le programme tourne : une mise à jour ou une désinstallation échouerait.
+function Set-DossierTravailNeutre {
+    if (-not $env:SystemRoot -or -not (Test-Path -LiteralPath $env:SystemRoot)) { return }
+    try { [Environment]::CurrentDirectory = $env:SystemRoot; Set-Location -LiteralPath $env:SystemRoot } catch {}
+}
+Set-DossierTravailNeutre
+
 # Une couleur Néon, traduite dans le thème de la suite
 function Get-Brush([string]$Hex) { [System.Windows.Media.BrushConverter]::new().ConvertFromString((ConvertTo-ThemeHex $Hex)) }
 
@@ -134,7 +161,7 @@ function Show-MessageErreurImprevue {
     Write-Log "Message montré : $titre. $texte"
     if ($EnTest) { return }
     try { if ($Window.IsVisible -and $script:Console.Pret) { Invoke-ScriptConsole "window.mindset.message($(ConvertTo-Json -InputObject $titre -Compress))" } } catch {}
-    try { if ($script:IconeHorloge) { $script:IconeHorloge.ShowBalloonTip(8000, $titre, $texte, [System.Windows.Forms.ToolTipIcon]::Warning) } } catch {}
+    try { if ($script:IconeHorloge) { Show-BulleMindset 8000 $titre $texte ([System.Windows.Forms.ToolTipIcon]::Warning) } } catch {}
 }
 $Window.Dispatcher.Add_UnhandledException({
     param($s, $e)

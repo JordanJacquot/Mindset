@@ -531,6 +531,25 @@ $script:EtatTimer.Add_Tick({
     try { Watch-ThemeSuite } catch { Write-ErreurImprevue $_.Exception }
 })
 $script:EtatTimer.Start()
+
+# Mindset caché près de l'horloge ou réduit : rien à afficher, l'état n'est relu que toutes les 30 secondes (la console
+# 3D, elle, surveille l'appli dans sa fente au même rythme). Avant, il l'était toutes les 2 secondes, caché ou non :
+# Mindset prenait du processeur en continu. Réaffiché : les cartes tout de suite, puis toutes les 2 secondes.
+# (Invoke-MajAuto ne passe de toute façon pas plus d'une fois toutes les 30 secondes.)
+$script:RythmeCache = 30
+function Update-RythmeMinuteries {
+    $cache = -not $Window.IsVisible -or $Window.WindowState -eq 'Minimized'
+    $etat = [TimeSpan]::FromSeconds($(if ($cache) { $script:RythmeCache } else { 2 }))
+    $console = if ($cache) { [TimeSpan]::FromSeconds($script:RythmeCache) } else { [TimeSpan]::FromMilliseconds(1500) }
+    if ($script:EtatTimer.Interval -ne $etat) {
+        $script:EtatTimer.Interval = $etat   # (une minuterie en marche repart de zéro avec son nouveau rythme)
+        if (-not $cache) { try { Update-Cartes; Update-Greeting } catch { Write-ErreurImprevue $_.Exception } }
+    }
+    if ($script:ConsoleTimer -and $script:ConsoleTimer.Interval -ne $console) { $script:ConsoleTimer.Interval = $console }
+}
+$Window.Add_IsVisibleChanged({ Update-RythmeMinuteries })
+$Window.Add_StateChanged({ Update-RythmeMinuteries })
+Update-RythmeMinuteries   # (lancé avec Windows, Mindset démarre caché)
 function Watch-ThemeSuite {
     # Thème de la suite changé ailleurs : Mindset le prend aussi (sauf pendant une opération). Comparé au thème choisi
     # (« pack:dofus »), pas à ses couleurs (« pack-dofus ») ; et jamais deux relances pour le même thème en une minute,

@@ -444,7 +444,7 @@ function Show-BulleMajAuto([string]$Titre, [string]$Texte) {
     if ($Window.IsVisible -and $Window.WindowState -ne 'Minimized' -and $script:Console.Pret) {
         Invoke-ScriptConsole "window.mindset.message($(ConvertTo-Json -InputObject $Titre -Compress))"
     } elseif ($script:IconeHorloge) {
-        try { $script:IconeHorloge.ShowBalloonTip(6000, $Titre, $(if ($Texte) { $Texte } else { 'Mise à jour faite toute seule.' }), [System.Windows.Forms.ToolTipIcon]::Info) } catch {}
+        try { Show-BulleMindset 6000 $Titre $(if ($Texte) { $Texte } else { 'Mise à jour faite toute seule.' }) ([System.Windows.Forms.ToolTipIcon]::Info) } catch {}
     }
 }
 

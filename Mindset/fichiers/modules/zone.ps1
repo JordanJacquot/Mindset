@@ -22,7 +22,7 @@ function Hide-Fenetre {
     $Window.Hide()
     # La première fois, une bulle explique où est passé Mindset
     if (-not (Get-Setting 'BulleHorlogeVue' $false) -and $script:IconeHorloge) {
-        $script:IconeHorloge.ShowBalloonTip(4000, 'Mindset reste ici', 'Clique sur l''icône pour le rouvrir. Clic droit pour tes applis ou pour quitter.', 'None')
+        Show-BulleMindset 4000 'Mindset reste ici' 'Clique sur l''icône pour le rouvrir. Clic droit pour tes applis ou pour quitter.' 'None'
         Set-Setting 'BulleHorlogeVue' $true
     }
 }
@@ -145,6 +145,13 @@ function Watch-NotificationsApplis {
         $script:BulleAppli = @{ Appli = $a.Id; Id = $id }
         $script:IconeHorloge.ShowBalloonTip(8000, $titre, $(if ($texte) { $texte } else { ' ' }), [System.Windows.Forms.ToolTipIcon]::Info)
     }
+}
+
+# Une bulle de Mindset lui-même : elle n'est plus celle d'une appli. Sans cela, si Windows n'a pas signalé la fermeture
+# de la bulle précédente, un clic sur celle-ci ouvrirait l'appli et lui renverrait une vieille notification.
+function Show-BulleMindset([int]$Duree, [string]$Titre, [string]$Texte, $Icone) {
+    $script:BulleAppli = $null
+    if ($script:IconeHorloge) { $script:IconeHorloge.ShowBalloonTip($Duree, $Titre, $Texte, $Icone) }
 }
 
 function Open-BulleAppli {

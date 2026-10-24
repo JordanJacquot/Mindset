@@ -161,17 +161,20 @@ function Install-Paquet([byte[]]$Zip, [byte[]]$Signature, [string]$ClePublique, 
         throw "Version $nouvelle refusée : la version $installee, plus récente, est déjà installée."
     }
 
+    # Mise à jour de Mindset lui-même (faite une fois qu'il est fermé) : l'utilisateur n'a rien à fermer ni à réessayer,
+    # Mindset garde sa version et réessaiera tout seul (ce que dit la suite du message, mindset.ps1)
+    $bloque = if ($Exe -ieq 'Mindset.exe') { 'Des fichiers de Mindset étaient encore utilisés par Windows ou par l''antivirus, il n''y a rien à faire de ton côté.' }
     if (Test-Path -LiteralPath $Destination) {
         $ancien = "$Destination.ancien-$suffixe"
         # (quelques essais : un programme qui vient de se fermer, comme la 3D de Mindset, lâche ses fichiers un peu après)
         if (-not (Move-DossierEssais $Destination $ancien)) {
             try { Remove-Item -LiteralPath $tmp -Recurse -Force } catch {}
-            throw 'L''appli est encore ouverte (ses fichiers sont utilisés) : ferme-la puis réessaie.'
+            throw $(if ($bloque) { $bloque } else { 'L''appli est encore ouverte (ses fichiers sont utilisés) : ferme-la puis réessaie.' })
         }
         if (-not (Move-DossierEssais $tmp $Destination)) {
             [IO.Directory]::Move($ancien, $Destination)   # on remet l'ancienne version telle quelle
             try { Remove-Item -LiteralPath $tmp -Recurse -Force } catch {}
-            throw 'La nouvelle version n''a pas pu être mise en place (fichiers bloqués) : réessaie dans un moment.'
+            throw $(if ($bloque) { $bloque } else { 'La nouvelle version n''a pas pu être mise en place (fichiers bloqués) : réessaie dans un moment.' })
         }
         try { Remove-Item -LiteralPath $ancien -Recurse -Force -ErrorAction Stop } catch {}   # sinon, nettoyé la prochaine fois
     } elseif (-not (Move-DossierEssais $tmp $Destination)) {

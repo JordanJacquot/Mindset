@@ -57,3 +57,12 @@ jobs:
 
       - name: "Démarrage des applis, mises à jour (et leur carte dans la console) et filet contre les plantages (faux PC, Mindset de test hors de l'écran)"
         run: .\outils\tester-mises-a-jour.ps1
+
+      - name: "Retour de Mindset après une mise à jour, bulles près de l'horloge, message de mise à jour bloquée, appli gardée pendant une opération (faux PC, Mindset de test sans fenêtre)"
+        run: .\outils\tester-maj-demarrage.ps1
+
+      - name: "Journaux et restes (journal des plantages de Mindset.exe, thème réimporté jamais abîmé, fausses lignes du journal, ancien console-webview ; faux PC)"
+        run: .\outils\tester-journaux.ps1
+
+      - name: "Fenêtre dans l'écran (125 %, 150 %, 1366 x 768), Mindset caché sans processeur, dossier de travail libre, console 3D qui survit à un incident de WebView2 (écrans simulés, Mindset de test hors de l'écran)"
+        run: .\outils\tester-fenetre-console.ps1

@@ -129,6 +129,7 @@ function Import-PackSuite([string]$Zip) {
     if ($id -notmatch '^[a-z0-9-]{1,40}$') { throw 'Le nom de ce fichier ne convient pas pour un thème (lettres, chiffres et tirets).' }
     # Un thème déjà installé sous ce nom est remplacé par la nouvelle version (dit ensuite dans la page : « mis à jour »)
     $script:PackRemplace = [bool](Get-ThemePack $id) -and (@(Get-PacksARetirer) -notcontains $id)
+    $script:PackEnAttente = @()   # (les applis dont l'ancienne version était prise : la nouvelle attend le prochain démarrage)
     $za = [IO.Compression.ZipFile]::OpenRead($Zip)
     try {
         $entrees = @($za.Entries | Where-Object { $_.Name })
@@ -162,14 +163,63 @@ function Import-PackSuite([string]$Zip) {
                 [IO.Compression.ZipFileExtensions]::ExtractToFile($e, (Join-Path $tmp $e.Name), $true)
             }
             [IO.Compression.ZipFileExtensions]::ExtractToFile($reglage, (Join-Path $tmp 'pack.json'), $true)
-            if (Test-Path -LiteralPath $dest) { Remove-Item -LiteralPath $dest -Recurse -Force }
-            Move-Item -LiteralPath $tmp -Destination $dest
-            $installes += $appli
+            # L'ancienne version est échangée d'un bloc, jamais supprimée fichier par fichier : si une appli ouverte tient
+            # un de ses fichiers (une police), elle reste entière, et la nouvelle attend le prochain démarrage de Mindset
+            $attente = Join-Path $PacksEnAttenteDir "$appli\$id"
+            if (Test-Path -LiteralPath $attente) { Remove-Item -LiteralPath $attente -Recurse -Force }
+            if (Set-DossierPack $tmp $dest) { $installes += $appli }
+            else {
+                New-Item -ItemType Directory -Force -Path (Split-Path $attente -Parent) | Out-Null
+                [IO.Directory]::Move($tmp, $attente)
+                $script:PackEnAttente += $appli
+            }
         }
     } finally { $za.Dispose() }
     if (-not (Get-ThemePack $id)) { throw 'Le réglage de ce thème pour Mindset (pack-mindset.json) est illisible.' }
-    Write-Log "Thème de la suite $(if ($script:PackRemplace) { 'mis à jour' } else { 'importé' }) : $id ($($installes -join ', '))"
+    Write-Log "Thème de la suite $(if ($script:PackRemplace) { 'mis à jour' } else { 'importé' }) : $id ($($installes -join ', '))$(if ($script:PackEnAttente.Count) { " ; nouvelle version mise en place au prochain démarrage de Mindset pour $($script:PackEnAttente -join ', ') (thème utilisé)" })"
     $id
+}
+
+# Une version d'un thème qui n'a pas pu remplacer l'ancienne (prise par une appli ouverte) attend ici le prochain démarrage
+# de Mindset : <données>\Mindset\packs-en-attente\<Appli>\<id>. Les anciennes versions échangées passent par
+# packs-anciens avant d'être supprimées (ce qui reste encore pris y est retiré au démarrage suivant).
+$PacksEnAttenteDir = Join-Path $DataDir 'packs-en-attente'
+$PacksAnciensDir = Join-Path $DataDir 'packs-anciens'
+
+# Met le dossier $Nouveau à la place de $Dest. L'ancien est d'abord renommé d'un bloc (un fichier ouvert fait échouer le
+# renommage sans rien déplacer), puis supprimé. $false si l'ancien est pris : il reste alors entier, et $Nouveau n'a pas bougé.
+function Set-DossierPack([string]$Nouveau, [string]$Dest) {
+    if (-not (Test-Path -LiteralPath $Dest)) { [IO.Directory]::Move($Nouveau, $Dest); return $true }
+    New-Item -ItemType Directory -Force -Path $PacksAnciensDir | Out-Null
+    $ancien = Join-Path $PacksAnciensDir ([guid]::NewGuid().ToString('N').Substring(0, 8))
+    $ok = $false
+    for ($n = 0; $n -lt 3 -and -not $ok; $n++) { try { [IO.Directory]::Move($Dest, $ancien); $ok = $true } catch { Start-Sleep -Milliseconds 200 } }
+    if (-not $ok) { return $false }
+    try { [IO.Directory]::Move($Nouveau, $Dest) } catch { [IO.Directory]::Move($ancien, $Dest); throw }
+    try { [IO.Directory]::Delete($ancien, $true) } catch {}   # (sinon retiré au prochain démarrage)
+    $true
+}
+
+# Au démarrage : les nouvelles versions de thèmes en attente sont mises en place, et les anciennes versions restées
+# prises sont supprimées
+function Complete-PacksEnAttente {
+    if (Test-Path -LiteralPath $PacksAnciensDir) {
+        foreach ($d in @(Get-ChildItem -LiteralPath $PacksAnciensDir -Directory -ErrorAction SilentlyContinue)) { try { [IO.Directory]::Delete($d.FullName, $true) } catch {} }
+    }
+    if (-not (Test-Path -LiteralPath $PacksEnAttenteDir)) { return }
+    $aRetirer = @(Get-PacksARetirer)
+    $fichiers = Get-PackAppliFichiers
+    foreach ($a in @(Get-ChildItem -LiteralPath $PacksEnAttenteDir -Directory -ErrorAction SilentlyContinue)) {
+        foreach ($p in @(Get-ChildItem -LiteralPath $a.FullName -Directory -ErrorAction SilentlyContinue)) {
+            $id = $p.Name
+            try {
+                # (un thème supprimé depuis, ou une appli qui n'est plus dans apps.json : la version en attente est jetée)
+                if (-not $fichiers.Contains($a.Name) -or $id -cnotmatch '^[a-z0-9-]{1,40}$' -or $aRetirer -contains $id) { [IO.Directory]::Delete($p.FullName, $true); continue }
+                $dest = if ($a.Name -eq 'Mindset') { Join-Path $PacksDir $id } else { Join-Path $SuiteDir "$($a.Name)\packs\$id" }
+                if (Set-DossierPack $p.FullName $dest) { Write-Log "Thème $id : nouvelle version mise en place pour $($a.Name)" }
+            } catch { Write-Log "Thème $id : nouvelle version pour $($a.Name) pas mise en place ($($_.Exception.Message))" }
+        }
+    }
 }
 
 # ---------------------------------------------------------------------------
@@ -211,6 +261,13 @@ function Remove-DossiersPack([string]$Id) {
             catch { $tout = $false; Write-Log "Thème $Id : $x pas encore retiré ($($_.Exception.Message))" }
         }
     }
+    # (et sa nouvelle version en attente du prochain démarrage, s'il y en a une)
+    if ($Id -cmatch '^[a-z0-9-]{1,40}$' -and (Test-Path -LiteralPath $PacksEnAttenteDir)) {
+        foreach ($a in @(Get-ChildItem -LiteralPath $PacksEnAttenteDir -Directory -ErrorAction SilentlyContinue)) {
+            $x = Join-Path $a.FullName $Id
+            if (Test-Path -LiteralPath $x) { try { [IO.Directory]::Delete($x, $true) } catch { $tout = $false } }
+        }
+    }
     $tout
 }
 
@@ -226,6 +283,7 @@ function Remove-PackSuite([string]$Id) {
 
 # Au démarrage (une fois apps.json lu) : les thèmes supprimés dont un dossier était encore pris
 function Clear-PacksARetirer {
+    Complete-PacksEnAttente
     $l = @(Get-PacksARetirer)
     if (-not $l.Count) { return }
     Set-PacksARetirer @($l | Where-Object { -not (Remove-DossiersPack $_) })
@@ -269,7 +327,7 @@ function Start-Sautille($Img, [double]$Haut = 6, [string]$Lueur = '') {
     $up = New-Object System.Windows.Media.Animation.DoubleAnimation 0, (-$Haut), ([System.Windows.Duration]::new([TimeSpan]::FromMilliseconds($(if ($Lueur) { 900 } else { 320 }))))
     $up.AutoReverse = $true; $up.RepeatBehavior = [System.Windows.Media.Animation.RepeatBehavior]::Forever; $up.EasingFunction = $ease
     [System.Windows.Media.Animation.Timeline]::SetDesiredFrameRate($up, 30)
-    $mv.BeginAnimation([System.Windows.Media.TranslateTransform]::YProperty, $up)
+    Start-BoucleVisible $Img $mv ([System.Windows.Media.TranslateTransform]::YProperty) $up   # (seulement quand on la voit : logo.ps1)
 }
 
 # Police pixel partout : tailles « pixel exactes » (8, 12, 16 ou 24), nettes et sans débordement

@@ -92,15 +92,58 @@ static class Lanceur
         return 0;
     }
 
-    // Même journal que le code de Mindset (%LOCALAPPDATA%\Mindset\Mindset\journal.txt)
+    // Même journal que le code de Mindset : <données>\Mindset\journal.txt (voir modules\donnees.ps1)
     static void Journal(string texte)
     {
         try
         {
-            string dir = Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Mindset"), "Mindset");
+            string dir = DossierDonnees(AppDomain.CurrentDomain.BaseDirectory);
             Directory.CreateDirectory(dir);
             File.AppendAllText(Path.Combine(dir, "journal.txt"), DateTime.Now.ToString("s") + " " + texte + "\r\n", new UTF8Encoding(false));
         }
         catch { }
+    }
+
+    // Le dossier des données de Mindset, déduit de l'emplacement de ce programme (même règle que Get-RacinesDepuis dans
+    // modules\donnees.ps1) : installé sur un autre disque (X:\Mindset\Programmes\Mindset), X:\Mindset\Donnees\Mindset ;
+    // sinon %LOCALAPPDATA%\Mindset\Mindset. Lancé hors de son installation (dossier téléchargé) : celle inscrite dans
+    // « Applications installées », comme le code de Mindset.
+    static string DossierDonnees(string dossierExe)
+    {
+        string d = DonneesSurAutreDisque(dossierExe);
+        if (d != null) return d;
+        try
+        {
+            string moi = Path.GetFullPath(dossierExe).TrimEnd('\\', '/');
+            string defaut = Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "Mindset"), "Mindset");
+            if (!string.Equals(moi, defaut, StringComparison.OrdinalIgnoreCase))
+            {
+                using (Microsoft.Win32.RegistryKey k = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Uninstall\Mindset"))
+                {
+                    string inscrit = k == null ? null : k.GetValue("InstallLocation") as string;
+                    if (!string.IsNullOrEmpty(inscrit) && File.Exists(Path.Combine(inscrit, "Mindset.exe")))
+                    {
+                        d = DonneesSurAutreDisque(inscrit);
+                        if (d != null) return d;
+                    }
+                }
+            }
+        }
+        catch { }
+        return Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Mindset"), "Mindset");
+    }
+
+    // X:\Mindset\Programmes\Mindset donne X:\Mindset\Donnees\Mindset ; tout autre dossier, null
+    static string DonneesSurAutreDisque(string dossierMindset)
+    {
+        try
+        {
+            DirectoryInfo p = new DirectoryInfo(dossierMindset.TrimEnd('\\', '/')).Parent;
+            DirectoryInfo m = p == null ? null : p.Parent;
+            if (p != null && m != null && string.Equals(p.Name, "Programmes", StringComparison.OrdinalIgnoreCase) && string.Equals(m.Name, "Mindset", StringComparison.OrdinalIgnoreCase))
+                return Path.Combine(Path.Combine(m.FullName, "Donnees"), "Mindset");
+        }
+        catch { }
+        return null;
     }
 }

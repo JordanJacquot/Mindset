@@ -55,8 +55,45 @@ function Start-LogoLoop($Target, $Property, [double]$From, [double]$To, [int]$Ms
     $a.RepeatBehavior = [System.Windows.Media.Animation.RepeatBehavior]::Forever
     if ($Reverse) { $e = New-Object System.Windows.Media.Animation.SineEase; $e.EasingMode = 'EaseInOut'; $a.EasingFunction = $e }
     [System.Windows.Media.Animation.Timeline]::SetDesiredFrameRate($a, 30)
-    $Target.BeginAnimation($Property, $a)
+    Start-BoucleVisible $ui.LogoHote $Target $Property $a
 }
+
+# Une animation sans fin ne tourne que si on peut la voir : son élément affiché, Mindset ni caché ni réduit. Sinon WPF
+# continuait de la calculer (mesuré : environ 1,5 % d'un cœur en continu, Mindset caché près de l'horloge). Elle
+# s'arrête quand l'élément disparaît (Mindset caché, en-tête remplacé par la console 3D) et repart quand il revient.
+$script:BouclesVisibles = New-Object System.Collections.ArrayList
+$script:ElementsSurveilles = New-Object System.Collections.ArrayList
+function Start-BoucleVisible($Element, $Cible, $Propriete, $Animation) {
+    [void]$script:BouclesVisibles.Add(@{ Element = $Element; Cible = $Cible; Propriete = $Propriete; Animation = $Animation; Tourne = $false })
+    if (-not $script:ElementsSurveilles.Contains($Element)) {   # (une seule surveillance par élément)
+        [void]$script:ElementsSurveilles.Add($Element)
+        $Element.Add_IsVisibleChanged({ Update-BouclesVisibles })
+    }
+    Update-BouclesVisibles
+}
+function Update-BouclesVisibles {
+    $reduit = $Window.WindowState -eq 'Minimized'
+    foreach ($b in $script:BouclesVisibles) {
+        $voir = $b.Element.IsVisible -and -not $reduit
+        if ($voir -eq $b.Tourne) { continue }
+        $b.Tourne = $voir
+        # (par une horloge arrêtée puis retirée : un simple BeginAnimation(..., $null) laissait WPF compter le temps,
+        # fenêtre cachée, et le processeur tournait encore)
+        if ($voir) { $b.Horloge = $b.Animation.CreateClock(); $b.Cible.ApplyAnimationClock($b.Propriete, $b.Horloge) }
+        elseif ($b.Horloge) {
+            try { $b.Horloge.Controller.Stop(); $b.Horloge.Controller.Remove() } catch {}
+            $b.Cible.ApplyAnimationClock($b.Propriete, $null); $b.Horloge = $null
+        }
+    }
+    # (les petits sauts du logo, plus bas : leur minuterie s'arrête aussi, Mindset caché ou réduit)
+    if ($script:LogoTimer) {
+        $fenetre = $Window.IsVisible -and -not $reduit
+        if ($fenetre -and -not $script:LogoTimer.IsEnabled) { $script:LogoTimer.Start() }
+        elseif (-not $fenetre -and $script:LogoTimer.IsEnabled) { $script:LogoTimer.Stop() }
+    }
+}
+$Window.Add_StateChanged({ Update-BouclesVisibles })
+$Window.Add_IsVisibleChanged({ Update-BouclesVisibles })
 
 # ---------------------------------------------------------------------------
 # Le M : un trait épais aux bouts arrondis (deux jambes et le V du milieu), comme le N de Nevermind et le E d'Evermind
@@ -281,3 +318,4 @@ function Start-PackLogoShake {
 
 Start-LogoAnime $ui.LogoHote
 Initialize-PackVisuels
+Update-BouclesVisibles   # (lancé avec Windows, Mindset démarre caché : rien ne tourne)

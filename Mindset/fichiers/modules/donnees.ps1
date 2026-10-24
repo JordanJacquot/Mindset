@@ -44,6 +44,16 @@ foreach ($n in 'journal.txt', 'reglages.json', 'installations.json') {
         if ($a -ine $b -and (Test-Path -LiteralPath $a) -and -not (Test-Path -LiteralPath $b)) { try { Move-Item -LiteralPath $a -Destination $DataDir } catch {} }
     }
 }
+# Mindset.exe (jusqu'à la 2.8.0) notait ses plantages dans %LOCALAPPDATA%\Mindset\Mindset\journal.txt, même installé sur
+# un autre disque : ces lignes rejoignent le vrai journal (à la fin, telles quelles), puis l'ancien fichier est supprimé
+$ancienJournal = Join-Path $SuiteFileDir 'Mindset\journal.txt'
+if ((-not $EnTest -or $env:MINDSET_DONNEES) -and $ancienJournal -ine (Join-Path $DataDir 'journal.txt') -and (Test-Path -LiteralPath $ancienJournal) -and (Test-Path -LiteralPath (Join-Path $DataDir 'journal.txt'))) {
+    try {
+        $t = [IO.File]::ReadAllText($ancienJournal, [Text.Encoding]::UTF8)
+        if ($t.Trim()) { [IO.File]::AppendAllText((Join-Path $DataDir 'journal.txt'), "$((Get-Date).ToString('s')) Lignes reprises de l'ancien journal de Mindset.exe ($ancienJournal) :`r`n$($t.TrimEnd())`r`n", (New-Object Text.UTF8Encoding $false)) }
+        [IO.File]::Delete($ancienJournal)
+    } catch {}
+}
 
 $LogFile = Join-Path $DataDir 'journal.txt'
 $SettingsFile = Join-Path $DataDir 'reglages.json'
@@ -51,6 +61,27 @@ $SettingsFile = Join-Path $DataDir 'reglages.json'
 function Write-Log([string]$Texte) {
     try { [IO.File]::AppendAllText($LogFile, "$((Get-Date).ToString('s')) $Texte`r`n", (New-Object Text.UTF8Encoding $false)) } catch {}
 }
+
+# Restes sur le disque, au démarrage : l'ancien dossier WebView2 propre à Mindset (console-webview, environ 75 Mo), remplacé
+# par le dossier commun de la suite. Il ne sert plus que de filet (console.ps1), et WebView2 le recrée s'il en a besoin :
+# il est supprimé quand il n'a pas servi depuis 14 jours. Renommé d'abord d'un bloc (un WebView2 encore ouvert dessus fait
+# échouer le renommage sans rien toucher), puis supprimé ; ce qui reste pris est retiré à un prochain démarrage.
+function Clear-RestesDisque([string]$Dossier, [int]$Jours = 14) {
+    $vieux = Join-Path $Dossier 'console-webview.a-supprimer'
+    $cw = Join-Path $Dossier 'console-webview'
+    try {
+        if ([IO.Directory]::Exists($cw)) {
+            $dernier = [IO.Directory]::GetLastWriteTime($cw)
+            foreach ($f in [IO.Directory]::EnumerateFiles($cw, '*', [IO.SearchOption]::AllDirectories)) { $t = [IO.File]::GetLastWriteTime($f); if ($t -gt $dernier) { $dernier = $t } }
+            if ($dernier -lt (Get-Date).AddDays(-$Jours) -and -not [IO.Directory]::Exists($vieux)) {
+                [IO.Directory]::Move($cw, $vieux)
+                Write-Log "Ancien dossier console-webview (pas servi depuis le $($dernier.ToString('d'))) supprimé"
+            }
+        }
+    } catch {}
+    if ([IO.Directory]::Exists($vieux)) { try { [IO.Directory]::Delete($vieux, $true) } catch {} }
+}
+if (-not $EnTest -or $env:MINDSET_DONNEES) { Clear-RestesDisque $DataDir }
 
 # Fichiers de données (réglages, installations, suite.json, historique des mises à jour) : jamais écrits directement.
 # Le texte va dans un fichier à côté (.tmp), qui remplace l'ancien d'un coup ; l'ancien reste dans « .bak ». Un plantage
