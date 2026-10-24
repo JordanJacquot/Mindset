@@ -619,7 +619,14 @@ static class Essai {
         $carte = if ($journal -match 'Essai : carte = (.*)') { $Matches[1].Trim() } else { '' }
         $bouton = if ($journal -match 'Essai : bouton Chercher = (.*)') { $Matches[1].Trim() } else { '' }
         $attendu = $etapes[$e]
+        $avantEchecs = $script:Echoues.Count
         Test-Cas "Étape $e : la carte affiche « $($attendu[0] -replace '\\', '') » (capture faite)" { (Test-Path -LiteralPath $png) -and $carte -match $attendu[0] -and $carte -match '^Mise à jour automatique' -and (-not $attendu[1] -or $bouton -match $attendu[1]) }
+        if ($script:Echoues.Count -gt $avantEchecs) {   # (pour comprendre un échec, sur GitHub surtout : le journal du Mindset de test)
+            Write-Host "         capture : $(Test-Path -LiteralPath $png) ; journal :" -ForegroundColor Yellow
+            foreach ($l in @($journal -split "`r?`n" | Where-Object { $_ })) { Write-Host "           $l" -ForegroundColor Yellow }
+            $err = try { [IO.File]::ReadAllText((Join-Path $dossier 'erreurs.txt')) } catch { '' }
+            if ($err.Trim()) { Write-Host "         erreurs : $($err.Trim())" -ForegroundColor Yellow }
+        }
         if ($e -eq 'clic') { Test-Cas '... le clic sur la pastille dans la page a coché le réglage' { $journal -match 'Mises à jour automatiques : oui \(pastille de la console\)' -and $journal -match 'Essai : pastille = true' } }
         if ($e -eq 'telechargement') { Test-Cas '... la mise à jour vient du vrai Invoke-MajAuto, et rien n''est installé pour de vrai' { $journal -match 'Mise à jour automatique : Evermind 0\.15\.0' -and $journal -notmatch 'Essai : .* refusé' } }
     }
