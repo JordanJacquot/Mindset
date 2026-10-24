@@ -40,6 +40,9 @@ jobs:
       - name: Tests de sécurité (signature, installation des zips, dossiers acceptés)
         run: .\outils\tester-securite.ps1
 
+      - name: "Fichiers de données jamais perdus (écriture sûre, fichier abîmé, copie .bak, réglage coupé qui reste coupé)"
+        run: .\outils\tester-donnees.ps1
+
       - name: "Tests du désinstalleur (faux environnement, sans droits)"
         run: .\outils\tester-desinstallation.ps1
 

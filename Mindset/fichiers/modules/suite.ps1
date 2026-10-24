@@ -22,27 +22,33 @@ function Test-NomAppareil($Nom) { $Nom -is [string] -and $Nom.Length -le 64 -and
 
 function Read-Suite {
     $s = @{ theme = $null; micro = $null; casque = $null; applis = @{} }
-    if (-not (Test-Path -LiteralPath $SuiteFile)) { return $s }
     try {
-        $j = [IO.File]::ReadAllText($SuiteFile, [Text.Encoding]::UTF8) | ConvertFrom-Json
+        # (abîmé : mis de côté et repris de sa copie, voir Read-JsonSur)
+        $j = Read-JsonSur $SuiteFile
+        if ($null -eq $j) { return $s }
         if (Test-ThemeSuite $j.theme) { $s.theme = [string]$j.theme }
         if ($null -ne $j.micro -and (Test-NomAppareil $j.micro)) { $s.micro = [string]$j.micro }
         if ($null -ne $j.casque -and (Test-NomAppareil $j.casque)) { $s.casque = [string]$j.casque }
         if ($j.applis) { foreach ($p in $j.applis.PSObject.Properties) { if ($p.Name -match '^[a-z0-9-]+$' -and $p.Value -is [string]) { $s.applis[$p.Name] = $p.Value } } }
-    } catch { Write-Log "suite.json illisible : $_" }
+    } catch {
+        # Pris par un autre programme : pas réécrit à partir de ces valeurs vides (la liste des applis serait perdue)
+        Write-Log "suite.json illisible : $($_.Exception.Message)"
+        $s.Illisible = $true
+    }
     $s
 }
 
 function Write-Suite($Suite) {
     if ($EnTest -and -not $env:MINDSET_DONNEES) { return }
+    if ($Suite.Illisible) { Write-Log 'suite.json pas modifié : il n''a pas pu être lu'; return }
     $o = [ordered]@{ theme = $Suite.theme }
     if ($null -ne $Suite.micro) { $o.micro = $Suite.micro }
     if ($null -ne $Suite.casque) { $o.casque = $Suite.casque }
     $o.applis = $Suite.applis; $o.modifie = (Get-Date).ToString('s')
-    # Écrit à côté puis remplacé d'un coup : une appli qui lit au même moment ne voit jamais un fichier à moitié écrit
-    $tmp = "$SuiteFile.tmp"
-    [IO.File]::WriteAllText($tmp, ($o | ConvertTo-Json -Depth 4), (New-Object Text.UTF8Encoding $false))
-    Move-Item -LiteralPath $tmp -Destination $SuiteFile -Force
+    # Écrit à côté puis remplacé d'un coup (Save-JsonSur) : une appli qui lit au même moment ne voit jamais un fichier
+    # à moitié écrit, et l'ancien reste dans suite.json.bak
+    try { Save-JsonSur $SuiteFile ($o | ConvertTo-Json -Depth 4) }
+    catch { Write-Log "suite.json non enregistré : $($_.Exception.Message)" }
 }
 
 # Thème de la suite ; au tout premier lancement, celui d'Evermind (ou de Nevermind) s'il est déjà installé

@@ -27,22 +27,25 @@ function Get-DossierDonnees($Appli) {
     if ($inst -and $inst.Gere -and (Test-Path -LiteralPath $suite)) { $suite } else { $Appli.Donnees }
 }
 
-function Read-Installations {
+# (abîmé : mis de côté et repris de sa copie, voir Read-JsonSur ; -PourEcrire : une erreur s'il ne peut pas être lu)
+function Read-Installations([switch]$PourEcrire) {
     $r = @{}
-    if (Test-Path -LiteralPath $InstallFile) {
-        try {
-            $j = [IO.File]::ReadAllText($InstallFile, [Text.Encoding]::UTF8) | ConvertFrom-Json
-            foreach ($p in $j.PSObject.Properties) { $r[$p.Name] = @{ Dossier = [string]$p.Value.dossier; Gere = [bool]$p.Value.gere } }
-        } catch { Write-Log "installations.json illisible : $_" }
+    try {
+        $j = Read-JsonSur $InstallFile
+        if ($null -ne $j) { foreach ($p in $j.PSObject.Properties) { $r[$p.Name] = @{ Dossier = [string]$p.Value.dossier; Gere = [bool]$p.Value.gere } } }
+    } catch {
+        if ($PourEcrire) { throw }
+        Write-Log "installations.json illisible : $($_.Exception.Message)"
     }
     $r
 }
 
 function Save-Installation([string]$Id, [string]$Dossier, [bool]$Gere) {
-    $r = Read-Installations
+    # (illisible pour l'instant : rien n'est écrit, plutôt que de remplacer la liste par une liste presque vide)
+    try { $r = Read-Installations -PourEcrire } catch { Write-Log "installations.json pas modifié ($Id) : $($_.Exception.Message)"; return }
     if ($Dossier) { $r[$Id] = @{ Dossier = $Dossier; Gere = $Gere } } else { $r.Remove($Id) }
     $o = [ordered]@{}; foreach ($k in $r.Keys) { $o[$k] = @{ dossier = $r[$k].Dossier; gere = $r[$k].Gere } }
-    if (-not $EnTest) { [IO.File]::WriteAllText($InstallFile, ($o | ConvertTo-Json -Depth 4), (New-Object Text.UTF8Encoding $false)) }
+    if (-not $EnTest -or $env:MINDSET_DONNEES) { Save-JsonSur $InstallFile ($o | ConvertTo-Json -Depth 4) }
 }
 
 function Get-VersionDans([string]$Dossier, $Appli) {
@@ -685,7 +688,7 @@ $script:DesinstallTimer.Add_Tick({
     if (-not $w) { $script:DesinstallTimer.Stop(); return }
     if (-not (Test-Path -LiteralPath (Join-Path $w.Dossier $w.Appli.Exe))) {
         $script:DesinstallTimer.Stop(); $script:AttenteDesinstall = $null
-        Complete-Desinstallation $w.Appli
+        try { Complete-Desinstallation $w.Appli } catch { Write-Log "Fin de la désinstallation de $($w.Appli.Nom) : $_"; Stop-Operation $w.Appli "Échec : $($_.Exception.Message)" }
     } elseif (((Get-Date) - $w.Debut).TotalMinutes -gt 10) {
         $script:DesinstallTimer.Stop(); $script:AttenteDesinstall = $null
         Stop-Operation $w.Appli 'Désinstallation annulée ou pas terminée.'

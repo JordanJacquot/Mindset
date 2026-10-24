@@ -182,51 +182,54 @@ $script:IntegrationTimer = New-Object System.Windows.Threading.DispatcherTimer
 $script:IntegrationTimer.Interval = [TimeSpan]::FromMilliseconds(400)
 $script:IntegrationTimer.Add_Tick({
     $attente = $false
-    Update-BarreAppli   # (l'appli pose sa marque un peu après avoir été accrochée)
+    try { Update-BarreAppli } catch { Write-ErreurImprevue $_.Exception }   # (l'appli pose sa marque un peu après avoir été accrochée)
     foreach ($i in @($script:Integrees.Values)) {
-        $a = Get-Appli $i.Id
-        if ($i.Fenetre -ne [IntPtr]::Zero -and -not [MSIntegration]::IsWindow($i.Fenetre)) {
-            # Fermée (sa croix, son menu Quitter) ou relancée (mise à jour) : l'écran « Ouvrir », et si un nouveau
-            # processus démarre, c'est une relance : la jauge, puis sa nouvelle fenêtre est raccrochée
-            $i.Fenetre = [IntPtr]::Zero; $i.Styles = $null; $i.Etat = 'relance'; $i.Depuis = Get-Date
-            Update-HotesVisibles
-            Show-EcranOuvrir $a "$($a.Nom) est fermé."
-        } elseif ($i.Fenetre -ne [IntPtr]::Zero -and -not [MSIntegration]::EstMontree($i.Fenetre)) {
-            # Elle s'est cachée elle-même (réduite près de l'horloge, par sa croix) : rendue telle quelle, elle y reste
-            [MSIntegration]::Liberer($i.Fenetre, $i.Styles[0], $i.Styles[1])
-            $i.Fenetre = [IntPtr]::Zero; $i.Styles = $null; $i.Etat = 'cachee'
-            Update-HotesVisibles
-            Show-EcranOuvrir $a "$($a.Nom) est réduit près de l'horloge."
-        }
-        if ($i.Etat -in 'lancement', 'relance') {
-            $h = Find-FenetreAppli $a
-            if ($h -ne [IntPtr]::Zero) { Connect-Fenetre $a $h; continue }
-            if ($i.Etat -eq 'relance' -and $script:Jauge -and $script:Jauge.Ecran -and $script:Jauge.Id -eq $a.Id -and (Test-NouveauProcessus $a $i)) { Show-JaugeAppli $a 'Relance...' }
-            $ecoule = ((Get-Date) - $i.Depuis).TotalSeconds
-            # Un programme de l'appli resté ouvert sans fenêtre (fermée, mais son processus ne s'est pas terminé) : la
-            # fenêtre attendue ne viendra jamais, et un nouveau lancement caché s'arrête en le voyant. Il est arrêté, puis
-            # l'appli est relancée (une fois par ouverture).
-            if ($i.Etat -eq 'lancement' -and -not $i.Debloquee -and $ecoule -gt 5) {
-                $i.Debloquee = $true
-                if (Stop-AppliBloquee $a) {
-                    $i.Depuis = Get-Date
-                    Write-Log "$($a.Nom) restait ouvert sans fenêtre : arrêté par Mindset, puis relancé"
-                    Start-AppliCachee $a
-                    $attente = $true; continue
-                }
+        # (une appli qui pose problème n'empêche pas de surveiller les autres)
+        try {
+            $a = Get-Appli $i.Id
+            if ($i.Fenetre -ne [IntPtr]::Zero -and -not [MSIntegration]::IsWindow($i.Fenetre)) {
+                # Fermée (sa croix, son menu Quitter) ou relancée (mise à jour) : l'écran « Ouvrir », et si un nouveau
+                # processus démarre, c'est une relance : la jauge, puis sa nouvelle fenêtre est raccrochée
+                $i.Fenetre = [IntPtr]::Zero; $i.Styles = $null; $i.Etat = 'relance'; $i.Depuis = Get-Date
+                Update-HotesVisibles
+                Show-EcranOuvrir $a "$($a.Nom) est fermé."
+            } elseif ($i.Fenetre -ne [IntPtr]::Zero -and -not [MSIntegration]::EstMontree($i.Fenetre)) {
+                # Elle s'est cachée elle-même (réduite près de l'horloge, par sa croix) : rendue telle quelle, elle y reste
+                [MSIntegration]::Liberer($i.Fenetre, $i.Styles[0], $i.Styles[1])
+                $i.Fenetre = [IntPtr]::Zero; $i.Styles = $null; $i.Etat = 'cachee'
+                Update-HotesVisibles
+                Show-EcranOuvrir $a "$($a.Nom) est réduit près de l'horloge."
             }
-            # (Nevermind met près de 20 s à démarrer : on lui laisse une minute ; arrêté pendant son démarrage, inutile d'attendre)
-            $vivant = Test-AppliOuverte $a
-            $limite = if ($i.Etat -eq 'lancement' -and -not $vivant) { 15 } else { 60 }
-            if ($ecoule -gt $limite) {
-                $echec = $i.Etat -eq 'lancement' -or -not ($script:Jauge -and $script:Jauge.Ecran)
-                $i.Etat = 'vide'
-                if ($echec) {
-                    Show-EcranOuvrir $a "$($a.Nom) n'a pas pu s'ouvrir."
-                    Write-Log "$($a.Nom) ne s'est pas affiché après $([int]$ecoule) s ($(if ($vivant) { 'son programme tourne encore' } else { 'son programme s''est arrêté' }))"
+            if ($i.Etat -in 'lancement', 'relance') {
+                $h = Find-FenetreAppli $a
+                if ($h -ne [IntPtr]::Zero) { Connect-Fenetre $a $h; continue }
+                if ($i.Etat -eq 'relance' -and $script:Jauge -and $script:Jauge.Ecran -and $script:Jauge.Id -eq $a.Id -and (Test-NouveauProcessus $a $i)) { Show-JaugeAppli $a 'Relance...' }
+                $ecoule = ((Get-Date) - $i.Depuis).TotalSeconds
+                # Un programme de l'appli resté ouvert sans fenêtre (fermée, mais son processus ne s'est pas terminé) : la
+                # fenêtre attendue ne viendra jamais, et un nouveau lancement caché s'arrête en le voyant. Il est arrêté, puis
+                # l'appli est relancée (une fois par ouverture).
+                if ($i.Etat -eq 'lancement' -and -not $i.Debloquee -and $ecoule -gt 5) {
+                    $i.Debloquee = $true
+                    if (Stop-AppliBloquee $a) {
+                        $i.Depuis = Get-Date
+                        Write-Log "$($a.Nom) restait ouvert sans fenêtre : arrêté par Mindset, puis relancé"
+                        Start-AppliCachee $a
+                        $attente = $true; continue
+                    }
                 }
-            } else { $attente = $true }
-        }
+                # (Nevermind met près de 20 s à démarrer : on lui laisse une minute ; arrêté pendant son démarrage, inutile d'attendre)
+                $vivant = Test-AppliOuverte $a
+                $limite = if ($i.Etat -eq 'lancement' -and -not $vivant) { 15 } else { 60 }
+                if ($ecoule -gt $limite) {
+                    $echec = $i.Etat -eq 'lancement' -or -not ($script:Jauge -and $script:Jauge.Ecran)
+                    $i.Etat = 'vide'
+                    if ($echec) {
+                        Show-EcranOuvrir $a "$($a.Nom) n'a pas pu s'ouvrir."
+                        Write-Log "$($a.Nom) ne s'est pas affiché après $([int]$ecoule) s ($(if ($vivant) { 'son programme tourne encore' } else { 'son programme s''est arrêté' }))"
+                    }
+                } else { $attente = $true }
+            }
+        } catch { Write-ErreurImprevue $_.Exception; $attente = $true }   # (surveillée encore au passage suivant)
     }
     if (-not $attente -and -not @($script:Integrees.Values | Where-Object { $_.Fenetre -ne [IntPtr]::Zero }).Count) { $script:IntegrationTimer.Stop() }
 })

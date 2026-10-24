@@ -199,6 +199,7 @@ static class Essai {
     Import-Fonctions 'installations.ps1' @('Start-InstallAppli', 'Complete-Telechargement', 'Send-InstallationAppli', 'Complete-Installation', 'Get-DemarrageAppli', 'Set-DemarrageAppli',
         'Get-DemarrageWindowsAppli', 'Repair-DemarrageApplis', 'Move-TachesDemarrage', 'Get-DossierGere')
     Import-Fonctions 'integration.ps1' @('Write-DemandeQuitter')
+    Import-Fonctions 'donnees.ps1' @('Save-JsonSur', 'Read-JsonSur', 'ConvertFrom-JsonObjet')
     Import-Fonctions 'mindset.ps1' @('Start-VerifMajMindset', 'Get-JeuxNevermind', 'Get-JeuEnCours', 'ConvertTo-EntreeMaj', 'Read-HistoriqueMaj', 'Save-HistoriqueMaj', 'Add-HistoriqueMaj',
         'Set-MajMindsetAttendue', 'Resolve-MajMindsetAttendue', 'Get-DerniereMaj', 'Format-QuandMaj', 'Get-AppliMaj')
     function Get-TachesDemarrageAppli([string]$Id) { @($script:TachesFaux[$Id] | Where-Object { $_ }) }   # (après l'import : jamais les vraies tâches)
@@ -549,7 +550,7 @@ static class Essai {
         $vide = @((Read-HistoriqueMaj).Liste).Count
         Add-HistoriqueMaj 'evermind' 'Evermind' '0.15.0' $true ''
         $relu = [IO.File]::ReadAllText($FichierHistoriqueMaj) | ConvertFrom-Json
-        Test-Cas 'Fichier abîmé : mis de côté (.abime), l''historique repart de zéro et le suivant s''écrit bien' { $vide -eq 0 -and (Test-Path -LiteralPath "$FichierHistoriqueMaj.abime") -and @($relu.historique).Count -eq 1 }
+        Test-Cas 'Fichier abîmé : mis de côté (.abime-<date>), repris de sa copie (.bak), et le suivant s''écrit bien' { $vide -eq 20 -and @(Get-ChildItem -Path "$FichierHistoriqueMaj.abime-*").Count -eq 1 -and @($relu.historique).Count -eq 20 -and $relu.historique[0].version -eq '0.15.0' }
         $q = (Get-Date).ToString('s')
         [IO.File]::WriteAllText($FichierHistoriqueMaj, (ConvertTo-Json -Depth 4 -InputObject @{ historique = @(
             @{ id = 'evermind'; nom = 'Evermind'; version = '0.15.0'; quand = $q; auto = $true }, @{ id = '..\x'; nom = 'X'; version = '1.0'; quand = $q },

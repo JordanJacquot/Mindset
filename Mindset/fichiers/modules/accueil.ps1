@@ -523,10 +523,15 @@ Invoke-Actualiser
 # Invoke-Actualiser) ; mises à jour automatiques (seulement si la recherche l'est aussi) ; thème de la suite surveillé
 $script:EtatTimer = New-Object System.Windows.Threading.DispatcherTimer
 $script:EtatTimer.Interval = [TimeSpan]::FromSeconds(2)
+# (chaque partie protégée : une erreur dans l'une, même à chaque passage, n'empêche jamais les suivantes de tourner)
 $script:EtatTimer.Add_Tick({
-    Update-Cartes; Update-Greeting
-    if (((Get-Date) - $script:DernieresPublications).TotalHours -ge 1) { Invoke-Actualiser }
+    try { Update-Cartes; Update-Greeting } catch { Write-ErreurImprevue $_.Exception }
+    try { if (((Get-Date) - $script:DernieresPublications).TotalHours -ge 1) { Invoke-Actualiser } } catch { Write-ErreurImprevue $_.Exception }
     try { Invoke-MajAuto } catch { Write-Log "Mise à jour automatique : $_" }
+    try { Watch-ThemeSuite } catch { Write-ErreurImprevue $_.Exception }
+})
+$script:EtatTimer.Start()
+function Watch-ThemeSuite {
     # Thème de la suite changé ailleurs : Mindset le prend aussi (sauf pendant une opération). Comparé au thème choisi
     # (« pack:dofus »), pas à ses couleurs (« pack-dofus ») ; et jamais deux relances pour le même thème en une minute,
     # pour qu'un thème qui ne se charge pas ne fasse pas tourner Mindset en boucle.
@@ -541,5 +546,4 @@ $script:EtatTimer.Add_Tick({
             Restart-Mindset
         }
     }
-})
-$script:EtatTimer.Start()
+}

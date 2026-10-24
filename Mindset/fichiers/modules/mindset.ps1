@@ -82,10 +82,11 @@ function Copy-ReglageVerif([string]$Dossier) {
     if ($f -ieq $SettingsFile) { return }
     try {
         $r = [ordered]@{}
-        if (Test-Path -LiteralPath $f) { $j = [IO.File]::ReadAllText($f, [Text.Encoding]::UTF8) | ConvertFrom-Json; foreach ($p in $j.PSObject.Properties) { $r[$p.Name] = $p.Value } }
+        $j = Read-JsonSur $f   # (illisible : une erreur, rien n'est écrit par-dessus ses réglages)
+        if ($null -ne $j) { foreach ($p in $j.PSObject.Properties) { $r[$p.Name] = $p.Value } }
         $r['VerifVersions'] = $false
         New-Item -ItemType Directory -Force -Path (Split-Path $f) | Out-Null
-        [IO.File]::WriteAllText($f, ($r | ConvertTo-Json -Depth 5), (New-Object Text.UTF8Encoding $false))
+        Save-JsonSur $f ($r | ConvertTo-Json -Depth 5)
     } catch { Write-Log "Réglage « Chercher les nouvelles versions » non repris dans $f : $_" }
 }
 
@@ -475,16 +476,13 @@ function ConvertTo-EntreeMaj($X) {
 function Read-HistoriqueMaj {
     if ($null -ne $script:HistoriqueMaj) { return $script:HistoriqueMaj }
     $h = @{ Liste = @(); Attendue = $null }
-    if (Test-Path -LiteralPath $FichierHistoriqueMaj) {
-        try {
-            $j = [IO.File]::ReadAllText($FichierHistoriqueMaj, [Text.Encoding]::UTF8) | ConvertFrom-Json -ErrorAction Stop
-            if ($j -isnot [System.Management.Automation.PSCustomObject]) { throw 'ce n''est pas un historique' }
-            $h.Liste = @(@($j.historique) | ForEach-Object { ConvertTo-EntreeMaj $_ } | Where-Object { $_ } | Select-Object -First $HistoriqueMajMax)
-            if ($j.mindsetAttendu) { $h.Attendue = ConvertTo-EntreeMaj $j.mindsetAttendu }
-        } catch {
-            Write-Log "Historique des mises à jour illisible, mis de côté ($($_.Exception.Message))"
-            if (-not $EnTest -or $env:MINDSET_DONNEES) { try { Move-Item -LiteralPath $FichierHistoriqueMaj -Destination "$FichierHistoriqueMaj.abime" -Force -ErrorAction Stop } catch {} }
-        }
+    # (abîmé : mis de côté et repris de sa copie, voir Read-JsonSur ; pris par un autre programme : relu la prochaine fois,
+    # et rien n'est écrit d'ici là, pour ne pas remplacer l'historique par une liste vide)
+    try { $j = Read-JsonSur $FichierHistoriqueMaj }
+    catch { Write-Log "Historique des mises à jour : $($_.Exception.Message)"; $h.Illisible = $true; return $h }
+    if ($null -ne $j) {
+        $h.Liste = @(@($j.historique) | ForEach-Object { ConvertTo-EntreeMaj $_ } | Where-Object { $_ } | Select-Object -First $HistoriqueMajMax)
+        if ($j.mindsetAttendu) { $h.Attendue = ConvertTo-EntreeMaj $j.mindsetAttendu }
     }
     $script:HistoriqueMaj = $h
     $h
@@ -493,15 +491,10 @@ function Read-HistoriqueMaj {
 function Save-HistoriqueMaj {
     $h = Read-HistoriqueMaj
     if ($EnTest -and -not $env:MINDSET_DONNEES) { return }   # (test sans dossier à part : rien n'est écrit)
+    if ($h.Illisible) { Write-Log 'Historique des mises à jour non enregistré : il n''a pas pu être lu'; return }
     $texte = ConvertTo-Json -InputObject ([ordered]@{ historique = @($h.Liste); mindsetAttendu = $h.Attendue }) -Depth 4
-    $tmp = "$FichierHistoriqueMaj.tmp"
-    try {
-        [IO.File]::WriteAllText($tmp, $texte, (New-Object Text.UTF8Encoding $false))
-        if (Test-Path -LiteralPath $FichierHistoriqueMaj) { [IO.File]::Replace($tmp, $FichierHistoriqueMaj, [NullString]::Value) } else { [IO.File]::Move($tmp, $FichierHistoriqueMaj) }
-    } catch {
-        Write-Log "Historique des mises à jour non enregistré : $($_.Exception.Message)"
-        Remove-Item -LiteralPath $tmp -Force -ErrorAction SilentlyContinue
-    }
+    try { Save-JsonSur $FichierHistoriqueMaj $texte }
+    catch { Write-Log "Historique des mises à jour non enregistré : $($_.Exception.Message)" }
 }
 
 function Add-HistoriqueMaj([string]$Id, [string]$Nom, [string]$Version, [bool]$Auto, [string]$Notes) {
