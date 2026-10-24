@@ -20,7 +20,7 @@ param([string]$Fichiers)
 $ErrorActionPreference = 'Stop'
 $racine = Split-Path $PSScriptRoot -Parent
 $fichiers = if ($Fichiers) { (Resolve-Path -LiteralPath $Fichiers).Path } else { Join-Path $racine 'Mindset\fichiers' }
-Add-Type -AssemblyName System.IO.Compression, System.IO.Compression.FileSystem
+Add-Type -AssemblyName System.IO.Compression, System.IO.Compression.FileSystem, System.Windows.Forms   # (Forms : les bulles près de l'horloge, comme dans Mindset.ps1 ; sur GitHub, rien ne le charge avant)
 
 $script:Reussis = 0
 $script:Echoues = @()
