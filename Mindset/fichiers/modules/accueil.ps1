@@ -503,7 +503,7 @@ function Update-InfoActualiser {
                               elseif (-not $auto) { 'Recherche automatique coupée' } else { '' }
 }
 function Invoke-Actualiser([switch]$Clic) {
-    if ($env:MINDSET_SANS_RESEAU) { return }
+    if ($EnTest -and $env:MINDSET_SANS_RESEAU) { return }   # (test seulement)
     if (-not $Clic -and (-not (Test-VerifVersionsActive) -or $script:AttenteBienvenue)) { return }
     if ($Clic -and ((Get-Date) - $script:DernieresPublications).TotalSeconds -lt 20) { return }   # (clics répétés)
     $script:DernieresPublications = Get-Date

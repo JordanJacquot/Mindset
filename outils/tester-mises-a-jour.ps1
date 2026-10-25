@@ -485,6 +485,14 @@ static class Essai {
         $m = Get-Maj
         Test-Cas 'Une mise à jour faite par l''utilisateur : notée (Evermind 0.15.0, pas automatique, ses nouveautés)' { $h.Count -eq 1 -and $h[0].id -eq 'evermind' -and $h[0].version -eq '0.15.0' -and -not $h[0].auto -and $h[0].notes -match '0\.15\.0' }
         Test-Cas '... et la carte la garde : « Evermind 0.15.0 mis à jour à HH h MM »' { $m.phase -eq 'ajour' -and $m.fait.id -eq 'evermind' -and -not $m.fait.auto -and $m.fait.quand -match '^à \d\d h \d\d$' -and $m.fait.notes }
+        # Le message de fin de la carte garde ce qui a été fait ici (raccourcis retirés...), sans les nouveautés de GitHub
+        Reset-Maj; Set-Pub 'evermind' '0.15.0'; $script:Publications['evermind'].Notes = '- Nouveautés ' + ('x' * 3990)
+        function Remove-Doublons { 'Ancien raccourci retiré (test).' }
+        Start-InstallAppli $evermind
+        function Remove-Doublons { '' }
+        $fin = [string]$script:Fins['evermind'].Message
+        Test-Cas 'Mise à jour : le message de la carte garde « raccourci retiré », et pas les 4000 caractères des nouveautés' { $fin -match 'est installé' -and $fin.Contains('Ancien raccourci retiré (test).') -and $fin -notmatch 'Nouveautés' -and $fin.Length -lt 200 }
+        Test-Cas '... les nouveautés vont toujours dans l''historique' { @((Read-HistoriqueMaj).Liste)[0].notes -match '^- Nouveautés' }
         Reset-Maj; Set-Pub 'evermind' '0.15.0'; $script:Installs.Remove('mindcare')
         Start-InstallAppli $mindcare
         Test-Cas 'Une première installation (rien avant) n''est pas une mise à jour : rien dans l''historique' { -not @((Read-HistoriqueMaj).Liste | Where-Object { $_.id -eq 'mindcare' }).Count }

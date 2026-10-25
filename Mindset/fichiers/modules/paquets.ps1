@@ -62,23 +62,48 @@ function Get-NotesPage([string]$Depot, [string]$Version) {
     $notes
 }
 
+# Les seules adresses d'où Mindset télécharge : GitHub et ses serveurs de fichiers (vérifié aussi après chaque redirection)
+function Test-AdresseTelechargement([string]$Url) {
+    $Url -match '^https://(github\.com|objects\.githubusercontent\.com|release-assets\.githubusercontent\.com)/'
+}
+
 # $Progres (facultatif, une table partagée avec Mindset) : Recu et Total en octets, mis à jour pendant le téléchargement
 # (la barre de progression de la console)
-function Get-Octets([string]$Url, $Progres = $null) {
-    if ($Url -notmatch '^https://(github\.com|objects\.githubusercontent\.com|release-assets\.githubusercontent\.com)/') { throw "Adresse de téléchargement refusée : $Url" }
+# Au plus $MaxOctets (200 Mo : le zip d'une appli en fait quelques-uns) et $DelaiSecondes en tout (10 minutes) : un
+# fichier énorme ou un réseau qui traîne s'arrêtent avec un message, au lieu de laisser la carte sur « Téléchargement... ».
+# Les redirections (GitHub renvoie vers son serveur de fichiers) sont suivies ici, 5 au plus, et chaque adresse est revérifiée.
+function Get-Octets([string]$Url, $Progres = $null, [long]$MaxOctets = 200MB, [int]$DelaiSecondes = 600) {
+    if (-not (Test-AdresseTelechargement $Url)) { throw "Adresse de téléchargement refusée : $Url" }
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-    if (-not $Progres) {
-        $wc = New-Object Net.WebClient
-        $wc.Headers['User-Agent'] = 'Mindset'
-        try { return , $wc.DownloadData($Url) } finally { $wc.Dispose() }
+    $limite = (Get-Date).AddSeconds($DelaiSecondes)
+    $trop = "Le fichier téléchargé est trop gros (plus de $([math]::Round($MaxOctets / 1MB)) Mo) : rien n'a été installé."
+    $lent = "Le téléchargement a pris plus de $([math]::Round($DelaiSecondes / 60, 1)) minutes : la connexion est peut-être trop lente, réessaie plus tard."
+    for ($saut = 0; ; $saut++) {
+        $req = [Net.HttpWebRequest]::Create($Url)
+        $req.UserAgent = 'Mindset'; $req.AllowAutoRedirect = $false
+        $req.Timeout = 30000; $req.ReadWriteTimeout = 30000
+        $rep = $req.GetResponse()
+        $code = [int]$rep.StatusCode
+        if ($code -in 301, 302, 303, 307, 308) {
+            $vers = [string]$rep.Headers['Location']; $rep.Dispose()
+            if ($saut -ge 5 -or -not $vers) { throw 'Le téléchargement renvoie d''adresse en adresse : rien n''a été installé.' }
+            $Url = (New-Object Uri ([Uri]$Url), $vers).AbsoluteUri
+            if (-not (Test-AdresseTelechargement $Url)) { throw "Adresse de téléchargement refusée : $Url" }
+            if ((Get-Date) -gt $limite) { throw $lent }
+            continue
+        }
+        break
     }
-    $req = [Net.HttpWebRequest]::Create($Url)
-    $req.UserAgent = 'Mindset'; $req.AllowAutoRedirect = $true
-    $rep = $req.GetResponse()
     try {
-        if ($rep.ContentLength -gt 0) { $Progres.Total = $rep.ContentLength }
+        if ($rep.ContentLength -gt $MaxOctets) { throw $trop }
+        if ($Progres -and $rep.ContentLength -gt 0) { $Progres.Total = $rep.ContentLength }
         $flux = $rep.GetResponseStream(); $ms = New-Object IO.MemoryStream; $morceau = New-Object byte[] 65536
-        while (($n = $flux.Read($morceau, 0, $morceau.Length)) -gt 0) { $ms.Write($morceau, 0, $n); $Progres.Recu += $n }
+        while (($n = $flux.Read($morceau, 0, $morceau.Length)) -gt 0) {
+            $ms.Write($morceau, 0, $n)
+            if ($Progres) { $Progres.Recu += $n }
+            if ($ms.Length -gt $MaxOctets) { throw $trop }
+            if ((Get-Date) -gt $limite) { throw $lent }
+        }
         , $ms.ToArray()
     } finally { $rep.Dispose() }
 }
@@ -155,8 +180,13 @@ function Install-Paquet([byte[]]$Zip, [byte[]]$Signature, [string]$ClePublique, 
     }
     # Jamais de retour en arrière : une version plus ancienne que celle installée est refusée, même signée (un
     # programme pourrait sinon faire réinstaller une vieille version et ses défauts). La même version reste permise.
+    # Un zip dont on ne peut pas lire la version est refusé aussi : on ne saurait pas dire s'il est plus ancien.
     $nouvelle = Get-VersionDossier $tmp; $installee = Get-VersionDossier $Destination
-    if ($nouvelle -and $installee -and (Test-VersionPlusRecente $installee $nouvelle)) {
+    if (-not $nouvelle) {
+        try { Remove-Item -LiteralPath $tmp -Recurse -Force } catch {}
+        throw 'Le fichier téléchargé ne dit pas quelle version il contient : rien n''a été installé.'
+    }
+    if ($installee -and (Test-VersionPlusRecente $installee $nouvelle)) {
         try { Remove-Item -LiteralPath $tmp -Recurse -Force } catch {}
         throw "Version $nouvelle refusée : la version $installee, plus récente, est déjà installée."
     }

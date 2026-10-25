@@ -301,6 +301,15 @@ try {
     Test-Cas 'rétrogradation d''un seul chiffre (2.0.0 sur 2.0.1) refusée' {
         (Test-Refus { Install-Test (New-ZipAppli '2.0.0') } 'refusée') -and ((Get-VersionInstallee) -eq '2.0.1')
     }
+    Test-Cas 'zip signé sans version lisible (pas de $AppVersion) refusé, version installée intacte' {
+        $z = New-ZipTest ([ordered]@{ 'Appli/Appli.exe' = 'x'; 'Appli/fichiers/Appli.ps1' = '# pas de version ici' })
+        (Test-Refus { Install-Test $z } 'quelle version') -and ((Get-VersionInstallee) -eq '2.0.1') -and (Test-SansReste)
+    }
+    Test-Cas 'zip signé sans version lisible refusé aussi en première installation (rien de créé)' {
+        $dest4 = Join-Path $tmp 'SansVersion\Appli'
+        $z = New-ZipTest ([ordered]@{ 'Appli/Appli.exe' = 'x'; 'Appli/fichiers/Appli.ps1' = "`$AppVersion = 'deux'" })
+        (Test-Refus { Install-Paquet -Zip $z -Signature (Get-SignatureTest $z $cle.Privee) -ClePublique $fPublique -Destination $dest4 -DossierZip 'Appli' -Exe 'Appli.exe' } 'quelle version') -and -not (Test-Path -LiteralPath $dest4)
+    }
     Test-Cas 'même version (2.0.1) acceptée (réinstallation)' {
         $null = Install-Test (New-ZipAppli '2.0.1' ([ordered]@{ 'Appli/reinstalle.txt' = 'oui' }))
         ((Get-VersionInstallee) -eq '2.0.1') -and (Test-Path -LiteralPath (Join-Path $dest 'reinstalle.txt')) -and (Test-SansReste)
@@ -453,6 +462,69 @@ public static class BloqueurTest {
         }
         $ok
     }
+
+    # Get-Octets face à un faux serveur, sur ce PC seulement (localhost, port choisi par Windows) : plafond de taille,
+    # délai global, redirections revérifiées. Pour ces cas seulement, l'adresse acceptée est celle du faux serveur.
+    $ecoute = New-Object Net.Sockets.TcpListener([Net.IPAddress]::Loopback, 0); $ecoute.Start()
+    $port = $ecoute.LocalEndpoint.Port
+    $serveur = [PowerShell]::Create()
+    $null = $serveur.AddScript({
+        param($Ecoute, $Port)
+        while ($true) {
+            try { $client = $Ecoute.AcceptTcpClient() } catch { return }
+            try {
+                $flux = $client.GetStream(); $lire = New-Object IO.StreamReader($flux, [Text.Encoding]::ASCII, $false, 1024, $true)
+                $chemin = ($lire.ReadLine() -split ' ')[1]
+                while ($lire.ReadLine()) {}
+                function Send-Texte([string]$T) { $o = [Text.Encoding]::ASCII.GetBytes($T); $flux.Write($o, 0, $o.Length); $flux.Flush() }
+                $corps = 'x' * 3000
+                switch ($chemin) {
+                    '/ok'      { Send-Texte "HTTP/1.1 200 OK`r`nContent-Length: 7`r`nConnection: close`r`n`r`nbonjour" }
+                    '/gros'    { Send-Texte "HTTP/1.1 200 OK`r`nContent-Length: 3000`r`nConnection: close`r`n`r`n$corps" }
+                    '/sanslong' { Send-Texte "HTTP/1.1 200 OK`r`nConnection: close`r`n`r`n$corps" }
+                    '/lent'    { Send-Texte "HTTP/1.1 200 OK`r`nContent-Length: 20`r`nConnection: close`r`n`r`n"; for ($i = 0; $i -lt 20; $i++) { Send-Texte 'x'; Start-Sleep -Milliseconds 250 } }
+                    '/saut'    { Send-Texte "HTTP/1.1 302 Found`r`nLocation: http://localhost:$Port/ok`r`nContent-Length: 0`r`nConnection: close`r`n`r`n" }
+                    '/relatif' { Send-Texte "HTTP/1.1 301 Moved`r`nLocation: /ok`r`nContent-Length: 0`r`nConnection: close`r`n`r`n" }
+                    '/dehors'  { Send-Texte "HTTP/1.1 302 Found`r`nLocation: https://exemple.com/piege.zip`r`nContent-Length: 0`r`nConnection: close`r`n`r`n" }
+                    '/boucle'  { Send-Texte "HTTP/1.1 302 Found`r`nLocation: /boucle`r`nContent-Length: 0`r`nConnection: close`r`n`r`n" }
+                    default    { Send-Texte "HTTP/1.1 404 Not Found`r`nContent-Length: 0`r`nConnection: close`r`n`r`n" }
+                }
+            } catch {} finally { $client.Close() }
+        }
+    }).AddArgument($ecoute).AddArgument($port)
+    $null = $serveur.BeginInvoke()
+    $proxyAvant = [Net.WebRequest]::DefaultWebProxy; [Net.WebRequest]::DefaultWebProxy = $null
+    $local = "http://localhost:$port"
+    $adresseVraie = ${function:Test-AdresseTelechargement}
+    function Test-AdresseTelechargement([string]$Url) { $Url -match "^http://localhost:$port/" }
+    try {
+        Test-Cas 'faux serveur : un petit fichier est bien téléchargé (le faux marche)' { [Text.Encoding]::ASCII.GetString((Get-Octets "$local/ok")) -eq 'bonjour' }
+        Test-Cas 'téléchargement : une redirection vers une adresse acceptée est suivie (complète ou relative)' {
+            $p = @{ Recu = 0; Total = 0 }
+            ([Text.Encoding]::ASCII.GetString((Get-Octets "$local/saut" $p)) -eq 'bonjour') -and $p.Recu -eq 7 -and ([Text.Encoding]::ASCII.GetString((Get-Octets "$local/relatif")) -eq 'bonjour')
+        }
+        Test-Cas 'téléchargement : une redirection vers une adresse hors de GitHub est refusée (revérifiée à chaque saut)' { Test-Refus { Get-Octets "$local/dehors" } 'Adresse de téléchargement refusée : https://exemple.com/piege.zip' }
+        Test-Cas 'téléchargement : une redirection sans fin s''arrête' { Test-Refus { Get-Octets "$local/boucle" } 'adresse en adresse' }
+        Test-Cas 'téléchargement : un fichier annoncé plus gros que le plafond est refusé (avec ou sans barre de progression)' {
+            (Test-Refus { Get-Octets "$local/gros" -MaxOctets 1000 } 'trop gros') -and (Test-Refus { Get-Octets "$local/gros" @{ Recu = 0; Total = 0 } -MaxOctets 1000 } 'trop gros') -and
+                (Get-Octets "$local/gros" -MaxOctets 3000).Length -eq 3000
+        }
+        Test-Cas 'téléchargement : sans taille annoncée, il s''arrête dès que le plafond est dépassé' { Test-Refus { Get-Octets "$local/sanslong" -MaxOctets 1000 } 'trop gros' }
+        Test-Cas 'téléchargement : un serveur qui traîne est abandonné après le délai global (pas après chaque morceau)' {
+            $debut = Get-Date
+            $refus = Test-Refus { Get-Octets "$local/lent" -DelaiSecondes 1 } 'pris plus de'
+            $refus -and ((Get-Date) - $debut).TotalSeconds -lt 4
+        }
+        Test-Cas 'le plafond par défaut est de 200 Mo, et le délai global de 10 minutes' {
+            $d = @{}; foreach ($x in @((Get-Command Get-Octets).ScriptBlock.Ast.Parameters)) { if ($x.DefaultValue) { $d[$x.Name.VariablePath.UserPath] = $x.DefaultValue.SafeGetValue() } }
+            $d['MaxOctets'] -eq 200MB -and $d['DelaiSecondes'] -eq 600
+        }
+    } finally {
+        Set-Item -Path function:Test-AdresseTelechargement -Value $adresseVraie
+        [Net.WebRequest]::DefaultWebProxy = $proxyAvant
+        $ecoute.Stop(); $serveur.Dispose()
+    }
+    Test-Cas 'téléchargement : l''adresse de GitHub est de nouveau la seule acceptée après ces cas' { -not (Test-AdresseTelechargement "$local/ok") -and (Test-AdresseTelechargement 'https://github.com/a/b.zip') }
     Test-Cas 'comparaison de versions : illisible = pas plus récente' {
         (Test-VersionPlusRecente '2.0.1' '2.0.0') -and -not (Test-VersionPlusRecente '2.0.0' '2.0.0') -and
         -not (Test-VersionPlusRecente 'abc' '1.0.0') -and -not (Test-VersionPlusRecente '' '1.0.0') -and -not (Test-VersionPlusRecente '1.0.0' '1.0.1')
@@ -606,7 +678,49 @@ public static class BloqueurTest {
             $Window.IsVisible = $true
             $script:AppelsReseau.Count -eq 0
         }
+        # Les réglages de test passent par des variables d'environnement : hors test, elles ne comptent pas
+        Test-Cas 'MINDSET_SANS_RESEAU hors test (sans MINDSET_TEST) : ignorée, la recherche se fait quand même' {
+            Reset-EtatActualiser @{}
+            $env:MINDSET_SANS_RESEAU = '1'
+            try { Invoke-Actualiser } finally { $env:MINDSET_SANS_RESEAU = $null }
+            ($script:AppelsReseau -join ',') -eq 'Update-Publications,Start-VerifMajMindset'
+        }
+        Test-Cas 'MINDSET_SANS_RESEAU en test (MINDSET_TEST) : aucune recherche' {
+            Reset-EtatActualiser @{}
+            $EnTest = $true; $env:MINDSET_SANS_RESEAU = '1'
+            try { Invoke-Actualiser } finally { $env:MINDSET_SANS_RESEAU = $null; $EnTest = $false }
+            $script:AppelsReseau.Count -eq 0
+        }
     } finally { $env:MINDSET_SANS_RESEAU = $sansReseau }
+
+    # MINDSET_CAPTURE (capture puis fermeture), MINDSET_SANS_RESEAU et MINDSET_CONSOLE_DEV (outils de développement de la
+    # console) : chaque lecture, hors de Start-Capture qui n'est appelée qu'ainsi, est gardée par « $EnTest -and ... »
+    $astsGardes = @{ 'Mindset.ps1 (script principal)' = [System.Management.Automation.Language.Parser]::ParseInput([IO.File]::ReadAllText((Join-Path $fichiers 'Mindset.ps1'), [Text.Encoding]::UTF8), [ref]$null, [ref]$null) }
+    foreach ($k in $asts.Keys) { $astsGardes[$k] = $asts[$k] }
+    foreach ($nomVar in 'MINDSET_CAPTURE', 'MINDSET_SANS_RESEAU', 'MINDSET_CONSOLE_DEV') {
+        Test-Cas "$nomVar ne compte qu'en test (gardée par `$EnTest partout où elle est lue)" {
+            $lues = 0; $libres = @()
+            foreach ($k in $astsGardes.Keys) {
+                foreach ($v in @($astsGardes[$k].FindAll({ param($n) $n -is [System.Management.Automation.Language.VariableExpressionAst] -and $n.VariablePath.UserPath -eq "env:$nomVar" }, $true))) {
+                    $p = $v.Parent; $garde = $false; $fonction = ''
+                    while ($p) {
+                        if ($p -is [System.Management.Automation.Language.BinaryExpressionAst] -and $p.Operator -eq 'And' -and $p.Left.Extent.Text -eq '$EnTest') { $garde = $true }
+                        # (ou dans le bloc d'un « if ($EnTest -and ...) { ... } »)
+                        if ($p -is [System.Management.Automation.Language.StatementBlockAst] -and $p.Parent -is [System.Management.Automation.Language.IfStatementAst]) {
+                            foreach ($cl in $p.Parent.Clauses) { if ($cl.Item2 -eq $p -and $cl.Item1.Extent.Text -match '^\$EnTest\s+-and\s') { $garde = $true } }
+                        }
+                        if ($p -is [System.Management.Automation.Language.FunctionDefinitionAst] -and -not $fonction) { $fonction = $p.Name }
+                        $p = $p.Parent
+                    }
+                    if ($fonction -eq 'Start-Capture') { continue }
+                    $lues++
+                    if (-not $garde) { $libres += "$k ligne $($v.Extent.StartLineNumber)" }
+                }
+            }
+            if ($libres.Count) { Write-Host "         lue sans garde : $($libres -join ', ')" -ForegroundColor Yellow }
+            $lues -gt 0 -and $libres.Count -eq 0
+        }
+    }
 
     # Qui appelle quoi : les fonctions qui vont sur GitHub ne sont appelées que d'endroits connus. Une recherche ajoutée
     # ailleurs (une nouvelle minuterie, par exemple) passerait à côté du réglage : ce cas la signale.

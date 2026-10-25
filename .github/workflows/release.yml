@@ -6,8 +6,11 @@
 #   2. « signer » : seulement quand la variable SIGNPATH_ACTIVE vaut true (Settings > Secrets and variables >
 #      Actions > Variables). Envoie l'artefact à SignPath, attend l'approbation manuelle de Jordan dans SignPath,
 #      vérifie les signatures, puis dépose Mindset.zip (signé) comme artefact.
-#   3. Sur le PC de Jordan : outils\publier.ps1 récupère ce Mindset.zip, fait sa signature RSA (Mindset.zip.sig,
-#      clé privée qui ne quitte jamais le PC) et crée la Release. Ce workflow ne publie rien.
+#   3. Ce workflow ne publie rien. Aujourd'hui, outils\publier.ps1 publie le Mindset.zip construit sur le PC de Jordan
+#      (release\Mindset.zip), avec sa signature RSA (Mindset.zip.sig, clé privée qui ne quitte jamais le PC) : il ne
+#      récupère PAS l'artefact de ce workflow, et les exe publiés ne sont donc pas signés Authenticode. Le jour où
+#      SignPath sera actif, publier.ps1 devra télécharger le Mindset.zip signé ici avant de faire sa signature RSA
+#      (voir CODE_SIGNING.md).
 #
 # Rien ici n'utilise la clé RSA de la suite : elle ne doit jamais aller sur GitHub.
 name: Release

@@ -480,8 +480,9 @@ function Complete-Installation($Appli, [string]$Dossier) {
     # Une mise à jour (une version plus récente que celle d'avant) : notée dans l'historique, automatique ou non, avec ses nouveautés
     if ($c -and $c.Avant -and (Test-VersionPlusRecente ([string]$c.Version) $c.Avant)) {
         $pub = if ($script:Publications) { $script:Publications[$Appli.Id] }
-        $notes = if ($pub -and [string]$pub.Version -eq [string]$c.Version) { [string]$pub.Notes } else { '' }
-        Add-HistoriqueMaj $Appli.Id $Appli.Nom ([string]$c.Version) ([bool]($script:MajAuto -and $script:MajAuto[$Appli.Id])) $notes
+        # (ses nouveautés vont dans l'historique seulement : le message de la carte garde $notes, ce qui a été fait ici)
+        $notesVersion = if ($pub -and [string]$pub.Version -eq [string]$c.Version) { [string]$pub.Notes } else { '' }
+        Add-HistoriqueMaj $Appli.Id $Appli.Nom ([string]$c.Version) ([bool]($script:MajAuto -and $script:MajAuto[$Appli.Id])) $notesVersion
     }
     # Elle se lançait avec Windows (ou c'est une appli de rappels) : elle s'ouvre maintenant avec Mindset, et tout de
     # suite, en arrière-plan (sans attendre le prochain démarrage du PC)

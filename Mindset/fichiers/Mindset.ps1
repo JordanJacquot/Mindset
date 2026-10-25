@@ -137,7 +137,7 @@ if ($EnTest -and $env:MINDSET_TEST_SCRIPT -and (Test-Path -LiteralPath $env:MIND
 # Lancement
 # ---------------------------------------------------------------------------
 Write-Log "Démarrage Mindset $AppVersion (PowerShell $($PSVersionTable.PSVersion))$(if ($Demarrage) { ', lancé avec Windows' })"
-if ($env:MINDSET_CAPTURE) { Start-Capture $env:MINDSET_CAPTURE }
+if ($EnTest -and $env:MINDSET_CAPTURE) { Start-Capture $env:MINDSET_CAPTURE }   # (test seulement : capture puis fermeture)
 # Lancé avec Windows : il démarre les applis en arrière-plan et reste caché près de l'horloge (zone.ps1)
 if ($Demarrage) { Start-Demarrage } else { $Window.Show(); Open-PageDemandee; Start-Demarrage }
 if ($Desinstaller) { Show-Page 'parametres'; Confirm-DesinstallMindset }

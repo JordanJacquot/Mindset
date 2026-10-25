@@ -99,7 +99,7 @@ function New-VueConsole([string]$VueDepart = 'menu') {
         try {
             $c = $s.CoreWebView2
             $r = $c.Settings
-            $r.AreDevToolsEnabled = [bool]$env:MINDSET_CONSOLE_DEV; $r.AreDefaultContextMenusEnabled = $false; $r.IsZoomControlEnabled = $false
+            $r.AreDevToolsEnabled = [bool]($EnTest -and $env:MINDSET_CONSOLE_DEV); $r.AreDefaultContextMenusEnabled = $false; $r.IsZoomControlEnabled = $false
             $r.AreBrowserAcceleratorKeysEnabled = $false; $r.IsStatusBarEnabled = $false; $r.IsPasswordAutosaveEnabled = $false; $r.IsGeneralAutofillEnabled = $false
             $c.SetVirtualHostNameToFolderMapping('mindset.local', $ConsoleDir, [Microsoft.Web.WebView2.Core.CoreWebView2HostResourceAccessKind]::Deny)
             # Les logos tirés des applis installées (dossier de données) : servis par Mindset lui-même, une image PNG au nom
