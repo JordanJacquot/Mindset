@@ -361,6 +361,27 @@ try {
         foreach ($i in 1..250) { $null = New-Action @{ I = $i } { } }
         $script:Actions.Count -eq 200
     }
+    Test-Cas 'aucune fonction définie deux fois dans les modules (la dernière chargée cacherait l''autre)' {
+        $vues = @{}
+        foreach ($f in @(Get-ChildItem -LiteralPath (Join-Path $fichiers 'modules') -Filter '*.ps1' -File)) {
+            $e = $null
+            $a = [System.Management.Automation.Language.Parser]::ParseInput([IO.File]::ReadAllText($f.FullName, [Text.Encoding]::UTF8), [ref]$null, [ref]$e)
+            foreach ($x in @($a.FindAll({ param($n) $n -is [System.Management.Automation.Language.FunctionDefinitionAst] }, $false))) { $vues[$x.Name] = @($vues[$x.Name]) + $f.Name | Where-Object { $_ } }
+        }
+        $doubles = @($vues.Keys | Where-Object { @($vues[$_]).Count -gt 1 } | ForEach-Object { "$_ ($(@($vues[$_]) -join ', '))" })
+        if ($doubles.Count) { $script:Journal.Add("JOURNAL en double : $($doubles -join ' ; ')") }
+        -not $doubles.Count
+    }
+    Test-Cas 'dans l''ordre de chargement de Mindset.ps1, New-Action est la table des valeurs de taches.ps1 (pas le bouton de l''accueil)' {
+        $ordre = if ([IO.File]::ReadAllText((Join-Path $fichiers 'Mindset.ps1'), [Text.Encoding]::UTF8) -match '(?m)^\$msModules = (.+)$') { @([regex]::Matches($Matches[1], "'([a-z]+)'") | ForEach-Object { $_.Groups[1].Value }) } else { @() }
+        $derniere = ''
+        foreach ($m in $ordre) {
+            $e = $null
+            $a = [System.Management.Automation.Language.Parser]::ParseInput([IO.File]::ReadAllText((Join-Path $fichiers "modules\$m.ps1"), [Text.Encoding]::UTF8), [ref]$null, [ref]$e)
+            if (@($a.FindAll({ param($n) $n -is [System.Management.Automation.Language.FunctionDefinitionAst] -and $n.Name -eq 'New-Action' }, $false)).Count) { $derniere = $m }
+        }
+        $ordre.Count -gt 10 -and $derniere -eq 'taches'
+    }
     Test-Cas 'un nom de paramètre qui n''est pas un simple mot : refusé' {
         $refus = $false; try { $null = New-Action @{} { } 'Ok)', 'x' } catch { $refus = $true }; $refus
     }

@@ -129,7 +129,9 @@ function New-Pastille([string]$Texte, [string]$Couleur) {
     $p
 }
 
-function New-Action([string]$Texte, [string]$Style, [string]$Id, [scriptblock]$Clic) {
+# (pas « New-Action » : c'est la table des valeurs de taches.ps1, chargé avant ce fichier ; le même nom ici la
+# remplaçait, et tout le code appelé plus tard, fin d'une installation ou d'une recherche de version, plantait)
+function New-BoutonAction([string]$Texte, [string]$Style, [string]$Id, [scriptblock]$Clic) {
     $b = New-Button $Texte $Style
     $b.Tag = $Id; $b.Margin = '0,0,8,0'
     $b.Add_Click($Clic)
@@ -348,23 +350,23 @@ function Update-Carte($Appli) {
     if ($e.Occupe) {
         [void]$sp.Children.Add((New-Text $e.Occupe 13 '#00E5FF'))
     } elseif (-not $e.Inst -and $e.Trouvee) {
-        [void]$actions.Children.Add((New-Action 'Prendre en charge' 'BtnPrimary' $Appli.Id { Confirm-PriseEnCharge (Get-Appli $this.Tag) }))
+        [void]$actions.Children.Add((New-BoutonAction 'Prendre en charge' 'BtnPrimary' $Appli.Id { Confirm-PriseEnCharge (Get-Appli $this.Tag) }))
         # Hors de Mindset, les applis ne s'ouvrent plus : seule une copie de travail (Git) peut servir telle quelle
         if (Test-DossierTravail $e.Trouvee) {
-            [void]$actions.Children.Add((New-Action 'Utiliser telle quelle' 'BtnSecondary' $Appli.Id { $a = Get-Appli $this.Tag; Use-InstallationTrouvee $a $script:Trouvees[$a.Id] }))
+            [void]$actions.Children.Add((New-BoutonAction 'Utiliser telle quelle' 'BtnSecondary' $Appli.Id { $a = Get-Appli $this.Tag; Use-InstallationTrouvee $a $script:Trouvees[$a.Id] }))
         }
     } elseif (-not $e.Inst) {
-        [void]$actions.Children.Add((New-Action 'Installer' 'BtnPrimary' $Appli.Id { Start-InstallAppli (Get-Appli $this.Tag) }))
+        [void]$actions.Children.Add((New-BoutonAction 'Installer' 'BtnPrimary' $Appli.Id { Start-InstallAppli (Get-Appli $this.Tag) }))
         # Ses données existent mais aucune copie trouvée : elle est peut-être dans un dossier inhabituel
         if (Test-Path -LiteralPath $Appli.Donnees) {
             [void]$sp.Children.Add((New-Text "Tu avais déjà $($Appli.Nom) ? Montre son dossier pour qu'il soit pris en charge (sinon il resterait en double)." 12 '#A9A3C9'))
-            [void]$actions.Children.Add((New-Action 'Choisir son dossier' 'BtnSecondary' $Appli.Id { Select-DossierAppli (Get-Appli $this.Tag) }))
+            [void]$actions.Children.Add((New-BoutonAction 'Choisir son dossier' 'BtnSecondary' $Appli.Id { Select-DossierAppli (Get-Appli $this.Tag) }))
         }
     } else {
-        if ($e.MajDispo) { [void]$actions.Children.Add((New-Action 'Mettre à jour' 'BtnPrimary' $Appli.Id { Confirm-MiseAJour (Get-Appli $this.Tag) })) }
-        [void]$actions.Children.Add((New-Action 'Ouvrir' $(if ($e.MajDispo) { 'BtnSecondary' } else { 'BtnPrimary' }) $Appli.Id { Open-AppliIci $this.Tag }))
-        if ($e.Inst.Gere) { [void]$actions.Children.Add((New-Action 'Désinstaller' 'BtnSecondary' $Appli.Id { Confirm-Desinstallation (Get-Appli $this.Tag) })) }
-        else { [void]$actions.Children.Add((New-Action 'Prendre en charge' 'BtnSecondary' $Appli.Id { $a = Get-Appli $this.Tag; Confirm-PriseEnCharge $a (Get-Installation $a).Dossier })) }
+        if ($e.MajDispo) { [void]$actions.Children.Add((New-BoutonAction 'Mettre à jour' 'BtnPrimary' $Appli.Id { Confirm-MiseAJour (Get-Appli $this.Tag) })) }
+        [void]$actions.Children.Add((New-BoutonAction 'Ouvrir' $(if ($e.MajDispo) { 'BtnSecondary' } else { 'BtnPrimary' }) $Appli.Id { Open-AppliIci $this.Tag }))
+        if ($e.Inst.Gere) { [void]$actions.Children.Add((New-BoutonAction 'Désinstaller' 'BtnSecondary' $Appli.Id { Confirm-Desinstallation (Get-Appli $this.Tag) })) }
+        else { [void]$actions.Children.Add((New-BoutonAction 'Prendre en charge' 'BtnSecondary' $Appli.Id { $a = Get-Appli $this.Tag; Confirm-PriseEnCharge $a (Get-Installation $a).Dossier })) }
     }
     if ($actions.Children.Count) { [void]$sp.Children.Add($actions) }
     # Pas encore installée : ce qui partira sur Internet, avant le clic
