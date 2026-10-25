@@ -585,6 +585,7 @@ function Test-Cas4 {
     Test-Cas 'sans boucle : au plus une relance (bascule de l''Explorateur administrateur), plus rien de nouveau ensuite' {
         $vus.Count -le 2 -and @($lignes | Where-Object { $_ -match "Démarrage Mindset $([regex]::Escape($VersionMaj))" }).Count -le 2
     }
+    Test-Cas 'Mindset relancé sans erreur imprévue (journal)' { $lignes.Count -and -not @($lignes | Where-Object { $_ -match 'Erreur imprévue' }).Count }
     foreach ($p in @(Get-ProgrammesDans $MindsetC)) { try { Stop-Process -Id $p.Id -Force } catch {} }
 }
 
@@ -785,15 +786,15 @@ function Test-Cas10 {
     }
     $systeme32 = [Environment]::GetFolderPath('System') + '\WindowsPowerShell\v1.0\Modules'
     foreach ($x in @(@('SYSTEM', $sa), @('Élodie', $ua))) { foreach ($m in $x[1].Modules) { Write-Host "         | module chargé ($($x[0])) : $m" -ForegroundColor DarkGray } }
-    $pshome32 = [Environment]::GetFolderPath('System') + '\WindowsPowerShell\v1.0\'
+    $windows = [Environment]::GetFolderPath('Windows') + '\'   # (System32, et le GAC pour CimCmdlets)
     Test-Cas 'contre-épreuve : un programme lancé sous le compte d''Élodie voit sa variable témoin et son dossier de modules' {
         $ud.Compte -eq $e.Sid -and $ud.Vars['MINDSET_TEMOIN_ENV'] -eq '1' -and $ud.PSModulePath -like "*$marque*"
     }
     Test-Cas 'la tâche SYSTEM (copie de test) ne voit ni la variable témoin ni le dossier de modules d''Élodie' {
         $sd.Compte -eq 'S-1-5-18' -and -not $sd.Vars.ContainsKey('MINDSET_TEMOIN_ENV') -and $sd.PSModulePath -and $sd.PSModulePath -notlike "*$marque*" -and -not @($sd.Vars.Values | Where-Object { $_ -like "*$NomElodie*" }).Count
     }
-    Test-Cas 'après son début, l''installateur ne charge que les modules de Windows (System32), en SYSTEM comme sous le compte d''Élodie' {
-        $sa.PSModulePath -eq $systeme32 -and $ua.PSModulePath -eq $systeme32 -and $sa.Modules.Count -and -not @(@($sa.Modules) + @($ua.Modules) | Where-Object { $_ -and -not $_.StartsWith($pshome32, [StringComparison]::OrdinalIgnoreCase) }).Count
+    Test-Cas 'après son début, l''installateur ne charge que les modules de Windows (dossier Windows), en SYSTEM comme sous le compte d''Élodie' {
+        $sa.PSModulePath -eq $systeme32 -and $ua.PSModulePath -eq $systeme32 -and $sa.Modules.Count -and -not @(@($sa.Modules) + @($ua.Modules) | Where-Object { $_ -and -not $_.StartsWith($windows, [StringComparison]::OrdinalIgnoreCase) }).Count
     }
 }
 
