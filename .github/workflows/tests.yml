@@ -69,3 +69,6 @@ jobs:
 
       - name: "Fenêtre dans l'écran (125 %, 150 %, 1366 x 768), Mindset caché sans processeur, dossier de travail libre, console 3D qui survit à un incident de WebView2 (écrans simulés, Mindset de test hors de l'écran)"
         run: .\outils\tester-fenetre-console.ps1
+
+      - name: "Mindset ouvert en administrateur par un Explorateur administrateur : une seule relance, jamais en boucle (faux Windows)"
+        run: .\outils\tester-bascule-admin.ps1

@@ -53,9 +53,14 @@ if (-not $EnTest -and -not $EstAdmin -and -not $Desinstaller) {
         }
     }
 }
+# Une fois en 2 minutes au plus : si l'Explorateur a lui-même les droits (contrôle de compte coupé, compte Administrateur
+# intégré), il rouvre Mindset en administrateur ; Mindset reste alors ouvert tel quel au lieu de se relancer sans fin.
 if (-not $EnTest -and $EstAdmin -and -not $Desinstaller) {
+    $marqueAdmin = Join-Path $env:TEMP 'mindset-bascule-admin.marque'
+    $recenteAdmin = (Test-Path -LiteralPath $marqueAdmin) -and ((Get-Date) - (Get-Item -LiteralPath $marqueAdmin).LastWriteTime).TotalSeconds -lt 120
     $inscrit = try { [string](Get-ItemProperty 'HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\Mindset' -ErrorAction Stop).InstallLocation } catch { '' }
-    if ($inscrit -and $inscrit -ieq (Split-Path $PSScriptRoot -Parent)) {
+    if (-not $recenteAdmin -and $inscrit -and $inscrit -ieq (Split-Path $PSScriptRoot -Parent)) {
+        try { [IO.File]::WriteAllText($marqueAdmin, '1') } catch {}
         $sid = [Security.Principal.WindowsIdentity]::GetCurrent().User.Value
         $rep = Join-Path $env:TEMP "mindset-taches-$PID.json"
         try {
