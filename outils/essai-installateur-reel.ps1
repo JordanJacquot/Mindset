@@ -643,7 +643,7 @@ function Test-Cas7 {
     # Élodie réinstalle l'appli : seul son programme est fermé, jamais celui de Bruno
     $s = Invoke-Client $e @{ Mode = 'invoke'; Modules = $modules; DataDir = $e.Donnees; Action = 'appli'; Parametres = (Get-DemandeEssai $e.Donnees); Copier = $CopierEssai }
     $apres = @(Get-ProgrammesDans "$ProgrammesC\Essai")
-    Test-Cas 'réinstallation par Élodie : son programme est fermé, celui de Bruno continue (l''installation attend qu''il le ferme)' {
+    Test-Cas 'réinstallation par Élodie : son programme est fermé, celui de Bruno n''est pas touché (il continue sur l''ancienne copie)' {
         -not @($apres | Where-Object { $_.Sid -eq $e.Sid }).Count -and @($apres | Where-Object { $_.Sid -eq $b.Sid -and $_.Id -eq $pb.Id }).Count -eq 1 -and @($s.Fins).Count -eq 1
     }
     $s2 = Invoke-Client $b @{ Mode = 'droits'; Lancer = $true; Modules = $modules; DataDir = $b.Donnees }
@@ -651,7 +651,7 @@ function Test-Cas7 {
     try { Stop-Process -Id $pb.Id -Force } catch {}
     Start-Sleep -Seconds 1
     $s = Invoke-Client $e @{ Mode = 'invoke'; Modules = $modules; DataDir = $e.Donnees; Action = 'appli'; Parametres = (Get-DemandeEssai $e.Donnees); Copier = $CopierEssai }
-    Test-Cas 'Bruno l''a fermée : la réinstallation d''Élodie passe' { @($s.Fins).Count -eq 1 -and $s.Fins[0] -like 'True|*' }
+    Test-Cas 'une fois le programme de Bruno fermé, une nouvelle réinstallation par Élodie passe aussi' { @($s.Fins).Count -eq 1 -and $s.Fins[0] -like 'True|*' }
     foreach ($p in @(Get-ProgrammesDans "$ProgrammesC\Essai")) { try { Stop-Process -Id $p.Id -Force } catch {} }
     try { Stop-Process -Id $pe.Id -Force -ErrorAction SilentlyContinue } catch {}
 }
