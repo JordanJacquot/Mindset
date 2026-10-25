@@ -1,0 +1,24 @@
+# Le vrai téléchargement de Mindset essayé sur la machine jetable de GitHub : les vrais zips publiés des 4 applis, avec
+# les redirections de GitHub, doivent arriver entiers (signature valide). Lancé à la main seulement
+# (gh workflow run telechargement-reel.yml), par exemple avant de publier un changement du téléchargement.
+name: Téléchargement en vrai
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  essai:
+    runs-on: windows-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        shell: powershell
+    steps:
+      - name: Récupérer le dépôt
+        uses: actions/checkout@v4
+
+      - name: "Les vrais zips des 4 applis, téléchargés par le nouveau code, ont une signature valide"
+        run: .\outils\essai-telechargement-reel.ps1
