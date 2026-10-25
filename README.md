@@ -71,8 +71,9 @@ clé privée ou une clé de moins de 3072 bits dans la liste, et tout est refus�
 la liste (`fichiers\cles-publiques`, vérifiée par son `publier.ps1`) pour ses mises à jour autonomes.
 
 Deux clés sont dans la liste :
-- la **clé de tous les jours** (`principale-<date>.xml`) : sa partie privée reste sur le PC, chiffrée pour le compte
-  Windows (`%APPDATA%\Mindset-signature`), avec une copie de secours `.msk` protégée par un mot de passe ;
+- la **clé de tous les jours** (`principale-<date>.xml`) : sa partie privée reste sur le PC (`%APPDATA%\Mindset-signature`),
+  chiffrée par un mot de passe (demandé à chaque signature) puis pour le compte Windows : un programme lancé sous le
+  compte ne peut pas signer sans ce mot de passe. Une copie de secours `.msk` est protégée par son propre mot de passe ;
 - la **clé de secours** (`secours-<date>.xml`, 4096 bits) : sa partie privée n'est jamais sur le PC, seulement dans un
   fichier `.msk` protégé par un mot de passe, sur deux clés USB rangées hors ligne. Elle ne sert qu'à publier un
   changement de clé quand la clé de tous les jours est perdue ou volée.
@@ -83,7 +84,8 @@ Deux clés sont dans la liste :
 .\outils\cle.ps1 -Importer E:\cle.msk      # remet la clé sur un nouveau PC
 .\outils\cle.ps1 -Secours E:\secours.msk   # crée la clé de secours (une fois)
 .\outils\cle.ps1 -Liste                    # montre les clés de la liste
-.\outils\signer.ps1 -Fichier .\Truc.zip    # écrit Truc.zip.sig, à publier avec le zip
+.\outils\cle.ps1 -Convertir                # une fois : la clé d'avant (session Windows seulement) passe sous un mot de passe
+.\outils\signer.ps1 -Fichier .\Truc.zip    # écrit Truc.zip.sig, à publier avec le zip (le mot de passe est demandé)
 ```
 
 Après chaque changement de la liste : copier `Mindset\fichiers\cles-publiques` dans `fichiers\` de chaque appli

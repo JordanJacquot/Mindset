@@ -767,7 +767,7 @@ public static class BloqueurTest {
     Copy-Item -LiteralPath (Join-Path $fichiers 'modules\signature.ps1') -Destination (Join-Path $depot 'Mindset\fichiers\modules')
     $env:APPDATA = Join-Path $tmp 'AppData'
     $clesDepot = Join-Path $depot 'Mindset\fichiers\cles-publiques'
-    $priveeTest = Join-Path $env:APPDATA 'Mindset-signature\cle-privee.bin'
+    $priveeTest = Join-Path $env:APPDATA 'Mindset-signature\cle-privee.mdp'
     $mdpTest = ConvertTo-SecureString 'mot de passe de test 123' -AsPlainText -Force
     $mdpFaux = ConvertTo-SecureString 'pas le bon mot de passe' -AsPlainText -Force
     # Garde-fou : jamais un outil de clé lancé si APPDATA n'est pas dans le dossier de test
@@ -781,12 +781,26 @@ public static class BloqueurTest {
     function Test-SigneParListe { (Test-Path -LiteralPath "$zipSigne.sig") -and (Test-Signature ([IO.File]::ReadAllBytes($zipSigne)) ([IO.File]::ReadAllBytes("$zipSigne.sig")) $clesDepot) }
 
     Test-Cas 'cle.ps1 crée la clé de tous les jours : privée chiffrée sous APPDATA, publique dans la liste' {
-        $null = Invoke-OutilCle 'cle.ps1' @{}
+        $null = Invoke-OutilCle 'cle.ps1' @{ MotDePasse = $mdpTest }
         $l = Get-ListeDepot
         (Test-Path -LiteralPath $priveeTest) -and $l.Count -eq 1 -and $l[0].Name -like 'principale-*.xml' -and
             -not ([IO.File]::ReadAllText($l[0].FullName) -match '<P>|<D>') -and -not ([Text.Encoding]::UTF8.GetString([IO.File]::ReadAllBytes($priveeTest)) -match 'RSAKeyValue')
     }
-    Test-Cas 'cle.ps1 refuse de créer une deuxième clé de tous les jours par dessus la première' { Test-Refus { Invoke-OutilCle 'cle.ps1' @{} } 'existe déjà' }
+    # (audit du 25/10, constat 9 : la session Windows ne suffit plus, il faut le mot de passe)
+    Test-Cas 'clé de tous les jours : déchiffrée par la seule session Windows (DPAPI), elle reste illisible (il faut le mot de passe)' {
+        Add-Type -AssemblyName System.Security
+        $o = [Security.Cryptography.ProtectedData]::Unprotect([IO.File]::ReadAllBytes($priveeTest), $null, 'CurrentUser')
+        ([Text.Encoding]::ASCII.GetString($o, 0, 4) -eq 'MSK1') -and -not ([Text.Encoding]::UTF8.GetString($o) -match 'RSAKeyValue|<D>')
+    }
+    Test-Cas 'cle.ps1 refuse de créer une deuxième clé de tous les jours par dessus la première' { Test-Refus { Invoke-OutilCle 'cle.ps1' @{ MotDePasse = $mdpTest } } 'existe déjà' }
+    Test-Cas 'cle.ps1 refuse un mot de passe trop court pour la clé de tous les jours' {
+        $sauve = "$priveeTest.garde"; Move-Item -LiteralPath $priveeTest -Destination $sauve
+        $court = ConvertTo-SecureString 'court' -AsPlainText -Force
+        $refus = Test-Refus { Invoke-OutilCle 'cle.ps1' @{ MotDePasse = $court } } 'trop court'
+        $rien = -not (Test-Path -LiteralPath $priveeTest) -and (Get-ListeDepot).Count -eq 1
+        Move-Item -LiteralPath $sauve -Destination $priveeTest
+        $refus -and $rien
+    }
     $msk = Join-Path $tmp 'usb\secours.msk'
     New-Item -ItemType Directory -Force -Path (Split-Path $msk -Parent) | Out-Null
     Test-Cas 'cle.ps1 -Secours : clé de secours écrite seulement dans son fichier protégé, sa clé publique dans la liste' {
@@ -805,8 +819,12 @@ public static class BloqueurTest {
         $court = ConvertTo-SecureString 'court' -AsPlainText -Force
         (Test-Refus { Invoke-OutilCle 'cle.ps1' @{ Secours = (Join-Path $tmp 'usb\court.msk'); MotDePasse = $court } } 'trop court') -and -not (Test-Path -LiteralPath (Join-Path $tmp 'usb\court.msk'))
     }
-    Test-Cas 'signer.ps1 signe avec la clé de ce PC, signature acceptée par la liste' {
-        $null = Invoke-OutilCle 'signer.ps1' @{ Fichier = $zipSigne }
+    Test-Cas 'signer.ps1 sans le bon mot de passe : refusé, aucune signature écrite' {
+        Remove-Item -LiteralPath "$zipSigne.sig" -ErrorAction SilentlyContinue
+        (Test-Refus { Invoke-OutilCle 'signer.ps1' @{ Fichier = $zipSigne; MotDePasse = $mdpFaux } } 'Mot de passe incorrect') -and -not (Test-Path -LiteralPath "$zipSigne.sig")
+    }
+    Test-Cas 'signer.ps1 signe avec la clé de ce PC et son mot de passe, signature acceptée par la liste' {
+        $null = Invoke-OutilCle 'signer.ps1' @{ Fichier = $zipSigne; MotDePasse = $mdpTest }
         Test-SigneParListe
     }
     Test-Cas 'signer.ps1 -Secours signe avec la clé de secours, signature acceptée par la liste' {
@@ -821,7 +839,7 @@ public static class BloqueurTest {
         Remove-Item -LiteralPath "$zipSigne.sig"
         (Test-Refus { Invoke-OutilCle 'signer.ps1' @{ Fichier = $zipSigne; Secours = $msk; MotDePasse = $mdpFaux } } 'Mot de passe incorrect') -and -not (Test-Path -LiteralPath "$zipSigne.sig")
     }
-    Test-Cas 'cle.ps1 -Liste montre les deux clés et celle de ce PC' {
+    Test-Cas 'cle.ps1 -Liste montre les deux clés et celle de ce PC (sans demander le mot de passe)' {
         $t = (Invoke-OutilCle 'cle.ps1' @{ Liste = $true }) -join "`n"
         ($t -match 'principale-.*3072 bits, la clé de ce PC') -and ($t -match 'secours-.*4096 bits')
     }
@@ -829,16 +847,20 @@ public static class BloqueurTest {
         $n = @(Get-ListeDepot | Where-Object { $_.Name -like 'principale-*' })[0].Name
         (Test-Refus { Invoke-OutilCle 'cle.ps1' @{ Retirer = $n } } 'clé de ce PC') -and (Get-ListeDepot).Count -eq 2
     }
-    Test-Cas 'cle.ps1 -Nouvelle (étape 1) : la clé suivante entre dans la liste, ce PC signe encore avec l''ancienne' {
-        $null = Invoke-OutilCle 'cle.ps1' @{ Nouvelle = $true }
-        $null = Invoke-OutilCle 'signer.ps1' @{ Fichier = $zipSigne }
-        $script:AncienneSig = [IO.File]::ReadAllBytes("$zipSigne.sig")
-        (Get-ListeDepot).Count -eq 3 -and (Test-Path -LiteralPath (Join-Path $env:APPDATA 'Mindset-signature\cle-privee-suivante.bin')) -and (Test-SigneParListe)
+    Test-Cas 'cle.ps1 -Nouvelle avec un faux mot de passe : refusé, aucune clé suivante' {
+        (Test-Refus { Invoke-OutilCle 'cle.ps1' @{ Nouvelle = $true; MotDePasse = $mdpFaux } } 'Mot de passe incorrect') -and (Get-ListeDepot).Count -eq 2 -and
+            -not (Test-Path -LiteralPath (Join-Path $env:APPDATA 'Mindset-signature\cle-privee-suivante.mdp'))
     }
-    Test-Cas 'cle.ps1 -Basculer (étape 2) : l''ancienne clé quitte la liste, ce PC signe avec la nouvelle' {
+    Test-Cas 'cle.ps1 -Nouvelle (étape 1) : la clé suivante entre dans la liste, ce PC signe encore avec l''ancienne' {
+        $null = Invoke-OutilCle 'cle.ps1' @{ Nouvelle = $true; MotDePasse = $mdpTest }
+        $null = Invoke-OutilCle 'signer.ps1' @{ Fichier = $zipSigne; MotDePasse = $mdpTest }
+        $script:AncienneSig = [IO.File]::ReadAllBytes("$zipSigne.sig")
+        (Get-ListeDepot).Count -eq 3 -and (Test-Path -LiteralPath (Join-Path $env:APPDATA 'Mindset-signature\cle-privee-suivante.mdp')) -and (Test-SigneParListe)
+    }
+    Test-Cas 'cle.ps1 -Basculer (étape 2, sans mot de passe) : l''ancienne clé quitte la liste, ce PC signe avec la nouvelle (même mot de passe)' {
         $null = Invoke-OutilCle 'cle.ps1' @{ Basculer = $true }
-        $null = Invoke-OutilCle 'signer.ps1' @{ Fichier = $zipSigne }
-        (Get-ListeDepot).Count -eq 2 -and -not (Test-Path -LiteralPath (Join-Path $env:APPDATA 'Mindset-signature\cle-privee-suivante.bin')) -and
+        $null = Invoke-OutilCle 'signer.ps1' @{ Fichier = $zipSigne; MotDePasse = $mdpTest }
+        (Get-ListeDepot).Count -eq 2 -and -not (Test-Path -LiteralPath (Join-Path $env:APPDATA 'Mindset-signature\cle-privee-suivante.mdp')) -and
             (Test-SigneParListe) -and -not (Test-Signature ([IO.File]::ReadAllBytes($zipSigne)) $script:AncienneSig $clesDepot)
     }
     Test-Cas 'cle.ps1 -Retirer retire la clé de secours (volée), puis refuse de retirer la dernière clé' {
@@ -846,23 +868,60 @@ public static class BloqueurTest {
         $null = Invoke-OutilCle 'cle.ps1' @{ Retirer = $s }
         $reste = Get-ListeDepot
         Move-Item -LiteralPath $priveeTest -Destination "$priveeTest.copie"   # (sans clé sur ce PC, seule la règle « dernière clé » peut refuser)
+        Move-Item -LiteralPath ([IO.Path]::ChangeExtension($priveeTest, '.pub')) -Destination ($priveeTest + '.pub-copie')
         $refus = Test-Refus { Invoke-OutilCle 'cle.ps1' @{ Retirer = $reste[0].Name } } 'dernière clé'
         $reste.Count -eq 1 -and $refus -and (Get-ListeDepot).Count -eq 1
     }
     Test-Cas 'signer.ps1 refuse de signer avec une clé retirée de la liste (la clé de secours retirée) : aucune signature écrite' {
         $null = Invoke-OutilCle 'cle.ps1' @{ Importer = $msk; MotDePasse = $mdpTest }
         Remove-Item -LiteralPath "$zipSigne.sig" -ErrorAction SilentlyContinue
-        (Test-Refus { Invoke-OutilCle 'signer.ps1' @{ Fichier = $zipSigne } } 'aucune clé de la liste') -and -not (Test-Path -LiteralPath "$zipSigne.sig")
+        (Test-Refus { Invoke-OutilCle 'signer.ps1' @{ Fichier = $zipSigne; MotDePasse = $mdpTest } } 'aucune clé de la liste') -and -not (Test-Path -LiteralPath "$zipSigne.sig")
     }
     Test-Cas 'signer.ps1 refuse de signer si une clé privée est glissée dans la liste, puis signe une fois retirée' {
         Move-Item -LiteralPath "$priveeTest.copie" -Destination $priveeTest -Force   # (la clé de la liste revient sur ce PC)
+        Move-Item -LiteralPath "$priveeTest.pub-copie" -Destination ([IO.Path]::ChangeExtension($priveeTest, '.pub')) -Force
         $f = Join-Path $clesDepot 'piege.xml'
         [IO.File]::WriteAllText($f, $cleB.Privee)
-        $refus = (Test-Refus { Invoke-OutilCle 'signer.ps1' @{ Fichier = $zipSigne } } 'aucune clé de la liste') -and -not (Test-Path -LiteralPath "$zipSigne.sig")
+        $refus = (Test-Refus { Invoke-OutilCle 'signer.ps1' @{ Fichier = $zipSigne; MotDePasse = $mdpTest } } 'aucune clé de la liste') -and -not (Test-Path -LiteralPath "$zipSigne.sig")
         $liste = (Invoke-OutilCle 'cle.ps1' @{ Liste = $true }) -join "`n"
         Remove-Item -LiteralPath $f
-        $null = Invoke-OutilCle 'signer.ps1' @{ Fichier = $zipSigne }
+        $null = Invoke-OutilCle 'signer.ps1' @{ Fichier = $zipSigne; MotDePasse = $mdpTest }
         $refus -and ($liste -match 'piege\.xml : ERREUR : clé PRIVÉE') -and (Test-SigneParListe)
+    }
+
+    # La clé d'avant (chiffrée seulement pour le compte Windows) : une clé JETABLE, posée comme l'ancien cle.ps1 la rangeait
+    Test-Cas 'clé d''avant (session Windows seulement) : signer.ps1 refuse et dit de lancer -Convertir, aucune signature' {
+        $d = Join-Path $env:APPDATA 'Mindset-signature'
+        Get-ChildItem -LiteralPath $d -File | Remove-Item -Force
+        $jetable = New-CleTest 3072
+        [IO.File]::WriteAllBytes((Join-Path $d 'cle-privee.bin'), [Security.Cryptography.ProtectedData]::Protect([Text.Encoding]::UTF8.GetBytes($jetable.Privee), $null, 'CurrentUser'))
+        [IO.File]::WriteAllText((Join-Path $clesDepot 'principale-jetable.xml'), $jetable.Publique)
+        $script:Jetable = $jetable
+        Remove-Item -LiteralPath "$zipSigne.sig" -ErrorAction SilentlyContinue
+        (Test-Refus { Invoke-OutilCle 'signer.ps1' @{ Fichier = $zipSigne; MotDePasse = $mdpTest } } '-Convertir') -and -not (Test-Path -LiteralPath "$zipSigne.sig")
+    }
+    Test-Cas 'cle.ps1 -Liste reconnaît encore la clé d''avant, et dit de la convertir' {
+        $t = (Invoke-OutilCle 'cle.ps1' @{ Liste = $true }) -join "`n"
+        ($t -match 'principale-jetable\.xml : 3072 bits, la clé de ce PC') -and ($t -match '-Convertir')
+    }
+    Test-Cas 'cle.ps1 -Convertir : la clé d''avant passe sous le mot de passe, l''ancien fichier est effacé' {
+        $d = Join-Path $env:APPDATA 'Mindset-signature'
+        $null = Invoke-OutilCle 'cle.ps1' @{ Convertir = $true; MotDePasse = $mdpTest }
+        $o = [Security.Cryptography.ProtectedData]::Unprotect([IO.File]::ReadAllBytes($priveeTest), $null, 'CurrentUser')
+        -not (Test-Path -LiteralPath (Join-Path $d 'cle-privee.bin')) -and ([Text.Encoding]::ASCII.GetString($o, 0, 4) -eq 'MSK1') -and
+            ((([xml][IO.File]::ReadAllText([IO.Path]::ChangeExtension($priveeTest, '.pub'))).RSAKeyValue.Modulus -eq ([xml]$script:Jetable.Publique).RSAKeyValue.Modulus))
+    }
+    Test-Cas 'après -Convertir : signer.ps1 refuse sans le bon mot de passe, puis signe avec (la même clé, acceptée par la liste)' {
+        Remove-Item -LiteralPath "$zipSigne.sig" -ErrorAction SilentlyContinue
+        $refus = (Test-Refus { Invoke-OutilCle 'signer.ps1' @{ Fichier = $zipSigne; MotDePasse = $mdpFaux } } 'Mot de passe incorrect') -and -not (Test-Path -LiteralPath "$zipSigne.sig")
+        $null = Invoke-OutilCle 'signer.ps1' @{ Fichier = $zipSigne; MotDePasse = $mdpTest }
+        $seule = New-ListeTest 'jetable-seule' ([ordered]@{ 'j.xml' = $script:Jetable.Publique })
+        $refus -and (Test-SigneParListe) -and (Test-Signature ([IO.File]::ReadAllBytes($zipSigne)) ([IO.File]::ReadAllBytes("$zipSigne.sig")) $seule)
+    }
+    Test-Cas 'cle.ps1 -Convertir une seconde fois : refusé (déjà protégée)' { Test-Refus { Invoke-OutilCle 'cle.ps1' @{ Convertir = $true; MotDePasse = $mdpTest } } 'déjà protégée' }
+    Test-Cas 'cle.ps1 -Exporter : demande le mot de passe de la clé (faux : refusé, rien écrit)' {
+        $f = Join-Path $tmp 'usb\export.msk'
+        (Test-Refus { Invoke-OutilCle 'cle.ps1' @{ Exporter = $f; MotDePasse = $mdpFaux } } 'Mot de passe incorrect') -and -not (Test-Path -LiteralPath $f)
     }
 } finally {
     $env:APPDATA = $appdataVrai
