@@ -9,7 +9,7 @@ $cles = Join-Path $racine 'Mindset\fichiers\cles-publiques'
 function Write-Log([string]$Message) { Write-Host "  (journal) $Message" }
 foreach ($m in 'signature', 'paquets') { . (Join-Path $modules "$m.ps1") }
 $echecs = 0
-foreach ($a in @(@('JordanJacquot/Mindset', 'Mindset.zip'), @('JordanJacquot/Nevermind', 'Nevermind.zip'), @('JordanJacquot/Evermind', 'Evermind.zip'), @('JordanJacquot/Mindcare', 'Mindcare.zip'))) {
+foreach ($a in @(@('JordanJacquot/Mindset', 'Mindset.zip'), @('JordanJacquot/Nevermind', 'OptiGame.zip'), @('JordanJacquot/Evermind', 'Evermind.zip'), @('JordanJacquot/Mindcare', 'Mindcare.zip'))) {
     try {
         $p = Get-Publication $a[0] $a[1]
         if ($p.Erreur) { throw $p.Erreur }
