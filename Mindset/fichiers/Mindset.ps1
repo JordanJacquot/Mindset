@@ -1,6 +1,6 @@
 ﻿#Requires -Version 5.1
 <#
-    Mindset 2.13.0
+    Mindset 2.14.0
     Le portail de la suite : installe, met à jour et affiche ses applis (Nevermind, Evermind et les suivantes).
 
     La liste des applis est dans fichiers\apps.json. Les réglages et le journal sont dans %LOCALAPPDATA%\Mindset\Mindset.
@@ -11,7 +11,7 @@
 #>
 param([switch]$Demarrage, [switch]$Desinstaller)
 
-$AppVersion = '2.13.0'
+$AppVersion = '2.14.0'
 $UpdateRepo = 'JordanJacquot/Mindset'
 $MainScript = $PSCommandPath
 $AppExe = Join-Path (Split-Path $PSScriptRoot -Parent) 'Mindset.exe'   # le programme qui exécute ce script
