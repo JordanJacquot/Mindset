@@ -5,7 +5,7 @@
 
     -Action appli           installe une appli à partir de son zip signé (vérifié ici, sur le contenu lu en mémoire)
                             -Zip -Signature -Destination -DossierZip -Exe [-AncienExe] [-TacheAide <nom> -ExeAide <exe> -Sid <utilisateur>]
-                            -TacheAide : crée la tâche « \Mindset\<nom> » qui lance -ExeAide (à côté de -Exe) en administrateur
+                            -TacheAide : crée la tâche « \Mindset\<nom> » qui lance -ExeAide (à côté de -Exe) en SYSTEM
                             pour l'utilisateur -Sid (la partie administrateur de l'appli, lancée sans demande de Windows)
     -Action mindset         installe Mindset lui-même : copie -Source dans Program Files\Mindset\Mindset, ou dans
                             X:\Mindset\Programmes\Mindset avec -Disque X -Sid <utilisateur> (crée X:\Mindset protégé),
@@ -199,14 +199,20 @@ function Register-TachesMindset([string]$DossierMindset, [string]$Sid) {
     $fichier = Join-Path (Get-DonneesMindset $DossierMindset $Sid) 'installation.demande'
     $actI = New-ScheduledTaskAction -Execute $PowerShellExe -Argument "-NoProfile -NonInteractive -ExecutionPolicy Bypass -WindowStyle Hidden -File `"$script`" -Action demande -Sid $Sid -Demande `"$fichier`"" -WorkingDirectory $DossierSysteme
     Register-ScheduledTask -TaskPath '\Mindset\' -TaskName 'Mindset (installation)' -Action $actI -Principal $prAdmin -Settings $setAdmin -Description 'Installe et met à jour Mindset et ses applis (zips signés seulement), à la demande de Mindset.' -Force | Out-Null
-    # Qui peut la lancer et la lire : le système et les administrateurs (tout), cet utilisateur (lire, lancer), personne d'autre
-    $planificateur = New-Object -ComObject Schedule.Service
-    $planificateur.Connect()
-    $planificateur.GetFolder('\Mindset').GetTask('Mindset (installation)').SetSecurityDescriptor("D:P(A;;FA;;;SY)(A;;FA;;;BA)(A;;FRFX;;;$Sid)", 0)
+    Set-DroitsTache 'Mindset (installation)' $Sid
     $trg = New-ScheduledTaskTrigger -AtLogOn -User $utilisateur
     $trg.Delay = 'PT10S'   # laisse Windows finir d'ouvrir la session
     $actD = New-ScheduledTaskAction -Execute "`"$exe`"" -Argument '-Demarrage' -WorkingDirectory $DossierMindset
     Register-ScheduledTask -TaskPath '\Mindset\' -TaskName 'Mindset (démarrage)' -Action $actD -Trigger $trg -Principal $pr -Settings $set -Description 'Lance Mindset à l''ouverture de session, caché près de l''horloge.' -Force | Out-Null
+    # Les parties administrateur des applis de cet utilisateur encore sous son compte : refaites en SYSTEM
+    Update-TachesAide $Sid
+}
+# Qui peut lancer et lire une tâche SYSTEM de Mindset : le système et les administrateurs (tout), l'utilisateur $Sid
+# (lire, lancer), personne d'autre
+function Set-DroitsTache([string]$Nom, [string]$Sid) {
+    $planificateur = New-Object -ComObject Schedule.Service
+    $planificateur.Connect()
+    $planificateur.GetFolder('\Mindset').GetTask($Nom).SetSecurityDescriptor("D:P(A;;FA;;;SY)(A;;FA;;;BA)(A;;FRFX;;;$Sid)", 0)
 }
 function Unregister-TachesMindset {
     foreach ($t in $TachesMindset) { Unregister-ScheduledTask -TaskPath '\Mindset\' -TaskName $t -Confirm:$false -ErrorAction SilentlyContinue }
@@ -228,6 +234,10 @@ function Get-CommandeDesinstallation([string]$DossierMindset) {
 
 # La partie administrateur d'une appli (son programme d'aide), à la demande (l'appli lance la tâche quand elle en a besoin),
 # pour l'utilisateur $Sid seulement, depuis le dossier protégé où l'appli vient d'être installée. Une seule à la fois.
+# En SYSTEM, comme la tâche d'installation : elle ne reprend rien de l'utilisateur (ni ses variables d'environnement, ni
+# ses modules). L'utilisateur est inscrit ici, par l'administrateur, dans ses arguments (-Sid <utilisateur>) : c'est le
+# seul pour qui l'aide travaille, et le seul (avec les administrateurs) qui peut lire et lancer la tâche. Elle remplace
+# l'ancienne, du même nom, qui tournait « avec les droits les plus élevés » sous son compte (jusqu'à Mindset 2.10.0).
 # (\z et non $ : $ laisserait passer un retour à la ligne final)
 $RegleTacheAide = '^[A-Za-z0-9 ]{1,40} \(aide\)\z'
 $RegleProgramme = '^[^\\/:*?"<>|\x00-\x1f]+\.exe\z'
@@ -236,10 +246,29 @@ function Register-TacheAide([string]$Nom, [string]$ExeAide, [string]$Sid) {
     if ($Nom -cnotmatch $RegleTacheAide) { throw 'Nom de tâche refusé.' }
     if ($Sid -notmatch $SidValide) { throw 'Utilisateur inconnu.' }
     if (-not (Test-Path -LiteralPath $ExeAide)) { throw "Programme introuvable : $ExeAide" }
-    $pr = New-ScheduledTaskPrincipal -UserId $Sid -LogonType Interactive -RunLevel Highest
+    $pr = New-ScheduledTaskPrincipal -UserId 'S-1-5-18' -LogonType ServiceAccount -RunLevel Highest
     $set = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -ExecutionTimeLimit ([TimeSpan]::Zero) -MultipleInstances IgnoreNew
-    $act = New-ScheduledTaskAction -Execute "`"$ExeAide`"" -WorkingDirectory (Split-Path $ExeAide -Parent)
+    $act = New-ScheduledTaskAction -Execute "`"$ExeAide`"" -Argument "-Sid $Sid" -WorkingDirectory (Split-Path $ExeAide -Parent)
     Register-ScheduledTask -TaskPath '\Mindset\' -TaskName $Nom -Action $act -Principal $pr -Settings $set -Description 'Partie administrateur de l''appli : ne fait que les actions de sa liste stricte, à la demande de l''appli.' -Force | Out-Null
+    Set-DroitsTache $Nom $Sid
+}
+
+# Les tâches d'aide de l'utilisateur $Sid encore sous son compte « avec les droits les plus élevés » (créées par Mindset
+# 2.10.0 ou avant) : refaites en SYSTEM pour lui, vers le même programme s'il est bien dans le dossier protégé d'une appli.
+# Celles d'un autre compte, déjà en SYSTEM, ou vers un programme ailleurs ne sont pas touchées.
+function Update-TachesAide([string]$Sid) {
+    foreach ($t in @(Get-ScheduledTask -TaskPath '\Mindset\' -ErrorAction SilentlyContinue)) {
+        try {
+            if ([string]$t.TaskName -cnotmatch $RegleTacheAide) { continue }
+            if ((ConvertTo-Sid ([string]$t.Principal.UserId)) -ne $Sid) { continue }
+            $a = @($t.Actions)
+            if ($a.Count -ne 1) { continue }
+            $exe = ([string]$a[0].Execute).Trim('"')
+            if ($exe -notmatch '^[A-Za-z]:\\' -or [IO.Path]::GetFileName($exe) -notmatch $RegleProgramme) { continue }
+            $null = Test-DossierMindset (Split-Path $exe -Parent)   # (refusé hors du dossier protégé des programmes)
+            Register-TacheAide ([string]$t.TaskName) $exe $Sid
+        } catch {}
+    }
 }
 
 # Ferme les programmes lancés depuis $Dossier (sous-dossiers compris), et seulement eux : trouvés par leur CHEMIN, jamais

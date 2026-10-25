@@ -57,8 +57,9 @@ function Write-Partie([string]$Titre) { Write-Host ''; Write-Host $Titre -Foregr
 # ---------------------------------------------------------------------------------------------------------------
 $texteLanceur = @'
 param([string]$Script, [string]$Parametres, [string]$Journal, [string]$Dossier, [string]$Lettre, [string]$LettreAmovible, [switch]$VraisProgrammes,
-      [string]$SidTache, [switch]$TachesRestantes, [switch]$DemarrageKo)
+      [string]$SidTache, [switch]$TachesRestantes, [switch]$DemarrageKo, [switch]$AideAncienne)
 $global:TJournal = $Journal
+$global:TAideAncienne = [bool]$AideAncienne
 $global:TDossier = $Dossier
 $global:TPermis = @(($Dossier.TrimEnd('\') + '\'), "$($Lettre):\")
 $global:TLettre = $Lettre; $global:TLettreAmovible = $LettreAmovible
@@ -199,6 +200,15 @@ function global:Get-ScheduledTask {
     }
     if ($TaskPath -eq '\Mindset\') {
         if ($global:TTachesRestantes) { return [pscustomobject]@{ TaskPath = '\Mindset\'; TaskName = 'Mindset (démarrage)' } }
+        if ($global:TAideAncienne) {
+            # Des tâches d'aide d'avant (Mindset 2.10.0) : celle de l'utilisateur (à refaire en SYSTEM), celle d'un autre
+            # compte, une vers un programme hors du dossier protégé, une déjà en SYSTEM (aucune des trois à toucher)
+            $moi = [Security.Principal.WindowsIdentity]::GetCurrent()
+            $pm = Join-Path $global:TDossier 'ProgramFiles\Mindset'
+            function Get-Aide([string]$Nom, [string]$Compte, [string]$Exe) { [pscustomobject]@{ TaskPath = '\Mindset\'; TaskName = $Nom; Principal = [pscustomobject]@{ UserId = $Compte }; Actions = @([pscustomobject]@{ Execute = "`"$Exe`"" }) } }
+            return @((Get-Aide 'Appli (aide)' $moi.Name "$pm\Appli\Aide.exe"), (Get-Aide 'Autre (aide)' $global:TAutreCompte "$pm\Appli\Aide.exe"),
+                     (Get-Aide 'Piege (aide)' $moi.User.Value "$($global:TDossier)\victime\Aide.exe"), (Get-Aide 'Deja (aide)' 'SYSTEM' "$pm\Appli\Aide.exe"))
+        }
         return
     }
     $anc = Join-Path $global:TDossier 'ancienne\Appli.exe'
@@ -400,7 +410,7 @@ $script:NumeroCas = 0
 # -SidTache : l'utilisateur de l'ancienne tâche (sans -Sid) ; -TachesRestantes : une tâche de Mindset ne part pas ;
 # -GarderRecu : l'accusé de réception du cas précédent reste (la même demande relancée)
 function Invoke-Installateur([hashtable]$Parametres, [scriptblock]$Preparer = $null, [switch]$SansResultat, [switch]$VraisProgrammes,
-                             [string]$SidTache = '', [switch]$TachesRestantes, [switch]$GarderRecu, [switch]$DemarrageKo) {
+                             [string]$SidTache = '', [switch]$TachesRestantes, [switch]$GarderRecu, [switch]$DemarrageKo, [switch]$AideAncienne) {
     $n = ++$script:NumeroCas
     $recu = if ($GarderRecu -and (Test-Path -LiteralPath (Join-Path $tmp 'recu.txt'))) { [IO.File]::ReadAllText((Join-Path $tmp 'recu.txt')) } else { '' }
     Initialize-Etat
@@ -414,7 +424,7 @@ function Invoke-Installateur([hashtable]$Parametres, [scriptblock]$Preparer = $n
     $eap = $ErrorActionPreference; $ErrorActionPreference = 'Continue'
     try {
         $sortie = & "$env:SystemRoot\System32\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -NonInteractive -ExecutionPolicy Bypass -File $lanceur `
-            -Script $installeur -Parametres $fp -Journal $journal -Dossier $tmp -Lettre $L -LettreAmovible $LA @(if ($SidTache) { '-SidTache', $SidTache }) @(if ($VraisProgrammes) { '-VraisProgrammes' }) @(if ($TachesRestantes) { '-TachesRestantes' }) @(if ($DemarrageKo) { '-DemarrageKo' }) 2>&1
+            -Script $installeur -Parametres $fp -Journal $journal -Dossier $tmp -Lettre $L -LettreAmovible $LA @(if ($SidTache) { '-SidTache', $SidTache }) @(if ($VraisProgrammes) { '-VraisProgrammes' }) @(if ($TachesRestantes) { '-TachesRestantes' }) @(if ($DemarrageKo) { '-DemarrageKo' }) @(if ($AideAncienne) { '-AideAncienne' }) 2>&1
     } finally { $ErrorActionPreference = $eap }
     $lignes = @([IO.File]::ReadAllLines($journal, [Text.Encoding]::UTF8) | Where-Object { $_ })
     $reponse = $null
@@ -467,6 +477,11 @@ function Test-Action($R, [string]$Texte) { [bool]@($R.Actions | Where-Object { $
 function Test-TacheCreee($R, [string]$Nom, [string]$Sid = $sidActuel) {
     if ($Nom -eq 'Mindset (installation)') {
         return [bool]@($R.Actions | Where-Object { $_.Contains('ACTION tâche créée') -and $_.Contains("-TaskName $Nom -") -and $_.Contains('-UserId S-1-5-18 -LogonType ServiceAccount') -and $_.Contains("-Action demande -Sid $Sid -Demande") }).Count -and
+            (Test-Action $R "ACTION droits de la tâche : D:P(A;;FA;;;SY)(A;;FA;;;BA)(A;;FRFX;;;$Sid)")
+    }
+    # (la partie administrateur d'une appli : en SYSTEM aussi, l'utilisateur inscrit dans ses arguments, lui seul peut la lancer)
+    if ($Nom -like '* (aide)') {
+        return [bool]@($R.Actions | Where-Object { $_.Contains('ACTION tâche créée') -and $_.Contains("-TaskName $Nom -") -and $_.Contains('-UserId S-1-5-18 -LogonType ServiceAccount') -and $_.Contains(" -Argument -Sid $Sid ") }).Count -and
             (Test-Action $R "ACTION droits de la tâche : D:P(A;;FA;;;SY)(A;;FA;;;BA)(A;;FRFX;;;$Sid)")
     }
     [bool]@($R.Actions | Where-Object { $_.Contains('ACTION tâche créée') -and $_.Contains("-TaskName $Nom -") -and $_.Contains("-UserId $Sid ") }).Count
@@ -692,6 +707,7 @@ public static class MindsetTestPointAnalyse {
         $script:TachesFaites = 0
         function New-ScheduledTaskPrincipal { }; function New-ScheduledTaskSettingsSet { }; function New-ScheduledTaskAction { }
         function Register-ScheduledTask { $script:TachesFaites++ }
+        function Set-DroitsTache { }
         . ([scriptblock]::Create($def.Extent.Text))
         $refus = $false
         try { Register-TacheAide 'Appli (aide)' (Join-Path $PM 'Appli\Absent.exe') $sidActuel } catch { $refus = $_.Exception.Message -like '*Programme introuvable*' }
@@ -816,6 +832,16 @@ public static class MindsetTestPointAnalyse {
             $r = Invoke-Installateur @{ Action = 'taches'; Destination = (Join-Path $PM 'Mindset'); Sid = $s }
             (Test-Refuse $r 'Utilisateur inconnu.') -and (Test-RienFait $r)
         }
+    }
+    Test-Cas 'tâches de Mindset refaites : l''ancienne tâche d''aide de l''utilisateur passe en SYSTEM pour lui (même programme), les autres ne sont pas touchées' {
+        $r = Invoke-Installateur @{ Action = 'taches'; Destination = (Join-Path $PM 'Mindset'); Sid = $sidActuel } -AideAncienne -Preparer { $null = Save-Fichier (Join-Path $PM 'Appli\Aide.exe') 'x' }
+        $aide = Join-Path $PM 'Appli\Aide.exe'
+        $r.Reponse.ok -and (Test-TacheCreee $r 'Appli (aide)') -and (Test-Action $r "-Execute `"$aide`"") -and
+            -not @($r.Actions | Where-Object { $_ -match 'tâche créée.*-TaskName (Autre|Piege|Deja) \(aide\)' }).Count
+    }
+    Test-Cas 'contre-épreuve : sans tâche d''aide d''avant, aucune tâche d''aide créée' {
+        $r = Invoke-Installateur @{ Action = 'taches'; Destination = (Join-Path $PM 'Mindset'); Sid = $sidActuel } -Preparer { $null = Save-Fichier (Join-Path $PM 'Appli\Aide.exe') 'x' }
+        $r.Reponse.ok -and -not @($r.Actions | Where-Object { $_ -match 'tâche créée.*\(aide\)' }).Count
     }
     Test-Cas 'tâches pour un Mindset sans Mindset.exe : refusé (introuvable), aucune tâche' {
         $r = Invoke-Demande @{ Id = (New-Id); Action = 'taches'; Destination = (Join-Path $PM 'Mindset') } -Preparer { Remove-Item -LiteralPath (Join-Path $PM 'Mindset\Mindset.exe') }
