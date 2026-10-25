@@ -1,0 +1,70 @@
+name: Installateur en vrai (sonde)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sonde:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: powershell
+    steps:
+      - name: Sonde de la machine
+        run: |
+          $ErrorActionPreference = 'Continue'
+          "Compte : $env:USERDOMAIN\$env:USERNAME ; session : $([Diagnostics.Process]::GetCurrentProcess().SessionId)"
+          whoami /groups | Select-String 'Mandatory|Administr'
+          'query user :'; query user 2>&1
+          'explorer :'; Get-Process explorer -IncludeUserName -ErrorAction SilentlyContinue | Format-Table Id, SessionId, UserName -AutoSize | Out-String
+          'UAC :'; Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System' | Select-Object EnableLUA, ConsentPromptBehaviorAdmin, ConsentPromptBehaviorUser, PromptOnSecureDesktop | Format-List | Out-String
+          Get-CimInstance Win32_LogicalDisk | Format-Table DeviceID, DriveType, FileSystem, FreeSpace -AutoSize | Out-String
+          (Get-CimInstance Win32_OperatingSystem).Caption
+          'Processus du runner :'; Get-CimInstance Win32_Process -Filter "Name like 'Runner.%'" | ForEach-Object { "$($_.Name) session $($_.SessionId) $((Invoke-CimMethod -InputObject $_ -MethodName GetOwner).User)" }
+          New-Item -ItemType Directory -Force C:\sonde | Out-Null
+          icacls C:\sonde /grant '*S-1-1-0:(OI)(CI)F' | Out-Null
+          $mdp = 'Aa1!' + [guid]::NewGuid().ToString('N').Substring(0, 12)
+          $s = ConvertTo-SecureString $mdp -AsPlainText -Force
+          $u = New-LocalUser -Name 'Élodie Test' -Password $s -PasswordNeverExpires
+          "SID : $($u.SID)"
+          $cred = New-Object Management.Automation.PSCredential('.\Élodie Test', $s)
+          try {
+            $p = Start-Process -FilePath "$env:SystemRoot\System32\WindowsPowerShell\v1.0\powershell.exe" -Credential $cred -LoadUserProfile -WorkingDirectory C:\sonde -ArgumentList '-NoProfile', '-Command', '"$(whoami) ; session $([Diagnostics.Process]::GetCurrentProcess().SessionId) ; $env:USERPROFILE ; $env:LOCALAPPDATA" | Out-File C:\sonde\credential.txt' -Wait -PassThru -ErrorAction Stop
+            "Start-Process -Credential : code $($p.ExitCode)"; Get-Content C:\sonde\credential.txt
+          } catch { "Start-Process -Credential : ERREUR $_" }
+          Get-ChildItem 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList' | ForEach-Object { "$($_.PSChildName) = $($_.GetValue('ProfileImagePath', '', 'DoNotExpandEnvironmentNames'))" }
+          # Tâche « Interactive » pour le compte du runner
+          $a = New-ScheduledTaskAction -Execute "$env:SystemRoot\System32\cmd.exe" -Argument '/c whoami > C:\sonde\interactive.txt'
+          Register-ScheduledTask -TaskPath '\Sonde\' -TaskName 'Interactive' -Action $a -Principal (New-ScheduledTaskPrincipal -UserId ([Security.Principal.WindowsIdentity]::GetCurrent().User.Value) -LogonType Interactive -RunLevel Limited) | Out-Null
+          schtasks /Run /TN '\Sonde\Interactive'; "code $LASTEXITCODE"
+          Start-Sleep 5
+          "interactive.txt : $(Get-Content C:\sonde\interactive.txt -ErrorAction SilentlyContinue)"
+          (Get-ScheduledTaskInfo -TaskPath '\Sonde\' -TaskName 'Interactive') | Format-List LastRunTime, LastTaskResult | Out-String
+          # Tâche SYSTEM lancée par Élodie
+          $a = New-ScheduledTaskAction -Execute "$env:SystemRoot\System32\cmd.exe" -Argument '/c whoami > C:\sonde\systeme.txt'
+          Register-ScheduledTask -TaskPath '\Sonde\' -TaskName 'Systeme' -Action $a -Principal (New-ScheduledTaskPrincipal -UserId 'S-1-5-18' -LogonType ServiceAccount -RunLevel Highest) | Out-Null
+          $sv = New-Object -ComObject Schedule.Service; $sv.Connect()
+          $sv.GetFolder('\Sonde').GetTask('Systeme').SetSecurityDescriptor("D:P(A;;FA;;;SY)(A;;FA;;;BA)(A;;FRFX;;;$($u.SID))", 0)
+          $p = Start-Process -FilePath "$env:SystemRoot\System32\cmd.exe" -Credential $cred -WorkingDirectory C:\sonde -ArgumentList '/c', 'schtasks /Query /TN "\Sonde\Systeme" /XML > C:\sonde\q.txt 2>&1 & schtasks /Run /TN "\Sonde\Systeme" > C:\sonde\r.txt 2>&1' -Wait -PassThru
+          Start-Sleep 5
+          "query : $((Get-Content C:\sonde\q.txt -ErrorAction SilentlyContinue | Select-Object -First 3) -join ' ')"
+          "run : $(Get-Content C:\sonde\r.txt -ErrorAction SilentlyContinue)"
+          "systeme.txt : $(Get-Content C:\sonde\systeme.txt -ErrorAction SilentlyContinue)"
+          # Tâche Interactive pour Élodie (pas de session ouverte)
+          $a = New-ScheduledTaskAction -Execute "$env:SystemRoot\System32\cmd.exe" -Argument '/c whoami > C:\sonde\elodie.txt'
+          Register-ScheduledTask -TaskPath '\Sonde\' -TaskName 'Elodie' -Action $a -Principal (New-ScheduledTaskPrincipal -UserId "$($u.SID)" -LogonType Interactive -RunLevel Limited) | Out-Null
+          schtasks /Run /TN '\Sonde\Elodie'; "code $LASTEXITCODE"
+          Start-Sleep 5
+          "elodie.txt : $(Get-Content C:\sonde\elodie.txt -ErrorAction SilentlyContinue)"
+          (Get-ScheduledTaskInfo -TaskPath '\Sonde\' -TaskName 'Elodie') | Format-List LastRunTime, LastTaskResult | Out-String
+          # Le même, avec mot de passe
+          Register-ScheduledTask -TaskPath '\Sonde\' -TaskName 'ElodieMdp' -Action $a -User '.\Élodie Test' -Password $mdp | Out-Null
+          schtasks /Run /TN '\Sonde\ElodieMdp'; "code $LASTEXITCODE"
+          Start-Sleep 5
+          "elodie.txt (mdp) : $(Get-Content C:\sonde\elodie.txt -ErrorAction SilentlyContinue)"
+          (Get-ScheduledTaskInfo -TaskPath '\Sonde\' -TaskName 'ElodieMdp') | Format-List LastRunTime, LastTaskResult | Out-String
+          'Évènements .NET Runtime (journal Application) :'; (Get-WinEvent -ListProvider '.NET Runtime' -ErrorAction SilentlyContinue).Name
+          exit 0
