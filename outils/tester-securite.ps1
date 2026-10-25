@@ -32,6 +32,8 @@ $voulues = @('Test-DossierMindset')
 $defs = @($ast.FindAll({ param($n) $n -is [System.Management.Automation.Language.FunctionDefinitionAst] -and $n.Name -in $voulues }, $true))
 if ($defs.Count -ne $voulues.Count) { throw 'installer-admin.ps1 : fonction Test-DossierMindset introuvable.' }
 foreach ($d in $defs) { . ([scriptblock]::Create($d.Extent.Text)) }
+# (le dossier Program Files, que l'installateur demande à Windows, dans son bloc <dossiers-windows>)
+$DossierProgrammes = [Environment]::GetFolderPath('ProgramFiles')
 
 # Remplace la vérification du disque (qui interroge Windows) : on note les lettres demandées ; Z: est refusé
 $script:DisquesVerifies = @()
@@ -634,7 +636,7 @@ public static class BloqueurTest {
     # par le réglage, voir plus haut)
     Test-Cas 'Start-InstallAppli n''est appelé que par un geste de l''utilisateur ou Invoke-MajAuto' {
         $trouves = Get-Appelants 'Start-InstallAppli'
-        $permis = @('accueil.ps1:Update-Carte', 'accueil.ps1:Confirm-MiseAJour', 'console.ps1:Receive-MessageConsole', 'mindset.ps1:Invoke-MajAuto')
+        $permis = @('accueil.ps1:Update-Carte', 'accueil.ps1:Confirm-MiseAJour', 'accueil.ps1:Confirm-PriseEnCharge', 'console.ps1:Receive-MessageConsole', 'mindset.ps1:Invoke-MajAuto')
         $hors = @($trouves | Where-Object { $_ -notin $permis })
         if ($hors.Count) { Write-Host "         aussi appelé depuis : $($hors -join ', ')" -ForegroundColor Yellow }
         $hors.Count -eq 0

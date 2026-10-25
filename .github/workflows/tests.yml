@@ -49,6 +49,9 @@ jobs:
       - name: "Refus du mini-installateur administrateur (faux PC, sans droits)"
         run: .\outils\tester-installer.ps1
 
+      - name: "Mindset face à son mini-installateur : tâche SYSTEM, demande de Windows si elle ne répond pas, ancienne tâche remplacée (faux Windows, sans droits)"
+        run: .\outils\tester-mini-installateur.ps1
+
       - name: "Programmes trouvés par leur chemin, jamais par leur nom (vrais programmes d'essai, sans droits)"
         run: .\outils\tester-processus.ps1
 

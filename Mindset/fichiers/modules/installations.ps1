@@ -174,47 +174,92 @@ $script:Recherches = @{}
 function Update-Publications {
     foreach ($a in $Applis) {
         $script:Recherches[$a.Id] = Get-Date
-        Start-Tache { $p = $args[0]; Get-Publication $p.Depot $p.Zip } @{ Depot = $a.Depot; Zip = $a.Zip } ([scriptblock]::Create(@"
-            param(`$Resultat, `$Erreur)
-            `$script:Recherches.Remove('$($a.Id)')
-            `$script:Publications['$($a.Id)'] = if (`$Erreur) { @{ Erreur = `$Erreur } } else { `$Resultat }
+        Start-Tache { $p = $args[0]; Get-Publication $p.Depot $p.Zip } @{ Depot = $a.Depot; Zip = $a.Zip } (New-Action @{ Id = $a.Id } {
+            $script:Recherches.Remove($v.Id)
+            $script:Publications[$v.Id] = if ($Erreur) { @{ Erreur = $Erreur } } else { $Resultat }
             # GitHub limite les questions (60 par heure et par connexion) : refusé, on réessaie dans 30 minutes
-            if ("`$Erreur `$(`$Resultat.Erreur)" -match '403|429') { `$script:DernieresPublications = (Get-Date).AddHours(-0.5) }
+            if ("$Erreur $($Resultat.Erreur)" -match '403|429') { $script:DernieresPublications = (Get-Date).AddHours(-0.5) }
             Update-Cartes
-            if (`$script:OngletParametres -eq 'maj') { Update-ListeVersions }
-"@))
+            if ($script:OngletParametres -eq 'maj') { Update-ListeVersions }
+        } 'Resultat', 'Erreur')
     }
 }
 
 # ---------------------------------------------------------------------------
-# installer-admin.ps1 : une demande de Windows, puis le travail en administrateur ; $Fin reçoit (ok, message)
+# installer-admin.ps1 : le travail en administrateur ; $Fin reçoit (ok, message)
 # ---------------------------------------------------------------------------
 $script:AttentesAdmin = New-Object System.Collections.ArrayList
 
-# Le mini-installateur : la tâche « \Mindset\Mindset (installation) » (installer-admin.ps1 -Action demande), en
-# administrateur sans demande de Windows. Mindset écrit sa demande dans installation.demande (une à la fois : les
-# suivantes attendent) et lit la réponse dans HKLM:\SOFTWARE\Mindset\Installation (écrite seulement par l'installateur).
+# Le mini-installateur : la tâche « \Mindset\Mindset (installation) » (installer-admin.ps1 -Action demande), en SYSTEM,
+# sans demande de Windows. Mindset écrit sa demande dans installation.demande (une à la fois : les suivantes attendent),
+# lit l'accusé de réception (valeur Recu) puis la réponse (valeur Resultat) dans HKLM:\SOFTWARE\Mindset\Installation
+# (écrites seulement par l'installateur), puis efface sa demande.
+# Si la tâche ne marche pas (absente, refusée, pas d'accusé de réception en $DelaiAccuseTache secondes) : la demande
+# normale de Windows (la fenêtre où l'on clique « Oui »), jamais l'ancienne tâche « avec les droits les plus élevés ».
 $TacheInstallation = '\Mindset\Mindset (installation)'
+$SchtasksExe = Join-Path ([Environment]::GetFolderPath('System')) 'schtasks.exe'
 $FichierDemande = Join-Path $DataDir 'installation.demande'
+$CleInstallationAdmin = 'HKLM:\SOFTWARE\Mindset\Installation'
+$DelaiAccuseTache = 30
 $script:DemandesEnAttente = New-Object System.Collections.ArrayList
+
+# La tâche du mini-installateur, pour cet utilisateur : 'systeme' (la tâche SYSTEM inscrite pour lui), 'ancienne' (celle
+# d'avant, sous son compte avec les droits les plus élevés : elle ne sert plus qu'à se remplacer, voir
+# Start-RemplacementTache), ou '' (absente, illisible, ou celle d'un autre compte du PC)
+function Get-EtatTacheInstallation {
+    $x = $null
+    try {
+        $t = @(& $SchtasksExe /Query /TN $TacheInstallation /XML 2>$null)
+        if ($LASTEXITCODE -ne 0 -or -not $t.Count) { return '' }
+        $x = [xml]($t -join "`n")
+    } catch { return '' }
+    $moi = [Security.Principal.WindowsIdentity]::GetCurrent().User.Value
+    $compte = [string]$x.Task.Principals.Principal.UserId
+    if ($compte -and $compte -notmatch '^S-1-') { try { $compte = (New-Object Security.Principal.NTAccount($compte)).Translate([Security.Principal.SecurityIdentifier]).Value } catch { $compte = '' } }
+    $arguments = [string]$x.Task.Actions.Exec.Arguments
+    if ($compte -eq 'S-1-5-18' -and $arguments -match "-Sid $([regex]::Escape($moi))(\s|\z)") { return 'systeme' }
+    if ($compte -eq $moi -and $arguments -match '-Action demande' -and $arguments -notmatch '-Sid ') { return 'ancienne' }
+    ''
+}
+
 function Test-TacheInstallation {
     if ($null -eq $script:TacheInstallationOk) {
-        & "$env:SystemRoot\System32\schtasks.exe" /Query /TN $TacheInstallation 2>$null | Out-Null
-        $script:TacheInstallationOk = ($LASTEXITCODE -eq 0)
+        $script:EtatTacheInstallation = Get-EtatTacheInstallation
+        $script:TacheInstallationOk = ($script:EtatTacheInstallation -eq 'systeme')
     }
     $script:TacheInstallationOk
 }
 
+function Remove-DemandeInstallation { try { [IO.File]::Delete($FichierDemande) } catch {} }
+
+function Get-ValeurInstallation([string]$Nom) {
+    try { [string](Get-ItemProperty -Path $CleInstallationAdmin -Name $Nom -ErrorAction Stop).$Nom } catch { '' }
+}
+
+# $D : @{ Contenu (la demande : Id, Action, paramètres) ; Fin (ok, message) ; Repli (appelé avec $D si la tâche ne
+# marche pas, $null : pas de repli) ; Recu (facultatif, appelé avec $D à l'accusé de réception) }
 function Send-DemandeInstallation($D) {
     try {
         [IO.File]::WriteAllText($FichierDemande, (ConvertTo-Json -InputObject $D.Contenu -Compress), (New-Object Text.UTF8Encoding $false))
-        $null = & "$env:SystemRoot\System32\schtasks.exe" /Run /TN $TacheInstallation 2>&1
+        $null = & $SchtasksExe /Run /TN $TacheInstallation 2>&1
         if ($LASTEXITCODE -ne 0) { throw "la tâche d'installation n'a pas démarré (code $LASTEXITCODE)" }
-    } catch { & $D.Fin $false $_.Exception.Message; return $false }
+    } catch {
+        Remove-DemandeInstallation
+        Skip-TacheInstallation $D $_.Exception.Message
+        return $false
+    }
     $D.Debut = Get-Date
-    [void]$script:AttentesAdmin.Add(@{ Process = $null; Id = $D.Contenu.Id; Fin = $D.Fin; Debut = $D.Debut })
+    [void]$script:AttentesAdmin.Add(@{ Process = $null; Id = $D.Contenu.Id; Fin = $D.Fin; Debut = $D.Debut; Demande = $D; Recu = $false })
     $script:AdminTimer.Start()
     $true
+}
+
+# La tâche ne marche pas : elle n'est plus utilisée jusqu'au prochain lancement de Mindset, et l'opération passe par la
+# demande normale de Windows ($D.Repli)
+function Skip-TacheInstallation($D, [string]$Raison) {
+    Write-Log "Mini-installateur : $Raison ; $(if ($D.Repli) { 'demande de Windows à la place' } else { 'opération abandonnée' })"
+    $script:TacheInstallationOk = $false
+    if ($D.Repli) { & $D.Repli $D } else { & $D.Fin $false "la tâche d'installation ne répond pas ($Raison)." }
 }
 
 function Invoke-Admin([string]$Action, [hashtable]$Parametres, [scriptblock]$Fin) {
@@ -222,34 +267,76 @@ function Invoke-Admin([string]$Action, [hashtable]$Parametres, [scriptblock]$Fin
     if (-not $MindsetAdmin -and $Action -ne 'mindset' -and (Test-TacheInstallation)) {
         $c = @{ Id = [guid]::NewGuid().ToString('N'); Action = $Action }
         foreach ($k in $Parametres.Keys) { if ($null -ne $Parametres[$k] -and "$($Parametres[$k])" -ne '') { $c[$k] = [string]$Parametres[$k] } }
-        $d = @{ Contenu = $c; Fin = $Fin }
+        # Repli : la demande de Windows, sauf pendant une mise à jour automatique (personne n'est là pour y répondre :
+        # elle sera faite à la main, la carte le dit)
+        $repli = if ($script:MajAuto -and $script:MajAuto.Count) { $null } else { { param($D) Invoke-AdminDirect $D.Action $D.Parametres $D.Fin } }
+        $d = @{ Contenu = $c; Fin = $Fin; Action = $Action; Parametres = $Parametres; Repli = $repli }
         if (@($script:AttentesAdmin | Where-Object { $_.Id }).Count) { [void]$script:DemandesEnAttente.Add($d); return }
         [void](Send-DemandeInstallation $d)
         return
     }
+    Invoke-AdminDirect $Action $Parametres $Fin
+}
+
+# Un argument de la ligne de commande de l'installateur, entre guillemets : les \ qui le finissent sont doublés (sinon
+# « "E:\" » ferait du guillemet de fin un caractère du texte, et décalerait les arguments suivants)
+function Format-ArgumentAdmin([string]$Valeur) {
+    if ($Valeur.Contains('"')) { throw "Valeur refusée (guillemet) : $Valeur" }
+    '"' + ($Valeur -replace '(\\+)$', '$1$1') + '"'
+}
+
+# La demande normale de Windows : installer-admin.ps1 lancé en administrateur, sa réponse dans un fichier
+function Invoke-AdminDirect([string]$Action, [hashtable]$Parametres, [scriptblock]$Fin) {
     $rep = Join-Path $TelechargementsDir "admin-$([guid]::NewGuid().ToString('N').Substring(0, 8)).json"
-    $a = @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-WindowStyle', 'Hidden', '-File', "`"$(Join-Path $AppDir 'installer-admin.ps1')`"", '-Action', $Action, '-Resultat', "`"$rep`"")
-    foreach ($k in $Parametres.Keys) { if ($null -ne $Parametres[$k] -and "$($Parametres[$k])" -ne '') { $a += @("-$k", "`"$($Parametres[$k])`"") } }
+    try {
+        $a = @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-WindowStyle', 'Hidden', '-File', (Format-ArgumentAdmin (Join-Path $AppDir 'installer-admin.ps1')), '-Action', $Action, '-Resultat', (Format-ArgumentAdmin $rep))
+        foreach ($k in $Parametres.Keys) { if ($null -ne $Parametres[$k] -and "$($Parametres[$k])" -ne '') { $a += @("-$k", (Format-ArgumentAdmin ([string]$Parametres[$k]))) } }
+    } catch { & $Fin $false $_.Exception.Message; return }
     try { $proc = Start-Process -FilePath "$env:SystemRoot\System32\WindowsPowerShell\v1.0\powershell.exe" -ArgumentList $a -Verb RunAs -WindowStyle Hidden -WorkingDirectory $env:SystemRoot -PassThru -ErrorAction Stop }
     catch { & $Fin $false 'l''autorisation de Windows a été refusée.'; return }
     [void]$script:AttentesAdmin.Add(@{ Process = $proc; Reponse = $rep; Fin = $Fin; Debut = Get-Date })
     $script:AdminTimer.Start()
 }
 
-$script:AdminTimer = New-Object System.Windows.Threading.DispatcherTimer
-$script:AdminTimer.Interval = [TimeSpan]::FromMilliseconds(500)
-$script:AdminTimer.Add_Tick({
+# La demande suivante, une fois la précédente finie (par la tâche si elle marche toujours, sinon par son repli)
+function Send-DemandeSuivante {
+    if (-not $script:DemandesEnAttente.Count) { return }
+    $s = $script:DemandesEnAttente[0]; $script:DemandesEnAttente.RemoveAt(0)
+    if (Test-TacheInstallation) { [void](Send-DemandeInstallation $s) }
+    elseif ($s.Repli) { & $s.Repli $s }
+    else { & $s.Fin $false 'la tâche d''installation ne répond pas.' }
+}
+
+# Toutes les 500 ms, tant qu'une opération en administrateur est en cours
+function Update-AttentesAdmin {
     foreach ($w in @($script:AttentesAdmin)) {
         $r = $null
         if ($w.Id) {
             # Demande passée par la tâche : sa réponse, reconnue à son numéro
-            try { $r = [string](Get-ItemProperty -Path 'HKLM:\SOFTWARE\Mindset\Installation' -Name Resultat -ErrorAction Stop).Resultat | ConvertFrom-Json } catch {}
+            try { $r = Get-ValeurInstallation 'Resultat' | ConvertFrom-Json } catch {}
             if ($r -and $r.id -ne $w.Id) { $r = $null }
-            if (-not $r -and ((Get-Date) - $w.Debut).TotalMinutes -lt 10) { continue }
+            if (-not $r) {
+                $ecoule = ((Get-Date) - $w.Debut).TotalSeconds
+                if (-not $w.Recu -and (Get-ValeurInstallation 'Recu') -eq $w.Id) {
+                    $w.Recu = $true
+                    if ($w.Demande -and $w.Demande.Recu) { try { & $w.Demande.Recu $w.Demande } catch { Write-Log "Accusé de réception : $_" } }
+                }
+                if (-not $w.Recu -and $ecoule -ge $DelaiAccuseTache) {
+                    # Pas d'accusé de réception : la demande est retirée (la tâche ne la fera plus), puis on regarde une
+                    # dernière fois (elle a pu la prendre juste avant) ; sinon, la demande de Windows
+                    Remove-DemandeInstallation
+                    if ((Get-ValeurInstallation 'Recu') -eq $w.Id) { $w.Recu = $true; continue }
+                    [void]$script:AttentesAdmin.Remove($w)
+                    Skip-TacheInstallation $w.Demande "pas de réponse de la tâche en $DelaiAccuseTache secondes"
+                    Send-DemandeSuivante
+                    continue
+                }
+                if ($ecoule -lt 600) { continue }
+            }
             [void]$script:AttentesAdmin.Remove($w)
+            Remove-DemandeInstallation
             try { if ($r) { & $w.Fin ([bool]$r.ok) ([string]$r.message) } else { & $w.Fin $false 'pas de réponse du mini-installateur (opération interrompue ?).' } } catch { Write-Log "Fin d'opération admin : $_" }
-            # Demande suivante
-            if ($script:DemandesEnAttente.Count) { $s = $script:DemandesEnAttente[0]; $script:DemandesEnAttente.RemoveAt(0); [void](Send-DemandeInstallation $s) }
+            Send-DemandeSuivante
             continue
         }
         $fini = $false; try { $fini = $w.Process.HasExited } catch {}
@@ -261,7 +348,29 @@ $script:AdminTimer.Add_Tick({
         } catch { Write-Log "Fin d'opération admin : $_" }
     }
     if (-not $script:AttentesAdmin.Count) { $script:AdminTimer.Stop() }
-})
+}
+
+$script:AdminTimer = New-Object System.Windows.Threading.DispatcherTimer
+$script:AdminTimer.Interval = [TimeSpan]::FromMilliseconds(500)
+$script:AdminTimer.Add_Tick({ Update-AttentesAdmin })
+
+# Mise à jour depuis Mindset 2.9.0 ou avant : la tâche est encore l'ancienne (sous le compte de l'utilisateur, avec les
+# droits les plus élevés). Elle sert une dernière fois, sans demande de Windows, à se remplacer par la tâche SYSTEM
+# (installer-admin.ps1 n'accepte plus qu'Action taches par elle). Rien d'autre ne passe par elle : en cas d'échec, les
+# opérations utilisent la demande de Windows, et le bandeau des Paramètres propose de réactiver le mini-installateur.
+# $Fin reçoit $true si la tâche SYSTEM est en place.
+function Start-RemplacementTache([scriptblock]$Fin) {
+    $script:RemplacementFin = $Fin
+    $c = @{ Id = [guid]::NewGuid().ToString('N'); Action = 'taches'; Destination = [string]$DossierMindset }
+    $d = @{ Contenu = $c; Repli = $null; Fin = {
+            param($Ok, $Message)
+            if ($Ok) { Write-Log 'Mini-installateur : l''ancienne tâche est remplacée par la tâche SYSTEM' }
+            else { Write-Log "Mini-installateur : l'ancienne tâche n'a pas pu être remplacée ($Message)" }
+            $script:TacheInstallationOk = $null
+            & $script:RemplacementFin ([bool]((Test-TacheInstallation) -and $Ok))
+        } }
+    [void](Send-DemandeInstallation $d)
+}
 
 # ---------------------------------------------------------------------------
 # Installer, mettre à jour, prendre en charge
@@ -290,17 +399,15 @@ function Start-InstallAppli($Appli, [string]$AncienDossier) {
         $fz = Join-Path $p.Dossier "$($p.Id).zip"; $fs = "$fz.sig"
         [IO.File]::WriteAllBytes($fz, $zip); [IO.File]::WriteAllBytes($fs, $sig)
         @{ Version = $pub.Version; Zip = $fz; Sig = $fs }
-    } $params ([scriptblock]::Create(@"
-        param(`$Resultat, `$Erreur)
-        Complete-Telechargement (Get-Appli '$($Appli.Id)') `$Resultat `$Erreur '$($AncienDossier -replace "'", "''")'
-"@))
+    } $params (New-Action @{ Id = $Appli.Id; Ancien = $AncienDossier } { Complete-Telechargement (Get-Appli $v.Id) $Resultat $Erreur $v.Ancien } 'Resultat', 'Erreur')
 }
 
 function Complete-Telechargement($Appli, $Resultat, $Erreur, [string]$AncienDossier) {
     $script:Progres.Remove($Appli.Id)
     if ($Erreur -or -not $Resultat) { Stop-Operation $Appli "Échec : $Erreur"; return }
     $p = [ordered]@{ Zip = $Resultat.Zip; Signature = $Resultat.Sig; Destination = (Get-DossierGere $Appli); DossierZip = $Appli.DossierZip; Exe = $Appli.Exe }
-    if ($AncienDossier) { $p.AncienExe = Join-Path $AncienDossier $Appli.Exe }
+    # (prise en charge : l'utilisateur est donné aussi, l'installateur ne réécrit que ses tâches planifiées à lui)
+    if ($AncienDossier) { $p.AncienExe = Join-Path $AncienDossier $Appli.Exe; $p.Sid = [Security.Principal.WindowsIdentity]::GetCurrent().User.Value }
     # Appli avec une partie administrateur (Nevermind) : sa tâche planifiée est créée ou remise à jour à chaque installation
     if ($Appli.Aide) { $p.TacheAide = $Appli.Aide; $p.ExeAide = $Appli.AideExe; $p.Sid = [Security.Principal.WindowsIdentity]::GetCurrent().User.Value }
     # Première installation ou prise en charge : l'appli qui se lançait avec Windows s'ouvrira avec Mindset (sinon, prise
@@ -354,11 +461,10 @@ function Send-InstallationAppli($Appli) {
     if (-not $c) { return }
     $script:Occupe[$Appli.Id] = $(if (-not $MindsetAdmin -and (Test-TacheInstallation)) { 'Installation...' } else { 'Installation (accepte la demande de Windows)...' })
     Update-Cartes
-    Invoke-Admin 'appli' $c.Parametres ([scriptblock]::Create(@"
-        param(`$Ok, `$Message)
-        `$a = Get-Appli '$($Appli.Id)'
-        if (`$Ok) { Complete-Installation `$a `$Message } else { Stop-Operation `$a "Échec : `$Message" }
-"@))
+    Invoke-Admin 'appli' $c.Parametres (New-Action @{ Id = $Appli.Id } {
+        $a = Get-Appli $v.Id
+        if ($Ok) { Complete-Installation $a $Message } else { Stop-Operation $a "Échec : $Message" }
+    } 'Ok', 'Message')
 }
 
 function Complete-Installation($Appli, [string]$Dossier) {
@@ -414,13 +520,11 @@ function Move-DonneesAppli($Appli, [string]$Message) {
         [IO.Directory]::Move($tmp, $p.Dest)   # (même disque : renommage d'un bloc, le dossier n'apparaît qu'une fois complet)
         try { Remove-Item -LiteralPath $p.Src -Recurse -Force -ErrorAction Stop; '' }
         catch { "L'ancien dossier $($p.Src) n'a pas pu être supprimé (un fichier est ouvert) : supprime-le plus tard." }
-    } @{ Src = $src; Dest = $dest } ([scriptblock]::Create(@"
-        param(`$Resultat, `$Erreur)
-        `$a = Get-Appli '$($Appli.Id)'
-        `$m = '$($Message -replace "'", "''")'
-        if (`$Erreur) { Write-Log "Données de `$(`$a.Nom) : `$Erreur"; Stop-Operation `$a "`$m Attention : `$Erreur" }
-        else { Write-Log "Données de `$(`$a.Nom) déplacées : $($src -replace "'", "''") -> $($dest -replace "'", "''")"; Stop-Operation `$a (("`$m Ses données sont maintenant dans $($dest -replace "'", "''"). `$Resultat").Trim()) }
-"@))
+    } @{ Src = $src; Dest = $dest } (New-Action @{ Id = $Appli.Id; Message = $Message; Src = $src; Dest = $dest } {
+        $a = Get-Appli $v.Id
+        if ($Erreur) { Write-Log "Données de $($a.Nom) : $Erreur"; Stop-Operation $a "$($v.Message) Attention : $Erreur" }
+        else { Write-Log "Données de $($a.Nom) déplacées : $($v.Src) -> $($v.Dest)"; Stop-Operation $a ("$($v.Message) Ses données sont maintenant dans $($v.Dest). $Resultat".Trim()) }
+    } 'Resultat', 'Erreur')
 }
 
 # Plus aucun accès direct : raccourcis et lancement au démarrage de l'appli (toutes copies) sont retirés.
@@ -655,11 +759,10 @@ function Start-DesinstallAppli($Appli) {
     }
     $script:Occupe[$Appli.Id] = 'Désinstallation (accepte la demande de Windows)...'
     Update-Cartes
-    Invoke-Admin 'supprimer' @{ Destination = $inst.Dossier; Exe = $Appli.Exe } ([scriptblock]::Create(@"
-        param(`$Ok, `$Message)
-        `$a = Get-Appli '$($Appli.Id)'
-        if (`$Ok) { Complete-Desinstallation `$a } else { Stop-Operation `$a "Désinstallation impossible : `$Message" }
-"@))
+    Invoke-Admin 'supprimer' @{ Destination = $inst.Dossier; Exe = $Appli.Exe } (New-Action @{ Id = $Appli.Id } {
+        $a = Get-Appli $v.Id
+        if ($Ok) { Complete-Desinstallation $a } else { Stop-Operation $a "Désinstallation impossible : $Message" }
+    } 'Ok', 'Message')
 }
 
 function Complete-Desinstallation($Appli) {

@@ -489,6 +489,12 @@ function Enable-MindsetAdmin {
 
 $ui.AdminBandeau.Visibility = if (((Test-MindsetInstalle) -and -not $EnTest -and -not (Test-TacheMindset)) -or ($EnTest -and $env:MINDSET_ADMIN_TEST)) { 'Visible' } else { 'Collapsed' }
 $ui.BtnActiverAdmin.Add_Click({ Enable-MindsetAdmin })
+# Mise à jour depuis Mindset 2.9.0 ou avant : l'ancienne tâche (sous le compte de l'utilisateur, avec les droits les
+# plus élevés) se remplace par la tâche SYSTEM, sans demande de Windows. Le bandeau ne revient que si ça n'a pas marché.
+if ((Test-MindsetInstalle) -and -not $EnTest -and -not $MindsetAdmin -and $script:EtatTacheInstallation -eq 'ancienne') {
+    $ui.AdminBandeau.Visibility = 'Collapsed'
+    Start-RemplacementTache { param($Ok) if (-not $Ok) { $ui.AdminBandeau.Visibility = 'Visible' } }
+}
 
 # ---------------------------------------------------------------------------
 # Les Paramètres dans l'écran de la console (console\scene.html, dans la DA des pages de Nevermind) : la page les

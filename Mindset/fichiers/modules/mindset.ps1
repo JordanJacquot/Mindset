@@ -247,42 +247,59 @@ function Start-VerifMajMindset {
 function Start-MajMindset([switch]$Cache) {
     $m = $script:MajMindset
     if (-not $m -or $script:Occupe.Count) { if ($script:Occupe.Count) { $ui.MajTexte.Text = 'Une installation est en cours : réessaie quand elle sera finie.' }; return }
+    if ($script:MajMindsetEnvoyee) { return }   # (déjà envoyée au mini-installateur : on attend son accusé de réception)
     Remove-Item -LiteralPath $FichierMajMindset -Force -ErrorAction SilentlyContinue
     Set-MajMindsetAttendue ([string]$m.Version) ([bool]$Cache) ([string]$m.Notes)   # (l'historique, au redémarrage)
-    # Par le mini-installateur (sans demande de Windows) : il attend la fermeture de Mindset, installe, puis le relance
+    # Demandée à l'écran : Mindset revient avec sa fenêtre (le mini-installateur le relance par sa tâche de démarrage, qui
+    # le lancerait sinon caché près de l'horloge, voir Mindset.ps1)
+    Set-Setting 'MajMindsetVisible' (-not $Cache)
+    # Par le mini-installateur (sans demande de Windows) : il attend la fermeture de Mindset, installe, puis le relance.
+    # Mindset ne se ferme qu'à son accusé de réception ; sans lui (tâche absente, refusée, muette), la demande de Windows.
     if (-not $MindsetAdmin -and (Test-TacheInstallation)) {
         $id = [guid]::NewGuid().ToString('N')
         $c = @{ Id = $id; Action = 'mindset-maj'; Zip = [string]$m.Zip; Signature = [string]$m.Sig; Destination = [string]$DossierMindset; Version = [string]$m.Version; AttendrePid = [string]$PID }
         if ($Cache) { $c.Cache = '1' }
-        try {
-            [IO.File]::WriteAllText($FichierDemande, (ConvertTo-Json -InputObject $c -Compress), (New-Object Text.UTF8Encoding $false))
-            $null = & "$env:SystemRoot\System32\schtasks.exe" /Run /TN $TacheInstallation 2>&1
-            if ($LASTEXITCODE -ne 0) { throw "code $LASTEXITCODE" }
-        } catch { $ui.MajTexte.Text = "Mise à jour impossible : la tâche d'installation n'a pas démarré ($($_.Exception.Message))."; return }
-        Set-Setting 'MajMindsetDemande' $id
-        Write-Log "Mise à jour vers Mindset $($m.Version) lancée"
-        Exit-Mindset
+        $script:MajMindsetEnvoyee = $true
+        $d = @{ Contenu = $c; Cache = [bool]$Cache
+            Recu  = { param($D) Set-Setting 'MajMindsetDemande' $D.Contenu.Id; Write-Log "Mise à jour vers Mindset $($D.Contenu.Version) lancée"; Exit-Mindset }
+            Fin   = { param($Ok, $Message) $script:MajMindsetEnvoyee = $false; if (-not $Ok) { $ui.MajTexte.Text = "Mise à jour impossible : $Message" } }
+            Repli = { param($D) $script:MajMindsetEnvoyee = $false
+                if ($D.Cache) { Write-Log 'Mise à jour automatique de Mindset : la tâche d''installation ne répond pas, elle se fera à la main' } else { Start-MajMindsetDirecte } } }
+        [void](Send-DemandeInstallation $d)
         return
     }
-    $a = @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-WindowStyle', 'Hidden', '-File', "`"$(Join-Path $AppDir 'installer-admin.ps1')`"", '-Action', 'mindset-maj',
-           '-Zip', "`"$($m.Zip)`"", '-Signature', "`"$($m.Sig)`"", '-Destination', "`"$DossierMindset`"", '-Version', $m.Version, '-AttendrePid', $PID, '-Resultat', "`"$FichierMajMindset`"")
+    Start-MajMindsetDirecte
+}
+
+# Par la demande normale de Windows : installer-admin.ps1 en administrateur, il attend la fermeture, installe, puis relance
+function Start-MajMindsetDirecte {
+    $m = $script:MajMindset
+    if (-not $m) { return }
+    try {
+        $a = @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-WindowStyle', 'Hidden', '-File', (Format-ArgumentAdmin (Join-Path $AppDir 'installer-admin.ps1')), '-Action', 'mindset-maj',
+               '-Zip', (Format-ArgumentAdmin $m.Zip), '-Signature', (Format-ArgumentAdmin $m.Sig), '-Destination', (Format-ArgumentAdmin $DossierMindset), '-Version', $m.Version, '-AttendrePid', $PID,
+               '-Sid', [Security.Principal.WindowsIdentity]::GetCurrent().User.Value, '-Resultat', (Format-ArgumentAdmin $FichierMajMindset))
+    } catch { $ui.MajTexte.Text = "Mise à jour impossible : $($_.Exception.Message)"; return }
     # (lancé depuis le dossier de Windows : s'il gardait le dossier de Mindset comme dossier courant, il ne pourrait pas le remplacer)
     try { Start-Process -FilePath "$env:SystemRoot\System32\WindowsPowerShell\v1.0\powershell.exe" -ArgumentList $a -Verb RunAs -WindowStyle Hidden -WorkingDirectory $env:SystemRoot -ErrorAction Stop | Out-Null }
     catch { $ui.MajTexte.Text = 'Mise à jour annulée : l''autorisation de Windows a été refusée. Tu peux réessayer.'; return }
     Write-Log "Mise à jour vers Mindset $($m.Version) lancée"
-    Exit-Mindset   # installer-admin.ps1 attend la fermeture, installe, puis relance Mindset
+    Exit-Mindset   # installer-admin.ps1 attend la fermeture, installe, puis le relance
 }
 
 # Après une mise à jour : le résultat laissé par installer-admin.ps1
 function Show-ResultatMajMindset {
     Resolve-MajMindsetAttendue
+    Set-Setting 'MajMindsetVisible' $false
+    Show-RestesDesinstallation
     $r = $null
     # Mise à jour faite par le mini-installateur : sa réponse dans le registre, reconnue à son numéro
     $id = [string](Get-Setting 'MajMindsetDemande' '')
     if ($id) {
         Set-Setting 'MajMindsetDemande' ''
-        try { $r = [string](Get-ItemProperty -Path 'HKLM:\SOFTWARE\Mindset\Installation' -Name Resultat -ErrorAction Stop).Resultat | ConvertFrom-Json } catch {}
+        try { $r = Get-ValeurInstallation 'Resultat' | ConvertFrom-Json } catch {}
         if ($r -and $r.id -ne $id) { $r = $null }
+        Remove-DemandeInstallation   # (le mini-installateur ne l'efface pas : c'est à Mindset de le faire)
     }
     if (-not $r) {
         if (-not (Test-Path -LiteralPath $FichierMajMindset)) { return }
@@ -294,6 +311,18 @@ function Show-ResultatMajMindset {
     if ($r.ok) { $ui.MajTitre.Text = "Mindset est à jour (version $AppVersion)"; $ui.MajTexte.Text = 'La mise à jour s''est bien passée.' }
     else { $ui.MajTitre.Text = 'La mise à jour de Mindset n''a pas pu se faire'; $ui.MajTexte.Text = "$($r.message) Mindset garde sa version actuelle et réessaiera plus tard." }
     Write-Log "Résultat de la mise à jour de Mindset : $(if ($r.ok) { 'réussie' } else { $r.message })"
+    $ui.MajBandeau.Visibility = 'Visible'
+}
+
+# Désinstallation de Mindset faite par le mini-installateur (sans désinstalleur autonome) et pas allée au bout : ce qui
+# reste, écrit dans HKLM par le mini-installateur (en SYSTEM, il n'affiche aucune fenêtre), est dit ici
+function Show-RestesDesinstallation {
+    $t = Get-ValeurInstallation 'Restes'
+    if (-not $t) { return }
+    Write-Log "Désinstallation de Mindset pas finie : $t"
+    $ui.MajTitre.Text = 'Mindset n''a pas pu être désinstallé entièrement'
+    $ui.MajTexte.Text = $t
+    $ui.BtnMajMindset.Visibility = 'Collapsed'; $ui.BtnMajFermer.Content = 'OK'
     $ui.MajBandeau.Visibility = 'Visible'
 }
 

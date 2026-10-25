@@ -198,6 +198,8 @@ static class Essai {
 
     Import-Fonctions 'installations.ps1' @('Start-InstallAppli', 'Complete-Telechargement', 'Send-InstallationAppli', 'Complete-Installation', 'Get-DemarrageAppli', 'Set-DemarrageAppli',
         'Get-DemarrageWindowsAppli', 'Repair-DemarrageApplis', 'Move-TachesDemarrage', 'Get-DossierGere')
+    # (les valeurs données au code appelé plus tard : taches.ps1)
+    Import-Fonctions 'taches.ps1' @('New-Action', 'Pop-Action'); $script:Actions = New-Object System.Collections.Specialized.OrderedDictionary
     Import-Fonctions 'integration.ps1' @('Write-DemandeQuitter')
     Import-Fonctions 'donnees.ps1' @('Save-JsonSur', 'Read-JsonSur', 'ConvertFrom-JsonObjet')
     Import-Fonctions 'mindset.ps1' @('Start-VerifMajMindset', 'Get-JeuxNevermind', 'Get-JeuEnCours', 'ConvertTo-EntreeMaj', 'Read-HistoriqueMaj', 'Save-HistoriqueMaj', 'Add-HistoriqueMaj',
@@ -424,6 +426,8 @@ static class Essai {
     Import-Fonctions 'accueil.ps1' @('Get-EtatCarte', 'Confirm-MiseAJour')
     Import-Fonctions 'mindset.ps1' @('Invoke-MajAuto', 'Test-MajAutoActive', 'Test-VerifVersionsActive', 'Set-VerifVersions', 'Test-MajAutoRecente')
     Import-Fonctions 'installations.ps1' @('Update-Publications')
+    # (les valeurs données au code appelé plus tard : taches.ps1)
+    Import-Fonctions 'taches.ps1' @('New-Action', 'Pop-Action'); $script:Actions = New-Object System.Collections.Specialized.OrderedDictionary
     Import-Fonctions 'parametres.ps1' @('Get-HistoriqueMajAffiche')
     function ConvertTo-ThemeHex([string]$Hex) { $Hex }
     function Get-EtatAppli { $null }

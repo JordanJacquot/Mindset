@@ -113,6 +113,9 @@ if ($missing) {
 # Sauf juste après une mise à jour faite pendant qu'il était caché (« MajMindsetDemande » rempli) : le mini-installateur
 # le relance par cette même tâche, et il doit revenir caché près de l'horloge (les notifications des applis y passent).
 . (Join-Path $ModulesDir 'donnees.ps1')
+# Relancé après une mise à jour demandée à l'écran : le mini-installateur passe toujours par la tâche de démarrage (qui
+# donne -Demarrage, sans les droits, dans la session de l'utilisateur), mais Mindset revient avec sa fenêtre
+if ($Demarrage -and (Get-Setting 'MajMindsetVisible' $false)) { Set-Setting 'MajMindsetVisible' $false; $Demarrage = $false }
 if ($Demarrage -and -not (Get-LancerAvecWindows) -and -not (Get-Setting 'MajMindsetDemande' '')) { Write-Log 'Lancé avec Windows, mais « Mindset se lance avec Windows » est coupé : rien n''est ouvert'; exit }
 
 # Fonctions natives (barre de titre sombre, identité dans la barre des tâches)

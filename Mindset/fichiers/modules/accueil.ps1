@@ -441,7 +441,7 @@ function New-PhraseReseau($Appli) {
 function Confirm-MiseAJour($Appli) {
     $pub = $script:Publications[$Appli.Id]
     if (Test-AppliOuverte $Appli) {
-        Show-Confirmation "Mettre à jour $($Appli.Nom) ?" "$($Appli.Nom) va être fermé le temps de la mise à jour (version $($pub.Version)). Ses réglages et ses données sont gardés." 'Fermer et mettre à jour' ([scriptblock]::Create("Start-InstallAppli (Get-Appli '$($Appli.Id)')"))
+        Show-Confirmation "Mettre à jour $($Appli.Nom) ?" "$($Appli.Nom) va être fermé le temps de la mise à jour (version $($pub.Version)). Ses réglages et ses données sont gardés." 'Fermer et mettre à jour' (New-Action @{ Id = $Appli.Id } { Start-InstallAppli (Get-Appli $v.Id) })
     } else { Start-InstallAppli $Appli }
 }
 
@@ -454,7 +454,7 @@ function Confirm-PriseEnCharge($Appli, [string]$Dossier) {
             else { "`n`nL'ancienne copie ($Dossier) est ensuite supprimée (seulement les fichiers de $($Appli.Nom))." }
     if (Test-AppliOuverte $Appli) { $txt += " $($Appli.Nom) va être fermé pendant l'opération." }
     $txt += "`n`n$(Get-PhraseReseauAppli $Appli)"
-    Show-Confirmation "Prendre en charge $($Appli.Nom) ?" $txt 'Prendre en charge' ([scriptblock]::Create("Start-InstallAppli (Get-Appli '$($Appli.Id)') '$($Dossier -replace "'", "''")'"))
+    Show-Confirmation "Prendre en charge $($Appli.Nom) ?" $txt 'Prendre en charge' (New-Action @{ Id = $Appli.Id; Dossier = $Dossier } { Start-InstallAppli (Get-Appli $v.Id) $v.Dossier })
 }
 
 function Select-DossierAppli($Appli) {
@@ -469,7 +469,7 @@ function Confirm-Desinstallation($Appli) {
     # (le désinstalleur de l'appli pose lui-même la question des données : Complete-Desinstallation dit ensuite ce qu'il a fait)
     $txt = if ($Appli.Desinstalleur) { "Le désinstalleur de $($Appli.Nom) va s'ouvrir : il remet comme avant les réglages de Windows qu'il a modifiés, puis supprime ses fichiers. Il te demande aussi si tu gardes tes données : elles sont gardées si tu ne coches rien." }
            else { "$($Appli.Nom) va être fermé et ses fichiers supprimés (une demande de Windows). Ses données (réglages, rendez-vous) sont gardées : une réinstallation les retrouve." }
-    Show-Confirmation "Désinstaller $($Appli.Nom) ?" $txt 'Désinstaller' ([scriptblock]::Create("Start-DesinstallAppli (Get-Appli '$($Appli.Id)')"))
+    Show-Confirmation "Désinstaller $($Appli.Nom) ?" $txt 'Désinstaller' (New-Action @{ Id = $Appli.Id } { Start-DesinstallAppli (Get-Appli $v.Id) })
 }
 
 # ---------------------------------------------------------------------------

@@ -56,13 +56,19 @@ function Write-Partie([string]$Titre) { Write-Host ''; Write-Host $Titre -Foregr
 # Le lanceur : l'autre PowerShell où tourne la copie d'installer-admin.ps1, avec ses fausses fonctions
 # ---------------------------------------------------------------------------------------------------------------
 $texteLanceur = @'
-param([string]$Script, [string]$Parametres, [string]$Journal, [string]$Dossier, [string]$Lettre, [string]$LettreAmovible, [switch]$VraisProgrammes)
+param([string]$Script, [string]$Parametres, [string]$Journal, [string]$Dossier, [string]$Lettre, [string]$LettreAmovible, [switch]$VraisProgrammes,
+      [string]$SidTache, [switch]$TachesRestantes, [switch]$DemarrageKo)
 $global:TJournal = $Journal
+$global:TDossier = $Dossier
 $global:TPermis = @(($Dossier.TrimEnd('\') + '\'), "$($Lettre):\")
 $global:TLettre = $Lettre; $global:TLettreAmovible = $LettreAmovible
+$global:TSidTache = $SidTache; $global:TTachesRestantes = [bool]$TachesRestantes; $global:TDemarrageKo = [bool]$DemarrageKo
 [Net.WebRequest]::DefaultWebProxy = New-Object Net.WebProxy('http://127.0.0.1:9', $false)
-$env:ProgramFiles = Join-Path $Dossier 'ProgramFiles'
-$env:LOCALAPPDATA = Join-Path $Dossier 'LocalAppData'
+# Les variables d'environnement de l'utilisateur, piégées : l'installateur ne doit jamais s'en servir (Program Files et le
+# dossier des données lui viennent de Windows). Une écriture vers le piège est refusée et notée. (SystemRoot et windir
+# ne peuvent pas l'être ici : .NET ne trouverait plus ses propres fichiers. Le test qui lit le vrai installateur vérifie
+# qu'aucune variable n'y est lue.)
+foreach ($n in 'ProgramFiles', 'ProgramData', 'LOCALAPPDATA', 'APPDATA', 'USERPROFILE') { Set-Item -Path "env:$n" -Value "Z:\piege-variable-$n" }
 # Le faux disque X: (une lettre libre sur ce PC)
 New-PSDrive -Name $Lettre -PSProvider FileSystem -Root (Join-Path $Dossier 'disque') -Scope Global | Out-Null
 
@@ -94,7 +100,36 @@ function global:New-Item {
 function global:Set-ItemProperty {
     [CmdletBinding()] param([string]$Path, [string]$Name, [object]$Value)
     if ($Path -eq 'HKLM:\SOFTWARE\Mindset\Installation' -and $Name -eq 'Resultat') { Add-Journal "RESULTAT $Value"; return }
+    # (l'accusé de réception : gardé dans un fichier du test, relu par Get-ItemProperty)
+    if ($Path -eq 'HKLM:\SOFTWARE\Mindset\Installation' -and $Name -eq 'Recu') { Add-Journal "RECU $Value"; [IO.File]::WriteAllText((Join-Path $global:TDossier 'recu.txt'), [string]$Value); return }
+    if ($Path -eq 'HKLM:\SOFTWARE\Mindset\Installation' -and $Name -eq 'Restes') { Add-Journal "RESTES $Value"; return }
     Add-Journal "ACTION registre : $Path\$Name = $Value"
+}
+function global:Get-ItemProperty {
+    [CmdletBinding()] param([string]$Path, [string]$Name)
+    if ($Path -eq 'HKLM:\SOFTWARE\Mindset\Installation' -and $Name -eq 'Recu' -and [IO.File]::Exists((Join-Path $global:TDossier 'recu.txt'))) {
+        return [pscustomobject]@{ Recu = [IO.File]::ReadAllText((Join-Path $global:TDossier 'recu.txt')) }
+    }
+    Add-Journal "LECTURE registre $Path $Name"
+    throw "Valeur absente : $Path $Name"
+}
+# Le faux profil de chaque utilisateur (ProfileList) : <dossier de test>\Profils\<SID>, noté comme Windows le fait
+# (%SystemDrive% au début quand il est sur le disque de Windows)
+function global:Get-Item {
+    [CmdletBinding()] param([string[]]$LiteralPath, [switch]$Force)
+    if (Test-Registre "$LiteralPath") {
+        Add-Journal "LECTURE registre $LiteralPath"
+        if ("$LiteralPath" -match '\\ProfileList\\(S-1-5-21-[\d-]+)$') {
+            $profil = Join-Path $global:TDossier "Profils\$($Matches[1])"
+            $w = [Environment]::GetFolderPath('Windows')
+            if ($profil.StartsWith($w.Substring(0, 2), [StringComparison]::OrdinalIgnoreCase)) { $profil = '%SystemDrive%' + $profil.Substring(2) }
+            $o = [pscustomobject]@{ Profil = $profil }
+            $o | Add-Member -MemberType ScriptMethod -Name GetValue -Value { param($Nom, $Defaut, $Options) if ($Nom -eq 'ProfileImagePath' -and "$Options" -eq 'DoNotExpandEnvironmentNames') { $this.Profil } else { $Defaut } }
+            return $o
+        }
+        throw "Clé absente : $LiteralPath"
+    }
+    Microsoft.PowerShell.Management\Get-Item @PSBoundParameters
 }
 function global:New-ItemProperty {
     [CmdletBinding()] param([string]$Path, [string]$Name, [object]$Value, [string]$PropertyType, [switch]$Force)
@@ -129,9 +164,18 @@ function global:Set-Acl { [CmdletBinding()] param([string]$LiteralPath, $AclObje
 function global:icacls { Add-Journal "ACTION droits (icacls) $(Get-TexteArgs $args)" }
 function global:Get-CimInstance {
     [CmdletBinding()] param([Parameter(Position = 0)][string]$ClassName, [string]$Filter)
+    if ($ClassName -eq 'Win32_Process' -and $Filter -match '^ProcessId=(\d+)$') { return [pscustomobject]@{ ProcessId = [int]$Matches[1] } }
     Add-Journal "LECTURE disque $Filter"
     if ($Filter -like "*'$($global:TLettre):'*") { return [pscustomobject]@{ DriveType = 3; FileSystem = 'NTFS' } }
     if ($Filter -like "*'$($global:TLettreAmovible):'*") { return [pscustomobject]@{ DriveType = 2; FileSystem = 'FAT32' } }
+}
+# Le propriétaire de chaque programme ouvert : celui de la tâche (l'utilisateur de Mindset), sauf ceux d'un autre compte
+$global:TAutreCompte = 'S-1-5-21-1111111111-2222222222-3333333333-1001'
+$global:TProprietaires = @{ 109 = $global:TAutreCompte; 110 = $global:TAutreCompte }
+function global:Invoke-CimMethod {
+    [CmdletBinding()] param($InputObject, [string]$MethodName)
+    $s = $global:TProprietaires[[int]$InputObject.ProcessId]
+    [pscustomobject]@{ Sid = $(if ($s) { $s } else { [Security.Principal.WindowsIdentity]::GetCurrent().User.Value }) }
 }
 # Tâches planifiées
 function global:New-ScheduledTaskPrincipal { [pscustomobject]@{ Texte = "Principal $(Get-TexteArgs $args)" } }
@@ -140,14 +184,44 @@ function global:New-ScheduledTaskAction { [pscustomobject]@{ Texte = "Action $(G
 function global:New-ScheduledTaskTrigger { [pscustomobject]@{ Texte = "Declencheur $(Get-TexteArgs $args)"; Delay = $null } }
 function global:Register-ScheduledTask { Add-Journal "ACTION tâche créée : $(Get-TexteArgs $args)" }
 function global:Unregister-ScheduledTask { Add-Journal "ACTION tâche retirée : $(Get-TexteArgs $args)" }
-function global:Set-ScheduledTask { Add-Journal "ACTION tâche modifiée : $(Get-TexteArgs $args)" }
-function global:Get-ScheduledTask { Add-Journal "LECTURE tâches $(Get-TexteArgs $args)" }
+function global:Set-ScheduledTask {
+    [CmdletBinding()] param([string]$TaskName, [string]$TaskPath, $Action)
+    Add-Journal "ACTION tâche modifiée : $TaskPath$TaskName -> $((@($Action) | ForEach-Object { $_.Execute }) -join ' | ')"
+}
+# Les tâches du PC : celles qui lancent l'ancienne copie d'une appli (<dossier de test>\ancienne\Appli.exe), de tous
+# les genres ; et la tâche d'installation de Mindset, pour l'ancienne tâche (-SidTache : son utilisateur)
+function global:Get-ScheduledTask {
+    [CmdletBinding()] param([string]$TaskPath, [string]$TaskName)
+    Add-Journal "LECTURE tâches $TaskPath$TaskName"
+    if ($TaskPath -eq '\Mindset\' -and $TaskName -eq 'Mindset (installation)') {
+        if (-not $global:TSidTache) { throw 'Tâche absente.' }
+        return [pscustomobject]@{ TaskPath = '\Mindset\'; TaskName = $TaskName; Principal = [pscustomobject]@{ UserId = $global:TSidTache } }
+    }
+    if ($TaskPath -eq '\Mindset\') {
+        if ($global:TTachesRestantes) { return [pscustomobject]@{ TaskPath = '\Mindset\'; TaskName = 'Mindset (démarrage)' } }
+        return
+    }
+    $anc = Join-Path $global:TDossier 'ancienne\Appli.exe'
+    $moi = [Security.Principal.WindowsIdentity]::GetCurrent().User.Value
+    function Get-Act([string]$Exe) { [pscustomobject]@{ Execute = $Exe } }
+    @(
+        [pscustomobject]@{ TaskPath = '\'; TaskName = 'Appli (démarrage)'; Principal = [pscustomobject]@{ UserId = $moi }; Actions = @((Get-Act "`"$anc`""), (Get-Act 'C:\Autre\Autre.exe')) }
+        [pscustomobject]@{ TaskPath = '\'; TaskName = 'Antivirus'; Principal = [pscustomobject]@{ UserId = 'S-1-5-18' }; Actions = @((Get-Act $anc)) }
+        [pscustomobject]@{ TaskPath = '\Microsoft\Windows\Defrag\'; TaskName = 'Windows'; Principal = [pscustomobject]@{ UserId = $moi }; Actions = @((Get-Act $anc)) }
+        [pscustomobject]@{ TaskPath = '\Mindset\'; TaskName = 'Mindset (aide)'; Principal = [pscustomobject]@{ UserId = $moi }; Actions = @((Get-Act $anc)) }
+        [pscustomobject]@{ TaskPath = '\'; TaskName = 'Autre compte'; Principal = [pscustomobject]@{ UserId = $global:TAutreCompte }; Actions = @((Get-Act $anc)) }
+        [pscustomobject]@{ TaskPath = '\'; TaskName = 'Groupe'; Principal = [pscustomobject]@{ UserId = $null; GroupId = 'Utilisateurs' }; Actions = @((Get-Act $anc)) }
+    )
+}
+# Les programmes de Windows lancés par l'installateur (schtasks, icacls) : notés, jamais lancés
+# (-DemarrageKo : la tâche de démarrage ne se lance pas)
+function global:schtasks { Add-Journal "ACTION lancement schtasks $(Get-TexteArgs $args)"; $global:LASTEXITCODE = if ($global:TDemarrageKo -and "$args" -like '*(démarrage)*') { 1 } else { 0 } }
 # Programmes
 # (de faux programmes ouverts, avec leur chemin : Mindset lui-même, l'hôte Mindset.exe et l'ancien Appli.exe de l'appli,
 # son aide, une autre appli au nom proche « AppliBis », des copies ailleurs, un processus au chemin illisible)
 # -VraisProgrammes : les vrais Get-Process et Stop-Process, sur des programmes d'essai lancés par le test sous %TEMP%
 if (-not $VraisProgrammes) {
-    $pmt = Join-Path $env:ProgramFiles 'Mindset'
+    $pmt = Join-Path $Dossier 'ProgramFiles\Mindset'
     $global:TProcessus = @(
         [pscustomobject]@{ Id = 101; Path = "$pmt\Mindset\Mindset.exe" }
         [pscustomobject]@{ Id = 102; Path = "$pmt\Appli\Mindset.exe" }
@@ -156,7 +230,10 @@ if (-not $VraisProgrammes) {
         [pscustomobject]@{ Id = 105; Path = "$pmt\AppliBis\Appli.exe" }
         [pscustomobject]@{ Id = 106; Path = "$Dossier\ailleurs\Appli.exe" }
         [pscustomobject]@{ Id = 107; Path = "$Dossier\ailleurs\Mindset.exe" }
-        [pscustomobject]@{ Id = 108; Path = $null })
+        [pscustomobject]@{ Id = 108; Path = $null }
+        [pscustomobject]@{ Id = 109; Path = "$pmt\Appli\Mindset.exe"; SessionId = 98 }   # (un autre compte Windows, qui utilise la même copie)
+        [pscustomobject]@{ Id = 110; Path = "$pmt\Appli\Appli.exe"; SessionId = 99 })   # (aussi, dans une autre session)
+    foreach ($x in $global:TProcessus) { if (-not $x.PSObject.Properties['SessionId']) { $x | Add-Member SessionId ([Diagnostics.Process]::GetCurrentProcess().SessionId) } }
     function global:Get-Process { [CmdletBinding()] param([string[]]$Name) Add-Journal "LECTURE programmes ouverts $Name"; $global:TProcessus }
     function global:Stop-Process { [CmdletBinding()] param([Parameter(ValueFromPipeline = $true)]$InputObject, [switch]$Force) process { Add-Journal "ACTION arrêt du programme $($InputObject.Path)" } }
 }
@@ -164,6 +241,18 @@ function global:Wait-Process { Add-Journal "LECTURE attente $(Get-TexteArgs $arg
 function global:Start-Process { [CmdletBinding()] param([string]$FilePath, [string[]]$ArgumentList) Add-Journal "ACTION lancement $FilePath $ArgumentList" }
 function global:Start-Sleep { }
 function global:New-Object {
+    if ($args.Count -and "$($args[0])" -eq '-ComObject' -and "$($args[1])" -eq 'Schedule.Service') {
+        # Le planificateur : seulement les droits posés sur une tâche et le retrait du dossier, notés
+        $tache = [pscustomobject]@{}
+        $tache | Add-Member -MemberType ScriptMethod -Name SetSecurityDescriptor -Value { param($Sddl, $Options) Add-Journal "ACTION droits de la tâche : $Sddl" }
+        $dossier = [pscustomobject]@{ Tache = $tache }
+        $dossier | Add-Member -MemberType ScriptMethod -Name GetTask -Value { param($Nom) Add-Journal "LECTURE tâche $Nom"; $this.Tache }
+        $dossier | Add-Member -MemberType ScriptMethod -Name DeleteFolder -Value { param($Nom, $Options) Add-Journal "ACTION dossier de tâches retiré : $Nom" }
+        $s = [pscustomobject]@{ Dossier = $dossier }
+        $s | Add-Member -MemberType ScriptMethod -Name Connect -Value { }
+        $s | Add-Member -MemberType ScriptMethod -Name GetFolder -Value { param($Chemin) $this.Dossier }
+        return $s
+    }
     if ($args.Count -and "$($args[0])" -eq '-ComObject') { Add-Journal "ACTION objet COM $($args[1])"; throw 'Objet COM interdit dans les tests.' }
     Microsoft.PowerShell.Utility\New-Object @args
 }
@@ -218,10 +307,34 @@ function New-ZipTest($Entrees) {
 # L'installateur testé, copié avec ses modules ; ses clés publiques : la clé de test seulement
 $copie = Join-Path $tmp 'copie\fichiers'
 New-Item -ItemType Directory -Force -Path (Join-Path $copie 'modules'), (Join-Path $copie 'cles-publiques'), (Join-Path $tmp 'journaux'), (Join-Path $tmp 'demandes'), (Join-Path $tmp 'resultats') | Out-Null
-Copy-Item -LiteralPath (Join-Path $fichiers 'installer-admin.ps1') -Destination $copie
+# Le bloc des dossiers de Windows (entre « <dossiers-windows> » et « </dossiers-windows> ») est remplacé par ceux du faux
+# PC : Program Files de test, schtasks et icacls remplacés par de fausses fonctions. Le vrai bloc est vérifié à part
+# (aucune variable d'environnement).
+$texteInstalleur = [IO.File]::ReadAllText((Join-Path $fichiers 'installer-admin.ps1'), [Text.Encoding]::UTF8)
+$blocWindows = [regex]::Match($texteInstalleur, '(?s)# <dossiers-windows>.*?# </dossiers-windows>')
+if (-not $blocWindows.Success) { throw 'Bloc <dossiers-windows> introuvable dans installer-admin.ps1.' }
+$faux = @'
+# <dossiers-windows> (faux PC des tests)
+$DossierWindows = [Environment]::GetFolderPath('Windows')
+$DossierSysteme = [Environment]::GetFolderPath('System')
+$DossierProgrammes = Join-Path $global:TDossier 'ProgramFiles'
+$PowerShellExe = Join-Path $DossierSysteme 'WindowsPowerShell\v1.0\powershell.exe'
+$Schtasks = 'schtasks'
+$Icacls = 'icacls'
+$Explorer = Join-Path $DossierWindows 'explorer.exe'
+$CleProfils = 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList'
+# </dossiers-windows>
+'@
+# Le module ScheduledTasks n'est pas importé dans la copie : ses commandes sont des fonctions, qui, importées par le
+# script, passeraient devant les fausses du lanceur (et toucheraient aux vraies tâches planifiées de ce PC). Le vrai
+# import est vérifié à part, dans le vrai installateur.
+$importTaches = "'CimCmdlets', 'ScheduledTasks') {"
+if (-not $texteInstalleur.Contains($importTaches)) { throw 'Import du module ScheduledTasks introuvable dans installer-admin.ps1.' }
+$texteCopie = $texteInstalleur.Replace($blocWindows.Value, $faux.Trim()).Replace($importTaches, "'CimCmdlets') {")
+if ($texteCopie -match "'ScheduledTasks'") { throw 'La copie de test importerait encore le module ScheduledTasks.' }
+[IO.File]::WriteAllText((Join-Path $copie 'installer-admin.ps1'), $texteCopie, (New-Object Text.UTF8Encoding $true))
 foreach ($m in 'signature.ps1', 'paquets.ps1') { Copy-Item -LiteralPath (Join-Path $fichiers "modules\$m") -Destination (Join-Path $copie 'modules') }
 $installeur = Join-Path $copie 'installer-admin.ps1'
-$propreMindset = [IO.Path]::GetFullPath((Join-Path $copie '..\Mindset.exe'))   # le Mindset qui a fait la demande
 $lanceur = Join-Path $tmp 'lanceur.ps1'
 [IO.File]::WriteAllText($lanceur, $texteLanceur, (New-Object Text.UTF8Encoding $true))
 
@@ -231,15 +344,17 @@ try {
     $null = Save-Fichier (Join-Path $copie 'cles-publiques\test.xml') $rsa.ToXmlString($false)
     function Save-Paquet([string]$Nom, $Entrees) {
         $z = New-ZipTest $Entrees
-        [IO.File]::WriteAllBytes((Join-Path $tmp "paquets\$Nom.zip"), $z)
-        [IO.File]::WriteAllBytes((Join-Path $tmp "paquets\$Nom.zip.sig"), $rsa.SignData($z, $sha256))
-        Join-Path $tmp "paquets\$Nom.zip"
+        [IO.File]::WriteAllBytes((Join-Path $paquets "$Nom.zip"), $z)
+        [IO.File]::WriteAllBytes((Join-Path $paquets "$Nom.zip.sig"), $rsa.SignData($z, $sha256))
+        Join-Path $paquets "$Nom.zip"
     }
-    New-Item -ItemType Directory -Force -Path (Join-Path $tmp 'paquets') | Out-Null
+    # (les zips téléchargés par Mindset : dans le dossier telechargements, à côté de sa demande)
+    $paquets = Join-Path $tmp 'demandes\telechargements'
+    New-Item -ItemType Directory -Force -Path $paquets | Out-Null
     $zipAppli = Save-Paquet 'Appli' ([ordered]@{ 'Appli/Appli.exe' = 'appli 2.0.0'; 'Appli/Aide.exe' = 'aide 2.0.0'; 'Appli/fichiers/Appli.ps1' = "`$AppVersion = '2.0.0'`r`n" })
     $zipMindset = Save-Paquet 'Mindset' ([ordered]@{ 'Mindset/Mindset.exe' = 'mindset 2.0.0'; 'Mindset/fichiers/Mindset.ps1' = "`$AppVersion = '2.0.0'`r`n" })
     # Une signature fausse (celle d'un autre fichier)
-    $sigFausse = Join-Path $tmp 'paquets\fausse.sig'
+    $sigFausse = Join-Path $paquets 'fausse.sig'
     [IO.File]::WriteAllBytes($sigFausse, $rsa.SignData([Text.Encoding]::UTF8.GetBytes('autre chose'), $sha256))
 } finally { $rsa.Dispose() }
 
@@ -255,7 +370,7 @@ $null = Save-Fichier (Join-Path $srcSansScript 'Mindset.exe') 'mindset nouveau'
 
 # État de départ de chaque cas : Mindset 1.0.0 et une appli 1.0.0 dans Program Files\Mindset (de test), un dossier
 # « victime » hors de Mindset, un faux disque vide
-$racinesEtat = @($PF, (Join-Path $tmp 'disque'), (Join-Path $tmp 'LocalAppData'), (Join-Path $tmp 'victime'))
+$racinesEtat = @($PF, (Join-Path $tmp 'disque'), (Join-Path $tmp 'Profils'), (Join-Path $tmp 'victime'), (Join-Path $tmp 'ancienne'))
 function Initialize-Etat {
     foreach ($d in $racinesEtat) { if (Test-Path -LiteralPath $d) { Remove-Item -LiteralPath $d -Recurse -Force } ; New-Item -ItemType Directory -Force -Path $d | Out-Null }
     $null = Save-Fichier (Join-Path $PM 'Mindset\Mindset.exe') 'mindset 1.0.0'
@@ -264,6 +379,8 @@ function Initialize-Etat {
     $null = Save-Fichier (Join-Path $PM 'Appli\Aide.exe') 'aide 1.0.0'
     $null = Save-Fichier (Join-Path $PM 'Appli\fichiers\Appli.ps1') "`$AppVersion = '1.0.0'"
     $null = Save-Fichier (Join-Path $tmp 'victime\important.txt') 'à garder'
+    # (l'accusé de réception de la demande précédente, dans le faux registre)
+    if (Test-Path -LiteralPath (Join-Path $tmp 'recu.txt')) { Remove-Item -LiteralPath (Join-Path $tmp 'recu.txt') -Force }
 }
 # Tous les fichiers et dossiers que l'installateur pourrait toucher : les fichiers avec leur taille et leur date (pas
 # celle des dossiers, que Windows met à jour un peu après coup)
@@ -280,9 +397,14 @@ function Get-Version([string]$Dossier) {
 # Rend : Lignes (le journal), Actions (ce qui aurait été fait sur Windows), Reponse (la réponse : registre pour une
 # demande, sinon le fichier -Resultat), Inchange (aucun fichier créé, modifié ou retiré), Erreur.
 $script:NumeroCas = 0
-function Invoke-Installateur([hashtable]$Parametres, [scriptblock]$Preparer = $null, [switch]$SansResultat, [switch]$VraisProgrammes) {
+# -SidTache : l'utilisateur de l'ancienne tâche (sans -Sid) ; -TachesRestantes : une tâche de Mindset ne part pas ;
+# -GarderRecu : l'accusé de réception du cas précédent reste (la même demande relancée)
+function Invoke-Installateur([hashtable]$Parametres, [scriptblock]$Preparer = $null, [switch]$SansResultat, [switch]$VraisProgrammes,
+                             [string]$SidTache = '', [switch]$TachesRestantes, [switch]$GarderRecu, [switch]$DemarrageKo) {
     $n = ++$script:NumeroCas
+    $recu = if ($GarderRecu -and (Test-Path -LiteralPath (Join-Path $tmp 'recu.txt'))) { [IO.File]::ReadAllText((Join-Path $tmp 'recu.txt')) } else { '' }
     Initialize-Etat
+    if ($recu) { [IO.File]::WriteAllText((Join-Path $tmp 'recu.txt'), $recu) }
     if ($Preparer) { & $Preparer }
     $journal = Join-Path $tmp "journaux\$n.txt"; [IO.File]::WriteAllText($journal, '')
     $fichierReponse = Join-Path $tmp "resultats\$n.json"
@@ -292,7 +414,7 @@ function Invoke-Installateur([hashtable]$Parametres, [scriptblock]$Preparer = $n
     $eap = $ErrorActionPreference; $ErrorActionPreference = 'Continue'
     try {
         $sortie = & "$env:SystemRoot\System32\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -NonInteractive -ExecutionPolicy Bypass -File $lanceur `
-            -Script $installeur -Parametres $fp -Journal $journal -Dossier $tmp -Lettre $L -LettreAmovible $LA @(if ($VraisProgrammes) { '-VraisProgrammes' }) 2>&1
+            -Script $installeur -Parametres $fp -Journal $journal -Dossier $tmp -Lettre $L -LettreAmovible $LA @(if ($SidTache) { '-SidTache', $SidTache }) @(if ($VraisProgrammes) { '-VraisProgrammes' }) @(if ($TachesRestantes) { '-TachesRestantes' }) @(if ($DemarrageKo) { '-DemarrageKo' }) 2>&1
     } finally { $ErrorActionPreference = $eap }
     $lignes = @([IO.File]::ReadAllLines($journal, [Text.Encoding]::UTF8) | Where-Object { $_ })
     $reponse = $null
@@ -319,9 +441,13 @@ function New-Demande($Contenu, [int]$Taille = 0) {
     if ($Taille) { $t = $t + (' ' * ($Taille - [Text.Encoding]::UTF8.GetByteCount($t))) }
     Save-Fichier (Join-Path $tmp "demandes\$([guid]::NewGuid().ToString('N')).demande") $t
 }
-function Invoke-Demande($Contenu, [int]$Taille = 0, [scriptblock]$Preparer = $null) {
+# Comme la tâche SYSTEM la lance : -Sid (l'utilisateur inscrit dans la tâche) et -Demande. -AncienneTache : comme
+# l'ancienne tâche (sans -Sid), dont l'utilisateur est -SidTache.
+function Invoke-Demande($Contenu, [int]$Taille = 0, [scriptblock]$Preparer = $null, [switch]$AncienneTache, [string]$SidTache = '', [switch]$TachesRestantes, [switch]$GarderRecu) {
     $f = New-Demande $Contenu $Taille
-    Invoke-Installateur @{ Action = 'demande'; Demande = $f } $Preparer
+    $p = @{ Action = 'demande'; Demande = $f }
+    if (-not $AncienneTache) { $p.Sid = $sidActuel }
+    Invoke-Installateur $p $Preparer -SidTache $SidTache -TachesRestantes:$TachesRestantes -GarderRecu:$GarderRecu
 }
 function New-Id { [guid]::NewGuid().ToString('N') }
 # Une copie de la table $Base, avec les valeurs de $Changes en plus ou à la place
@@ -337,11 +463,17 @@ function Test-RienFait($R, [string[]]$Permis = @()) {
 # Aucune réponse nulle part (ni registre, ni fichier) : la demande est ignorée sans un mot
 function Test-SansReponse($R) { -not $R.Reponse -and -not $R.Registre }
 function Test-Action($R, [string]$Texte) { [bool]@($R.Actions | Where-Object { $_.Contains($Texte) }).Count }
+# (la tâche d'installation : en SYSTEM, l'utilisateur inscrit dans ses arguments, et lui seul peut la lancer)
 function Test-TacheCreee($R, [string]$Nom, [string]$Sid = $sidActuel) {
+    if ($Nom -eq 'Mindset (installation)') {
+        return [bool]@($R.Actions | Where-Object { $_.Contains('ACTION tâche créée') -and $_.Contains("-TaskName $Nom -") -and $_.Contains('-UserId S-1-5-18 -LogonType ServiceAccount') -and $_.Contains("-Action demande -Sid $Sid -Demande") }).Count -and
+            (Test-Action $R "ACTION droits de la tâche : D:P(A;;FA;;;SY)(A;;FA;;;BA)(A;;FRFX;;;$Sid)")
+    }
     [bool]@($R.Actions | Where-Object { $_.Contains('ACTION tâche créée') -and $_.Contains("-TaskName $Nom -") -and $_.Contains("-UserId $Sid ") }).Count
 }
 function Test-SansTache($R) { -not @($R.Actions | Where-Object { $_ -like 'ACTION tâche*' }).Count }
-$relancePropre = "ACTION lancement *explorer.exe `"$propreMindset`""
+# Par la tâche SYSTEM, Mindset est toujours relancé par sa tâche de démarrage (sans droits, dans la session de l'utilisateur)
+$relanceTache = 'ACTION lancement schtasks /Run /TN \Mindset\Mindset (démarrage)'
 
 try {
     Write-Host 'Mindset : tests du mini-installateur (installer-admin.ps1)' -ForegroundColor Cyan
@@ -368,7 +500,7 @@ try {
     }
     Test-Cas 'demande de plus de 16 Ko (16 Ko + 1 octet) : ignorée sans réponse, rien fait, laissée en place' {
         $f = New-Demande (@{ Id = (New-Id) } + $taches) -Taille 16385
-        $r = Invoke-Installateur @{ Action = 'demande'; Demande = $f }
+        $r = Invoke-Installateur @{ Action = 'demande'; Demande = $f; Sid = $sidActuel }
         (Test-SansReponse $r) -and (Test-RienFait $r) -and (Test-Path -LiteralPath $f)
     }
     # Lien symbolique vers une demande valable. Sans le droit de créer un lien (PC sans mode développeur), un autre
@@ -411,12 +543,12 @@ public static class MindsetTestPointAnalyse {
     }
     Test-Cas 'demande illisible (pas du JSON) : « Demande illisible », rien fait' {
         $f = New-Demande "{ Id: 'abcdef12', Action: taches"
-        $r = Invoke-Installateur @{ Action = 'demande'; Demande = $f }
+        $r = Invoke-Installateur @{ Action = 'demande'; Demande = $f; Sid = $sidActuel }
         (Test-Refuse $r 'Demande illisible') -and -not $r.Registre -and (Test-RienFait $r)
     }
     Test-Cas 'demande illisible, lancée comme par la tâche (sans -Resultat) : aucune réponse écrite nulle part' {
         $f = New-Demande 'pas du json'
-        $r = Invoke-Installateur @{ Action = 'demande'; Demande = $f } -SansResultat
+        $r = Invoke-Installateur @{ Action = 'demande'; Demande = $f; Sid = $sidActuel } -SansResultat
         (Test-SansReponse $r) -and (Test-RienFait $r)
     }
     Test-Cas 'demande avec un Id valable mais un AttendrePid illisible : « Demande illisible » dans le registre, rien fait' {
@@ -625,7 +757,26 @@ public static class MindsetTestPointAnalyse {
         $r = Invoke-Demande (@{ Id = (New-Id) } + $maj)
         $dest = Join-Path $PM 'Mindset'
         $r.Reponse.ok -and $r.Reponse.message -eq '2.0.0' -and (Get-Version $dest) -eq '2.0.0' -and (Test-Action $r 'Uninstall\Mindset\DisplayVersion = 2.0.0') -and
-            (Test-TacheCreee $r 'Mindset (installation)') -and (Test-Action $r "explorer.exe `"$(Join-Path $dest 'Mindset.exe')`"")
+            (Test-TacheCreee $r 'Mindset (installation)') -and (Test-Action $r $relanceTache) -and -not (Test-Action $r 'explorer.exe')
+    }
+    Test-Cas 'mise à jour automatique (Mindset caché) : relancé par sa tâche de démarrage, jamais par l''Explorateur' {
+        $r = Invoke-Demande (@{ Id = (New-Id); Cache = '1' } + $maj)
+        $r.Reponse.ok -and (Test-Action $r $relanceTache) -and -not (Test-Action $r 'explorer.exe')
+    }
+    Test-Cas 'par la tâche, la tâche de démarrage ne se lance pas : jamais l''Explorateur (il tournerait en SYSTEM)' {
+        $f = New-Demande (@{ Id = (New-Id) } + $maj)
+        $r = Invoke-Installateur @{ Action = 'demande'; Demande = $f; Sid = $sidActuel } -DemarrageKo
+        $r.Reponse.ok -and (Test-Action $r $relanceTache) -and -not (Test-Action $r 'explorer.exe')
+    }
+    Test-Cas 'mise à jour en lancement direct (demande de Windows) : relancé par l''Explorateur, comme avant' {
+        $r = Invoke-Installateur (@{} + $maj)
+        $r.Reponse.ok -and (Test-Action $r "explorer.exe `"$(Join-Path $PM 'Mindset\Mindset.exe')`"") -and -not (Test-Action $r 'schtasks')
+    }
+    Test-Cas 'mise à jour par la tâche avec un zip hors du dossier telechargements : refusée, rien installé' {
+        $ailleurs = Join-Path $tmp 'victime\Mindset.zip'
+        $r = Invoke-Demande (Merge-Table $maj @{ Id = (New-Id); Zip = $ailleurs; Signature = "$ailleurs.sig" }) -Preparer {
+            Copy-Item -LiteralPath $zipMindset -Destination $ailleurs; Copy-Item -LiteralPath "$zipMindset.sig" -Destination "$ailleurs.sig" }
+        (Test-Refuse $r 'Fichier refusé') -and (Get-Version (Join-Path $PM 'Mindset')) -eq '1.0.0' -and (Test-RienFait $r @($relanceTache))
     }
     foreach ($cas in @(
             @{ Nom = 'hors de Program Files\Mindset'; Dossier = (Join-Path $tmp 'victime\Mindset') },
@@ -634,12 +785,12 @@ public static class MindsetTestPointAnalyse {
         $c = $cas
         Test-Cas "mise à jour vers un dossier $($c.Nom) : « Dossier refusé », rien installé, seul l'ancien Mindset relancé" {
             $r = Invoke-Demande (Merge-Table $maj @{ Id = (New-Id); Destination = $c.Dossier })
-            (Test-Refuse $r 'Dossier refusé') -and (Test-RienFait $r @($relancePropre))
+            (Test-Refuse $r 'Dossier refusé') -and (Test-RienFait $r @($relanceTache))
         }
     }
     Test-Cas 'mise à jour à la signature fausse : refusée, rien installé, aucune tâche, aucune clé' {
         $r = Invoke-Demande (Merge-Table $maj @{ Id = (New-Id); Signature = $sigFausse })
-        (Test-Refuse $r 'signature') -and (Test-RienFait $r @("ACTION lancement *explorer.exe `"$(Join-Path $PM 'Mindset\Mindset.exe')`""))
+        (Test-Refuse $r 'signature') -and (Test-RienFait $r @($relanceTache))
     }
 
     # =============================================================================================================
@@ -702,6 +853,199 @@ public static class MindsetTestPointAnalyse {
     }
 
     # =============================================================================================================
+    Write-Partie 'La tâche SYSTEM : rien ne vient de l''utilisateur (revue du 25/10, constat 1)'
+    # =============================================================================================================
+    Test-Cas 'le vrai bloc des dossiers de Windows les demande à Windows (GetFolderPath), sans aucune variable d''environnement' {
+        $b = $blocWindows.Value
+        $b -notmatch '\$env:|\$\{env:' -and $b -match "GetFolderPath\('System'\)" -and $b -match "GetFolderPath\('ProgramFiles'\)" -and $b -match "GetFolderPath\('Windows'\)"
+    }
+    Test-Cas 'aucune autre variable d''environnement dans l''installateur (seulement PSModulePath, qu''il fixe lui-même)' {
+        $autres = @([regex]::Matches($texteInstalleur, '\$env:\w+|\$\{env:[^}]+\}') | ForEach-Object { $_.Value } | Where-Object { $_ -ne '$env:PSModulePath' })
+        -not $autres.Count
+    }
+    Test-Cas 'avant toute autre commande : PSModulePath réduit à System32, chargement automatique coupé, modules importés par leur chemin' {
+        $ast = [System.Management.Automation.Language.Parser]::ParseInput($texteInstalleur, [ref]$null, [ref]$null)
+        $premieres = @($ast.EndBlock.Statements | Select-Object -First 4 | ForEach-Object { $_.Extent.Text })
+        $premieres[0] -eq "`$ErrorActionPreference = 'Stop'" -and $premieres[1] -like "`$env:PSModulePath = [[]Environment[]]::GetFolderPath('System') + *" -and
+            $premieres[2] -eq "`$PSModuleAutoLoadingPreference = 'None'" -and $premieres[3] -like 'foreach (*ScheduledTasks*Import-Module -Name ($env:PSModulePath*'
+    }
+
+    # De faux modules qui portent le nom de ceux de Windows, en tête de PSModulePath (comme Documents\WindowsPowerShell\Modules,
+    # que l'utilisateur, ou un programme lancé sans droits, peut remplir) : chacun laisse un fichier témoin s'il est chargé.
+    # Ici, la vraie copie d'installer-admin.ps1 (sans aucune fausse fonction) lit une demande au numéro invalide, puis s'arrête.
+    $faux = Join-Path $tmp 'faux-modules'; $temoins = Join-Path $tmp 'temoins'
+    New-Item -ItemType Directory -Force -Path $temoins | Out-Null
+    $commandes = @{
+        'Microsoft.PowerShell.Utility' = 'New-Object', 'ConvertFrom-Json', 'ConvertTo-Json', 'Add-Type', 'Get-Date'
+        'Microsoft.PowerShell.Management' = 'Join-Path', 'Test-Path', 'Split-Path', 'New-Item', 'Get-Item', 'Get-ItemProperty', 'Set-ItemProperty', 'Remove-Item'
+        'Microsoft.PowerShell.Security' = 'Get-Acl', 'Set-Acl'
+        'ScheduledTasks' = 'Get-ScheduledTask', 'Register-ScheduledTask', 'Set-ScheduledTask'
+        'CimCmdlets' = 'Get-CimInstance', 'Invoke-CimMethod'
+    }
+    foreach ($m in $commandes.Keys) {
+        $temoin = (Join-Path $temoins "$m.txt").Replace("'", "''")
+        $texte = "[IO.File]::WriteAllText('$temoin', 'chargé')`r`n" + (($commandes[$m] | ForEach-Object { "function $_ { [IO.File]::WriteAllText('$temoin', 'appelé') }" }) -join "`r`n") + "`r`nExport-ModuleMember -Function *"
+        $null = Save-Fichier (Join-Path $faux "$m\$m.psm1") $texte
+    }
+    $vrai = Join-Path $tmp 'vrai\fichiers'
+    New-Item -ItemType Directory -Force -Path (Join-Path $vrai 'modules') | Out-Null
+    [IO.File]::WriteAllText((Join-Path $vrai 'installer-admin.ps1'), $texteInstalleur, (New-Object Text.UTF8Encoding $true))
+    # Contre-épreuve : la même copie sans ses premières lignes (PSModulePath, chargement automatique, import par chemin)
+    $sansProtection = [regex]::Replace($texteInstalleur, "(?s)\`$env:PSModulePath = .*?(?=# <dossiers-windows>)", '')
+    [IO.File]::WriteAllText((Join-Path $vrai 'sans-protection.ps1'), $sansProtection, (New-Object Text.UTF8Encoding $true))
+    $demandeInvalide = New-Demande @{ Id = 'pas un numero'; Action = 'taches' }
+    function Get-Temoins([string]$Script) {
+        Get-ChildItem -LiteralPath $temoins -File | Remove-Item -Force
+        $chemins = $env:PSModulePath
+        $eap = $ErrorActionPreference; $ErrorActionPreference = 'Continue'
+        try {
+            $env:PSModulePath = "$faux;$chemins"
+            $null = & "$env:SystemRoot\System32\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -NonInteractive -ExecutionPolicy Bypass -File $Script -Action demande -Sid $sidActuel -Demande $demandeInvalide 2>&1
+        } finally { $env:PSModulePath = $chemins; $ErrorActionPreference = $eap }
+        @(Get-ChildItem -LiteralPath $temoins -File | ForEach-Object { $_.BaseName })
+    }
+    Test-Cas 'faux modules de Windows en tête de PSModulePath : aucun n''est chargé (aucun fichier témoin)' {
+        $t = @(Get-Temoins (Join-Path $vrai 'installer-admin.ps1'))
+        if ($t.Count) { Write-Host "         chargés : $($t -join ', ')" -ForegroundColor DarkGray }
+        -not $t.Count
+    }
+    Test-Cas 'contre-épreuve : sans ses premières lignes, l''installateur charge le faux module (témoin)' {
+        @(Get-Temoins (Join-Path $vrai 'sans-protection.ps1')).Count -gt 0
+    }
+    Test-Cas 'variables de l''utilisateur piégées (ProgramFiles, LOCALAPPDATA, windir...) : rien écrit ni lu par elles, installation faite' {
+        $r = Invoke-Demande (@{ Id = (New-Id) } + $taches)
+        $r.Reponse.ok -and -not @($r.Lignes | Where-Object { $_ -like '*piege-variable*' }).Count
+    }
+
+    Test-Cas 'tâche d''installation : en SYSTEM, utilisateur inscrit dans ses arguments, lui seul peut la lancer, powershell.exe de System32' {
+        $r = Invoke-Demande (@{ Id = (New-Id) } + $taches)
+        $ps = Join-Path ([Environment]::GetFolderPath('System')) 'WindowsPowerShell\v1.0\powershell.exe'
+        $r.Reponse.ok -and (Test-TacheCreee $r 'Mindset (installation)') -and (Test-Action $r "-Execute $ps ") -and (Test-Action $r '-NoProfile -NonInteractive') -and
+            -not (Test-Action $r '-UserId S-1-5-21-1111111111')
+    }
+    Test-Cas 'sa demande : dans le dossier de l''utilisateur lu dans ProfileList (HKLM), jamais dans LOCALAPPDATA' {
+        $r = Invoke-Demande (@{ Id = (New-Id) } + $taches)
+        $attendu = Join-Path $tmp "Profils\$sidActuel\AppData\Local\Mindset\Mindset\installation.demande"
+        $r.Reponse.ok -and (Test-Action $r "-Demande `"$attendu`"") -and (Test-Action $r 'LOCALAPPDATA') -eq $false
+    }
+    Test-Cas 'Mindset sur un autre disque : sa demande dans X:\Mindset\Donnees\Mindset' {
+        $r = Invoke-Installateur @{ Action = 'mindset'; Source = $srcOk; Version = '3.0.0'; Disque = $L; Sid = $sidActuel }
+        $r.Reponse.ok -and (Test-Action $r "-Demande `"$($L):\Mindset\Donnees\Mindset\installation.demande`"")
+    }
+    Test-Cas 'accusé de réception : l''Id de la demande, écrit dans HKLM avant le travail' {
+        $id = New-Id
+        $r = Invoke-Demande (@{ Id = $id } + $taches)
+        $l = @($r.Lignes)
+        $i = [array]::IndexOf($l, "RECU $id"); $j = @(0..($l.Count - 1) | Where-Object { $l[$_] -like 'ACTION tâche créée*' } | Select-Object -First 1)
+        $r.Reponse.ok -and $i -ge 0 -and $j.Count -and $j[0] -gt $i
+    }
+    Test-Cas 'la même demande relancée (même Id, déjà reçue) : rien refait, aucune réponse' {
+        $id = New-Id
+        $null = Invoke-Demande (@{ Id = $id } + $taches)
+        $f = New-Demande (@{ Id = $id } + $taches)
+        $r = Invoke-Installateur @{ Action = 'demande'; Demande = $f; Sid = $sidActuel } -GarderRecu
+        (Test-SansReponse $r) -and (Test-SansTache $r)
+    }
+    Test-Cas 'la demande n''est jamais effacée par l''installateur (Mindset l''efface ; en SYSTEM, un lien ferait effacer autre chose)' {
+        $f = New-Demande (@{ Id = (New-Id) } + $taches)
+        $r = Invoke-Installateur @{ Action = 'demande'; Demande = $f; Sid = $sidActuel }
+        $r.Reponse.ok -and (Test-Path -LiteralPath $f)
+    }
+    Test-Cas 'demande illisible : « Demande illisible. » sans recopier le texte de l''erreur (il citerait le contenu du fichier)' {
+        $f = New-Demande '{ secret: 12345'
+        $r = Invoke-Installateur @{ Action = 'demande'; Demande = $f; Sid = $sidActuel }
+        (Test-Refuse $r 'Demande illisible') -and -not ([string]$r.Reponse.message).Contains('secret')
+    }
+    foreach ($cas in @(@{ Nom = 'le zip'; Zip = (Join-Path $tmp 'victime\Appli.zip'); Sig = "$zipAppli.sig" }, @{ Nom = 'la signature'; Zip = $zipAppli; Sig = (Join-Path $tmp 'victime\Appli.zip.sig') })) {
+        $c = $cas
+        Test-Cas "par la tâche, $($c.Nom) hors du dossier telechargements de l'utilisateur : « Fichier refusé », rien fait" {
+            $r = Invoke-Demande (Get-Appli @{ Zip = $c.Zip; Signature = $c.Sig }) -Preparer {
+                Copy-Item -LiteralPath $zipAppli -Destination (Join-Path $tmp 'victime\Appli.zip'); Copy-Item -LiteralPath "$zipAppli.sig" -Destination (Join-Path $tmp 'victime\Appli.zip.sig') }
+            (Test-Refuse $r 'Fichier refusé') -and (Test-RienFait $r)
+        }
+    }
+    Test-Cas 'par la tâche, un zip donné par un chemin relatif : « Fichier refusé », rien fait' {
+        $r = Invoke-Demande (Get-Appli @{ Zip = 'telechargements\Appli.zip' })
+        (Test-Refuse $r 'Fichier refusé') -and (Test-RienFait $r)
+    }
+    Test-Cas 'par la tâche, -Sid invalide (le système) : « Utilisateur inconnu. », rien fait' {
+        $f = New-Demande (@{ Id = (New-Id) } + $taches)
+        $r = Invoke-Installateur @{ Action = 'demande'; Demande = $f; Sid = 'S-1-5-18' }
+        (Test-Refuse $r 'Utilisateur inconnu.') -and (Test-RienFait $r)
+    }
+
+    # L'ancienne tâche (jusqu'à Mindset 2.9.0 : sous le compte de l'utilisateur, droits les plus élevés, sans -Sid)
+    Test-Cas 'ancienne tâche, Action taches : elle se remplace par la tâche SYSTEM, pour son utilisateur' {
+        $r = Invoke-Demande (@{ Id = (New-Id) } + $taches) -AncienneTache -SidTache $sidActuel
+        $r.Reponse.ok -and (Test-TacheCreee $r 'Mindset (installation)') -and (Test-TacheCreee $r 'Mindset (démarrage)')
+    }
+    foreach ($a in 'appli', 'mindset-maj', 'supprimer') {
+        $x = $a
+        Test-Cas "ancienne tâche, Action $x : refusée (elle doit d'abord être remplacée), rien fait" {
+            $d = switch ($x) { 'appli' { Get-Appli @{} } 'mindset-maj' { @{ Id = (New-Id) } + $maj } 'supprimer' { @{ Id = (New-Id); Action = 'supprimer'; Destination = (Join-Path $PM 'Appli'); Exe = 'Appli.exe' } } }
+            $r = Invoke-Demande $d -AncienneTache -SidTache $sidActuel
+            (Test-Refuse $r 'Ancienne tâche') -and (Test-RienFait $r)
+        }
+    }
+    Test-Cas 'ancienne tâche d''un autre compte que celui qui la lance : « Utilisateur inconnu. », aucune tâche' {
+        $r = Invoke-Demande (@{ Id = (New-Id) } + $taches) -AncienneTache -SidTache 'S-1-5-21-1111111111-2222222222-3333333333-1001'
+        (Test-Refuse $r 'Utilisateur inconnu.') -and (Test-RienFait $r)
+    }
+
+    # =============================================================================================================
+    Write-Partie 'Prise en charge : seules les tâches de l''utilisateur qui lançaient l''ancienne copie (revue du 25/10, constat 3)'
+    # =============================================================================================================
+    $ancienne = Join-Path $tmp 'ancienne\Appli.exe'
+    $creerAncienne = { $null = Save-Fichier $ancienne 'appli 0.9' }
+    function Get-Modifiees($R) { @($R.Actions | Where-Object { $_ -like 'ACTION tâche modifiée*' }) }
+    Test-Cas 'ancienne copie valable : seule la tâche de l''utilisateur est réécrite, ses deux actions gardées' {
+        $r = Invoke-Demande (Get-Appli @{ AncienExe = $ancienne }) -Preparer $creerAncienne
+        $m = @(Get-Modifiees $r)
+        $r.Reponse.ok -and $m.Count -eq 1 -and $m[0] -eq "ACTION tâche modifiée : \Appli (démarrage) -> `"$(Join-Path $PM 'Appli\Appli.exe')`" | C:\Autre\Autre.exe"
+    }
+    Test-Cas 'ni la tâche SYSTEM, ni celle de Windows (\Microsoft\), ni celle de Mindset, ni celle d''un autre compte ou d''un groupe' {
+        $r = Invoke-Demande (Get-Appli @{ AncienExe = $ancienne }) -Preparer $creerAncienne
+        $r.Reponse.ok -and -not @(Get-Modifiees $r | ForEach-Object { ($_ -split ' -> ')[0] } | Where-Object { $_ -match 'Antivirus|\\Microsoft\\|\\Mindset\\|Autre compte|Groupe' }).Count
+    }
+    foreach ($cas in @(
+            @{ Nom = 'un autre programme (explorer.exe)'; Exe = 'C:\Windows\explorer.exe' },
+            @{ Nom = 'le programme d''un antivirus'; Exe = 'C:\Program Files\Antivirus\Appli.exe.bak' },
+            @{ Nom = 'un chemin relatif'; Exe = 'Appli.exe' },
+            @{ Nom = 'un chemin qui remonte'; Exe = (Join-Path $tmp 'ancienne\..\ancienne\Appli.exe') },
+            @{ Nom = 'un programme absent'; Exe = (Join-Path $tmp 'absente\Appli.exe') },
+            @{ Nom = 'un chemin réseau'; Exe = '\\serveur\partage\Appli.exe' })) {
+        $c = $cas
+        Test-Cas "ancienne copie refusée ($($c.Nom)) : « Ancienne copie refusée. », rien installé, aucune tâche modifiée" {
+            $r = Invoke-Demande (Get-Appli @{ AncienExe = $c.Exe }) -Preparer $creerAncienne
+            (Test-Refuse $r 'Ancienne copie refusée.') -and (Test-RienFait $r)
+        }
+    }
+    Test-Cas 'lancement direct sans utilisateur : l''appli est installée, aucune tâche modifiée' {
+        $r = Invoke-Installateur (@{ AncienExe = $ancienne } + $appli) -Preparer $creerAncienne
+        $r.Reponse.ok -and -not @(Get-Modifiees $r).Count
+    }
+
+    # =============================================================================================================
+    Write-Partie 'En SYSTEM, aucune fenêtre ; programmes fermés seulement ceux de l''utilisateur'
+    # =============================================================================================================
+    Test-Cas 'désinstallation de Mindset par la tâche, pas allée au bout : aucune fenêtre, ce qui reste est écrit dans HKLM pour Mindset' {
+        $r = Invoke-Demande @{ Id = (New-Id); Action = 'supprimer'; Destination = (Join-Path $PM 'Mindset') } -TachesRestantes
+        -not (Test-Action $r 'fenêtre') -and @($r.Lignes | Where-Object { $_ -like 'RESTES *' }).Count -and @($r.Lignes | Where-Object { $_ -like '- la tâche planifiée*' }).Count -and -not (Test-Action $r 'suppression de HKLM:\SOFTWARE\Mindset')
+    }
+    Test-Cas 'même cas en lancement direct (demande de Windows) : la fenêtre est montrée, comme avant' {
+        $r = Invoke-Installateur @{ Action = 'supprimer'; Destination = (Join-Path $PM 'Mindset') } -TachesRestantes
+        (Test-Action $r 'fenêtre') -and -not @($r.Lignes | Where-Object { $_ -like 'RESTES *' }).Count
+    }
+    Test-Cas 'par la tâche : le programme d''un autre compte qui utilise la même copie n''est pas fermé' {
+        $r = Invoke-Demande (Get-Appli @{})
+        $r.Reponse.ok -and @($r.Lignes | Where-Object { $_ -like 'ACTION arrêt*' }).Count -eq 3
+    }
+    Test-Cas 'en lancement direct sans utilisateur : seulement ceux de la session (pas celui de la session 99)' {
+        $r = Invoke-Installateur @{ Action = 'supprimer'; Destination = (Join-Path $PM 'Appli'); Exe = 'Appli.exe' }
+        $r.Reponse.ok -and @($r.Lignes | Where-Object { $_ -like 'ACTION arrêt*' }).Count -eq 3
+    }
+
+    # =============================================================================================================
     Write-Partie 'Programmes fermés : par leur chemin (le dossier de l''appli), jamais par leur nom'
     # =============================================================================================================
     # L'hôte de chaque appli s'appelle Mindset.exe, comme Mindset : fermer « Mindset » ou « Appli » par nom fermerait
@@ -737,7 +1081,7 @@ public static class MindsetTestPointAnalyse {
         $script:Essais[$Chemin] = Start-Process -FilePath $Chemin -PassThru
     }
     $f = New-Demande (Get-Appli @{})
-    $r = Invoke-Installateur @{ Action = 'demande'; Demande = $f } -VraisProgrammes -Preparer {
+    $r = Invoke-Installateur @{ Action = 'demande'; Demande = $f; Sid = $sidActuel } -VraisProgrammes -Preparer {
         foreach ($c in "$PM\Appli\Mindset.exe", "$PM\Appli\Appli.exe", "$PM\Mindset\Mindset.exe", "$PM\AppliBis\Appli.exe", (Join-Path $tmp 'ailleurs\Mindset.exe')) { & $lancer $c }
         Start-Sleep -Milliseconds 500
     }
