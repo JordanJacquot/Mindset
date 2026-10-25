@@ -3,8 +3,11 @@
 # Autonome (pas de fenêtre, pas d'autre module que signature.ps1) : chargé par les tâches de fond de Mindset
 # et par installer-admin.ps1, lancé en administrateur pour les applis qui vont dans Program Files.
 
-# Dernière version publiée d'une appli : numéro, adresse du zip et de sa signature
-function Get-Publication([string]$Depot, [string]$Zip) {
+# Dernière version publiée d'une appli : numéro, adresse du zip et de sa signature.
+# -Zip : son nom, ou plusieurs noms par ordre de préférence (le nom d'aujourd'hui, puis l'ancien : une version publiée
+# avant le changement de nom de l'appli n'a que l'ancien) ; le premier présent dans la version est pris.
+function Get-Publication([string]$Depot, [string[]]$Zip) {
+    $Zip = @($Zip | Where-Object { $_ })
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
     try {
         $r = Invoke-RestMethod -Uri "https://api.github.com/repos/$Depot/releases/latest" -Headers @{ 'User-Agent' = 'Mindset' } -TimeoutSec 15
@@ -14,11 +17,13 @@ function Get-Publication([string]$Depot, [string]$Zip) {
         if ($repli) { return $repli }
         return @{ Erreur = "Impossible de joindre GitHub ($($_.Exception.Message))." }
     }
-    $z = @($r.assets | Where-Object { $_.name -eq $Zip }) | Select-Object -First 1
-    $s = @($r.assets | Where-Object { $_.name -eq "$Zip.sig" }) | Select-Object -First 1
-    if (-not $z) { return @{ Erreur = "La dernière version publiée ne contient pas $Zip." } }
+    $nom = @($Zip | Where-Object { $n = $_; @($r.assets | Where-Object { $_.name -eq $n }).Count }) | Select-Object -First 1
+    if (-not $nom) { return @{ Erreur = "La dernière version publiée ne contient pas $($Zip[0])." } }
+    $z = @($r.assets | Where-Object { $_.name -eq $nom }) | Select-Object -First 1
+    $s = @($r.assets | Where-Object { $_.name -eq "$nom.sig" }) | Select-Object -First 1
     @{
         Version = ([string]$r.tag_name -replace '^[vV]', '')
+        Fichier = [string]$nom
         UrlZip  = [string]$z.browser_download_url
         UrlSig  = if ($s) { [string]$s.browser_download_url } else { $null }
         Notes   = [string]$r.body
@@ -27,7 +32,8 @@ function Get-Publication([string]$Depot, [string]$Zip) {
 
 # Sans l'API : https://github.com/<dépôt>/releases/latest renvoie vers /releases/tag/v<version> (sans limite de questions),
 # et les fichiers d'une version sont à /releases/download/v<version>/<fichier>
-function Get-PublicationSansApi([string]$Depot, [string]$Zip) {
+function Get-PublicationSansApi([string]$Depot, [string[]]$Zip) {
+    $Zip = @($Zip | Where-Object { $_ })
     try {
         $q = [Net.HttpWebRequest]::Create("https://github.com/$Depot/releases/latest")
         $q.Method = 'HEAD'; $q.AllowAutoRedirect = $false; $q.UserAgent = 'Mindset'; $q.Timeout = 15000
@@ -35,14 +41,21 @@ function Get-PublicationSansApi([string]$Depot, [string]$Zip) {
         if ($vers -notmatch '/releases/tag/v?(\d+(\.\d+){1,3})$') { return $null }
         $version = $Matches[1]
         $base = "https://github.com/$Depot/releases/download/v$version"
-        # La signature est-elle publiée ? (une redirection vers le fichier veut dire oui)
-        $sig = $null
-        try {
-            $q2 = [Net.HttpWebRequest]::Create("$base/$Zip.sig"); $q2.Method = 'HEAD'; $q2.AllowAutoRedirect = $false; $q2.UserAgent = 'Mindset'; $q2.Timeout = 15000
-            $r2 = $q2.GetResponse(); if ([int]$r2.StatusCode -in 200, 301, 302) { $sig = "$base/$Zip.sig" }; $r2.Close()
-        } catch {}
-        @{ Version = $version; UrlZip = "$base/$Zip"; UrlSig = $sig; Notes = (Get-NotesPage $Depot $version) }
+        # Plusieurs noms possibles : le premier publié dans cette version (sinon le premier, comme avec un seul nom)
+        $nom = $Zip[0]
+        if ($Zip.Count -gt 1) { $nom = @($Zip | Where-Object { Test-FichierPublie "$base/$_" }) + $Zip[0] | Select-Object -First 1 }
+        # La signature est-elle publiée ?
+        $sig = if (Test-FichierPublie "$base/$nom.sig") { "$base/$nom.sig" } else { $null }
+        @{ Version = $version; Fichier = $nom; UrlZip = "$base/$nom"; UrlSig = $sig; Notes = (Get-NotesPage $Depot $version) }
     } catch { $null }
+}
+
+# Un fichier d'une version publiée existe-t-il ? (une redirection vers le fichier veut dire oui)
+function Test-FichierPublie([string]$Url) {
+    try {
+        $q = [Net.HttpWebRequest]::Create($Url); $q.Method = 'HEAD'; $q.AllowAutoRedirect = $false; $q.UserAgent = 'Mindset'; $q.Timeout = 15000
+        $r = $q.GetResponse(); $ok = [int]$r.StatusCode -in 200, 301, 302; $r.Close(); $ok
+    } catch { $false }
 }
 
 # Les notes d'une version lues sur sa page GitHub (quand l'API refuse) ; introuvables : le lien vers la page
@@ -108,12 +121,26 @@ function Get-Octets([string]$Url, $Progres = $null, [long]$MaxOctets = 200MB, [i
     } finally { $rep.Dispose() }
 }
 
+# Le dossier principal d'un zip téléchargé (son contenu en octets) : le premier des noms donnés (le nom d'aujourd'hui,
+# puis l'ancien nom de l'appli) qui contient son programme -Exe. Zip illisible ou aucun : le premier nom (l'installation
+# dira alors ce qui manque).
+function Get-DossierZip([byte[]]$Zip, [string[]]$Noms, [string]$Exe) {
+    $Noms = @($Noms | Where-Object { $_ })
+    try {
+        Add-Type -AssemblyName System.IO.Compression
+        $archive = New-Object IO.Compression.ZipArchive((New-Object IO.MemoryStream (, $Zip)), [IO.Compression.ZipArchiveMode]::Read)
+        try { $entrees = @($archive.Entries | ForEach-Object { $_.FullName.Replace('/', '\') }) } finally { $archive.Dispose() }
+        foreach ($n in $Noms) { if ($entrees -icontains "$($n.TrimEnd('\'))\$Exe") { return $n } }
+    } catch {}
+    $Noms[0]
+}
+
 function Test-VersionPlusRecente([string]$Distante, [string]$Locale) {
     try { [version]$Distante -gt [version]$Locale } catch { $false }
 }
 
 # Version d'une appli installée dans un dossier : la ligne « $AppVersion = 'x.y.z' » de son script principal
-# (fichiers\*.ps1 : OptiGame.ps1, Evermind.ps1, Mindset.ps1). '' si introuvable.
+# (fichiers\*.ps1 : Nevermind.ps1, Evermind.ps1, Mindset.ps1). '' si introuvable.
 function Get-VersionDossier([string]$Dossier) {
     foreach ($f in @(Get-ChildItem -LiteralPath (Join-Path $Dossier 'fichiers') -Filter '*.ps1' -File -ErrorAction SilentlyContinue)) {
         foreach ($l in @(Get-Content -LiteralPath $f.FullName -TotalCount 40 -ErrorAction SilentlyContinue)) {
@@ -126,7 +153,7 @@ function Get-VersionDossier([string]$Dossier) {
 # Installe (ou remplace) une appli à partir de son zip signé.
 #   Le zip est vérifié puis extrait depuis la mémoire : le fichier sur le disque peut changer après la vérification,
 #   ce qu'on installe est exactement ce qu'on a vérifié.
-#   Seul le contenu du dossier principal du zip (« OptiGame\... », « Evermind\... ») est extrait, et tout chemin qui
+#   Seul le contenu du dossier principal du zip (« Nevermind\... », « Evermind\... ») est extrait, et tout chemin qui
 #   sortirait du dossier d'arrivée est refusé.
 #   Le nouveau dossier est préparé à côté puis échangé avec l'ancien : une erreur en route laisse l'ancien intact.
 #   -ClePublique : le dossier des clés publiques de la suite (fichiers\cles-publiques), voir signature.ps1.

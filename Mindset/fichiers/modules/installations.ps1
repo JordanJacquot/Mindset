@@ -48,14 +48,25 @@ function Save-Installation([string]$Id, [string]$Dossier, [bool]$Gere) {
     if (-not $EnTest -or $env:MINDSET_DONNEES) { Save-JsonSur $InstallFile ($o | ConvertTo-Json -Depth 4) }
 }
 
+# Le script principal de l'appli dans un dossier : sous son nom d'aujourd'hui, ou sous son ancien nom (une installation
+# d'avant le changement de nom, comme fichiers\OptiGame.ps1 pour Nevermind). $null si aucun.
+function Get-ScriptAppli([string]$Dossier, $Appli) {
+    if (-not $Dossier) { return $null }
+    foreach ($s in @($Appli.Script, $Appli.AncienScript) | Where-Object { $_ }) {
+        $f = Join-Path $Dossier $s
+        if (Test-Path -LiteralPath $f -PathType Leaf) { return $f }
+    }
+    $null
+}
+
 function Get-VersionDans([string]$Dossier, $Appli) {
-    $f = Join-Path $Dossier $Appli.Script
-    try { if ([IO.File]::ReadAllText($f, [Text.Encoding]::UTF8) -match "(?m)^\`$AppVersion\s*=\s*'([\d.]+)'") { return $Matches[1] } } catch {}
+    $f = Get-ScriptAppli $Dossier $Appli
+    try { if ($f -and [IO.File]::ReadAllText($f, [Text.Encoding]::UTF8) -match "(?m)^\`$AppVersion\s*=\s*'([\d.]+)'") { return $Matches[1] } } catch {}
     $null
 }
 
 function Test-DossierAppli([string]$Dossier, $Appli) {
-    $Dossier -and (Test-Path -LiteralPath (Join-Path $Dossier $Appli.Exe)) -and (Test-Path -LiteralPath (Join-Path $Dossier $Appli.Script))
+    $Dossier -and (Test-Path -LiteralPath (Join-Path $Dossier $Appli.Exe)) -and [bool](Get-ScriptAppli $Dossier $Appli)
 }
 
 # L'installation connue d'une appli : @{ Dossier; Gere; Version } ou $null
@@ -174,7 +185,7 @@ $script:Recherches = @{}
 function Update-Publications {
     foreach ($a in $Applis) {
         $script:Recherches[$a.Id] = Get-Date
-        Start-Tache { $p = $args[0]; Get-Publication $p.Depot $p.Zip } @{ Depot = $a.Depot; Zip = $a.Zip } (New-Action @{ Id = $a.Id } {
+        Start-Tache { $p = $args[0]; Get-Publication $p.Depot $p.Zip } @{ Depot = $a.Depot; Zip = @($a.Zip, $a.AncienZip) } (New-Action @{ Id = $a.Id } {
             $script:Recherches.Remove($v.Id)
             $script:Publications[$v.Id] = if ($Erreur) { @{ Erreur = $Erreur } } else { $Resultat }
             # GitHub limite les questions (60 par heure et par connexion) : refusé, on réessaie dans 30 minutes
@@ -387,7 +398,9 @@ function Start-InstallAppli($Appli, [string]$AncienDossier) {
     Update-Cartes
     New-Item -ItemType Directory -Force -Path $TelechargementsDir | Out-Null
     $script:Progres[$Appli.Id] = [hashtable]::Synchronized(@{ Recu = 0; Total = 0 })
-    $params = @{ Depot = $Appli.Depot; Zip = $Appli.Zip; Cle = $ClePublique; Dossier = $TelechargementsDir; Id = $Appli.Id; Progres = $script:Progres[$Appli.Id] }
+    # (son zip et son dossier sous le nom d'aujourd'hui, ou sous l'ancien pour une version publiée avant le changement de nom)
+    $params = @{ Depot = $Appli.Depot; Zip = @($Appli.Zip, $Appli.AncienZip); DossiersZip = @($Appli.DossierZip, $Appli.AncienDossierZip); Exe = $Appli.Exe
+                 Cle = $ClePublique; Dossier = $TelechargementsDir; Id = $Appli.Id; Progres = $script:Progres[$Appli.Id] }
     Start-Tache {
         $p = $args[0]
         $pub = Get-Publication $p.Depot $p.Zip
@@ -398,14 +411,15 @@ function Start-InstallAppli($Appli, [string]$AncienDossier) {
         if (-not (Test-Signature $zip $sig $p.Cle)) { throw 'La signature du fichier téléchargé est invalide : rien n''a été installé.' }
         $fz = Join-Path $p.Dossier "$($p.Id).zip"; $fs = "$fz.sig"
         [IO.File]::WriteAllBytes($fz, $zip); [IO.File]::WriteAllBytes($fs, $sig)
-        @{ Version = $pub.Version; Zip = $fz; Sig = $fs }
+        @{ Version = $pub.Version; Zip = $fz; Sig = $fs; DossierZip = (Get-DossierZip $zip $p.DossiersZip $p.Exe) }
     } $params (New-Action @{ Id = $Appli.Id; Ancien = $AncienDossier } { Complete-Telechargement (Get-Appli $v.Id) $Resultat $Erreur $v.Ancien } 'Resultat', 'Erreur')
 }
 
 function Complete-Telechargement($Appli, $Resultat, $Erreur, [string]$AncienDossier) {
     $script:Progres.Remove($Appli.Id)
     if ($Erreur -or -not $Resultat) { Stop-Operation $Appli "Échec : $Erreur"; return }
-    $p = [ordered]@{ Zip = $Resultat.Zip; Signature = $Resultat.Sig; Destination = (Get-DossierGere $Appli); DossierZip = $Appli.DossierZip; Exe = $Appli.Exe }
+    $dossierZip = if ($Resultat.DossierZip) { [string]$Resultat.DossierZip } else { $Appli.DossierZip }
+    $p = [ordered]@{ Zip = $Resultat.Zip; Signature = $Resultat.Sig; Destination = (Get-DossierGere $Appli); DossierZip = $dossierZip; Exe = $Appli.Exe }
     # (prise en charge : l'utilisateur est donné aussi, l'installateur ne réécrit que ses tâches planifiées à lui)
     if ($AncienDossier) { $p.AncienExe = Join-Path $AncienDossier $Appli.Exe; $p.Sid = [Security.Principal.WindowsIdentity]::GetCurrent().User.Value }
     # Appli avec une partie administrateur (Nevermind) : sa tâche planifiée est créée ou remise à jour à chaque installation
@@ -474,7 +488,7 @@ function Complete-Installation($Appli, [string]$Dossier) {
     Set-SuiteAppli $Appli.Id $Dossier
     Update-RaccourciAppli $Appli
     $notes = @(Remove-Doublons $Appli)
-    if ($ancien) { $notes += Remove-AncienneCopie $Appli $ancien $c.Zip }
+    if ($ancien) { $notes += Remove-AncienneCopie $Appli $ancien $c.Zip ([string]$c.Parametres.DossierZip) }
     foreach ($f in @(Get-ChildItem -LiteralPath $TelechargementsDir -Filter "$($Appli.Id).*" -ErrorAction SilentlyContinue)) { Remove-Item -LiteralPath $f.FullName -Force -ErrorAction SilentlyContinue }
     Write-Log "$($Appli.Nom) $($c.Version) installé dans $Dossier$(if ($ancien) { " (pris en charge depuis $ancien)" })"
     # Une mise à jour (une version plus récente que celle d'avant) : notée dans l'historique, automatique ou non, avec ses nouveautés
@@ -604,9 +618,11 @@ function Test-DossierTravail([string]$Dossier) {
     $Dossier -and ((Test-Path -LiteralPath (Join-Path $Dossier '.git')) -or (Test-Path -LiteralPath (Join-Path (Split-Path $Dossier -Parent) '.git')))
 }
 
-# L'ancienne copie, une fois prise en charge : seuls les fichiers livrés avec l'appli (ceux du zip) sont supprimés,
+# L'ancienne copie, une fois prise en charge : seuls les fichiers livrés avec l'appli (ceux du zip, rangés dans son dossier
+# -DossierZip) sont supprimés, son script principal sous son ancien nom aussi (une copie d'avant le changement de nom),
 # puis les dossiers devenus vides. Jamais un dossier de travail (Git), jamais dans les programmes de Mindset.
-function Remove-AncienneCopie($Appli, [string]$Dossier, [string]$Zip) {
+function Remove-AncienneCopie($Appli, [string]$Dossier, [string]$Zip, [string]$DossierZip) {
+    if (-not $DossierZip) { $DossierZip = $Appli.DossierZip }
     $d = [IO.Path]::GetFullPath($Dossier.TrimEnd('\'))
     if ($d -like "$([IO.Path]::GetFullPath($RacineProgrammes))\*" -or $d -like "$([IO.Path]::GetFullPath((Join-Path $env:ProgramFiles 'Mindset')))\*") { return '' }
     if (-not (Test-DossierSur $d)) { return "L'ancienne copie ($d) n'a pas été supprimée (dossier protégé ou lien vers un autre dossier)." }
@@ -616,9 +632,10 @@ function Remove-AncienneCopie($Appli, [string]$Dossier, [string]$Zip) {
     try {
         Add-Type -AssemblyName System.IO.Compression.FileSystem
         $za = [IO.Compression.ZipFile]::OpenRead($Zip)
-        $prefixe = $Appli.DossierZip + '\'
+        $prefixe = $DossierZip.TrimEnd('\') + '\'
         $livres = @($za.Entries | ForEach-Object { $_.FullName.Replace('/', '\') } | Where-Object { $_.StartsWith($prefixe, [StringComparison]::OrdinalIgnoreCase) -and -not $_.EndsWith('\') } | ForEach-Object { $_.Substring($prefixe.Length) })
         $za.Dispose()
+        if ($Appli.AncienScript) { $livres += $Appli.AncienScript }
     } catch { return "L'ancienne copie ($d) n'a pas été supprimée (contenu du zip illisible)." }
     foreach ($rel in $livres) {
         $f = [IO.Path]::GetFullPath((Join-Path $d $rel))
@@ -654,7 +671,8 @@ $script:ARelancer = @{}
 # donc aussi au démarrage de Windows (Mindset.exe -Demarrage), voir Start-Demarrage dans mindset.ps1
 # ---------------------------------------------------------------------------
 # Nevermind avait sa propre tâche de démarrage : un Mindset administrateur la retire (une seule règle, la sienne), et
-# l'appli qui démarrait par elle s'ouvre avec Mindset (sinon elle ne démarrerait plus du tout)
+# l'appli qui démarrait par elle s'ouvre avec Mindset (sinon elle ne démarrerait plus du tout). (« OptiGame » et « Nexo » :
+# ses anciens noms, gardés pour reconnaître ces tâches sur un PC qui les a encore.)
 $TachesDemarrageAppli = @{ nevermind = @('Nevermind (démarrage)', 'OptiGame (démarrage)', 'Nexo (démarrage)') }
 
 # Ses tâches de démarrage qui existent encore

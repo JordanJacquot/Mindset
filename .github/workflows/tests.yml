@@ -40,6 +40,9 @@ jobs:
       - name: Tests de sécurité (signature, installation des zips, dossiers acceptés)
         run: .\outils\tester-securite.ps1
 
+      - name: "Nevermind sous son nouveau nom et sous l'ancien (OptiGame) : version publiée, zip, installation, ouverte (faux PC, sans réseau)"
+        run: .\outils\tester-renommage.ps1
+
       - name: "Fichiers de données jamais perdus (écriture sûre, fichier abîmé, copie .bak, réglage coupé qui reste coupé)"
         run: .\outils\tester-donnees.ps1
 

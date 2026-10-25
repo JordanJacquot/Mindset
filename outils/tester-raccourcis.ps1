@@ -242,10 +242,11 @@ try {
         $MenuApplis -ieq (Join-Path ([Environment]::GetFolderPath('Programs')) 'Mindset')
     }
     # (les applis voisines, si leur dépôt est à côté : l'identité qu'elles se donnent est bien celle de leur raccourci)
-    $voisins = @{ nevermind = 'Nevermind\OptiGame\fichiers\OptiGame.ps1'; evermind = 'Evermind\Evermind\fichiers\Evermind.ps1'; mindcare = 'Mindcare\Mindcare\fichiers\Mindcare.ps1' }
+    # (Nevermind : aussi sous son ancien nom, OptiGame, dans un dépôt pas encore à jour)
+    $voisins = @{ nevermind = @('Nevermind\Nevermind\fichiers\Nevermind.ps1', 'Nevermind\OptiGame\fichiers\OptiGame.ps1'); evermind = @('Evermind\Evermind\fichiers\Evermind.ps1'); mindcare = @('Mindcare\Mindcare\fichiers\Mindcare.ps1') }
     foreach ($a in $nevermind, $evermind, $mindcare) {
-        $f = Join-Path (Split-Path $racine -Parent) $voisins[$a.Id]
-        if (-not (Test-Path -LiteralPath $f)) { continue }
+        $f = @($voisins[$a.Id] | ForEach-Object { Join-Path (Split-Path $racine -Parent) $_ } | Where-Object { Test-Path -LiteralPath $_ }) | Select-Object -First 1
+        if (-not $f) { continue }
         $t = [IO.File]::ReadAllText($f, [Text.Encoding]::UTF8)
         Test-Cas "$($a.Nom) (dépôt voisin) se donne l'identité $($a.AppId)" { $t -cmatch [regex]::Escape("'$($a.AppId)'") -or ($t -cmatch 'JordanJacquot\.\$AppNom' -and $t -cmatch "AppNom\s*=\s*'$($a.Nom)'") }
     }

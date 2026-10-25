@@ -19,6 +19,12 @@ function Get-Applis {
         if ($a.afficher_fichier) { $ok = $ok -and $a.afficher_fichier -match $nomFichier }
         if ($a.aide) { $ok = $ok -and $a.aide -cmatch '^[A-Za-z0-9 ]{1,40} \(aide\)$' -and $a.aide_exe -match '^[^\\/:*?"<>|]+\.exe$' }
         if ($a.sans_droits_depuis) { $ok = $ok -and $a.sans_droits_depuis -match '^\d+(\.\d+){1,3}$' }
+        # Ses anciens noms (Nevermind s'appelait OptiGame) : seulement pour reconnaître une installation ou une version publiée
+        # d'avant le changement de nom, vérifiés comme les nouveaux
+        if ($a.ancien_zip) { $ok = $ok -and $a.ancien_zip -match $nomFichier }
+        if ($a.ancien_dossier_zip) { $ok = $ok -and $a.ancien_dossier_zip -match $nomFichier }
+        if ($a.ancien_script) { $ok = $ok -and $a.ancien_script -match '^[\w\\.-]+\.ps1$' -and $a.ancien_script -notmatch '\.\.' }
+        if ($a.ancien_mutex) { $ok = $ok -and $a.ancien_mutex -match '^Local\\[\w.-]+$' }
         if (-not $ok) { Write-Log "apps.json : appli ignorée ($($a.id))"; continue }
         # Son logo dans Mindset (à la place de sa première lettre) : un tracé de traits droits (M, L) sur une grille de 100,
         # dessiné au trait épais comme les lettres de Nevermind et d'Evermind. Mal formé : ignoré, la lettre reste.
@@ -43,6 +49,12 @@ function Get-Applis {
             Exe             = [string]$a.exe
             Script          = [string]$a.script
             Mutex           = [string]$a.mutex
+            # (anciens noms, ou '' : la version publiée sous l'ancien nom, le dossier de son zip, son script principal dans une
+            # installation d'avant, son mutex quand une version d'avant est ouverte)
+            AncienZip       = [string]$a.ancien_zip
+            AncienDossierZip = [string]$a.ancien_dossier_zip
+            AncienScript    = [string]$a.ancien_script
+            AncienMutex     = [string]$a.ancien_mutex
             AfficherFichier = [string]$a.afficher_fichier   # nom du fichier, dans le dossier de données de l'appli
             AfficherSignal  = [string]$a.afficher_signal
             Desinstalleur   = [string]$a.desinstalleur
@@ -95,9 +107,10 @@ function Get-ProcessusDonneesAppli($Appli) {
 # Ouverte ou non : chaque appli garde un mutex tant qu'elle tourne (« une seule à la fois »).
 # Si l'appli tourne en administrateur, Windows refuse de nous l'ouvrir : il existe, donc elle tourne.
 # Sinon, on cherche son programme par son chemin (une instance de test, par exemple, ne prend pas le mutex).
+# Une version d'avant le changement de nom garde son ancien mutex (AncienMutex) : elle compte aussi.
 function Test-AppliOuverte($Appli) {
-    if ($Appli.Mutex) {
-        try { $m = [System.Threading.Mutex]::OpenExisting($Appli.Mutex); $m.Dispose(); return $true }
+    foreach ($nom in @($Appli.Mutex, $Appli.AncienMutex) | Where-Object { $_ }) {
+        try { $m = [System.Threading.Mutex]::OpenExisting($nom); $m.Dispose(); return $true }
         catch {
             $e = $_.Exception; while ($e.InnerException) { $e = $e.InnerException }
             if ($e -is [System.UnauthorizedAccessException]) { return $true }

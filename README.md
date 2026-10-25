@@ -87,7 +87,7 @@ Deux clés sont dans la liste :
 ```
 
 Après chaque changement de la liste : copier `Mindset\fichiers\cles-publiques` dans `fichiers\` de chaque appli
-(Nevermind : `OptiGame\fichiers`), puis publier Mindset et chaque appli (`publier.ps1` refuse une liste différente).
+(Nevermind : `Nevermind\fichiers`), puis publier Mindset et chaque appli (`publier.ps1` refuse une liste différente).
 
 ### Changer de clé (prévu, sans urgence)
 1. `.\outils\cle.ps1 -Nouvelle` : la clé suivante est créée et ajoutée à la liste. Copier la liste, publier Mindset et

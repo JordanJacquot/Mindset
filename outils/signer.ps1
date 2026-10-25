@@ -1,7 +1,7 @@
 ﻿# Signe un fichier (un zip à publier) avec la clé de la suite : écrit <fichier>.sig à côté.
 #
-#   & D:\Projets\Mindset\outils\signer.ps1 -Fichier .\OptiGame.zip
-#   & D:\Projets\Mindset\outils\signer.ps1 -Fichier .\OptiGame.zip -Secours E:\secours.msk
+#   & D:\Projets\Mindset\outils\signer.ps1 -Fichier .\Nevermind.zip
+#   & D:\Projets\Mindset\outils\signer.ps1 -Fichier .\Nevermind.zip -Secours E:\secours.msk
 #
 # Utilisé par les scripts de publication de Mindset, Nevermind, Evermind et Mindcare : le .sig est publié avec le zip,
 # et Mindset (comme les applis) refuse d'installer un zip dont la signature n'est pas bonne. Les clés sont créées par

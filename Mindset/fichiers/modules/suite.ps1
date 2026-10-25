@@ -52,6 +52,7 @@ function Write-Suite($Suite) {
 }
 
 # Thème de la suite ; au tout premier lancement, celui d'Evermind (ou de Nevermind) s'il est déjà installé
+# (%LOCALAPPDATA%\OptiGame : l'ancien dossier de données de Nevermind, sous son ancien nom, encore là sur un PC qui l'avait)
 function Get-SuiteTheme {
     $s = Read-Suite
     if ($s.theme) { return $s.theme }

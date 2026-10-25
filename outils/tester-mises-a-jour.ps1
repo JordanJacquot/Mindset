@@ -136,7 +136,7 @@ static class Essai {
     $script:Journal = New-Object Collections.Generic.List[string]
     $AppDir = $fichiers
     . (Join-Path $fichiers 'modules\applis.ps1')
-    foreach ($a in $Applis) { $a.Mutex = "Local\MindsetTest-$([guid]::NewGuid().ToString('N'))"; $a.Donnees = Join-Path $tmp "ancien\$($a.Nom)" }
+    foreach ($a in $Applis) { $a.Mutex = "Local\MindsetTest-$([guid]::NewGuid().ToString('N'))"; $a.AncienMutex = ''; $a.Donnees = Join-Path $tmp "ancien\$($a.Nom)" }
     $evermind = $Applis | Where-Object Id -eq 'evermind'
     $nevermind = $Applis | Where-Object Id -eq 'nevermind'
     $mindcare = $Applis | Where-Object Id -eq 'mindcare'
@@ -190,7 +190,7 @@ static class Essai {
     }
     $script:PendantTelechargement = $null
     function Test-Signature { $true }
-    . ([scriptblock]::Create(($asts['paquets.ps1'].FindAll({ param($n) $n -is [System.Management.Automation.Language.FunctionDefinitionAst] -and $n.Name -eq 'Test-VersionPlusRecente' }, $true) | Select-Object -First 1).Extent.Text))
+    foreach ($n in 'Test-VersionPlusRecente', 'Get-DossierZip') { . ([scriptblock]::Create(($asts['paquets.ps1'].FindAll({ param($x) $x -is [System.Management.Automation.Language.FunctionDefinitionAst] -and $x.Name -eq $n }, $true) | Select-Object -First 1).Extent.Text)) }
     $script:Interrupteurs = New-Object Collections.ArrayList
     $Window = [pscustomobject]@{ IsVisible = $false; WindowState = 'Normal' }
     $ui = @{}

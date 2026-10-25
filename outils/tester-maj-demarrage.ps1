@@ -187,7 +187,7 @@ try {
     # -------------------------------------------------------------------------------------------------------------
     Write-Partie '4. Dossier qui manque quelques secondes pendant une opération : l''appli n''est pas effacée'
     # -------------------------------------------------------------------------------------------------------------
-    Import-Fonctions 'installations.ps1' @('Get-Installation', 'Get-DossierGere', 'Test-DossierAppli', 'Get-VersionDans')
+    Import-Fonctions 'installations.ps1' @('Get-Installation', 'Get-DossierGere', 'Test-DossierAppli', 'Get-ScriptAppli', 'Get-VersionDans')
     $RacineProgrammes = Join-Path $tmp 'programmes-geres'
     $appliN = [pscustomobject]@{ Id = 'nevermind'; Nom = 'Nevermind'; Exe = 'Nevermind.exe'; Script = 'fichiers\Nevermind.ps1' }
     $dossierN = Join-Path $RacineProgrammes 'Nevermind'
