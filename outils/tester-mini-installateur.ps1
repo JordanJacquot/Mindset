@@ -262,11 +262,11 @@ try {
     # =============================================================================================================
     Test-Cas 'sans variable dangereuse : la demande de Windows lance powershell.exe de System32 (demandé à Windows)' {
         Reset-Pc $null
-        $script:VariablesCompte = @('Path', 'TEMP', 'DOTNET_TieredCompilation')   # (DOTNET_* : pas lue par Windows PowerShell 5.1)
+        $script:VariablesCompte = @('Path', 'TEMP', 'DOTNET_TieredCompilation', 'DOTNET_ROOT', 'DOTNET_CLI_TELEMETRY_OPTOUT', 'DOTNET_STARTUP_HOOKS_X')   # (réglages du .NET récent, pas lus par Windows PowerShell 5.1 : DOTNET_TieredCompilation=0 est sur le PC de Jordan)
         Invoke-Admin 'appli' $appli $fin
         $script:RunAs.Count -eq 1 -and $script:RunAsExe[0] -eq (Join-Path ([Environment]::GetFolderPath('System')) 'WindowsPowerShell\v1.0\powershell.exe')
     }
-    foreach ($v in 'COR_ENABLE_PROFILING', 'cor_profiler_path', 'COMPlus_EnableDiagnostics') {
+    foreach ($v in 'COR_ENABLE_PROFILING', 'cor_profiler_path', 'COMPlus_EnableDiagnostics', 'CORECLR_PROFILER_PATH', 'DOTNET_STARTUP_HOOKS', 'DOTNET_ADDITIONAL_DEPS', 'DOTNET_SHARED_STORE') {
         $variable = $v
         Test-Cas "variable $variable dans les variables du compte (HKCU\Environment) : pas de demande de Windows, l'opération échoue avec un message simple" {
             Reset-Pc $null

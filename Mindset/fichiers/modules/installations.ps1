@@ -300,8 +300,10 @@ function Format-ArgumentAdmin([string]$Valeur) {
 # commencent par COR_ ou COMPlus_ sont lues par .NET Framework (celui de Windows PowerShell) avant la première ligne du
 # script : elles peuvent faire charger un programme choisi par celui qui les a posées. Si l'une d'elles est là (dans
 # Mindset, ou dans les variables du compte, HKCU\Environment, qu'un programme sans droits peut écrire), Mindset ne demande
-# pas l'autorisation. (Les DOTNET_* ne sont lues que par le .NET récent, pas par Windows PowerShell 5.1 : des outils
-# en posent sans danger, comme DOTNET_TieredCompilation.) Rend le message à montrer, ou '' si tout va bien.
+# pas l'autorisation. Même règle que Nevermind : COR_*, COMPlus_*, CORECLR_*, et parmi les DOTNET_* seulement celles qui
+# font charger du code (DOTNET_STARTUP_HOOKS, DOTNET_ADDITIONAL_DEPS, DOTNET_SHARED_STORE). Les autres DOTNET_* ne sont
+# que des réglages du .NET récent, que Windows PowerShell 5.1 ne lit pas : des outils en posent sans danger, comme
+# DOTNET_TieredCompilation. Rend le message à montrer, ou '' si tout va bien.
 function Get-NomsVariablesCompte {
     try {
         $cle = [Microsoft.Win32.Registry]::CurrentUser.OpenSubKey('Environment')
@@ -311,7 +313,7 @@ function Get-NomsVariablesCompte {
 }
 function Get-RefusVariablesAdmin {
     $noms = @([Environment]::GetEnvironmentVariables('Process').Keys | ForEach-Object { [string]$_ }) + @(Get-NomsVariablesCompte)
-    $trouvees = @($noms | Where-Object { $_ -match '^(COR_|COMPlus_)' } | Sort-Object -Unique)
+    $trouvees = @($noms | Where-Object { $_ -match '^(COR_|COMPlus_|CORECLR_|DOTNET_STARTUP_HOOKS\z|DOTNET_ADDITIONAL_DEPS\z|DOTNET_SHARED_STORE\z)' } | Sort-Object -Unique)
     if (-not $trouvees.Count) { return '' }
     Write-Log "Demande de Windows pas lancée, par prudence : variable d'environnement $($trouvees -join ', ')"
     "un réglage inhabituel de Windows ($($trouvees -join ', ')) pourrait détourner l'installation, alors Mindset n'a rien lancé. Demande de l'aide à la personne qui s'occupe de ton PC."
