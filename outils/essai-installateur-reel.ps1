@@ -54,6 +54,7 @@ function Import-Fonctions([string]$Fichier, [string[]]$Noms) {
 # (JSON) et écrit ce qui s'est passé dans le fichier Sortie.
 # =====================================================================================================================
 if ($Client) {
+    $ErrorActionPreference = 'Continue'   # (comme Mindset : rien ne règle ce choix dans Mindset.ps1)
     $cfg = [IO.File]::ReadAllText($Client, [Text.Encoding]::UTF8) | ConvertFrom-Json
     $script:Fins = New-Object Collections.ArrayList
     $script:RunAs = New-Object Collections.ArrayList
@@ -104,7 +105,7 @@ if ($Client) {
         foreach ($f in @($cfg.Copier)) {
             if (-not $f) { continue }
             New-Item -ItemType Directory -Force -Path $TelechargementsDir | Out-Null
-            Copy-Item -LiteralPath $f -Destination $TelechargementsDir -Force
+            Copy-Item -LiteralPath $f -Destination $TelechargementsDir -Force -ErrorAction Stop
         }
         $installations = Join-Path $cfg.Modules 'installations.ps1'
         $mindset = Join-Path $cfg.Modules 'mindset.ps1'
@@ -324,7 +325,7 @@ function Get-InfoTache([string]$Nom, [string]$Dossier = '\Mindset\') {
     $sddl = ''
     try { $s = New-Object -ComObject Schedule.Service; $s.Connect(); $sddl = $s.GetFolder($Dossier.TrimEnd('\')).GetTask($Nom).GetSecurityDescriptor(4) } catch {}
     [pscustomobject]@{
-        Compte = [string]$pr.UserId; LogonType = [string]$pr.LogonType; RunLevel = [string]$pr.RunLevel
+        Compte = [string]$pr.UserId; LogonType = [string]$pr.LogonType; RunLevel = $(if ([string]$pr.RunLevel) { [string]$pr.RunLevel } else { 'LeastPrivilege' })
         Commande = [string]$xml.Task.Actions.Exec.Command; Arguments = [string]$xml.Task.Actions.Exec.Arguments
         Active = ([string]$xml.Task.Settings.Enabled -ne 'false'); Dernier = $(if ($i) { $i.LastRunTime } else { $null }); Code = $(if ($i) { $i.LastTaskResult } else { $null })
         Sddl = [string]$sddl; Xml = $xml.OuterXml
@@ -334,13 +335,28 @@ function ConvertTo-Sid([string]$Compte) {
     if ($Compte -match '^S-1-') { return $Compte }
     try { (New-Object Security.Principal.NTAccount($Compte)).Translate([Security.Principal.SecurityIdentifier]).Value } catch { '' }
 }
+# Les droits sur la tâche : le système et les administrateurs, et l'utilisateur $Sid en lecture et lancement (FRFX,
+# que Windows rend en 0x1200a9) ; personne d'autre. (« LA » : le compte Administrateur intégré, runneradmin ici.)
+function Test-DroitsTache([string]$Sddl, [string]$Sid) {
+    $lui = $false
+    foreach ($m in [regex]::Matches($Sddl, '\(([A-Z]+);[^;]*;([^;]*);[^;]*;[^;]*;([^)]+)\)')) {
+        $type = $m.Groups[1].Value; $droits = $m.Groups[2].Value; $qui = $m.Groups[3].Value
+        $qui = switch ($qui) { 'SY' { 'S-1-5-18' } 'BA' { 'S-1-5-32-544' } 'LA' { if ($Sid -match '-500$') { $Sid } else { 'LA' } } default { $qui } }
+        if ($type -ne 'A') { continue }
+        if ($qui -in 'S-1-5-18', 'S-1-5-32-544') { continue }
+        if ($qui -eq $Sid -and $droits -in 'FRFX', '0x1200a9') { $lui = $true; continue }
+        Write-Host "         | droit de trop sur la tâche : $($m.Value)" -ForegroundColor DarkGray
+        return $false
+    }
+    $lui
+}
 # La tâche SYSTEM du mini-installateur, inscrite pour $Sid, avec ce fichier de demande
 function Test-TacheSysteme([string]$Sid, [string]$Demande, [string]$Script) {
     $t = Get-InfoTache $NomTache
     if (-not $t) { Write-Host '         | tâche absente' -ForegroundColor DarkGray; return $false }
     Write-Host "         | tâche : $($t.Compte) $($t.LogonType) $($t.RunLevel) ; $($t.Arguments) ; $($t.Sddl)" -ForegroundColor DarkGray
     (ConvertTo-Sid $t.Compte) -eq 'S-1-5-18' -and $t.RunLevel -eq 'HighestAvailable' -and $t.Arguments.Contains("-Sid $Sid ") -and $t.Arguments.Contains("-Demande `"$Demande`"") -and
-        $t.Arguments.Contains("-File `"$Script`"") -and $t.Sddl -match "\(A;;FRFX;;;$([regex]::Escape($Sid))\)" -and $t.Sddl -match '^D:P'
+        $t.Arguments.Contains("-File `"$Script`"") -and (Test-DroitsTache $t.Sddl $Sid)
 }
 function Get-Valeur([string]$Nom) { try { [string](Get-ItemProperty -Path $CleInstallation -Name $Nom -ErrorAction Stop).$Nom } catch { '' } }
 function Get-VersionInstallee([string]$Dossier) {
@@ -563,7 +579,7 @@ function Test-Cas4 {
     foreach ($p in $vus.Values) { Write-Host "         | Mindset.exe vu : $($p.Id), session $($p.Session), compte $($p.Sid)" -ForegroundColor DarkGray }
     $journal = Join-Path $ra.Donnees 'journal.txt'
     $lignes = @(if (Test-Path -LiteralPath $journal) { Get-Content -LiteralPath $journal -Encoding UTF8 })
-    $lignes | Select-Object -Last 15 | ForEach-Object { Write-Host "         |   journal de Mindset : $_" -ForegroundColor DarkGray }
+    $lignes | ForEach-Object { Write-Host "         |   journal de Mindset : $_" -ForegroundColor DarkGray }
     Test-Cas 'la tâche « Mindset (démarrage) » s''est déclenchée' { $t = Get-InfoTache 'Mindset (démarrage)'; $t.Dernier -ne $avant }
     Test-Cas "Mindset $VersionMaj tourne, dans la session $session, sous runneradmin" { $lance -and $vivants.Count -eq 1 -and $vivants[0].Session -eq $session -and $vivants[0].Sid -eq $ra.Sid }
     Test-Cas 'sans boucle : au plus une relance (bascule de l''Explorateur administrateur), plus rien de nouveau ensuite' {
@@ -601,8 +617,8 @@ function Test-Cas6 {
     $e = Get-Compte $NomElodie
     $null = Install-MindsetDirect $e.Sid
     $s = Invoke-Client $e @{ Mode = 'droits'; Lancer = $true; Modules = (Join-Path $MindsetC 'fichiers\modules'); DataDir = $e.Donnees }
-    Test-Cas 'Élodie lit la tâche (schtasks /Query) et la lance (schtasks /Run), Mindset la reconnaît' { $s.Etat -eq 'systeme' -and $s.CodeLire -eq 0 -and $s.CodeLancer -eq 0 }
-    Test-Cas 'Élodie ne peut ni modifier la tâche ni écrire dans Program Files\Mindset' { $s.CodeModifier -ne 0 -and -not $s.EcritProgrammes -and (Get-InfoTache $NomTache).Active }
+    Test-Cas 'Élodie lit la tâche (schtasks /Query) et la lance (schtasks /Run), Mindset la reconnaît' { -not $s.Erreur -and $s.Etat -eq 'systeme' -and $s.CodeLire -eq 0 -and $s.CodeLancer -eq 0 }
+    Test-Cas 'Élodie ne peut ni modifier la tâche ni écrire dans Program Files\Mindset' { -not $s.Erreur -and $null -ne $s.CodeModifier -and $s.CodeModifier -ne 0 -and $s.EcritProgrammes -eq $false -and (Get-InfoTache $NomTache).Active }
     $s = Invoke-Client $e @{ Mode = 'invoke'; Modules = (Join-Path $MindsetC 'fichiers\modules'); DataDir = $e.Donnees; Action = 'appli'; Parametres = (Get-DemandeEssai $e.Donnees -Aide); Copier = $CopierEssai }
     Test-Cas 'sa demande passe par la tâche SYSTEM : appli installée, sans demande de Windows' { @($s.Fins).Count -eq 1 -and $s.Fins[0] -eq "True|$ProgrammesC\Essai" -and -not @($s.RunAs).Count -and (Test-Path -LiteralPath "$ProgrammesC\Essai\Essai.exe") }
     Test-Cas 'la partie administrateur de l''appli : tâche « Essai (aide) » pour Élodie seulement' { $t = Get-InfoTache 'Essai (aide)'; $t -and (ConvertTo-Sid $t.Compte) -eq $e.Sid -and $t.Commande -eq "`"$ProgrammesC\Essai\EssaiAide.exe`"" }
@@ -630,7 +646,7 @@ function Test-Cas7 {
         -not @($apres | Where-Object { $_.Sid -eq $e.Sid }).Count -and @($apres | Where-Object { $_.Sid -eq $b.Sid -and $_.Id -eq $pb.Id }).Count -eq 1 -and @($s.Fins).Count -eq 1
     }
     $s2 = Invoke-Client $b @{ Mode = 'droits'; Lancer = $true; Modules = $modules; DataDir = $b.Donnees }
-    Test-Cas 'Bruno ne peut ni lire ni lancer la tâche d''Élodie (Mindset ne l''utilise pas pour lui)' { $s2.Etat -eq '' -and $s2.CodeLire -ne 0 -and $s2.CodeLancer -ne 0 }
+    Test-Cas 'Bruno ne peut ni lire ni lancer la tâche d''Élodie (Mindset ne l''utilise pas pour lui)' { -not $s2.Erreur -and $s2.Etat -eq '' -and $null -ne $s2.CodeLire -and $s2.CodeLire -ne 0 -and $null -ne $s2.CodeLancer -and $s2.CodeLancer -ne 0 }
     try { Stop-Process -Id $pb.Id -Force } catch {}
     Start-Sleep -Seconds 1
     $s = Invoke-Client $e @{ Mode = 'invoke'; Modules = $modules; DataDir = $e.Donnees; Action = 'appli'; Parametres = (Get-DemandeEssai $e.Donnees); Copier = $CopierEssai }
@@ -768,6 +784,7 @@ function Test-Cas10 {
         Write-Host "         | $($x[0]) : compte $($x[1].Compte), MINDSET_TEMOIN_ENV=$($x[1].Vars['MINDSET_TEMOIN_ENV']), PSModulePath=$($x[1].PSModulePath)" -ForegroundColor DarkGray
     }
     $systeme32 = [Environment]::GetFolderPath('System') + '\WindowsPowerShell\v1.0\Modules'
+    foreach ($x in @(@('SYSTEM', $sa), @('Élodie', $ua))) { foreach ($m in $x[1].Modules) { Write-Host "         | module chargé ($($x[0])) : $m" -ForegroundColor DarkGray } }
     $pshome32 = [Environment]::GetFolderPath('System') + '\WindowsPowerShell\v1.0\'
     Test-Cas 'contre-épreuve : un programme lancé sous le compte d''Élodie voit sa variable témoin et son dossier de modules' {
         $ud.Compte -eq $e.Sid -and $ud.Vars['MINDSET_TEMOIN_ENV'] -eq '1' -and $ud.PSModulePath -like "*$marque*"
