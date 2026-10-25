@@ -14,7 +14,12 @@
 #   4. la demande est effacée par Mindset (le mini-installateur, en SYSTEM, n'efface rien dans ses dossiers) ;
 #   5. la ligne de commande de la demande de Windows avec un dossier qui finit par \ (Mindset lancé depuis E:\) ;
 #   6. plus de code fabriqué avec des données (revue du 25/10, constat 10) : un dossier « d’Arthur » ou avec un $ arrive
-#      tel quel, rien n'est exécuté, et la table des valeurs ne grossit pas.
+#      tel quel, rien n'est exécuté, et la table des valeurs ne grossit pas ;
+#   7. la demande de Windows n'est pas lancée si une variable COR_* ou COMPlus_* (lue par .NET avant le script) est
+#      dans Mindset ou dans les variables du compte, et powershell.exe est celui de System32, demandé à Windows ;
+#   8. après une mise à jour directe depuis Mindset 2.11.0 ou avant, les tâches d'avant (partie administrateur sous le
+#      compte, très vieille « \Mindset\Mindset ») sont vues au démarrage et refaites par la tâche SYSTEM (audit du 25/10,
+#      constats 11 et 25e).
 # Rien sur le vrai PC : ni tâche planifiée, ni registre, ni demande de Windows (tout est faux, en mémoire), aucun réseau.
 # Code de sortie 1 si un cas échoue (utilisé par la CI de GitHub).
 param([string]$Fichiers)
@@ -85,7 +90,10 @@ $script:XmlTache = $null; $script:RunOk = $true; $script:Lancements = New-Object
 function Invoke-FauxSchtasks {
     $a = "$args"
     if ($a -like '/Query*') {
-        if ($script:XmlTache) { $global:LASTEXITCODE = 0; return ($script:XmlTache -split "`n") }
+        # (la tâche d'installation : $script:XmlTache ; les autres : $script:AutresTaches, nom -> XML)
+        $nom = [string]$args[2]
+        $xml = if ($nom -eq $TacheInstallation) { $script:XmlTache } else { $script:AutresTaches[$nom] }
+        if ($xml) { $global:LASTEXITCODE = 0; return ($xml -split "`n") }
         $global:LASTEXITCODE = 1; return
     }
     if ($a -like '/Run*') {
@@ -112,11 +120,11 @@ function Get-ItemProperty {
     [pscustomobject]@{ $Name = $script:Registre[$Name] }
 }
 # Fausse demande de Windows : notée ; $script:RunAsAccepte : l'utilisateur clique « Oui »
-$script:RunAs = New-Object Collections.Generic.List[string]; $script:RunAsAccepte = $true
+$script:RunAs = New-Object Collections.Generic.List[string]; $script:RunAsAccepte = $true; $script:RunAsExe = New-Object Collections.Generic.List[string]
 function Start-Process {
     param([string]$FilePath, $ArgumentList, [string]$Verb, [string]$WindowStyle, [string]$WorkingDirectory, [switch]$PassThru)
     if ($Verb -ne 'RunAs') { throw "lancement inattendu : $FilePath" }
-    $script:RunAs.Add((@($ArgumentList) -join ' '))
+    $script:RunAs.Add((@($ArgumentList) -join ' ')); $script:RunAsExe.Add($FilePath)
     if (-not $script:RunAsAccepte) { throw 'refusée' }
     [pscustomobject]@{ HasExited = $true }
 }
@@ -132,7 +140,15 @@ $script:Sorties = 0
 function Exit-Mindset { $script:Sorties++ }
 
 Import-Fonctions 'installations.ps1' @('Get-EtatTacheInstallation', 'Test-TacheInstallation', 'Remove-DemandeInstallation', 'Get-ValeurInstallation', 'Send-DemandeInstallation',
-    'Skip-TacheInstallation', 'Invoke-Admin', 'Format-ArgumentAdmin', 'Invoke-AdminDirect', 'Send-DemandeSuivante', 'Update-AttentesAdmin', 'Start-RemplacementTache')
+    'Skip-TacheInstallation', 'Invoke-Admin', 'Format-ArgumentAdmin', 'Invoke-AdminDirect', 'Send-DemandeSuivante', 'Update-AttentesAdmin', 'Start-RemplacementTache',
+    'Get-RefusVariablesAdmin', 'Test-TachesAnciennes', 'Start-RemiseEnOrdreTaches')
+# (les variables du compte, HKCU\Environment : fausses ici, jamais celles de ce PC)
+$script:VariablesCompte = @()
+function Get-NomsVariablesCompte { $script:VariablesCompte }
+$PowerShellWindows = Join-Path ([Environment]::GetFolderPath('System')) 'WindowsPowerShell\v1.0\powershell.exe'
+# (les applis de apps.json qui ont une partie administrateur)
+$Applis = @([pscustomobject]@{ Id = 'nevermind'; Aide = 'Nevermind (aide)' }, [pscustomobject]@{ Id = 'evermind'; Aide = '' })
+$script:AutresTaches = @{}
 Import-Fonctions 'mindset.ps1' @('Start-MajMindset', 'Start-MajMindsetDirecte')
 Import-Fonctions 'taches.ps1' @('New-Action', 'Pop-Action')
 $script:Actions = New-Object System.Collections.Specialized.OrderedDictionary
@@ -140,7 +156,8 @@ $script:Actions = New-Object System.Collections.Specialized.OrderedDictionary
 # Remet le faux PC à zéro. $Xml : la tâche vue par schtasks ; -RunKo : schtasks /Run échoue
 function Reset-Pc([string]$Xml, [switch]$RunKo) {
     $script:XmlTache = $Xml; $script:RunOk = -not $RunKo
-    $script:Lancements.Clear(); $script:RunAs.Clear(); $script:RunAsAccepte = $true; $script:Registre = @{}; $script:Journal.Clear()
+    $script:Lancements.Clear(); $script:RunAs.Clear(); $script:RunAsExe.Clear(); $script:RunAsAccepte = $true; $script:Registre = @{}; $script:Journal.Clear()
+    $script:VariablesCompte = @(); $script:AutresTaches = @{}
     $script:TacheInstallationOk = $null; $script:EtatTacheInstallation = $null
     $script:AttentesAdmin = New-Object System.Collections.ArrayList; $script:DemandesEnAttente = New-Object System.Collections.ArrayList
     $script:MajAuto = @{}; $script:Fins = New-Object Collections.Generic.List[string]; $script:Sorties = 0; $script:MajMindsetEnvoyee = $false
@@ -238,6 +255,81 @@ try {
         $script:RunAsAccepte = $false
         Invoke-Admin 'appli' $appli $fin
         $script:Fins.Count -eq 1 -and $script:Fins[0] -like 'False|*autorisation*'
+    }
+
+    # =============================================================================================================
+    Write-Partie 'Demande de Windows et variables lues par .NET avant le script (audit du 25/10, constat 15)'
+    # =============================================================================================================
+    Test-Cas 'sans variable dangereuse : la demande de Windows lance powershell.exe de System32 (demandé à Windows)' {
+        Reset-Pc $null
+        $script:VariablesCompte = @('Path', 'TEMP', 'DOTNET_TieredCompilation')   # (DOTNET_* : pas lue par Windows PowerShell 5.1)
+        Invoke-Admin 'appli' $appli $fin
+        $script:RunAs.Count -eq 1 -and $script:RunAsExe[0] -eq (Join-Path ([Environment]::GetFolderPath('System')) 'WindowsPowerShell\v1.0\powershell.exe')
+    }
+    foreach ($v in 'COR_ENABLE_PROFILING', 'cor_profiler_path', 'COMPlus_EnableDiagnostics') {
+        $variable = $v
+        Test-Cas "variable $variable dans les variables du compte (HKCU\Environment) : pas de demande de Windows, l'opération échoue avec un message simple" {
+            Reset-Pc $null
+            $script:VariablesCompte = @('Path', $variable)
+            Invoke-Admin 'appli' $appli $fin
+            -not $script:RunAs.Count -and $script:Fins.Count -eq 1 -and $script:Fins[0] -like "False|*réglage inhabituel*$variable*"
+        }
+    }
+    Test-Cas 'variable COMPlus_* dans Mindset lui-même (processus) : pas de demande de Windows' {
+        Reset-Pc $null
+        $env:COMPlus_MindsetTemoin = '1'
+        try { Invoke-Admin 'appli' $appli $fin } finally { Remove-Item -LiteralPath 'env:COMPlus_MindsetTemoin' -ErrorAction SilentlyContinue }
+        -not $script:RunAs.Count -and $script:Fins.Count -eq 1 -and $script:Fins[0] -like 'False|*COMPlus_MindsetTemoin*'
+    }
+    Test-Cas 'mise à jour de Mindset par la demande de Windows, variable COR_ENABLE_PROFILING : rien lancé, Mindset reste ouvert, message' {
+        Reset-Pc $null
+        $script:VariablesCompte = @('COR_ENABLE_PROFILING')
+        $script:MajMindset = @{ Version = '9.9.9'; Zip = (Join-Path $TelechargementsDir 'm.zip'); Sig = (Join-Path $TelechargementsDir 'm.zip.sig'); Notes = '' }
+        Start-MajMindsetDirecte
+        -not $script:RunAs.Count -and $script:Sorties -eq 0 -and $ui.MajTexte.Text -like '*réglage inhabituel*'
+    }
+    Test-Cas 'contre-épreuve : la même mise à jour sans la variable passe par la demande de Windows (powershell.exe de System32)' {
+        Reset-Pc $null
+        $script:MajMindset = @{ Version = '9.9.9'; Zip = (Join-Path $TelechargementsDir 'm.zip'); Sig = (Join-Path $TelechargementsDir 'm.zip.sig'); Notes = '' }
+        Start-MajMindsetDirecte
+        $script:RunAs.Count -eq 1 -and $script:Sorties -eq 1 -and $script:RunAsExe[0] -eq $PowerShellWindows
+    }
+
+    # =============================================================================================================
+    Write-Partie 'Tâches d''avant laissées par une mise à jour directe depuis Mindset 2.11.0 (audit du 25/10, constats 11 et 25e)'
+    # =============================================================================================================
+    $xmlAideCompte = Get-XmlTache $moi '-Sid x'
+    $xmlAideSysteme = Get-XmlTache 'S-1-5-18' "-Sid $moi"
+    Test-Cas 'partie administrateur d''une appli encore sous mon compte : vue au démarrage' { Reset-Pc $xmlSysteme; $script:AutresTaches['\Mindset\Nevermind (aide)'] = $xmlAideCompte; Test-TachesAnciennes }
+    Test-Cas 'très vieille tâche « \Mindset\Mindset » encore là : vue au démarrage' { Reset-Pc $xmlSysteme; $script:AutresTaches['\Mindset\Mindset'] = $xmlAideCompte; Test-TachesAnciennes }
+    Test-Cas 'partie administrateur déjà en SYSTEM, ou absente : rien à refaire' {
+        Reset-Pc $xmlSysteme; $a = Test-TachesAnciennes
+        $script:AutresTaches['\Mindset\Nevermind (aide)'] = $xmlAideSysteme; $b = Test-TachesAnciennes
+        -not $a -and -not $b
+    }
+    Test-Cas 'refaites par la tâche SYSTEM : une demande « taches » pour ce Mindset, sans demande de Windows (même si la tâche ne répond pas)' {
+        Reset-Pc $xmlSysteme
+        Start-RemiseEnOrdreTaches
+        $c = [IO.File]::ReadAllText($FichierDemande) | ConvertFrom-Json
+        $ok = $script:Lancements.Count -eq 1 -and $c.Action -eq 'taches' -and $c.Destination -eq $DossierMindset
+        Move-Horloge 31; Update-AttentesAdmin
+        $ok -and -not $script:RunAs.Count
+    }
+    Test-Cas 'tâches refaites (réponse de la tâche) : noté pour cette version de Mindset (pas redemandé au prochain démarrage)' {
+        Reset-Pc $xmlSysteme
+        $AppVersion = '9.9.9'
+        Start-RemiseEnOrdreTaches
+        $id = Set-Recu; Update-AttentesAdmin
+        Set-Reponse $id $true $DossierMindset; Update-AttentesAdmin
+        (Get-Setting 'TachesRefaitesPour' '') -eq '9.9.9' -and -not $script:RunAs.Count
+    }
+    Test-Cas 'parametres.ps1 : au démarrage, demande « taches » si une tâche d''avant est là ou si cette version ne l''a pas encore faite' {
+        $t = [IO.File]::ReadAllText((Join-Path $fichiers 'modules\parametres.ps1'), [Text.Encoding]::UTF8)
+        $t -match "TachesRefaitesPour' ''\) -ne \`$AppVersion -or \(Test-TachesAnciennes\)\)\) \{\s+Start-RemiseEnOrdreTaches"
+    }
+    Test-Cas 'Mindset.ps1 ne lance plus la très vieille tâche « \Mindset\Mindset » (elle ouvrait Mindset en administrateur)' {
+        $t = [IO.File]::ReadAllText((Join-Path $fichiers 'Mindset.ps1'), [Text.Encoding]::UTF8)
+        $t -notmatch '/Run /TN ''\\Mindset\\Mindset'''
     }
 
     # =============================================================================================================

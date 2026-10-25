@@ -232,6 +232,55 @@ if (Get-Command Clear-RestesDisque -ErrorAction SilentlyContinue) { foreach ($d 
     Clear-PacksARetirer
     Test-Cas 'Thème supprimé pendant qu''une version attend : rien ne revient au démarrage suivant' { -not $supprime -and -not (Test-Path -LiteralPath $nev) -and -not (Test-Path -LiteralPath $eve) -and -not (Test-Path -LiteralPath (Join-Path $PacksDir 'essai')) -and -not @(Get-ChildItem -LiteralPath (Join-Path $DataDir 'packs-en-attente') -Recurse -File -ErrorAction SilentlyContinue).Count }
 
+    # Couleurs et police d'un thème vérifiées à l'import (audit du 25/10, constat 7) : elles sont mises telles quelles dans
+    # le texte de la fenêtre de chaque appli. Une couleur mal écrite, ou une valeur avec " et < : le thème n'est pas importé.
+    function New-ZipCouleurs([string]$Fichier, [string]$Mindset, [string]$Nevermind) {
+        if (Test-Path -LiteralPath $Fichier) { Remove-Item -LiteralPath $Fichier -Force }
+        $z = [IO.Compression.ZipFile]::Open($Fichier, 'Create')
+        try {
+            foreach ($p in @(@('pack-mindset.json', $Mindset), @('pack-nevermind.json', $Nevermind))) {
+                $o = $utf8.GetBytes($p[1]); $s = $z.CreateEntry($p[0]).Open(); try { $s.Write($o, 0, $o.Length) } finally { $s.Dispose() }
+            }
+        } finally { $z.Dispose() }
+    }
+    $bon = '{ "Name": "Couleurs", "Colors": { "P": "#00E5FF", "S": "#B04BFF", "T": "#FF2EB5", "Map": { "0C0920": "#1A0B12" } } }'
+    foreach ($cas in @(
+            @{ Nom = 'couleur en toutes lettres (red) pour Mindset'; M = '{ "Name": "x", "Colors": { "P": "red", "S": "#B04BFF", "T": "#FF2EB5" } }'; N = $bon },
+            @{ Nom = 'couleur trop courte (#0F0) pour Mindset'; M = '{ "Name": "x", "Colors": { "P": "#0F0", "S": "#B04BFF", "T": "#FF2EB5" } }'; N = $bon },
+            @{ Nom = 'valeur avec " et < dans le réglage de Nevermind'; M = $bon; N = '{ "Name": "x", "Colors": { "P": "#00E5FF\" /><Button x=\"", "S": "#B04BFF", "T": "#FF2EB5" } }' },
+            @{ Nom = 'couleur suivie d''un retour à la ligne'; M = $bon; N = '{ "Name": "x", "Colors": { "P": "#00E5FF\n", "S": "#B04BFF", "T": "#FF2EB5" } }' },
+            @{ Nom = 'Map avec une valeur piégée'; M = '{ "Name": "x", "Colors": { "P": "#00E5FF", "S": "#B04BFF", "T": "#FF2EB5", "Map": { "0C0920": "1A0B12\"<" } } }'; N = $bon },
+            @{ Nom = 'police qui n''est pas un nom de fichier'; M = $bon; N = '{ "Name": "x", "Font": "Segoe UI\" /><x y=\"" }' })) {
+        $c = $cas
+        Test-Cas "Thème avec une $($c.Nom) : pas importé (message simple), rien installé pour aucune appli" {
+            $z = Join-Path $tmp 'Thème-couleurs.zip'
+            New-ZipCouleurs $z $c.M $c.N
+            $erreur = ''; try { [void](Import-PackSuite $z) } catch { $erreur = $_.Exception.Message }
+            $erreur -like '*couleur ou une police mal écrite*' -and -not (Test-Path -LiteralPath (Join-Path $PacksDir 'couleurs')) -and -not (Test-Path -LiteralPath (Join-Path $SuiteDir 'Nevermind\packs\couleurs'))
+        }
+    }
+    Test-Cas 'Contre-épreuve : un thème aux couleurs bien écrites est importé' {
+        $z = Join-Path $tmp 'Thème-couleurs.zip'
+        New-ZipCouleurs $z $bon $bon
+        $id = Import-PackSuite $z
+        $ok = $id -eq 'couleurs' -and (Test-Path -LiteralPath (Join-Path $PacksDir 'couleurs\pack.json')) -and (Test-Path -LiteralPath (Join-Path $SuiteDir 'Nevermind\packs\couleurs\pack.json'))
+        $null = Remove-PackSuite 'couleurs'
+        $ok
+    }
+    Test-Cas 'Thème déjà sur le disque avec une couleur piégée (posé sans passer par l''import) : couleurs ignorées, thème de base' {
+        $d = Join-Path $PacksDir 'piege'
+        New-Item -ItemType Directory -Force -Path $d | Out-Null
+        [IO.File]::WriteAllText((Join-Path $d 'pack.json'), '{ "Name": "Piège", "Colors": { "P": "#00E5FF\" /><x y=\"", "S": "#B04BFF", "T": "#FF2EB5" } }', $utf8)
+        $AppThemes = [ordered]@{ neon = @{ P = '#00E5FF' } }
+        $p = Get-ThemePack 'piege'
+        $ok = $p -and $p.Base -eq 'neon' -and -not $AppThemes.Contains('pack-piege')
+        # (contre-épreuve : bien écrites, le thème du pack est ajouté)
+        [IO.File]::WriteAllText((Join-Path $d 'pack.json'), '{ "Name": "Bon", "Colors": { "P": "#00E5FF", "S": "#B04BFF", "T": "#FF2EB5" } }', $utf8)
+        $p2 = Get-ThemePack 'piege'
+        Remove-Item -LiteralPath $d -Recurse -Force
+        $ok -and $p2.Base -eq 'pack-piege' -and $AppThemes['pack-piege'].P -eq '#00E5FF'
+    }
+
     # ---------------------------------------------------------------------------------------------------------------
     Write-Partie '4. Plus de fausse ligne « ne s''est pas affiché » quand une appli est fermée'
     # ---------------------------------------------------------------------------------------------------------------

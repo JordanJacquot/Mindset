@@ -38,6 +38,24 @@ function Get-PackAppliFichiers {
 # Un nom de fichier du pack : simple, sans dossier (rien ne peut sortir du dossier du pack)
 function Test-NomFichierPack($Nom) { $Nom -is [string] -and $Nom -match '^[\w .()-]{1,80}$' -and $Nom -notmatch '\.\.' }
 
+# Les couleurs d'un réglage de pack (Colors) : P, S et T en « #RRGGBB », les clés et valeurs de Map en « RRGGBB » (le # est
+# permis), rien d'autre. Elles sont mises telles quelles dans le texte de la fenêtre : une valeur avec des guillemets ou
+# des balises en changerait la description, et une simple faute (« red », « #0F0 ») empêcherait l'appli de s'ouvrir.
+function Test-CouleursPack($Colors) {
+    if ($null -eq $Colors) { return $true }
+    if ($Colors -is [string] -or $Colors -isnot [pscustomobject]) { return $false }
+    foreach ($n in 'P', 'S', 'T') {
+        $v = $Colors.PSObject.Properties[$n]
+        if ($v -and ($v.Value -isnot [string] -or $v.Value -cnotmatch '^#[0-9A-Fa-f]{6}\z')) { return $false }
+    }
+    $map = $Colors.PSObject.Properties['Map']
+    if ($map -and $null -ne $map.Value) {
+        if ($map.Value -isnot [pscustomobject]) { return $false }
+        foreach ($pr in $map.Value.PSObject.Properties) { if ($pr.Name -cnotmatch '^#?[0-9A-Fa-f]{6}\z' -or $pr.Value -isnot [string] -or $pr.Value -cnotmatch '^#?[0-9A-Fa-f]{6}\z') { return $false } }
+    }
+    $true
+}
+
 function Get-ThemePack([string]$Id) {
     if ($Id -notmatch '^[a-z0-9-]{1,40}$') { return $null }
     $dir = Join-Path $PacksDir $Id
@@ -86,7 +104,8 @@ function Get-ThemePack([string]$Id) {
             Logo = (& $image $c.Logo 'png|webp|gif') }
     }
     # Couleurs propres au pack : un thème « pack-<id> » ajouté à la liste (jamais proposé comme thème de base)
-    if ($j.Colors -and $j.Colors.P -and $j.Colors.S -and $j.Colors.T -and $AppThemes) {
+    if ($j.Colors -and -not (Test-CouleursPack $j.Colors)) { Write-Log "Thème $Id : couleurs mal écrites, ignorées (thème de base)" }
+    elseif ($j.Colors -and $j.Colors.P -and $j.Colors.S -and $j.Colors.T -and $AppThemes) {
         $map = @{}
         if ($j.Colors.Map) { foreach ($pr in $j.Colors.Map.PSObject.Properties) { $map[$pr.Name.TrimStart('#').ToUpper()] = ([string]$pr.Value).TrimStart('#').ToUpper() } }
         $key = "pack-$Id"
@@ -146,6 +165,19 @@ function Import-PackSuite([string]$Zip) {
             $max = if ($e.Name -match '\.json$') { 1MB } elseif ($e.Name -match '\.(ttf|otf)$') { 10MB } else { 15MB }
             if ($e.Length -gt $max) { throw "Ce fichier du thème est trop lourd : $($e.Name) (plus de $($max / 1MB) Mo)." }
             if ($e.Name -match '\.(png|jpe?g|gif|webp)$' -and -not (Get-FormatImagePack (Read-DebutEntree $e))) { throw "Ce fichier du thème n'est pas une image : $($e.Name)" }
+        }
+        # Chaque réglage (pack-mindset.json, pack-<appli>.json) : ses couleurs bien écrites et sa police un simple nom de
+        # fichier du thème, sinon rien n'est importé (ni pour Mindset ni pour les applis, qui les mettent dans leur fenêtre)
+        foreach ($e in @($entrees | Where-Object { $_.Name -like 'pack-*.json' })) {
+            $s = $e.Open()
+            try { $texte = (New-Object IO.StreamReader($s, [Text.Encoding]::UTF8)).ReadToEnd() } finally { $s.Dispose() }
+            $r = $null
+            try { $r = $texte.TrimStart([char]0xFEFF) | ConvertFrom-Json } catch {}
+            if (-not $r) { continue }   # (illisible : pas de thème pour cette appli, ou refusé plus bas pour Mindset)
+            $police = $r.PSObject.Properties['Font']
+            if (-not (Test-CouleursPack $r.Colors) -or ($police -and $null -ne $police.Value -and -not (Test-NomFichierPack $police.Value))) {
+                throw "Ce thème contient une couleur ou une police mal écrite ($($e.Name)) : il n'a pas été importé."
+            }
         }
         $installes = @()
         # Réimporté après une suppression pas finie : ce qui restait de l'ancien est retiré d'abord, et il n'est plus à retirer

@@ -64,7 +64,7 @@ if (Test-Path -LiteralPath $IconPath) {
 # Commande qui relance Mindset (épingle de la barre des tâches) : Mindset.exe, ou PowerShell s'il manque
 function Get-LaunchCommand {
     if (Test-Path -LiteralPath $AppExe) { "`"$AppExe`"" }
-    else { "`"$env:SystemRoot\System32\WindowsPowerShell\v1.0\powershell.exe`" -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File `"$MainScript`"" }
+    else { "`"$(Join-Path ([Environment]::GetFolderPath('System')) 'WindowsPowerShell\v1.0\powershell.exe')`" -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File `"$MainScript`"" }
 }
 
 $Window.Add_SourceInitialized({

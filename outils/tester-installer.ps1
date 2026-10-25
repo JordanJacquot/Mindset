@@ -57,8 +57,9 @@ function Write-Partie([string]$Titre) { Write-Host ''; Write-Host $Titre -Foregr
 # ---------------------------------------------------------------------------------------------------------------
 $texteLanceur = @'
 param([string]$Script, [string]$Parametres, [string]$Journal, [string]$Dossier, [string]$Lettre, [string]$LettreAmovible, [switch]$VraisProgrammes,
-      [string]$SidTache, [switch]$TachesRestantes, [switch]$DemarrageKo, [switch]$AideAncienne)
+      [string]$SidTache, [switch]$TachesRestantes, [switch]$DemarrageKo, [switch]$AideAncienne, [string]$Racine)
 $global:TJournal = $Journal
+$global:TRacine = $Racine   # (droits du dossier des programmes : '' protégé, 'ouverte' modifiable par les utilisateurs, 'proprietaire' à l'utilisateur)
 $global:TAideAncienne = [bool]$AideAncienne
 $global:TDossier = $Dossier
 $global:TPermis = @(($Dossier.TrimEnd('\') + '\'), "$($Lettre):\")
@@ -100,6 +101,8 @@ function global:New-Item {
 }
 function global:Set-ItemProperty {
     [CmdletBinding()] param([string]$Path, [string]$Name, [object]$Value)
+    # (les versions gardées : dans des fichiers du test, relus par Get-ItemProperty)
+    if ($Path -eq 'HKLM:\SOFTWARE\Mindset\Versions') { [IO.File]::WriteAllText((Join-Path $global:TDossier "versions\$Name.txt"), [string]$Value) }
     if ($Path -eq 'HKLM:\SOFTWARE\Mindset\Installation' -and $Name -eq 'Resultat') { Add-Journal "RESULTAT $Value"; return }
     # (l'accusé de réception : gardé dans un fichier du test, relu par Get-ItemProperty)
     if ($Path -eq 'HKLM:\SOFTWARE\Mindset\Installation' -and $Name -eq 'Recu') { Add-Journal "RECU $Value"; [IO.File]::WriteAllText((Join-Path $global:TDossier 'recu.txt'), [string]$Value); return }
@@ -110,6 +113,9 @@ function global:Get-ItemProperty {
     [CmdletBinding()] param([string]$Path, [string]$Name)
     if ($Path -eq 'HKLM:\SOFTWARE\Mindset\Installation' -and $Name -eq 'Recu' -and [IO.File]::Exists((Join-Path $global:TDossier 'recu.txt'))) {
         return [pscustomobject]@{ Recu = [IO.File]::ReadAllText((Join-Path $global:TDossier 'recu.txt')) }
+    }
+    if ($Path -eq 'HKLM:\SOFTWARE\Mindset\Versions' -and $Name -match '^[a-z0-9-]+$' -and [IO.File]::Exists((Join-Path $global:TDossier "versions\$Name.txt"))) {
+        return [pscustomobject]@{ $Name = [IO.File]::ReadAllText((Join-Path $global:TDossier "versions\$Name.txt")) }
     }
     Add-Journal "LECTURE registre $Path $Name"
     throw "Valeur absente : $Path $Name"
@@ -160,7 +166,22 @@ function global:Move-Item {
     Microsoft.PowerShell.Management\Move-Item @PSBoundParameters
 }
 # Droits des dossiers, disques
-function global:Get-Acl { [CmdletBinding()] param([string]$LiteralPath) Add-Journal "LECTURE droits $LiteralPath"; [Security.AccessControl.DirectorySecurity]::new() }
+# (droits lus : ceux d'un dossier posé par l'installateur, propriétaire Administrateurs et utilisateurs en lecture ; -Racine
+# ouverte : les utilisateurs peuvent y écrire ; -Racine proprietaire : il appartient à l'utilisateur, comme un dossier
+# créé sans droits)
+function global:Get-Acl {
+    [CmdletBinding()] param([string]$LiteralPath)
+    Add-Journal "LECTURE droits $LiteralPath"
+    $s = [Security.AccessControl.DirectorySecurity]::new()
+    $admins = [Security.Principal.SecurityIdentifier]::new('S-1-5-32-544'); $users = [Security.Principal.SecurityIdentifier]::new('S-1-5-32-545')
+    $s.SetOwner($(if ($global:TRacine -eq 'proprietaire') { [Security.Principal.WindowsIdentity]::GetCurrent().User } else { $admins }))
+    $h = [Security.AccessControl.InheritanceFlags]'ContainerInherit, ObjectInherit'
+    $s.AddAccessRule([Security.AccessControl.FileSystemAccessRule]::new($admins, 'FullControl', $h, 'None', 'Allow'))
+    $s.AddAccessRule([Security.AccessControl.FileSystemAccessRule]::new($users, $(if ($global:TRacine -eq 'ouverte') { 'Modify' } else { 'ReadAndExecute' }), $h, 'None', 'Allow'))
+    # (un droit qui ne vaut que pour ce qui sera créé dessous, comme « CREATOR OWNER » de Program Files : ne compte pas)
+    $s.AddAccessRule([Security.AccessControl.FileSystemAccessRule]::new([Security.Principal.SecurityIdentifier]::new('S-1-3-0'), 'FullControl', $h, 'InheritOnly', 'Allow'))
+    $s
+}
 function global:Set-Acl { [CmdletBinding()] param([string]$LiteralPath, $AclObject) Add-Journal "ACTION droits posés sur $LiteralPath" }
 function global:icacls { Add-Journal "ACTION droits (icacls) $(Get-TexteArgs $args)" }
 function global:Get-CimInstance {
@@ -344,7 +365,19 @@ $texteCopie = $texteInstalleur.Replace($blocWindows.Value, $faux.Trim()).Replace
 if ($texteCopie -match "'ScheduledTasks'") { throw 'La copie de test importerait encore le module ScheduledTasks.' }
 [IO.File]::WriteAllText((Join-Path $copie 'installer-admin.ps1'), $texteCopie, (New-Object Text.UTF8Encoding $true))
 foreach ($m in 'signature.ps1', 'paquets.ps1') { Copy-Item -LiteralPath (Join-Path $fichiers "modules\$m") -Destination (Join-Path $copie 'modules') }
-$installeur = Join-Path $copie 'installer-admin.ps1'
+# Son apps.json : l'appli de test (dossier Appli, programme Appli.exe, partie administrateur « Appli (aide) » Aide.exe)
+# et une autre appli
+$appsTest = @'
+[
+  { "id": "appli", "nom": "Appli", "zip": "Appli.zip", "dossier_zip": "Appli", "ancien_dossier_zip": "AncienAppli", "exe": "Appli.exe", "aide": "Appli (aide)", "aide_exe": "Aide.exe" },
+  { "id": "autre", "nom": "Autre", "zip": "Autre.zip", "dossier_zip": "Autre", "exe": "Autre.exe" },
+  { "id": "piege", "nom": "..\\Mindset", "zip": "Piege.zip", "dossier_zip": "Piege", "exe": "Piege.exe" }
+]
+'@
+[IO.File]::WriteAllText((Join-Path $copie 'apps.json'), $appsTest, (New-Object Text.UTF8Encoding $true))
+# La copie tourne depuis le dossier de Mindset de test (Program Files\Mindset\Mindset\fichiers), comme la vraie tâche :
+# remise en place au début de chaque cas (voir Initialize-Etat)
+$installeur = Join-Path $tmp 'ProgramFiles\Mindset\Mindset\fichiers\installer-admin.ps1'
 $lanceur = Join-Path $tmp 'lanceur.ps1'
 [IO.File]::WriteAllText($lanceur, $texteLanceur, (New-Object Text.UTF8Encoding $true))
 
@@ -389,6 +422,11 @@ function Initialize-Etat {
     $null = Save-Fichier (Join-Path $PM 'Appli\Aide.exe') 'aide 1.0.0'
     $null = Save-Fichier (Join-Path $PM 'Appli\fichiers\Appli.ps1') "`$AppVersion = '1.0.0'"
     $null = Save-Fichier (Join-Path $tmp 'victime\important.txt') 'à garder'
+    # La copie de l'installateur testée, dans le dossier de Mindset de test
+    Copy-Item -Path (Join-Path $copie '*') -Destination (Join-Path $PM 'Mindset\fichiers') -Recurse -Force
+    # Les versions gardées (faux HKLM:\SOFTWARE\Mindset\Versions) : celle de l'appli installée
+    if (Test-Path -LiteralPath (Join-Path $tmp 'versions')) { Remove-Item -LiteralPath (Join-Path $tmp 'versions') -Recurse -Force }
+    $null = Save-Fichier (Join-Path $tmp 'versions\appli.txt') '1.0.0'
     # (l'accusé de réception de la demande précédente, dans le faux registre)
     if (Test-Path -LiteralPath (Join-Path $tmp 'recu.txt')) { Remove-Item -LiteralPath (Join-Path $tmp 'recu.txt') -Force }
 }
@@ -410,7 +448,7 @@ $script:NumeroCas = 0
 # -SidTache : l'utilisateur de l'ancienne tâche (sans -Sid) ; -TachesRestantes : une tâche de Mindset ne part pas ;
 # -GarderRecu : l'accusé de réception du cas précédent reste (la même demande relancée)
 function Invoke-Installateur([hashtable]$Parametres, [scriptblock]$Preparer = $null, [switch]$SansResultat, [switch]$VraisProgrammes,
-                             [string]$SidTache = '', [switch]$TachesRestantes, [switch]$GarderRecu, [switch]$DemarrageKo, [switch]$AideAncienne) {
+                             [string]$SidTache = '', [switch]$TachesRestantes, [switch]$GarderRecu, [switch]$DemarrageKo, [switch]$AideAncienne, [string]$Racine = '') {
     $n = ++$script:NumeroCas
     $recu = if ($GarderRecu -and (Test-Path -LiteralPath (Join-Path $tmp 'recu.txt'))) { [IO.File]::ReadAllText((Join-Path $tmp 'recu.txt')) } else { '' }
     Initialize-Etat
@@ -424,7 +462,7 @@ function Invoke-Installateur([hashtable]$Parametres, [scriptblock]$Preparer = $n
     $eap = $ErrorActionPreference; $ErrorActionPreference = 'Continue'
     try {
         $sortie = & "$env:SystemRoot\System32\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -NonInteractive -ExecutionPolicy Bypass -File $lanceur `
-            -Script $installeur -Parametres $fp -Journal $journal -Dossier $tmp -Lettre $L -LettreAmovible $LA @(if ($SidTache) { '-SidTache', $SidTache }) @(if ($VraisProgrammes) { '-VraisProgrammes' }) @(if ($TachesRestantes) { '-TachesRestantes' }) @(if ($DemarrageKo) { '-DemarrageKo' }) @(if ($AideAncienne) { '-AideAncienne' }) 2>&1
+            -Script $installeur -Parametres $fp -Journal $journal -Dossier $tmp -Lettre $L -LettreAmovible $LA @(if ($SidTache) { '-SidTache', $SidTache }) @(if ($VraisProgrammes) { '-VraisProgrammes' }) @(if ($TachesRestantes) { '-TachesRestantes' }) @(if ($DemarrageKo) { '-DemarrageKo' }) @(if ($AideAncienne) { '-AideAncienne' }) @(if ($Racine) { '-Racine', $Racine }) 2>&1
     } finally { $ErrorActionPreference = $eap }
     $lignes = @([IO.File]::ReadAllLines($journal, [Text.Encoding]::UTF8) | Where-Object { $_ })
     $reponse = $null
@@ -453,11 +491,12 @@ function New-Demande($Contenu, [int]$Taille = 0) {
 }
 # Comme la tâche SYSTEM la lance : -Sid (l'utilisateur inscrit dans la tâche) et -Demande. -AncienneTache : comme
 # l'ancienne tâche (sans -Sid), dont l'utilisateur est -SidTache.
-function Invoke-Demande($Contenu, [int]$Taille = 0, [scriptblock]$Preparer = $null, [switch]$AncienneTache, [string]$SidTache = '', [switch]$TachesRestantes, [switch]$GarderRecu) {
+function Invoke-Demande($Contenu, [int]$Taille = 0, [scriptblock]$Preparer = $null, [switch]$AncienneTache, [string]$SidTache = '', [switch]$TachesRestantes, [switch]$GarderRecu,
+                        [switch]$AideAncienne, [string]$Racine = '') {
     $f = New-Demande $Contenu $Taille
     $p = @{ Action = 'demande'; Demande = $f }
     if (-not $AncienneTache) { $p.Sid = $sidActuel }
-    Invoke-Installateur $p $Preparer -SidTache $SidTache -TachesRestantes:$TachesRestantes -GarderRecu:$GarderRecu
+    Invoke-Installateur $p $Preparer -SidTache $SidTache -TachesRestantes:$TachesRestantes -GarderRecu:$GarderRecu -AideAncienne:$AideAncienne -Racine $Racine
 }
 function New-Id { [guid]::NewGuid().ToString('N') }
 # Une copie de la table $Base, avec les valeurs de $Changes en plus ou à la place
@@ -604,7 +643,7 @@ public static class MindsetTestPointAnalyse {
     }
     Test-Cas 'utilisateur donné dans la demande (Sid) ignoré : la tâche est pour l''utilisateur de la tâche' {
         $autre = 'S-1-5-21-1111111111-2222222222-3333333333-1001'
-        $r = Invoke-Demande @{ Id = (New-Id); Action = 'appli'; Zip = $zipAppli; Signature = "$zipAppli.sig"; Destination = (Join-Path $PM 'Appli'); DossierZip = 'Appli'; Exe = 'Appli.exe'; TacheAide = 'Appli (aide)'; ExeAide = 'Aide.exe'; Sid = $autre }
+        $r = Invoke-Demande @{ Id = (New-Id); Action = 'appli'; Appli = 'appli'; Zip = $zipAppli; Signature = "$zipAppli.sig"; Destination = (Join-Path $PM 'Appli'); DossierZip = 'Appli'; Exe = 'Appli.exe'; TacheAide = 'Appli (aide)'; ExeAide = 'Aide.exe'; Sid = $autre }
         $r.Reponse.ok -and (Test-TacheCreee $r 'Appli (aide)') -and -not (Test-Action $r $autre)
     }
     Test-Cas 'fichier de réponse donné dans la demande (Resultat) ignoré : rien écrit hors du registre' {
@@ -617,10 +656,51 @@ public static class MindsetTestPointAnalyse {
         $r.Reponse.ok -eq $false -and (Test-RienFait $r) -and (Test-Path -LiteralPath (Join-Path $PM 'Appli\Appli.exe'))
     }
 
+    # --- Le dossier des programmes vient de la tâche, jamais de la demande (revue du 25/10, audit complet, constat 1) ---
+    # (un Mindset glissé dans X:\Mindset\Programmes, sur un disque fixe NTFS : C:\Mindset\Programmes chez un compte standard)
+    $mindsetX = { $null = Save-Fichier (Join-Path $tmp 'disque\Mindset\Programmes\Mindset\Mindset.exe') 'piege'; $null = Save-Fichier (Join-Path $tmp 'disque\Mindset\Programmes\Appli\Appli.exe') 'piege' }
+    Test-Cas 'par la tâche, tâches vers X:\Mindset\Programmes\Mindset (pas le Mindset de la tâche) : « Dossier refusé », aucune tâche' {
+        $r = Invoke-Demande @{ Id = (New-Id); Action = 'taches'; Destination = "$($L):\Mindset\Programmes\Mindset" } -Preparer $mindsetX
+        (Test-Refuse $r 'Dossier refusé') -and (Test-RienFait $r)
+    }
+    Test-Cas 'contre-épreuve : le même dossier est accepté en lancement direct (l''administrateur a dit oui)' {
+        $r = Invoke-Installateur @{ Action = 'taches'; Destination = "$($L):\Mindset\Programmes\Mindset"; Sid = $sidActuel } -Preparer $mindsetX
+        $r.Reponse.ok
+    }
+    Test-Cas 'par la tâche, mise à jour de Mindset vers X:\Mindset\Programmes\Mindset : « Dossier refusé », rien installé, l''ancien relancé' {
+        $r = Invoke-Demande @{ Id = (New-Id); Action = 'mindset-maj'; Zip = $zipMindset; Signature = "$zipMindset.sig"; Destination = "$($L):\Mindset\Programmes\Mindset"; Version = '2.0.0' } -Preparer $mindsetX
+        (Test-Refuse $r 'Dossier refusé') -and (Test-RienFait $r @($relanceTache)) -and (Test-Action $r $relanceTache)
+    }
+    Test-Cas 'par la tâche, supprimer X:\Mindset\Programmes\Appli : « Dossier refusé », rien supprimé' {
+        $r = Invoke-Demande @{ Id = (New-Id); Action = 'supprimer'; Destination = "$($L):\Mindset\Programmes\Appli"; Exe = 'Appli.exe' } -Preparer $mindsetX
+        (Test-Refuse $r 'Dossier refusé') -and (Test-RienFait $r) -and (Test-Path -LiteralPath (Join-Path $tmp 'disque\Mindset\Programmes\Appli\Appli.exe'))
+    }
+    Test-Cas 'par la tâche, appli vers X:\Mindset\Programmes\Appli : « Dossier refusé », rien fait' {
+        $r = Invoke-Demande @{ Id = (New-Id); Action = 'appli'; Appli = 'appli'; Zip = $zipAppli; Signature = "$zipAppli.sig"; Destination = "$($L):\Mindset\Programmes\Appli" } -Preparer $mindsetX
+        (Test-Refuse $r 'Dossier refusé') -and (Test-RienFait $r)
+    }
+    foreach ($cas in @(@{ Nom = 'modifiable par les utilisateurs'; Racine = 'ouverte' }, @{ Nom = 'qui appartient à l''utilisateur (créé sans droits)'; Racine = 'proprietaire' })) {
+        $c = $cas
+        Test-Cas "par la tâche, dossier des programmes $($c.Nom) : refusé (pas un dossier protégé), rien fait, aucune tâche" {
+            $r = Invoke-Demande (@{ Id = (New-Id) } + $taches) -Racine $c.Racine
+            (Test-Refuse $r 'dossier protégé') -and (Test-RienFait $r)
+        }
+    }
+    Test-Cas 'par la tâche, mise à jour de Mindset avec un dossier des programmes pas protégé : refusée, mais l''ancien Mindset est relancé' {
+        $r = Invoke-Demande (@{ Id = (New-Id); Action = 'mindset-maj'; Zip = $zipMindset; Signature = "$zipMindset.sig"; Destination = (Join-Path $PM 'Mindset'); Version = '2.0.0' }) -Racine 'ouverte'
+        (Test-Refuse $r 'dossier protégé') -and (Test-RienFait $r @($relanceTache)) -and (Test-Action $r $relanceTache)
+    }
+    Test-Cas 'par la tâche, à chaque demande (ici supprimer une appli) : l''ancienne tâche d''aide de l''utilisateur passe en SYSTEM (revue du 25/10, constat 11)' {
+        $r = Invoke-Demande @{ Id = (New-Id); Action = 'supprimer'; Destination = (Join-Path $PM 'AppliBis') } -AideAncienne -Preparer { $null = Save-Fichier (Join-Path $PM 'AppliBis\x.txt') 'x' }
+        $aide = Join-Path $PM 'Appli\Aide.exe'
+        $r.Reponse.ok -and (Test-TacheCreee $r 'Appli (aide)') -and (Test-Action $r "-Execute `"$aide`"") -and
+            -not @($r.Actions | Where-Object { $_ -match 'tâche créée.*-TaskName (Autre|Piege|Deja) \(aide\)' }).Count
+    }
+
     # =============================================================================================================
     Write-Partie 'Installer une appli (Action appli)'
     # =============================================================================================================
-    $appli = @{ Action = 'appli'; Zip = $zipAppli; Signature = "$zipAppli.sig"; Destination = (Join-Path $PM 'Appli'); DossierZip = 'Appli'; Exe = 'Appli.exe' }
+    $appli = @{ Action = 'appli'; Appli = 'appli'; Zip = $zipAppli; Signature = "$zipAppli.sig"; Destination = (Join-Path $PM 'Appli'); DossierZip = 'Appli'; Exe = 'Appli.exe' }
     function Get-Appli([hashtable]$Changes) { Merge-Table $appli (Merge-Table @{ Id = (New-Id) } $Changes) }
 
     Test-Cas 'appli valable acceptée : installée (2.0.0), sa tâche d''aide créée pour l''utilisateur de la tâche' {
@@ -650,8 +730,8 @@ public static class MindsetTestPointAnalyse {
             (Test-Refuse $r 'Dossier refusé') -and (Test-RienFait $r)
         }
     }
-    Test-Cas 'X:\Mindset\Programmes sur un disque amovible : refusé (disque fixe NTFS), rien fait' {
-        $r = Invoke-Demande (Get-Appli @{ Destination = "$($LA):\Mindset\Programmes\Appli" })
+    Test-Cas 'lancement direct, X:\Mindset\Programmes sur un disque amovible : refusé (disque fixe NTFS), rien fait' {
+        $r = Invoke-Installateur (Merge-Table $appli @{ Destination = "$($LA):\Mindset\Programmes\Appli" })
         (Test-Refuse $r 'disque fixe NTFS') -and (Test-RienFait $r)
     }
     foreach ($nom in 'App\li', 'App/li', '..\Appli', 'C:', 'Ap*li', 'Ap?li', 'Ap"li', 'Ap<li', 'Ap>li', 'Ap|li') {
@@ -661,12 +741,70 @@ public static class MindsetTestPointAnalyse {
             (Test-Refuse $r 'Nom de dossier refusé.') -and (Test-RienFait $r)
         }
     }
-    foreach ($nom in '..\Appli.exe', 'C:\Windows\explorer.exe', 'sous/Appli.exe', 'Appli', 'Appli.txt', 'Appli.exe.lnk', 'A*.exe', 'Appli.exe:flux', '') {
+    foreach ($nom in '..\Appli.exe', 'C:\Windows\explorer.exe', 'sous/Appli.exe', 'Appli', 'Appli.txt', 'Appli.exe.lnk', 'A*.exe', 'Appli.exe:flux', 'Autre.exe') {
         $n = $nom
         Test-Cas "programme « $n » : « Nom de programme refusé. », rien fait (aucun programme arrêté)" {
             $r = Invoke-Demande (Get-Appli @{ Exe = $n })
             (Test-Refuse $r 'Nom de programme refusé.') -and (Test-RienFait $r)
         }
+    }
+    # --- L'appli et ce qu'elle installe viennent de apps.json (revue du 25/10, audit complet, constat 2) ---
+    Test-Cas 'programme absent de la demande : celui de apps.json (Appli.exe), appli installée' {
+        $d = Get-Appli @{}; $d.Remove('Exe'); $d.Remove('DossierZip')
+        $r = Invoke-Demande $d
+        $r.Reponse.ok -and (Get-Version (Join-Path $PM 'Appli')) -eq '2.0.0'
+    }
+    foreach ($cas in @(@{ Nom = 'inconnue de apps.json'; Id = 'nevermind' }, @{ Nom = 'absente'; Id = $null }, @{ Nom = 'au nom piégé dans apps.json'; Id = 'piege' }, @{ Nom = 'en majuscules'; Id = 'APPLI' })) {
+        $c = $cas
+        Test-Cas "appli $($c.Nom) : « Appli inconnue. », rien fait" {
+            $d = Get-Appli @{}; if ($null -eq $c.Id) { $d.Remove('Appli') } else { $d.Appli = $c.Id }
+            $r = Invoke-Demande $d
+            (Test-Refuse $r 'Appli inconnue.') -and (Test-RienFait $r)
+        }
+    }
+    Test-Cas 'zip de l''appli vers le dossier d''une autre appli (Program Files\Mindset\Autre) : « Dossier refusé », rien fait' {
+        $r = Invoke-Demande (Get-Appli @{ Destination = (Join-Path $PM 'Autre') }) -Preparer { $null = Save-Fichier (Join-Path $PM 'Autre\Autre.exe') 'autre' }
+        (Test-Refuse $r 'Dossier refusé') -and (Test-RienFait $r)
+    }
+    Test-Cas 'zip de l''appli annoncé comme l''autre appli (Appli autre, dossier Autre) : refusé, rien fait' {
+        $r = Invoke-Demande (Get-Appli @{ Appli = 'autre'; Destination = (Join-Path $PM 'Autre') })
+        $r.Reponse.ok -eq $false -and (Test-RienFait $r)
+    }
+    Test-Cas 'dossier du zip qui n''est pas dans apps.json (Autre) : « Nom de dossier refusé. », rien fait' {
+        $r = Invoke-Demande (Get-Appli @{ DossierZip = 'Autre' })
+        (Test-Refuse $r 'Nom de dossier refusé.') -and (Test-RienFait $r)
+    }
+    Test-Cas 'dossier du zip sous l''ancien nom de l''appli (ancien_dossier_zip de apps.json) : accepté jusqu''au contenu du zip' {
+        $r = Invoke-Demande (Get-Appli @{ DossierZip = 'AncienAppli' })
+        (Test-Refuse $r 'ne contient pas Appli.exe dans le dossier AncienAppli') -and (Test-RienFait $r @('ACTION arrêt du programme *', 'ACTION suppression de *.nouveau-*'))
+    }
+    foreach ($cas in @(@{ Nom = 'programme d''aide différent (Appli.exe)'; Tache = 'Appli (aide)'; Exe = 'Appli.exe' }, @{ Nom = 'tâche d''aide différente (Autre (aide))'; Tache = 'Autre (aide)'; Exe = 'Aide.exe' },
+                       @{ Nom = 'programme d''aide sans tâche'; Tache = $null; Exe = 'Aide.exe' }, @{ Nom = 'partie administrateur pour une appli qui n''en a pas'; Tache = 'Autre (aide)'; Exe = 'Autre.exe'; Appli = 'autre' })) {
+        $c = $cas
+        Test-Cas "$($c.Nom) : « Partie administrateur refusée », rien installé, aucune tâche" {
+            $d = Get-Appli @{ ExeAide = $c.Exe }
+            if ($c.Tache) { $d.TacheAide = $c.Tache }
+            if ($c.Appli) { $d.Appli = $c.Appli; $d.Destination = (Join-Path $PM 'Autre'); $d.Exe = 'Autre.exe'; $d.DossierZip = 'Autre' }
+            $r = Invoke-Demande $d
+            (Test-Refuse $r 'Partie administrateur refusée') -and (Test-RienFait $r)
+        }
+    }
+    Test-Cas 'version plus ancienne que la plus haute déjà installée (3.0.0 gardée, appli supprimée depuis) : refusée, rien installé' {
+        $r = Invoke-Demande (Get-Appli @{}) -Preparer { Remove-Item -LiteralPath (Join-Path $PM 'Appli') -Recurse -Force; $null = Save-Fichier (Join-Path $tmp 'versions\appli.txt') '3.0.0' }
+        (Test-Refuse $r 'a déjà été installée sur ce PC') -and (Test-RienFait $r) -and -not (Test-Path -LiteralPath (Join-Path $PM 'Appli'))
+    }
+    Test-Cas 'contre-épreuve : même version que la plus haute gardée (2.0.0) : acceptée' {
+        $r = Invoke-Demande (Get-Appli @{}) -Preparer { $null = Save-Fichier (Join-Path $tmp 'versions\appli.txt') '2.0.0' }
+        $r.Reponse.ok -and (Get-Version (Join-Path $PM 'Appli')) -eq '2.0.0'
+    }
+    Test-Cas 'version installée gardée dans HKLM:\SOFTWARE\Mindset\Versions (2.0.0), en lancement direct aussi' {
+        $r1 = Invoke-Demande (Get-Appli @{}); $v1 = [IO.File]::ReadAllText((Join-Path $tmp 'versions\appli.txt'))
+        $r2 = Invoke-Installateur (@{} + $appli); $v2 = [IO.File]::ReadAllText((Join-Path $tmp 'versions\appli.txt'))
+        $r1.Reponse.ok -and (Test-Action $r1 'HKLM:\SOFTWARE\Mindset\Versions\appli = 2.0.0') -and $v1 -eq '2.0.0' -and $r2.Reponse.ok -and $v2 -eq '2.0.0'
+    }
+    Test-Cas 'par la tâche, à chaque demande : la version d''une appli déjà installée est gardée (installée avant que Mindset ne les garde)' {
+        $r = Invoke-Demande (@{ Id = (New-Id) } + $taches) -Preparer { Remove-Item -LiteralPath (Join-Path $tmp 'versions') -Recurse -Force; New-Item -ItemType Directory -Path (Join-Path $tmp 'versions') | Out-Null }
+        $r.Reponse.ok -and (Test-Action $r 'HKLM:\SOFTWARE\Mindset\Versions\appli = 1.0.0')
     }
     Test-Cas 'programme d''aide « ..\Aide.exe » : « Nom de programme refusé. », rien installé, aucune tâche' {
         $r = Invoke-Demande (Get-Appli @{ TacheAide = 'Appli (aide)'; ExeAide = '..\Aide.exe' })

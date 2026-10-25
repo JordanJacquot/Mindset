@@ -4,9 +4,14 @@
     fichier que Nevermind (ou Mindset plus tard) exécuterait ensuite en administrateur.
 
     -Action appli           installe une appli à partir de son zip signé (vérifié ici, sur le contenu lu en mémoire)
-                            -Zip -Signature -Destination -DossierZip -Exe [-AncienExe] [-TacheAide <nom> -ExeAide <exe> -Sid <utilisateur>]
-                            -TacheAide : crée la tâche « \Mindset\<nom> » qui lance -ExeAide (à côté de -Exe) en SYSTEM
-                            pour l'utilisateur -Sid (la partie administrateur de l'appli, lancée sans demande de Windows)
+                            -Appli <id> -Zip -Signature -Destination [-DossierZip -Exe] [-AncienExe] [-Sid <utilisateur>]
+                            L'appli est une de apps.json (lu à côté de ce script, dans le dossier protégé) : son dossier
+                            (<programmes>\<nom>), le dossier de son zip, son programme et sa partie administrateur viennent
+                            de là, jamais de la demande (une valeur de la demande qui n'est pas celle de apps.json est refusée).
+                            Sa partie administrateur (aide, aide_exe) : la tâche « \Mindset\<aide> » qui lance <aide_exe>
+                            en SYSTEM pour l'utilisateur -Sid (lancée sans demande de Windows).
+                            La plus haute version installée de chaque appli est gardée dans HKLM:\SOFTWARE\Mindset\Versions
+                            (écrite seulement ici) : une version plus ancienne est refusée, même après une suppression.
     -Action mindset         installe Mindset lui-même : copie -Source dans Program Files\Mindset\Mindset, ou dans
                             X:\Mindset\Programmes\Mindset avec -Disque X -Sid <utilisateur> (crée X:\Mindset protégé),
                             et l'inscrit dans « Applications installées » de Windows (-Version)
@@ -20,7 +25,10 @@
                             (le fichier JSON écrit par Mindset : Id, Action parmi appli, mindset-maj, supprimer, taches, et
                             ses paramètres). Le fichier est modifiable sans droits : tout y est revérifié comme pour un
                             lancement direct, seuls les zips signés de son dossier telechargements s'installent, et
-                            l'utilisateur est toujours celui de la tâche. Accusé de réception (valeur Recu, l'Id) puis
+                            l'utilisateur est toujours celui de la tâche. Le dossier des programmes est celui d'où la
+                            tâche lance ce script (protégé, choisi par l'administrateur qui l'a inscrite), jamais celui de
+                            la demande : taches et mindset-maj visent ce Mindset-là, appli et supprimer un dossier
+                            directement à côté de lui. Accusé de réception (valeur Recu, l'Id) puis
                             réponse (valeur Resultat, JSON { id, ok, message }) dans HKLM:\SOFTWARE\Mindset\Installation :
                             jamais dans un dossier modifiable sans droits. Aucune fenêtre (personne ne la verrait).
                             Sans -Sid : l'ancienne tâche (« avec les droits les plus élevés », sous le compte de
@@ -38,7 +46,7 @@ param(
     [Parameter(Mandatory = $true)][ValidateSet('appli', 'mindset', 'mindset-maj', 'taches', 'supprimer', 'demande')][string]$Action,
     [string]$Resultat, [string]$Demande,
     [string]$Zip, [string]$Signature, [string]$Destination, [string]$DossierZip, [string]$Exe, [string]$AncienExe,
-    [string]$Source, [string]$Version, [int]$AttendrePid, [string]$TacheAide, [string]$ExeAide,
+    [string]$Source, [string]$Version, [int]$AttendrePid, [string]$TacheAide, [string]$ExeAide, [string]$Appli,
     [ValidatePattern('^[A-Za-z]?$')][string]$Disque, [string]$Sid, [switch]$Cache
 )
 $ErrorActionPreference = 'Stop'
@@ -144,6 +152,109 @@ function Assert-DisqueFixe([string]$Lettre) {
     if (-not $v -or $v.DriveType -ne 3 -or $v.FileSystem -ne 'NTFS') { throw "Le disque $($Lettre): n'est pas un disque fixe NTFS : Mindset ne peut pas y protéger ses programmes." }
 }
 
+# Un dossier que seuls les administrateurs peuvent changer : il appartient aux Administrateurs, à SYSTEM ou à
+# TrustedInstaller, et personne d'autre n'y a un droit d'écriture (ni l'utilisateur, ni « Utilisateurs », ni « Tout le
+# monde »). (Un dossier créé sans droits, par exemple C:\Mindset\Programmes, appartient à celui qui l'a créé.)
+$ComptesAdmin = @('S-1-5-32-544', 'S-1-5-18', 'S-1-5-80-956008885-3418522649-1831038044-1853292631-2271478464')
+function Test-DossierProtege([string]$Dossier) {
+    try {
+        $acl = Get-Acl -LiteralPath $Dossier
+        $proprietaire = $acl.GetOwner([Security.Principal.SecurityIdentifier])
+        if (-not $proprietaire -or $proprietaire.Value -notin $ComptesAdmin) { return $false }
+        # (écrire, ajouter, supprimer, changer les droits ou le propriétaire ; et les droits « génériques » tout et écriture)
+        $ecriture = [int64][Security.AccessControl.FileSystemRights]'WriteData, AppendData, WriteExtendedAttributes, WriteAttributes, Delete, DeleteSubdirectoriesAndFiles, ChangePermissions, TakeOwnership' -bor 0x50000000
+        foreach ($r in @($acl.GetAccessRules($true, $true, [Security.Principal.SecurityIdentifier]))) {
+            if ([string]$r.AccessControlType -ne 'Allow' -or ($r.PropagationFlags -band [Security.AccessControl.PropagationFlags]::InheritOnly)) { continue }
+            if ($r.IdentityReference.Value -in $ComptesAdmin) { continue }
+            if ([int64]$r.FileSystemRights -band $ecriture) { return $false }
+        }
+        return $true
+    } catch { return $false }
+}
+
+# Le dossier $Dossier appartient aux Administrateurs (s'il n'appartient pas déjà à un compte d'administration) : posé par
+# l'installation de Mindset, que Test-DossierProtege vérifie ensuite à chaque demande
+function Set-ProprietaireAdmins([string]$Dossier) {
+    try {
+        $a = Get-Acl -LiteralPath $Dossier
+        $p = $a.GetOwner([Security.Principal.SecurityIdentifier])
+        if ($p -and $p.Value -in $ComptesAdmin) { return }
+        $a.SetOwner((New-Object Security.Principal.SecurityIdentifier('S-1-5-32-544')))
+        Set-Acl -LiteralPath $Dossier -AclObject $a
+    } catch {}
+}
+
+# Par la tâche : le dossier de Mindset est celui d'où la tâche lance ce script, et le dossier des programmes celui qui le
+# contient (Program Files\Mindset ou X:\Mindset\Programmes). L'administrateur qui a inscrit la tâche l'a choisi ; une
+# demande ne peut pas le changer. Il doit être protégé (Test-DossierProtege), sans lien sur son chemin.
+$DossierMindsetTache = ''; $RacineTache = ''
+function Initialize-RacineTache {
+    $mindset = [IO.Path]::GetFullPath((Split-Path $PSScriptRoot -Parent)).TrimEnd('\')
+    $racine = Split-Path $mindset -Parent
+    $pf = [IO.Path]::GetFullPath((Join-Path $DossierProgrammes 'Mindset')).TrimEnd('\')
+    $ok = (Split-Path $mindset -Leaf) -eq 'Mindset' -and ($racine -ieq $pf -or $racine -match '^[A-Za-z]:\\Mindset\\Programmes\z')
+    if ($ok -and $racine -ine $pf) { Assert-DisqueFixe $racine.Substring(0, 1) }
+    if (-not $ok -or -not (Test-SansLien $mindset) -or -not (Test-DossierProtege $racine)) {
+        throw "Mindset n'est pas installé dans un dossier protégé ($racine) : rien n'a été fait."
+    }
+    $script:DossierMindsetTache = $mindset; $script:RacineTache = $racine
+}
+# Par la tâche : un dossier directement dans le dossier des programmes de la tâche (Mindset compris), sans lien
+function Get-DossierTache([string]$Dossier) {
+    $d = ''
+    try { if ($Dossier -match '^[A-Za-z]:\\') { $d = [IO.Path]::GetFullPath($Dossier.TrimEnd('\')) } } catch {}
+    if (-not $d -or (Split-Path $d -Parent) -ine $RacineTache -or ([IO.Directory]::Exists($d) -and -not (Test-SansLien $d))) { throw "Dossier refusé : $Dossier" }
+    $d
+}
+
+# Une appli de apps.json, lu à côté de ce script (dans le dossier protégé de Mindset), jamais dans la demande : son nom
+# (celui de son dossier), le dossier de son zip (aujourd'hui, ou sous son ancien nom), son programme, sa partie
+# administrateur. Vérifiés comme Mindset le fait (modules\applis.ps1).
+function Get-AppliConnue([string]$Id) {
+    if ($Id -cnotmatch '^[a-z0-9-]{1,40}\z') { throw 'Appli inconnue.' }
+    $liste = $null
+    try { $liste = [IO.File]::ReadAllText((Join-Path $PSScriptRoot 'apps.json'), [Text.Encoding]::UTF8) | ConvertFrom-Json } catch {}
+    $nomFichier = '^[^\\/:*?"<>|\x00-\x1f]+\z'
+    foreach ($a in $liste) {
+        if ([string]$a.id -cne $Id) { continue }
+        $nom = [string]$a.nom; $exe = [string]$a.exe
+        $ok = $nom -match '^[\w][\w .-]{0,39}\z' -and $nom -notmatch '\.\z' -and $nom -ine 'Mindset' -and $exe -match $RegleProgramme -and [string]$a.dossier_zip -match $nomFichier
+        if ($a.ancien_dossier_zip) { $ok = $ok -and [string]$a.ancien_dossier_zip -match $nomFichier }
+        if ($a.aide) { $ok = $ok -and [string]$a.aide -cmatch $RegleTacheAide -and [string]$a.aide_exe -match $RegleProgramme }
+        if (-not $ok) { break }
+        return [pscustomobject]@{ Id = $Id; Nom = $nom; Exe = $exe; DossiersZip = @(@([string]$a.dossier_zip, [string]$a.ancien_dossier_zip) | Where-Object { $_ })
+                                  TacheAide = $(if ($a.aide) { [string]$a.aide } else { '' }); ExeAide = $(if ($a.aide) { [string]$a.aide_exe } else { '' }) }
+    }
+    throw 'Appli inconnue.'
+}
+
+# La plus haute version installée de chaque appli (par son id), dans HKLM (écrit seulement ici) : elle reste après une
+# suppression de l'appli, et une version plus ancienne est refusée
+$CleVersions = 'HKLM:\SOFTWARE\Mindset\Versions'
+function Get-VersionGardee([string]$Id) {
+    try { [string](Get-ItemProperty -Path $CleVersions -Name $Id -ErrorAction Stop).$Id } catch { '' }
+}
+function Save-VersionGardee([string]$Id, [string]$Version) {
+    if ($Version -notmatch '^\d+(\.\d+){1,3}\z') { return }
+    $avant = Get-VersionGardee $Id
+    if ($avant -and -not (Test-VersionPlusRecente $Version $avant)) { return }
+    if (-not (Test-Path -Path $CleVersions)) { New-Item -Path $CleVersions -Force | Out-Null }
+    Set-ItemProperty -Path $CleVersions -Name $Id -Value $Version
+}
+# Par la tâche, à chaque demande : les versions des applis déjà installées dans le dossier des programmes sont gardées
+# (une appli installée avant que Mindset ne les garde est protégée elle aussi)
+function Save-VersionsInstallees {
+    $liste = $null
+    try { $liste = [IO.File]::ReadAllText((Join-Path $PSScriptRoot 'apps.json'), [Text.Encoding]::UTF8) | ConvertFrom-Json } catch {}
+    foreach ($a in $liste) {
+        try {
+            $x = Get-AppliConnue ([string]$a.id)
+            $d = Join-Path $RacineTache $x.Nom
+            if ([IO.Directory]::Exists($d) -and (Test-SansLien $d)) { Save-VersionGardee $x.Id (Get-VersionDossier $d) }
+        } catch {}
+    }
+}
+
 # X:\Mindset : droits posés explicitement, sans hériter de ceux du disque (qui varient d'un PC à l'autre).
 #   X:\Mindset et Programmes : administrateurs et système en contrôle total, utilisateurs en lecture seule ;
 #   Donnees : en plus, l'utilisateur de Mindset ($Sid) peut modifier (les applis y écrivent sans droits admin).
@@ -167,6 +278,7 @@ function Initialize-RacineDisque([string]$Lettre, [string]$Sid) {
     # Tout ce qui est dessous reprend ces droits (même un dossier qui existait déjà avec d'autres droits)
     & $Icacls "$racine\Programmes" /reset /T /C /Q | Out-Null
     & $Icacls "$racine\Donnees" /reset /T /C /Q | Out-Null
+    Set-ProprietaireAdmins "$racine\Programmes"
     $d = Get-Acl -LiteralPath "$racine\Donnees"
     $d.AddAccessRule((New-Object Security.AccessControl.FileSystemAccessRule((New-Object Security.Principal.SecurityIdentifier($Sid)), 'Modify', $h, $pr, 'Allow')))
     Set-Acl -LiteralPath "$racine\Donnees" -AclObject $d
@@ -265,7 +377,8 @@ function Update-TachesAide([string]$Sid) {
             if ($a.Count -ne 1) { continue }
             $exe = ([string]$a[0].Execute).Trim('"')
             if ($exe -notmatch '^[A-Za-z]:\\' -or [IO.Path]::GetFileName($exe) -notmatch $RegleProgramme) { continue }
-            $null = Test-DossierMindset (Split-Path $exe -Parent)   # (refusé hors du dossier protégé des programmes)
+            # (refusé hors du dossier protégé des programmes : par la tâche, celui de la tâche)
+            if ($ParTache) { $null = Get-DossierTache (Split-Path $exe -Parent) } else { $null = Test-DossierMindset (Split-Path $exe -Parent) }
             Register-TacheAide ([string]$t.TaskName) $exe $Sid
         } catch {}
     }
@@ -323,7 +436,7 @@ if ($ParTache) {
         try { New-Item -Path $CleInstallation -Force | Out-Null; Set-ItemProperty -Path $CleInstallation -Name 'Recu' -Value $IdDemande } catch {}
         if ([string]$j.Action -notin 'appli', 'mindset-maj', 'supprimer', 'taches') { Write-Resultat $false 'Demande refusée.'; exit }
         $Action = [string]$j.Action
-        foreach ($n in 'Zip', 'Signature', 'Destination', 'DossierZip', 'Exe', 'AncienExe', 'Version', 'TacheAide', 'ExeAide') {
+        foreach ($n in 'Zip', 'Signature', 'Destination', 'DossierZip', 'Exe', 'AncienExe', 'Version', 'TacheAide', 'ExeAide', 'Appli') {
             $v = $j.PSObject.Properties[$n]
             if ($v -and $v.Value -is [string]) { Set-Variable -Name $n -Value ([string]$v.Value) }
         }
@@ -342,18 +455,37 @@ if ($ParTache) {
 try {
     . (Join-Path $PSScriptRoot 'modules\signature.ps1')
     . (Join-Path $PSScriptRoot 'modules\paquets.ps1')
+    if ($ParTache) {
+        # (mise à jour de Mindset : il s'est déjà fermé, il est relancé même si rien n'est fait)
+        try { Initialize-RacineTache } catch { if ($Action -eq 'mindset-maj') { $null = & $Schtasks /Run /TN '\Mindset\Mindset (démarrage)' 2>&1 }; throw }
+        # À chaque demande : les versions déjà installées sont gardées, et les parties administrateur des applis de cet
+        # utilisateur encore sous son compte (créées par Mindset 2.11.0 ou avant, qu'une mise à jour directe de Mindset
+        # laisse en place) sont refaites en SYSTEM
+        try { Save-VersionsInstallees } catch {}
+        try { Update-TachesAide $Sid } catch {}
+    }
 
     switch ($Action) {
         'appli' {
-            $dest = Test-DossierMindset $Destination
+            # L'appli : une de apps.json. Son dossier, le dossier de son zip, son programme et sa partie administrateur
+            # viennent de là (une demande qui en donne d'autres est refusée)
+            $app = Get-AppliConnue $Appli
+            $dest = if ($ParTache) { Get-DossierTache $Destination } else { Test-DossierMindset $Destination }
+            if ((Split-Path $dest -Leaf) -ine $app.Nom) { throw "Dossier refusé : $Destination" }
             if ($DossierZip -match '[\\/:*?"<>|]') { throw 'Nom de dossier refusé.' }
-            Assert-Telechargement $Zip; Assert-Telechargement $Signature
-            $octets = [IO.File]::ReadAllBytes($Zip)
-            $sig = [IO.File]::ReadAllBytes($Signature)
+            if (-not $DossierZip) { $DossierZip = $app.DossiersZip[0] }
+            if ($app.DossiersZip -notcontains $DossierZip) { throw 'Nom de dossier refusé.' }
             # Tout est vérifié AVANT d'arrêter quoi que ce soit : noms, tâche d'aide, ancienne copie, puis la signature du zip
             # (sinon une demande écrite sans droits ferait arrêter en administrateur n'importe quel programme, même avec un faux zip)
             foreach ($n in @($Exe, $ExeAide) | Where-Object { $_ }) { if ($n -notmatch $RegleProgramme) { throw 'Nom de programme refusé.' } }
             if ($TacheAide -and $TacheAide -cnotmatch $RegleTacheAide) { throw 'Nom de tâche refusé.' }
+            if ($Exe -and $Exe -ine $app.Exe) { throw 'Nom de programme refusé.' }
+            # (sa partie administrateur : créée si la demande la prévoit, et seulement celle de apps.json)
+            if (($TacheAide -or $ExeAide) -and ($TacheAide -cne $app.TacheAide -or $ExeAide -ine $app.ExeAide)) { throw 'Partie administrateur refusée : ce n''est pas celle de apps.json.' }
+            $Exe = $app.Exe
+            Assert-Telechargement $Zip; Assert-Telechargement $Signature
+            $octets = [IO.File]::ReadAllBytes($Zip)
+            $sig = [IO.File]::ReadAllBytes($Signature)
             # Prise en charge : l'ancienne copie est le programme <Exe> d'un dossier, donné par son chemin complet, et il existe
             if ($AncienExe) {
                 $ok = $false
@@ -361,10 +493,15 @@ try {
                 if (-not $ok) { throw 'Ancienne copie refusée.' }
             }
             if (-not (Test-Signature $octets $sig (Join-Path $PSScriptRoot 'cles-publiques'))) { throw 'La signature du fichier téléchargé est invalide : rien n''a été installé.' }
+            # Jamais en dessous de la plus haute version déjà installée sur ce PC (même supprimée depuis) : refusé avant
+            # d'arrêter quoi que ce soit (Install-Paquet le revérifie sur ce qu'il extrait)
+            $gardee = Get-VersionGardee $app.Id; $dansZip = Get-VersionZip $octets $DossierZip
+            if ($gardee -and $dansZip -and (Test-VersionPlusRecente $gardee $dansZip)) { throw "Version $dansZip refusée : la version $gardee, plus récente, a déjà été installée sur ce PC." }
             # Mindset a demandé confirmation avant de fermer l'appli : tout ce qui tourne depuis son dossier (son hôte, l'ancien
             # <Appli>.exe, sa partie administrateur qui tient son programme ouvert), rien d'autre
             Stop-Programme $Exe $dest
-            $installe = Install-Paquet -Zip $octets -Signature $sig -ClePublique (Join-Path $PSScriptRoot 'cles-publiques') -Destination $dest -DossierZip $DossierZip -Exe $Exe
+            $installe = Install-Paquet -Zip $octets -Signature $sig -ClePublique (Join-Path $PSScriptRoot 'cles-publiques') -Destination $dest -DossierZip $DossierZip -Exe $Exe -VersionMinimale (Get-VersionGardee $app.Id)
+            try { Save-VersionGardee $app.Id (Get-VersionDossier $installe) } catch {}
             # Prise en charge : les tâches planifiées de l'utilisateur qui lançaient l'ancienne copie (en administrateur, que
             # Mindset sans droits ne peut pas modifier) lancent désormais la nouvelle. Seulement les siennes (jamais celles du
             # système, d'un autre compte, de Windows dans \Microsoft\ ni de Mindset dans \Mindset\), et toutes leurs actions
@@ -403,6 +540,8 @@ try {
                 Move-Item -LiteralPath $tmp -Destination $dest
                 try { Remove-Item -LiteralPath $ancien -Recurse -Force } catch {}
             } else { Move-Item -LiteralPath $tmp -Destination $dest }
+            # (le dossier des programmes appartient aux Administrateurs : la tâche le vérifie à chaque demande)
+            if (-not $Disque) { Set-ProprietaireAdmins $programmes }
             # « Applications installées » de Windows : Mindset s'y désinstalle comme un vrai programme, par son désinstalleur
             # autonome (il marche même si le code de Mindset est abîmé ; sans lui, par Mindset.exe -Desinstaller)
             $exe = Join-Path $dest 'Mindset.exe'
@@ -420,8 +559,9 @@ try {
             # puis on le relance sans les droits administrateur (par l'Explorateur, qui tourne avec ceux de l'utilisateur)
             $relance = Join-Path $PSScriptRoot '..\Mindset.exe'   # le Mindset qui a demandé la mise à jour
             try {
-                $dest = Test-DossierMindset $Destination
-                if ((Split-Path $dest -Leaf) -ne 'Mindset') { throw "Dossier refusé : $Destination" }
+                # (par la tâche : exactement le Mindset de la tâche)
+                $dest = if ($ParTache) { Get-DossierTache $Destination } else { Test-DossierMindset $Destination }
+                if ((Split-Path $dest -Leaf) -ne 'Mindset' -or ($ParTache -and $dest -ine $DossierMindsetTache)) { throw "Dossier refusé : $Destination" }
                 $relance = Join-Path $dest 'Mindset.exe'
                 if ($AttendrePid) { try { Wait-Process -Id $AttendrePid -Timeout 30 -ErrorAction Stop } catch {} }
                 Start-Sleep -Milliseconds 500
@@ -449,14 +589,16 @@ try {
             return
         }
         'taches' {
-            # Installation existante (Mindset 0.1.9 ou avant) : ses tâches planifiées, sans réinstaller
-            $dest = Test-DossierMindset $Destination
-            if ((Split-Path $dest -Leaf) -ne 'Mindset') { throw "Dossier refusé : $Destination" }
+            # Installation existante (Mindset 0.1.9 ou avant) : ses tâches planifiées, sans réinstaller (par la tâche :
+            # exactement le Mindset de la tâche)
+            $dest = if ($ParTache) { Get-DossierTache $Destination } else { Test-DossierMindset $Destination }
+            if ((Split-Path $dest -Leaf) -ne 'Mindset' -or ($ParTache -and $dest -ine $DossierMindsetTache)) { throw "Dossier refusé : $Destination" }
             Register-TachesMindset $dest $Sid
             Write-Resultat $true $dest
         }
         'supprimer' {
-            $dest = Test-DossierMindset $Destination
+            # (par la tâche : un dossier directement à côté du Mindset de la tâche, ou ce Mindset lui-même)
+            $dest = if ($ParTache) { Get-DossierTache $Destination } else { Test-DossierMindset $Destination }
             if ($AttendrePid) { try { Wait-Process -Id $AttendrePid -Timeout 30 -ErrorAction Stop } catch {} }
             if ($Exe) { Stop-Programme $Exe $dest }   # (seulement les programmes de ce dossier)
             if ((Split-Path $dest -Leaf) -ne 'Mindset') {

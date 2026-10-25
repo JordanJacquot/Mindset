@@ -495,6 +495,13 @@ if ((Test-MindsetInstalle) -and -not $EnTest -and -not $MindsetAdmin -and $scrip
     $ui.AdminBandeau.Visibility = 'Collapsed'
     Start-RemplacementTache { param($Ok) if (-not $Ok) { $ui.AdminBandeau.Visibility = 'Visible' } }
 }
+# Mise à jour directe depuis Mindset 2.11.0 ou avant : les tâches d'avant (partie administrateur d'une appli sous le
+# compte de l'utilisateur, très vieille « \Mindset\Mindset ») sont refaites par la tâche SYSTEM, sans fenêtre. Aussi une
+# fois après chaque mise à jour de Mindset (une tâche d'avant que ce compte ne peut pas lire serait sinon oubliée).
+elseif ((Test-MindsetInstalle) -and -not $EnTest -and -not $MindsetAdmin -and $script:EtatTacheInstallation -eq 'systeme' -and
+        ([string](Get-Setting 'TachesRefaitesPour' '') -ne $AppVersion -or (Test-TachesAnciennes))) {
+    Start-RemiseEnOrdreTaches
+}
 
 # ---------------------------------------------------------------------------
 # Les Paramètres dans l'écran de la console (console\scene.html, dans la DA des pages de Nevermind) : la page les

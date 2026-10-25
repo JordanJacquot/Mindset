@@ -22,7 +22,7 @@ jobs:
       - name: Récupérer le dépôt
         uses: actions/checkout@v4
 
-      - name: "0. Préparation (Mindset construit, clé de TEST, zips signés, Releases v2.9.0 et v2.7.0)"
+      - name: "0. Préparation (Mindset construit, clé de TEST, zips signés, Releases v2.11.0, v2.9.0 et v2.7.0)"
         run: .\outils\essai-installateur-reel.ps1 -Cas 0
 
       - name: "1. Installation sur C:, puis sur D:\\Mindset, puis une demande par la tâche SYSTEM"
@@ -64,3 +64,15 @@ jobs:
       - name: "10. La tâche SYSTEM ne voit pas l'environnement de l'utilisateur (contre-épreuve sous son compte)"
         if: ${{ !cancelled() }}
         run: .\outils\essai-installateur-reel.ps1 -Cas 10
+
+      - name: "11. Mise à jour directe depuis v2.11.0 : la partie administrateur repasse en SYSTEM"
+        if: ${{ !cancelled() }}
+        run: .\outils\essai-installateur-reel.ps1 -Cas 11
+
+      - name: "12. Compte standard malveillant : C:\\Mindset\\Programmes, ancienne version, partie administrateur, tout refusé"
+        if: ${{ !cancelled() }}
+        run: .\outils\essai-installateur-reel.ps1 -Cas 12
+
+      - name: "13. Variable COR_* dans HKCU\\Environment : pas de demande de Windows"
+        if: ${{ !cancelled() }}
+        run: .\outils\essai-installateur-reel.ps1 -Cas 13

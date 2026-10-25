@@ -280,8 +280,11 @@ function Start-MajMindsetDirecte {
                '-Zip', (Format-ArgumentAdmin $m.Zip), '-Signature', (Format-ArgumentAdmin $m.Sig), '-Destination', (Format-ArgumentAdmin $DossierMindset), '-Version', $m.Version, '-AttendrePid', $PID,
                '-Sid', [Security.Principal.WindowsIdentity]::GetCurrent().User.Value, '-Resultat', (Format-ArgumentAdmin $FichierMajMindset))
     } catch { $ui.MajTexte.Text = "Mise à jour impossible : $($_.Exception.Message)"; return }
+    # (variables d'environnement qui détourneraient le PowerShell administrateur : rien n'est lancé, voir installations.ps1)
+    $refus = Get-RefusVariablesAdmin
+    if ($refus) { $ui.MajTexte.Text = "Mise à jour impossible : $refus"; return }
     # (lancé depuis le dossier de Windows : s'il gardait le dossier de Mindset comme dossier courant, il ne pourrait pas le remplacer)
-    try { Start-Process -FilePath "$env:SystemRoot\System32\WindowsPowerShell\v1.0\powershell.exe" -ArgumentList $a -Verb RunAs -WindowStyle Hidden -WorkingDirectory $env:SystemRoot -ErrorAction Stop | Out-Null }
+    try { Start-Process -FilePath $PowerShellWindows -ArgumentList $a -Verb RunAs -WindowStyle Hidden -WorkingDirectory ([Environment]::GetFolderPath('Windows')) -ErrorAction Stop | Out-Null }
     catch { $ui.MajTexte.Text = 'Mise à jour annulée : l''autorisation de Windows a été refusée. Tu peux réessayer.'; return }
     Write-Log "Mise à jour vers Mindset $($m.Version) lancée"
     Exit-Mindset   # installer-admin.ps1 attend la fermeture, installe, puis le relance

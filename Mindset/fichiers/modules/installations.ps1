@@ -296,14 +296,39 @@ function Format-ArgumentAdmin([string]$Valeur) {
     '"' + ($Valeur -replace '(\\+)$', '$1$1') + '"'
 }
 
+# La demande de Windows lance powershell.exe en administrateur avec les variables d'environnement du compte. Celles qui
+# commencent par COR_ ou COMPlus_ sont lues par .NET Framework (celui de Windows PowerShell) avant la première ligne du
+# script : elles peuvent faire charger un programme choisi par celui qui les a posées. Si l'une d'elles est là (dans
+# Mindset, ou dans les variables du compte, HKCU\Environment, qu'un programme sans droits peut écrire), Mindset ne demande
+# pas l'autorisation. (Les DOTNET_* ne sont lues que par le .NET récent, pas par Windows PowerShell 5.1 : des outils
+# en posent sans danger, comme DOTNET_TieredCompilation.) Rend le message à montrer, ou '' si tout va bien.
+function Get-NomsVariablesCompte {
+    try {
+        $cle = [Microsoft.Win32.Registry]::CurrentUser.OpenSubKey('Environment')
+        if ($cle) { try { return @($cle.GetValueNames()) } finally { $cle.Dispose() } }
+    } catch {}
+    @()
+}
+function Get-RefusVariablesAdmin {
+    $noms = @([Environment]::GetEnvironmentVariables('Process').Keys | ForEach-Object { [string]$_ }) + @(Get-NomsVariablesCompte)
+    $trouvees = @($noms | Where-Object { $_ -match '^(COR_|COMPlus_)' } | Sort-Object -Unique)
+    if (-not $trouvees.Count) { return '' }
+    Write-Log "Demande de Windows pas lancée, par prudence : variable d'environnement $($trouvees -join ', ')"
+    "un réglage inhabituel de Windows ($($trouvees -join ', ')) pourrait détourner l'installation, alors Mindset n'a rien lancé. Demande de l'aide à la personne qui s'occupe de ton PC."
+}
+# powershell.exe de Windows, demandé à Windows (jamais par une variable d'environnement, que le compte peut changer)
+$PowerShellWindows = Join-Path ([Environment]::GetFolderPath('System')) 'WindowsPowerShell\v1.0\powershell.exe'
+
 # La demande normale de Windows : installer-admin.ps1 lancé en administrateur, sa réponse dans un fichier
 function Invoke-AdminDirect([string]$Action, [hashtable]$Parametres, [scriptblock]$Fin) {
     $rep = Join-Path $TelechargementsDir "admin-$([guid]::NewGuid().ToString('N').Substring(0, 8)).json"
+    $refus = Get-RefusVariablesAdmin
+    if ($refus) { & $Fin $false $refus; return }
     try {
         $a = @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-WindowStyle', 'Hidden', '-File', (Format-ArgumentAdmin (Join-Path $AppDir 'installer-admin.ps1')), '-Action', $Action, '-Resultat', (Format-ArgumentAdmin $rep))
         foreach ($k in $Parametres.Keys) { if ($null -ne $Parametres[$k] -and "$($Parametres[$k])" -ne '') { $a += @("-$k", (Format-ArgumentAdmin ([string]$Parametres[$k]))) } }
     } catch { & $Fin $false $_.Exception.Message; return }
-    try { $proc = Start-Process -FilePath "$env:SystemRoot\System32\WindowsPowerShell\v1.0\powershell.exe" -ArgumentList $a -Verb RunAs -WindowStyle Hidden -WorkingDirectory $env:SystemRoot -PassThru -ErrorAction Stop }
+    try { $proc = Start-Process -FilePath $PowerShellWindows -ArgumentList $a -Verb RunAs -WindowStyle Hidden -WorkingDirectory ([Environment]::GetFolderPath('Windows')) -PassThru -ErrorAction Stop }
     catch { & $Fin $false 'l''autorisation de Windows a été refusée.'; return }
     [void]$script:AttentesAdmin.Add(@{ Process = $proc; Reponse = $rep; Fin = $Fin; Debut = Get-Date })
     $script:AdminTimer.Start()
@@ -383,6 +408,37 @@ function Start-RemplacementTache([scriptblock]$Fin) {
     [void](Send-DemandeInstallation $d)
 }
 
+# Mise à jour directe depuis Mindset 2.11.0 ou avant : c'est l'installateur de l'ancienne version qui l'a faite, et il a
+# laissé en place des tâches d'avant (la partie administrateur d'une appli encore sous le compte de l'utilisateur, avec
+# les droits les plus élevés ; la très vieille « \Mindset\Mindset »). Au démarrage, si l'une d'elles est là (ou au premier
+# démarrage d'une nouvelle version, voir parametres.ps1), une demande « taches » part par la tâche SYSTEM, sans fenêtre ni
+# demande de Windows : elle les refait en SYSTEM ou les retire (et l'installateur refait les parties administrateur à
+# chaque demande).
+function Test-TachesAnciennes {
+    $moi = [Security.Principal.WindowsIdentity]::GetCurrent().User.Value
+    foreach ($nom in @($Applis | ForEach-Object { $_.Aide } | Where-Object { $_ })) {
+        try {
+            $t = @(& $SchtasksExe /Query /TN "\Mindset\$nom" /XML 2>$null)
+            if ($LASTEXITCODE -ne 0 -or -not $t.Count) { continue }
+            $compte = [string]([xml]($t -join "`n")).Task.Principals.Principal.UserId
+            if ($compte -and $compte -notmatch '^S-1-') { $compte = (New-Object Security.Principal.NTAccount($compte)).Translate([Security.Principal.SecurityIdentifier]).Value }
+            if ($compte -eq $moi) { return $true }
+        } catch {}
+    }
+    $null = & $SchtasksExe /Query /TN '\Mindset\Mindset' 2>$null
+    $LASTEXITCODE -eq 0
+}
+function Start-RemiseEnOrdreTaches {
+    $c = @{ Id = [guid]::NewGuid().ToString('N'); Action = 'taches'; Destination = [string]$DossierMindset }
+    $d = @{ Contenu = $c; Repli = $null; Fin = {
+            param($Ok, $Message)
+            if ($Ok) { Write-Log 'Mini-installateur : tâches refaites (parties administrateur en SYSTEM, plus de très vieille tâche)'; Set-Setting 'TachesRefaitesPour' $AppVersion }
+            else { Write-Log "Mini-installateur : les tâches n'ont pas pu être refaites ($Message)" }
+        } }
+    Write-Log 'Mini-installateur : tâches à refaire (tâches d''avant, ou nouvelle version de Mindset), demande « taches »'
+    [void](Send-DemandeInstallation $d)
+}
+
 # ---------------------------------------------------------------------------
 # Installer, mettre à jour, prendre en charge
 # ---------------------------------------------------------------------------
@@ -419,7 +475,7 @@ function Complete-Telechargement($Appli, $Resultat, $Erreur, [string]$AncienDoss
     $script:Progres.Remove($Appli.Id)
     if ($Erreur -or -not $Resultat) { Stop-Operation $Appli "Échec : $Erreur"; return }
     $dossierZip = if ($Resultat.DossierZip) { [string]$Resultat.DossierZip } else { $Appli.DossierZip }
-    $p = [ordered]@{ Zip = $Resultat.Zip; Signature = $Resultat.Sig; Destination = (Get-DossierGere $Appli); DossierZip = $dossierZip; Exe = $Appli.Exe }
+    $p = [ordered]@{ Appli = $Appli.Id; Zip = $Resultat.Zip; Signature = $Resultat.Sig; Destination = (Get-DossierGere $Appli); DossierZip = $dossierZip; Exe = $Appli.Exe }
     # (prise en charge : l'utilisateur est donné aussi, l'installateur ne réécrit que ses tâches planifiées à lui)
     if ($AncienDossier) { $p.AncienExe = Join-Path $AncienDossier $Appli.Exe; $p.Sid = [Security.Principal.WindowsIdentity]::GetCurrent().User.Value }
     # Appli avec une partie administrateur (Nevermind) : sa tâche planifiée est créée ou remise à jour à chaque installation

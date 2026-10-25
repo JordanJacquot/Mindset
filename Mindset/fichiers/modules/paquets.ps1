@@ -135,6 +135,30 @@ function Get-DossierZip([byte[]]$Zip, [string[]]$Noms, [string]$Exe) {
     $Noms[0]
 }
 
+# Version contenue dans un zip (ses octets) : la ligne « $AppVersion = 'x.y.z' » d'un script de <DossierZip>\fichiers\
+# (comme Get-VersionDossier, avant toute extraction). '' si introuvable ou zip illisible.
+function Get-VersionZip([byte[]]$Zip, [string]$DossierZip) {
+    try {
+        Add-Type -AssemblyName System.IO.Compression
+        $archive = New-Object IO.Compression.ZipArchive((New-Object IO.MemoryStream (, $Zip)), [IO.Compression.ZipArchiveMode]::Read)
+        try {
+            $prefixe = $DossierZip.TrimEnd('\') + '\fichiers\'
+            foreach ($e in $archive.Entries) {
+                $nom = $e.FullName.Replace('/', '\')
+                if (-not $nom.StartsWith($prefixe, [StringComparison]::OrdinalIgnoreCase) -or $nom.Substring($prefixe.Length) -notmatch '^[^\\]+\.ps1$') { continue }
+                $lecteur = New-Object IO.StreamReader($e.Open(), [Text.Encoding]::UTF8)
+                try {
+                    for ($n = 0; $n -lt 40; $n++) {
+                        $l = $lecteur.ReadLine(); if ($null -eq $l) { break }
+                        if ($l -match "^\`$AppVersion\s*=\s*'(\d+(\.\d+){1,3})'") { return $Matches[1] }
+                    }
+                } finally { $lecteur.Dispose() }
+            }
+        } finally { $archive.Dispose() }
+    } catch {}
+    ''
+}
+
 function Test-VersionPlusRecente([string]$Distante, [string]$Locale) {
     try { [version]$Distante -gt [version]$Locale } catch { $false }
 }
@@ -168,7 +192,9 @@ function Move-DossierEssais([string]$De, [string]$Vers) {
     $false
 }
 
-function Install-Paquet([byte[]]$Zip, [byte[]]$Signature, [string]$ClePublique, [string]$Destination, [string]$DossierZip, [string]$Exe) {
+#   -VersionMinimale : la plus haute version de l'appli déjà installée sur ce PC (gardée par installer-admin.ps1) ; une
+#   version plus ancienne est refusée, même si l'appli a été supprimée entre-temps.
+function Install-Paquet([byte[]]$Zip, [byte[]]$Signature, [string]$ClePublique, [string]$Destination, [string]$DossierZip, [string]$Exe, [string]$VersionMinimale) {
     if (-not (Test-Signature $Zip $Signature $ClePublique)) { throw 'La signature du fichier téléchargé est invalide : rien n''a été installé.' }
     Add-Type -AssemblyName System.IO.Compression, System.IO.Compression.FileSystem
 
@@ -216,6 +242,10 @@ function Install-Paquet([byte[]]$Zip, [byte[]]$Signature, [string]$ClePublique, 
     if ($installee -and (Test-VersionPlusRecente $installee $nouvelle)) {
         try { Remove-Item -LiteralPath $tmp -Recurse -Force } catch {}
         throw "Version $nouvelle refusée : la version $installee, plus récente, est déjà installée."
+    }
+    if ($VersionMinimale -and (Test-VersionPlusRecente $VersionMinimale $nouvelle)) {
+        try { Remove-Item -LiteralPath $tmp -Recurse -Force } catch {}
+        throw "Version $nouvelle refusée : la version $VersionMinimale, plus récente, a déjà été installée sur ce PC."
     }
 
     # Mise à jour de Mindset lui-même (faite une fois qu'il est fermé) : l'utilisateur n'a rien à fermer ni à réessayer,

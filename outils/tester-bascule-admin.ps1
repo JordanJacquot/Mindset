@@ -10,7 +10,9 @@
 # registre, dossier temporaire de test) :
 #   1. premier lancement en administrateur : tâches refaites et relance par l'Explorateur (comme avant) ;
 #   2. relancé en administrateur dans les 2 minutes : plus de nouvelle relance, Mindset reste ouvert ;
-#   3. plus de 2 minutes après : la bascule se refait (une fois).
+#   3. plus de 2 minutes après : la bascule se refait (une fois) ;
+#   4. les variables de test (MINDSET_TEST, MINDSET_TEST_SCRIPT...) sont ignorées quand Mindset tourne en administrateur
+#      depuis son dossier protégé (audit du 25/10, 25f), et gardées ailleurs (tests de la CI, copie de travail).
 # Rien sur le vrai PC : aucun programme lancé, aucun registre lu ni écrit.
 # Code de sortie 1 si un cas échoue (utilisé par la CI de GitHub).
 param([string]$Fichiers)
@@ -83,6 +85,31 @@ try {
     foreach ($m in @(Get-ChildItem -LiteralPath $tmp -Filter '*.marque' -File)) { $m.LastWriteTime = (Get-Date).AddMinutes(-5) }
     Invoke-Bloc
     Test-Cas 'plus de 2 minutes après : la bascule se refait une fois' { $script:Relances -eq 1 }
+
+    # Les lignes de Mindset.ps1 qui décident du mode test, de « $CopieProtegee = $false » à « $EnTest = »
+    Write-Host ''
+    Write-Host 'Variables de test et Mindset administrateur (audit du 25/10, 25f)' -ForegroundColor Cyan
+    $lignes = [IO.File]::ReadAllText((Join-Path $fichiers 'Mindset.ps1'), [Text.Encoding]::UTF8)
+    $m = [regex]::Match($lignes, '(?ms)^\$CopieProtegee = \$false.*?^\$EnTest = [^\r\n]*')
+    $texteTest = $m.Value -replace '\$PSScriptRoot', '$FauxScriptRoot'
+    $script:Inscrit = ''
+    function Get-ItemProperty { param($Path, [string]$ErrorAction) if (-not $script:Inscrit) { throw 'absent' }; [pscustomobject]@{ InstallLocation = $script:Inscrit } }
+    function Get-ModeTest([bool]$Admin, [string]$Racine, [string]$Inscrit) {
+        $EstAdmin = $Admin; $FauxScriptRoot = Join-Path $Racine 'fichiers'; $script:Inscrit = $Inscrit
+        . ([scriptblock]::Create($texteTest))
+        $EnTest
+    }
+    $env:MINDSET_TEST = '1'
+    try {
+        $pf = Join-Path ([Environment]::GetFolderPath('ProgramFiles')) 'Mindset\Mindset'
+        $depot = Join-Path $tmp 'depot\Mindset'
+        Test-Cas 'les lignes du mode test sont dans Mindset.ps1' { $m.Success }
+        Test-Cas 'administrateur, Mindset inscrit dans « Applications installées » : variables de test ignorées' { -not (Get-ModeTest $true (Join-Path $tmp 'Jeux\Mindset') (Join-Path $tmp 'Jeux\Mindset')) }
+        Test-Cas 'administrateur, Mindset dans Program Files\Mindset : ignorées' { -not (Get-ModeTest $true $pf '') }
+        Test-Cas 'administrateur, Mindset dans X:\Mindset\Programmes : ignorées' { -not (Get-ModeTest $true 'D:\Mindset\Programmes\Mindset' '') }
+        Test-Cas 'administrateur, copie de travail (tests de la CI) : gardées' { Get-ModeTest $true $depot 'C:\Program Files\Mindset\Mindset' }
+        Test-Cas 'sans les droits, même installé : gardées (rien de plus qu''un programme du compte)' { Get-ModeTest $false $pf $pf }
+    } finally { Remove-Item -LiteralPath 'env:MINDSET_TEST' -ErrorAction SilentlyContinue }
 } finally {
     $env:TEMP = $tempAvant
     Remove-Item -LiteralPath $tmp -Recurse -Force -ErrorAction SilentlyContinue
