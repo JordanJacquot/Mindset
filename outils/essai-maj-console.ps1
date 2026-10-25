@@ -91,7 +91,10 @@ switch ($script:Essai.Etape) {
     { $_ -in 'telechargement', 'installation', 'attente' } { Set-PublicationEssai 'evermind' '0.15.0' }
     { $_ -in 'termine', 'notes', 'parametres' } {
         $script:EssaiVersions.evermind = '0.15.0'; $script:Publications.evermind = @{ Version = '0.15.0'; Notes = $EssaiNotes }
-        Write-HistoriqueEssai (@(, @('evermind', 'Evermind', '0.15.0', 47, $true)) + $histoAncien)
+        # (il y a 47 minutes, mais toujours aujourd'hui : entre minuit et 0 h 47, ce serait hier, et la carte dirait
+        # « hier à 23 h 54 », ce qui est juste mais n'est pas ce que cette étape vérifie)
+        $minutes = [math]::Min(47, [math]::Floor(((Get-Date) - (Get-Date).Date).TotalMinutes))
+        Write-HistoriqueEssai (@(, @('evermind', 'Evermind', '0.15.0', $minutes, $true)) + $histoAncien)
     }
     { $_ -in 'prete', 'clic', 'majclic' } { Set-Setting 'MajAuto' $false; Set-PublicationEssai 'evermind' '0.15.0' }
     'coupee' { Set-Setting 'VerifVersions' $false }
