@@ -669,7 +669,11 @@ function Test-Cas6 {
     Test-Cas 'Élodie ne peut ni modifier la tâche ni écrire dans Program Files\Mindset' { -not $s.Erreur -and $null -ne $s.CodeModifier -and $s.CodeModifier -ne 0 -and $s.EcritProgrammes -eq $false -and (Get-InfoTache $NomTache).Active }
     $s = Invoke-Client $e @{ Mode = 'invoke'; Modules = (Join-Path $MindsetC 'fichiers\modules'); DataDir = $e.Donnees; Action = 'appli'; Parametres = (Get-DemandeEssai $e.Donnees -Aide); Copier = $CopierEssai }
     Test-Cas 'sa demande passe par la tâche SYSTEM : appli installée, sans demande de Windows' { @($s.Fins).Count -eq 1 -and $s.Fins[0] -eq "True|$ProgrammesC\Essai" -and -not @($s.RunAs).Count -and (Test-Path -LiteralPath "$ProgrammesC\Essai\Essai.exe") }
-    Test-Cas 'la partie administrateur de l''appli : tâche « Essai (aide) » pour Élodie seulement' { $t = Get-InfoTache 'Essai (aide)'; $t -and (ConvertTo-Sid $t.Compte) -eq $e.Sid -and $t.Commande -eq "`"$ProgrammesC\Essai\EssaiAide.exe`"" }
+    # (en SYSTEM, pour Élodie inscrite dans ses arguments, lisible et lançable par elle seule : revue du 25/10, lot A2)
+    Test-Cas 'la partie administrateur de l''appli : tâche « Essai (aide) » en SYSTEM pour Élodie seulement' {
+        $t = Get-InfoTache 'Essai (aide)'
+        $t -and (ConvertTo-Sid $t.Compte) -eq 'S-1-5-18' -and $t.Arguments -match [regex]::Escape("-Sid $($e.Sid)") -and $t.Commande -eq "`"$ProgrammesC\Essai\EssaiAide.exe`"" -and (Test-DroitsTache $t.Sddl $e.Sid)
+    }
 }
 
 function Test-Cas7 {
