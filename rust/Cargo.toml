@@ -1,0 +1,17 @@
+# Le Rust de la suite (passage en Rust, issue #9). Rien ici n'est livré aux utilisateurs pour l'instant :
+# les applis publiées restent celles en PowerShell.
+[workspace]
+resolver = "3"
+members = ["suite-commun", "banc-essai"]
+
+[workspace.package]
+edition = "2024"
+license = "MIT"
+publish = false
+
+[workspace.lints.rust]
+unsafe_code = "forbid"
+unsafe_op_in_unsafe_fn = "deny"
+
+[workspace.lints.clippy]
+all = { level = "warn", priority = -1 }

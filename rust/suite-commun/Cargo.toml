@@ -1,0 +1,17 @@
+[package]
+name = "suite-commun"
+version = "0.1.0"
+description = "Bibliothèque commune de la suite Mindset : signature, installation des zips, écriture sûre des JSON"
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[dependencies]
+# Versions figées (« = ») : une nouvelle version n'entre que par un changement relu.
+ring = "=0.17.14"
+serde_json = "=1.0.154"
+# Sans les options par défaut : seulement « deflate » (le format des zips publiés)
+zip = { version = "=9.1.2", default-features = false, features = ["deflate"] }
+
+[lints]
+workspace = true

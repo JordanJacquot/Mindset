@@ -1,0 +1,67 @@
+# cargo deny : licences, avis de sécurité, bibliothèques permises, origine des bibliothèques.
+# Lancé par la CI de GitHub (.github/workflows/tests.yml, job « rust »).
+
+[graph]
+# La suite ne tourne que sous Windows
+targets = ["x86_64-pc-windows-msvc"]
+all-features = false
+
+[advisories]
+# Toute faille connue (base RustSec) ou version retirée fait échouer la vérification
+ignore = []
+
+[licenses]
+# Licences compatibles avec la licence MIT de la suite
+allow = ["MIT", "Apache-2.0", "ISC", "Zlib"]
+confidence-threshold = 0.9
+
+[licenses.private]
+# Nos propres crates (publish = false) : licence MIT, déclarée dans Cargo.toml
+ignore = true
+
+[bans]
+multiple-versions = "warn"
+wildcards = "deny"
+allow-wildcard-paths = true
+# Liste blanche : seules ces bibliothèques peuvent entrer (directes ou indirectes). En ajouter une se fait ici,
+# après relecture.
+allow = [
+    # les nôtres
+    "suite-commun",
+    "banc-essai",
+    # signature (ring) et sa construction
+    "ring",
+    "untrusted",
+    "cc",
+    "find-msvc-tools",
+    "shlex",
+    "cfg-if",
+    "getrandom",
+    "windows-sys",
+    "windows-link",
+    # JSON
+    "serde_json",
+    "serde_core",
+    "itoa",
+    "memchr",
+    "zmij",
+    # zip (deflate seulement)
+    "zip",
+    "crc32fast",
+    "flate2",
+    "zlib-rs",
+    "zopfli",
+    "bumpalo",
+    "log",
+    "simd-adler32",
+    "indexmap",
+    "equivalent",
+    "hashbrown",
+    "typed-path",
+]
+
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"
+allow-registry = ["https://github.com/rust-lang/crates.io-index"]
+allow-git = []
