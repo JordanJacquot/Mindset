@@ -1,0 +1,26 @@
+{
+  "format": 1,
+  "sujet": "Supprimer une appli ou Mindset (Action supprimer) : seulement un dossier de Program Files\\Mindset ; en SYSTEM, aucune fenêtre",
+  "regle": "installer-admin.ps1 -Action supprimer -Destination <dossier> [-Exe <programme>]",
+  "attendu": "voir cas\\LISEZMOI.md",
+  "valeurs": {
+    "{tmp}": "le dossier du faux PC",
+    "{pf}": "Program Files du faux PC",
+    "{pm}": "Program Files\\Mindset du faux PC",
+    "{x}": "la lettre du faux disque fixe NTFS",
+    "{id}": "un numéro de demande neuf"
+  },
+  "cas": [
+    {"nom":"suppression d'une appli acceptée : son dossier retiré, Mindset gardé","entree":{"lancement":"tache","demande":{"Action":"supprimer","Destination":"{pm}\\Appli","Exe":"Appli.exe"}},"attendu":{"reponse":"ok","absent":["{pm}\\Appli"],"existe":["{pm}\\Mindset\\Mindset.exe"],"actions":["arrêt du programme {pm}\\Appli\\"]}},
+    {"nom":"suppression de Mindset lui-même acceptée : dossier, tâches et clés retirés (sans fenêtre ni réponse)","entree":{"lancement":"tache","demande":{"Action":"supprimer","Destination":"{pm}\\Mindset"}},"attendu":{"absent":["{pm}\\Mindset"],"existe":["{pm}\\Appli\\Appli.exe"],"actions":["registre : suppression de HKLM:\\SOFTWARE\\Mindset","tâche retirée"],"actions_absentes":["fenêtre"],"registre":false}},
+    {"nom":"suppression de Program Files\\Mindset (tout) : « Dossier refusé », rien supprimé","entree":{"lancement":"tache","demande":{"Action":"supprimer","Destination":"{pm}"},"contexte":{"fichiers":{"{tmp}\\disque\\Mindset\\Programmes\\Appli\\Appli.exe":"x"}}},"attendu":{"reponse":"refus","message":"Dossier refusé","rien_fait":true}},
+    {"nom":"suppression de Program Files : « Dossier refusé », rien supprimé","entree":{"lancement":"tache","demande":{"Action":"supprimer","Destination":"{pf}"},"contexte":{"fichiers":{"{tmp}\\disque\\Mindset\\Programmes\\Appli\\Appli.exe":"x"}}},"attendu":{"reponse":"refus","message":"Dossier refusé","rien_fait":true}},
+    {"nom":"suppression de Mindset\\Appli\\.. (tout) : « Dossier refusé », rien supprimé","entree":{"lancement":"tache","demande":{"Action":"supprimer","Destination":"{pm}\\Appli\\.."},"contexte":{"fichiers":{"{tmp}\\disque\\Mindset\\Programmes\\Appli\\Appli.exe":"x"}}},"attendu":{"reponse":"refus","message":"Dossier refusé","rien_fait":true}},
+    {"nom":"suppression de trop profond (Appli\\fichiers) : « Dossier refusé », rien supprimé","entree":{"lancement":"tache","demande":{"Action":"supprimer","Destination":"{pm}\\Appli\\fichiers"},"contexte":{"fichiers":{"{tmp}\\disque\\Mindset\\Programmes\\Appli\\Appli.exe":"x"}}},"attendu":{"reponse":"refus","message":"Dossier refusé","rien_fait":true}},
+    {"nom":"suppression de hors de Mindset : « Dossier refusé », rien supprimé","entree":{"lancement":"tache","demande":{"Action":"supprimer","Destination":"{tmp}\\victime"},"contexte":{"fichiers":{"{tmp}\\disque\\Mindset\\Programmes\\Appli\\Appli.exe":"x"}}},"attendu":{"reponse":"refus","message":"Dossier refusé","rien_fait":true}},
+    {"nom":"suppression de X:\\Mindset sur le faux disque : « Dossier refusé », rien supprimé","entree":{"lancement":"tache","demande":{"Action":"supprimer","Destination":"{x}:\\Mindset"},"contexte":{"fichiers":{"{tmp}\\disque\\Mindset\\Programmes\\Appli\\Appli.exe":"x"}}},"attendu":{"reponse":"refus","message":"Dossier refusé","rien_fait":true}},
+    {"nom":"suppression avec le programme « ..\\Appli.exe » : « Nom de programme refusé. », rien supprimé","entree":{"lancement":"tache","demande":{"Action":"supprimer","Destination":"{pm}\\Appli","Exe":"..\\Appli.exe"}},"attendu":{"reponse":"refus","message":"Nom de programme refusé.","rien_fait":true}},
+    {"nom":"désinstallation de Mindset par la tâche, pas allée au bout : aucune fenêtre, ce qui reste est écrit dans HKLM pour Mindset","entree":{"lancement":"tache","demande":{"Action":"supprimer","Destination":"{pm}\\Mindset"},"contexte":{"taches_restantes":true}},"attendu":{"actions_absentes":["fenêtre","suppression de HKLM:\\SOFTWARE\\Mindset"],"lignes":["RESTES *","- la tâche planifiée*"]}},
+    {"nom":"même cas en lancement direct (demande de Windows) : la fenêtre est montrée, comme avant","entree":{"lancement":"direct","demande":{"Action":"supprimer","Destination":"{pm}\\Mindset"},"contexte":{"taches_restantes":true}},"attendu":{"actions":["fenêtre"],"lignes_absentes":["RESTES *"]}}
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "format": 1,
+  "sujet": "Les dossiers où l'installateur accepte d'installer ou de supprimer : un sous-dossier direct de Program Files\\Mindset, ou de X:\\Mindset\\Programmes sur un disque fixe NTFS",
+  "regle": "installer-admin.ps1 : Test-DossierMindset <dossier> (rend le dossier ramené à sa vraie place, ou s'arrête sur une erreur)",
+  "attendu": "accepte : vrai si le dossier est accepté ; dossier : le dossier rendu (sans barre finale, .. résolus) ; message : texte présent dans l'erreur quand il est refusé ; disque_verifie : la lettre dont le disque a été vérifié (disque fixe NTFS) avant d'accepter",
+  "valeurs": {
+    "{programmes-mindset}": "Program Files\\Mindset du PC d'essai (Program Files demandé à Windows), en chemin complet",
+    "{windows}": "le dossier de Windows du PC d'essai"
+  },
+  "note": "la vérification du disque est fausse ici : le disque Z: n'est pas un disque fixe NTFS (refusé avec « disque fixe »), toutes les autres lettres le sont",
+  "cas": [
+    {"nom":"Program Files\\Mindset\\Nevermind accepté","entree":{"dossier":"{programmes-mindset}\\Nevermind"},"attendu":{"accepte":true,"dossier":"{programmes-mindset}\\Nevermind"}},
+    {"nom":"Program Files\\Mindset\\Mindset\\ (barre finale) accepté, sans la barre","entree":{"dossier":"{programmes-mindset}\\Mindset\\"},"attendu":{"accepte":true,"dossier":"{programmes-mindset}\\Mindset"}},
+    {"nom":"Program Files\\Mindset, sans sous dossier, refusé","entree":{"dossier":"{programmes-mindset}"},"attendu":{"accepte":false,"message":"Dossier refusé"}},
+    {"nom":"dossier trop profond (Program Files\\Mindset\\Nevermind\\fichiers) refusé","entree":{"dossier":"{programmes-mindset}\\Nevermind\\fichiers"},"attendu":{"accepte":false,"message":"Dossier refusé"}},
+    {"nom":"remontée avec .. (Program Files\\Mindset\\..\\Windows) refusée","entree":{"dossier":"{programmes-mindset}\\..\\Windows"},"attendu":{"accepte":false,"message":"Dossier refusé"}},
+    {"nom":"remontée avec .. depuis un sous dossier (Mindset\\Nevermind\\..\\..\\Autre) refusée","entree":{"dossier":"{programmes-mindset}\\Nevermind\\..\\..\\Autre"},"attendu":{"accepte":false,"message":"Dossier refusé"}},
+    {"nom":"un .. qui reste dedans est ramené à sa vraie place (Mindset\\x\\..\\Evermind = Mindset\\Evermind)","entree":{"dossier":"{programmes-mindset}\\x\\..\\Evermind"},"attendu":{"accepte":true,"dossier":"{programmes-mindset}\\Evermind"}},
+    {"nom":"nom proche (Program Files\\MindsetPiege\\X) refusé","entree":{"dossier":"{programmes-mindset}Piege\\X"},"attendu":{"accepte":false,"message":"Dossier refusé"}},
+    {"nom":"dossier système (C:\\Windows\\System32) refusé","entree":{"dossier":"{windows}\\System32"},"attendu":{"accepte":false,"message":"Dossier refusé"}},
+    {"nom":"flux NTFS (Program Files\\Mindset\\X:flux) refusé","entree":{"dossier":"{programmes-mindset}\\X:flux"},"attendu":{"accepte":false}},
+    {"nom":"chemin réseau (\\\\serveur\\partage\\Mindset\\Programmes\\X) refusé","entree":{"dossier":"\\\\serveur\\partage\\Mindset\\Programmes\\X"},"attendu":{"accepte":false}},
+    {"nom":"chemin long (\\\\?\\...Program Files\\Mindset\\X) refusé","entree":{"dossier":"\\\\?\\{programmes-mindset}\\X"},"attendu":{"accepte":false}},
+    {"nom":"chemin relatif refusé","entree":{"dossier":"Mindset\\Programmes\\X"},"attendu":{"accepte":false}},
+    {"nom":"autre disque : D:\\Mindset\\Programmes\\Evermind accepté, après vérification du disque D:","entree":{"dossier":"D:\\Mindset\\Programmes\\Evermind"},"attendu":{"accepte":true,"dossier":"D:\\Mindset\\Programmes\\Evermind","disque_verifie":"D"}},
+    {"nom":"autre disque qui n'est pas un disque fixe NTFS (Z:) refusé","entree":{"dossier":"Z:\\Mindset\\Programmes\\Evermind"},"attendu":{"accepte":false,"message":"disque fixe"}},
+    {"nom":"D:\\Mindset\\Programmes, sans sous dossier, refusé","entree":{"dossier":"D:\\Mindset\\Programmes"},"attendu":{"accepte":false,"message":"Dossier refusé"}},
+    {"nom":"D:\\Mindset\\Programmes\\a\\b (trop profond) refusé","entree":{"dossier":"D:\\Mindset\\Programmes\\a\\b"},"attendu":{"accepte":false,"message":"Dossier refusé"}},
+    {"nom":"D:\\Mindset\\Programmes\\..\\Donnees refusé","entree":{"dossier":"D:\\Mindset\\Programmes\\..\\Donnees"},"attendu":{"accepte":false,"message":"Dossier refusé"}},
+    {"nom":"D:\\Mindset\\Donnees\\X (les données, pas les programmes) refusé","entree":{"dossier":"D:\\Mindset\\Donnees\\X"},"attendu":{"accepte":false,"message":"Dossier refusé"}},
+    {"nom":"D:\\Autre\\Mindset\\Programmes\\X (pas à la racine du disque) refusé","entree":{"dossier":"D:\\Autre\\Mindset\\Programmes\\X"},"attendu":{"accepte":false,"message":"Dossier refusé"}}
+  ]
+}

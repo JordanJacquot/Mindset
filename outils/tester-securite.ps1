@@ -533,32 +533,32 @@ public static class BloqueurTest {
     # =============================================================================================================
     Write-Partie 'Test-DossierMindset (installer-admin.ps1)'
     # =============================================================================================================
-    $pf = [IO.Path]::GetFullPath((Join-Path $env:ProgramFiles 'Mindset'))
-    function Test-Accepte([string]$Dossier, [string]$Attendu) { try { (Test-DossierMindset $Dossier) -eq $Attendu } catch { $false } }
-
-    Test-Cas 'Program Files\Mindset\Nevermind accepté' { Test-Accepte "$pf\Nevermind" "$pf\Nevermind" }
-    Test-Cas 'Program Files\Mindset\Mindset\ (barre finale) accepté, sans la barre' { Test-Accepte "$pf\Mindset\" "$pf\Mindset" }
-    Test-Cas 'Program Files\Mindset, sans sous dossier, refusé' { Test-Refus { Test-DossierMindset $pf } 'Dossier refusé' }
-    Test-Cas 'dossier trop profond (Program Files\Mindset\Nevermind\fichiers) refusé' { Test-Refus { Test-DossierMindset "$pf\Nevermind\fichiers" } 'Dossier refusé' }
-    Test-Cas 'remontée avec .. (Program Files\Mindset\..\Windows) refusée' { Test-Refus { Test-DossierMindset "$pf\..\Windows" } 'Dossier refusé' }
-    Test-Cas 'remontée avec .. depuis un sous dossier (Mindset\Nevermind\..\..\Autre) refusée' { Test-Refus { Test-DossierMindset "$pf\Nevermind\..\..\Autre" } 'Dossier refusé' }
-    Test-Cas 'un .. qui reste dedans est ramené à sa vraie place (Mindset\x\..\Evermind = Mindset\Evermind)' { Test-Accepte "$pf\x\..\Evermind" "$pf\Evermind" }
-    Test-Cas 'nom proche (Program Files\MindsetPiege\X) refusé' { Test-Refus { Test-DossierMindset "$($pf)Piege\X" } 'Dossier refusé' }
-    Test-Cas 'dossier système (C:\Windows\System32) refusé' { Test-Refus { Test-DossierMindset "$env:SystemRoot\System32" } 'Dossier refusé' }
-    Test-Cas 'flux NTFS (Program Files\Mindset\X:flux) refusé' { Test-Refus { Test-DossierMindset "$pf\X:flux" } }
-    Test-Cas 'chemin réseau (\\serveur\partage\Mindset\Programmes\X) refusé' { Test-Refus { Test-DossierMindset '\\serveur\partage\Mindset\Programmes\X' } }
-    Test-Cas 'chemin long (\\?\...Program Files\Mindset\X) refusé' { Test-Refus { Test-DossierMindset "\\?\$pf\X" } }
-    Test-Cas 'chemin relatif refusé' { Test-Refus { Test-DossierMindset 'Mindset\Programmes\X' } }
-    $script:DisquesVerifies = @()
-    Test-Cas 'autre disque : D:\Mindset\Programmes\Evermind accepté, après vérification du disque D:' {
-        (Test-Accepte 'D:\Mindset\Programmes\Evermind' 'D:\Mindset\Programmes\Evermind') -and ($script:DisquesVerifies -contains 'D')
+    # Les cas sont dans le corpus commun cas\installateur\dossier-protege.json (format dans cas\LISEZMOI.md), qui servira
+    # aussi à l'installateur en Rust. Au moins 20 cas : un cas retiré fait échouer le test.
+    $valeursDossier = @{ '{programmes-mindset}' = [IO.Path]::GetFullPath((Join-Path $DossierProgrammes 'Mindset')); '{windows}' = [Environment]::GetFolderPath('Windows') }
+    function Expand-Dossier([string]$T) {
+        foreach ($k in $valeursDossier.Keys) { $T = $T.Replace($k, $valeursDossier[$k]) }
+        if ($T -match '\{[a-z][a-z-]*\}') { throw "Valeur inconnue dans le corpus : $($Matches[0])" }
+        $T
     }
-    Test-Cas 'autre disque qui n''est pas un disque fixe NTFS (Z:) refusé' { Test-Refus { Test-DossierMindset 'Z:\Mindset\Programmes\Evermind' } 'disque fixe' }
-    Test-Cas 'D:\Mindset\Programmes, sans sous dossier, refusé' { Test-Refus { Test-DossierMindset 'D:\Mindset\Programmes' } 'Dossier refusé' }
-    Test-Cas 'D:\Mindset\Programmes\a\b (trop profond) refusé' { Test-Refus { Test-DossierMindset 'D:\Mindset\Programmes\a\b' } 'Dossier refusé' }
-    Test-Cas 'D:\Mindset\Programmes\..\Donnees refusé' { Test-Refus { Test-DossierMindset 'D:\Mindset\Programmes\..\Donnees' } 'Dossier refusé' }
-    Test-Cas 'D:\Mindset\Donnees\X (les données, pas les programmes) refusé' { Test-Refus { Test-DossierMindset 'D:\Mindset\Donnees\X' } 'Dossier refusé' }
-    Test-Cas 'D:\Autre\Mindset\Programmes\X (pas à la racine du disque) refusé' { Test-Refus { Test-DossierMindset 'D:\Autre\Mindset\Programmes\X' } 'Dossier refusé' }
+    $corpusDossier = [IO.File]::ReadAllText((Join-Path $racine 'cas\installateur\dossier-protege.json'), [Text.Encoding]::UTF8) | ConvertFrom-Json
+    $nDossier = @($corpusDossier.cas).Count
+    $inconnus = @(@($corpusDossier.cas) | ForEach-Object { $_.attendu.PSObject.Properties.Name } | Where-Object { $_ -notin 'accepte', 'dossier', 'message', 'disque_verifie' })
+    Test-Cas "dossier-protege.json : format 1, au moins 20 cas (trouvés : $nDossier), attendus connus" { $corpusDossier.format -eq 1 -and $nDossier -ge 20 -and -not $inconnus.Count }
+    foreach ($cas in @($corpusDossier.cas)) {
+        $c = $cas
+        Test-Cas ([string]$c.nom) {
+            $script:DisquesVerifies = @()
+            $d = Expand-Dossier $c.entree.dossier
+            $a = $c.attendu
+            if ($a.accepte) {
+                $vu = try { Test-DossierMindset $d } catch { $null }
+                $vu -and $vu -eq (Expand-Dossier $a.dossier) -and (-not $a.disque_verifie -or $script:DisquesVerifies -contains [string]$a.disque_verifie)
+            } else {
+                Test-Refus { Test-DossierMindset $d } ([string]$a.message)
+            }
+        }
+    }
 
     # =============================================================================================================
     Write-Partie 'Chercher les nouvelles versions : coupé, rien ne part tout seul vers GitHub (accueil.ps1, mindset.ps1)'

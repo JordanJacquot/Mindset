@@ -6,6 +6,9 @@
 # demande écrite par Mindset sans droits, et revérifie tout. Ici, chaque refus est essayé pour de vrai : la demande est
 # refusée, avec le bon message, et rien n'est fait. Chaque chemin a aussi au moins une demande valable, acceptée (un
 # installateur qui refuserait tout ne passerait pas ces tests).
+# Les cas sont écrits en données dans cas\installateur\*.json (format dans cas\LISEZMOI.md) : les mêmes serviront à
+# l'installateur en Rust. Seuls restent ici ceux qui ne s'écrivent pas en données (lien sur le disque, texte du script,
+# vrais programmes).
 # Code de sortie 1 si un cas échoue (utilisé par la CI de GitHub).
 #
 # Aucun droit administrateur, rien sur le vrai PC :
@@ -526,37 +529,191 @@ function Test-TacheCreee($R, [string]$Nom, [string]$Sid = $sidActuel) {
     [bool]@($R.Actions | Where-Object { $_.Contains('ACTION tâche créée') -and $_.Contains("-TaskName $Nom -") -and $_.Contains("-UserId $Sid ") }).Count
 }
 function Test-SansTache($R) { -not @($R.Actions | Where-Object { $_ -like 'ACTION tâche*' }).Count }
-# Par la tâche SYSTEM, Mindset est toujours relancé par sa tâche de démarrage (sans droits, dans la session de l'utilisateur)
-$relanceTache = 'ACTION lancement schtasks /Run /TN \Mindset\Mindset (démarrage)'
+
+# ---------------------------------------------------------------------------------------------------------------
+# Le corpus de cas (cas\installateur\*.json, format décrit dans cas\LISEZMOI.md) : les mêmes cas serviront à
+# l'installateur en Rust. Ici, chaque cas est passé à la copie d'installer-admin.ps1, sur le faux PC.
+# ---------------------------------------------------------------------------------------------------------------
+$dossierCas = Join-Path $racine 'cas\installateur'
+# Le nombre de cas attendu au moins dans chaque fichier (un cas retiré ou un fichier vidé fait échouer le test)
+$minimumCas = [ordered]@{ 'demande.json' = 31; 'appli.json' = 66; 'mindset.json' = 16; 'mindset-maj.json' = 9; 'taches.json' = 11
+    'supprimer.json' = 11; 'systeme.json' = 12; 'ancienne-tache.json' = 5; 'prise-en-charge.json' = 9; 'programmes.json' = 6 }
+$champsEntree = 'lancement', 'demande', 'demande_texte', 'demande_absente', 'taille', 'sid', 'sans_resultat', 'contexte'
+$champsContexte = 'fichiers', 'retirer', 'copier', 'version_gardee', 'racine', 'aide_ancienne', 'taches_restantes', 'demarrage_ko', 'sid_tache', 'recu'
+$champsAttendu = 'reponse', 'message', 'message_exact', 'message_absent', 'id_rendu', 'registre', 'rien_fait', 'actions_permises', 'actions', 'actions_absentes',
+    'actions_absentes_motif', 'taches_creees', 'sans_tache', 'versions', 'existe', 'absent', 'version_gardee', 'erreur', 'arrets', 'nb_arrets', 'arrets_absents',
+    'lignes', 'lignes_absentes', 'taches_modifiees', 'demande_gardee', 'avant'
+# Les {valeurs} du faux PC ({id} : un numéro neuf pour chaque cas)
+$valeursCas = @{
+    '{tmp}' = $tmp; '{pf}' = $PF; '{pm}' = $PM; '{x}' = $L; '{xa}' = $LA
+    '{zip-appli}' = $zipAppli; '{zip-mindset}' = $zipMindset; '{sig-fausse}' = $sigFausse
+    '{src-ok}' = $srcOk; '{src-sans-exe}' = $srcSansExe; '{src-sans-script}' = $srcSansScript
+    '{sid}' = $sidActuel; '{sid-autre}' = 'S-1-5-21-1111111111-2222222222-3333333333-1001'
+    '{powershell}' = (Join-Path ([Environment]::GetFolderPath('System')) 'WindowsPowerShell\v1.0\powershell.exe')
+    '{ancienne}' = (Join-Path $tmp 'ancienne\Appli.exe')
+}
+function Expand-Texte([string]$T, [hashtable]$Valeurs) {
+    foreach ($k in $Valeurs.Keys) { $T = $T.Replace($k, [string]$Valeurs[$k]) }
+    if ($T -match '\{[a-z][a-z-]*\}') { throw "Valeur inconnue dans le corpus : $($Matches[0])" }
+    $T
+}
+# Un objet lu dans le JSON, en table, avec les {valeurs} remplacées partout (textes, noms des champs, listes)
+function ConvertTo-Valeur($V, [hashtable]$Valeurs) {
+    if ($null -eq $V) { return $null }
+    if ($V -is [string]) { return (Expand-Texte $V $Valeurs) }
+    if ($V -is [Management.Automation.PSCustomObject]) {
+        $h = @{}
+        foreach ($p in $V.PSObject.Properties) { $h[(Expand-Texte $p.Name $Valeurs)] = ConvertTo-Valeur $p.Value $Valeurs }
+        return $h
+    }
+    if ($V -is [Array]) { return , @(foreach ($x in $V) { ConvertTo-Valeur $x $Valeurs }) }
+    $V
+}
+# La base du fichier complétée par le cas : un champ du cas remplace celui de la base ; un champ à null le retire
+# (-GarderNull : il reste, à null, comme version_gardee)
+function Join-Base($Base, $Cas, [switch]$GarderNull) {
+    $d = @{}
+    if ($Base) { foreach ($k in $Base.Keys) { $d[$k] = $Base[$k] } }
+    if ($Cas) { foreach ($k in $Cas.Keys) { if ($null -eq $Cas[$k] -and -not $GarderNull) { $d.Remove($k) } else { $d[$k] = $Cas[$k] } } }
+    $d
+}
+function Get-Arrets($R) { @($R.Actions | Where-Object { $_ -like 'ACTION arrêt du programme *' } | ForEach-Object { $_.Substring('ACTION arrêt du programme '.Length) } | Sort-Object) }
+
+# Passe un cas du corpus à l'installateur. Rend le résultat (R), l'attendu (A), le fichier de la demande et son numéro.
+function Invoke-CasInstallateur($Corpus, $Cas) {
+    $v = @{} + $valeursCas; $v['{id}'] = New-Id
+    $e = ConvertTo-Valeur $Cas.entree $v
+    $a = ConvertTo-Valeur $Cas.attendu $v
+    if (-not $e -or -not $a) { throw 'Cas sans entree ou sans attendu.' }
+    $inconnus = @(@($e.Keys) | Where-Object { $_ -notin $champsEntree })
+    if ($inconnus.Count) { throw "Champ d'entrée inconnu : $($inconnus -join ', ')" }
+    $base = ConvertTo-Valeur $Corpus.base $v
+    $donneId = ($e.demande -is [hashtable]) -and $e.demande.ContainsKey('Id')
+    $demande = Join-Base $(if ($base) { $base.demande }) $e.demande
+    $ctx = Join-Base $(if ($base) { $base.contexte }) $e.contexte -GarderNull
+    $inconnus = @(@($ctx.Keys) | Where-Object { $_ -notin $champsContexte })
+    if ($inconnus.Count) { throw "Champ de contexte inconnu : $($inconnus -join ', ')" }
+    $lancement = [string]$e.lancement
+    # (par la tâche, la demande porte un numéro neuf, sauf si le cas en donne un, ou le retire avec null)
+    if ($lancement -ne 'direct' -and -not $donneId) { $demande['Id'] = $v['{id}'] }
+
+    # L'état du faux PC propre au cas, posé après l'état de départ
+    $script:CtxCas = $ctx
+    $preparer = {
+        $c = $script:CtxCas
+        if ($c.fichiers) { foreach ($k in $c.fichiers.Keys) { $null = Save-Fichier $k ([string]$c.fichiers[$k]) } }
+        if ($c.copier) { foreach ($k in $c.copier.Keys) { Copy-Item -LiteralPath $k -Destination $c.copier[$k] } }
+        foreach ($k in @($c.retirer)) { if ($k) { Remove-Item -LiteralPath $k -Recurse -Force } }
+        if ($c.ContainsKey('version_gardee')) {
+            $dv = Join-Path $tmp 'versions'
+            Remove-Item -LiteralPath $dv -Recurse -Force; New-Item -ItemType Directory -Path $dv | Out-Null
+            if ($null -ne $c.version_gardee) { $null = Save-Fichier (Join-Path $dv 'appli.txt') ([string]$c.version_gardee) }
+        }
+        if ($c.recu) { [IO.File]::WriteAllText((Join-Path $tmp 'recu.txt'), [string]$c.recu) }
+    }
+    $options = @{ Preparer = $preparer; SidTache = [string]$ctx.sid_tache; TachesRestantes = [bool]$ctx.taches_restantes; DemarrageKo = [bool]$ctx.demarrage_ko
+                  AideAncienne = [bool]$ctx.aide_ancienne; Racine = [string]$ctx.racine; SansResultat = [bool]$e.sans_resultat }
+    $fichierDemande = ''
+    if ($lancement -eq 'direct') {
+        $p = $demande
+    } elseif ($lancement -in 'tache', 'ancienne-tache') {
+        $fichierDemande = if ($e.demande_absente) { Join-Path $tmp 'demandes\absente.demande' }
+                          elseif ($e.ContainsKey('demande_texte')) { New-Demande ([string]$e.demande_texte) ([int]$e.taille) }
+                          else { New-Demande $demande ([int]$e.taille) }
+        $p = @{ Action = 'demande'; Demande = $fichierDemande }
+        # (comme la tâche SYSTEM : -Sid, l'utilisateur inscrit dans la tâche ; l'ancienne tâche n'en a pas)
+        if ($lancement -eq 'tache') { if (-not $e.ContainsKey('sid')) { $p.Sid = $sidActuel } elseif ($null -ne $e.sid) { $p.Sid = [string]$e.sid } }
+    } else { throw "Lancement inconnu : $lancement" }
+    $r = Invoke-Installateur $p @options
+    [pscustomobject]@{ R = $r; A = $a; Demande = $fichierDemande; Id = $v['{id}'] }
+}
+
+# Compare le résultat à l'attendu du cas ; ce qui manque est ajouté au journal montré en cas d'échec
+function Test-AttenduCas($X) {
+    $R = $X.R; $A = $X.A
+    $manques = New-Object Collections.Generic.List[string]
+    foreach ($k in $A.Keys) { if ($k -notin $champsAttendu) { $manques.Add("champ attendu inconnu : $k") } }
+    $msg = if ($R.Reponse) { [string]$R.Reponse.message } else { '' }
+    if ($A.ContainsKey('reponse')) {
+        $ok = switch ([string]$A.reponse) {
+            'ok' { [bool]($R.Reponse -and $R.Reponse.ok -eq $true) }
+            'refus' { [bool]($R.Reponse -and $R.Reponse.ok -eq $false) }
+            'aucune' { [bool](Test-SansReponse $R) }
+            default { $false } }
+        if (-not $ok) { $manques.Add("réponse attendue : $($A.reponse)") }
+    }
+    foreach ($m in @($A.message)) { if ($null -ne $m -and -not $msg.Contains([string]$m)) { $manques.Add("message sans « $m »") } }
+    if ($A.ContainsKey('message_exact') -and $msg -ne [string]$A.message_exact) { $manques.Add("message différent de « $($A.message_exact) »") }
+    if ($A.ContainsKey('message_absent') -and $msg.Contains([string]$A.message_absent)) { $manques.Add("message avec « $($A.message_absent) »") }
+    if ($A.id_rendu -and -not ($R.Reponse -and $R.Reponse.id -eq $X.Id)) { $manques.Add('numéro de la demande pas rendu') }
+    if ($A.ContainsKey('registre') -and [bool]$R.Registre -ne [bool]$A.registre) { $manques.Add("réponse dans le registre : $($A.registre) attendu") }
+    if ($A.rien_fait -and -not (Test-RienFait $R ([string[]]@($A.actions_permises | Where-Object { $_ })))) { $manques.Add('quelque chose a été fait') }
+    foreach ($t in @($A.actions)) { if ($t -and -not (Test-Action $R $t)) { $manques.Add("action absente : $t") } }
+    foreach ($t in @($A.actions_absentes)) { if ($t -and (Test-Action $R $t)) { $manques.Add("action en trop : $t") } }
+    foreach ($t in @($A.actions_absentes_motif)) { if ($t -and @($R.Actions | Where-Object { $_ -match $t }).Count) { $manques.Add("action en trop (motif) : $t") } }
+    foreach ($t in @($A.taches_creees)) { if ($t -and -not (Test-TacheCreee $R $t)) { $manques.Add("tâche pas créée comme attendu : $t") } }
+    if ($A.sans_tache -and -not (Test-SansTache $R)) { $manques.Add('une tâche a été touchée') }
+    if ($A.versions) { foreach ($k in $A.versions.Keys) { if ((Get-Version $k) -ne [string]$A.versions[$k]) { $manques.Add("version de $k : $($A.versions[$k]) attendue") } } }
+    foreach ($t in @($A.existe)) { if ($t -and -not (Test-Path -LiteralPath $t)) { $manques.Add("absent : $t") } }
+    foreach ($t in @($A.absent)) { if ($t -and (Test-Path -LiteralPath $t)) { $manques.Add("présent : $t") } }
+    if ($A.ContainsKey('version_gardee')) {
+        $f = Join-Path $tmp 'versions\appli.txt'
+        $vu = if (Test-Path -LiteralPath $f) { [IO.File]::ReadAllText($f) } else { $null }
+        if ($vu -ne $A.version_gardee) { $manques.Add("version gardée : $($A.version_gardee) attendue, $vu vue") }
+    }
+    if ($A.ContainsKey('erreur') -and [bool]$R.Erreur -ne [bool]$A.erreur) { $manques.Add("erreur : $($A.erreur) attendu") }
+    if ($A.ContainsKey('arrets') -and ((Get-Arrets $R) -join '|') -ne ((@($A.arrets) | Sort-Object) -join '|')) { $manques.Add("programmes fermés : $(@($A.arrets) -join ', ') attendus") }
+    if ($A.ContainsKey('nb_arrets') -and @($R.Lignes | Where-Object { $_ -like 'ACTION arrêt*' }).Count -ne [int]$A.nb_arrets) { $manques.Add("$($A.nb_arrets) programme(s) fermé(s) attendu(s)") }
+    if ($A.ContainsKey('arrets_absents')) {
+        foreach ($x in @(Get-Arrets $R)) { if (-not $x -or @($A.arrets_absents | Where-Object { $x.Contains($_) }).Count) { $manques.Add("programme fermé à tort : $x") } }
+    }
+    foreach ($t in @($A.lignes)) { if ($t -and -not @($R.Lignes | Where-Object { $_ -like $t }).Count) { $manques.Add("ligne absente : $t") } }
+    foreach ($t in @($A.lignes_absentes)) { if ($t -and @($R.Lignes | Where-Object { $_ -like $t }).Count) { $manques.Add("ligne en trop : $t") } }
+    if ($A.ContainsKey('taches_modifiees')) {
+        $m = @($R.Actions | Where-Object { $_ -like 'ACTION tâche modifiée*' })
+        if (($m -join "`n") -ne (@($A.taches_modifiees) -join "`n")) { $manques.Add('tâches modifiées différentes') }
+    }
+    if ($A.demande_gardee -and -not ($X.Demande -and (Test-Path -LiteralPath $X.Demande))) { $manques.Add('demande effacée') }
+    if ($A.ContainsKey('avant')) {
+        $l = @($R.Lignes); $i = [array]::IndexOf($l, [string]$A.avant[0])
+        $j = @(0..($l.Count - 1) | Where-Object { $l[$_] -like [string]$A.avant[1] } | Select-Object -First 1)
+        if (-not ($i -ge 0 -and $j.Count -and $j[0] -gt $i)) { $manques.Add("« $($A.avant[0]) » pas avant « $($A.avant[1]) »") }
+    }
+    if ($manques.Count) { $R.Lignes = @($R.Lignes) + @($manques | ForEach-Object { "ATTENDU manqué : $_" }) }
+    -not $manques.Count
+}
 
 try {
     Write-Host 'Mindset : tests du mini-installateur (installer-admin.ps1)' -ForegroundColor Cyan
     Write-Host "Dossier de test : $tmp (faux disque $($L):, faux disque amovible $($LA):)"
 
     # =============================================================================================================
-    Write-Partie 'La demande lue par la tâche (Action demande)'
+    # Les cas du corpus (cas\installateur), fichier par fichier
+    # =============================================================================================================
+    Write-Partie 'Le corpus de cas (cas\installateur)'
+    # (les fichiers cote-mindset-*.json, le côté Mindset du protocole, sont lus par tester-mini-installateur.ps1, et
+    # dossier-protege.json, une fonction seule, par tester-securite.ps1)
+    $lus = @(Get-ChildItem -LiteralPath $dossierCas -Filter '*.json' -File | Where-Object { $_.Name -notlike 'cote-mindset-*' -and $_.Name -ne 'dossier-protege.json' } | ForEach-Object { $_.Name })
+    Test-Cas "chaque fichier de cas\installateur est lu par ce test ($($lus.Count) fichiers)" { -not @($lus | Where-Object { -not $minimumCas.Contains($_) }).Count -and $lus.Count -eq $minimumCas.Count }
+    foreach ($nomFichier in $minimumCas.Keys) {
+        $corpus = [IO.File]::ReadAllText((Join-Path $dossierCas $nomFichier), [Text.Encoding]::UTF8) | ConvertFrom-Json
+        Write-Partie "$($corpus.sujet) ($nomFichier)"
+        $nCas = @($corpus.cas).Count
+        Test-Cas "$nomFichier : format 1, au moins $($minimumCas[$nomFichier]) cas (trouvés : $nCas)" { $corpus.format -eq 1 -and $nCas -ge $minimumCas[$nomFichier] }
+        foreach ($cas in @($corpus.cas)) {
+            $c = $cas
+            Test-Cas ([string]$c.nom) { Test-AttenduCas (Invoke-CasInstallateur $corpus $c) }
+        }
+    }
+
+    # =============================================================================================================
+    Write-Partie 'Ce qui ne s''écrit pas en données (lien sur le disque, fonction seule, texte du script, vrais programmes)'
     # =============================================================================================================
     # Une demande valable de référence : les tâches de Mindset, pour le Mindset de test
     $taches = @{ Action = 'taches'; Destination = (Join-Path $PM 'Mindset') }
+    $appli = @{ Action = 'appli'; Appli = 'appli'; Zip = $zipAppli; Signature = "$zipAppli.sig"; Destination = (Join-Path $PM 'Appli'); DossierZip = 'Appli'; Exe = 'Appli.exe' }
+    function Get-Appli([hashtable]$Changes) { Merge-Table $appli (Merge-Table @{ Id = (New-Id) } $Changes) }
 
-    Test-Cas 'demande valable acceptée : tâches créées pour l''utilisateur de la tâche, réponse dans le registre' {
-        $id = New-Id
-        $r = Invoke-Demande (@{ Id = $id } + $taches)
-        $r.Registre -and $r.Reponse.ok -and $r.Reponse.id -eq $id -and (Test-TacheCreee $r 'Mindset (installation)') -and (Test-TacheCreee $r 'Mindset (démarrage)')
-    }
-    Test-Cas 'demande absente : ignorée sans réponse, rien fait' {
-        $r = Invoke-Installateur @{ Action = 'demande'; Demande = (Join-Path $tmp 'demandes\absente.demande') }
-        (Test-SansReponse $r) -and (Test-RienFait $r)
-    }
-    Test-Cas 'demande de 16 Ko tout juste : acceptée' {
-        $r = Invoke-Demande (@{ Id = (New-Id) } + $taches) -Taille 16384
-        $r.Reponse.ok -and (Test-TacheCreee $r 'Mindset (installation)')
-    }
-    Test-Cas 'demande de plus de 16 Ko (16 Ko + 1 octet) : ignorée sans réponse, rien fait, laissée en place' {
-        $f = New-Demande (@{ Id = (New-Id) } + $taches) -Taille 16385
-        $r = Invoke-Installateur @{ Action = 'demande'; Demande = $f; Sid = $sidActuel }
-        (Test-SansReponse $r) -and (Test-RienFait $r) -and (Test-Path -LiteralPath $f)
-    }
     # Lien symbolique vers une demande valable. Sans le droit de créer un lien (PC sans mode développeur), un autre
     # point d'analyse NTFS (une étiquette de test posée sur le fichier) : le même attribut ReparsePoint.
     $f = New-Demande (@{ Id = (New-Id) } + $taches)
@@ -595,247 +752,7 @@ public static class MindsetTestPointAnalyse {
         $r = Invoke-Installateur @{ Action = 'demande'; Demande = $lien }
         ((Get-Item -LiteralPath $lien -Force).Attributes -band [IO.FileAttributes]::ReparsePoint) -and (Test-SansReponse $r) -and (Test-RienFait $r)
     }
-    Test-Cas 'demande illisible (pas du JSON) : « Demande illisible », rien fait' {
-        $f = New-Demande "{ Id: 'abcdef12', Action: taches"
-        $r = Invoke-Installateur @{ Action = 'demande'; Demande = $f; Sid = $sidActuel }
-        (Test-Refuse $r 'Demande illisible') -and -not $r.Registre -and (Test-RienFait $r)
-    }
-    Test-Cas 'demande illisible, lancée comme par la tâche (sans -Resultat) : aucune réponse écrite nulle part' {
-        $f = New-Demande 'pas du json'
-        $r = Invoke-Installateur @{ Action = 'demande'; Demande = $f; Sid = $sidActuel } -SansResultat
-        (Test-SansReponse $r) -and (Test-RienFait $r)
-    }
-    Test-Cas 'demande avec un Id valable mais un AttendrePid illisible : « Demande illisible » dans le registre, rien fait' {
-        $id = New-Id
-        $r = Invoke-Demande (@{ Id = $id; AttendrePid = 'abc' } + $taches)
-        (Test-Refuse $r 'Demande illisible') -and $r.Registre -and $r.Reponse.id -eq $id -and (Test-RienFait $r)
-    }
-    foreach ($cas in @(
-            @{ Nom = 'sans Id'; Id = $null },
-            @{ Nom = 'Id trop court (7)'; Id = 'abcdef1' },
-            @{ Nom = 'Id trop long (33)'; Id = ('a' * 33) },
-            @{ Nom = 'Id avec un chemin'; Id = '..\..\abcdef12' },
-            @{ Nom = 'Id avec autre chose après'; Id = 'abcdef12 ; x' },
-            @{ Nom = 'Id vide'; Id = '' })) {
-        $c = $cas
-        Test-Cas "Id invalide ($($c.Nom)) : ignorée sans réponse, rien fait" {
-            $d = @{} + $taches
-            if ($null -ne $c.Id) { $d['Id'] = $c.Id }
-            $r = Invoke-Demande $d
-            (Test-SansReponse $r) -and (Test-RienFait $r)
-        }
-    }
-    foreach ($cas in @(
-            @{ Nom = 'mindset, réservée au lancement direct'; Action = 'mindset' },
-            @{ Nom = 'demande'; Action = 'demande' },
-            @{ Nom = 'inconnue'; Action = 'formater' },
-            @{ Nom = 'avec une espace'; Action = 'supprimer ' },
-            @{ Nom = 'vide'; Action = '' },
-            @{ Nom = 'absente'; Action = $null })) {
-        $c = $cas
-        Test-Cas "action $($c.Nom) : « Demande refusée. », rien fait" {
-            $id = New-Id
-            $d = @{ Id = $id; Destination = (Join-Path $PM 'Appli'); Source = $srcOk }
-            if ($null -ne $c.Action) { $d['Action'] = $c.Action }
-            $r = Invoke-Demande $d
-            (Test-Refuse $r 'Demande refusée.') -and $r.Reponse.id -eq $id -and (Test-RienFait $r)
-        }
-    }
-    Test-Cas 'utilisateur donné dans la demande (Sid) ignoré : la tâche est pour l''utilisateur de la tâche' {
-        $autre = 'S-1-5-21-1111111111-2222222222-3333333333-1001'
-        $r = Invoke-Demande @{ Id = (New-Id); Action = 'appli'; Appli = 'appli'; Zip = $zipAppli; Signature = "$zipAppli.sig"; Destination = (Join-Path $PM 'Appli'); DossierZip = 'Appli'; Exe = 'Appli.exe'; TacheAide = 'Appli (aide)'; ExeAide = 'Aide.exe'; Sid = $autre }
-        $r.Reponse.ok -and (Test-TacheCreee $r 'Appli (aide)') -and -not (Test-Action $r $autre)
-    }
-    Test-Cas 'fichier de réponse donné dans la demande (Resultat) ignoré : rien écrit hors du registre' {
-        $piege = Join-Path $tmp 'victime\piege.json'
-        $r = Invoke-Demande (@{ Id = (New-Id); Resultat = $piege } + $taches)
-        $r.Registre -and $r.Reponse.ok -and -not (Test-Path -LiteralPath $piege)
-    }
-    Test-Cas 'paramètre qui n''est pas du texte (Destination en liste) ignoré : rien supprimé' {
-        $r = Invoke-Demande @{ Id = (New-Id); Action = 'supprimer'; Destination = @((Join-Path $PM 'Appli')) }
-        $r.Reponse.ok -eq $false -and (Test-RienFait $r) -and (Test-Path -LiteralPath (Join-Path $PM 'Appli\Appli.exe'))
-    }
 
-    # --- Le dossier des programmes vient de la tâche, jamais de la demande (revue du 25/10, audit complet, constat 1) ---
-    # (un Mindset glissé dans X:\Mindset\Programmes, sur un disque fixe NTFS : C:\Mindset\Programmes chez un compte standard)
-    $mindsetX = { $null = Save-Fichier (Join-Path $tmp 'disque\Mindset\Programmes\Mindset\Mindset.exe') 'piege'; $null = Save-Fichier (Join-Path $tmp 'disque\Mindset\Programmes\Appli\Appli.exe') 'piege' }
-    Test-Cas 'par la tâche, tâches vers X:\Mindset\Programmes\Mindset (pas le Mindset de la tâche) : « Dossier refusé », aucune tâche' {
-        $r = Invoke-Demande @{ Id = (New-Id); Action = 'taches'; Destination = "$($L):\Mindset\Programmes\Mindset" } -Preparer $mindsetX
-        (Test-Refuse $r 'Dossier refusé') -and (Test-RienFait $r)
-    }
-    Test-Cas 'contre-épreuve : le même dossier est accepté en lancement direct (l''administrateur a dit oui)' {
-        $r = Invoke-Installateur @{ Action = 'taches'; Destination = "$($L):\Mindset\Programmes\Mindset"; Sid = $sidActuel } -Preparer $mindsetX
-        $r.Reponse.ok
-    }
-    Test-Cas 'par la tâche, mise à jour de Mindset vers X:\Mindset\Programmes\Mindset : « Dossier refusé », rien installé, l''ancien relancé' {
-        $r = Invoke-Demande @{ Id = (New-Id); Action = 'mindset-maj'; Zip = $zipMindset; Signature = "$zipMindset.sig"; Destination = "$($L):\Mindset\Programmes\Mindset"; Version = '2.0.0' } -Preparer $mindsetX
-        (Test-Refuse $r 'Dossier refusé') -and (Test-RienFait $r @($relanceTache)) -and (Test-Action $r $relanceTache)
-    }
-    Test-Cas 'par la tâche, supprimer X:\Mindset\Programmes\Appli : « Dossier refusé », rien supprimé' {
-        $r = Invoke-Demande @{ Id = (New-Id); Action = 'supprimer'; Destination = "$($L):\Mindset\Programmes\Appli"; Exe = 'Appli.exe' } -Preparer $mindsetX
-        (Test-Refuse $r 'Dossier refusé') -and (Test-RienFait $r) -and (Test-Path -LiteralPath (Join-Path $tmp 'disque\Mindset\Programmes\Appli\Appli.exe'))
-    }
-    Test-Cas 'par la tâche, appli vers X:\Mindset\Programmes\Appli : « Dossier refusé », rien fait' {
-        $r = Invoke-Demande @{ Id = (New-Id); Action = 'appli'; Appli = 'appli'; Zip = $zipAppli; Signature = "$zipAppli.sig"; Destination = "$($L):\Mindset\Programmes\Appli" } -Preparer $mindsetX
-        (Test-Refuse $r 'Dossier refusé') -and (Test-RienFait $r)
-    }
-    foreach ($cas in @(@{ Nom = 'modifiable par les utilisateurs'; Racine = 'ouverte' }, @{ Nom = 'qui appartient à l''utilisateur (créé sans droits)'; Racine = 'proprietaire' })) {
-        $c = $cas
-        Test-Cas "par la tâche, dossier des programmes $($c.Nom) : refusé (pas un dossier protégé), rien fait, aucune tâche" {
-            $r = Invoke-Demande (@{ Id = (New-Id) } + $taches) -Racine $c.Racine
-            (Test-Refuse $r 'dossier protégé') -and (Test-RienFait $r)
-        }
-    }
-    Test-Cas 'par la tâche, mise à jour de Mindset avec un dossier des programmes pas protégé : refusée, mais l''ancien Mindset est relancé' {
-        $r = Invoke-Demande (@{ Id = (New-Id); Action = 'mindset-maj'; Zip = $zipMindset; Signature = "$zipMindset.sig"; Destination = (Join-Path $PM 'Mindset'); Version = '2.0.0' }) -Racine 'ouverte'
-        (Test-Refuse $r 'dossier protégé') -and (Test-RienFait $r @($relanceTache)) -and (Test-Action $r $relanceTache)
-    }
-    Test-Cas 'par la tâche, à chaque demande (ici supprimer une appli) : l''ancienne tâche d''aide de l''utilisateur passe en SYSTEM (revue du 25/10, constat 11)' {
-        $r = Invoke-Demande @{ Id = (New-Id); Action = 'supprimer'; Destination = (Join-Path $PM 'AppliBis') } -AideAncienne -Preparer { $null = Save-Fichier (Join-Path $PM 'AppliBis\x.txt') 'x' }
-        $aide = Join-Path $PM 'Appli\Aide.exe'
-        $r.Reponse.ok -and (Test-TacheCreee $r 'Appli (aide)') -and (Test-Action $r "-Execute `"$aide`"") -and
-            -not @($r.Actions | Where-Object { $_ -match 'tâche créée.*-TaskName (Autre|Piege|Deja) \(aide\)' }).Count
-    }
-
-    # =============================================================================================================
-    Write-Partie 'Installer une appli (Action appli)'
-    # =============================================================================================================
-    $appli = @{ Action = 'appli'; Appli = 'appli'; Zip = $zipAppli; Signature = "$zipAppli.sig"; Destination = (Join-Path $PM 'Appli'); DossierZip = 'Appli'; Exe = 'Appli.exe' }
-    function Get-Appli([hashtable]$Changes) { Merge-Table $appli (Merge-Table @{ Id = (New-Id) } $Changes) }
-
-    Test-Cas 'appli valable acceptée : installée (2.0.0), sa tâche d''aide créée pour l''utilisateur de la tâche' {
-        $r = Invoke-Demande (Get-Appli @{ TacheAide = 'Appli (aide)'; ExeAide = 'Aide.exe' })
-        $aide = Join-Path $PM 'Appli\Aide.exe'
-        $r.Reponse.ok -and $r.Reponse.message -eq (Join-Path $PM 'Appli') -and (Get-Version (Join-Path $PM 'Appli')) -eq '2.0.0' -and
-            (Test-TacheCreee $r 'Appli (aide)') -and (Test-Action $r "-Execute `"$aide`"")
-    }
-    Test-Cas 'appli valable acceptée en lancement direct (-Resultat)' {
-        $r = Invoke-Installateur (@{} + $appli)
-        $r.Reponse.ok -and -not $r.Registre -and (Get-Version (Join-Path $PM 'Appli')) -eq '2.0.0' -and (Test-SansTache $r)
-    }
-    foreach ($cas in @(
-            @{ Nom = 'Program Files\Mindset lui-même'; Dossier = $PM },
-            @{ Nom = 'Program Files\Mindset\'; Dossier = "$PM\" },
-            @{ Nom = 'trop profond (Mindset\Appli\fichiers)'; Dossier = (Join-Path $PM 'Appli\fichiers') },
-            @{ Nom = 'à côté de Mindset (Program Files\Autre)'; Dossier = (Join-Path $PF 'Autre') },
-            @{ Nom = 'nom proche (Program Files\MindsetX\Appli)'; Dossier = (Join-Path $PF 'MindsetX\Appli') },
-            @{ Nom = 'qui remonte (Mindset\..\Autre)'; Dossier = "$PM\..\Autre" },
-            @{ Nom = 'hors de Program Files'; Dossier = (Join-Path $tmp 'victime\Appli') },
-            @{ Nom = 'X:\Autre\Programmes'; Dossier = "$($L):\Autre\Programmes\Appli" },
-            @{ Nom = 'X:\Mindset\Programmes trop profond'; Dossier = "$($L):\Mindset\Programmes\Appli\x" },
-            @{ Nom = 'réseau (\\serveur\Mindset\Programmes)'; Dossier = '\\serveur\Mindset\Programmes\Appli' })) {
-        $c = $cas
-        Test-Cas "destination refusée ($($c.Nom)) : « Dossier refusé », rien fait" {
-            $r = Invoke-Demande (Get-Appli @{ Destination = $c.Dossier })
-            (Test-Refuse $r 'Dossier refusé') -and (Test-RienFait $r)
-        }
-    }
-    Test-Cas 'lancement direct, X:\Mindset\Programmes sur un disque amovible : refusé (disque fixe NTFS), rien fait' {
-        $r = Invoke-Installateur (Merge-Table $appli @{ Destination = "$($LA):\Mindset\Programmes\Appli" })
-        (Test-Refuse $r 'disque fixe NTFS') -and (Test-RienFait $r)
-    }
-    foreach ($nom in 'App\li', 'App/li', '..\Appli', 'C:', 'Ap*li', 'Ap?li', 'Ap"li', 'Ap<li', 'Ap>li', 'Ap|li') {
-        $n = $nom
-        Test-Cas "nom de dossier du zip « $n » : « Nom de dossier refusé. », rien fait" {
-            $r = Invoke-Demande (Get-Appli @{ DossierZip = $n })
-            (Test-Refuse $r 'Nom de dossier refusé.') -and (Test-RienFait $r)
-        }
-    }
-    foreach ($nom in '..\Appli.exe', 'C:\Windows\explorer.exe', 'sous/Appli.exe', 'Appli', 'Appli.txt', 'Appli.exe.lnk', 'A*.exe', 'Appli.exe:flux', 'Autre.exe') {
-        $n = $nom
-        Test-Cas "programme « $n » : « Nom de programme refusé. », rien fait (aucun programme arrêté)" {
-            $r = Invoke-Demande (Get-Appli @{ Exe = $n })
-            (Test-Refuse $r 'Nom de programme refusé.') -and (Test-RienFait $r)
-        }
-    }
-    # --- L'appli et ce qu'elle installe viennent de apps.json (revue du 25/10, audit complet, constat 2) ---
-    Test-Cas 'programme absent de la demande : celui de apps.json (Appli.exe), appli installée' {
-        $d = Get-Appli @{}; $d.Remove('Exe'); $d.Remove('DossierZip')
-        $r = Invoke-Demande $d
-        $r.Reponse.ok -and (Get-Version (Join-Path $PM 'Appli')) -eq '2.0.0'
-    }
-    foreach ($cas in @(@{ Nom = 'inconnue de apps.json'; Id = 'nevermind' }, @{ Nom = 'absente'; Id = $null }, @{ Nom = 'au nom piégé dans apps.json'; Id = 'piege' }, @{ Nom = 'en majuscules'; Id = 'APPLI' })) {
-        $c = $cas
-        Test-Cas "appli $($c.Nom) : « Appli inconnue. », rien fait" {
-            $d = Get-Appli @{}; if ($null -eq $c.Id) { $d.Remove('Appli') } else { $d.Appli = $c.Id }
-            $r = Invoke-Demande $d
-            (Test-Refuse $r 'Appli inconnue.') -and (Test-RienFait $r)
-        }
-    }
-    Test-Cas 'zip de l''appli vers le dossier d''une autre appli (Program Files\Mindset\Autre) : « Dossier refusé », rien fait' {
-        $r = Invoke-Demande (Get-Appli @{ Destination = (Join-Path $PM 'Autre') }) -Preparer { $null = Save-Fichier (Join-Path $PM 'Autre\Autre.exe') 'autre' }
-        (Test-Refuse $r 'Dossier refusé') -and (Test-RienFait $r)
-    }
-    Test-Cas 'zip de l''appli annoncé comme l''autre appli (Appli autre, dossier Autre) : refusé, rien fait' {
-        $r = Invoke-Demande (Get-Appli @{ Appli = 'autre'; Destination = (Join-Path $PM 'Autre') })
-        $r.Reponse.ok -eq $false -and (Test-RienFait $r)
-    }
-    Test-Cas 'dossier du zip qui n''est pas dans apps.json (Autre) : « Nom de dossier refusé. », rien fait' {
-        $r = Invoke-Demande (Get-Appli @{ DossierZip = 'Autre' })
-        (Test-Refuse $r 'Nom de dossier refusé.') -and (Test-RienFait $r)
-    }
-    Test-Cas 'dossier du zip sous l''ancien nom de l''appli (ancien_dossier_zip de apps.json) : accepté jusqu''au contenu du zip' {
-        $r = Invoke-Demande (Get-Appli @{ DossierZip = 'AncienAppli' })
-        (Test-Refuse $r 'ne contient pas Appli.exe dans le dossier AncienAppli') -and (Test-RienFait $r @('ACTION arrêt du programme *', 'ACTION suppression de *.nouveau-*'))
-    }
-    foreach ($cas in @(@{ Nom = 'programme d''aide différent (Appli.exe)'; Tache = 'Appli (aide)'; Exe = 'Appli.exe' }, @{ Nom = 'tâche d''aide différente (Autre (aide))'; Tache = 'Autre (aide)'; Exe = 'Aide.exe' },
-                       @{ Nom = 'programme d''aide sans tâche'; Tache = $null; Exe = 'Aide.exe' }, @{ Nom = 'partie administrateur pour une appli qui n''en a pas'; Tache = 'Autre (aide)'; Exe = 'Autre.exe'; Appli = 'autre' })) {
-        $c = $cas
-        Test-Cas "$($c.Nom) : « Partie administrateur refusée », rien installé, aucune tâche" {
-            $d = Get-Appli @{ ExeAide = $c.Exe }
-            if ($c.Tache) { $d.TacheAide = $c.Tache }
-            if ($c.Appli) { $d.Appli = $c.Appli; $d.Destination = (Join-Path $PM 'Autre'); $d.Exe = 'Autre.exe'; $d.DossierZip = 'Autre' }
-            $r = Invoke-Demande $d
-            (Test-Refuse $r 'Partie administrateur refusée') -and (Test-RienFait $r)
-        }
-    }
-    Test-Cas 'version plus ancienne que la plus haute déjà installée (3.0.0 gardée, appli supprimée depuis) : refusée, rien installé' {
-        $r = Invoke-Demande (Get-Appli @{}) -Preparer { Remove-Item -LiteralPath (Join-Path $PM 'Appli') -Recurse -Force; $null = Save-Fichier (Join-Path $tmp 'versions\appli.txt') '3.0.0' }
-        (Test-Refuse $r 'a déjà été installée sur ce PC') -and (Test-RienFait $r) -and -not (Test-Path -LiteralPath (Join-Path $PM 'Appli'))
-    }
-    Test-Cas 'contre-épreuve : même version que la plus haute gardée (2.0.0) : acceptée' {
-        $r = Invoke-Demande (Get-Appli @{}) -Preparer { $null = Save-Fichier (Join-Path $tmp 'versions\appli.txt') '2.0.0' }
-        $r.Reponse.ok -and (Get-Version (Join-Path $PM 'Appli')) -eq '2.0.0'
-    }
-    Test-Cas 'version installée gardée dans HKLM:\SOFTWARE\Mindset\Versions (2.0.0), en lancement direct aussi' {
-        $r1 = Invoke-Demande (Get-Appli @{}); $v1 = [IO.File]::ReadAllText((Join-Path $tmp 'versions\appli.txt'))
-        $r2 = Invoke-Installateur (@{} + $appli); $v2 = [IO.File]::ReadAllText((Join-Path $tmp 'versions\appli.txt'))
-        $r1.Reponse.ok -and (Test-Action $r1 'HKLM:\SOFTWARE\Mindset\Versions\appli = 2.0.0') -and $v1 -eq '2.0.0' -and $r2.Reponse.ok -and $v2 -eq '2.0.0'
-    }
-    Test-Cas 'par la tâche, à chaque demande : la version d''une appli déjà installée est gardée (installée avant que Mindset ne les garde)' {
-        $r = Invoke-Demande (@{ Id = (New-Id) } + $taches) -Preparer { Remove-Item -LiteralPath (Join-Path $tmp 'versions') -Recurse -Force; New-Item -ItemType Directory -Path (Join-Path $tmp 'versions') | Out-Null }
-        $r.Reponse.ok -and (Test-Action $r 'HKLM:\SOFTWARE\Mindset\Versions\appli = 1.0.0')
-    }
-    Test-Cas 'programme d''aide « ..\Aide.exe » : « Nom de programme refusé. », rien installé, aucune tâche' {
-        $r = Invoke-Demande (Get-Appli @{ TacheAide = 'Appli (aide)'; ExeAide = '..\Aide.exe' })
-        (Test-Refuse $r 'Nom de programme refusé.') -and (Test-RienFait $r)   # (noms vérifiés avant tout arrêt)
-    }
-    Test-Cas 'zip à la signature fausse : refusé, rien installé, aucune tâche' {
-        $r = Invoke-Demande (Get-Appli @{ Signature = $sigFausse; TacheAide = 'Appli (aide)'; ExeAide = 'Aide.exe' })
-        (Test-Refuse $r 'signature') -and (Test-RienFait $r)   # (signature vérifiée avant d'arrêter quoi que ce soit)
-    }
-    foreach ($nom in 'Mindset (installation)', 'Mindset (démarrage)', 'Appli', 'Appli (AIDE)', 'App\li (aide)', '..\Appli (aide)', "$('A' * 41) (aide)", ' (aide)') {
-        $n = $nom
-        Test-Cas "nom de tâche « $($n.Trim()) » : « Nom de tâche refusé. », aucune tâche créée" {
-            $r = Invoke-Demande (Get-Appli @{ TacheAide = $n; ExeAide = 'Aide.exe' })
-            (Test-Refuse $r 'Nom de tâche refusé.') -and (Test-RienFait $r)   # (refusé avant l'installation)
-        }
-    }
-    Test-Cas 'nom de tâche suivi d''un retour à la ligne : « Nom de tâche refusé. », aucune tâche créée' {
-        $r = Invoke-Demande (Get-Appli @{ TacheAide = "Appli (aide)`n"; ExeAide = 'Aide.exe' })
-        (Test-Refuse $r 'Nom de tâche refusé.') -and (Test-RienFait $r)
-    }
-    Test-Cas 'nom de programme suivi d''un retour à la ligne : « Nom de programme refusé. », rien fait' {
-        $r = Invoke-Demande (Get-Appli @{ Exe = "Appli.exe`n" })
-        (Test-Refuse $r 'Nom de programme refusé.') -and (Test-RienFait $r)
-    }
-    foreach ($sid in 'S-1-5-32-544', 'S-1-5-18', 'S-1-5-21-1-2-3', 'utilisateur', '') {
-        $s = $sid
-        Test-Cas "lancement direct, utilisateur « $s » : « Utilisateur inconnu. », aucune tâche créée" {
-            $r = Invoke-Installateur (@{ TacheAide = 'Appli (aide)'; ExeAide = 'Aide.exe'; Sid = $s } + $appli)
-            (Test-Refuse $r 'Utilisateur inconnu.') -and (Test-SansTache $r)
-        }
-    }
     # « Programme introuvable » (Register-TacheAide) : l'installateur vérifie déjà que le programme est là avant de
     # l'appeler ; la fonction est donc essayée seule (lue par l'analyseur), avec de fausses tâches planifiées
     Test-Cas 'tâche d''aide vers un programme absent : « Programme introuvable », aucune tâche créée' {
@@ -854,171 +771,6 @@ public static class MindsetTestPointAnalyse {
         $refus -and $bon
     }
 
-    # =============================================================================================================
-    Write-Partie 'Installer Mindset (Action mindset, lancement direct seulement)'
-    # =============================================================================================================
-    Test-Cas 'Mindset valable accepté dans Program Files : copié, inscrit dans « Applications installées », tâches créées' {
-        $r = Invoke-Installateur @{ Action = 'mindset'; Source = $srcOk; Version = '3.0.0'; Sid = $sidActuel }
-        $dest = Join-Path $PM 'Mindset'
-        $r.Reponse.ok -and $r.Reponse.message -eq $dest -and (Get-Version $dest) -eq '3.0.0' -and (Test-Path -LiteralPath (Join-Path $dest 'LISEZMOI.txt')) -and
-            (Test-Action $r 'Uninstall\Mindset\DisplayVersion = 3.0.0') -and (Test-TacheCreee $r 'Mindset (installation)') -and (Test-TacheCreee $r 'Mindset (démarrage)')
-    }
-    Test-Cas 'Mindset valable accepté sur un autre disque (X:\Mindset protégé, puis Programmes\Mindset)' {
-        $r = Invoke-Installateur @{ Action = 'mindset'; Source = $srcOk; Version = '3.0.0'; Disque = $L; Sid = $sidActuel }
-        $dest = Join-Path $tmp 'disque\Mindset\Programmes\Mindset'
-        $r.Reponse.ok -and $r.Reponse.message -eq "$($L):\Mindset\Programmes\Mindset" -and (Get-Version $dest) -eq '3.0.0' -and
-            (Test-Action $r "droits posés sur $($L):\Mindset") -and (Test-TacheCreee $r 'Mindset (installation)')
-    }
-    foreach ($d in 'QQ', '1', "$($L):", '\') {
-        $x = $d
-        Test-Cas "disque « $x » : refusé dès les paramètres, rien fait, aucune réponse" {
-            $r = Invoke-Installateur @{ Action = 'mindset'; Source = $srcOk; Disque = $x; Sid = $sidActuel }
-            (Test-SansReponse $r) -and $r.Erreur -and (Test-RienFait $r)
-        }
-    }
-    Test-Cas 'action inconnue en lancement direct : refusée dès les paramètres, rien fait' {
-        $r = Invoke-Installateur @{ Action = 'formater'; Destination = (Join-Path $PM 'Appli') }
-        (Test-SansReponse $r) -and $r.Erreur -and (Test-RienFait $r)
-    }
-    Test-Cas 'disque amovible : refusé (disque fixe NTFS), X:\Mindset pas créé' {
-        $r = Invoke-Installateur @{ Action = 'mindset'; Source = $srcOk; Disque = $LA; Sid = $sidActuel }
-        (Test-Refuse $r 'disque fixe NTFS') -and (Test-RienFait $r)
-    }
-    foreach ($sid in 'S-1-5-32-545', 'S-1-5-18', 'S-1-5-21-1-2-3', '') {
-        $s = $sid
-        Test-Cas "autre disque, utilisateur « $s » : « Utilisateur inconnu. », X:\Mindset pas créé, aucun droit posé" {
-            $r = Invoke-Installateur @{ Action = 'mindset'; Source = $srcOk; Disque = $L; Sid = $s }
-            (Test-Refuse $r 'Utilisateur inconnu.') -and (Test-RienFait $r)
-        }
-    }
-    Test-Cas 'Program Files, utilisateur invalide : Mindset installé « sans-taches », aucune tâche créée' {
-        $r = Invoke-Installateur @{ Action = 'mindset'; Source = $srcOk; Version = '3.0.0'; Sid = 'S-1-5-32-544' }
-        $r.Reponse.ok -and ([string]$r.Reponse.message).Contains('sans-taches') -and ([string]$r.Reponse.message).Contains('Utilisateur inconnu.') -and (Test-SansTache $r)
-    }
-    foreach ($cas in @(@{ Nom = 'sans Mindset.exe'; Source = $srcSansExe }, @{ Nom = 'sans fichiers\Mindset.ps1'; Source = $srcSansScript }, @{ Nom = 'absent'; Source = (Join-Path $tmp 'sources\Absent') })) {
-        $c = $cas
-        Test-Cas "dossier source $($c.Nom) : « ne contient pas Mindset », rien fait" {
-            $r = Invoke-Installateur @{ Action = 'mindset'; Source = $c.Source; Sid = $sidActuel }
-            (Test-Refuse $r 'ne contient pas Mindset') -and (Test-RienFait $r)
-        }
-    }
-
-    # =============================================================================================================
-    Write-Partie 'Mettre Mindset à jour (Action mindset-maj)'
-    # =============================================================================================================
-    $maj = @{ Action = 'mindset-maj'; Zip = $zipMindset; Signature = "$zipMindset.sig"; Destination = (Join-Path $PM 'Mindset'); Version = '2.0.0' }
-    Test-Cas 'mise à jour valable acceptée : 2.0.0 installée, version inscrite, tâches à jour, Mindset relancé' {
-        $r = Invoke-Demande (@{ Id = (New-Id) } + $maj)
-        $dest = Join-Path $PM 'Mindset'
-        $r.Reponse.ok -and $r.Reponse.message -eq '2.0.0' -and (Get-Version $dest) -eq '2.0.0' -and (Test-Action $r 'Uninstall\Mindset\DisplayVersion = 2.0.0') -and
-            (Test-TacheCreee $r 'Mindset (installation)') -and (Test-Action $r $relanceTache) -and -not (Test-Action $r 'explorer.exe')
-    }
-    Test-Cas 'mise à jour automatique (Mindset caché) : relancé par sa tâche de démarrage, jamais par l''Explorateur' {
-        $r = Invoke-Demande (@{ Id = (New-Id); Cache = '1' } + $maj)
-        $r.Reponse.ok -and (Test-Action $r $relanceTache) -and -not (Test-Action $r 'explorer.exe')
-    }
-    Test-Cas 'par la tâche, la tâche de démarrage ne se lance pas : jamais l''Explorateur (il tournerait en SYSTEM)' {
-        $f = New-Demande (@{ Id = (New-Id) } + $maj)
-        $r = Invoke-Installateur @{ Action = 'demande'; Demande = $f; Sid = $sidActuel } -DemarrageKo
-        $r.Reponse.ok -and (Test-Action $r $relanceTache) -and -not (Test-Action $r 'explorer.exe')
-    }
-    Test-Cas 'mise à jour en lancement direct (demande de Windows) : relancé par l''Explorateur, comme avant' {
-        $r = Invoke-Installateur (@{} + $maj)
-        $r.Reponse.ok -and (Test-Action $r "explorer.exe `"$(Join-Path $PM 'Mindset\Mindset.exe')`"") -and -not (Test-Action $r 'schtasks')
-    }
-    Test-Cas 'mise à jour par la tâche avec un zip hors du dossier telechargements : refusée, rien installé' {
-        $ailleurs = Join-Path $tmp 'victime\Mindset.zip'
-        $r = Invoke-Demande (Merge-Table $maj @{ Id = (New-Id); Zip = $ailleurs; Signature = "$ailleurs.sig" }) -Preparer {
-            Copy-Item -LiteralPath $zipMindset -Destination $ailleurs; Copy-Item -LiteralPath "$zipMindset.sig" -Destination "$ailleurs.sig" }
-        (Test-Refuse $r 'Fichier refusé') -and (Get-Version (Join-Path $PM 'Mindset')) -eq '1.0.0' -and (Test-RienFait $r @($relanceTache))
-    }
-    foreach ($cas in @(
-            @{ Nom = 'hors de Program Files\Mindset'; Dossier = (Join-Path $tmp 'victime\Mindset') },
-            @{ Nom = 'Program Files\Mindset lui-même'; Dossier = $PM },
-            @{ Nom = 'qui ne s''appelle pas Mindset (une appli)'; Dossier = (Join-Path $PM 'Appli') })) {
-        $c = $cas
-        Test-Cas "mise à jour vers un dossier $($c.Nom) : « Dossier refusé », rien installé, seul l'ancien Mindset relancé" {
-            $r = Invoke-Demande (Merge-Table $maj @{ Id = (New-Id); Destination = $c.Dossier })
-            (Test-Refuse $r 'Dossier refusé') -and (Test-RienFait $r @($relanceTache))
-        }
-    }
-    Test-Cas 'mise à jour à la signature fausse : refusée, rien installé, aucune tâche, aucune clé' {
-        $r = Invoke-Demande (Merge-Table $maj @{ Id = (New-Id); Signature = $sigFausse })
-        (Test-Refuse $r 'signature') -and (Test-RienFait $r @($relanceTache))
-    }
-
-    # =============================================================================================================
-    Write-Partie 'Tâches de Mindset (Action taches)'
-    # =============================================================================================================
-    Test-Cas 'tâches en lancement direct, utilisateur valable : acceptées' {
-        $r = Invoke-Installateur @{ Action = 'taches'; Destination = (Join-Path $PM 'Mindset'); Sid = $sidActuel }
-        $r.Reponse.ok -and (Test-TacheCreee $r 'Mindset (installation)') -and (Test-TacheCreee $r 'Mindset (démarrage)')
-    }
-    foreach ($cas in @(
-            @{ Nom = 'hors de Program Files\Mindset'; Dossier = (Join-Path $tmp 'victime\Mindset') },
-            @{ Nom = 'trop profond'; Dossier = (Join-Path $PM 'Appli\Mindset') },
-            @{ Nom = 'qui ne s''appelle pas Mindset (une appli)'; Dossier = (Join-Path $PM 'Appli') })) {
-        $c = $cas
-        Test-Cas "tâches pour un dossier $($c.Nom) : « Dossier refusé », aucune tâche" {
-            $r = Invoke-Demande @{ Id = (New-Id); Action = 'taches'; Destination = $c.Dossier }
-            (Test-Refuse $r 'Dossier refusé') -and (Test-RienFait $r)
-        }
-    }
-    foreach ($sid in 'S-1-5-32-544', 'S-1-5-18', '') {
-        $s = $sid
-        Test-Cas "tâches en lancement direct, utilisateur « $s » : « Utilisateur inconnu. », aucune tâche" {
-            $r = Invoke-Installateur @{ Action = 'taches'; Destination = (Join-Path $PM 'Mindset'); Sid = $s }
-            (Test-Refuse $r 'Utilisateur inconnu.') -and (Test-RienFait $r)
-        }
-    }
-    Test-Cas 'tâches de Mindset refaites : l''ancienne tâche d''aide de l''utilisateur passe en SYSTEM pour lui (même programme), les autres ne sont pas touchées' {
-        $r = Invoke-Installateur @{ Action = 'taches'; Destination = (Join-Path $PM 'Mindset'); Sid = $sidActuel } -AideAncienne -Preparer { $null = Save-Fichier (Join-Path $PM 'Appli\Aide.exe') 'x' }
-        $aide = Join-Path $PM 'Appli\Aide.exe'
-        $r.Reponse.ok -and (Test-TacheCreee $r 'Appli (aide)') -and (Test-Action $r "-Execute `"$aide`"") -and
-            -not @($r.Actions | Where-Object { $_ -match 'tâche créée.*-TaskName (Autre|Piege|Deja) \(aide\)' }).Count
-    }
-    Test-Cas 'contre-épreuve : sans tâche d''aide d''avant, aucune tâche d''aide créée' {
-        $r = Invoke-Installateur @{ Action = 'taches'; Destination = (Join-Path $PM 'Mindset'); Sid = $sidActuel } -Preparer { $null = Save-Fichier (Join-Path $PM 'Appli\Aide.exe') 'x' }
-        $r.Reponse.ok -and -not @($r.Actions | Where-Object { $_ -match 'tâche créée.*\(aide\)' }).Count
-    }
-    Test-Cas 'tâches pour un Mindset sans Mindset.exe : refusé (introuvable), aucune tâche' {
-        $r = Invoke-Demande @{ Id = (New-Id); Action = 'taches'; Destination = (Join-Path $PM 'Mindset') } -Preparer { Remove-Item -LiteralPath (Join-Path $PM 'Mindset\Mindset.exe') }
-        (Test-Refuse $r 'Mindset.exe introuvable') -and (Test-RienFait $r)
-    }
-
-    # =============================================================================================================
-    Write-Partie 'Supprimer (Action supprimer)'
-    # =============================================================================================================
-    Test-Cas 'suppression d''une appli acceptée : son dossier retiré, Mindset gardé' {
-        $r = Invoke-Demande @{ Id = (New-Id); Action = 'supprimer'; Destination = (Join-Path $PM 'Appli'); Exe = 'Appli.exe' }
-        $r.Reponse.ok -and -not (Test-Path -LiteralPath (Join-Path $PM 'Appli')) -and (Test-Path -LiteralPath (Join-Path $PM 'Mindset\Mindset.exe')) -and (Test-Action $r "arrêt du programme $PM\Appli\")
-    }
-    Test-Cas 'suppression de Mindset lui-même acceptée : dossier, tâches et clés retirés (sans fenêtre ni réponse)' {
-        $r = Invoke-Demande @{ Id = (New-Id); Action = 'supprimer'; Destination = (Join-Path $PM 'Mindset') }
-        -not (Test-Path -LiteralPath (Join-Path $PM 'Mindset')) -and (Test-Path -LiteralPath (Join-Path $PM 'Appli\Appli.exe')) -and
-            (Test-Action $r 'registre : suppression de HKLM:\SOFTWARE\Mindset') -and (Test-Action $r 'tâche retirée') -and -not (Test-Action $r 'fenêtre') -and -not $r.Registre
-    }
-    foreach ($cas in @(
-            @{ Nom = 'Program Files\Mindset (tout)'; Dossier = $PM },
-            @{ Nom = 'Program Files'; Dossier = $PF },
-            @{ Nom = 'Mindset\Appli\.. (tout)'; Dossier = "$PM\Appli\.." },
-            @{ Nom = 'trop profond (Appli\fichiers)'; Dossier = (Join-Path $PM 'Appli\fichiers') },
-            @{ Nom = 'hors de Mindset'; Dossier = (Join-Path $tmp 'victime') },
-            @{ Nom = 'X:\Mindset sur le faux disque'; Dossier = "$($L):\Mindset" })) {
-        $c = $cas
-        Test-Cas "suppression de $($c.Nom) : « Dossier refusé », rien supprimé" {
-            $r = Invoke-Demande @{ Id = (New-Id); Action = 'supprimer'; Destination = $c.Dossier } -Preparer { $null = Save-Fichier (Join-Path $tmp 'disque\Mindset\Programmes\Appli\Appli.exe') 'x' }
-            (Test-Refuse $r 'Dossier refusé') -and (Test-RienFait $r)
-        }
-    }
-    Test-Cas 'suppression avec le programme « ..\Appli.exe » : « Nom de programme refusé. », rien supprimé' {
-        $r = Invoke-Demande @{ Id = (New-Id); Action = 'supprimer'; Destination = (Join-Path $PM 'Appli'); Exe = '..\Appli.exe' }
-        (Test-Refuse $r 'Nom de programme refusé.') -and (Test-RienFait $r)
-    }
-
-    # =============================================================================================================
-    Write-Partie 'La tâche SYSTEM : rien ne vient de l''utilisateur (revue du 25/10, constat 1)'
-    # =============================================================================================================
     Test-Cas 'le vrai bloc des dossiers de Windows les demande à Windows (GetFolderPath), sans aucune variable d''environnement' {
         $b = $blocWindows.Value
         $b -notmatch '\$env:|\$\{env:' -and $b -match "GetFolderPath\('System'\)" -and $b -match "GetFolderPath\('ProgramFiles'\)" -and $b -match "GetFolderPath\('Windows'\)"
@@ -1075,163 +827,6 @@ public static class MindsetTestPointAnalyse {
     }
     Test-Cas 'contre-épreuve : sans ses premières lignes, l''installateur charge le faux module (témoin)' {
         @(Get-Temoins (Join-Path $vrai 'sans-protection.ps1')).Count -gt 0
-    }
-    Test-Cas 'variables de l''utilisateur piégées (ProgramFiles, LOCALAPPDATA, windir...) : rien écrit ni lu par elles, installation faite' {
-        $r = Invoke-Demande (@{ Id = (New-Id) } + $taches)
-        $r.Reponse.ok -and -not @($r.Lignes | Where-Object { $_ -like '*piege-variable*' }).Count
-    }
-
-    Test-Cas 'tâche d''installation : en SYSTEM, utilisateur inscrit dans ses arguments, lui seul peut la lancer, powershell.exe de System32' {
-        $r = Invoke-Demande (@{ Id = (New-Id) } + $taches)
-        $ps = Join-Path ([Environment]::GetFolderPath('System')) 'WindowsPowerShell\v1.0\powershell.exe'
-        $r.Reponse.ok -and (Test-TacheCreee $r 'Mindset (installation)') -and (Test-Action $r "-Execute $ps ") -and (Test-Action $r '-NoProfile -NonInteractive') -and
-            -not (Test-Action $r '-UserId S-1-5-21-1111111111')
-    }
-    Test-Cas 'sa demande : dans le dossier de l''utilisateur lu dans ProfileList (HKLM), jamais dans LOCALAPPDATA' {
-        $r = Invoke-Demande (@{ Id = (New-Id) } + $taches)
-        $attendu = Join-Path $tmp "Profils\$sidActuel\AppData\Local\Mindset\Mindset\installation.demande"
-        $r.Reponse.ok -and (Test-Action $r "-Demande `"$attendu`"") -and (Test-Action $r 'LOCALAPPDATA') -eq $false
-    }
-    Test-Cas 'Mindset sur un autre disque : sa demande dans X:\Mindset\Donnees\Mindset' {
-        $r = Invoke-Installateur @{ Action = 'mindset'; Source = $srcOk; Version = '3.0.0'; Disque = $L; Sid = $sidActuel }
-        $r.Reponse.ok -and (Test-Action $r "-Demande `"$($L):\Mindset\Donnees\Mindset\installation.demande`"")
-    }
-    Test-Cas 'accusé de réception : l''Id de la demande, écrit dans HKLM avant le travail' {
-        $id = New-Id
-        $r = Invoke-Demande (@{ Id = $id } + $taches)
-        $l = @($r.Lignes)
-        $i = [array]::IndexOf($l, "RECU $id"); $j = @(0..($l.Count - 1) | Where-Object { $l[$_] -like 'ACTION tâche créée*' } | Select-Object -First 1)
-        $r.Reponse.ok -and $i -ge 0 -and $j.Count -and $j[0] -gt $i
-    }
-    Test-Cas 'la même demande relancée (même Id, déjà reçue) : rien refait, aucune réponse' {
-        $id = New-Id
-        $null = Invoke-Demande (@{ Id = $id } + $taches)
-        $f = New-Demande (@{ Id = $id } + $taches)
-        $r = Invoke-Installateur @{ Action = 'demande'; Demande = $f; Sid = $sidActuel } -GarderRecu
-        (Test-SansReponse $r) -and (Test-SansTache $r)
-    }
-    Test-Cas 'la demande n''est jamais effacée par l''installateur (Mindset l''efface ; en SYSTEM, un lien ferait effacer autre chose)' {
-        $f = New-Demande (@{ Id = (New-Id) } + $taches)
-        $r = Invoke-Installateur @{ Action = 'demande'; Demande = $f; Sid = $sidActuel }
-        $r.Reponse.ok -and (Test-Path -LiteralPath $f)
-    }
-    Test-Cas 'demande illisible : « Demande illisible. » sans recopier le texte de l''erreur (il citerait le contenu du fichier)' {
-        $f = New-Demande '{ secret: 12345'
-        $r = Invoke-Installateur @{ Action = 'demande'; Demande = $f; Sid = $sidActuel }
-        (Test-Refuse $r 'Demande illisible') -and -not ([string]$r.Reponse.message).Contains('secret')
-    }
-    foreach ($cas in @(@{ Nom = 'le zip'; Zip = (Join-Path $tmp 'victime\Appli.zip'); Sig = "$zipAppli.sig" }, @{ Nom = 'la signature'; Zip = $zipAppli; Sig = (Join-Path $tmp 'victime\Appli.zip.sig') })) {
-        $c = $cas
-        Test-Cas "par la tâche, $($c.Nom) hors du dossier telechargements de l'utilisateur : « Fichier refusé », rien fait" {
-            $r = Invoke-Demande (Get-Appli @{ Zip = $c.Zip; Signature = $c.Sig }) -Preparer {
-                Copy-Item -LiteralPath $zipAppli -Destination (Join-Path $tmp 'victime\Appli.zip'); Copy-Item -LiteralPath "$zipAppli.sig" -Destination (Join-Path $tmp 'victime\Appli.zip.sig') }
-            (Test-Refuse $r 'Fichier refusé') -and (Test-RienFait $r)
-        }
-    }
-    Test-Cas 'par la tâche, un zip donné par un chemin relatif : « Fichier refusé », rien fait' {
-        $r = Invoke-Demande (Get-Appli @{ Zip = 'telechargements\Appli.zip' })
-        (Test-Refuse $r 'Fichier refusé') -and (Test-RienFait $r)
-    }
-    Test-Cas 'par la tâche, -Sid invalide (le système) : « Utilisateur inconnu. », rien fait' {
-        $f = New-Demande (@{ Id = (New-Id) } + $taches)
-        $r = Invoke-Installateur @{ Action = 'demande'; Demande = $f; Sid = 'S-1-5-18' }
-        (Test-Refuse $r 'Utilisateur inconnu.') -and (Test-RienFait $r)
-    }
-
-    # L'ancienne tâche (jusqu'à Mindset 2.9.0 : sous le compte de l'utilisateur, droits les plus élevés, sans -Sid)
-    Test-Cas 'ancienne tâche, Action taches : elle se remplace par la tâche SYSTEM, pour son utilisateur' {
-        $r = Invoke-Demande (@{ Id = (New-Id) } + $taches) -AncienneTache -SidTache $sidActuel
-        $r.Reponse.ok -and (Test-TacheCreee $r 'Mindset (installation)') -and (Test-TacheCreee $r 'Mindset (démarrage)')
-    }
-    foreach ($a in 'appli', 'mindset-maj', 'supprimer') {
-        $x = $a
-        Test-Cas "ancienne tâche, Action $x : refusée (elle doit d'abord être remplacée), rien fait" {
-            $d = switch ($x) { 'appli' { Get-Appli @{} } 'mindset-maj' { @{ Id = (New-Id) } + $maj } 'supprimer' { @{ Id = (New-Id); Action = 'supprimer'; Destination = (Join-Path $PM 'Appli'); Exe = 'Appli.exe' } } }
-            $r = Invoke-Demande $d -AncienneTache -SidTache $sidActuel
-            (Test-Refuse $r 'Ancienne tâche') -and (Test-RienFait $r)
-        }
-    }
-    Test-Cas 'ancienne tâche d''un autre compte que celui qui la lance : « Utilisateur inconnu. », aucune tâche' {
-        $r = Invoke-Demande (@{ Id = (New-Id) } + $taches) -AncienneTache -SidTache 'S-1-5-21-1111111111-2222222222-3333333333-1001'
-        (Test-Refuse $r 'Utilisateur inconnu.') -and (Test-RienFait $r)
-    }
-
-    # =============================================================================================================
-    Write-Partie 'Prise en charge : seules les tâches de l''utilisateur qui lançaient l''ancienne copie (revue du 25/10, constat 3)'
-    # =============================================================================================================
-    $ancienne = Join-Path $tmp 'ancienne\Appli.exe'
-    $creerAncienne = { $null = Save-Fichier $ancienne 'appli 0.9' }
-    function Get-Modifiees($R) { @($R.Actions | Where-Object { $_ -like 'ACTION tâche modifiée*' }) }
-    Test-Cas 'ancienne copie valable : seule la tâche de l''utilisateur est réécrite, ses deux actions gardées' {
-        $r = Invoke-Demande (Get-Appli @{ AncienExe = $ancienne }) -Preparer $creerAncienne
-        $m = @(Get-Modifiees $r)
-        $r.Reponse.ok -and $m.Count -eq 1 -and $m[0] -eq "ACTION tâche modifiée : \Appli (démarrage) -> `"$(Join-Path $PM 'Appli\Appli.exe')`" | C:\Autre\Autre.exe"
-    }
-    Test-Cas 'ni la tâche SYSTEM, ni celle de Windows (\Microsoft\), ni celle de Mindset, ni celle d''un autre compte ou d''un groupe' {
-        $r = Invoke-Demande (Get-Appli @{ AncienExe = $ancienne }) -Preparer $creerAncienne
-        $r.Reponse.ok -and -not @(Get-Modifiees $r | ForEach-Object { ($_ -split ' -> ')[0] } | Where-Object { $_ -match 'Antivirus|\\Microsoft\\|\\Mindset\\|Autre compte|Groupe' }).Count
-    }
-    foreach ($cas in @(
-            @{ Nom = 'un autre programme (explorer.exe)'; Exe = 'C:\Windows\explorer.exe' },
-            @{ Nom = 'le programme d''un antivirus'; Exe = 'C:\Program Files\Antivirus\Appli.exe.bak' },
-            @{ Nom = 'un chemin relatif'; Exe = 'Appli.exe' },
-            @{ Nom = 'un chemin qui remonte'; Exe = (Join-Path $tmp 'ancienne\..\ancienne\Appli.exe') },
-            @{ Nom = 'un programme absent'; Exe = (Join-Path $tmp 'absente\Appli.exe') },
-            @{ Nom = 'un chemin réseau'; Exe = '\\serveur\partage\Appli.exe' })) {
-        $c = $cas
-        Test-Cas "ancienne copie refusée ($($c.Nom)) : « Ancienne copie refusée. », rien installé, aucune tâche modifiée" {
-            $r = Invoke-Demande (Get-Appli @{ AncienExe = $c.Exe }) -Preparer $creerAncienne
-            (Test-Refuse $r 'Ancienne copie refusée.') -and (Test-RienFait $r)
-        }
-    }
-    Test-Cas 'lancement direct sans utilisateur : l''appli est installée, aucune tâche modifiée' {
-        $r = Invoke-Installateur (@{ AncienExe = $ancienne } + $appli) -Preparer $creerAncienne
-        $r.Reponse.ok -and -not @(Get-Modifiees $r).Count
-    }
-
-    # =============================================================================================================
-    Write-Partie 'En SYSTEM, aucune fenêtre ; programmes fermés seulement ceux de l''utilisateur'
-    # =============================================================================================================
-    Test-Cas 'désinstallation de Mindset par la tâche, pas allée au bout : aucune fenêtre, ce qui reste est écrit dans HKLM pour Mindset' {
-        $r = Invoke-Demande @{ Id = (New-Id); Action = 'supprimer'; Destination = (Join-Path $PM 'Mindset') } -TachesRestantes
-        -not (Test-Action $r 'fenêtre') -and @($r.Lignes | Where-Object { $_ -like 'RESTES *' }).Count -and @($r.Lignes | Where-Object { $_ -like '- la tâche planifiée*' }).Count -and -not (Test-Action $r 'suppression de HKLM:\SOFTWARE\Mindset')
-    }
-    Test-Cas 'même cas en lancement direct (demande de Windows) : la fenêtre est montrée, comme avant' {
-        $r = Invoke-Installateur @{ Action = 'supprimer'; Destination = (Join-Path $PM 'Mindset') } -TachesRestantes
-        (Test-Action $r 'fenêtre') -and -not @($r.Lignes | Where-Object { $_ -like 'RESTES *' }).Count
-    }
-    Test-Cas 'par la tâche : le programme d''un autre compte qui utilise la même copie n''est pas fermé' {
-        $r = Invoke-Demande (Get-Appli @{})
-        $r.Reponse.ok -and @($r.Lignes | Where-Object { $_ -like 'ACTION arrêt*' }).Count -eq 3
-    }
-    Test-Cas 'en lancement direct sans utilisateur : seulement ceux de la session (pas celui de la session 99)' {
-        $r = Invoke-Installateur @{ Action = 'supprimer'; Destination = (Join-Path $PM 'Appli'); Exe = 'Appli.exe' }
-        $r.Reponse.ok -and @($r.Lignes | Where-Object { $_ -like 'ACTION arrêt*' }).Count -eq 3
-    }
-
-    # =============================================================================================================
-    Write-Partie 'Programmes fermés : par leur chemin (le dossier de l''appli), jamais par leur nom'
-    # =============================================================================================================
-    # L'hôte de chaque appli s'appelle Mindset.exe, comme Mindset : fermer « Mindset » ou « Appli » par nom fermerait
-    # Mindset lui-même, ou en administrateur n'importe quel programme du même nom. Seuls ceux du dossier de l'appli partent.
-    $attendus = @("$PM\Appli\Mindset.exe", "$PM\Appli\Appli.exe", "$PM\Appli\Aide.exe")
-    function Get-Arrets($R) { @($R.Actions | Where-Object { $_ -like 'ACTION arrêt du programme *' } | ForEach-Object { $_.Substring('ACTION arrêt du programme '.Length) } | Sort-Object) }
-    Test-Cas 'installation : seuls l''hôte Mindset.exe, Appli.exe et l''aide du dossier de l''appli sont fermés' {
-        $r = Invoke-Demande (Get-Appli @{ TacheAide = 'Appli (aide)'; ExeAide = 'Aide.exe' })
-        $r.Reponse.ok -and ((Get-Arrets $r) -join '|') -eq ((@($attendus) | Sort-Object) -join '|')
-    }
-    Test-Cas 'installation : ni Mindset, ni l''appli au nom proche (AppliBis), ni les copies ailleurs, ni un programme au chemin illisible' {
-        $r = Invoke-Demande (Get-Appli @{})
-        $a = Get-Arrets $r
-        $r.Reponse.ok -and $a.Count -eq 3 -and -not ($a | Where-Object { $_ -like "*\Mindset\Mindset\*" -or $_ -like '*AppliBis*' -or $_ -like '*ailleurs*' -or -not $_ })
-    }
-    Test-Cas 'suppression d''une appli : seuls les programmes de son dossier sont fermés' {
-        $r = Invoke-Demande @{ Id = (New-Id); Action = 'supprimer'; Destination = (Join-Path $PM 'Appli'); Exe = 'Appli.exe' }
-        $r.Reponse.ok -and ((Get-Arrets $r) -join '|') -eq ((@($attendus) | Sort-Object) -join '|')
-    }
-    Test-Cas 'demande refusée (signature fausse) : aucun programme fermé' {
-        $r = Invoke-Demande (Get-Appli @{ Signature = $sigFausse })
-        (Test-Refuse $r 'signature') -and -not (Get-Arrets $r).Count
     }
 
     # De vrais programmes d'essai (compilés ici, lancés depuis le dossier de test) avec les vrais Get-Process et Stop-Process

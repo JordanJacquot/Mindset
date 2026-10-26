@@ -1,0 +1,21 @@
+{
+  "format": 1,
+  "sujet": "L'ancienne tâche (jusqu'à Mindset 2.9.0 : sous le compte de l'utilisateur, droits les plus élevés, sans -Sid) : elle ne sert qu'à se remplacer par la tâche SYSTEM",
+  "regle": "installer-admin.ps1 -Action demande -Demande <fichier>, sans -Sid ; l'utilisateur est celui de la tâche « \\Mindset\\Mindset (installation) »",
+  "attendu": "voir cas\\LISEZMOI.md",
+  "valeurs": {
+    "{pm}": "Program Files\\Mindset du faux PC",
+    "{zip-appli}": "le zip signé de l'appli de test (2.0.0)",
+    "{zip-mindset}": "le zip signé de Mindset (2.0.0)",
+    "{sid}": "l'utilisateur du test",
+    "{sid-autre}": "un autre compte du PC",
+    "{id}": "un numéro de demande neuf"
+  },
+  "cas": [
+    {"nom":"ancienne tâche, Action taches : elle se remplace par la tâche SYSTEM, pour son utilisateur","entree":{"lancement":"ancienne-tache","demande":{"Action":"taches","Destination":"{pm}\\Mindset"},"contexte":{"sid_tache":"{sid}"}},"attendu":{"reponse":"ok","taches_creees":["Mindset (installation)","Mindset (démarrage)"]}},
+    {"nom":"ancienne tâche, Action appli : refusée (elle doit d'abord être remplacée), rien fait","entree":{"lancement":"ancienne-tache","demande":{"Action":"appli","Appli":"appli","Zip":"{zip-appli}","Signature":"{zip-appli}.sig","Destination":"{pm}\\Appli","DossierZip":"Appli","Exe":"Appli.exe"},"contexte":{"sid_tache":"{sid}"}},"attendu":{"reponse":"refus","message":"Ancienne tâche","rien_fait":true}},
+    {"nom":"ancienne tâche, Action mindset-maj : refusée (elle doit d'abord être remplacée), rien fait","entree":{"lancement":"ancienne-tache","demande":{"Action":"mindset-maj","Zip":"{zip-mindset}","Signature":"{zip-mindset}.sig","Destination":"{pm}\\Mindset","Version":"2.0.0"},"contexte":{"sid_tache":"{sid}"}},"attendu":{"reponse":"refus","message":"Ancienne tâche","rien_fait":true}},
+    {"nom":"ancienne tâche, Action supprimer : refusée (elle doit d'abord être remplacée), rien fait","entree":{"lancement":"ancienne-tache","demande":{"Action":"supprimer","Destination":"{pm}\\Appli","Exe":"Appli.exe"},"contexte":{"sid_tache":"{sid}"}},"attendu":{"reponse":"refus","message":"Ancienne tâche","rien_fait":true}},
+    {"nom":"ancienne tâche d'un autre compte que celui qui la lance : « Utilisateur inconnu. », aucune tâche","entree":{"lancement":"ancienne-tache","demande":{"Action":"taches","Destination":"{pm}\\Mindset"},"contexte":{"sid_tache":"{sid-autre}"}},"attendu":{"reponse":"refus","message":"Utilisateur inconnu.","rien_fait":true}}
+  ]
+}

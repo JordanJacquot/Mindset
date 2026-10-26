@@ -1,0 +1,22 @@
+{
+  "format": 1,
+  "sujet": "Côté Mindset : la tâche d'installation n'est utilisée que si c'est la tâche SYSTEM inscrite pour cet utilisateur ; l'ancienne (droits les plus élevés) est reconnue, mais ne sert jamais à installer",
+  "regle": "modules\\installations.ps1 : Get-EtatTacheInstallation (lit « schtasks /Query /XML /TN \\Mindset\\Mindset (installation) ») et Test-TacheInstallation",
+  "attendu": "etat : « systeme », « ancienne » ou « » (pas de tâche utilisable) ; utilisee : vrai si Mindset passe par cette tâche pour installer",
+  "valeurs": {
+    "{sid}": "l'utilisateur qui fait tourner Mindset",
+    "{sid-autre}": "un autre compte du PC",
+    "{demande}": "le fichier de demande de Mindset (installation.demande dans ses données)"
+  },
+  "champs": {
+    "entree.compte": "le compte de la tâche (UserId dans son XML)",
+    "entree.arguments": "les arguments de son action (powershell.exe)",
+    "entree.absente": "vrai : schtasks ne trouve pas la tâche"
+  },
+  "cas": [
+    {"nom":"la tâche SYSTEM inscrite pour cet utilisateur : utilisée","entree":{"compte":"S-1-5-18","arguments":"-NoProfile -File \"C:\\Program Files\\Mindset\\Mindset\\fichiers\\installer-admin.ps1\" -Action demande -Sid {sid} -Demande \"{demande}\""},"attendu":{"etat":"systeme","utilisee":true}},
+    {"nom":"la tâche SYSTEM d'un autre compte du PC : pas utilisée","entree":{"compte":"S-1-5-18","arguments":"-NoProfile -File \"x\" -Action demande -Sid {sid-autre} -Demande \"y\""},"attendu":{"etat":"","utilisee":false}},
+    {"nom":"l'ancienne tâche (droits les plus élevés, sous mon compte) : reconnue, mais pas utilisée pour installer","entree":{"compte":"{sid}","arguments":"-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File \"x\" -Action demande -Demande \"{demande}\""},"attendu":{"etat":"ancienne","utilisee":false}},
+    {"nom":"tâche absente ou illisible : pas utilisée","entree":{"absente":true},"attendu":{"etat":"","utilisee":false}}
+  ]
+}

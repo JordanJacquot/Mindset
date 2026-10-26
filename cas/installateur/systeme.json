@@ -1,0 +1,30 @@
+{
+  "format": 1,
+  "sujet": "La tâche SYSTEM : rien ne vient de l'utilisateur (variables, dossiers, fichiers hors de telechargements), accusé de réception, demande jamais effacée",
+  "regle": "installer-admin.ps1 -Action demande -Sid <utilisateur> -Demande <fichier> (revue du 25/10, constat 1)",
+  "attendu": "voir cas\\LISEZMOI.md",
+  "valeurs": {
+    "{tmp}": "le dossier du faux PC",
+    "{pm}": "Program Files\\Mindset du faux PC",
+    "{x}": "la lettre du faux disque fixe NTFS",
+    "{zip-appli}": "le zip signé de l'appli de test (2.0.0), dans le dossier telechargements de l'utilisateur",
+    "{src-ok}": "un dossier source de Mindset complet",
+    "{sid}": "l'utilisateur du test",
+    "{powershell}": "powershell.exe de System32, demandé à Windows",
+    "{id}": "un numéro de demande neuf"
+  },
+  "cas": [
+    {"nom":"variables de l'utilisateur piégées (ProgramFiles, LOCALAPPDATA, windir...) : rien écrit ni lu par elles, installation faite","entree":{"lancement":"tache","demande":{"Action":"taches","Destination":"{pm}\\Mindset"}},"attendu":{"reponse":"ok","lignes_absentes":["*piege-variable*"]}},
+    {"nom":"tâche d'installation : en SYSTEM, utilisateur inscrit dans ses arguments, lui seul peut la lancer, powershell.exe de System32","entree":{"lancement":"tache","demande":{"Action":"taches","Destination":"{pm}\\Mindset"}},"attendu":{"reponse":"ok","taches_creees":["Mindset (installation)"],"actions":["-Execute {powershell} ","-NoProfile -NonInteractive"],"actions_absentes":["-UserId S-1-5-21-1111111111"]}},
+    {"nom":"sa demande : dans le dossier de l'utilisateur lu dans ProfileList (HKLM), jamais dans LOCALAPPDATA","entree":{"lancement":"tache","demande":{"Action":"taches","Destination":"{pm}\\Mindset"}},"attendu":{"reponse":"ok","actions":["-Demande \"{tmp}\\Profils\\{sid}\\AppData\\Local\\Mindset\\Mindset\\installation.demande\""],"actions_absentes":["LOCALAPPDATA"]}},
+    {"nom":"Mindset sur un autre disque : sa demande dans X:\\Mindset\\Donnees\\Mindset","entree":{"lancement":"direct","demande":{"Action":"mindset","Source":"{src-ok}","Version":"3.0.0","Disque":"{x}","Sid":"{sid}"}},"attendu":{"reponse":"ok","actions":["-Demande \"{x}:\\Mindset\\Donnees\\Mindset\\installation.demande\""]}},
+    {"nom":"accusé de réception : l'Id de la demande, écrit dans HKLM avant le travail","entree":{"lancement":"tache","demande":{"Action":"taches","Destination":"{pm}\\Mindset"}},"attendu":{"reponse":"ok","avant":["RECU {id}","ACTION tâche créée*"]}},
+    {"nom":"la même demande relancée (même Id, déjà reçue) : rien refait, aucune réponse","entree":{"lancement":"tache","demande":{"Action":"taches","Destination":"{pm}\\Mindset"},"contexte":{"recu":"{id}"}},"attendu":{"reponse":"aucune","sans_tache":true}},
+    {"nom":"la demande n'est jamais effacée par l'installateur (Mindset l'efface ; en SYSTEM, un lien ferait effacer autre chose)","entree":{"lancement":"tache","demande":{"Action":"taches","Destination":"{pm}\\Mindset"}},"attendu":{"reponse":"ok","demande_gardee":true}},
+    {"nom":"demande illisible : « Demande illisible. » sans recopier le texte de l'erreur (il citerait le contenu du fichier)","entree":{"lancement":"tache","demande_texte":"{ secret: 12345"},"attendu":{"reponse":"refus","message":"Demande illisible","message_absent":"secret"}},
+    {"nom":"par la tâche, le zip hors du dossier telechargements de l'utilisateur : « Fichier refusé », rien fait","entree":{"lancement":"tache","demande":{"Action":"appli","Appli":"appli","Zip":"{tmp}\\victime\\Appli.zip","Signature":"{zip-appli}.sig","Destination":"{pm}\\Appli","DossierZip":"Appli","Exe":"Appli.exe"},"contexte":{"copier":{"{zip-appli}":"{tmp}\\victime\\Appli.zip","{zip-appli}.sig":"{tmp}\\victime\\Appli.zip.sig"}}},"attendu":{"reponse":"refus","message":"Fichier refusé","rien_fait":true}},
+    {"nom":"par la tâche, la signature hors du dossier telechargements de l'utilisateur : « Fichier refusé », rien fait","entree":{"lancement":"tache","demande":{"Action":"appli","Appli":"appli","Zip":"{zip-appli}","Signature":"{tmp}\\victime\\Appli.zip.sig","Destination":"{pm}\\Appli","DossierZip":"Appli","Exe":"Appli.exe"},"contexte":{"copier":{"{zip-appli}":"{tmp}\\victime\\Appli.zip","{zip-appli}.sig":"{tmp}\\victime\\Appli.zip.sig"}}},"attendu":{"reponse":"refus","message":"Fichier refusé","rien_fait":true}},
+    {"nom":"par la tâche, un zip donné par un chemin relatif : « Fichier refusé », rien fait","entree":{"lancement":"tache","demande":{"Action":"appli","Appli":"appli","Zip":"telechargements\\Appli.zip","Signature":"{zip-appli}.sig","Destination":"{pm}\\Appli","DossierZip":"Appli","Exe":"Appli.exe"}},"attendu":{"reponse":"refus","message":"Fichier refusé","rien_fait":true}},
+    {"nom":"par la tâche, -Sid invalide (le système) : « Utilisateur inconnu. », rien fait","entree":{"lancement":"tache","sid":"S-1-5-18","demande":{"Action":"taches","Destination":"{pm}\\Mindset"}},"attendu":{"reponse":"refus","message":"Utilisateur inconnu.","rien_fait":true}}
+  ]
+}

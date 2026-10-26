@@ -1,0 +1,14 @@
+{
+  "format": 1,
+  "sujet": "Côté Mindset : une valeur passée à l'installateur par la demande de Windows arrive telle quelle (revue du 25/10, constats 10 et 19)",
+  "regle": "modules\\installations.ps1 : Format-ArgumentAdmin <valeur> (la ligne de commande est ensuite redécoupée par Windows)",
+  "attendu": "texte : la valeur une fois mise en forme ; refuse : vrai si la valeur est refusée (une erreur) ; relu : vrai si la ligne « -Source <valeur mise en forme> -Version 2.9.0 -Sid {sid} », redécoupée par Windows, rend exactement les 6 arguments, la valeur intacte",
+  "valeurs": {
+    "{sid}": "l'utilisateur du test"
+  },
+  "cas": [
+    {"nom":"un dossier qui finit par \\ (E:\\) : les arguments suivants restent à leur place","entree":{"valeur":"E:\\"},"attendu":{"relu":true}},
+    {"nom":"un chemin avec une apostrophe typographique et un $ : gardé tel quel","entree":{"valeur":"D:\\Jeux d’Arthur\\$(x)"},"attendu":{"texte":"\"D:\\Jeux d’Arthur\\$(x)\"","relu":true}},
+    {"nom":"une valeur avec un guillemet : refusée","entree":{"valeur":"a\" -Action supprimer"},"attendu":{"refuse":true}}
+  ]
+}

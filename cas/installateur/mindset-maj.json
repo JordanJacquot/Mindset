@@ -1,0 +1,28 @@
+{
+  "format": 1,
+  "sujet": "Mettre Mindset à jour (Action mindset-maj) : relancé par sa tâche de démarrage, jamais par l'Explorateur en SYSTEM",
+  "regle": "installer-admin.ps1 -Action mindset-maj (par la tâche : dans la demande ; en lancement direct : en paramètres)",
+  "attendu": "voir cas\\LISEZMOI.md",
+  "valeurs": {
+    "{tmp}": "le dossier du faux PC",
+    "{pm}": "Program Files\\Mindset du faux PC",
+    "{zip-mindset}": "le zip signé de Mindset (2.0.0), dans le dossier telechargements de l'utilisateur",
+    "{sig-fausse}": "une signature juste, mais d'un autre fichier",
+    "{id}": "un numéro de demande neuf"
+  },
+  "base": {
+    "demande": {"Action":"mindset-maj","Zip":"{zip-mindset}","Signature":"{zip-mindset}.sig","Destination":"{pm}\\Mindset","Version":"2.0.0"}
+  },
+  "fusion": "la demande de chaque cas part de base.demande ; ses propres champs remplacent ceux de la base, un champ à null est retiré",
+  "cas": [
+    {"nom":"mise à jour valable acceptée : 2.0.0 installée, version inscrite, tâches à jour, Mindset relancé","entree":{"lancement":"tache","demande":{}},"attendu":{"reponse":"ok","message_exact":"2.0.0","versions":{"{pm}\\Mindset":"2.0.0"},"actions":["Uninstall\\Mindset\\DisplayVersion = 2.0.0","ACTION lancement schtasks /Run /TN \\Mindset\\Mindset (démarrage)"],"taches_creees":["Mindset (installation)"],"actions_absentes":["explorer.exe"]}},
+    {"nom":"mise à jour automatique (Mindset caché) : relancé par sa tâche de démarrage, jamais par l'Explorateur","entree":{"lancement":"tache","demande":{"Cache":"1"}},"attendu":{"reponse":"ok","actions":["ACTION lancement schtasks /Run /TN \\Mindset\\Mindset (démarrage)"],"actions_absentes":["explorer.exe"]}},
+    {"nom":"par la tâche, la tâche de démarrage ne se lance pas : jamais l'Explorateur (il tournerait en SYSTEM)","entree":{"lancement":"tache","demande":{},"contexte":{"demarrage_ko":true}},"attendu":{"reponse":"ok","actions":["ACTION lancement schtasks /Run /TN \\Mindset\\Mindset (démarrage)"],"actions_absentes":["explorer.exe"]}},
+    {"nom":"mise à jour en lancement direct (demande de Windows) : relancé par l'Explorateur, comme avant","entree":{"lancement":"direct","demande":{}},"attendu":{"reponse":"ok","actions":["explorer.exe \"{pm}\\Mindset\\Mindset.exe\""],"actions_absentes":["schtasks"]}},
+    {"nom":"mise à jour par la tâche avec un zip hors du dossier telechargements : refusée, rien installé","entree":{"lancement":"tache","demande":{"Zip":"{tmp}\\victime\\Mindset.zip","Signature":"{tmp}\\victime\\Mindset.zip.sig"},"contexte":{"copier":{"{zip-mindset}":"{tmp}\\victime\\Mindset.zip","{zip-mindset}.sig":"{tmp}\\victime\\Mindset.zip.sig"}}},"attendu":{"reponse":"refus","message":"Fichier refusé","versions":{"{pm}\\Mindset":"1.0.0"},"rien_fait":true,"actions_permises":["ACTION lancement schtasks /Run /TN \\Mindset\\Mindset (démarrage)"]}},
+    {"nom":"mise à jour vers un dossier hors de Program Files\\Mindset : « Dossier refusé », rien installé, seul l'ancien Mindset relancé","entree":{"lancement":"tache","demande":{"Destination":"{tmp}\\victime\\Mindset"}},"attendu":{"reponse":"refus","message":"Dossier refusé","rien_fait":true,"actions_permises":["ACTION lancement schtasks /Run /TN \\Mindset\\Mindset (démarrage)"]}},
+    {"nom":"mise à jour vers un dossier Program Files\\Mindset lui-même : « Dossier refusé », rien installé, seul l'ancien Mindset relancé","entree":{"lancement":"tache","demande":{"Destination":"{pm}"}},"attendu":{"reponse":"refus","message":"Dossier refusé","rien_fait":true,"actions_permises":["ACTION lancement schtasks /Run /TN \\Mindset\\Mindset (démarrage)"]}},
+    {"nom":"mise à jour vers un dossier qui ne s'appelle pas Mindset (une appli) : « Dossier refusé », rien installé, seul l'ancien Mindset relancé","entree":{"lancement":"tache","demande":{"Destination":"{pm}\\Appli"}},"attendu":{"reponse":"refus","message":"Dossier refusé","rien_fait":true,"actions_permises":["ACTION lancement schtasks /Run /TN \\Mindset\\Mindset (démarrage)"]}},
+    {"nom":"mise à jour à la signature fausse : refusée, rien installé, aucune tâche, aucune clé","entree":{"lancement":"tache","demande":{"Signature":"{sig-fausse}"}},"attendu":{"reponse":"refus","message":"signature","rien_fait":true,"actions_permises":["ACTION lancement schtasks /Run /TN \\Mindset\\Mindset (démarrage)"]}}
+  ]
+}

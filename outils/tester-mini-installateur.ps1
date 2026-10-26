@@ -109,7 +109,6 @@ function Get-XmlTache([string]$Compte, [string]$Arguments) {
     "<?xml version=""1.0"" encoding=""UTF-16""?>`n<Task xmlns=""http://schemas.microsoft.com/windows/2004/02/mit/task""><Principals><Principal id=""Author""><UserId>$Compte</UserId></Principal></Principals><Actions Context=""Author""><Exec><Command>powershell.exe</Command><Arguments>$([Security.SecurityElement]::Escape($Arguments))</Arguments></Exec></Actions></Task>"
 }
 $xmlSysteme = Get-XmlTache 'S-1-5-18' "-NoProfile -File `"C:\Program Files\Mindset\Mindset\fichiers\installer-admin.ps1`" -Action demande -Sid $moi -Demande `"$FichierDemande`""
-$xmlAutre = Get-XmlTache 'S-1-5-18' "-NoProfile -File `"x`" -Action demande -Sid S-1-5-21-1111111111-2222222222-3333333333-1001 -Demande `"y`""
 $xmlAncienne = Get-XmlTache $moi "-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File `"x`" -Action demande -Demande `"$FichierDemande`""
 
 # Faux registre (HKLM:\SOFTWARE\Mindset\Installation) : Recu et Resultat
@@ -170,6 +169,25 @@ function Set-Recu { $c = [IO.File]::ReadAllText($FichierDemande) | ConvertFrom-J
 function Set-Reponse([string]$Id, [bool]$Ok, [string]$Message) { $script:Registre['Resultat'] = (@{ id = $Id; ok = $Ok; message = $Message } | ConvertTo-Json -Compress) }
 $appli = @{ Zip = (Join-Path $TelechargementsDir 'a.zip'); Signature = (Join-Path $TelechargementsDir 'a.zip.sig'); Destination = 'C:\Program Files\Mindset\Appli'; DossierZip = 'Appli'; Exe = 'Appli.exe' }
 
+# Le corpus de cas, côté Mindset (cas\installateur\cote-mindset-*.json, format décrit dans cas\LISEZMOI.md) : les mêmes cas
+# serviront à Mindset en Rust. Le nombre de cas attendu au moins dans chaque fichier : un cas retiré fait échouer le test.
+$dossierCas = Join-Path $racine 'cas\installateur'
+$minimumCas = [ordered]@{ 'cote-mindset-tache.json' = 4; 'cote-mindset-variables.json' = 9; 'cote-mindset-taches-anciennes.json' = 4; 'cote-mindset-arguments.json' = 3 }
+$valeursCas = @{ '{sid}' = $moi; '{sid-autre}' = 'S-1-5-21-1111111111-2222222222-3333333333-1001'; '{demande}' = $FichierDemande }
+function Expand-Texte([string]$T) {
+    foreach ($k in $valeursCas.Keys) { $T = $T.Replace($k, $valeursCas[$k]) }
+    if ($T -match '\{[a-z][a-z-]*\}') { throw "Valeur inconnue dans le corpus : $($Matches[0])" }
+    $T
+}
+# Les cas d'un fichier (et un cas de plus : le fichier est au format 1, avec assez de cas, et ses attendus sont connus)
+function Read-Corpus([string]$Nom, [string[]]$Attendus) {
+    $corpus = [IO.File]::ReadAllText((Join-Path $dossierCas $Nom), [Text.Encoding]::UTF8) | ConvertFrom-Json
+    $n = @($corpus.cas).Count
+    $inconnus = @(@($corpus.cas) | ForEach-Object { $_.attendu.PSObject.Properties.Name } | Where-Object { $_ -notin $Attendus })
+    Test-Cas "$Nom : format 1, au moins $($minimumCas[$Nom]) cas (trouvés : $n), attendus connus" { $corpus.format -eq 1 -and $n -ge $minimumCas[$Nom] -and -not $inconnus.Count }
+    @($corpus.cas)
+}
+
 try {
     Write-Host 'Mindset : tests face au mini-installateur (tâche SYSTEM)' -ForegroundColor Cyan
     if ($script:Manquantes.Count) { Write-Host "Fonctions absentes : $($script:Manquantes -join ', ')" -ForegroundColor Yellow }
@@ -177,10 +195,15 @@ try {
     # =============================================================================================================
     Write-Partie 'Quelle tâche est utilisée'
     # =============================================================================================================
-    Test-Cas 'la tâche SYSTEM inscrite pour cet utilisateur : utilisée' { Reset-Pc $xmlSysteme; (Get-EtatTacheInstallation) -eq 'systeme' -and (Test-TacheInstallation) }
-    Test-Cas 'la tâche SYSTEM d''un autre compte du PC : pas utilisée' { Reset-Pc $xmlAutre; (Get-EtatTacheInstallation) -eq '' -and -not (Test-TacheInstallation) }
-    Test-Cas 'l''ancienne tâche (droits les plus élevés, sous mon compte) : reconnue, mais pas utilisée pour installer' { Reset-Pc $xmlAncienne; (Get-EtatTacheInstallation) -eq 'ancienne' -and -not (Test-TacheInstallation) }
-    Test-Cas 'tâche absente ou illisible : pas utilisée' { Reset-Pc $null; (Get-EtatTacheInstallation) -eq '' -and -not (Test-TacheInstallation) }
+    $lus = @(Get-ChildItem -LiteralPath $dossierCas -Filter 'cote-mindset-*.json' -File | ForEach-Object { $_.Name })
+    Test-Cas "chaque fichier cas\installateur\cote-mindset-*.json est lu par ce test ($($lus.Count) fichiers)" { -not @($lus | Where-Object { -not $minimumCas.Contains($_) }).Count -and $lus.Count -eq $minimumCas.Count }
+    foreach ($cas in (Read-Corpus 'cote-mindset-tache.json' 'etat', 'utilisee')) {
+        $c = $cas
+        Test-Cas ([string]$c.nom) {
+            Reset-Pc $(if ($c.entree.absente) { $null } else { Get-XmlTache (Expand-Texte $c.entree.compte) (Expand-Texte $c.entree.arguments) })
+            (Get-EtatTacheInstallation) -eq [string]$c.attendu.etat -and [bool](Test-TacheInstallation) -eq [bool]$c.attendu.utilisee
+        }
+    }
 
     # =============================================================================================================
     Write-Partie 'Par la tâche SYSTEM, et la demande de Windows si elle ne marche pas (condition de l''auditeur)'
@@ -260,26 +283,19 @@ try {
     # =============================================================================================================
     Write-Partie 'Demande de Windows et variables lues par .NET avant le script (audit du 25/10, constat 15)'
     # =============================================================================================================
-    Test-Cas 'sans variable dangereuse : la demande de Windows lance powershell.exe de System32 (demandé à Windows)' {
-        Reset-Pc $null
-        $script:VariablesCompte = @('Path', 'TEMP', 'DOTNET_TieredCompilation', 'DOTNET_ROOT', 'DOTNET_CLI_TELEMETRY_OPTOUT', 'DOTNET_STARTUP_HOOKS_X')   # (réglages du .NET récent, pas lus par Windows PowerShell 5.1 : DOTNET_TieredCompilation=0 est sur le PC de Jordan)
-        Invoke-Admin 'appli' $appli $fin
-        $script:RunAs.Count -eq 1 -and $script:RunAsExe[0] -eq (Join-Path ([Environment]::GetFolderPath('System')) 'WindowsPowerShell\v1.0\powershell.exe')
-    }
-    foreach ($v in 'COR_ENABLE_PROFILING', 'cor_profiler_path', 'COMPlus_EnableDiagnostics', 'CORECLR_PROFILER_PATH', 'DOTNET_STARTUP_HOOKS', 'DOTNET_ADDITIONAL_DEPS', 'DOTNET_SHARED_STORE') {
-        $variable = $v
-        Test-Cas "variable $variable dans les variables du compte (HKCU\Environment) : pas de demande de Windows, l'opération échoue avec un message simple" {
+    # (sans variable dangereuse : la demande de Windows, avec powershell.exe de System32 demandé à Windows ; sinon aucune,
+    # et l'opération échoue avec un message simple qui nomme la variable)
+    foreach ($cas in (Read-Corpus 'cote-mindset-variables.json' 'demande_windows', 'message')) {
+        $c = $cas
+        Test-Cas ([string]$c.nom) {
             Reset-Pc $null
-            $script:VariablesCompte = @('Path', $variable)
-            Invoke-Admin 'appli' $appli $fin
-            -not $script:RunAs.Count -and $script:Fins.Count -eq 1 -and $script:Fins[0] -like "False|*réglage inhabituel*$variable*"
+            $script:VariablesCompte = @($c.entree.variables_compte | ForEach-Object { Expand-Texte $_ })
+            $poses = @($c.entree.variables_processus | Where-Object { $_ })
+            foreach ($n in $poses) { Set-Item -LiteralPath "env:$n" -Value '1' }
+            try { Invoke-Admin 'appli' $appli $fin } finally { foreach ($n in $poses) { Remove-Item -LiteralPath "env:$n" -ErrorAction SilentlyContinue } }
+            if ($c.attendu.demande_windows) { $script:RunAs.Count -eq 1 -and $script:RunAsExe[0] -eq $PowerShellWindows }
+            else { -not $script:RunAs.Count -and $script:Fins.Count -eq 1 -and $script:Fins[0] -like 'False|*' -and -not @($c.attendu.message | Where-Object { $script:Fins[0] -notlike "*$_*" }).Count }
         }
-    }
-    Test-Cas 'variable COMPlus_* dans Mindset lui-même (processus) : pas de demande de Windows' {
-        Reset-Pc $null
-        $env:COMPlus_MindsetTemoin = '1'
-        try { Invoke-Admin 'appli' $appli $fin } finally { Remove-Item -LiteralPath 'env:COMPlus_MindsetTemoin' -ErrorAction SilentlyContinue }
-        -not $script:RunAs.Count -and $script:Fins.Count -eq 1 -and $script:Fins[0] -like 'False|*COMPlus_MindsetTemoin*'
     }
     Test-Cas 'mise à jour de Mindset par la demande de Windows, variable COR_ENABLE_PROFILING : rien lancé, Mindset reste ouvert, message' {
         Reset-Pc $null
@@ -298,14 +314,13 @@ try {
     # =============================================================================================================
     Write-Partie 'Tâches d''avant laissées par une mise à jour directe depuis Mindset 2.11.0 (audit du 25/10, constats 11 et 25e)'
     # =============================================================================================================
-    $xmlAideCompte = Get-XmlTache $moi '-Sid x'
-    $xmlAideSysteme = Get-XmlTache 'S-1-5-18' "-Sid $moi"
-    Test-Cas 'partie administrateur d''une appli encore sous mon compte : vue au démarrage' { Reset-Pc $xmlSysteme; $script:AutresTaches['\Mindset\Nevermind (aide)'] = $xmlAideCompte; Test-TachesAnciennes }
-    Test-Cas 'très vieille tâche « \Mindset\Mindset » encore là : vue au démarrage' { Reset-Pc $xmlSysteme; $script:AutresTaches['\Mindset\Mindset'] = $xmlAideCompte; Test-TachesAnciennes }
-    Test-Cas 'partie administrateur déjà en SYSTEM, ou absente : rien à refaire' {
-        Reset-Pc $xmlSysteme; $a = Test-TachesAnciennes
-        $script:AutresTaches['\Mindset\Nevermind (aide)'] = $xmlAideSysteme; $b = Test-TachesAnciennes
-        -not $a -and -not $b
+    foreach ($cas in (Read-Corpus 'cote-mindset-taches-anciennes.json' 'anciennes')) {
+        $c = $cas
+        Test-Cas ([string]$c.nom) {
+            Reset-Pc $xmlSysteme
+            foreach ($p in @($c.entree.taches.PSObject.Properties)) { $script:AutresTaches[$p.Name] = Get-XmlTache (Expand-Texte $p.Value.compte) (Expand-Texte $p.Value.arguments) }
+            [bool](Test-TachesAnciennes) -eq [bool]$c.attendu.anciennes
+        }
     }
     Test-Cas 'refaites par la tâche SYSTEM : une demande « taches » pour ce Mindset, sans demande de Windows (même si la tâche ne répond pas)' {
         Reset-Pc $xmlSysteme
@@ -401,22 +416,27 @@ try {
     # =============================================================================================================
     Write-Partie 'Ligne de commande de la demande de Windows (revue du 25/10, constat 19)'
     # =============================================================================================================
-    Test-Cas 'un dossier qui finit par \ (E:\) : les arguments suivants restent à leur place' {
-        $a = @('-Source', (Format-ArgumentAdmin 'E:\'), '-Version', '2.9.0', '-Sid', $moi)
-        $exe = Join-Path $tmp 'args.exe'
-        if (-not (Test-Path -LiteralPath $exe)) { Add-Type -OutputType ConsoleApplication -OutputAssembly $exe -TypeDefinition 'public static class A { public static void Main(string[] a) { System.Console.WriteLine(string.Join("|", a)); } }' }
-        # (Start-Process joint la liste par des espaces, et Windows la redécoupe : la même chose ici)
-        $psi = New-Object Diagnostics.ProcessStartInfo $exe, ($a -join ' ')
-        $psi.UseShellExecute = $false; $psi.RedirectStandardOutput = $true; $psi.CreateNoWindow = $true
-        $p = [Diagnostics.Process]::Start($psi); $vu = $p.StandardOutput.ReadToEnd().Trim(); $p.WaitForExit()
-        $vu -eq "-Source|E:\|-Version|2.9.0|-Sid|$moi"
-    }
-    Test-Cas 'un chemin avec une apostrophe typographique et un $ : gardé tel quel' {
-        $c = "D:\Jeux d$($apo)Arthur\`$(x)"
-        (Format-ArgumentAdmin $c) -eq "`"$c`""
-    }
-    Test-Cas 'une valeur avec un guillemet : refusée' {
-        $refus = $false; try { $null = Format-ArgumentAdmin 'a" -Action supprimer' } catch { $refus = $true }; $refus
+    $exeArgs = Join-Path $tmp 'args.exe'
+    foreach ($cas in (Read-Corpus 'cote-mindset-arguments.json' 'texte', 'refuse', 'relu')) {
+        $c = $cas
+        Test-Cas ([string]$c.nom) {
+            $val = Expand-Texte $c.entree.valeur
+            if ($c.attendu.refuse) { $refus = $false; try { $null = Format-ArgumentAdmin $val } catch { $refus = $true }; return $refus }
+            $f = Format-ArgumentAdmin $val
+            $ok = $true
+            if ($null -ne $c.attendu.texte) { $ok = $ok -and $f -eq (Expand-Texte $c.attendu.texte) }
+            if ($c.attendu.relu) {
+                if (-not (Test-Path -LiteralPath $exeArgs)) {
+                    Add-Type -OutputType ConsoleApplication -OutputAssembly $exeArgs -TypeDefinition 'public static class A { public static void Main(string[] a) { System.Console.OutputEncoding = new System.Text.UTF8Encoding(false); System.Console.WriteLine(string.Join("|", a)); } }'
+                }
+                # (Start-Process joint la liste par des espaces, et Windows la redécoupe : la même chose ici)
+                $psi = New-Object Diagnostics.ProcessStartInfo $exeArgs, ((@('-Source', $f, '-Version', '2.9.0', '-Sid', $moi)) -join ' ')
+                $psi.UseShellExecute = $false; $psi.RedirectStandardOutput = $true; $psi.CreateNoWindow = $true; $psi.StandardOutputEncoding = New-Object Text.UTF8Encoding $false
+                $p = [Diagnostics.Process]::Start($psi); $vu = $p.StandardOutput.ReadToEnd().Trim(); $p.WaitForExit()
+                $ok = $ok -and $vu -eq "-Source|$val|-Version|2.9.0|-Sid|$moi"
+            }
+            $ok
+        }
     }
 
     # =============================================================================================================

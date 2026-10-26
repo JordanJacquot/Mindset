@@ -1,0 +1,18 @@
+{
+  "format": 1,
+  "sujet": "Côté Mindset : après une mise à jour directe depuis Mindset 2.11.0 ou avant, les tâches d'avant (partie administrateur sous le compte, très vieille « \\Mindset\\Mindset ») sont vues au démarrage (audit du 25/10, constats 11 et 25e)",
+  "regle": "modules\\installations.ps1 : Test-TachesAnciennes (lit par schtasks les tâches « \\Mindset\\<aide> » des applis de apps.json qui en ont une, et « \\Mindset\\Mindset »)",
+  "attendu": "anciennes : vrai si une tâche d'avant est là (Mindset demande alors « taches » à la tâche SYSTEM)",
+  "valeurs": {
+    "{sid}": "l'utilisateur qui fait tourner Mindset"
+  },
+  "champs": {
+    "entree.taches": "les tâches du faux PC, autres que celle d'installation (toujours la tâche SYSTEM ici) : nom complet -> compte et arguments ; les applis de test sont nevermind (partie administrateur « Nevermind (aide) ») et evermind (sans)"
+  },
+  "cas": [
+    {"nom":"partie administrateur d'une appli encore sous mon compte : vue au démarrage","entree":{"taches":{"\\Mindset\\Nevermind (aide)":{"compte":"{sid}","arguments":"-Sid x"}}},"attendu":{"anciennes":true}},
+    {"nom":"très vieille tâche « \\Mindset\\Mindset » encore là : vue au démarrage","entree":{"taches":{"\\Mindset\\Mindset":{"compte":"{sid}","arguments":"-Sid x"}}},"attendu":{"anciennes":true}},
+    {"nom":"partie administrateur absente : rien à refaire","entree":{"taches":{}},"attendu":{"anciennes":false}},
+    {"nom":"partie administrateur déjà en SYSTEM : rien à refaire","entree":{"taches":{"\\Mindset\\Nevermind (aide)":{"compte":"S-1-5-18","arguments":"-Sid {sid}"}}},"attendu":{"anciennes":false}}
+  ]
+}

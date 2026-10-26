@@ -1,0 +1,34 @@
+{
+  "format": 1,
+  "sujet": "Installer Mindset (Action mindset, lancement direct seulement : la demande de Windows de l'installation complète)",
+  "regle": "installer-admin.ps1 -Action mindset -Source <dossier> -Version <version> [-Disque <lettre>] -Sid <utilisateur>",
+  "attendu": "voir cas\\LISEZMOI.md",
+  "valeurs": {
+    "{tmp}": "le dossier du faux PC",
+    "{pm}": "Program Files\\Mindset du faux PC",
+    "{x}": "la lettre du faux disque fixe NTFS",
+    "{xa}": "la lettre du faux disque amovible (FAT32)",
+    "{src-ok}": "un dossier source de Mindset complet (Mindset.exe, fichiers\\Mindset.ps1 en 3.0.0, LISEZMOI.txt)",
+    "{src-sans-exe}": "un dossier source sans Mindset.exe",
+    "{src-sans-script}": "un dossier source sans fichiers\\Mindset.ps1",
+    "{sid}": "l'utilisateur du test"
+  },
+  "cas": [
+    {"nom":"Mindset valable accepté dans Program Files : copié, inscrit dans « Applications installées », tâches créées","entree":{"lancement":"direct","demande":{"Action":"mindset","Source":"{src-ok}","Version":"3.0.0","Sid":"{sid}"}},"attendu":{"reponse":"ok","message_exact":"{pm}\\Mindset","versions":{"{pm}\\Mindset":"3.0.0"},"existe":["{pm}\\Mindset\\LISEZMOI.txt"],"actions":["Uninstall\\Mindset\\DisplayVersion = 3.0.0"],"taches_creees":["Mindset (installation)","Mindset (démarrage)"]}},
+    {"nom":"Mindset valable accepté sur un autre disque (X:\\Mindset protégé, puis Programmes\\Mindset)","entree":{"lancement":"direct","demande":{"Action":"mindset","Source":"{src-ok}","Version":"3.0.0","Disque":"{x}","Sid":"{sid}"}},"attendu":{"reponse":"ok","message_exact":"{x}:\\Mindset\\Programmes\\Mindset","versions":{"{tmp}\\disque\\Mindset\\Programmes\\Mindset":"3.0.0"},"actions":["droits posés sur {x}:\\Mindset"],"taches_creees":["Mindset (installation)"]}},
+    {"nom":"disque « QQ » : refusé dès les paramètres, rien fait, aucune réponse","entree":{"lancement":"direct","demande":{"Action":"mindset","Source":"{src-ok}","Disque":"QQ","Sid":"{sid}"}},"attendu":{"reponse":"aucune","erreur":true,"rien_fait":true}},
+    {"nom":"disque « 1 » : refusé dès les paramètres, rien fait, aucune réponse","entree":{"lancement":"direct","demande":{"Action":"mindset","Source":"{src-ok}","Disque":"1","Sid":"{sid}"}},"attendu":{"reponse":"aucune","erreur":true,"rien_fait":true}},
+    {"nom":"disque « X: » (avec les deux points) : refusé dès les paramètres, rien fait, aucune réponse","entree":{"lancement":"direct","demande":{"Action":"mindset","Source":"{src-ok}","Disque":"{x}:","Sid":"{sid}"}},"attendu":{"reponse":"aucune","erreur":true,"rien_fait":true}},
+    {"nom":"disque « \\ » : refusé dès les paramètres, rien fait, aucune réponse","entree":{"lancement":"direct","demande":{"Action":"mindset","Source":"{src-ok}","Disque":"\\","Sid":"{sid}"}},"attendu":{"reponse":"aucune","erreur":true,"rien_fait":true}},
+    {"nom":"action inconnue en lancement direct : refusée dès les paramètres, rien fait","entree":{"lancement":"direct","demande":{"Action":"formater","Destination":"{pm}\\Appli"}},"attendu":{"reponse":"aucune","erreur":true,"rien_fait":true}},
+    {"nom":"disque amovible : refusé (disque fixe NTFS), X:\\Mindset pas créé","entree":{"lancement":"direct","demande":{"Action":"mindset","Source":"{src-ok}","Disque":"{xa}","Sid":"{sid}"}},"attendu":{"reponse":"refus","message":"disque fixe NTFS","rien_fait":true}},
+    {"nom":"autre disque, utilisateur « S-1-5-32-545 » : « Utilisateur inconnu. », X:\\Mindset pas créé, aucun droit posé","entree":{"lancement":"direct","demande":{"Action":"mindset","Source":"{src-ok}","Disque":"{x}","Sid":"S-1-5-32-545"}},"attendu":{"reponse":"refus","message":"Utilisateur inconnu.","rien_fait":true}},
+    {"nom":"autre disque, utilisateur « S-1-5-18 » : « Utilisateur inconnu. », X:\\Mindset pas créé, aucun droit posé","entree":{"lancement":"direct","demande":{"Action":"mindset","Source":"{src-ok}","Disque":"{x}","Sid":"S-1-5-18"}},"attendu":{"reponse":"refus","message":"Utilisateur inconnu.","rien_fait":true}},
+    {"nom":"autre disque, utilisateur « S-1-5-21-1-2-3 » : « Utilisateur inconnu. », X:\\Mindset pas créé, aucun droit posé","entree":{"lancement":"direct","demande":{"Action":"mindset","Source":"{src-ok}","Disque":"{x}","Sid":"S-1-5-21-1-2-3"}},"attendu":{"reponse":"refus","message":"Utilisateur inconnu.","rien_fait":true}},
+    {"nom":"autre disque, utilisateur « » (vide) : « Utilisateur inconnu. », X:\\Mindset pas créé, aucun droit posé","entree":{"lancement":"direct","demande":{"Action":"mindset","Source":"{src-ok}","Disque":"{x}","Sid":""}},"attendu":{"reponse":"refus","message":"Utilisateur inconnu.","rien_fait":true}},
+    {"nom":"Program Files, utilisateur invalide : Mindset installé « sans-taches », aucune tâche créée","entree":{"lancement":"direct","demande":{"Action":"mindset","Source":"{src-ok}","Version":"3.0.0","Sid":"S-1-5-32-544"}},"attendu":{"reponse":"ok","message":["sans-taches","Utilisateur inconnu."],"sans_tache":true}},
+    {"nom":"dossier source sans Mindset.exe : « ne contient pas Mindset », rien fait","entree":{"lancement":"direct","demande":{"Action":"mindset","Source":"{src-sans-exe}","Sid":"{sid}"}},"attendu":{"reponse":"refus","message":"ne contient pas Mindset","rien_fait":true}},
+    {"nom":"dossier source sans fichiers\\Mindset.ps1 : « ne contient pas Mindset », rien fait","entree":{"lancement":"direct","demande":{"Action":"mindset","Source":"{src-sans-script}","Sid":"{sid}"}},"attendu":{"reponse":"refus","message":"ne contient pas Mindset","rien_fait":true}},
+    {"nom":"dossier source absent : « ne contient pas Mindset », rien fait","entree":{"lancement":"direct","demande":{"Action":"mindset","Source":"{tmp}\\sources\\Absent","Sid":"{sid}"}},"attendu":{"reponse":"refus","message":"ne contient pas Mindset","rien_fait":true}}
+  ]
+}

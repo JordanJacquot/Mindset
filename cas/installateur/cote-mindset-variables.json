@@ -1,0 +1,21 @@
+{
+  "format": 1,
+  "sujet": "Côté Mindset : pas de demande de Windows si une variable lue par .NET avant le script (COR_*, COMPlus_*, CORECLR_*, DOTNET_STARTUP_HOOKS...) est posée dans le compte ou dans Mindset (audit du 25/10, constat 15)",
+  "regle": "modules\\installations.ps1 : Get-RefusVariablesAdmin, appelée par Invoke-AdminDirect avant la demande de Windows (le même motif que $AideVariablesDangereuses de Nevermind)",
+  "attendu": "demande_windows : vrai si la demande de Windows est lancée (alors avec powershell.exe de System32, demandé à Windows) ; message : textes présents dans le message d'échec montré à l'utilisateur",
+  "champs": {
+    "entree.variables_compte": "les noms des variables du compte (HKCU\\Environment), faux ici",
+    "entree.variables_processus": "des variables posées dans Mindset lui-même pendant le cas"
+  },
+  "cas": [
+    {"nom":"sans variable dangereuse (Path, TEMP, réglages du .NET récent que Windows PowerShell 5.1 ne lit pas) : la demande de Windows lance powershell.exe de System32","entree":{"variables_compte":["Path","TEMP","DOTNET_TieredCompilation","DOTNET_ROOT","DOTNET_CLI_TELEMETRY_OPTOUT","DOTNET_STARTUP_HOOKS_X"]},"attendu":{"demande_windows":true}},
+    {"nom":"variable COR_ENABLE_PROFILING dans les variables du compte : pas de demande de Windows, message simple","entree":{"variables_compte":["Path","COR_ENABLE_PROFILING"]},"attendu":{"demande_windows":false,"message":["réglage inhabituel","COR_ENABLE_PROFILING"]}},
+    {"nom":"variable cor_profiler_path (en minuscules) dans les variables du compte : pas de demande de Windows, message simple","entree":{"variables_compte":["Path","cor_profiler_path"]},"attendu":{"demande_windows":false,"message":["réglage inhabituel","cor_profiler_path"]}},
+    {"nom":"variable COMPlus_EnableDiagnostics dans les variables du compte : pas de demande de Windows, message simple","entree":{"variables_compte":["Path","COMPlus_EnableDiagnostics"]},"attendu":{"demande_windows":false,"message":["réglage inhabituel","COMPlus_EnableDiagnostics"]}},
+    {"nom":"variable CORECLR_PROFILER_PATH dans les variables du compte : pas de demande de Windows, message simple","entree":{"variables_compte":["Path","CORECLR_PROFILER_PATH"]},"attendu":{"demande_windows":false,"message":["réglage inhabituel","CORECLR_PROFILER_PATH"]}},
+    {"nom":"variable DOTNET_STARTUP_HOOKS dans les variables du compte : pas de demande de Windows, message simple","entree":{"variables_compte":["Path","DOTNET_STARTUP_HOOKS"]},"attendu":{"demande_windows":false,"message":["réglage inhabituel","DOTNET_STARTUP_HOOKS"]}},
+    {"nom":"variable DOTNET_ADDITIONAL_DEPS dans les variables du compte : pas de demande de Windows, message simple","entree":{"variables_compte":["Path","DOTNET_ADDITIONAL_DEPS"]},"attendu":{"demande_windows":false,"message":["réglage inhabituel","DOTNET_ADDITIONAL_DEPS"]}},
+    {"nom":"variable DOTNET_SHARED_STORE dans les variables du compte : pas de demande de Windows, message simple","entree":{"variables_compte":["Path","DOTNET_SHARED_STORE"]},"attendu":{"demande_windows":false,"message":["réglage inhabituel","DOTNET_SHARED_STORE"]}},
+    {"nom":"variable COMPlus_* dans Mindset lui-même (processus) : pas de demande de Windows","entree":{"variables_compte":[],"variables_processus":["COMPlus_MindsetTemoin"]},"attendu":{"demande_windows":false,"message":["COMPlus_MindsetTemoin"]}}
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "format": 1,
+  "sujet": "Programmes fermés avant d'installer ou de supprimer : par leur chemin (le dossier de l'appli), jamais par leur nom, et seulement ceux de l'utilisateur",
+  "regle": "installer-admin.ps1 -Action appli ou supprimer : arrêt des programmes ouverts dont le chemin est dans le dossier de l'appli",
+  "attendu": "voir cas\\LISEZMOI.md",
+  "valeurs": {
+    "{pm}": "Program Files\\Mindset du faux PC, où tournent de faux programmes : Mindset\\Mindset.exe (Mindset), Appli\\Mindset.exe (l'hôte de l'appli), Appli\\Appli.exe, Appli\\Aide.exe, AppliBis\\Appli.exe ; d'autres tournent dans {tmp}\\ailleurs, un a un chemin illisible ; Appli\\Mindset.exe et Appli\\Appli.exe tournent aussi sous un autre compte (sessions 98 et 99)",
+    "{zip-appli}": "le zip signé de l'appli de test (2.0.0)",
+    "{sig-fausse}": "une signature juste, mais d'un autre fichier",
+    "{id}": "un numéro de demande neuf"
+  },
+  "cas": [
+    {"nom":"installation : seuls l'hôte Mindset.exe, Appli.exe et l'aide du dossier de l'appli sont fermés","entree":{"lancement":"tache","demande":{"Action":"appli","Appli":"appli","Zip":"{zip-appli}","Signature":"{zip-appli}.sig","Destination":"{pm}\\Appli","DossierZip":"Appli","Exe":"Appli.exe","TacheAide":"Appli (aide)","ExeAide":"Aide.exe"}},"attendu":{"reponse":"ok","arrets":["{pm}\\Appli\\Mindset.exe","{pm}\\Appli\\Appli.exe","{pm}\\Appli\\Aide.exe"]}},
+    {"nom":"installation : ni Mindset, ni l'appli au nom proche (AppliBis), ni les copies ailleurs, ni un programme au chemin illisible","entree":{"lancement":"tache","demande":{"Action":"appli","Appli":"appli","Zip":"{zip-appli}","Signature":"{zip-appli}.sig","Destination":"{pm}\\Appli","DossierZip":"Appli","Exe":"Appli.exe"}},"attendu":{"reponse":"ok","nb_arrets":3,"arrets_absents":["\\Mindset\\Mindset\\","AppliBis","ailleurs"]}},
+    {"nom":"suppression d'une appli : seuls les programmes de son dossier sont fermés","entree":{"lancement":"tache","demande":{"Action":"supprimer","Destination":"{pm}\\Appli","Exe":"Appli.exe"}},"attendu":{"reponse":"ok","arrets":["{pm}\\Appli\\Mindset.exe","{pm}\\Appli\\Appli.exe","{pm}\\Appli\\Aide.exe"]}},
+    {"nom":"demande refusée (signature fausse) : aucun programme fermé","entree":{"lancement":"tache","demande":{"Action":"appli","Appli":"appli","Zip":"{zip-appli}","Signature":"{sig-fausse}","Destination":"{pm}\\Appli","DossierZip":"Appli","Exe":"Appli.exe"}},"attendu":{"reponse":"refus","message":"signature","nb_arrets":0}},
+    {"nom":"par la tâche : le programme d'un autre compte qui utilise la même copie n'est pas fermé","entree":{"lancement":"tache","demande":{"Action":"appli","Appli":"appli","Zip":"{zip-appli}","Signature":"{zip-appli}.sig","Destination":"{pm}\\Appli","DossierZip":"Appli","Exe":"Appli.exe"}},"attendu":{"reponse":"ok","nb_arrets":3}},
+    {"nom":"en lancement direct sans utilisateur : seulement ceux de la session (pas celui de la session 99)","entree":{"lancement":"direct","demande":{"Action":"supprimer","Destination":"{pm}\\Appli","Exe":"Appli.exe"}},"attendu":{"reponse":"ok","nb_arrets":3}}
+  ]
+}

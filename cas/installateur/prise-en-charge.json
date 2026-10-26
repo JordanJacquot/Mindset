@@ -1,0 +1,29 @@
+{
+  "format": 1,
+  "sujet": "Prise en charge d'une ancienne copie de l'appli (AncienExe) : seules les tâches de l'utilisateur qui la lançaient sont réécrites (revue du 25/10, constat 3)",
+  "regle": "installer-admin.ps1 -Action appli ... -AncienExe <programme de l'ancienne copie>",
+  "attendu": "voir cas\\LISEZMOI.md",
+  "valeurs": {
+    "{tmp}": "le dossier du faux PC",
+    "{pm}": "Program Files\\Mindset du faux PC",
+    "{zip-appli}": "le zip signé de l'appli de test (2.0.0)",
+    "{ancienne}": "le programme de l'ancienne copie ({tmp}\\ancienne\\Appli.exe), lancé par six tâches du faux PC : celle de l'utilisateur (\\Appli (démarrage), avec une seconde action C:\\Autre\\Autre.exe), une du système (Antivirus), une de Windows (\\Microsoft\\...), une de Mindset (\\Mindset\\Mindset (aide)), une d'un autre compte et une d'un groupe",
+    "{id}": "un numéro de demande neuf"
+  },
+  "base": {
+    "demande": {"Action":"appli","Appli":"appli","Zip":"{zip-appli}","Signature":"{zip-appli}.sig","Destination":"{pm}\\Appli","DossierZip":"Appli","Exe":"Appli.exe","AncienExe":"{ancienne}"},
+    "contexte": {"fichiers":{"{ancienne}":"appli 0.9"}}
+  },
+  "fusion": "la demande et le contexte de chaque cas partent de la base ; leurs propres champs remplacent ceux de la base, un champ à null est retiré",
+  "cas": [
+    {"nom":"ancienne copie valable : seule la tâche de l'utilisateur est réécrite, ses deux actions gardées","entree":{"lancement":"tache","demande":{}},"attendu":{"reponse":"ok","taches_modifiees":["ACTION tâche modifiée : \\Appli (démarrage) -> \"{pm}\\Appli\\Appli.exe\" | C:\\Autre\\Autre.exe"]}},
+    {"nom":"ni la tâche SYSTEM, ni celle de Windows (\\Microsoft\\), ni celle de Mindset, ni celle d'un autre compte ou d'un groupe","entree":{"lancement":"tache","demande":{}},"attendu":{"reponse":"ok","actions_absentes_motif":["^ACTION tâche modifiée : ((?! -> ).)*(Antivirus|\\\\Microsoft\\\\|\\\\Mindset\\\\|Autre compte|Groupe)"]}},
+    {"nom":"ancienne copie refusée (un autre programme (explorer.exe)) : « Ancienne copie refusée. », rien installé, aucune tâche modifiée","entree":{"lancement":"tache","demande":{"AncienExe":"C:\\Windows\\explorer.exe"}},"attendu":{"reponse":"refus","message":"Ancienne copie refusée.","rien_fait":true}},
+    {"nom":"ancienne copie refusée (le programme d'un antivirus) : « Ancienne copie refusée. », rien installé, aucune tâche modifiée","entree":{"lancement":"tache","demande":{"AncienExe":"C:\\Program Files\\Antivirus\\Appli.exe.bak"}},"attendu":{"reponse":"refus","message":"Ancienne copie refusée.","rien_fait":true}},
+    {"nom":"ancienne copie refusée (un chemin relatif) : « Ancienne copie refusée. », rien installé, aucune tâche modifiée","entree":{"lancement":"tache","demande":{"AncienExe":"Appli.exe"}},"attendu":{"reponse":"refus","message":"Ancienne copie refusée.","rien_fait":true}},
+    {"nom":"ancienne copie refusée (un chemin qui remonte) : « Ancienne copie refusée. », rien installé, aucune tâche modifiée","entree":{"lancement":"tache","demande":{"AncienExe":"{tmp}\\ancienne\\..\\ancienne\\Appli.exe"}},"attendu":{"reponse":"refus","message":"Ancienne copie refusée.","rien_fait":true}},
+    {"nom":"ancienne copie refusée (un programme absent) : « Ancienne copie refusée. », rien installé, aucune tâche modifiée","entree":{"lancement":"tache","demande":{"AncienExe":"{tmp}\\absente\\Appli.exe"}},"attendu":{"reponse":"refus","message":"Ancienne copie refusée.","rien_fait":true}},
+    {"nom":"ancienne copie refusée (un chemin réseau) : « Ancienne copie refusée. », rien installé, aucune tâche modifiée","entree":{"lancement":"tache","demande":{"AncienExe":"\\\\serveur\\partage\\Appli.exe"}},"attendu":{"reponse":"refus","message":"Ancienne copie refusée.","rien_fait":true}},
+    {"nom":"lancement direct sans utilisateur : l'appli est installée, aucune tâche modifiée","entree":{"lancement":"direct","demande":{}},"attendu":{"reponse":"ok","taches_modifiees":[]}}
+  ]
+}

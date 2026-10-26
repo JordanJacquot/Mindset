@@ -1,0 +1,25 @@
+{
+  "format": 1,
+  "sujet": "Tâches de Mindset (Action taches) : tâche d'installation SYSTEM et tâche de démarrage, tâches d'aide d'avant refaites en SYSTEM, versions gardées",
+  "regle": "installer-admin.ps1 -Action taches -Destination <dossier de Mindset>",
+  "attendu": "voir cas\\LISEZMOI.md",
+  "valeurs": {
+    "{tmp}": "le dossier du faux PC",
+    "{pm}": "Program Files\\Mindset du faux PC",
+    "{sid}": "l'utilisateur du test",
+    "{id}": "un numéro de demande neuf"
+  },
+  "cas": [
+    {"nom":"tâches en lancement direct, utilisateur valable : acceptées","entree":{"lancement":"direct","demande":{"Action":"taches","Destination":"{pm}\\Mindset","Sid":"{sid}"}},"attendu":{"reponse":"ok","taches_creees":["Mindset (installation)","Mindset (démarrage)"]}},
+    {"nom":"tâches pour un dossier hors de Program Files\\Mindset : « Dossier refusé », aucune tâche","entree":{"lancement":"tache","demande":{"Action":"taches","Destination":"{tmp}\\victime\\Mindset"}},"attendu":{"reponse":"refus","message":"Dossier refusé","rien_fait":true}},
+    {"nom":"tâches pour un dossier trop profond : « Dossier refusé », aucune tâche","entree":{"lancement":"tache","demande":{"Action":"taches","Destination":"{pm}\\Appli\\Mindset"}},"attendu":{"reponse":"refus","message":"Dossier refusé","rien_fait":true}},
+    {"nom":"tâches pour un dossier qui ne s'appelle pas Mindset (une appli) : « Dossier refusé », aucune tâche","entree":{"lancement":"tache","demande":{"Action":"taches","Destination":"{pm}\\Appli"}},"attendu":{"reponse":"refus","message":"Dossier refusé","rien_fait":true}},
+    {"nom":"tâches en lancement direct, utilisateur « S-1-5-32-544 » : « Utilisateur inconnu. », aucune tâche","entree":{"lancement":"direct","demande":{"Action":"taches","Destination":"{pm}\\Mindset","Sid":"S-1-5-32-544"}},"attendu":{"reponse":"refus","message":"Utilisateur inconnu.","rien_fait":true}},
+    {"nom":"tâches en lancement direct, utilisateur « S-1-5-18 » : « Utilisateur inconnu. », aucune tâche","entree":{"lancement":"direct","demande":{"Action":"taches","Destination":"{pm}\\Mindset","Sid":"S-1-5-18"}},"attendu":{"reponse":"refus","message":"Utilisateur inconnu.","rien_fait":true}},
+    {"nom":"tâches en lancement direct, utilisateur « » (vide) : « Utilisateur inconnu. », aucune tâche","entree":{"lancement":"direct","demande":{"Action":"taches","Destination":"{pm}\\Mindset","Sid":""}},"attendu":{"reponse":"refus","message":"Utilisateur inconnu.","rien_fait":true}},
+    {"nom":"tâches de Mindset refaites : l'ancienne tâche d'aide de l'utilisateur passe en SYSTEM pour lui (même programme), les autres ne sont pas touchées","entree":{"lancement":"direct","demande":{"Action":"taches","Destination":"{pm}\\Mindset","Sid":"{sid}"},"contexte":{"aide_ancienne":true,"fichiers":{"{pm}\\Appli\\Aide.exe":"x"}}},"attendu":{"reponse":"ok","taches_creees":["Appli (aide)"],"actions":["-Execute \"{pm}\\Appli\\Aide.exe\""],"actions_absentes_motif":["tâche créée.*-TaskName (Autre|Piege|Deja) \\(aide\\)"]}},
+    {"nom":"contre-épreuve : sans tâche d'aide d'avant, aucune tâche d'aide créée","entree":{"lancement":"direct","demande":{"Action":"taches","Destination":"{pm}\\Mindset","Sid":"{sid}"},"contexte":{"fichiers":{"{pm}\\Appli\\Aide.exe":"x"}}},"attendu":{"reponse":"ok","actions_absentes_motif":["tâche créée.*\\(aide\\)"]}},
+    {"nom":"tâches pour un Mindset sans Mindset.exe : refusé (introuvable), aucune tâche","entree":{"lancement":"tache","demande":{"Action":"taches","Destination":"{pm}\\Mindset"},"contexte":{"retirer":["{pm}\\Mindset\\Mindset.exe"]}},"attendu":{"reponse":"refus","message":"Mindset.exe introuvable","rien_fait":true}},
+    {"nom":"par la tâche, à chaque demande : la version d'une appli déjà installée est gardée (installée avant que Mindset ne les garde)","entree":{"lancement":"tache","demande":{"Action":"taches","Destination":"{pm}\\Mindset"},"contexte":{"version_gardee":null}},"attendu":{"reponse":"ok","actions":["HKLM:\\SOFTWARE\\Mindset\\Versions\\appli = 1.0.0"]}}
+  ]
+}
