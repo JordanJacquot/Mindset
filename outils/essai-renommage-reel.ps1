@@ -80,7 +80,9 @@ function Get-Vue([string]$Fichiers, [string]$D = $Dest) {
 # Le vrai installateur administrateur de cette version de Mindset (lancement direct : le runner est administrateur)
 function Install-Nevermind([string]$Fichiers, [string]$Zip, [string]$DossierZip) {
     $res = Join-Path $Racine "resultat-$([guid]::NewGuid().ToString('N').Substring(0, 6)).json"
-    & $PowerShellExe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $Fichiers 'installer-admin.ps1') -Action appli -Zip $Zip -Signature "$Zip.sig" -Destination $Dest -DossierZip $DossierZip -Exe 'Nevermind.exe' -Resultat $res | Out-Host
+    # (l'appli de apps.json, exigée depuis l'audit du 25/10 comme Mindset la donne ; Mindset 2.12.0 ne connaît pas -Appli)
+    $appli = if ($Fichiers -eq $Neuf) { @('-Appli', 'nevermind') } else { @() }
+    & $PowerShellExe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $Fichiers 'installer-admin.ps1') -Action appli @appli -Zip $Zip -Signature "$Zip.sig" -Destination $Dest -DossierZip $DossierZip -Exe 'Nevermind.exe' -Resultat $res | Out-Host
     $r = [IO.File]::ReadAllText($res, [Text.Encoding]::UTF8) | ConvertFrom-Json
     Write-Host "    installateur ($DossierZip) : ok=$($r.ok) $($r.message)"
     $r
