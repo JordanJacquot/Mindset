@@ -463,7 +463,7 @@ function Select-DossierAppli($Appli) {
     $dlg = New-Object System.Windows.Forms.FolderBrowserDialog
     $dlg.Description = "Le dossier de $($Appli.Nom) (celui qui contient $($Appli.Exe))"
     if ($dlg.ShowDialog() -ne 'OK') { return }
-    if (-not (Test-DossierAppli $dlg.SelectedPath $Appli)) { Stop-Operation $Appli "Ce dossier ne contient pas $($Appli.Nom) ($($Appli.Exe) et $($Appli.Script))."; return }
+    if (-not (Test-DossierAppli $dlg.SelectedPath $Appli)) { Stop-Operation $Appli "Ce dossier ne contient pas $($Appli.Nom) ($($Appli.Exe) et $(if ($Appli.Script) { $Appli.Script } else { 'version.json' }))."; return }
     Confirm-PriseEnCharge $Appli $dlg.SelectedPath
 }
 

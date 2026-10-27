@@ -12,7 +12,7 @@ ignore = []
 
 [licenses]
 # Licences compatibles avec la licence MIT de la suite
-allow = ["MIT", "Apache-2.0", "ISC", "Zlib"]
+allow = ["MIT", "Apache-2.0", "ISC", "Zlib", "Unicode-3.0"]
 confidence-threshold = 0.9
 
 [licenses.private]
@@ -29,6 +29,7 @@ allow = [
     # les nôtres
     "suite-commun",
     "banc-essai",
+    "desinstalleur",
     # signature (ring) et sa construction
     "ring",
     "untrusted",
@@ -58,6 +59,23 @@ allow = [
     "equivalent",
     "hashbrown",
     "typed-path",
+    # Windows (Microsoft) : le désinstalleur (les mêmes que l'Aide de Nevermind)
+    "windows",
+    "windows-core",
+    "windows-collections",
+    "windows-future",
+    "windows-numerics",
+    "windows-threading",
+    "windows-result",
+    "windows-strings",
+    "windows-registry",
+    "windows-implement",
+    "windows-interface",
+    # macros de windows (construction seulement)
+    "proc-macro2",
+    "quote",
+    "syn",
+    "unicode-ident",
 ]
 
 [sources]

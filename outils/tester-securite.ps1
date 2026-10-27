@@ -531,6 +531,293 @@ public static class BloqueurTest {
     }
 
     # =============================================================================================================
+    Write-Partie 'Contrat d''une appli : version.json dans le zip (paquets.ps1, docs\contrat-appli.md partie 10)'
+    # =============================================================================================================
+    # Un zip construit en mémoire, dont les contenus sont des textes (UTF-8) ou des octets
+    function New-ZipOctets($Entrees) {
+        $ms = New-Object IO.MemoryStream
+        $za = New-Object IO.Compression.ZipArchive($ms, [IO.Compression.ZipArchiveMode]::Create, $true)
+        try {
+            foreach ($k in $Entrees.Keys) {
+                $flux = $za.CreateEntry($k).Open()
+                # (pas de « $o = if ... » : un tableau vide y deviendrait $null)
+                if ($Entrees[$k] -is [byte[]]) { [byte[]]$o = $Entrees[$k] } else { [byte[]]$o = [Text.Encoding]::UTF8.GetBytes([string]$Entrees[$k]) }
+                try { $flux.Write($o, 0, $o.Length) } finally { $flux.Dispose() }
+            }
+        } finally { $za.Dispose() }
+        , $ms.ToArray()
+    }
+    # Le zip d'une appli Rust de test (pas de script) : Appli.exe (son relais), Mindset.exe et version.json ($Json : le texte,
+    # ou $null pour ne pas en mettre dans le dossier)
+    function New-ZipRust($Json, $EnPlus = $null) {
+        $e = [ordered]@{ 'Appli/Appli.exe' = 'relais'; 'Appli/Mindset.exe' = 'programme' }
+        if ($null -ne $Json) { $e['Appli/version.json'] = $Json }
+        if ($EnPlus) { foreach ($k in $EnPlus.Keys) { $e[$k] = $EnPlus[$k] } }
+        New-ZipOctets $e
+    }
+    function Get-Json([string]$Version, [string]$Appli = 'appli', [string]$Min = '2.15.0') { "{ `"appli`": `"$Appli`", `"version`": `"$Version`", `"mindset_min`": `"$Min`" }" }
+    $destR = Join-Path $tmp 'Contrat\Appli'
+    function Install-Rust([byte[]]$Zip, [string]$Appli = 'appli', [string]$VersionMindset = '2.15.0', [string]$Dest = $destR, [string]$DossierZip = 'Appli') {
+        Install-Paquet -Zip $Zip -Signature (Get-SignatureTest $Zip $cle.Privee) -ClePublique $fPublique -Destination $Dest -DossierZip $DossierZip -Exe 'Appli.exe' -Appli $Appli -VersionMindset $VersionMindset
+    }
+    function Get-VersionR { Get-VersionDossier $destR }
+    function Test-SansResteR { -not @(Get-ChildItem -LiteralPath (Split-Path $destR -Parent) -Directory | Where-Object { $_.Name -like 'Appli.*' }).Count }
+
+    Test-Cas 'version.json bon (sans script) : installé, version lue dans version.json, version.json gardé avec l''appli' {
+        $r = Install-Rust (New-ZipRust (Get-Json '3.0.0'))
+        ($r -eq $destR) -and ((Get-VersionR) -eq '3.0.0') -and (Test-Path -LiteralPath (Join-Path $destR 'version.json')) -and (Test-SansResteR)
+    }
+    Test-Cas 'version.json d''une autre appli : refusé avec un message clair, appli installée intacte' {
+        (Test-Refus { Install-Rust (New-ZipRust (Get-Json '3.1.0' 'autre')) } 'Ce fichier contient l''appli autre et pas appli : rien n''a été installé.') -and ((Get-VersionR) -eq '3.0.0') -and (Test-SansResteR)
+    }
+    Test-Cas 'version.json : le nom de l''appli compte sans la casse (APPLI = appli)' { $null = Install-Rust (New-ZipRust (Get-Json '3.0.1' 'APPLI')); (Get-VersionR) -eq '3.0.1' }
+    Test-Cas 'mindset_min plus récent que ce Mindset : « Mets d''abord Mindset à jour », rien installé' {
+        (Test-Refus { Install-Rust (New-ZipRust (Get-Json '3.2.0' 'appli' '9.0.0')) } 'Mets d''abord Mindset à jour : cette version demande Mindset 9.0.0 ou plus récent.') -and ((Get-VersionR) -eq '3.0.1') -and (Test-SansResteR)
+    }
+    Test-Cas 'mindset_min égal à ce Mindset : accepté' { $null = Install-Rust (New-ZipRust (Get-Json '3.2.0' 'appli' '2.15.0')); (Get-VersionR) -eq '3.2.0' }
+    Test-Cas 'version.json plus ancien que la version installée : refusé (pas de retour en arrière)' {
+        (Test-Refus { Install-Rust (New-ZipRust (Get-Json '3.1.9')) } 'plus récente, est déjà installée') -and ((Get-VersionR) -eq '3.2.0')
+    }
+    foreach ($cas in @(
+            @{ Nom = 'JSON cassé'; Json = '{ "appli": "appli", "version": "3.3.0"' },
+            @{ Nom = 'version mal formée (« 3 »)'; Json = '{ "appli": "appli", "version": "3" }' },
+            @{ Nom = 'version en lettres'; Json = '{ "appli": "appli", "version": "trois" }' },
+            @{ Nom = 'version en nombre'; Json = '{ "appli": "appli", "version": 3.3 }' },
+            @{ Nom = 'version absente'; Json = '{ "appli": "appli" }' },
+            @{ Nom = '« Version » avec une majuscule seulement'; Json = '{ "appli": "appli", "Version": "3.3.0" }' },
+            @{ Nom = 'appli qui n''est pas un texte'; Json = '{ "appli": 12, "version": "3.3.0" }' },
+            @{ Nom = 'appli nulle'; Json = '{ "appli": null, "version": "3.3.0" }' },
+            @{ Nom = 'mindset_min mal formé'; Json = '{ "appli": "appli", "version": "3.3.0", "mindset_min": "bientôt" }' },
+            @{ Nom = 'un tableau au lieu d''un objet'; Json = '[ "3.3.0" ]' },
+            @{ Nom = 'fichier vide'; Json = '' },
+            @{ Nom = 'plus de 64 Ko'; Json = '{ "appli": "appli", "version": "3.3.0", "x": "' + ('a' * 66000) + '" }' })) {
+        $j = $cas.Json
+        Test-Cas "version.json illisible ($($cas.Nom)) : refusé, appli installée intacte" {
+            (Test-Refus { Install-Rust (New-ZipRust $j) } 'ne dit pas quelle version') -and ((Get-VersionR) -eq '3.2.0') -and (Test-SansResteR)
+        }
+    }
+    Test-Cas 'version.json en UTF-16 avec sa marque : lu' {
+        $o = [byte[]](@(0xFF, 0xFE) + [Text.Encoding]::Unicode.GetBytes((Get-Json '3.3.0')))
+        $null = Install-Rust (New-ZipRust $o); (Get-VersionR) -eq '3.3.0'
+    }
+    Test-Cas 'version.json en UTF-8 avec sa marque : lu' {
+        $o = [byte[]](@(0xEF, 0xBB, 0xBF) + [Text.Encoding]::UTF8.GetBytes((Get-Json '3.3.1')))
+        $null = Install-Rust (New-ZipRust $o); (Get-VersionR) -eq '3.3.1'
+    }
+    Test-Cas 'version.json seulement à la racine du zip : accepté, puis rangé avec l''appli' {
+        $j = Get-Json '3.4.0'
+        $null = Install-Rust (New-ZipRust $null ([ordered]@{ 'version.json' = $j }))
+        ((Get-VersionR) -eq '3.4.0') -and ([IO.File]::ReadAllText((Join-Path $destR 'version.json')) -eq $j)
+    }
+    Test-Cas 'version.json à la racine et dans le dossier, identiques : accepté' { $j = Get-Json '3.5.0'; $null = Install-Rust (New-ZipRust $j ([ordered]@{ 'version.json' = $j })); (Get-VersionR) -eq '3.5.0' }
+    Test-Cas 'version.json à la racine et dans le dossier, différents : refusé' {
+        (Test-Refus { Install-Rust (New-ZipRust (Get-Json '3.6.0') ([ordered]@{ 'version.json' = (Get-Json '3.6.1') })) } 'ne dit pas quelle version') -and ((Get-VersionR) -eq '3.5.0') -and (Test-SansResteR)
+    }
+    Test-Cas '« Version.json » à la racine (autre casse) : pas lu, le zip sans version est refusé' {
+        Test-Refus { Install-Rust (New-ZipRust $null ([ordered]@{ 'Version.json' = (Get-Json '3.7.0') })) } 'ne dit pas quelle version'
+    }
+    Test-Cas 'version.json et ancienne ligne $AppVersion d''accord : accepté' {
+        $null = Install-Rust (New-ZipRust (Get-Json '3.7.0') ([ordered]@{ 'Appli/fichiers/Appli.ps1' = "`$AppVersion = '3.7.0'" })); (Get-VersionR) -eq '3.7.0'
+    }
+    Test-Cas 'version.json et ancienne ligne $AppVersion en désaccord : refusé' {
+        (Test-Refus { Install-Rust (New-ZipRust (Get-Json '3.8.0') ([ordered]@{ 'Appli/fichiers/Appli.ps1' = "`$AppVersion = '3.8.1'" })) } 'ne dit pas quelle version') -and ((Get-VersionR) -eq '3.7.0')
+    }
+    Test-Cas 'sans -VersionMindset : mindset_min n''est pas regardé à l''installation (Mindset l''a regardé avant)' {
+        $null = Install-Rust (New-ZipRust (Get-Json '3.9.0' 'appli' '9.0.0')) 'appli' ''; (Get-VersionR) -eq '3.9.0'
+    }
+    Test-Cas 'version installée avec un version.json abîmé : l''ancienne ligne $AppVersion prend le relais (retour en arrière refusé)' {
+        $d = Join-Path $tmp 'Contrat-abime\Appli'
+        New-Item -ItemType Directory -Force -Path (Join-Path $d 'fichiers') | Out-Null
+        [IO.File]::WriteAllText((Join-Path $d 'version.json'), '{ cassé')
+        [IO.File]::WriteAllText((Join-Path $d 'fichiers\Appli.ps1'), "`$AppVersion = '5.0.0'")
+        ((Get-VersionDossier $d) -eq '5.0.0') -and (Test-Refus { Install-Rust (New-ZipRust (Get-Json '4.0.0')) 'appli' '2.15.0' $d } 'la version 5.0.0, plus récente, est déjà installée') -and
+        ((Get-VersionDossier $d -Detail).Illisible -eq $true)
+    }
+    Test-Cas 'sans -Appli : l''appli attendue vient de apps.json (dossier « Nevermind » = nevermind), un zip d''Evermind est refusé' {
+        $d = Join-Path $tmp 'Contrat-nevermind\Nevermind'
+        $z = New-ZipOctets ([ordered]@{ 'Nevermind/Nevermind.exe' = 'x'; 'Nevermind/Mindset.exe' = 'x'; 'Nevermind/version.json' = (Get-Json '2.0.0' 'evermind') })
+        $zb = New-ZipOctets ([ordered]@{ 'Nevermind/Nevermind.exe' = 'x'; 'Nevermind/Mindset.exe' = 'x'; 'Nevermind/version.json' = (Get-Json '2.0.0' 'nevermind') })
+        (Test-Refus { Install-Paquet -Zip $z -Signature (Get-SignatureTest $z $cle.Privee) -ClePublique $fPublique -Destination $d -DossierZip 'Nevermind' -Exe 'Nevermind.exe' } 'contient l''appli evermind et pas nevermind') -and
+        -not (Test-Path -LiteralPath $d) -and
+        ((Install-Paquet -Zip $zb -Signature (Get-SignatureTest $zb $cle.Privee) -ClePublique $fPublique -Destination $d -DossierZip 'Nevermind' -Exe 'Nevermind.exe') -eq $d)
+    }
+    Test-Cas 'sans -Appli, dossier du zip inconnu de apps.json : pas de contrôle de l''appli (comme suite-commun sans appli)' {
+        $d = Join-Path $tmp 'Contrat-inconnu\Appli'
+        $z = New-ZipRust (Get-Json '1.0.0' 'nimporte')
+        (Install-Paquet -Zip $z -Signature (Get-SignatureTest $z $cle.Privee) -ClePublique $fPublique -Destination $d -DossierZip 'Appli' -Exe 'Appli.exe') -eq $d
+    }
+    Test-Cas 'zip d''aujourd''hui (sans version.json) : installé comme avant, même avec -Appli et -VersionMindset' {
+        $d = Join-Path $tmp 'Contrat-ps\Appli'
+        $z = New-ZipAppli '1.2.3'
+        ((Install-Rust $z 'autre' '0.1' $d) -eq $d) -and ((Get-VersionDossier $d) -eq '1.2.3') -and -not (Test-Path -LiteralPath (Join-Path $d 'version.json'))
+    }
+
+    # Get-VersionZip (installer-admin.ps1, avant de fermer l'appli) et Test-PaquetAppli (Mindset, avant de fermer l'appli)
+    Test-Cas 'Get-VersionZip : la version de version.json' { (Get-VersionZip (New-ZipRust (Get-Json '6.0.0')) 'Appli') -eq '6.0.0' }
+    Test-Cas 'Get-VersionZip : version.json à la racine seulement' { (Get-VersionZip (New-ZipRust $null ([ordered]@{ 'version.json' = (Get-Json '6.0.1') })) 'Appli') -eq '6.0.1' }
+    Test-Cas 'Get-VersionZip : version.json illisible, ou deux différents : rien' {
+        ((Get-VersionZip (New-ZipRust '{ cassé') 'Appli') -eq '') -and ((Get-VersionZip (New-ZipRust (Get-Json '6.0.2') ([ordered]@{ 'version.json' = (Get-Json '6.0.3') })) 'Appli') -eq '')
+    }
+    Test-Cas 'Get-VersionZip : zip d''aujourd''hui, la ligne $AppVersion comme avant' { (Get-VersionZip (New-ZipAppli '6.1.0') 'Appli') -eq '6.1.0' }
+    Test-Cas 'Test-PaquetAppli : zip d''aujourd''hui, ou zip illisible : rien à dire' {
+        $null = Test-PaquetAppli (New-ZipAppli '6.1.0') 'Appli' 'appli' '2.15.0'
+        $null = Test-PaquetAppli ([Text.Encoding]::UTF8.GetBytes('pas un zip')) 'Appli' 'appli' '2.15.0'
+        $null = Test-PaquetAppli (New-ZipRust (Get-Json '6.2.0')) 'Appli' 'appli' '2.15.0'
+        $true
+    }
+    Test-Cas 'Test-PaquetAppli : autre appli, Mindset trop ancien, version.json illisible : refusés avant de fermer quoi que ce soit' {
+        (Test-Refus { Test-PaquetAppli (New-ZipRust (Get-Json '6.2.0' 'autre')) 'Appli' 'appli' '2.15.0' } 'contient l''appli autre et pas appli') -and
+        (Test-Refus { Test-PaquetAppli (New-ZipRust (Get-Json '6.2.0' 'appli' '2.16')) 'Appli' 'appli' '2.15.0' } 'Mets d''abord Mindset à jour') -and
+        (Test-Refus { Test-PaquetAppli (New-ZipRust '{ "version": "6" }') 'Appli' 'appli' '2.15.0' } 'ne dit pas quelle version')
+    }
+    Test-Cas 'installations.ps1 : le téléchargement passe le zip à Test-PaquetAppli avec l''id de l''appli et la version de Mindset' {
+        $t = [IO.File]::ReadAllText((Join-Path $fichiers 'modules\installations.ps1'), [Text.Encoding]::UTF8)
+        $t -match 'Test-PaquetAppli \$zip \$dz \$p\.Id \$p\.VersionMindset' -and $t -match 'VersionMindset = \[string\]\$AppVersion'
+    }
+
+    # =============================================================================================================
+    Write-Partie 'Contrat d''une appli : dossier reconnu, version installée (installations.ps1), apps.json (applis.ps1)'
+    # =============================================================================================================
+    $texteInst = [IO.File]::ReadAllText((Join-Path $fichiers 'modules\installations.ps1'), [Text.Encoding]::UTF8)
+    $astInst = [System.Management.Automation.Language.Parser]::ParseInput($texteInst, [ref]$null, [ref]$null)
+    foreach ($n in 'Get-ScriptAppli', 'Get-VersionDans', 'Test-DossierAppli') {
+        . ([scriptblock]::Create($astInst.Find({ param($x) $x -is [System.Management.Automation.Language.FunctionDefinitionAst] -and $x.Name -eq $n }, $true).Extent.Text))
+    }
+    $appliTest = [pscustomobject]@{ Id = 'appli'; Exe = 'Appli.exe'; Script = 'fichiers\Appli.ps1'; AncienScript = '' }
+    function New-DossierTest([string]$Nom, $Fichiers) {
+        $d = Join-Path $tmp "dossiers\$Nom"
+        foreach ($k in $Fichiers.Keys) { $f = Join-Path $d $k; New-Item -ItemType Directory -Force -Path (Split-Path $f -Parent) | Out-Null; [IO.File]::WriteAllText($f, [string]$Fichiers[$k]) }
+        $d
+    }
+    $dRust = New-DossierTest 'rust' ([ordered]@{ 'Appli.exe' = 'x'; 'Mindset.exe' = 'x'; 'version.json' = (Get-Json '1.4.0') })
+    Test-Cas 'dossier d''une appli Rust (Appli.exe, Mindset.exe, version.json qui la nomme) : reconnu, version 1.4.0' { (Test-DossierAppli $dRust $appliTest) -and (Get-VersionDans $dRust $appliTest) -eq '1.4.0' }
+    Test-Cas 'appli Rust sans Mindset.exe : pas reconnue' { -not (Test-DossierAppli (New-DossierTest 'sans-hote' ([ordered]@{ 'Appli.exe' = 'x'; 'version.json' = (Get-Json '1.4.0') })) $appliTest) }
+    Test-Cas 'appli Rust dont version.json nomme une autre appli : pas reconnue, et sa version n''est pas lue' {
+        $d = New-DossierTest 'autre' ([ordered]@{ 'Appli.exe' = 'x'; 'Mindset.exe' = 'x'; 'version.json' = (Get-Json '1.4.0' 'autre') })
+        -not (Test-DossierAppli $d $appliTest) -and $null -eq (Get-VersionDans $d $appliTest)
+    }
+    Test-Cas 'appli Rust dont version.json ne dit pas quelle appli, ou est abîmé : pas reconnue' {
+        -not (Test-DossierAppli (New-DossierTest 'sans-nom' ([ordered]@{ 'Appli.exe' = 'x'; 'Mindset.exe' = 'x'; 'version.json' = '{ "version": "1.4.0" }' })) $appliTest) -and
+        -not (Test-DossierAppli (New-DossierTest 'abime' ([ordered]@{ 'Appli.exe' = 'x'; 'Mindset.exe' = 'x'; 'version.json' = '{ cassé' })) $appliTest)
+    }
+    Test-Cas 'appli Rust sans son programme Appli.exe : pas reconnue' { -not (Test-DossierAppli (New-DossierTest 'sans-exe' ([ordered]@{ 'Mindset.exe' = 'x'; 'version.json' = (Get-Json '1.4.0') })) $appliTest) }
+    Test-Cas 'dossier d''aujourd''hui (Appli.exe et son script) : reconnu comme avant, version du script' {
+        $d = New-DossierTest 'ps' ([ordered]@{ 'Appli.exe' = 'x'; 'fichiers\Appli.ps1' = "`$AppVersion = '1.0.7'" })
+        (Test-DossierAppli $d $appliTest) -and (Get-VersionDans $d $appliTest) -eq '1.0.7'
+    }
+    Test-Cas 'appli qui passe de PowerShell à Rust (script et version.json) : version.json lu d''abord' {
+        $d = New-DossierTest 'bascule' ([ordered]@{ 'Appli.exe' = 'x'; 'fichiers\Appli.ps1' = "`$AppVersion = '1.0.7'"; 'version.json' = (Get-Json '2.0.0') })
+        (Test-DossierAppli $d $appliTest) -and (Get-VersionDans $d $appliTest) -eq '2.0.0'
+    }
+
+    # apps.json : Get-Applis lue dans applis.ps1 et lancée sur de faux apps.json
+    $texteApplis = [IO.File]::ReadAllText((Join-Path $fichiers 'modules\applis.ps1'), [Text.Encoding]::UTF8)
+    $astApplis = [System.Management.Automation.Language.Parser]::ParseInput($texteApplis, [ref]$null, [ref]$null)
+    . ([scriptblock]::Create($astApplis.Find({ param($x) $x -is [System.Management.Automation.Language.FunctionDefinitionAst] -and $x.Name -eq 'Get-Applis' }, $true).Extent.Text))
+    function Write-Log([string]$Texte) {}
+    $vraies = [IO.File]::ReadAllText((Join-Path $fichiers 'apps.json'), [Text.Encoding]::UTF8) | ConvertFrom-Json
+    $AppDir = $fichiers
+    $lues = @(Get-Applis)
+    Test-Cas 'les applis d''aujourd''hui (apps.json livré) sont toutes lues, de type powershell, champs inchangés' {
+        $ok = $lues.Count -eq @($vraies).Count -and $lues.Count -eq 3
+        foreach ($v in $vraies) {
+            $l = $lues | Where-Object Id -eq $v.id
+            $ok = $ok -and $l -and $l.Type -eq 'powershell' -and $l.Nom -eq $v.nom -and $l.Script -eq $v.script -and $l.Mutex -eq $v.mutex -and $l.Exe -eq $v.exe -and
+                  $l.AfficherSignal -eq [string]$v.afficher_signal -and $l.CacheDepuis -eq [string]$v.cache_depuis -and $l.DossierZip -eq $v.dossier_zip
+        }
+        $ok
+    }
+    $AppDir = Join-Path $tmp 'faux-apps'
+    New-Item -ItemType Directory -Force -Path $AppDir | Out-Null
+    $modele = @($vraies | Where-Object id -eq 'evermind')[0]
+    # Get-Applis sur un apps.json d'une seule entrée : celle d'Evermind, avec des champs changés ($Champs ; $null retire le champ)
+    function Get-AppliVariante($Champs) {
+        $c = $modele | ConvertTo-Json -Depth 4 | ConvertFrom-Json
+        foreach ($k in $Champs.Keys) {
+            if ($null -eq $Champs[$k]) { $c.PSObject.Properties.Remove($k) } else { $c | Add-Member -NotePropertyName $k -NotePropertyValue $Champs[$k] -Force }
+        }
+        [IO.File]::WriteAllText((Join-Path $AppDir 'apps.json'), (ConvertTo-Json @($c) -Depth 4), (New-Object Text.UTF8Encoding $false))
+        @(Get-Applis)
+    }
+    Test-Cas 'type « rust » sans script : acceptée, Type rust, Script vide' { $r = @(Get-AppliVariante @{ type = 'rust'; script = $null }); $r.Count -eq 1 -and $r[0].Type -eq 'rust' -and $r[0].Script -eq '' }
+    Test-Cas 'type « powershell » écrit en toutes lettres : acceptée comme sans type' { $r = @(Get-AppliVariante @{ type = 'powershell' }); $r.Count -eq 1 -and $r[0].Type -eq 'powershell' }
+    foreach ($cas in @(
+            @{ Nom = 'type inconnu (« go »)'; Champs = @{ type = 'go' } },
+            @{ Nom = 'type en majuscules (« Rust »)'; Champs = @{ type = 'Rust' } },
+            @{ Nom = 'type vide'; Champs = @{ type = '' } },
+            @{ Nom = 'type qui n''est pas un texte'; Champs = @{ type = 3 } },
+            @{ Nom = 'type powershell sans script'; Champs = @{ script = $null } },
+            @{ Nom = 'type rust avec un script piégé'; Champs = @{ type = 'rust'; script = '..\..\piege.ps1' } },
+            @{ Nom = 'mutex hors de Local\'; Champs = @{ mutex = 'Global\Evermind-Instance' } },
+            @{ Nom = 'mutex avec une espace'; Champs = @{ mutex = 'Local\Ever mind' } },
+            @{ Nom = 'afficher_signal hors de Local\'; Champs = @{ afficher_signal = 'Evermind-Afficher' } },
+            @{ Nom = 'afficher_signal avec une barre en plus'; Champs = @{ afficher_signal = 'Local\a\b' } },
+            @{ Nom = 'cache_depuis qui n''est pas une version'; Champs = @{ cache_depuis = 'bientôt' } },
+            @{ Nom = 'cache_depuis à 5 nombres'; Champs = @{ cache_depuis = '1.2.3.4.5' } })) {
+        $champs = $cas.Champs
+        Test-Cas "apps.json, $($cas.Nom) : l'appli est ignorée" { @(Get-AppliVariante $champs).Count -eq 0 }
+    }
+    Test-Cas 'apps.json : sans mutex, sans afficher_signal, sans cache_depuis, l''appli reste acceptée (champs facultatifs)' {
+        @(Get-AppliVariante @{ mutex = $null; afficher_signal = $null; cache_depuis = $null }).Count -eq 1
+    }
+
+    # =============================================================================================================
+    Write-Partie 'Contrat d''une appli : fenêtre trouvée pour l''accrochage (MSIntegration.Trouver, natif.cs)'
+    # =============================================================================================================
+    # Des fenêtres de premier niveau de ce processus, créées CACHÉES (jamais montrées) : une fenêtre WPF (classe
+    # « HwndWrapper[...] »), une fenêtre Tauri (« Tauri Window »), un autre navigateur (« Chrome_WidgetWin_1 »), et une
+    # fenêtre Tauri possédée par une autre (une alerte). Seules les deux premières sont des fenêtres d'appli.
+    # (natif.cs compilé dans un espace de noms à part : ses autres classes, comme MSActivite, restent remplacées par des
+    # fausses dans la suite de ces tests)
+    $natif = [IO.File]::ReadAllText((Join-Path $fichiers 'modules\natif.cs'), [Text.Encoding]::UTF8)
+    $finUsing = $natif.IndexOf("using System.Runtime.InteropServices;") + "using System.Runtime.InteropServices;".Length
+    Add-Type -TypeDefinition ($natif.Substring(0, $finUsing) + "`nnamespace ContratTest {`n" + $natif.Substring($finUsing) + "`n}`n")
+    Add-Type -TypeDefinition @'
+using System;
+using System.Runtime.InteropServices;
+public static class FenetreCachee {
+    delegate IntPtr Proc(IntPtr h, uint m, IntPtr w, IntPtr l);
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+    struct WNDCLASSEX { public uint cbSize, style; public IntPtr lpfnWndProc; public int cbClsExtra, cbWndExtra; public IntPtr hInstance, hIcon, hCursor, hbrBackground; public string lpszMenuName, lpszClassName; public IntPtr hIconSm; }
+    [DllImport("user32.dll", CharSet = CharSet.Unicode, SetLastError = true)] static extern ushort RegisterClassExW(ref WNDCLASSEX c);
+    [DllImport("user32.dll", CharSet = CharSet.Unicode, SetLastError = true)] static extern IntPtr CreateWindowExW(uint ex, string classe, string titre, uint style, int x, int y, int w, int h, IntPtr parent, IntPtr menu, IntPtr inst, IntPtr p);
+    [DllImport("user32.dll")] static extern IntPtr DefWindowProcW(IntPtr h, uint m, IntPtr w, IntPtr l);
+    [DllImport("user32.dll")] public static extern bool DestroyWindow(IntPtr h);
+    [DllImport("user32.dll")] public static extern bool IsWindowVisible(IntPtr h);
+    [DllImport("kernel32.dll", CharSet = CharSet.Unicode)] static extern IntPtr GetModuleHandleW(string n);
+    static readonly Proc proc = DefWindowProcW;
+    // Une fenêtre de premier niveau sans WS_VISIBLE (jamais montrée) ; $Proprietaire : une fenêtre qui la possède
+    public static IntPtr Creer(string classe, string titre, IntPtr proprietaire) {
+        var c = new WNDCLASSEX(); c.cbSize = (uint)Marshal.SizeOf(c); c.lpfnWndProc = Marshal.GetFunctionPointerForDelegate(proc);
+        c.hInstance = GetModuleHandleW(null); c.lpszClassName = classe;
+        RegisterClassExW(ref c);   // (déjà enregistrée : sans importance)
+        return CreateWindowExW(0x80, classe, titre, 0x00C00000, -32000, -32000, 10, 10, proprietaire, IntPtr.Zero, c.hInstance, IntPtr.Zero);   // (WS_EX_TOOLWINDOW, WS_CAPTION, sans WS_VISIBLE)
+    }
+}
+'@
+    $titreTest = "Appli de test $([guid]::NewGuid().ToString('N').Substring(0, 8))"
+    $fenetres = @()
+    try {
+        $wpf = [FenetreCachee]::Creer('HwndWrapper[Test;;0f1e2d3c]', "$titreTest WPF", [IntPtr]::Zero)
+        $tauri = [FenetreCachee]::Creer('Tauri Window', "$titreTest Tauri", [IntPtr]::Zero)
+        $chrome = [FenetreCachee]::Creer('Chrome_WidgetWin_1', "$titreTest Chrome", [IntPtr]::Zero)
+        $alerte = [FenetreCachee]::Creer('Tauri Window', "$titreTest Alerte", $tauri)
+        $fenetres = @($alerte, $chrome, $tauri, $wpf)
+        Test-Cas 'les fenêtres de test existent et ne sont pas montrées' { -not @($fenetres | Where-Object { $_ -eq [IntPtr]::Zero -or [FenetreCachee]::IsWindowVisible($_) }).Count }
+        Test-Cas 'fenêtre WPF (HwndWrapper) trouvée, comme avant' { [ContratTest.MSIntegration]::Trouver($PID, "$titreTest WPF") -eq $wpf }
+        Test-Cas 'fenêtre Tauri (« Tauri Window ») trouvée' { [ContratTest.MSIntegration]::Trouver($PID, "$titreTest Tauri") -eq $tauri }
+        Test-Cas 'fenêtre d''une autre classe (Chrome_WidgetWin_1) jamais prise' { [ContratTest.MSIntegration]::Trouver($PID, "$titreTest Chrome") -eq [IntPtr]::Zero }
+        Test-Cas 'fenêtre Tauri possédée par une autre (une alerte) jamais prise' { [ContratTest.MSIntegration]::Trouver($PID, "$titreTest Alerte") -eq [IntPtr]::Zero }
+        Test-Cas 'titre presque pareil : rien' { [ContratTest.MSIntegration]::Trouver($PID, "$titreTest tauri") -eq [IntPtr]::Zero }
+    } finally {
+        foreach ($f in $fenetres) { if ($f -ne [IntPtr]::Zero) { [void][FenetreCachee]::DestroyWindow($f) } }
+    }
+    Test-Cas 'natif.cs : la seule condition de plus est la classe « Tauri Window » (exacte)' {
+        $n = [IO.File]::ReadAllText((Join-Path $fichiers 'modules\natif.cs'), [Text.Encoding]::UTF8)
+        $n.Contains('(c.ToString().StartsWith("HwndWrapper") || c.ToString() == "Tauri Window")')
+    }
+
+    # =============================================================================================================
     Write-Partie 'Test-DossierMindset (installer-admin.ps1)'
     # =============================================================================================================
     # Les cas sont dans le corpus commun cas\installateur\dossier-protege.json (format dans cas\LISEZMOI.md), qui servira

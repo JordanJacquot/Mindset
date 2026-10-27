@@ -59,14 +59,29 @@ function Get-ScriptAppli([string]$Dossier, $Appli) {
     $null
 }
 
+# La version installée dans un dossier : son version.json d'abord (lisible, et de cette appli : « appli » absent ou égal à
+# son id), sinon la ligne $AppVersion de son script
 function Get-VersionDans([string]$Dossier, $Appli) {
+    $j = if ($Dossier) { Join-Path $Dossier 'version.json' }
+    if ($j -and (Test-Path -LiteralPath $j -PathType Leaf)) {
+        $i = $null; try { $i = Read-VersionJson ([IO.File]::ReadAllBytes($j)) } catch {}
+        if ($i -and (-not $i.Appli -or [string]::Equals($i.Appli, [string]$Appli.Id, [StringComparison]::OrdinalIgnoreCase))) { return $i.Version }
+    }
     $f = Get-ScriptAppli $Dossier $Appli
     try { if ($f -and [IO.File]::ReadAllText($f, [Text.Encoding]::UTF8) -match "(?m)^\`$AppVersion\s*=\s*'([\d.]+)'") { return $Matches[1] } } catch {}
     $null
 }
 
+# Ce dossier contient-il l'appli ? Son programme <exe>, et son script (appli PowerShell), ou bien son hôte Mindset.exe et
+# un version.json lisible qui la nomme (appli Rust, docs\contrat-appli.md, partie 2), quel que soit son « type » dans
+# apps.json : une appli qui passe de PowerShell à Rust reste reconnue pendant la bascule.
 function Test-DossierAppli([string]$Dossier, $Appli) {
-    $Dossier -and (Test-Path -LiteralPath (Join-Path $Dossier $Appli.Exe)) -and [bool](Get-ScriptAppli $Dossier $Appli)
+    if (-not $Dossier -or -not (Test-Path -LiteralPath (Join-Path $Dossier $Appli.Exe))) { return $false }
+    if (Get-ScriptAppli $Dossier $Appli) { return $true }
+    $j = Join-Path $Dossier 'version.json'
+    if (-not (Test-Path -LiteralPath (Join-Path $Dossier 'Mindset.exe') -PathType Leaf) -or -not (Test-Path -LiteralPath $j -PathType Leaf)) { return $false }
+    $i = $null; try { $i = Read-VersionJson ([IO.File]::ReadAllBytes($j)) } catch {}
+    [bool]($i -and $i.Appli -and [string]::Equals($i.Appli, [string]$Appli.Id, [StringComparison]::OrdinalIgnoreCase))
 }
 
 # L'installation connue d'une appli : @{ Dossier; Gere; Version } ou $null
@@ -458,7 +473,7 @@ function Start-InstallAppli($Appli, [string]$AncienDossier) {
     $script:Progres[$Appli.Id] = [hashtable]::Synchronized(@{ Recu = 0; Total = 0 })
     # (son zip et son dossier sous le nom d'aujourd'hui, ou sous l'ancien pour une version publiée avant le changement de nom)
     $params = @{ Depot = $Appli.Depot; Zip = @($Appli.Zip, $Appli.AncienZip); DossiersZip = @($Appli.DossierZip, $Appli.AncienDossierZip); Exe = $Appli.Exe
-                 Cle = $ClePublique; Dossier = $TelechargementsDir; Id = $Appli.Id; Progres = $script:Progres[$Appli.Id] }
+                 Cle = $ClePublique; Dossier = $TelechargementsDir; Id = $Appli.Id; Progres = $script:Progres[$Appli.Id]; VersionMindset = [string]$AppVersion }
     Start-Tache {
         $p = $args[0]
         $pub = Get-Publication $p.Depot $p.Zip
@@ -467,9 +482,13 @@ function Start-InstallAppli($Appli, [string]$AncienDossier) {
         $zip = Get-Octets $pub.UrlZip $p.Progres
         $sig = Get-Octets $pub.UrlSig
         if (-not (Test-Signature $zip $sig $p.Cle)) { throw 'La signature du fichier téléchargé est invalide : rien n''a été installé.' }
+        $dz = Get-DossierZip $zip $p.DossiersZip $p.Exe
+        # Son version.json (appli Rust) : une autre appli, ou un Mindset trop ancien, refusés ici, avant de fermer l'appli.
+        # (Test-PaquetAppli vient de paquets.ps1, chargé avant ce travail)
+        Test-PaquetAppli $zip $dz $p.Id $p.VersionMindset
         $fz = Join-Path $p.Dossier "$($p.Id).zip"; $fs = "$fz.sig"
         [IO.File]::WriteAllBytes($fz, $zip); [IO.File]::WriteAllBytes($fs, $sig)
-        @{ Version = $pub.Version; Zip = $fz; Sig = $fs; DossierZip = (Get-DossierZip $zip $p.DossiersZip $p.Exe) }
+        @{ Version = $pub.Version; Zip = $fz; Sig = $fs; DossierZip = $dz }
     } $params (New-Action @{ Id = $Appli.Id; Ancien = $AncienDossier } { Complete-Telechargement (Get-Appli $v.Id) $Resultat $Erreur $v.Ancien } 'Resultat', 'Erreur')
 }
 
