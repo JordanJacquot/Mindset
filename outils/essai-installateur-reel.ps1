@@ -525,6 +525,12 @@ function Initialize-Essai {
         }
         Expand-Archive -LiteralPath (Join-Path $d 'Mindset.zip') -DestinationPath (Join-Path $d 'x') -Force
         Copy-Item -LiteralPath (Join-Path $Racine 'cle\publique-test.xml') -Destination (Join-Path $d 'x\Mindset\fichiers\cles-publiques\essai-test.xml')
+        # (depuis la 2.12.0, l'installateur n'installe que les applis de son apps.json : l'appli d'essai y est ajoutée aussi)
+        if ($v -eq '2.14.0') {
+            $fa = Join-Path $d 'x\Mindset\fichiers\apps.json'
+            $la = @(([IO.File]::ReadAllText($fa, [Text.Encoding]::UTF8) | ConvertFrom-Json) | ForEach-Object { $_ }) + @($apps | Where-Object { $_.id -eq 'essai' })
+            [IO.File]::WriteAllText($fa, (ConvertTo-Json -InputObject $la -Depth 4), (New-Object Text.UTF8Encoding $true))
+        }
         Test-Cas "Release v$v : Mindset $v dedans" { (Get-VersionInstallee (Join-Path $d 'x\Mindset')) -eq $v }
     }
 
