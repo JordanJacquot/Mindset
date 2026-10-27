@@ -1,0 +1,19 @@
+{
+  "id": "temoin",
+  "type": "powershell",
+  "nom": "Temoin",
+  "couleur": "#7FD13B",
+  "description": "L'appli témoin des essais de la suite",
+  "presentation": "Une appli qui ne fait rien : elle sert à vérifier que Mindset accueille bien les applis de la suite.",
+  "depot": "JordanJacquot/Mindset",
+  "zip": "Temoin.zip",
+  "dossier_zip": "Temoin",
+  "exe": "Temoin.exe",
+  "script": "fichiers\\Temoin.ps1",
+  "mutex": "Local\\Temoin-Instance",
+  "afficher_fichier": "afficher.demande",
+  "desinstalleur": "Désinstaller Temoin.exe",
+  "donnees": "%LOCALAPPDATA%\\Temoin",
+  "admin": false,
+  "cache_depuis": "1.0.0"
+}
