@@ -380,7 +380,7 @@ static class Faux {
     Copy-Item -LiteralPath $faux -Destination (Join-Path $e.RacineC 'Evermind\Mindset.exe') -Force
     $hote = Start-Process -FilePath (Join-Path $e.RacineC 'Evermind\Mindset.exe') -PassThru
     $mindsetOuvert = Start-Process -FilePath (Join-Path $e.Mindset 'Mindset.exe') -PassThru
-    $edge = Join-Path $tmp 'edge'; New-Item -ItemType Directory -Force -Path $edge | Out-Null
+    $edge = Join-Path $tmp "$($script:VersionDossier)edge"; New-Item -ItemType Directory -Force -Path $edge | Out-Null
     Copy-Item -LiteralPath $faux -Destination (Join-Path $edge 'msedgewebview2.exe') -Force
     Save-Fichier (Join-Path $e.Donnees 'WebView2\Mindset\profil.txt') 'profil'
     $wvSuite = Start-Process -FilePath (Join-Path $edge 'msedgewebview2.exe') -ArgumentList "--type=renderer `"--user-data-dir=$(Join-Path $e.Donnees 'WebView2')\EBWebView`"" -PassThru
