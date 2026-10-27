@@ -3,7 +3,7 @@
 # registre, vraie installation de Mindset : JAMAIS sur un vrai PC. Le script refuse de tourner hors de GitHub Actions.
 #
 #   .\outils\essai-installateur-reel.ps1 -Cas 0     préparation (Mindset construit, clé de TEST, zips signés, Releases)
-#   .\outils\essai-installateur-reel.ps1 -Cas N     un cas (1 à 13), voir la liste plus bas
+#   .\outils\essai-installateur-reel.ps1 -Cas N     un cas (1 à 14), voir la liste plus bas
 #
 # Côté Mindset, ce sont ses vraies fonctions (modules\installations.ps1, mindset.ps1), lues dans la copie installée et
 # lancées sous le compte voulu (« client », -Client) : rien n'est simulé sauf la fenêtre où l'on clique « Oui » (pour un
@@ -28,6 +28,14 @@
 #      suppression, partie administrateur différente de apps.json : tout est refusé par la tâche SYSTEM
 #  13. variable COR_ENABLE_PROFILING dans HKCU\Environment : la demande de Windows (repli d'une tâche cassée) n'est pas
 #      lancée ; contre-épreuve sans elle (et avec DOTNET_TieredCompilation, sans danger) : elle l'est
+#  14. mise à jour depuis la dernière version PowerShell (Release v2.14.0, compte standard) : son installateur installe
+#      la version au relais, puis la tâche SYSTEM est repointée vers MindsetInstallateur.exe au démarrage du nouveau
+#      Mindset ; ensuite, les demandes (appli, version ancienne refusée, mise à jour de Mindset) passent par l'exe
+#
+# Depuis l'étape 2 du passage en Rust, le mini-installateur est MindsetInstallateur.exe (construit dans le même run par
+# le workflow, donné par la variable MINDSET_INSTALLATEUR) ; installer-admin.ps1 n'est plus qu'un relais vers lui. Les
+# Releases d'avant (v2.7.0, v2.9.0, v2.11.0, v2.14.0) gardent leur installateur PowerShell : ce sont lui et leur tâche
+# qui installent la version au relais, comme chez les amis qui se mettent à jour.
 # Code de sortie 1 si un cas échoue.
 param([int]$Cas = -1, [string]$Client)
 
@@ -386,13 +394,16 @@ function Test-DroitsTache([string]$Sddl, [string]$Sid) {
     }
     $lui
 }
-# La tâche SYSTEM du mini-installateur, inscrite pour $Sid, avec ce fichier de demande
-function Test-TacheSysteme([string]$Sid, [string]$Demande, [string]$Script) {
+# La tâche SYSTEM du mini-installateur, inscrite pour $Sid, avec ce fichier de demande. $Programme : ce qu'elle lance,
+# MindsetInstallateur.exe (lancé lui-même, -Action demande) ou, pour une Release d'avant, installer-admin.ps1 (par
+# powershell.exe -File)
+function Test-TacheSysteme([string]$Sid, [string]$Demande, [string]$Programme) {
     $t = Get-InfoTache $NomTache
     if (-not $t) { Write-Host '         | tâche absente' -ForegroundColor DarkGray; return $false }
-    Write-Host "         | tâche : $($t.Compte) $($t.LogonType) $($t.RunLevel) ; $($t.Arguments) ; $($t.Sddl)" -ForegroundColor DarkGray
+    Write-Host "         | tâche : $($t.Compte) $($t.LogonType) $($t.RunLevel) ; $($t.Commande) $($t.Arguments) ; $($t.Sddl)" -ForegroundColor DarkGray
+    $lance = if ($Programme -like '*.ps1') { $t.Arguments.Contains("-File `"$Programme`"") } else { $t.Commande -eq "`"$Programme`"" -and $t.Arguments.StartsWith('-Action demande -Sid ') }
     (ConvertTo-Sid $t.Compte) -eq 'S-1-5-18' -and $t.RunLevel -eq 'HighestAvailable' -and $t.Arguments.Contains("-Sid $Sid ") -and $t.Arguments.Contains("-Demande `"$Demande`"") -and
-        $t.Arguments.Contains("-File `"$Script`"") -and (Test-DroitsTache $t.Sddl $Sid)
+        $lance -and (Test-DroitsTache $t.Sddl $Sid)
 }
 function Get-Valeur([string]$Nom) { try { [string](Get-ItemProperty -Path $CleInstallation -Name $Nom -ErrorAction Stop).$Nom } catch { '' } }
 function Get-VersionInstallee([string]$Dossier) {
@@ -411,6 +422,8 @@ function Get-ProgrammesDans([string]$Dossier) {
 }
 $ProgrammesC = Join-Path $env:ProgramFiles 'Mindset'
 $MindsetC = Join-Path $ProgrammesC 'Mindset'
+# Le mini-installateur installé, à côté de Mindset.exe
+$ExeC = Join-Path $MindsetC 'MindsetInstallateur.exe'
 # Une demande « appli » : l'appli d'essai (Essai.exe, et sa partie administrateur EssaiAide.exe si -Aide)
 function Get-DemandeEssai([string]$Donnees, [string]$Programmes = $ProgrammesC, [switch]$Aide) {
     $t = Join-Path $Donnees 'telechargements'
@@ -447,6 +460,9 @@ function Initialize-Essai {
     Copy-Item -LiteralPath (Join-Path $depotGit 'Mindset') -Destination $Depot -Recurse
     Copy-Item -LiteralPath (Join-Path $depotGit 'outils') -Destination $Depot -Recurse
     Copy-Item -LiteralPath (Join-Path $Racine 'cle\publique-test.xml') -Destination (Join-Path $Source 'fichiers\cles-publiques\essai-test.xml')
+    # Le mini-installateur en Rust, construit dans ce même run (cargo build --release --locked), à côté de Mindset.exe
+    if (-not $env:MINDSET_INSTALLATEUR -or -not (Test-Path -LiteralPath $env:MINDSET_INSTALLATEUR)) { throw 'MindsetInstallateur.exe absent : la variable MINDSET_INSTALLATEUR doit donner l''exe construit par le workflow.' }
+    Copy-Item -LiteralPath $env:MINDSET_INSTALLATEUR -Destination (Join-Path $Source 'MindsetInstallateur.exe')
     # L'appli d'essai ajoutée au apps.json de la copie d'essai (l'installateur n'installe que les applis de apps.json)
     $fApps = Join-Path $Source 'fichiers\apps.json'
     $apps = @(([IO.File]::ReadAllText($fApps, [Text.Encoding]::UTF8) | ConvertFrom-Json) | ForEach-Object { $_ })
@@ -454,7 +470,10 @@ function Initialize-Essai {
                                 script = 'fichiers\Essai.ps1'; mutex = 'Local\Essai-Instance'; donnees = '%LOCALAPPDATA%\Essai'; admin = $false; aide = 'Essai (aide)'; aide_exe = 'EssaiAide.exe' }
     [IO.File]::WriteAllText($fApps, (ConvertTo-Json -InputObject $apps -Depth 4), (New-Object Text.UTF8Encoding $true))
     & (Join-Path $Depot 'outils\construire.ps1') | Out-Host
-    Test-Cas 'Mindset construit (Mindset.exe et son désinstalleur)' { (Test-Path -LiteralPath (Join-Path $Source 'Mindset.exe')) -and (Test-Path -LiteralPath (Join-Path $Source 'Desinstaller Mindset.exe')) }
+    Test-Cas 'Mindset construit (Mindset.exe et son désinstalleur), avec MindsetInstallateur.exe et le relais installer-admin.ps1' {
+        (Test-Path -LiteralPath (Join-Path $Source 'Mindset.exe')) -and (Test-Path -LiteralPath (Join-Path $Source 'Desinstaller Mindset.exe')) -and (Test-Path -LiteralPath (Join-Path $Source 'MindsetInstallateur.exe')) -and
+            [IO.File]::ReadAllText((Join-Path $Source 'fichiers\installer-admin.ps1'), [Text.Encoding]::UTF8).Contains('MindsetInstallateur.exe')
+    }
 
     # Le zip de mise à jour : la même copie, en version $VersionMaj, signée avec la clé de TEST
     $maj = Join-Path $Racine 'maj'
@@ -493,8 +512,9 @@ function Initialize-Essai {
         $ok
     }
 
-    # Les Releases v2.11.0, v2.9.0 et v2.7.0 (zip publié, vérifié avec les vraies clés), puis la clé de TEST ajoutée à leur copie
-    foreach ($v in '2.11.0', '2.9.0', '2.7.0') {
+    # Les Releases v2.14.0 (la dernière en PowerShell), v2.11.0, v2.9.0 et v2.7.0 (zip publié, vérifié avec les vraies
+    # clés), puis la clé de TEST ajoutée à leur copie
+    foreach ($v in '2.14.0', '2.11.0', '2.9.0', '2.7.0') {
         $d = Join-Path $Racine "releases\v$v"
         if (Test-Path -LiteralPath $d) { Remove-Item -LiteralPath $d -Recurse -Force }
         New-Item -ItemType Directory -Force -Path $d | Out-Null
@@ -507,6 +527,14 @@ function Initialize-Essai {
         Copy-Item -LiteralPath (Join-Path $Racine 'cle\publique-test.xml') -Destination (Join-Path $d 'x\Mindset\fichiers\cles-publiques\essai-test.xml')
         Test-Cas "Release v$v : Mindset $v dedans" { (Get-VersionInstallee (Join-Path $d 'x\Mindset')) -eq $v }
     }
+
+    # Relevé (passage en Rust) : New-Item -Force sur une clé du registre qui existe déjà garde-t-il ses valeurs ?
+    # (l'installateur PowerShell s'en servait avant d'écrire l'accusé de réception et la réponse)
+    $k = 'HKLM:\SOFTWARE\MindsetEssaiCle'
+    New-Item -Path $k -Force | Out-Null; Set-ItemProperty -Path $k -Name 'A' -Value '1'; New-Item -Path $k -Force | Out-Null
+    $garde = $null -ne (Get-ItemProperty -Path $k -Name 'A' -ErrorAction SilentlyContinue)
+    Remove-Item -Path $k -Recurse -Force
+    Write-Host "         | relevé : New-Item -Force sur une clé qui existe : ses valeurs sont $(if ($garde) { 'gardées' } else { 'effacées' })" -ForegroundColor DarkGray
 
     # Le script lui-même, et son lanceur pour les autres comptes (qui n'ont pas la variable GITHUB_ACTIONS)
     Copy-Item -LiteralPath $PSCommandPath -Destination (Join-Path $Racine 'outils\essai-installateur-reel.ps1') -Force
@@ -524,7 +552,7 @@ function Test-Cas1 {
     Test-Cas 'C: : installé dans Program Files\Mindset\Mindset, inscrit dans « Applications installées »' {
         $r.ok -and $r.message -eq $MindsetC -and (Test-Path -LiteralPath (Join-Path $MindsetC 'Mindset.exe')) -and [string](Get-ItemProperty $CleDesinstall).InstallLocation -eq $MindsetC
     }
-    Test-Cas 'C: : tâche SYSTEM pour runneradmin (demande dans son dossier, lue et lancée par lui seul)' { Test-TacheSysteme $ra.Sid (Join-Path $ra.Donnees 'installation.demande') (Join-Path $MindsetC 'fichiers\installer-admin.ps1') }
+    Test-Cas 'C: : tâche SYSTEM pour runneradmin (demande dans son dossier, lue et lancée par lui seul)' { Test-TacheSysteme $ra.Sid (Join-Path $ra.Donnees 'installation.demande') $ExeC }
     Test-Cas 'C: : tâche de démarrage sous son compte, sans droits' { $t = Get-InfoTache 'Mindset (démarrage)'; $t -and (ConvertTo-Sid $t.Compte) -eq $ra.Sid -and $t.LogonType -eq 'InteractiveToken' -and $t.RunLevel -eq 'LeastPrivilege' }
 
     $r = Install-MindsetDirect $ra.Sid 'D'
@@ -538,7 +566,7 @@ function Test-Cas1 {
         $modif = @($d.Access | Where-Object { $_.IdentityReference.Translate([Security.Principal.SecurityIdentifier]).Value -eq $ra.Sid -and ($_.FileSystemRights -band [Security.AccessControl.FileSystemRights]::Modify) -eq [Security.AccessControl.FileSystemRights]::Modify })
         $acl.AreAccessRulesProtected -and $users.Count -and -not @($users | Where-Object { $_.FileSystemRights -band [Security.AccessControl.FileSystemRights]::WriteData }).Count -and -not $autres.Count -and $modif.Count
     }
-    Test-Cas 'D: : la tâche SYSTEM lance la copie de D:, demande dans D:\Mindset\Donnees\Mindset' { Test-TacheSysteme $ra.Sid 'D:\Mindset\Donnees\Mindset\installation.demande' (Join-Path $dD 'fichiers\installer-admin.ps1') }
+    Test-Cas 'D: : la tâche SYSTEM lance la copie de D:, demande dans D:\Mindset\Donnees\Mindset' { Test-TacheSysteme $ra.Sid 'D:\Mindset\Donnees\Mindset\installation.demande' (Join-Path $dD 'MindsetInstallateur.exe') }
 
     $avant = (Get-InfoTache $NomTache).Dernier
     $s = Invoke-Client $ra @{ Mode = 'invoke'; Modules = (Join-Path $dD 'fichiers\modules'); DataDir = 'D:\Mindset\Donnees\Mindset'; Action = 'appli'; Parametres = (Get-DemandeEssai 'D:\Mindset\Donnees\Mindset' 'D:\Mindset\Programmes'); Copier = $CopierEssai }
@@ -598,7 +626,7 @@ function Test-MajDepuis([string]$Version) {
     Test-Cas 'le nouveau Mindset reconnaît l''ancienne tâche et la remplace par la tâche SYSTEM, sans demande de Windows' {
         $s.Etat -eq 'ancienne' -and $s.Remplace -eq $true -and $s.EtatApres -eq 'systeme' -and -not @($s.RunAs).Count
     }
-    Test-Cas 'la tâche SYSTEM est en place pour l''administrateur de test (ni son compte, ni « droits les plus élevés » sous son nom)' { Test-TacheSysteme $adm.Sid $demande (Join-Path $MindsetC 'fichiers\installer-admin.ps1') }
+    Test-Cas 'la tâche SYSTEM est en place pour l''administrateur de test (ni son compte, ni « droits les plus élevés » sous son nom)' { Test-TacheSysteme $adm.Sid $demande $ExeC }
     $s = Invoke-Client $adm @{ Mode = 'invoke'; Modules = (Join-Path $MindsetC 'fichiers\modules'); DataDir = $adm.Donnees; Action = 'appli'; Parametres = (Get-DemandeEssai $adm.Donnees); Copier = $CopierEssai }
     Test-Cas 'ensuite, une demande passe par la tâche SYSTEM' { $s.Etat -eq 'systeme' -and @($s.Fins).Count -eq 1 -and $s.Fins[0] -eq "True|$ProgrammesC\Essai" -and -not @($s.RunAs).Count }
 }
@@ -655,7 +683,7 @@ function Test-Cas5 {
     $r = Read-Json $rep
     Write-Host "         | réponse : $($r.ok) $($r.message)" -ForegroundColor DarkGray
     Test-Cas 'installé par l''administrateur pour Élodie' { $rep -like "$($e.Donnees)\telechargements\*" -and $r.ok -and $r.message -eq $MindsetC }
-    Test-Cas 'tâche SYSTEM inscrite pour Élodie : sa demande dans C:\Users\Élodie Test\AppData\Local\Mindset\Mindset (accents intacts)' { Test-TacheSysteme $e.Sid "C:\Users\$NomElodie\AppData\Local\Mindset\Mindset\installation.demande" (Join-Path $MindsetC 'fichiers\installer-admin.ps1') }
+    Test-Cas 'tâche SYSTEM inscrite pour Élodie : sa demande dans C:\Users\Élodie Test\AppData\Local\Mindset\Mindset (accents intacts)' { Test-TacheSysteme $e.Sid "C:\Users\$NomElodie\AppData\Local\Mindset\Mindset\installation.demande" $ExeC }
     Test-Cas 'tâche de démarrage sous le compte d''Élodie (pas celui de l''administrateur)' { $t = Get-InfoTache 'Mindset (démarrage)'; (ConvertTo-Sid $t.Compte) -eq $e.Sid -and $t.RunLevel -eq 'LeastPrivilege' }
 }
 
@@ -747,7 +775,7 @@ function Test-Cas8 {
     # c. Cassée : elle démarre, mais son script n'existe pas (aucun accusé de réception)
     Enable-ScheduledTask -TaskPath '\Mindset\' -TaskName $NomTache | Out-Null
     $t = Get-InfoTache $NomTache
-    $xml = $t.Xml.Replace('installer-admin.ps1', 'installer-absent.ps1')
+    $xml = $t.Xml.Replace('MindsetInstallateur.exe', 'MindsetInstallateur-absent.exe')
     Register-ScheduledTask -TaskPath '\Mindset\' -TaskName $NomTache -Xml $xml -Force | Out-Null
     $avantAncienne = (Get-InfoTache 'Mindset').Dernier
     $s = Invoke-Client $ra $client
@@ -806,7 +834,9 @@ function Test-Cas10 {
     $code = "[Environment]::SetEnvironmentVariable('MINDSET_TEMOIN_ENV', '1', 'User'); [Environment]::SetEnvironmentVariable('PSModulePath', '$marque', 'User')"
     $p = Microsoft.PowerShell.Management\Start-Process -FilePath $PowerShellExe -ArgumentList '-NoProfile', '-EncodedCommand', ([Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($code))) -Credential $e.Cred -LoadUserProfile -WorkingDirectory $Racine -PassThru -WindowStyle Hidden
     [void]$p.WaitForExit(60000)
-    # Deux copies de test de installer-admin.ps1 (dans Program Files : modifiables par les seuls administrateurs) : elles
+    # (MindsetInstallateur.exe, lui, ne lit aucune variable d'environnement : ses dossiers viennent de Windows, et les
+    # programmes qu'il lance reçoivent un environnement neuf. Le relais installer-admin.ps1, lancé par les tâches d'avant,
+    # est essayé ici.) Deux copies de test du relais (dans Program Files : modifiables par les seuls administrateurs) : elles
     # écrivent leur environnement au tout début (ce qu'elles reçoivent) et après le chargement des modules de Windows
     $copies = @{}
     foreach ($qui in 'systeme', 'utilisateur') {
@@ -822,11 +852,14 @@ function Test-Cas10 {
     }
     # La copie « systeme » lancée par la tâche SYSTEM d'Élodie, à l'identique (même compte, mêmes arguments)
     $t = Get-InfoTache $NomTache
-    $script = Join-Path $MindsetC 'fichiers\installer-admin.ps1'
-    Register-ScheduledTask -TaskPath '\MindsetEssai\' -TaskName 'Environnement' -Xml $t.Xml.Replace($script, $copies['systeme']) -Force | Out-Null
+    # (la tâche lance MindsetInstallateur.exe : ici, powershell.exe avec la copie, comme les tâches d'avant)
+    $debut = { param($Copie) "-NoProfile -NonInteractive -ExecutionPolicy Bypass -WindowStyle Hidden -File `"$Copie`" " }
+    $xml = [regex]::Replace($t.Xml, '<Command>[^<]*</Command>', "<Command>$PowerShellExe</Command>")
+    $xml = $xml.Replace('<Arguments>', '<Arguments>' + [Security.SecurityElement]::Escape((& $debut $copies['systeme'])))
+    Register-ScheduledTask -TaskPath '\MindsetEssai\' -TaskName 'Environnement' -Xml $xml -Force | Out-Null
     Start-ScheduledTask -TaskPath '\MindsetEssai\' -TaskName 'Environnement'
     # La contre-épreuve : la copie « utilisateur » lancée sous le compte d'Élodie, avec les mêmes arguments
-    $p = Microsoft.PowerShell.Management\Start-Process -FilePath $PowerShellExe -ArgumentList $t.Arguments.Replace($script, $copies['utilisateur']) -Credential $e.Cred -LoadUserProfile -WorkingDirectory $env:SystemRoot -PassThru -WindowStyle Hidden
+    $p = Microsoft.PowerShell.Management\Start-Process -FilePath $PowerShellExe -ArgumentList ((& $debut $copies['utilisateur']) + $t.Arguments) -Credential $e.Cred -LoadUserProfile -WorkingDirectory $env:SystemRoot -PassThru -WindowStyle Hidden
     [void]$p.WaitForExit(60000)
     $null = Wait-Jusque { Test-Path -LiteralPath "$Sorties\env-systeme-apres.txt" } 60
     $lire = { param($f) $x = @{ Vars = @{}; Modules = @() }; foreach ($l in @(Get-Content -LiteralPath $f -Encoding UTF8 -ErrorAction SilentlyContinue)) { if ($l -match '^COMPTE=(.*)') { $x.Compte = $Matches[1] } elseif ($l -match '^PSMODULEPATH=(.*)') { $x.PSModulePath = $Matches[1] } elseif ($l -match '^VAR ([^=]+)=(.*)') { $x.Vars[$Matches[1]] = $Matches[2] } elseif ($l -match '^MODULE (.*)') { $x.Modules += $Matches[1] } }; $x }
@@ -879,7 +912,7 @@ function Test-Cas11 {
     Test-Cas 'la partie administrateur est maintenant en SYSTEM, pour Élodie seulement (même programme)' {
         $t -and (ConvertTo-Sid $t.Compte) -eq 'S-1-5-18' -and $t.Arguments -match [regex]::Escape("-Sid $($e.Sid)") -and $t.Commande -eq "`"$ProgrammesC\Essai\EssaiAide.exe`"" -and (Test-DroitsTache $t.Sddl $e.Sid)
     }
-    Test-Cas 'la tâche SYSTEM du mini-installateur est toujours en place pour Élodie' { Test-TacheSysteme $e.Sid (Join-Path $e.Donnees 'installation.demande') (Join-Path $MindsetC 'fichiers\installer-admin.ps1') }
+    Test-Cas 'la tâche SYSTEM du mini-installateur est toujours en place pour Élodie' { Test-TacheSysteme $e.Sid (Join-Path $e.Donnees 'installation.demande') $ExeC }
     $s = Invoke-Client $e @{ Mode = 'demarrage-taches'; Modules = $modules; DataDir = $e.Donnees; Reglages = @{ TachesRefaitesPour = $VersionMaj } }
     Test-Cas 'démarrage suivant (tout est en ordre, déjà fait pour cette version) : aucune demande' { -not $s.Anciennes -and -not $s.Envoyee }
 }
@@ -906,7 +939,7 @@ function Test-Cas12 {
     $s = Invoke-Client $e ($base + @{ Action = 'taches'; Parametres = @{ Destination = $piege } })
     $apres = Get-InfoTache $NomTache
     Test-Cas 'demande « taches » vers C:\Mindset\Programmes\Mindset : refusée (« Dossier refusé »), la tâche SYSTEM lance toujours Program Files' {
-        @($s.Fins).Count -eq 1 -and $s.Fins[0] -like 'False|*Dossier refusé*' -and -not @($s.RunAs).Count -and $apres.Arguments -eq $avant.Arguments -and $apres.Arguments.Contains("`"$MindsetC\fichiers\installer-admin.ps1`"")
+        @($s.Fins).Count -eq 1 -and $s.Fins[0] -like 'False|*Dossier refusé*' -and -not @($s.RunAs).Count -and $apres.Arguments -eq $avant.Arguments -and $apres.Commande -eq "`"$ExeC`""
     }
     $s = Invoke-Client $e ($base + @{ Action = 'appli'; Parametres = (Get-DemandeEssai $e.Donnees 'C:\Mindset\Programmes'); Copier = $CopierEssai })
     Test-Cas 'appli vers C:\Mindset\Programmes\Essai : refusée, rien installé là' { @($s.Fins).Count -eq 1 -and $s.Fins[0] -like 'False|*Dossier refusé*' -and -not (Test-Path -LiteralPath 'C:\Mindset\Programmes\Essai\Essai.exe') }
@@ -954,10 +987,67 @@ function Test-Cas13 {
 }
 
 # =====================================================================================================================
+# 14. Mise à jour depuis la dernière version PowerShell (Release v2.14.0) : la bascule vers MindsetInstallateur.exe
+# =====================================================================================================================
+function Test-Cas14 {
+    Write-Partie '14. Mise à jour depuis la Release v2.14.0 (la dernière en PowerShell) : bascule vers MindsetInstallateur.exe'
+    Reset-Machine
+    $e = Get-Compte $NomElodie
+    $ancien = Join-Path $Racine 'releases\v2.14.0\x\Mindset'
+    $r = Install-MindsetDirect $e.Sid '' $ancien '2.14.0'
+    $modules = Join-Path $MindsetC 'fichiers\modules'
+    $demande = Join-Path $e.Donnees 'installation.demande'
+    Test-Cas 'Mindset 2.14.0 installé pour Élodie (son installateur PowerShell), sa tâche SYSTEM lance installer-admin.ps1' {
+        $r.ok -and (Get-VersionInstallee $MindsetC) -eq '2.14.0' -and -not (Test-Path -LiteralPath $ExeC) -and (Test-TacheSysteme $e.Sid $demande (Join-Path $MindsetC 'fichiers\installer-admin.ps1'))
+    }
+    # Avec la 2.14.0 : l'appli d'essai et sa partie administrateur, installées par son installateur PowerShell
+    $s = Invoke-Client $e @{ Mode = 'invoke'; Modules = $modules; DataDir = $e.Donnees; Action = 'appli'; Parametres = (Get-DemandeEssai $e.Donnees -Aide); Copier = $CopierEssai }
+    $gardee = try { [string](Get-ItemProperty -Path 'HKLM:\SOFTWARE\Mindset\Versions' -Name 'essai' -ErrorAction Stop).essai } catch { '' }
+    Test-Cas 'avec la 2.14.0 : appli d''essai 2.0.0 installée par la tâche SYSTEM, sa version gardée dans HKLM' { @($s.Fins).Count -eq 1 -and $s.Fins[0] -eq "True|$ProgrammesC\Essai" -and $gardee -eq '2.0.0' }
+
+    # La 2.14.0 demande sa mise à jour (ses propres fonctions) : son installateur PowerShell installe la version au relais
+    $s = Invoke-Client $e @{ Mode = 'maj'; Modules = $modules; DataDir = $e.Donnees; Version = $VersionMaj; Copier = @((Join-Path $Paquets 'mindset.zip'), (Join-Path $Paquets 'mindset.zip.sig')) }
+    $fini = Wait-Jusque { $v = Get-Valeur 'Resultat'; $v -and $s.Demande -and $v -match $s.Demande } 180
+    Test-Cas "la 2.14.0 se met à jour par sa tâche SYSTEM ($VersionMaj installé, avec MindsetInstallateur.exe et le relais)" {
+        $fini -and (Get-Valeur 'Resultat' | ConvertFrom-Json).ok -and (Get-VersionInstallee $MindsetC) -eq $VersionMaj -and (Test-Path -LiteralPath $ExeC) -and
+            [IO.File]::ReadAllText((Join-Path $MindsetC 'fichiers\installer-admin.ps1'), [Text.Encoding]::UTF8).Contains('MindsetInstallateur.exe')
+    }
+    Test-Cas 'contre-épreuve : juste après, la tâche SYSTEM lance encore installer-admin.ps1 (inscrite par l''installateur de la 2.14.0), qui n''est plus que le relais' {
+        Test-TacheSysteme $e.Sid $demande (Join-Path $MindsetC 'fichiers\installer-admin.ps1')
+    }
+    # Le nouveau Mindset démarre (nouvelle version : demande « taches » par la tâche SYSTEM) : le relais la passe à
+    # MindsetInstallateur.exe, qui refait les tâches : la tâche SYSTEM le lance désormais lui-même
+    $s = Invoke-Client $e @{ Mode = 'demarrage-taches'; Modules = $modules; DataDir = $e.Donnees }
+    Test-Cas 'au démarrage du nouveau Mindset : demande « taches » par la tâche SYSTEM (le relais), sans demande de Windows, réussie' { $s.Etat -eq 'systeme' -and $s.Envoyee -and $s.Refaites -eq $VersionMaj -and -not @($s.RunAs).Count }
+    Test-Cas 'la tâche SYSTEM lance désormais MindsetInstallateur.exe, pour Élodie seulement, avec la même demande' { Test-TacheSysteme $e.Sid $demande $ExeC }
+    Test-Cas 'la tâche de démarrage reste sous le compte d''Élodie, sans droits ; la partie administrateur de l''appli reste en SYSTEM pour elle' {
+        $d = Get-InfoTache 'Mindset (démarrage)'; $a = Get-InfoTache 'Essai (aide)'
+        $d -and (ConvertTo-Sid $d.Compte) -eq $e.Sid -and $d.RunLevel -eq 'LeastPrivilege' -and $d.Commande -eq "`"$MindsetC\Mindset.exe`"" -and
+            $a -and (ConvertTo-Sid $a.Compte) -eq 'S-1-5-18' -and $a.Arguments -match [regex]::Escape("-Sid $($e.Sid)") -and $a.Commande -eq "`"$ProgrammesC\Essai\EssaiAide.exe`"" -and (Test-DroitsTache $a.Sddl $e.Sid)
+    }
+
+    # Ensuite, tout passe par MindsetInstallateur.exe (lancé directement par la tâche)
+    $s = Invoke-Client $e @{ Mode = 'invoke'; Modules = $modules; DataDir = $e.Donnees; Action = 'appli'; Parametres = (Get-DemandeEssai $e.Donnees -Aide); Copier = $CopierEssai }
+    Test-Cas 'par MindsetInstallateur.exe : l''appli d''essai réinstallée (elle est fermée puis remplacée), sans demande de Windows' { $s.Etat -eq 'systeme' -and @($s.Fins).Count -eq 1 -and $s.Fins[0] -eq "True|$ProgrammesC\Essai" -and -not @($s.RunAs).Count }
+    $p = Get-DemandeEssai $e.Donnees; $p.Zip = Join-Path $e.Donnees 'telechargements\essai-ancien.zip'; $p.Signature = "$($p.Zip).sig"
+    $s = Invoke-Client $e @{ Mode = 'invoke'; Modules = $modules; DataDir = $e.Donnees; Action = 'appli'; Parametres = $p; Copier = @((Join-Path $Paquets 'essai-ancien.zip'), (Join-Path $Paquets 'essai-ancien.zip.sig')) }
+    Test-Cas 'par MindsetInstallateur.exe : l''ancienne version 1.0.0 (signée) refusée, la version gardée par la 2.14.0 compte toujours' { @($s.Fins).Count -eq 1 -and $s.Fins[0] -like 'False|*a déjà été installée*' }
+    # Une mise à jour de Mindset faite par MindsetInstallateur.exe lui-même (il remplace le dossier d'où il tourne)
+    $s = Invoke-Client $e @{ Mode = 'maj'; Modules = $modules; DataDir = $e.Donnees; Version = $VersionMaj; Copier = @((Join-Path $Paquets 'mindset.zip'), (Join-Path $Paquets 'mindset.zip.sig')) }
+    $fini = Wait-Jusque { $v = Get-Valeur 'Resultat'; $v -and $s.Demande -and $v -match $s.Demande } 180
+    $restes = @(Get-ChildItem -LiteralPath $ProgrammesC -Directory -Force | Where-Object { $_.Name -like 'Mindset.*' })
+    foreach ($x in $restes) { Write-Host "         | à côté de Mindset : $($x.Name) [$(@(Get-ChildItem -LiteralPath $x.FullName -Recurse -File -Force | ForEach-Object { $_.Name }) -join ', ')]" -ForegroundColor DarkGray }
+    Test-Cas 'mise à jour de Mindset par MindsetInstallateur.exe (qui tourne depuis le dossier remplacé) : réussie, exe et tâches en place' {
+        $fini -and (Get-Valeur 'Resultat' | ConvertFrom-Json).ok -and (Get-VersionInstallee $MindsetC) -eq $VersionMaj -and (Test-Path -LiteralPath $ExeC) -and (Test-TacheSysteme $e.Sid $demande $ExeC)
+    }
+    Test-Cas 'à côté de Mindset, plus rien de l''ancien dossier (l''exe qui tournait en est sorti, effacé au prochain démarrage de Windows)' { $restes.Count -eq 0 }
+}
+
+# =====================================================================================================================
 $titres = @{ 0 = 'Préparation'; 1 = 'Installation C:, D:, demande par la tâche SYSTEM'; 2 = 'Mise à jour depuis v2.9.0'; 3 = 'Mise à jour depuis v2.7.0'; 4 = 'Mise à jour cachée sur runneradmin'
     5 = 'Compte standard accentué installé par un administrateur'; 6 = 'Le compte standard lance la tâche'; 7 = 'Deux comptes standard'; 8 = 'Tâche absente, désactivée ou cassée'; 9 = 'Désinstallation'; 10 = 'Environnement de l''utilisateur'
-    11 = 'Mise à jour directe depuis v2.11.0'; 12 = 'Compte standard malveillant'; 13 = 'Variable COR_* dans HKCU\Environment' }
-if (-not $titres.ContainsKey($Cas)) { Write-Host 'Indique -Cas 0 (préparation) ou -Cas 1 à 13.' -ForegroundColor Yellow; exit 2 }
+    11 = 'Mise à jour directe depuis v2.11.0'; 12 = 'Compte standard malveillant'; 13 = 'Variable COR_* dans HKCU\Environment'; 14 = 'Mise à jour depuis v2.14.0, bascule vers MindsetInstallateur.exe' }
+if (-not $titres.ContainsKey($Cas)) { Write-Host 'Indique -Cas 0 (préparation) ou -Cas 1 à 14.' -ForegroundColor Yellow; exit 2 }
 try {
     if ($Cas -ne 0) { Copy-Item -LiteralPath $PSCommandPath -Destination (Join-Path $Racine 'outils\essai-installateur-reel.ps1') -Force }
     switch ($Cas) {
@@ -975,6 +1065,7 @@ try {
         11 { Test-Cas11 }
         12 { Test-Cas12 }
         13 { Test-Cas13 }
+        14 { Test-Cas14 }
     }
 } catch {
     $script:Echoues.Add("erreur : $($_.Exception.Message)")

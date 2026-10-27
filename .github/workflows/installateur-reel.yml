@@ -1,5 +1,7 @@
 # Le mini-installateur essayé en vrai sur la machine jetable de GitHub (vraies tâches planifiées, vrais comptes Windows,
 # vraie installation de Mindset). Lancé à la main seulement (gh workflow run installateur-reel.yml).
+# Depuis l'étape 2 du passage en Rust : MindsetInstallateur.exe est construit d'abord, dans ce même run, puis mis à côté
+# de Mindset.exe dans la copie d'essai ; installer-admin.ps1 n'est plus qu'un relais vers lui.
 # Tout le code est dans outils\essai-installateur-reel.ps1 (UTF-8 avec BOM : un nom accentué écrit ici arriverait abîmé).
 name: Installateur en vrai
 
@@ -12,17 +14,31 @@ permissions:
 jobs:
   essai:
     runs-on: windows-latest
-    timeout-minutes: 90
+    timeout-minutes: 120
     defaults:
       run:
         shell: powershell
     env:
       GH_TOKEN: ${{ github.token }}
+      CARGO_TERM_COLOR: never
     steps:
       - name: Récupérer le dépôt
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
-      - name: "0. Préparation (Mindset construit, clé de TEST, zips signés, Releases v2.11.0, v2.9.0 et v2.7.0)"
+      - name: "Construire MindsetInstallateur.exe (Rust 1.99.1, bibliothèques figées par Cargo.lock)"
+        working-directory: rust
+        run: |
+          rustup toolchain install
+          if ($LASTEXITCODE) { rustup show; if ($LASTEXITCODE) { exit 1 } }
+          if ((rustc --version) -notmatch '^rustc 1\.99\.1 ') { Write-Host 'Mauvaise version de Rust.'; exit 1 }
+          cargo build --release --locked -p mindset-installateur
+          if ($LASTEXITCODE) { exit 1 }
+          $exe = (Resolve-Path 'target\release\MindsetInstallateur.exe').Path
+          $h = (Get-FileHash -LiteralPath $exe -Algorithm SHA256).Hash
+          Write-Host "MindsetInstallateur.exe : SHA-256 $h"
+          [IO.File]::AppendAllText($env:GITHUB_ENV, "MINDSET_INSTALLATEUR=$exe`n")
+
+      - name: "0. Préparation (Mindset construit avec MindsetInstallateur.exe, clé de TEST, zips signés, Releases v2.14.0, v2.11.0, v2.9.0 et v2.7.0)"
         run: .\outils\essai-installateur-reel.ps1 -Cas 0
 
       - name: "1. Installation sur C:, puis sur D:\\Mindset, puis une demande par la tâche SYSTEM"
@@ -76,3 +92,7 @@ jobs:
       - name: "13. Variable COR_* dans HKCU\\Environment : pas de demande de Windows"
         if: ${{ !cancelled() }}
         run: .\outils\essai-installateur-reel.ps1 -Cas 13
+
+      - name: "14. Mise à jour depuis v2.14.0 (dernière version PowerShell) : bascule vers MindsetInstallateur.exe"
+        if: ${{ !cancelled() }}
+        run: .\outils\essai-installateur-reel.ps1 -Cas 14

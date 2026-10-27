@@ -1,0 +1,59 @@
+[package]
+name = "mindset-installateur"
+version = "0.1.0"
+description = 'MindsetInstallateur.exe : le mini-installateur de Mindset (tâche SYSTEM « \Mindset\Mindset (installation) »), qui remplace installer-admin.ps1'
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+
+# La bibliothèque : les règles et les actions, sans aucun appel à Windows (le trait `Systeme`) ; c'est elle que
+# `cargo test` passe au corpus cas\installateur, avec un faux Windows.
+[lib]
+name = "mindset_installateur"
+path = "src/lib.rs"
+
+# L'exe livré : la bibliothèque, plus le seul module qui parle à Windows (src/windows).
+[[bin]]
+name = "MindsetInstallateur"
+path = "src/main.rs"
+test = false
+
+[dependencies]
+suite-commun = { path = "../suite-commun" }
+# Versions figées (« = ») : une nouvelle version n'entre que par un changement relu.
+serde_json = "=1.0.154"
+windows-registry = "=0.6.1"
+
+[dependencies.windows]
+version = "=0.62.2"
+features = [
+    "Win32_Foundation",
+    "Win32_Security",
+    "Win32_Security_Authorization",
+    "Win32_Storage_FileSystem",
+    "Win32_System_Com",
+    "Win32_System_Diagnostics_ToolHelp",
+    "Win32_System_LibraryLoader",
+    "Win32_System_Ole",
+    "Win32_System_RemoteDesktop",
+    "Win32_System_SystemInformation",
+    "Win32_System_TaskScheduler",
+    "Win32_System_Threading",
+    "Win32_System_Variant",
+    "Win32_UI_Shell",
+    "Win32_UI_WindowsAndMessaging",
+]
+
+[dev-dependencies]
+# Les tests signent leurs zips avec une clé de test (tests/cle-de-test, jamais la clé de la suite)
+ring = "=0.17.14"
+zip = { version = "=9.1.2", default-features = false, features = ["deflate"] }
+
+# Pas `workspace = true` : le module Windows de l'exe a besoin d'autoriser le code « unsafe », que le reste du
+# dépôt interdit tout à fait (forbid). Ici, il est refusé partout (deny), sauf dans src/windows qui l'autorise.
+[lints.rust]
+unsafe_code = "deny"
+unsafe_op_in_unsafe_fn = "deny"
+
+[lints.clippy]
+all = { level = "warn", priority = -1 }

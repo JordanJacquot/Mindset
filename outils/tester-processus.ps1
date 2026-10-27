@@ -180,7 +180,7 @@ static class Essai {
     })
     if ($trouves.Count) { $trouves | ForEach-Object { Write-Host "         $_" -ForegroundColor DarkGray } }
     Test-Cas 'Ni Get-Process -Name, ni Stop-Process -Name, ni GetProcessesByName, ni taskkill, ni ProcessName' { $trouves.Count -eq 0 }
-    $admin = [IO.File]::ReadAllText((Join-Path $fichiers 'installer-admin.ps1'), [Text.Encoding]::UTF8)
+    $admin = [IO.File]::ReadAllText((Join-Path $PSScriptRoot 'installer-admin-powershell.ps1'), [Text.Encoding]::UTF8)   # (version PowerShell ; l'exe Rust : corpus cas\installateur)
     Test-Cas 'Le mini-installateur ferme par dossier (Stop-Programme reçoit le dossier vérifié)' { $admin -match 'Stop-Programme \$Exe \$dest' -and $admin -notmatch 'Stop-Programme \$Exe\s*(#|$|\})' }
 }
 catch {

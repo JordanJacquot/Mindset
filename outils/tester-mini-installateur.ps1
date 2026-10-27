@@ -172,7 +172,7 @@ $appli = @{ Zip = (Join-Path $TelechargementsDir 'a.zip'); Signature = (Join-Pat
 # Le corpus de cas, côté Mindset (cas\installateur\cote-mindset-*.json, format décrit dans cas\LISEZMOI.md) : les mêmes cas
 # serviront à Mindset en Rust. Le nombre de cas attendu au moins dans chaque fichier : un cas retiré fait échouer le test.
 $dossierCas = Join-Path $racine 'cas\installateur'
-$minimumCas = [ordered]@{ 'cote-mindset-tache.json' = 4; 'cote-mindset-variables.json' = 9; 'cote-mindset-taches-anciennes.json' = 4; 'cote-mindset-arguments.json' = 3 }
+$minimumCas = [ordered]@{ 'cote-mindset-tache.json' = 5; 'cote-mindset-variables.json' = 9; 'cote-mindset-taches-anciennes.json' = 4; 'cote-mindset-arguments.json' = 3 }
 $valeursCas = @{ '{sid}' = $moi; '{sid-autre}' = 'S-1-5-21-1111111111-2222222222-3333333333-1001'; '{demande}' = $FichierDemande }
 function Expand-Texte([string]$T) {
     foreach ($k in $valeursCas.Keys) { $T = $T.Replace($k, $valeursCas[$k]) }

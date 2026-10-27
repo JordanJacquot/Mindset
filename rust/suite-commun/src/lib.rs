@@ -6,6 +6,11 @@
 //! - [`json_sur`] : l'écriture et la lecture sûres d'un fichier JSON (comme `Save-JsonSur` et `Read-JsonSur`,
 //!   modules\donnees.ps1).
 //!
+//! Pour l'installateur de Mindset en Rust (étape 2) :
+//! - [`chemins`] : les chemins de la suite, et les chemins complets comme .NET les calcule ;
+//! - [`protocole_installateur`] : la demande et la réponse de la tâche SYSTEM du mini-installateur ;
+//! - [`version_paquet`] : la version d'une appli dans son zip ou dans son dossier.
+//!
 //! Le banc d'essai (outils\banc-suite-commun.ps1) passe les mêmes fichiers à la version PowerShell et à cette
 //! bibliothèque, et vérifie qu'elles répondent pareil.
 //!
@@ -15,9 +20,12 @@
 #![forbid(unsafe_code)]
 
 mod base64;
+pub mod chemins;
 pub mod json_sur;
 pub mod paquet;
+pub mod protocole_installateur;
 pub mod signature;
 mod texte;
 pub mod version;
+pub mod version_paquet;
 mod xml;

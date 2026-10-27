@@ -23,8 +23,10 @@ Add-Type -AssemblyName System.IO.Compression, System.IO.Compression.FileSystem
 . (Join-Path $fichiers 'modules\signature.ps1')
 . (Join-Path $fichiers 'modules\paquets.ps1')
 
-# installer-admin.ps1 exécute du code dès son chargement : on n'en prend que les fonctions voulues (lues par l'analyseur)
-$texte = [IO.File]::ReadAllText((Join-Path $fichiers 'installer-admin.ps1'), [Text.Encoding]::UTF8)
+# installer-admin.ps1 exécute du code dès son chargement : on n'en prend que les fonctions voulues (lues par l'analyseur).
+# (Sa version PowerShell, gardée pour les tests : le mini-installateur livré est MindsetInstallateur.exe, jugé sur le même
+# corpus par « cargo test » ; Mindset\fichiers\installer-admin.ps1 n'est plus qu'un relais vers lui.)
+$texte = [IO.File]::ReadAllText((Join-Path $PSScriptRoot 'installer-admin-powershell.ps1'), [Text.Encoding]::UTF8)
 $erreurs = $null
 $ast = [System.Management.Automation.Language.Parser]::ParseInput($texte, [ref]$null, [ref]$erreurs)
 if ($erreurs) { throw "installer-admin.ps1 illisible : $($erreurs[0].Message)" }

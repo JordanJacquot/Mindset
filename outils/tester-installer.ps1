@@ -1,6 +1,15 @@
-﻿# Mindset : tests automatiques des refus du mini-installateur (fichiers\installer-admin.ps1).
+﻿# Mindset : tests automatiques des refus du mini-installateur, version PowerShell, et du relais qui passe la main à la
+# version Rust.
 #
 #   powershell -NoProfile -ExecutionPolicy Bypass -File .\outils\tester-installer.ps1
+#
+# Depuis l'étape 2 du passage en Rust, le mini-installateur livré est MindsetInstallateur.exe (rust\mindset-installateur,
+# jugé sur le même corpus par « cargo test ») et Mindset\fichiers\installer-admin.ps1 n'est plus qu'un relais vers lui.
+# Ici :
+#   - le corpus cas\installateur passe à la version PowerShell d'avant, gardée pour cela (outils\installer-admin-powershell.ps1) :
+#     les cas restent justes pour les deux versions ;
+#   - le relais est essayé à part : paramètres passés tels quels à un faux MindsetInstallateur.exe, tâches repointées,
+#     refus quand l'exe n'est pas dans un dossier protégé, protections des premières lignes.
 #
 # installer-admin.ps1 tourne en administrateur, lancé par la tâche « \Mindset\Mindset (installation) » : il lit une
 # demande écrite par Mindset sans droits, et revérifie tout. Ici, chaque refus est essayé pour de vrai : la demande est
@@ -344,7 +353,9 @@ New-Item -ItemType Directory -Force -Path (Join-Path $copie 'modules'), (Join-Pa
 # Le bloc des dossiers de Windows (entre « <dossiers-windows> » et « </dossiers-windows> ») est remplacé par ceux du faux
 # PC : Program Files de test, schtasks et icacls remplacés par de fausses fonctions. Le vrai bloc est vérifié à part
 # (aucune variable d'environnement).
-$texteInstalleur = [IO.File]::ReadAllText((Join-Path $fichiers 'installer-admin.ps1'), [Text.Encoding]::UTF8)
+$texteInstalleur = [IO.File]::ReadAllText((Join-Path $PSScriptRoot 'installer-admin-powershell.ps1'), [Text.Encoding]::UTF8)
+# Le relais livré (Mindset\fichiers\installer-admin.ps1)
+$texteRelais = [IO.File]::ReadAllText((Join-Path $fichiers 'installer-admin.ps1'), [Text.Encoding]::UTF8)
 $blocWindows = [regex]::Match($texteInstalleur, '(?s)# <dossiers-windows>.*?# </dossiers-windows>')
 if (-not $blocWindows.Success) { throw 'Bloc <dossiers-windows> introuvable dans installer-admin.ps1.' }
 $faux = @'
@@ -549,7 +560,9 @@ $valeursCas = @{
     '{zip-appli}' = $zipAppli; '{zip-mindset}' = $zipMindset; '{sig-fausse}' = $sigFausse
     '{src-ok}' = $srcOk; '{src-sans-exe}' = $srcSansExe; '{src-sans-script}' = $srcSansScript
     '{sid}' = $sidActuel; '{sid-autre}' = 'S-1-5-21-1111111111-2222222222-3333333333-1001'
-    '{powershell}' = (Join-Path ([Environment]::GetFolderPath('System')) 'WindowsPowerShell\v1.0\powershell.exe')
+    # (ce que lance la tâche d'installation de la version PowerShell : powershell.exe de System32)
+    '{programme-installation}' = (Join-Path ([Environment]::GetFolderPath('System')) 'WindowsPowerShell\v1.0\powershell.exe')
+    '{arguments-installation}' = '-Argument -NoProfile -NonInteractive'
     '{ancienne}' = (Join-Path $tmp 'ancienne\Appli.exe')
 }
 function Expand-Texte([string]$T, [hashtable]$Valeurs) {
@@ -771,24 +784,30 @@ public static class MindsetTestPointAnalyse {
         $refus -and $bon
     }
 
-    Test-Cas 'le vrai bloc des dossiers de Windows les demande à Windows (GetFolderPath), sans aucune variable d''environnement' {
-        $b = $blocWindows.Value
-        $b -notmatch '\$env:|\$\{env:' -and $b -match "GetFolderPath\('System'\)" -and $b -match "GetFolderPath\('ProgramFiles'\)" -and $b -match "GetFolderPath\('Windows'\)"
-    }
-    Test-Cas 'aucune autre variable d''environnement dans l''installateur (seulement PSModulePath, qu''il fixe lui-même)' {
-        $autres = @([regex]::Matches($texteInstalleur, '\$env:\w+|\$\{env:[^}]+\}') | ForEach-Object { $_.Value } | Where-Object { $_ -ne '$env:PSModulePath' })
-        -not $autres.Count
-    }
-    Test-Cas 'avant toute autre commande : PSModulePath réduit à System32, chargement automatique coupé, modules importés par leur chemin' {
-        $ast = [System.Management.Automation.Language.Parser]::ParseInput($texteInstalleur, [ref]$null, [ref]$null)
-        $premieres = @($ast.EndBlock.Statements | Select-Object -First 4 | ForEach-Object { $_.Extent.Text })
-        $premieres[0] -eq "`$ErrorActionPreference = 'Stop'" -and $premieres[1] -like "`$env:PSModulePath = [[]Environment[]]::GetFolderPath('System') + *" -and
-            $premieres[2] -eq "`$PSModuleAutoLoadingPreference = 'None'" -and $premieres[3] -like 'foreach (*ScheduledTasks*Import-Module -Name ($env:PSModulePath*'
+    # Les protections des premières lignes : dans le relais livré, et dans la version PowerShell de référence
+    $blocRelais = [regex]::Match($texteRelais, '(?s)# <dossiers-windows>.*?# </dossiers-windows>')
+    foreach ($x in @(@('le relais livré', $texteRelais, $blocRelais), @('la version PowerShell de référence', $texteInstalleur, $blocWindows))) {
+        $quoi = $x[0]; $texteX = $x[1]; $blocX = $x[2]
+        Test-Cas "$quoi : le bloc des dossiers de Windows les demande à Windows (GetFolderPath), sans aucune variable d'environnement" {
+            $b = $blocX.Value
+            $blocX.Success -and $b -notmatch '\$env:|\$\{env:' -and $b -match "GetFolderPath\('System'\)" -and $b -match "GetFolderPath\('ProgramFiles'\)" -and $b -match "GetFolderPath\('Windows'\)"
+        }
+        Test-Cas "$quoi : aucune autre variable d'environnement (seulement PSModulePath, fixé par le script lui-même)" {
+            $autres = @([regex]::Matches($texteX, '\$env:\w+|\$\{env:[^}]+\}') | ForEach-Object { $_.Value } | Where-Object { $_ -ne '$env:PSModulePath' })
+            -not $autres.Count
+        }
+        Test-Cas "$quoi : avant toute autre commande, PSModulePath réduit à System32, chargement automatique coupé, modules importés par leur chemin" {
+            $ast = [System.Management.Automation.Language.Parser]::ParseInput($texteX, [ref]$null, [ref]$null)
+            $premieres = @($ast.EndBlock.Statements | Select-Object -First 4 | ForEach-Object { $_.Extent.Text })
+            $premieres[0] -eq "`$ErrorActionPreference = 'Stop'" -and $premieres[1] -like "`$env:PSModulePath = [[]Environment[]]::GetFolderPath('System') + *" -and
+                $premieres[2] -eq "`$PSModuleAutoLoadingPreference = 'None'" -and $premieres[3] -like 'foreach (*Import-Module -Name ($env:PSModulePath*'
+        }
     }
 
     # De faux modules qui portent le nom de ceux de Windows, en tête de PSModulePath (comme Documents\WindowsPowerShell\Modules,
     # que l'utilisateur, ou un programme lancé sans droits, peut remplir) : chacun laisse un fichier témoin s'il est chargé.
-    # Ici, la vraie copie d'installer-admin.ps1 (sans aucune fausse fonction) lit une demande au numéro invalide, puis s'arrête.
+    # Ici, les vraies copies du relais et de la version de référence (sans aucune fausse fonction) lisent une demande au
+    # numéro invalide, puis s'arrêtent.
     $faux = Join-Path $tmp 'faux-modules'; $temoins = Join-Path $tmp 'temoins'
     New-Item -ItemType Directory -Force -Path $temoins | Out-Null
     $commandes = @{
@@ -805,9 +824,10 @@ public static class MindsetTestPointAnalyse {
     }
     $vrai = Join-Path $tmp 'vrai\fichiers'
     New-Item -ItemType Directory -Force -Path (Join-Path $vrai 'modules') | Out-Null
-    [IO.File]::WriteAllText((Join-Path $vrai 'installer-admin.ps1'), $texteInstalleur, (New-Object Text.UTF8Encoding $true))
+    [IO.File]::WriteAllText((Join-Path $vrai 'installer-admin.ps1'), $texteRelais, (New-Object Text.UTF8Encoding $true))
+    [IO.File]::WriteAllText((Join-Path $vrai 'reference.ps1'), $texteInstalleur, (New-Object Text.UTF8Encoding $true))
     # Contre-épreuve : la même copie sans ses premières lignes (PSModulePath, chargement automatique, import par chemin)
-    $sansProtection = [regex]::Replace($texteInstalleur, "(?s)\`$env:PSModulePath = .*?(?=# <dossiers-windows>)", '')
+    $sansProtection = [regex]::Replace($texteRelais, "(?s)\`$env:PSModulePath = .*?(?=# <dossiers-windows>)", '')
     [IO.File]::WriteAllText((Join-Path $vrai 'sans-protection.ps1'), $sansProtection, (New-Object Text.UTF8Encoding $true))
     $demandeInvalide = New-Demande @{ Id = 'pas un numero'; Action = 'taches' }
     function Get-Temoins([string]$Script) {
@@ -820,14 +840,125 @@ public static class MindsetTestPointAnalyse {
         } finally { $env:PSModulePath = $chemins; $ErrorActionPreference = $eap }
         @(Get-ChildItem -LiteralPath $temoins -File | ForEach-Object { $_.BaseName })
     }
-    Test-Cas 'faux modules de Windows en tête de PSModulePath : aucun n''est chargé (aucun fichier témoin)' {
-        $t = @(Get-Temoins (Join-Path $vrai 'installer-admin.ps1'))
-        if ($t.Count) { Write-Host "         chargés : $($t -join ', ')" -ForegroundColor DarkGray }
-        -not $t.Count
+    foreach ($x in @(@('le relais', 'installer-admin.ps1'), @('la version de référence', 'reference.ps1'))) {
+        $f = Join-Path $vrai $x[1]
+        Test-Cas "faux modules de Windows en tête de PSModulePath : aucun n'est chargé par $($x[0]) (aucun fichier témoin)" {
+            $t = @(Get-Temoins $f)
+            if ($t.Count) { Write-Host "         chargés : $($t -join ', ')" -ForegroundColor DarkGray }
+            -not $t.Count
+        }
     }
-    Test-Cas 'contre-épreuve : sans ses premières lignes, l''installateur charge le faux module (témoin)' {
+    Test-Cas 'contre-épreuve : sans ses premières lignes, le relais charge le faux module (témoin)' {
         @(Get-Temoins (Join-Path $vrai 'sans-protection.ps1')).Count -gt 0
     }
+
+    # =============================================================================================================
+    Write-Partie 'Le relais (Mindset\fichiers\installer-admin.ps1) : il passe la main à MindsetInstallateur.exe'
+    # =============================================================================================================
+    # Un faux MindsetInstallateur.exe (compilé ici) note chaque lancement, avec ses arguments tels qu'il les reçoit,
+    # dans appels.txt à côté de lui. Le relais tourne sur le faux PC (mêmes fausses fonctions), depuis le dossier de
+    # Mindset de test, son bloc des dossiers de Windows remplacé par ceux du faux PC.
+    $fauxExe = Join-Path $tmp 'faux-installateur\MindsetInstallateur.exe'
+    New-Item -ItemType Directory -Force -Path (Split-Path $fauxExe -Parent) | Out-Null
+    Add-Type -OutputType ConsoleApplication -OutputAssembly $fauxExe -TypeDefinition @'
+using System; using System.IO;
+static class FauxInstallateur {
+    static int Main(string[] a) {
+        File.AppendAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "appels.txt"), string.Join("\t", a) + "\r\n", new System.Text.UTF8Encoding(false));
+        return 0;
+    }
+}
+'@
+    $fauxBlocRelais = @'
+# <dossiers-windows> (faux PC des tests)
+$DossierWindows = [Environment]::GetFolderPath('Windows')
+$DossierSysteme = [Environment]::GetFolderPath('System')
+$DossierProgrammes = Join-Path $global:TDossier 'ProgramFiles'
+$Schtasks = 'schtasks'
+# </dossiers-windows>
+'@
+    if (-not $blocRelais.Success) { throw 'Bloc <dossiers-windows> introuvable dans le relais.' }
+    $copieRelais = Join-Path $tmp 'relais\installer-admin.ps1'
+    $null = Save-Fichier $copieRelais ''
+    [IO.File]::WriteAllText($copieRelais, $texteRelais.Replace($blocRelais.Value, $fauxBlocRelais.Trim()), (New-Object Text.UTF8Encoding $true))
+    $exeTest = Join-Path $PM 'Mindset\MindsetInstallateur.exe'
+    $appels = Join-Path $PM 'Mindset\appels.txt'
+    # Lance le relais (à la place de l'installateur de test) ; rend le résultat, avec les lancements du faux exe (Appels)
+    function Invoke-Relais([hashtable]$Parametres, [switch]$SansExe, [string]$Racine = '', [switch]$SansResultat) {
+        $script:RelaisSansExe = [bool]$SansExe
+        $r = Invoke-Installateur $Parametres -Racine $Racine -SansResultat:$SansResultat -Preparer {
+            Copy-Item -LiteralPath $copieRelais -Destination $installeur -Force
+            if (-not $script:RelaisSansExe) { Copy-Item -LiteralPath $fauxExe -Destination $exeTest -Force }
+        }
+        $l = @(if (Test-Path -LiteralPath $appels) { [IO.File]::ReadAllLines($appels, [Text.Encoding]::UTF8) | Where-Object { $_ } })
+        $r | Add-Member -NotePropertyName Appels -NotePropertyValue $l
+        if (-not $l.Count) { $r.Lignes = @($r.Lignes) + 'APPELS (aucun)' } else { $r.Lignes = @($r.Lignes) + @($l | ForEach-Object { "APPEL $_" }) }
+        $script:Dernier = $r
+        $r
+    }
+    # Les arguments attendus, dans l'ordre où le relais les passe (avec le fichier de réponse ajouté par le test)
+    $ordre = 'Action', 'Resultat', 'Demande', 'Zip', 'Signature', 'Destination', 'DossierZip', 'Exe', 'AncienExe', 'Source', 'Version', 'AttendrePid', 'TacheAide', 'ExeAide', 'Appli', 'Disque', 'Sid'
+    function Get-AppelAttendu([hashtable]$P) {
+        $q = @{} + $P
+        if (-not $q.ContainsKey('Resultat')) { $q.Resultat = Join-Path $tmp "resultats\$($script:NumeroCas).json" }
+        $a = @(foreach ($n in $ordre) { if ($q.ContainsKey($n)) { "-$n"; [string]$q[$n] } })
+        if ($q.Cache) { $a += '-Cache' }
+        $a -join "`t"
+    }
+
+    # La demande de Windows : chaque valeur arrive telle quelle (espaces, accents, guillemet, barre finale, valeur vide)
+    $p = @{ Action = 'appli'; Appli = 'appli'; Zip = "C:\Users\$([char]0xC9)lodie Test\t$([char]0xE9)l$([char]0xE9)chargements\Appli.zip"; Signature = 'C:\a"b\Appli.zip.sig'
+            Destination = "$PM\Appli\"; DossierZip = 'Appli'; Exe = 'Appli.exe'; Version = ''; AttendrePid = 12; Sid = $sidActuel; Cache = $true }
+    $r = Invoke-Relais $p
+    Test-Cas 'demande de Windows : le relais lance MindsetInstallateur.exe une fois, avec les mêmes paramètres, valeur pour valeur' {
+        $r.Appels.Count -eq 1 -and $r.Appels[0] -ceq (Get-AppelAttendu $p) -and -not $r.Erreur
+    }
+    $r = Invoke-Relais @{ Action = 'taches'; Destination = (Join-Path $PM 'Mindset'); Sid = $sidActuel } -SansExe
+    Test-Cas 'demande de Windows sans MindsetInstallateur.exe : réponse « introuvable », rien lancé' {
+        -not $r.Appels.Count -and $r.Reponse -and $r.Reponse.ok -eq $false -and ([string]$r.Reponse.message).Contains('MindsetInstallateur.exe') -and ([string]$r.Reponse.message).Contains('introuvable')
+    }
+    $r = Invoke-Relais @{ Action = 'mindset'; Source = $srcOk; Disque = 'QQ'; Sid = $sidActuel }
+    Test-Cas 'disque « QQ » : refusé dès les paramètres par le relais, MindsetInstallateur.exe pas lancé' { $r.Erreur -and -not $r.Appels.Count }
+
+    # Par la tâche SYSTEM (inscrite par un Mindset d'avant) : les tâches refaites par l'exe, puis la demande passée
+    $f = New-Demande @{ Id = (New-Id); Action = 'taches'; Destination = (Join-Path $PM 'Mindset') }
+    $p = @{ Action = 'demande'; Demande = $f; Sid = $sidActuel }
+    $r = Invoke-Relais $p
+    Test-Cas 'par la tâche SYSTEM : 1) tâches refaites par MindsetInstallateur.exe pour le même utilisateur (repointées vers lui), 2) la demande lui est passée telle quelle' {
+        $r.Appels.Count -eq 2 -and $r.Appels[0] -ceq ("-Action`ttaches`t-Destination`t$(Join-Path $PM 'Mindset')`t-Sid`t$sidActuel") -and $r.Appels[1] -ceq (Get-AppelAttendu $p)
+    }
+    Test-Cas 'par la tâche SYSTEM : le relais lui-même ne répond pas et ne touche à rien sur Windows (c''est l''exe qui répond)' { -not $r.Registre -and -not @($r.Actions).Count }
+    # L'ancienne tâche (sans -Sid) : la demande passée telle quelle (l'exe n'y accepte que « taches »)
+    $f = New-Demande @{ Id = (New-Id); Action = 'taches'; Destination = (Join-Path $PM 'Mindset') }
+    $p = @{ Action = 'demande'; Demande = $f }
+    $r = Invoke-Relais $p
+    Test-Cas 'ancienne tâche (sans -Sid) : la demande passée telle quelle à MindsetInstallateur.exe, une seule fois' { $r.Appels.Count -eq 1 -and $r.Appels[0] -ceq (Get-AppelAttendu $p) }
+    # Dossier des programmes que les utilisateurs peuvent modifier : l'exe n'est jamais lancé, la demande est refusée
+    # comme avant (accusé de réception, puis « dossier protégé »)
+    $id = New-Id
+    $f = New-Demande @{ Id = $id; Action = 'taches'; Destination = (Join-Path $PM 'Mindset') }
+    $r = Invoke-Relais @{ Action = 'demande'; Demande = $f; Sid = $sidActuel } -Racine 'ouverte'
+    Test-Cas 'par la tâche, dossier des programmes ouvert aux utilisateurs : MindsetInstallateur.exe pas lancé, refus « dossier protégé » avec le numéro de la demande' {
+        -not $r.Appels.Count -and $r.Registre -and $r.Reponse.ok -eq $false -and $r.Reponse.id -eq $id -and ([string]$r.Reponse.message).Contains('dossier protégé') -and
+            @($r.Lignes | Where-Object { $_ -eq "RECU $id" }).Count -eq 1
+    }
+    $f = New-Demande @{ Id = (New-Id); Action = 'taches'; Destination = (Join-Path $PM 'Mindset') }
+    $r = Invoke-Relais @{ Action = 'demande'; Demande = $f; Sid = $sidActuel } -Racine 'proprietaire'
+    Test-Cas 'par la tâche, dossier des programmes qui appartient à l''utilisateur : MindsetInstallateur.exe pas lancé, refus « dossier protégé »' {
+        -not $r.Appels.Count -and $r.Reponse.ok -eq $false -and ([string]$r.Reponse.message).Contains('dossier protégé')
+    }
+    $f = New-Demande @{ Id = (New-Id); Action = 'mindset-maj'; Zip = $zipMindset; Signature = "$zipMindset.sig"; Destination = (Join-Path $PM 'Mindset'); Version = '2.0.0' }
+    $r = Invoke-Relais @{ Action = 'demande'; Demande = $f; Sid = $sidActuel } -Racine 'ouverte'
+    Test-Cas 'mise à jour de Mindset refusée ainsi : Mindset (déjà fermé) est relancé par sa tâche de démarrage, comme avant' {
+        -not $r.Appels.Count -and $r.Reponse.ok -eq $false -and (Test-Action $r 'ACTION lancement schtasks /Run /TN \Mindset\Mindset (démarrage)')
+    }
+    $f = New-Demande @{ Id = (New-Id); Action = 'taches'; Destination = (Join-Path $PM 'Mindset') }
+    $r = Invoke-Relais @{ Action = 'demande'; Demande = $f; Sid = $sidActuel } -SansExe
+    Test-Cas 'par la tâche, MindsetInstallateur.exe absent : refus « introuvable », rien lancé' {
+        -not $r.Appels.Count -and $r.Reponse.ok -eq $false -and ([string]$r.Reponse.message).Contains('introuvable')
+    }
+    $r = Invoke-Relais @{ Action = 'demande'; Demande = (New-Demande @{ Id = 'pas un numero'; Action = 'taches' }); Sid = $sidActuel } -Racine 'ouverte'
+    Test-Cas 'refus par le relais : une demande au numéro invalide est ignorée sans un mot, comme avant' { -not $r.Appels.Count -and (Test-SansReponse $r) }
 
     # De vrais programmes d'essai (compilés ici, lancés depuis le dossier de test) avec les vrais Get-Process et Stop-Process
     $essaiExe = Join-Path $tmp 'essai.exe'

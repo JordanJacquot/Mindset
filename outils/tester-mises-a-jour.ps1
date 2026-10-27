@@ -351,7 +351,7 @@ static class Essai {
     $script:Installs['evermind'] = @{ Dossier = "$prog\Evermind"; Gere = $true; Version = '0.13.0' }
     Start-InstallAppli $evermind
     Test-Cas 'Une appli fermée : l''installation part tout de suite' { $script:AppelsAdmin.Count -eq 1 -and -not $script:AppelsAdmin[0].Ouverte }
-    $admin = [IO.File]::ReadAllText((Join-Path $fichiers 'installer-admin.ps1'), [Text.Encoding]::UTF8)
+    $admin = [IO.File]::ReadAllText((Join-Path $PSScriptRoot 'installer-admin-powershell.ps1'), [Text.Encoding]::UTF8)   # (version PowerShell ; l'exe Rust : corpus cas\installateur)
     Test-Cas 'L''installateur garde son arrêt forcé en dernier recours (Stop-Programme, par dossier)' { $admin -match 'Stop-Programme \$Exe \$dest' }
 
     # -------------------------------------------------------------------------------------------------------------

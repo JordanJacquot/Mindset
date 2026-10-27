@@ -359,7 +359,7 @@ static class Faux {
     # -------------------------------------------------------------------------------------------------------------
     Write-Partie 'Mindset passe par le désinstalleur'
     # -------------------------------------------------------------------------------------------------------------
-    $admin = Get-Texte (Join-Path $fichiers 'installer-admin.ps1')
+    $admin = Get-Texte (Join-Path $PSScriptRoot 'installer-admin-powershell.ps1')   # (version PowerShell ; l'exe Rust : corpus cas\installateur)
     Test-Cas 'L''installation le copie et l''inscrit dans « Applications installées »' { $admin -match [regex]::Escape("'$NomExe'") -and $admin -match 'UninstallString' }
     Test-Cas 'construire.ps1 le compile' { (Get-Texte (Join-Path $PSScriptRoot 'construire.ps1')) -match 'desinstalleur\.cs' }
     Test-Cas 'Mindset.exe -Desinstaller le lance (même sans Mindset.ps1)' { (Get-Texte (Join-Path $PSScriptRoot 'lanceur.cs')) -match [regex]::Escape($NomExe) }

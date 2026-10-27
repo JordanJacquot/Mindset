@@ -10,12 +10,13 @@
     "{zip-appli}": "le zip signé de l'appli de test (2.0.0), dans le dossier telechargements de l'utilisateur",
     "{src-ok}": "un dossier source de Mindset complet",
     "{sid}": "l'utilisateur du test",
-    "{powershell}": "powershell.exe de System32, demandé à Windows",
+    "{programme-installation}": "le programme que lance la tâche d'installation : powershell.exe de System32, demandé à Windows (version PowerShell), ou MindsetInstallateur.exe du dossier de Mindset, entre guillemets (version Rust)",
+    "{arguments-installation}": "le début de ses arguments : « -Argument -NoProfile -NonInteractive » (version PowerShell), « -Argument -Action demande -Sid » (version Rust)",
     "{id}": "un numéro de demande neuf"
   },
   "cas": [
     {"nom":"variables de l'utilisateur piégées (ProgramFiles, LOCALAPPDATA, windir...) : rien écrit ni lu par elles, installation faite","entree":{"lancement":"tache","demande":{"Action":"taches","Destination":"{pm}\\Mindset"}},"attendu":{"reponse":"ok","lignes_absentes":["*piege-variable*"]}},
-    {"nom":"tâche d'installation : en SYSTEM, utilisateur inscrit dans ses arguments, lui seul peut la lancer, powershell.exe de System32","entree":{"lancement":"tache","demande":{"Action":"taches","Destination":"{pm}\\Mindset"}},"attendu":{"reponse":"ok","taches_creees":["Mindset (installation)"],"actions":["-Execute {powershell} ","-NoProfile -NonInteractive"],"actions_absentes":["-UserId S-1-5-21-1111111111"]}},
+    {"nom":"tâche d'installation : en SYSTEM, utilisateur inscrit dans ses arguments, lui seul peut la lancer, le bon programme (powershell.exe de System32, ou MindsetInstallateur.exe du dossier de Mindset)","entree":{"lancement":"tache","demande":{"Action":"taches","Destination":"{pm}\\Mindset"}},"attendu":{"reponse":"ok","taches_creees":["Mindset (installation)"],"actions":["-Execute {programme-installation} ","{arguments-installation}"],"actions_absentes":["-UserId S-1-5-21-1111111111"]}},
     {"nom":"sa demande : dans le dossier de l'utilisateur lu dans ProfileList (HKLM), jamais dans LOCALAPPDATA","entree":{"lancement":"tache","demande":{"Action":"taches","Destination":"{pm}\\Mindset"}},"attendu":{"reponse":"ok","actions":["-Demande \"{tmp}\\Profils\\{sid}\\AppData\\Local\\Mindset\\Mindset\\installation.demande\""],"actions_absentes":["LOCALAPPDATA"]}},
     {"nom":"Mindset sur un autre disque : sa demande dans X:\\Mindset\\Donnees\\Mindset","entree":{"lancement":"direct","demande":{"Action":"mindset","Source":"{src-ok}","Version":"3.0.0","Disque":"{x}","Sid":"{sid}"}},"attendu":{"reponse":"ok","actions":["-Demande \"{x}:\\Mindset\\Donnees\\Mindset\\installation.demande\""]}},
     {"nom":"accusé de réception : l'Id de la demande, écrit dans HKLM avant le travail","entree":{"lancement":"tache","demande":{"Action":"taches","Destination":"{pm}\\Mindset"}},"attendu":{"reponse":"ok","avant":["RECU {id}","ACTION tâche créée*"]}},

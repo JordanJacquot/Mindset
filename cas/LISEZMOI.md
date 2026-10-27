@@ -5,7 +5,10 @@ fichiers sont passés à la version PowerShell d'aujourd'hui (par les tests de `
 (par `cargo test`, au travers d'une couche « Windows » remplaçable). Ainsi, les deux versions passent exactement les
 mêmes cas (plan Rust, 3.5).
 
-- `cas\installateur\` (ce dépôt) : l'installateur de Mindset (`installer-admin.ps1`) et le côté Mindset de son protocole.
+- `cas\installateur\` (ce dépôt) : l'installateur de Mindset et le côté Mindset de son protocole. Depuis l'étape 2,
+  l'installateur livré est `MindsetInstallateur.exe` (`rust\mindset-installateur`, jugé par `cargo test`, qui lit
+  lui-même ce dossier : `tests\corpus.rs`) ; sa version PowerShell d'avant reste jugée sur les mêmes cas
+  (`outils\installer-admin-powershell.ps1`, par `tester-installer.ps1`).
 - `cas\aide\` (dépôt Nevermind) : l'Aide de Nevermind. Même format.
 
 ## Le format (commun à cas\aide et cas\installateur)
@@ -44,18 +47,18 @@ Règles :
 
 | Fichier | Lu par | Cas | Ce qu'il juge |
 |---|---|---|---|
-| `demande.json` | `tester-installer.ps1` | 31 | La demande lue par la tâche SYSTEM : taille, numéro, action, paramètres ignorés, dossier venu de la tâche |
-| `appli.json` | `tester-installer.ps1` | 66 | Installer une appli : dossier, noms, appli et partie administrateur venues de apps.json, versions |
-| `mindset.json` | `tester-installer.ps1` | 16 | Installer Mindset (lancement direct) |
-| `mindset-maj.json` | `tester-installer.ps1` | 9 | Mettre Mindset à jour, et le relancer |
-| `taches.json` | `tester-installer.ps1` | 11 | Les tâches de Mindset, les tâches d'aide d'avant refaites en SYSTEM |
-| `supprimer.json` | `tester-installer.ps1` | 11 | Supprimer une appli ou Mindset |
-| `systeme.json` | `tester-installer.ps1` | 12 | En SYSTEM, rien ne vient de l'utilisateur ; accusé de réception |
-| `ancienne-tache.json` | `tester-installer.ps1` | 5 | L'ancienne tâche (Mindset 2.9.0 et avant) ne sert qu'à se remplacer |
-| `prise-en-charge.json` | `tester-installer.ps1` | 9 | Les tâches qui lançaient une ancienne copie de l'appli |
-| `programmes.json` | `tester-installer.ps1` | 6 | Les programmes fermés : par leur chemin, ceux de l'utilisateur |
-| `dossier-protege.json` | `tester-securite.ps1` | 20 | Les dossiers acceptés (Test-DossierMindset) |
-| `cote-mindset-tache.json` | `tester-mini-installateur.ps1` | 4 | Côté Mindset : quelle tâche d'installation est utilisée |
+| `demande.json` | `tester-installer.ps1` et `cargo test` | 31 | La demande lue par la tâche SYSTEM : taille, numéro, action, paramètres ignorés, dossier venu de la tâche |
+| `appli.json` | `tester-installer.ps1` et `cargo test` | 66 | Installer une appli : dossier, noms, appli et partie administrateur venues de apps.json, versions |
+| `mindset.json` | `tester-installer.ps1` et `cargo test` | 16 | Installer Mindset (lancement direct) |
+| `mindset-maj.json` | `tester-installer.ps1` et `cargo test` | 9 | Mettre Mindset à jour, et le relancer |
+| `taches.json` | `tester-installer.ps1` et `cargo test` | 11 | Les tâches de Mindset, les tâches d'aide d'avant refaites en SYSTEM |
+| `supprimer.json` | `tester-installer.ps1` et `cargo test` | 11 | Supprimer une appli ou Mindset |
+| `systeme.json` | `tester-installer.ps1` et `cargo test` | 12 | En SYSTEM, rien ne vient de l'utilisateur ; accusé de réception |
+| `ancienne-tache.json` | `tester-installer.ps1` et `cargo test` | 5 | L'ancienne tâche (Mindset 2.9.0 et avant) ne sert qu'à se remplacer |
+| `prise-en-charge.json` | `tester-installer.ps1` et `cargo test` | 9 | Les tâches qui lançaient une ancienne copie de l'appli |
+| `programmes.json` | `tester-installer.ps1` et `cargo test` | 6 | Les programmes fermés : par leur chemin, ceux de l'utilisateur |
+| `dossier-protege.json` | `tester-securite.ps1` et `cargo test` | 20 | Les dossiers acceptés (Test-DossierMindset) |
+| `cote-mindset-tache.json` | `tester-mini-installateur.ps1` | 5 | Côté Mindset : quelle tâche d'installation est utilisée |
 | `cote-mindset-variables.json` | `tester-mini-installateur.ps1` | 9 | Côté Mindset : variables lues par .NET, pas de demande de Windows |
 | `cote-mindset-arguments.json` | `tester-mini-installateur.ps1` | 3 | Côté Mindset : une valeur passée par la demande de Windows arrive telle quelle |
 | `cote-mindset-taches-anciennes.json` | `tester-mini-installateur.ps1` | 4 | Côté Mindset : les tâches d'avant vues au démarrage |
@@ -130,7 +133,9 @@ administrateur), `autre` (sans partie administrateur), `piege` (un nom piégé, 
 Valeurs : `{tmp}` (le faux PC), `{pf}` (son Program Files), `{pm}` (son Program Files\Mindset), `{x}` et `{xa}` (les
 lettres des faux disques), `{zip-appli}`, `{zip-mindset}` (zips signés, 2.0.0), `{sig-fausse}` (signature d'un autre
 fichier), `{src-ok}`, `{src-sans-exe}`, `{src-sans-script}` (dossiers source de Mindset), `{sid}`, `{sid-autre}`,
-`{powershell}` (powershell.exe de System32), `{ancienne}` (programme d'une ancienne copie de l'appli), `{id}` (numéro
+`{programme-installation}` et `{arguments-installation}` (ce que lance la tâche d'installation : powershell.exe de System32 et
+`-NoProfile -NonInteractive` pour la version PowerShell, MindsetInstallateur.exe du dossier de Mindset et `-Action demande -Sid`
+pour la version Rust), `{ancienne}` (programme d'une ancienne copie de l'appli), `{id}` (numéro
 neuf, le même dans tout le cas).
 
 Pour la version Rust : le faux PC est la couche « Windows » de test (journal des mêmes actions), et ces champs se
