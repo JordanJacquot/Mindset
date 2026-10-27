@@ -111,6 +111,10 @@ function Write-Log([string]$T) { Write-Host "    (journal) $T" }
 # Mindset nouveau : ce dépôt, clé de TEST ajoutée
 New-Item -ItemType Directory -Force -Path (Split-Path $Neuf) | Out-Null
 Copy-Item -LiteralPath (Join-Path $Depot 'Mindset\fichiers') -Destination (Split-Path $Neuf) -Recurse
+# Depuis l'étape 2 du passage en Rust, installer-admin.ps1 n'est qu'un relais vers MindsetInstallateur.exe (construit
+# par le workflow, donné par la variable MINDSET_INSTALLATEUR), posé à côté de Mindset.exe comme dans le vrai zip
+if (-not $env:MINDSET_INSTALLATEUR -or -not (Test-Path -LiteralPath $env:MINDSET_INSTALLATEUR)) { throw 'MindsetInstallateur.exe absent : la variable MINDSET_INSTALLATEUR doit donner l''exe construit par le workflow.' }
+Copy-Item -LiteralPath $env:MINDSET_INSTALLATEUR -Destination (Join-Path (Split-Path $Neuf) 'MindsetInstallateur.exe')
 Write-Utf8 (Join-Path $Neuf 'cles-publiques\essai-test.xml') $Publique
 
 # Mindset 2.12.0 : sa vraie Release (signée par la vraie clé), clé de TEST ajoutée

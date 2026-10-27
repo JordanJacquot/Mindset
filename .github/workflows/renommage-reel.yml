@@ -19,9 +19,22 @@ jobs:
         shell: powershell
     env:
       GH_TOKEN: ${{ github.token }}
+      CARGO_TERM_COLOR: never
     steps:
       - name: Récupérer le dépôt
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: "Construire MindsetInstallateur.exe (Rust 1.99.1, bibliothèques figées par Cargo.lock)"
+        working-directory: rust
+        run: |
+          rustup toolchain install
+          if ($LASTEXITCODE) { rustup show; if ($LASTEXITCODE) { exit 1 } }
+          if ((rustc --version) -notmatch '^rustc 1\.99\.1 ') { Write-Host 'Mauvaise version de Rust.'; exit 1 }
+          cargo build --release --locked -p mindset-installateur
+          if ($LASTEXITCODE) { exit 1 }
+          $exe = (Resolve-Path 'target\release\MindsetInstallateur.exe').Path
+          Write-Host "MindsetInstallateur.exe : SHA-256 $((Get-FileHash -LiteralPath $exe -Algorithm SHA256).Hash)"
+          [IO.File]::AppendAllText($env:GITHUB_ENV, "MINDSET_INSTALLATEUR=$exe`n")
 
       - name: "Mindset nouveau et Mindset 2.12.0 face à Nevermind sous ses deux noms (Nevermind, OptiGame)"
         run: .\outils\essai-renommage-reel.ps1
