@@ -58,6 +58,9 @@ jobs:
       - name: "Programmes trouvés par leur chemin, jamais par leur nom (vrais programmes d'essai, sans droits)"
         run: .\outils\tester-processus.ps1
 
+      - name: "Contrat d'une appli, vérifié avec l'appli témoin contre le vrai code de Mindset (apps.json, verrou, Mindset.exe, demandes, -Demarrage, accrochage, données, désinstalleur, version.json ; contre-épreuve)"
+        run: .\outils\tester-contrat.ps1
+
       - name: "Nom de chaque appli dans la barre des tâches (faux menu Démarrer, fenêtre de test hors de l'écran)"
         run: .\outils\tester-raccourcis.ps1
 

@@ -8,6 +8,13 @@ Il est établi en lisant le code du 26/10/2026 : Mindset 2.14.0 (`Mindset/fichie
 (`Nevermind: Nevermind/fichiers/Nevermind.ps1:16`). Mis à jour le 27/10/2026 avec l'étape 2 (champ `type`, contrôles
 d'apps.json, `version.json`, fenêtre Tauri : parties 1, 2, 7 et 10, marquées **Existe (étape 2)**).
 
+**Vérifié par l'appli témoin.** `temoin\` est une toute petite appli (PowerShell, hôte `Mindset.exe`, relais, désinstalleur,
+`version.json`) qui respecte chaque partie de ce contrat ; `outils/tester-contrat.ps1` la construit, l'installe et la
+pilote avec le vrai code de Mindset, partie par partie, puis vérifie qu'un témoin cassé exprès (verrou, titre de la
+fenêtre, `quitter.demande`, taille minimale, croix, `version.json`) fait échouer le test. Lancé par la CI
+(`.github/workflows/tests.yml`) ; la partie 9 (désinstalleur) ne tourne que sur GitHub. Son entrée apps.json :
+`temoin/entree-apps.json`.
+
 Comment lire ce document :
 - les chemins sont relatifs à la racine du dépôt Mindset ; ceux qui commencent par « Nevermind: » sont relatifs à la
   racine du dépôt Nevermind ;
