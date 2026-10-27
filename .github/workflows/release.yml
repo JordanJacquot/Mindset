@@ -105,12 +105,8 @@ jobs:
           foreach ($f in $exes) {
             $i = $f.VersionInfo
             Write-Host "$($f.Name) : produit « $($i.ProductName) », version du produit « $($i.ProductVersion) »"
-            if ($f.Name -eq 'Desinstaller Mindset.exe' -or $i.ProductName) {
-              if ($i.ProductName -ne 'Mindset') { throw "Nom de produit inattendu pour $($f.Name) : $($i.ProductName)" }
-              if ($i.ProductVersion -ne $v4) { throw "$($f.Name) porte la version $($i.ProductVersion) au lieu de $v4 (Mindset.ps1)" }
-            } else {
-              Write-Host "::warning::$($f.Name) n'a pas de fiche de version."
-            }
+            if ($i.ProductName -ne 'Mindset') { throw "Nom de produit inattendu pour $($f.Name) : « $($i.ProductName) »" }
+            if ($i.ProductVersion -ne $v4) { throw "$($f.Name) porte la version $($i.ProductVersion) au lieu de $v4 (Mindset.ps1)" }
             [IO.File]::AppendAllText($env:GITHUB_STEP_SUMMARY, "$($f.Name) (Rust, non signé, commit $env:GITHUB_SHA) : SHA-256 ``$((Get-FileHash -LiteralPath $f.FullName -Algorithm SHA256).Hash)``" + "`n")
           }
 
