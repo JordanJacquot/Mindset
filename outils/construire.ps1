@@ -4,6 +4,12 @@
 #   Mindset\
 #     Mindset.exe                 <- à lancer
 #     Desinstaller Mindset.exe    <- le désinstalleur autonome (outils\desinstalleur.cs)
+#     MindsetInstallateur.exe     <- le mini-installateur (Rust) : jamais construit ici, voir plus bas
+#
+# Passage en Rust (plan 3.6) : ce script construit le désinstalleur en C#, pour les essais sur ce PC. La version livrée
+# est celle en Rust (rust\desinstalleur), avec MindsetInstallateur.exe (rust\mindset-installateur) : construits
+# seulement par GitHub (.github\workflows\release.yml), attestés, puis mis à leur place par outils\publier.ps1
+# (outils\exe-rust.ps1, qui vérifie l'attestation) et par release.yml pour l'artefact à signer.
 #     fichiers\Mindset.ps1        <- le point d'entrée
 #     fichiers\apps.json          <- la liste des applis de la suite
 #     fichiers\modules\           <- le code découpé par partie
