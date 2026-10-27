@@ -142,6 +142,26 @@ function New-ZipBrut($Entrees) {
     , $ms.ToArray()
 }
 function Get-Octets8([string]$Texte) { , [Text.Encoding]::UTF8.GetBytes($Texte) }
+# Change la taille annoncée (non compressée) d'une entrée d'un zip, et son CRC si -Crc est donné, dans l'en-tête local et
+# dans le répertoire central
+function Set-TailleAnnoncee([byte[]]$Zip, [string]$Nom, [uint32]$Taille, [long]$Crc = -1) {
+    $z = [byte[]]$Zip.Clone()
+    $nomOctets = [Text.Encoding]::UTF8.GetBytes($Nom)
+    $octetsTaille = [BitConverter]::GetBytes($Taille)
+    # (en-tête local PK 0x04034b50 : taille à +22, longueur du nom à +26, nom à +30 ;
+    #  répertoire central PK 0x02014b50 : taille à +24, longueur du nom à +28, nom à +46)
+    foreach ($t in @(@{ Sig = 0x04034b50; Taille = 22; Longueur = 26; Nom = 30 }, @{ Sig = 0x02014b50; Taille = 24; Longueur = 28; Nom = 46 })) {
+        for ($i = 0; $i -le $z.Length - $t.Nom; $i++) {
+            if ([BitConverter]::ToUInt32($z, $i) -ne $t.Sig) { continue }
+            $l = [BitConverter]::ToUInt16($z, $i + $t.Longueur)
+            if ($l -ne $nomOctets.Length -or $i + $t.Nom + $l -gt $z.Length -or [Text.Encoding]::UTF8.GetString($z, $i + $t.Nom, $l) -cne $Nom) { continue }
+            [Array]::Copy($octetsTaille, 0, $z, $i + $t.Taille, 4)
+            # (le CRC est 8 octets avant la taille non compressée)
+            if ($Crc -ge 0) { [Array]::Copy([BitConverter]::GetBytes([uint32]$Crc), 0, $z, $i + $t.Taille - 8, 4) }
+        }
+    }
+    , $z
+}
 # Les entrées de base d'une appli de test, pour New-ZipBrut
 function Get-EntreesBrutes([string]$Version) {
     @(
@@ -194,14 +214,11 @@ function Set-AppliInstallee([string]$Dossier, [string]$Version, $EnPlus = $null)
 # Un cas d'installation. Chaque version a son propre dossier, préparé à l'identique : <cas>\ps et <cas>\rs.
 #   -Avant { param($Base, $Dest) ... } : l'état de départ (une version déjà installée, des restes...)
 #   -Verrou 'Appli.exe' : ce fichier de l'appli installée reste ouvert pendant l'installation (appli encore ouverte)
-#   -EcartVoulu '<raison>' : un zip abîmé que PowerShell installe quand même et que Rust refuse exprès (plus strict) ;
-#     le cas n'est pas compté dans les réponses identiques, il est vérifié à part (PowerShell installe, Rust refuse,
-#     et Rust ne laisse rien sur le disque).
 # La destination est rangée profondément (<base>\a\b\Programmes\Appli) : un zip-slip qui remonte de quelques dossiers
 # reste dans <base> et se voit dans la comparaison des fichiers.
 $script:Verrous = New-Object System.Collections.ArrayList
 function Add-CasInstall([string]$Nom, [byte[]]$Zip, [byte[]]$Signature = $null, [string]$Cles = '', [scriptblock]$Avant = $null,
-    [string]$DossierZip = 'Appli', [string]$Exe = 'Appli.exe', [string]$VersionMinimale = '', [string]$Verrou = '', [string]$FinDest = '', [string]$EcartVoulu = '') {
+    [string]$DossierZip = 'Appli', [string]$Exe = 'Appli.exe', [string]$VersionMinimale = '', [string]$Verrou = '', [string]$FinDest = '') {
     $script:Numero++
     if (-not $Cles) { $Cles = $script:ListeTest }
     if ($null -eq $Signature) { $Signature = Get-SignatureTest $Zip $script:Cle.Privee }
@@ -227,7 +244,7 @@ function Add-CasInstall([string]$Nom, [byte[]]$Zip, [byte[]]$Signature = $null, 
     [void]$script:CasInstall.Add([pscustomobject]@{
             id = "$($script:Numero)"; nom = $Nom; zip = $fz; signature = $fs; cles = $Cles; destination = $cotes.rs.Dest
             dossier_zip = $DossierZip; exe = $Exe; version_minimale = $VersionMinimale
-            basePs = $cotes.ps.Base; baseRs = $cotes.rs.Base; ps = $r; ecartVoulu = $EcartVoulu
+            basePs = $cotes.ps.Base; baseRs = $cotes.rs.Base; ps = $r
         })
 }
 
@@ -355,6 +372,17 @@ try {
     Add-CasSignature 'élément D illisible' $donnees $sig (New-FichierCle 'd-illisible.xml' "<RSAKeyValue><Modulus>$m</Modulus><Exponent>$ex</Exponent><D>pas du base64</D></RSAKeyValue>")
     Add-CasSignature 'élément P vide' $donnees $sig (New-FichierCle 'p-vide.xml' "<RSAKeyValue><Modulus>$m</Modulus><Exponent>$ex</Exponent><P></P></RSAKeyValue>")
     Add-CasSignature 'élément P seul' $donnees $sig (New-FichierCle 'p-seul.xml' "<RSAKeyValue><Modulus>$m</Modulus><Exponent>$ex</Exponent><P>AQAB</P></RSAKeyValue>")
+    # Aucun élément de clé privée, même vide ou sans P ; Modulus et Exponent obligatoires et lisibles
+    Add-CasSignature 'élément D seul, sans Modulus ni Exponent' $donnees $sig (New-FichierCle 'd-sans-module.xml' "<RSAKeyValue><D>$m</D></RSAKeyValue>")
+    Add-CasSignature 'élément D seul (sans P) dans une liste, à côté d''une bonne clé' $donnees $sig (New-Liste 'd-dans-liste' ([ordered]@{ 'a.xml' = $cle.Publique; 'd.xml' = "<RSAKeyValue><Modulus>$mB</Modulus><Exponent>$ex</Exponent><D>AQAB</D></RSAKeyValue>" }))
+    Add-CasSignature 'élément InverseQ vide' $donnees $sig (New-FichierCle 'inverseq-vide.xml' "<RSAKeyValue><Modulus>$m</Modulus><Exponent>$ex</Exponent><InverseQ/></RSAKeyValue>")
+    Add-CasSignature 'élément DQ avec préfixe (x:DQ)' $donnees $sig (New-FichierCle 'dq-prefixe.xml' "<RSAKeyValue><Modulus>$m</Modulus><Exponent>$ex</Exponent><x:DQ>AQAB</x:DQ></RSAKeyValue>")
+    Add-CasSignature 'élément Q rangé dans un sous-élément' $donnees $sig (New-FichierCle 'q-imbrique.xml' "<RSAKeyValue><Modulus>$m</Modulus><Exponent>$ex</Exponent><X><Q>AQAB</Q></X></RSAKeyValue>")
+    Add-CasSignature 'élément d en minuscules (pas un élément privé)' $donnees $sig (New-FichierCle 'd-minuscule.xml' "<RSAKeyValue><Modulus>$m</Modulus><Exponent>$ex</Exponent><d>AQAB</d></RSAKeyValue>")
+    Add-CasSignature 'Modulus vide' $donnees $sig (New-FichierCle 'modulus-vide.xml' "<RSAKeyValue><Modulus></Modulus><Exponent>$ex</Exponent></RSAKeyValue>")
+    Add-CasSignature 'Exponent vide' $donnees $sig (New-FichierCle 'exponent-vide.xml' "<RSAKeyValue><Modulus>$m</Modulus><Exponent/></RSAKeyValue>")
+    Add-CasSignature 'Modulus absent' $donnees $sig (New-FichierCle 'sans-modulus.xml' "<RSAKeyValue><Exponent>$ex</Exponent></RSAKeyValue>")
+    Add-CasSignature 'Exponent illisible' $donnees $sig (New-FichierCle 'exponent-illisible.xml' "<RSAKeyValue><Modulus>$m</Modulus><Exponent>pas du base64</Exponent></RSAKeyValue>")
     Add-CasSignature 'module de 16392 bits' $donnees $sig (New-Liste 'module-geant' ([ordered]@{ 'a.xml' = $cle.Publique; 'g.xml' = "<RSAKeyValue><Modulus>$([Convert]::ToBase64String([byte[]]((1..2049) | ForEach-Object { 0xFF })))</Modulus><Exponent>AQAB</Exponent></RSAKeyValue>" }))
     Add-CasSignature 'base64 sans le bon bourrage' $donnees $sig (New-FichierCle 'bourrage.xml' "<RSAKeyValue><Modulus>$m</Modulus><Exponent>AQA</Exponent></RSAKeyValue>")
     Add-CasSignature 'fichier de clé en octets invalides' $donnees $sig (New-FichierCle 'octets.xml' ([byte[]](0xFF, 0x00, 0xC3, 0x28, 0x3C)))
@@ -478,7 +506,13 @@ try {
     $zt = New-ZipAppli '3.0.0'
     Add-CasInstall 'zip coupé en deux' ([byte[]]$zt[0..([int]($zt.Length / 2))])
     $za = New-ZipAppli '3.0.0' ([ordered]@{ 'Appli/gros.txt' = ('abcdefghij' * 500) }); $za[60] = $za[60] -bxor 0xFF
-    Add-CasInstall 'zip dont le contenu est abîmé (deflate)' $za -EcartVoulu '.NET écrit ce que donne un deflate abîmé, sans contrôle ; Rust refuse un fichier plus long que la taille annoncée'
+    Add-CasInstall 'zip dont le contenu est abîmé (deflate)' $za
+    $zg = New-ZipAppli '3.0.0' ([ordered]@{ 'Appli/gros.txt' = ('abcdefghij' * 500) })
+    Add-CasInstall 'deflate plus long que la taille annoncée' (Set-TailleAnnoncee $zg 'Appli/gros.txt' 100)
+    Add-CasInstall 'deflate plus court que la taille annoncée' (Set-TailleAnnoncee $zg 'Appli/gros.txt' 10000)
+    Add-CasInstall 'deflate de la bonne taille, CRC faux' (Set-TailleAnnoncee $zg 'Appli/gros.txt' 5000 12345)
+    Add-CasInstall 'version.json de la racine plus long que la taille annoncée' (Set-TailleAnnoncee (New-ZipAppli '3.0.0' ([ordered]@{ 'version.json' = "{ `"version`": `"3.0.0`" }$(' ' * 500)" })) 'version.json' 10)
+    Add-CasInstall 'fichier hors du dossier principal plus long que la taille annoncée (ignoré)' (Set-TailleAnnoncee (New-ZipAppli '3.0.0' ([ordered]@{ 'Autre/gros.txt' = ('abcdefghij' * 500) })) 'Autre/gros.txt' 100)
 
     # Zips écrits à la main (ce que .NET ne fabrique pas)
     $cp = @(Get-EntreesBrutes '3.0.0')
@@ -492,7 +526,10 @@ try {
     Add-CasInstall 'nom Unicode caché (champ 0x7075) qui remonte' (New-ZipBrut ($cp + @(@{ Nom = $nomCache; Donnees = (Get-Octets8 'x'); Extra = $extraU })))
     Add-CasInstall 'CRC faux' (New-ZipBrut ($cp + @(@{ Nom = (Get-Octets8 'Appli/crc.txt'); Donnees = (Get-Octets8 'contenu'); Crc = 12345 })))
     Add-CasInstall 'nom local différent du nom central' (New-ZipBrut ($cp + @(@{ Nom = (Get-Octets8 'Appli/central.txt'); NomLocal = (Get-Octets8 'Appli/../../local.txt'); Donnees = (Get-Octets8 'x') })))
-    Add-CasInstall 'entrée marquée chiffrée' (New-ZipBrut ($cp + @(@{ Nom = (Get-Octets8 'Appli/chiffre.txt'); Donnees = (Get-Octets8 'x'); Drapeaux = 1 }))) -EcartVoulu '.NET ignore le drapeau « chiffré » et installe les octets tels quels ; Rust refuse'
+    Add-CasInstall 'entrée marquée chiffrée' (New-ZipBrut ($cp + @(@{ Nom = (Get-Octets8 'Appli/chiffre.txt'); Donnees = (Get-Octets8 'x'); Drapeaux = 1 })))
+    Add-CasInstall 'programme marqué chiffré (UTF-8 et chiffré)' (New-ZipBrut (@(@{ Nom = (Get-Octets8 'Appli/Appli.exe'); Donnees = (Get-Octets8 'programme'); Drapeaux = 0x801 }) + @($cp[1])))
+    Add-CasInstall 'version.json de la racine marqué chiffré' (New-ZipBrut ($cp + @(@{ Nom = (Get-Octets8 'version.json'); Donnees = (Get-Octets8 '{ "version": "3.0.0" }'); Drapeaux = 1 })))
+    Add-CasInstall 'entrée chiffrée hors du dossier principal (ignorée)' (New-ZipBrut ($cp + @(@{ Nom = (Get-Octets8 'Autre/chiffre.txt'); Donnees = (Get-Octets8 'x'); Drapeaux = 1 })))
     Add-CasInstall 'méthode de compression inconnue (bzip2)' (New-ZipBrut ($cp + @(@{ Nom = (Get-Octets8 'Appli/bzip.txt'); Donnees = (Get-Octets8 'x'); Methode = 12 })))
     Add-CasInstall 'zip brut sans piège (témoin)' (New-ZipBrut $cp)
 
@@ -520,7 +557,6 @@ try {
     # Comparaison
     # ===========================================================================================================
     $ecarts = @()
-    $voulus = 0
     $parId = @{}; foreach ($r in $rust.signature) { $parId[$r.id] = $r }
     Write-Host ''; Write-Host 'Signatures' -ForegroundColor Cyan
     foreach ($c in $script:CasSignature) {
@@ -551,15 +587,6 @@ try {
                 $motifs += "fichiers (seulement PowerShell : $((@($lp | Where-Object { $_ -cnotin $lr }) -join ', ')) ; seulement Rust : $((@($lr | Where-Object { $_ -cnotin $lp }) -join ', ')))"
             }
         }
-        if ($c.ecartVoulu) {
-            # Écart voulu : PowerShell installe, Rust refuse (catégorie « autre ») sans rien laisser à côté de l'appli
-            $propre = -not @(Get-ChildItem -LiteralPath (Join-Path $c.baseRs 'a\b\Programmes') -Force -ErrorAction SilentlyContinue).Count
-            $conforme = $r -and $c.ps.ok -and -not $r.ok -and $r.categorie -eq 'autre' -and $propre
-            Write-Host "  $(if ($conforme) { 'VOULU ' } else { 'ÉCART ' })  [installé / refusé par Rust] $($c.nom)" -ForegroundColor $(if ($conforme) { 'Yellow' } else { 'Red' })
-            Write-Host "          $($c.ecartVoulu)$(if ($r -and -not $r.ok) { " (Rust : « $($r.message) »)" })" -ForegroundColor $(if ($conforme) { 'Yellow' } else { 'Red' })
-            if ($conforme) { $voulus++ } else { $ecarts += "installation (écart voulu non conforme) : $($c.nom)" }
-            continue
-        }
         $pareil = -not $motifs.Count
         $etat = if ($c.ps.ok) { 'installé' } else { $c.ps.categorie }
         Write-Host "  $(if ($pareil) { 'PAREIL' } else { 'ÉCART ' })  [$etat] $($c.nom)" -ForegroundColor $(if ($pareil) { 'Green' } else { 'Red' })
@@ -570,13 +597,12 @@ try {
     $sortis = @(Get-ChildItem -LiteralPath $tmp -Recurse -Force -Filter 'piege*' -ErrorAction SilentlyContinue | Where-Object { $_.FullName -notmatch '\\installation\\\d+\\(ps|rs)\\' -and $_.Name -ne 'paquet.zip' })
     if ($sortis.Count) { $ecarts += "fichiers piégés écrits hors des dossiers des cas : $(($sortis | ForEach-Object { $_.FullName }) -join ', ')" }
 
-    $compares = @($script:CasInstall | Where-Object { -not $_.ecartVoulu })
+    $compares = @($script:CasInstall)
     $total = $script:CasSignature.Count + $compares.Count
     $acceptees = @($script:CasSignature | Where-Object { $_.ps }).Count
     $installes = @($compares | Where-Object { $_.ps.ok }).Count
     Write-Host ''
     Write-Host "$total cas comparés : $($script:CasSignature.Count) signatures ($acceptees acceptées), $($compares.Count) installations ($installes installées)."
-    Write-Host "$voulus écart(s) voulu(s), vérifié(s) à part : zip abîmé que Rust refuse et que PowerShell installait." -ForegroundColor Yellow
     if ($ecarts.Count) {
         Write-Host "$($ecarts.Count) écart(s) entre PowerShell et Rust :" -ForegroundColor Red
         $ecarts | ForEach-Object { Write-Host "  - $_" -ForegroundColor Red }

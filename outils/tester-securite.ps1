@@ -218,6 +218,20 @@ try {
     }
     Test-Cas 'signature d''une autre clé, absente de la liste : refusée' { -not (Test-Signature $donnees (Get-SignatureTest $donnees $autreCle.Privee) $listeAB) }
     Test-Cas 'liste de clés : fichier modifié d''un octet refusé' { -not (Test-Signature $modifie $sigB $listeAB) }
+    # Une clé publique n'a aucun élément de clé privée, même vide ou sans P (.NET ne regarde que P), et a toujours
+    # Modulus et Exponent : même règle que suite-commun (Rust), comparée par outils\banc-suite-commun.ps1
+    $modulus = [regex]::Match($cle.Publique, '<Modulus>[^<]+</Modulus><Exponent>[^<]+</Exponent>').Value
+    foreach ($cas in @(
+            @{ Nom = 'élément D (sans P)'; Xml = "<RSAKeyValue>$modulus<D>AQAB</D></RSAKeyValue>" },
+            @{ Nom = 'élément InverseQ vide'; Xml = "<RSAKeyValue>$modulus<InverseQ/></RSAKeyValue>" },
+            @{ Nom = 'élément DQ avec préfixe, dans un sous-élément'; Xml = "<RSAKeyValue>$modulus<X><a:DQ>AQAB</a:DQ></X></RSAKeyValue>" },
+            @{ Nom = 'élément D seul, sans Modulus ni Exponent'; Xml = '<RSAKeyValue><D>AQAB</D></RSAKeyValue>' })) {
+        $x = $cas.Xml
+        Test-Cas "clé « publique » avec $($cas.Nom) : tout refusé, même la signature de la clé voisine" {
+            -not (Test-Signature $donnees $sig (New-ListeTest "privee-$([guid]::NewGuid().ToString('N').Substring(0, 6))" ([ordered]@{ 'a.xml' = $cle.Publique; 'b.xml' = $x })))
+        }
+    }
+    Test-Cas 'la même clé, sans élément privé : acceptée (témoin)' { Test-Signature $donnees $sig (New-ListeTest 'temoin-modulus' ([ordered]@{ 'a.xml' = "<RSAKeyValue>$modulus</RSAKeyValue>" })) }
 
     # =============================================================================================================
     Write-Partie 'Install-Paquet (modules\paquets.ps1)'
@@ -345,6 +359,46 @@ try {
         $z = New-ZipAppli '1.0.0'
         $r = Install-Paquet -Zip $z -Signature (Get-SignatureTest $z $cle.Privee) -ClePublique $fPublique -Destination "$dest2\" -DossierZip 'Appli\' -Exe 'Appli.exe'
         ($r -eq $dest2) -and ((Get-VersionDossier $dest2) -eq '1.0.0')
+    }
+
+    # Zips abîmés ou chiffrés (.NET les installait tels quels ; suite-commun, en Rust, les refuse : outils\banc-suite-commun.ps1)
+    # Change, dans l'en-tête local et dans le répertoire central, les drapeaux ou la taille annoncée d'une entrée
+    function Edit-EntreeZip([byte[]]$Zip, [string]$Nom, [int]$Drapeaux = -1, [long]$Taille = -1) {
+        $z = [byte[]]$Zip.Clone(); $n = [Text.Encoding]::UTF8.GetBytes($Nom)
+        # (local PK 0x04034b50 : drapeaux +6, taille +22, longueur du nom +26, nom +30 ; central PK 0x02014b50 : +8, +24, +28, +46)
+        foreach ($t in @(@{ Sig = 0x04034b50; Drap = 6; Taille = 22; Long = 26; Nom = 30 }, @{ Sig = 0x02014b50; Drap = 8; Taille = 24; Long = 28; Nom = 46 })) {
+            for ($i = 0; $i -le $z.Length - $t.Nom; $i++) {
+                if ([BitConverter]::ToUInt32($z, $i) -ne $t.Sig -or [BitConverter]::ToUInt16($z, $i + $t.Long) -ne $n.Length -or $i + $t.Nom + $n.Length -gt $z.Length) { continue }
+                if ([Text.Encoding]::UTF8.GetString($z, $i + $t.Nom, $n.Length) -cne $Nom) { continue }
+                if ($Drapeaux -ge 0) { [Array]::Copy([BitConverter]::GetBytes([uint16]$Drapeaux), 0, $z, $i + $t.Drap, 2) }
+                if ($Taille -ge 0) { [Array]::Copy([BitConverter]::GetBytes([uint32]$Taille), 0, $z, $i + $t.Taille, 4) }
+            }
+        }
+        , $z
+    }
+    $versionAvant = Get-VersionInstallee
+    $gros = [ordered]@{ 'Appli/gros.txt' = ('abcdefghij' * 500) }
+    Test-Cas 'entrée marquée chiffrée refusée, version installée intacte' {
+        (Test-Refus { Install-Test (Edit-EntreeZip (New-ZipAppli '9.0.0') 'Appli/fichiers/modules/outil.ps1' -Drapeaux 1) } 'chiffré') -and ((Get-VersionInstallee) -eq $versionAvant) -and (Test-SansReste)
+    }
+    Test-Cas 'version.json de la racine marqué chiffré refusé' {
+        $z = New-ZipAppli '9.0.0' ([ordered]@{ 'version.json' = '{ "version": "9.0.0" }' })
+        (Test-Refus { Install-Test (Edit-EntreeZip $z 'version.json' -Drapeaux 1) } 'chiffré') -and ((Get-VersionInstallee) -eq $versionAvant) -and (Test-SansReste)
+    }
+    Test-Cas 'entrée chiffrée hors du dossier principal : ignorée comme les autres' {
+        $z = Edit-EntreeZip (New-ZipAppli $versionAvant ([ordered]@{ 'Autre/chiffre.txt' = 'x' })) 'Autre/chiffre.txt' -Drapeaux 1
+        ((Install-Test $z) -eq $dest) -and (Test-SansReste)
+    }
+    Test-Cas 'deflate qui donne plus que la taille annoncée refusé' {
+        (Test-Refus { Install-Test (Edit-EntreeZip (New-ZipAppli '9.0.0' $gros) 'Appli/gros.txt' -Taille 100) } 'abîmé') -and ((Get-VersionInstallee) -eq $versionAvant) -and (Test-SansReste)
+    }
+    Test-Cas 'deflate abîmé (.NET n''en tirait rien, sans erreur) refusé' {
+        $z = New-ZipAppli '9.0.0' $gros; $z[60] = $z[60] -bxor 0xFF
+        (Test-Refus { Install-Test $z } 'abîmé') -and ((Get-VersionInstallee) -eq $versionAvant) -and (Test-SansReste)
+    }
+    Test-Cas 'taille annoncée trop grande mais contenu juste (bon CRC) : installé, comme suite-commun' {
+        $null = Install-Test (Edit-EntreeZip (New-ZipAppli $versionAvant $gros) 'Appli/gros.txt' -Taille 10000)
+        ([IO.File]::ReadAllText((Join-Path $dest 'gros.txt')) -ceq ('abcdefghij' * 500)) -and (Test-SansReste)
     }
 
     # Le nouveau dossier ne peut pas prendre sa place : un programme (comme un antivirus) garde un de ses fichiers ouvert,

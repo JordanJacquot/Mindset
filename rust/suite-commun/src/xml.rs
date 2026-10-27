@@ -27,6 +27,12 @@ impl Element {
         }
         self.enfants.iter().find_map(|e| e.chercher_texte(nom))
     }
+
+    /// Vrai si cet élément ou un de ses descendants a le nom local `nom`, même vide.
+    pub fn contient(&self, nom: &str) -> bool {
+        let local = self.nom == nom || self.nom.strip_suffix(nom).is_some_and(|d| d.ends_with(':'));
+        local || self.enfants.iter().any(|e| e.contient(nom))
+    }
 }
 
 /// Lit le premier élément du texte. `None` si le texte est vide ou s'arrête avant sa fermeture.
@@ -159,6 +165,7 @@ mod tests {
         .unwrap();
         assert_eq!(e.chercher_texte("Modulus"), Some("AA"));
         assert_eq!(e.chercher_texte("D"), None);
+        assert!(e.contient("D") && e.contient("Modulus") && !e.contient("P"));
         assert!(lire("").is_none());
         assert!(lire("<RSAKeyValue><Modulus>AA</Modulus>").is_none());
         assert!(lire("pas du xml").is_none());
