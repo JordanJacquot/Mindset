@@ -12,9 +12,18 @@ function Get-Applis {
     $nomFichier = '^[^\\/:*?"<>|]+$'
     foreach ($a in $liste) {
         if ($a.id -isnot [string] -or $a.couleur -isnot [string]) { Write-Log 'apps.json : entrée mal formée ignorée'; continue }
+        # Son type (docs\contrat-appli.md, partie 1) : « powershell » (champ absent : les applis d'aujourd'hui) a un script
+        # principal ; « rust » n'en a pas forcément (sa version est dans son version.json). Tout autre type : ignorée.
+        $type = if ($null -eq $a.type) { 'powershell' } else { $a.type }
+        if ($type -isnot [string] -or $type -cnotmatch '^(powershell|rust)$') { Write-Log "apps.json : appli ignorée ($($a.id), type inconnu)"; continue }
         $ok = $a.id -match '^[a-z0-9-]+$' -and $a.nom -and $a.couleur -match '^#[0-9A-Fa-f]{6}$' -and
               $a.depot -match '^[\w.-]+/[\w.-]+$' -and $a.zip -match $nomFichier -and $a.dossier_zip -match $nomFichier -and
-              $a.exe -match '^[^\\/:*?"<>|]+\.exe$' -and $a.script -match '^[\w\\.-]+\.ps1$' -and $a.script -notmatch '\.\.'
+              $a.exe -match '^[^\\/:*?"<>|]+\.exe$'
+        if ($type -eq 'powershell' -or $a.script) { $ok = $ok -and $a.script -match '^[\w\\.-]+\.ps1$' -and $a.script -notmatch '\.\.' }
+        # Les noms de son verrou et de son signal d'affichage, et la version de « cache_depuis » : contrôlés comme les autres
+        if ($a.mutex) { $ok = $ok -and $a.mutex -match '^Local\\[\w.-]+$' }
+        if ($a.afficher_signal) { $ok = $ok -and $a.afficher_signal -match '^Local\\[\w.-]+$' }
+        if ($a.cache_depuis) { $ok = $ok -and $a.cache_depuis -match '^\d+(\.\d+){1,3}$' }
         if ($a.desinstalleur) { $ok = $ok -and $a.desinstalleur -match '^[^\\/:*?"<>|]+\.exe$' }
         if ($a.afficher_fichier) { $ok = $ok -and $a.afficher_fichier -match $nomFichier }
         if ($a.aide) { $ok = $ok -and $a.aide -cmatch '^[A-Za-z0-9 ]{1,40} \(aide\)$' -and $a.aide_exe -match '^[^\\/:*?"<>|]+\.exe$' }
@@ -38,6 +47,7 @@ function Get-Applis {
         if (-not [double]::TryParse([string]$a.logo_epaisseur, [Globalization.NumberStyles]::Float, [Globalization.CultureInfo]::InvariantCulture, [ref]$epaisseur) -or $epaisseur -lt 4 -or $epaisseur -gt 25) { $epaisseur = 12.0 }
         [pscustomobject]@{
             Id              = [string]$a.id
+            Type            = $type   # « powershell » ou « rust »
             Nom             = [string]$a.nom
             Couleur         = [string]$a.couleur
             AppId           = 'JordanJacquot.' + ([string]$a.nom -replace '[^A-Za-z0-9]', '')   # son identité dans la barre des tâches (celle que l'appli se donne)

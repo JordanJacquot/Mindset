@@ -1,6 +1,13 @@
-﻿# Mindset : tests du désinstalleur autonome (Desinstaller Mindset.exe, compilé depuis outils\desinstalleur.cs).
+﻿# Mindset : tests du désinstalleur autonome (Desinstaller Mindset.exe), dans ses deux versions, sur les mêmes cas :
+#   - C#   : compilé depuis outils\desinstalleur.cs ;
+#   - Rust : construit depuis rust\desinstalleur (passage en Rust, étape 2), avec l'option « essai » de cargo, la seule
+#            qui connaît -Test et -EssaiFenetre (l'exe livré est construit sans elle).
 #
-#   powershell -NoProfile -ExecutionPolicy Bypass -File .\outils\tester-desinstallation.ps1
+#   powershell -NoProfile -ExecutionPolicy Bypass -File .\outils\tester-desinstallation.ps1 [-Rust <exe>]
+#
+#   -Rust : la version Rust déjà construite (cargo build -p desinstalleur --features essai). Sans elle, le script la
+#           construit si cargo est là (sur GitHub : toujours, avec la version figée par rust\rust-toolchain.toml) ; sur
+#           un PC sans cargo, seule la version C# est testée, et il le dit.
 #
 # Même petit outil que tester-securite.ps1 (Test-Cas). Code de sortie 1 si un cas échoue (pour la CI de GitHub).
 #
@@ -22,6 +29,7 @@
 #   - -Nettoyer marche sur une installation à moitié cassée, deux fois de suite (idempotent) ;
 #   - un lien (point de jonction) dans les données n'est jamais suivi.
 
+param([string]$Rust = '')
 $ErrorActionPreference = 'Stop'
 $racine = Split-Path $PSScriptRoot -Parent
 $fichiers = Join-Path $racine 'Mindset\fichiers'
@@ -33,7 +41,9 @@ $NomExe = 'Desinstaller Mindset.exe'
 # ---------------------------------------------------------------------------------------------------------------
 $script:Reussis = 0
 $script:Echoues = @()
+$script:Version = ''   # « [C#] » ou « [Rust] » devant chaque cas
 function Test-Cas([string]$Nom, [scriptblock]$Condition) {
+    if ($script:Version) { $Nom = "$($script:Version) $Nom" }
     $detail = ''
     try { $r = @(& $Condition) } catch { $r = @(); $detail = $_.Exception.Message }
     if ($r.Count -and $r[-1] -is [bool] -and $r[-1]) {
@@ -121,13 +131,40 @@ static class Faux {
     & $csc /nologo /target:winexe "/out:$faux" $sourceFaux | Out-Null
     if ($LASTEXITCODE) { throw 'Compilation du faux programme impossible.' }
 
+    # La version Rust, rangée sous le même nom que la version C# (dans son propre dossier)
+    $versions = @(@{ Nom = 'C#'; Exe = $desinstalleur })
+    $surGitHub = $env:GITHUB_ACTIONS -eq 'true'
+    if (-not $Rust -and (Get-Command cargo -ErrorAction SilentlyContinue)) {
+        $cible = if ($env:CARGO_TARGET_DIR) { $env:CARGO_TARGET_DIR } else { Join-Path $tmp 'cible-rust' }
+        Push-Location (Join-Path $racine 'rust')
+        try {
+            # (sur GitHub : la version de Rust figée par rust-toolchain.toml, installée si besoin)
+            $ErrorActionPreference = 'Continue'
+            if ($surGitHub) { & rustup toolchain install 2>&1 | ForEach-Object { "$_" } | Out-Host }
+            & cargo build --locked -p desinstalleur --features essai --target-dir $cible 2>&1 | ForEach-Object { "$_" } | Out-Host
+            if (-not $LASTEXITCODE) { $Rust = Join-Path $cible 'debug\desinstaller-mindset.exe' }
+        } finally { $ErrorActionPreference = 'Stop'; Pop-Location }
+        Test-Cas 'La version Rust se construit (cargo, option « essai »)' { [bool]$Rust -and (Test-Path -LiteralPath $Rust) }
+    }
+    if ($Rust) {
+        $dossierRust = Join-Path $tmp 'outils-rust'
+        New-Item -ItemType Directory -Force -Path $dossierRust | Out-Null
+        $exeRust = Join-Path $dossierRust $NomExe
+        Copy-Item -LiteralPath $Rust -Destination $exeRust -Force
+        $versions += @{ Nom = 'Rust'; Exe = $exeRust }
+    } elseif ($surGitHub) {
+        Test-Cas 'La version Rust est testée sur GitHub' { $false }
+    } else {
+        Write-Host '  (cargo absent : seule la version C# est testée ; passe -Rust <exe> pour tester la version Rust)' -ForegroundColor Yellow
+    }
+
     # -------------------------------------------------------------------------------------------------------------
     # Un faux environnement complet : $Nom sous $tmp. Retourne ses chemins.
     #   -SansProgrammeC : rien dans Program Files (installation à moitié cassée)
     #   -Script 'absent' | 'abime' | 'normal' : fichiers\Mindset.ps1
     # -------------------------------------------------------------------------------------------------------------
     function New-Environnement([string]$Nom, [string]$Script = 'absent', [switch]$SansProgrammeC, [switch]$AppsAbime, [switch]$SansCleDesinstall) {
-        $e = @{ Dossier = (Join-Path $tmp $Nom) }
+        $e = @{ Dossier = (Join-Path $tmp "$($script:VersionDossier)$Nom") }
         foreach ($k in 'ProgramFiles', 'LocalAppData', 'Bureau', 'Menu', 'Temp', 'DisqueX') { $e[$k] = Join-Path $e.Dossier $k; New-Item -ItemType Directory -Force -Path $e[$k] | Out-Null }
         $e.RacineC = Join-Path $e.ProgramFiles 'Mindset'
         $e.Mindset = Join-Path $e.RacineC 'Mindset'
@@ -225,6 +262,13 @@ static class Faux {
         (Test-Absent "HKCU:\$CleTest\Uninstall\Mindset") -and (Test-Absent "HKCU:\$CleTest\Mindset") -and -not (Test-Valeur "HKCU:\$CleTest\Run" 'Mindset') -and
         (Test-Absent (Join-Path $E.Bureau 'Mindset.lnk')) -and (Test-Absent (Join-Path $E.Menu 'Mindset.lnk')) -and (Test-Absent (Join-Path $E.Menu 'Mindset'))
     }
+    # Les mêmes cas pour chaque version
+    foreach ($variante in $versions) {
+    $script:Version = "[$($variante.Nom)]"
+    $script:VersionDossier = ($variante.Nom -replace '[^A-Za-z]', '') + '-'
+    $desinstalleur = $variante.Exe
+    Remove-Item -LiteralPath (Join-Path $marques '*') -Force -ErrorAction SilentlyContinue
+    Write-Partie "Version $($variante.Nom) : $desinstalleur"
     Test-Cas 'Le faux environnement se prépare (tâches de test comprises)' { $e0 = New-Environnement 'essai'; (Test-DossierTachesPresent) -and (Test-Path -LiteralPath $e0.Exe) }
 
     # -------------------------------------------------------------------------------------------------------------
@@ -336,7 +380,7 @@ static class Faux {
     Copy-Item -LiteralPath $faux -Destination (Join-Path $e.RacineC 'Evermind\Mindset.exe') -Force
     $hote = Start-Process -FilePath (Join-Path $e.RacineC 'Evermind\Mindset.exe') -PassThru
     $mindsetOuvert = Start-Process -FilePath (Join-Path $e.Mindset 'Mindset.exe') -PassThru
-    $edge = Join-Path $tmp 'edge'; New-Item -ItemType Directory -Force -Path $edge | Out-Null
+    $edge = Join-Path $tmp "$($script:VersionDossier)edge"; New-Item -ItemType Directory -Force -Path $edge | Out-Null
     Copy-Item -LiteralPath $faux -Destination (Join-Path $edge 'msedgewebview2.exe') -Force
     Save-Fichier (Join-Path $e.Donnees 'WebView2\Mindset\profil.txt') 'profil'
     $wvSuite = Start-Process -FilePath (Join-Path $edge 'msedgewebview2.exe') -ArgumentList "--type=renderer `"--user-data-dir=$(Join-Path $e.Donnees 'WebView2')\EBWebView`"" -PassThru
@@ -351,10 +395,19 @@ static class Faux {
     Test-Cas 'Le WebView2 de la suite est fermé, et le dossier WebView2 commun supprimé avec les données' { $wvSuite.WaitForExit(5000) -and (Test-Absent (Join-Path $e.Donnees 'WebView2')) }
     Test-Cas 'Le WebView2 d''un autre programme tourne toujours' { -not $wvAutre.HasExited }
     Test-Cas 'Un programme d''aide Mindset.exe lancé depuis les données d''une appli est fermé, et ses données supprimées' { $aideDonnees.WaitForExit(5000) -and (Test-Absent (Join-Path $e.Donnees 'Evermind')) }
-    $desinst = Get-Texte (Join-Path $PSScriptRoot 'desinstalleur.cs')
-    Test-Cas 'Le désinstalleur ne cherche jamais un programme à fermer par son nom (GetProcessesByName seulement pour attendre)' {
-        @([regex]::Matches($desinst, 'GetProcessesByName')).Count -le 1 -and $desinst -notmatch 'taskkill'
+    if ($variante.Nom -eq 'C#') {
+        $desinst = Get-Texte (Join-Path $PSScriptRoot 'desinstalleur.cs')
+        Test-Cas 'Le désinstalleur ne cherche jamais un programme à fermer par son nom (GetProcessesByName seulement pour attendre)' {
+            @([regex]::Matches($desinst, 'GetProcessesByName')).Count -le 1 -and $desinst -notmatch 'taskkill'
+        }
+    } else {
+        $desinst = @(Get-ChildItem -LiteralPath (Join-Path $racine 'rust\desinstalleur\src') -Recurse -Filter '*.rs' | Where-Object { $_.Name -ne 'tests.rs' } | ForEach-Object { Get-Texte $_.FullName }) -join "`n"
+        Test-Cas 'Le désinstalleur ne cherche jamais un programme à fermer par son nom (tourne_nomme seulement pour attendre)' {
+            @([regex]::Matches($desinst, 'self\.sys\.tourne_nomme\(')).Count -eq 1 -and $desinst -notmatch 'taskkill'
+        }
     }
+    }
+    $script:Version = ''
 
     # -------------------------------------------------------------------------------------------------------------
     Write-Partie 'Mindset passe par le désinstalleur'

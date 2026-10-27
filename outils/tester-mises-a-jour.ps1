@@ -190,7 +190,7 @@ static class Essai {
     }
     $script:PendantTelechargement = $null
     function Test-Signature { $true }
-    foreach ($n in 'Test-VersionPlusRecente', 'Get-DossierZip') { . ([scriptblock]::Create(($asts['paquets.ps1'].FindAll({ param($x) $x -is [System.Management.Automation.Language.FunctionDefinitionAst] -and $x.Name -eq $n }, $true) | Select-Object -First 1).Extent.Text)) }
+    foreach ($n in 'Test-VersionPlusRecente', 'Get-DossierZip', 'Test-PaquetAppli', 'Get-VersionJsonZip', 'Read-VersionJson') { . ([scriptblock]::Create(($asts['paquets.ps1'].FindAll({ param($x) $x -is [System.Management.Automation.Language.FunctionDefinitionAst] -and $x.Name -eq $n }, $true) | Select-Object -First 1).Extent.Text)) }
     $script:Interrupteurs = New-Object Collections.ArrayList
     $Window = [pscustomobject]@{ IsVisible = $false; WindowState = 'Normal' }
     $ui = @{}

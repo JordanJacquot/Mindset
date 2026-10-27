@@ -2,7 +2,7 @@
 # les applis publiées restent celles en PowerShell.
 [workspace]
 resolver = "3"
-members = ["suite-commun", "banc-essai", "mindset-installateur"]
+members = ["suite-commun", "banc-essai", "mindset-installateur", "desinstalleur"]
 
 [workspace.package]
 edition = "2024"

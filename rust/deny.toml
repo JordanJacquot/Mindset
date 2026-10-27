@@ -30,6 +30,7 @@ allow = [
     "suite-commun",
     "banc-essai",
     "mindset-installateur",
+    "desinstalleur",
     # signature (ring) et sa construction
     "ring",
     "untrusted",
@@ -59,7 +60,7 @@ allow = [
     "equivalent",
     "hashbrown",
     "typed-path",
-    # Windows (Microsoft), pour MindsetInstallateur.exe : Planificateur de tâches (COM), droits, registre
+    # Windows (Microsoft) : MindsetInstallateur.exe (Planificateur de tâches en COM, droits, registre) et le désinstalleur
     "windows",
     "windows-core",
     "windows-collections",

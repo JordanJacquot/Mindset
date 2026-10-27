@@ -67,7 +67,7 @@ public static class MSIntegration
             if (p != pid || GetWindow(h, 4) != IntPtr.Zero) return true;   // 4 = GW_OWNER
             var t = new System.Text.StringBuilder(256); GetWindowText(h, t, 256);
             var c = new System.Text.StringBuilder(256); GetClassName(h, c, 256);
-            if (t.ToString() == titre && c.ToString().StartsWith("HwndWrapper")) { trouve = h; return false; }
+            if (t.ToString() == titre && (c.ToString().StartsWith("HwndWrapper") || c.ToString() == "Tauri Window")) { trouve = h; return false; }
             return true;
         }, IntPtr.Zero);
         return trouve;

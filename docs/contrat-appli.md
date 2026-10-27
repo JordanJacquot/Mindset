@@ -5,7 +5,8 @@ de référence pour écrire une appli en Rust (plan de passage en Rust, 3.4) et 
 contrat dans les tests.
 
 Il est établi en lisant le code du 26/10/2026 : Mindset 2.14.0 (`Mindset/fichiers/Mindset.ps1:14`) et Nevermind 1.14.2
-(`Nevermind: Nevermind/fichiers/Nevermind.ps1:16`).
+(`Nevermind: Nevermind/fichiers/Nevermind.ps1:16`). Mis à jour le 27/10/2026 avec l'étape 2 (champ `type`, contrôles
+d'apps.json, `version.json`, fenêtre Tauri : parties 1, 2, 7 et 10, marquées **Existe (étape 2)**).
 
 Comment lire ce document :
 - les chemins sont relatifs à la racine du dépôt Mindset ; ceux qui commencent par « Nevermind: » sont relatifs à la
@@ -19,79 +20,80 @@ Comment lire ce document :
 ## 1. L'entrée dans apps.json
 
 **Existe.** `Mindset/fichiers/apps.json` est livré avec Mindset : une appli n'existe pour Mindset que si elle y figure
-(`Mindset/fichiers/modules/applis.ps1:4-5`). Mindset le lit dans `Get-Applis` (`applis.ps1:7-73`) et ignore toute
-entrée qui ne passe pas les contrôles (`applis.ps1:28`).
+(`Mindset/fichiers/modules/applis.ps1:4-5`). Mindset le lit dans `Get-Applis` (`applis.ps1:7-83`) et ignore toute
+entrée qui ne passe pas les contrôles (`applis.ps1:18` pour le type, `:37` pour le reste).
 
 | Champ | Obligatoire | Contrôle | Ligne |
 |---|---|---|---|
-| `id` | oui | `^[a-z0-9-]+$` | `applis.ps1:14-15` |
-| `nom` | oui | non vide ; aussi le nom du dossier de l'appli et le titre de sa fenêtre | `applis.ps1:15` |
-| `couleur` | oui | `#RRGGBB` | `applis.ps1:15` |
-| `depot` | oui | `propriétaire/dépôt` GitHub | `applis.ps1:16` |
-| `zip`, `dossier_zip` | oui | nom de fichier simple | `applis.ps1:16` |
-| `exe` | oui | nom de fichier `.exe` | `applis.ps1:17` |
-| `script` | oui | `^[\w\\.-]+\.ps1$`, sans `..` | `applis.ps1:17` |
-| `mutex` | en pratique | **aucun contrôle** (lu tel quel) | `applis.ps1:51` |
-| `afficher_fichier` | non | nom de fichier simple | `applis.ps1:19` |
-| `afficher_signal` | non | aucun contrôle | `applis.ps1:59` |
-| `desinstalleur` | non | nom de fichier `.exe` | `applis.ps1:18` |
-| `donnees` | en pratique | variables d'environnement développées, aucun autre contrôle | `applis.ps1:61` |
-| `admin`, `sans_droits_depuis` | non | version `\d+(\.\d+){1,3}` | `applis.ps1:21`, `62-64` |
-| `aide`, `aide_exe` | non | `<Nom> (aide)` et nom `.exe` | `applis.ps1:20` |
-| `cache_depuis` | non | aucun contrôle (comparé comme une version) | `applis.ps1:67` |
-| `rappels`, `presentation`, `description`, `confidentialite`, `logo`, `logo_epaisseur` | non | voir les lignes | `applis.ps1:31-38`, `63` |
-| `ancien_*` | non | mêmes contrôles que les champs actuels | `applis.ps1:24-27` |
+| `id` | oui | `^[a-z0-9-]+$` | `applis.ps1:14`, `:19` |
+| `type` | non | `powershell` (la valeur quand il est absent) ou `rust`, avec cette casse ; sinon l'entrée est ignorée | `applis.ps1:15-18` |
+| `nom` | oui | non vide ; aussi le nom du dossier de l'appli et le titre de sa fenêtre | `applis.ps1:19` |
+| `couleur` | oui | `#RRGGBB` | `applis.ps1:19` |
+| `depot` | oui | `propriétaire/dépôt` GitHub | `applis.ps1:20` |
+| `zip`, `dossier_zip` | oui | nom de fichier simple | `applis.ps1:20` |
+| `exe` | oui | nom de fichier `.exe` | `applis.ps1:21` |
+| `script` | oui pour `powershell`, non pour `rust` | `^[\w\\.-]+\.ps1$`, sans `..` (contrôlé aussi pour `rust` s'il est là) | `applis.ps1:22` |
+| `mutex` | en pratique | `^Local\\[\w.-]+$` s'il est là (même règle que `ancien_mutex`) | `applis.ps1:24` |
+| `afficher_fichier` | non | nom de fichier simple | `applis.ps1:28` |
+| `afficher_signal` | non | `^Local\\[\w.-]+$` s'il est là | `applis.ps1:25` |
+| `desinstalleur` | non | nom de fichier `.exe` | `applis.ps1:27` |
+| `donnees` | en pratique | variables d'environnement développées, aucun autre contrôle | `applis.ps1:71` |
+| `admin`, `sans_droits_depuis` | non | version `\d+(\.\d+){1,3}` | `applis.ps1:30`, `74` |
+| `aide`, `aide_exe` | non | `<Nom> (aide)` et nom `.exe` | `applis.ps1:29` |
+| `cache_depuis` | non | version `\d+(\.\d+){1,3}` s'il est là | `applis.ps1:26` |
+| `rappels`, `presentation`, `description`, `confidentialite`, `logo`, `logo_epaisseur` | non | voir les lignes | `applis.ps1:38-47`, `73` |
+| `ancien_*` | non | mêmes contrôles que les champs actuels | `applis.ps1:33-36` |
+
+L'objet rendu par `Get-Applis` a une propriété `Type` (`applis.ps1:50`). Les trois entrées d'aujourd'hui n'ont pas de
+`type` : elles sont lues exactement comme avant (vérifié par `outils/tester-securite.ps1`, partie « Contrat d'une
+appli : ... apps.json »).
 
 Le mini-installateur relit apps.json de son côté, à côté de lui dans le dossier protégé, jamais dans la demande
 (`Mindset/fichiers/installer-admin.ps1:213-229`) : il vérifie `nom` (et refuse « Mindset », ligne 221), `exe`,
-`dossier_zip` et la partie administrateur, mais **pas** `script`. Le désinstalleur de Mindset lit `nom`, `exe` et
-`desinstalleur` (`outils/desinstalleur.cs:725-729`).
+`dossier_zip` et la partie administrateur, mais **pas** `script` ni `type`. Le désinstalleur de Mindset lit `nom`,
+`exe` et `desinstalleur` (voir partie 9).
 
-**Pourquoi une appli sans script est rejetée aujourd'hui.** À trois endroits :
-1. `applis.ps1:17` : `$a.script -match '^[\w\\.-]+\.ps1$'` ; sans `script`, l'entrée est ignorée (`applis.ps1:28`,
-   « appli ignorée ») ;
-2. `Mindset/fichiers/modules/installations.ps1:69` : `Test-DossierAppli` exige le fichier `script` dans le dossier
-   (voir partie 2) ;
-3. `Mindset/fichiers/modules/paquets.ps1:237-241` : le zip est refusé s'il n'a pas de ligne `$AppVersion` dans un
-   `fichiers\*.ps1` (« Le fichier téléchargé ne dit pas quelle version il contient », voir partie 10).
-
-**À venir (étape 2).** Un champ `type` :
-- `"powershell"` : le comportement d'aujourd'hui ; c'est la valeur quand le champ est absent ;
-- `"rust"` : `script` n'est plus demandé ; la version vient de `version.json` (partie 10) ; `Test-DossierAppli` suit
-  la partie 2.
-- Toute autre valeur : l'entrée est ignorée, comme aujourd'hui une entrée mal formée.
-
-Profiter de l'étape 2 pour contrôler aussi `mutex` (même règle que `ancien_mutex`, `^Local\\[\w.-]+$`,
-`applis.ps1:27`), `afficher_signal` et `cache_depuis`.
+**Ce qui rejetait une appli sans script, et ce qui a changé à l'étape 2.** Trois endroits :
+1. `applis.ps1` : `script` n'est plus obligatoire pour `"type": "rust"` (`applis.ps1:22`) ;
+2. `Test-DossierAppli` (`installations.ps1:78-85`) : le script, **ou** `Mindset.exe` et un `version.json` qui nomme
+   l'appli (partie 2) ;
+3. `Install-Paquet` (`paquets.ps1:306`) : la version vient de `version.json` d'abord (partie 10), la ligne `$AppVersion`
+   n'est plus qu'un secours.
 
 **Appli Rust.** Son entrée a `"type": "rust"`, un `mutex` `Local\<Nom>-Instance`, un `afficher_fichier` (sinon
 Mindset ne lit pas ses notifications, partie 5), `donnees` (son ancien dossier, ou celui de la suite), et
-`desinstalleur` seulement si elle change des réglages de Windows (partie 9).
+`desinstalleur` seulement si elle change des réglages de Windows (partie 9). Une appli qui passe de PowerShell à Rust
+peut garder son entrée sans `type` pendant la bascule : son dossier Rust est reconnu quand même (partie 2), mais son
+entrée doit alors garder `script` (le nom de l'ancien script) tant qu'elle n'a pas `"type": "rust"`.
 
 ---
 
 ## 2. Test-DossierAppli : « ce dossier contient-il l'appli ? »
 
-**Existe.** `installations.ps1:68-70` :
+**Existe (étape 2).** `installations.ps1:78-85` : il faut le programme `exe`, **et**
+- soit le script (`script` ou `ancien_script`, `Get-ScriptAppli`, `installations.ps1:53-60`) : les applis d'aujourd'hui,
+  rien n'a changé pour elles ;
+- soit `Mindset.exe` **et** un `version.json` lisible dont `appli` est l'`id` de l'entrée (sans tenir compte de la
+  casse) : une appli Rust. Un `version.json` sans `appli`, abîmé ou d'une autre appli ne suffit pas.
 
-```powershell
-$Dossier -and (Test-Path -LiteralPath (Join-Path $Dossier $Appli.Exe)) -and [bool](Get-ScriptAppli $Dossier $Appli)
-```
+Ces deux formes sont acceptées quel que soit `type` : pendant la bascule d'une appli de PowerShell à Rust, le dossier
+installé peut être de l'une ou de l'autre forme pour la même entrée.
 
-Il faut donc le programme `exe` **et** le script (`script` ou `ancien_script`, `installations.ps1:53-60`). Il sert
-partout où Mindset décide qu'une appli est installée :
-- `Get-Installation` (`installations.ps1:73-89`) : l'installation notée dans installations.json (une installation
-  « gérée » n'est crue que dans le dossier protégé, ligne 77), puis la copie gérée oubliée (ligne 87) ;
-- la recherche d'une copie déjà présente sur le PC (`installations.ps1:138`) ;
-- « utiliser cette copie » (`installations.ps1:883`).
+`Get-VersionDans` (`installations.ps1:64-74`), la version installée : `version.json` d'abord (lisible, et `appli` absent
+ou égal à l'`id`), sinon la ligne `$AppVersion` du script.
 
-Ailleurs, la présence du seul `exe` compte : le zip doit le contenir (`paquets.ps1:230-233`), et la désinstallation
-est finie quand il a disparu (`installations.ps1:872`, `outils/desinstalleur.cs:783`).
+Il sert partout où Mindset décide qu'une appli est installée :
+- `Get-Installation` (`installations.ps1:88-104`) : l'installation notée dans installations.json (une installation
+  « gérée » n'est crue que dans le dossier protégé), puis la copie gérée oubliée ;
+- la recherche d'une copie déjà présente sur le PC (`installations.ps1:153`) ;
+- « utiliser cette copie » (`installations.ps1:902`) ; « choisir le dossier » dit ce qui manque, avec `version.json`
+  quand l'entrée n'a pas de script (`Mindset/fichiers/modules/accueil.ps1:466`).
 
-**À venir (étape 2).** Pour `type: "rust"` : `exe` présent, `Mindset.exe` présent, et `version.json` lisible avec le
-bon `appli` (partie 10). Pas de script.
+Ailleurs, la présence du seul `exe` compte : le zip doit le contenir (`paquets.ps1`, `Install-Paquet`), et la
+désinstallation est finie quand il a disparu (`installations.ps1:891`, et le désinstalleur de Mindset, partie 9).
 
-**Appli Rust.** Son dossier contient au moins `Mindset.exe` (son programme), `<exe>` (voir partie 4) et `version.json`.
+**Appli Rust.** Son dossier contient au moins `Mindset.exe` (son programme), `<exe>` (voir partie 4) et `version.json`
+(avec son `appli`).
 
 ---
 
@@ -288,10 +290,15 @@ par le lanceur (`Nevermind: outils/lanceur.cs:156-159`, `:184`) ; la fenêtre se
 - décrochée : taille minimale rendue (`evenements.ps1:82`), et se ranger si Mindset l'a cachée (`evenements.ps1:83-84`) ;
 - accrochée, une demande d'affichage ne touche pas à sa fenêtre (`evenements.ps1:108-109`).
 
-**À venir (étape 2).** Le test `HwndWrapper` de `natif.cs:70` ne trouvera pas une fenêtre Tauri. Mindset doit
-accepter une fenêtre d'appli Rust par un autre signe : par exemple une propriété de fenêtre posée par l'appli
-(sur le modèle de `Mindset.BarrePropre`), en plus du titre et de l'absence de propriétaire. Le choix se fait avec
-l'essai jetable 1 de l'étape 0 (fenêtre Tauri accrochée dans le Mindset actuel).
+**Existe (étape 2).** `MSIntegration.Trouver` (`natif.cs:70`) accepte aussi une fenêtre de classe exactement
+« Tauri Window » (la fenêtre principale d'une appli Tauri), en plus de `HwndWrapper*` : c'est la seule condition
+ajoutée, celle qu'a validée l'essai jetable 1 de l'étape 0 (une fenêtre Tauri accrochée dans le Mindset actuel). Rien ne
+change pour les fenêtres WPF d'aujourd'hui ; le titre exact et l'absence de propriétaire restent demandés pour les deux.
+Vérifié par `outils/tester-securite.ps1` (partie « fenêtre trouvée pour l'accrochage ») sur des fenêtres jamais
+montrées : une WPF et une Tauri trouvées, une `Chrome_WidgetWin_1` et une Tauri possédée par une autre écartées.
+
+Reste à faire côté Mindset 3.0 (étape 4, plan « Résultats des essais de l'étape 0 ») : la veille de la page Tauri
+cachée (`SetIsVisible`), et `WS_CLIPCHILDREN` / `WS_CLIPSIBLINGS` quand c'est Mindset en Tauri qui accroche une appli.
 
 **Appli Rust.**
 - Une seule fenêtre principale, créée au démarrage (même avec `-Demarrage`), **sans propriétaire**, titre = `nom`
@@ -346,8 +353,22 @@ de programmes (il est protégé).
 - Celui de Nevermind est son lanceur compilé avec le symbole `UNINSTALL` (`Nevermind: outils/construire.ps1:62`,
   `Nevermind: outils/lanceur.cs:149-166`).
 
-**À venir (étape 2).** `desinstalleur.cs` passe en Rust, en corrigeant ce que l'audit lui reprochait (par exemple
-`ProgramW6432` lu dans l'environnement de l'utilisateur, `desinstalleur.cs:107`).
+**Existe (étape 2) : « Desinstaller Mindset.exe » en Rust** (`rust/desinstalleur`), même comportement pour
+l'utilisateur que `desinstalleur.cs` (mêmes textes, mêmes étapes, même bilan, mêmes options), et ce que l'audit du 25/10
+lui reprochait (constat 5) corrigé (`rust/desinstalleur/src/os/mod.rs`, `lieux_reels`) :
+- Program Files vient de HKLM (`ProgramFilesDir`), sinon de Windows (KnownFolder), jamais de la variable
+  `ProgramW6432` ;
+- le Bureau, le menu Démarrer et `%LOCALAPPDATA%` (« Shell Folders » de l'utilisateur) ne sont acceptés que dans son
+  dossier de profil, lu dans HKLM (`ProfileList`), et sans jonction ni lien symbolique en route ; sinon leur place
+  habituelle dans ce profil ;
+- la copie temporaire et le journal vont dans `<Windows>\Temp` (plus la variable TEMP), le dossier de la copie est
+  créé directement protégé, et le journal n'est jamais écrit au travers d'un lien ;
+- aucune variable d'environnement n'est lue.
+Les options d'essai (`-Test`, `-EssaiFenetre`) n'existent que dans la construction d'essai (option cargo `essai`) :
+l'exe livré ne les connaît pas. Juges : `cargo test -p desinstalleur` (faux Windows) et
+`outils/tester-desinstallation.ps1`, qui passe les mêmes cas à la version C# et à la version Rust (sur GitHub). Tant
+que la publication des exe construits sur GitHub (plan 3.6) n'est pas en place, `construire.ps1` livre encore la
+version C#. Le contrat avec les désinstalleurs d'appli ne change pas (mêmes options, même attente, même critère).
 
 **Appli Rust.** Seulement si elle change quelque chose dans Windows : `Désinstaller <Nom>.exe` dans son dossier, qui
 - sans option, pose la question des données ; avec `-GarderDonnees` ou `-SupprimerDonnees`, ne la pose pas ; avec les
@@ -361,35 +382,72 @@ Sinon, pas de champ `desinstalleur` : Mindset supprime le dossier et garde les d
 
 ## 10. version.json
 
-**Existe : la version est lue dans le script.** La ligne `$AppVersion = 'x.y.z'` (dans les 40 premières lignes d'un
-`fichiers\*.ps1`) est lue à trois endroits :
-1. **la version installée** : `Get-VersionDans` (`installations.ps1:62-66`), qui sert à `cache_depuis`
-   (`integration.ps1:47`) et `sans_droits_depuis` (`applis.ps1:77-83`) ;
-2. **la version d'un zip, avant de fermer l'appli** : `Get-VersionZip` (`paquets.ps1:138-160`), appelée par
-   `installer-admin.ps1:498-499` ;
-3. **la version d'un dossier** : `Get-VersionDossier` (`paquets.ps1:166-175`), pour refuser un retour en arrière ou un
-   zip sans version (`paquets.ps1:234-249`) et pour la plus haute version gardée dans HKLM
-   (`installer-admin.ps1:246-256`, `:504`).
+**Avant l'étape 2 : la version était lue dans le script.** La ligne `$AppVersion = 'x.y.z'` (dans les 40 premières
+lignes d'un `fichiers\*.ps1`) était lue à trois endroits : la version installée (`Get-VersionDans`), la version d'un
+zip avant de fermer l'appli (`Get-VersionZip`, appelée par `installer-admin.ps1:498-499`), la version d'un dossier
+(`Get-VersionDossier`, pour refuser un retour en arrière et pour la plus haute version gardée dans HKLM,
+`installer-admin.ps1:246-256`, `:504`). Ces lectures restent, **en secours**.
 
 La version **publiée** vient du nom de la version sur GitHub (`paquets.ps1:25`, `:41`) : rien ne change là.
 
-**À venir (étape 2).** Un fichier `version.json`, couvert par la signature du zip :
+**Existe (étape 2).** Le fichier, couvert par la signature du zip comme tout le reste :
 
 ```json
 { "appli": "nevermind", "version": "2.0.0", "mindset_min": "2.15.0" }
 ```
 
-- lu **en premier** aux trois endroits ci-dessus ; la ligne `$AppVersion` reste lue **en secours** (une appli
-  PowerShell n'a pas besoin du fichier) ;
-- `appli` doit être l'`id` de l'entrée : sinon le zip est refusé (il empêche d'installer une appli à la place d'une
-  autre) ;
-- `version` : `^\d+(\.\d+){1,3}$` ;
-- `mindset_min` : si Mindset est plus ancien, le message « Mets d'abord Mindset à jour », au lieu d'un échec muet. Un
-  Mindset d'avant 2.15 ne connaît pas ce fichier et refuse un zip sans script (« version illisible ») : sans gravité,
-  Mindset 2.15 sort avant toute appli Rust.
+**Où il est rangé : `<dossier_zip>\version.json`** (décision de l'étape 2, point relevé en 4 bis du plan). La
+construction d'une appli l'écrit dans le dossier principal de son zip, à côté de `<exe>`, et pas à la racine du zip.
+Pourquoi :
+- `Install-Paquet` (PowerShell) et `suite-commun` (Rust) n'extraient que `<dossier_zip>\` : le fichier arrive tel quel
+  dans le dossier installé, sans étape de plus ;
+- la version installée se lit alors dans le dossier : `Get-VersionDans`, le refus d'un retour en arrière et la plus
+  haute version gardée dans HKLM (`installer-admin.ps1`, qui appelle `Get-VersionDossier`) marchent sans rien changer à
+  l'installateur ;
+- un Mindset d'avant 2.15 l'ignore (il ne connaît que `$AppVersion`), comme il ignorerait un fichier à la racine.
 
-**Appli Rust.** Livrer `version.json` dans son zip, écrit par sa construction à partir de sa version (une seule
-source).
+Pour suivre `suite-commun` (`rust/suite-commun/src/paquet.rs`, `extraire` et `installer_verifie`), Mindset accepte
+aussi un `version.json` à la **racine** du zip (nom exact, avec cette casse) : il est rangé dans le dossier installé ;
+s'il y en a un dans le dossier principal aussi, les deux doivent être identiques à l'octet près.
+
+**La lecture** (`Read-VersionJson`, `paquets.ps1:144`, comme `lire_version_json` de `suite-commun`) : 64 Ko au plus ;
+marque d'encodage suivie (UTF-8, UTF-16, UTF-32), sinon UTF-8 ; un objet JSON (noms des champs avec leur casse) ;
+`version` obligatoire, `^\d+(\.\d+){1,3}$` en chiffres ASCII ; `appli` et `mindset_min` facultatifs mais des textes
+s'ils sont là, `mindset_min` au format d'une version. Sinon le fichier est **illisible**.
+
+**Où il est lu, toujours en premier :**
+1. **l'installation** (`Install-Paquet`, `paquets.ps1:306`, contrôles aux lignes 322-390), dans cet ordre, les mêmes
+   que `suite-commun` avec les mêmes messages mot pour mot :
+   - illisible, ou les deux fichiers différents : « Le fichier téléchargé ne dit pas quelle version il contient : rien
+     n'a été installé. » ;
+   - ligne `$AppVersion` encore présente et différente de `version` : même refus ;
+   - `appli` différent de l'appli attendue (sans tenir compte de la casse) : « Ce fichier contient l'appli X et pas
+     Y : rien n'a été installé. » L'appli attendue vient du paramètre `-Appli`, sinon de apps.json par le dossier du
+     zip (`Get-AppliDuDossierZip`, `paquets.ps1:201` : c'est le cas avec `installer-admin.ps1` d'aujourd'hui, qui ne
+     passe pas l'appli) ; inconnue : pas ce contrôle (le programme attendu dans `<dossier_zip>\` reste vérifié) ;
+   - `mindset_min` plus récent que le Mindset qui installe (paramètre `-VersionMindset`) : « Mets d'abord Mindset à
+     jour : cette version demande Mindset X ou plus récent. » ;
+   - puis les contrôles d'avant (retour en arrière, plus haute version gardée). La version installée se lit dans son
+     `version.json`, et s'il est abîmé, dans `$AppVersion` (un fichier abîmé chez l'utilisateur ne bloque pas).
+2. **avant de fermer l'appli**, côté Mindset : la tâche de téléchargement (`installations.ps1:488`) passe le zip à
+   `Test-PaquetAppli` (`paquets.ps1:217`) avec l'`id` de l'appli et la version de Mindset : autre appli, Mindset trop
+   ancien ou fichier illisible s'affichent sur la carte (« Échec : ... ») sans rien avoir fermé ni demandé à
+   l'installateur. C'est là que l'utilisateur voit « Mets d'abord Mindset à jour ».
+3. **la version d'un zip** (`Get-VersionZip`, `paquets.ps1:229`, pour `installer-admin.ps1`) : celle de son
+   `version.json` (illisible, ou deux différents : aucune), sinon `$AppVersion` comme avant ;
+4. **la version d'un dossier** (`Get-VersionDossier`, `paquets.ps1:262`) et **la version installée**
+   (`Get-VersionDans`, `installations.ps1:64`) : `version.json`, sinon `$AppVersion`.
+
+Un zip sans `version.json` (toutes les applis d'aujourd'hui) s'installe exactement comme avant : vérifié par le banc
+d'essai PowerShell / Rust (161 cas sur 161 identiques) et par `outils/tester-securite.ps1` (partie « Contrat d'une
+appli : version.json dans le zip », avec ses cas bons, faux et illisibles).
+
+Un Mindset d'avant 2.15 ne connaît pas ce fichier : il refuse un zip sans script (« ne dit pas quelle version ») et
+installe un zip qui a encore sa ligne `$AppVersion`. Sans gravité : Mindset 2.15 sort avant toute appli Rust.
+
+**Appli Rust.** Livrer `<dossier_zip>\version.json` dans son zip, écrit par sa construction à partir de sa version
+(une seule source), avec `appli` = son `id` dans apps.json et `mindset_min` = la première version de Mindset qui
+l'accueille (au moins 2.15.0). Si elle garde une ligne `$AppVersion` (pendant la bascule), la même version.
 
 ---
 
@@ -428,14 +486,17 @@ La mesure de lag en continu (`LagMon`, `natif.cs:1936-1937`) relève du réseau,
 
 ## Doutes et points à trancher
 
-- **Fenêtre Tauri et `HwndWrapper`** (`natif.cs:70`) : le signe qui la remplace est à choisir avec l'essai jetable 1
-  de l'étape 0.
-- **Où mettre `version.json`** : le plan dit « à la racine du zip », mais `Install-Paquet` n'extrait que ce qui est
-  sous `<dossier_zip>\` (`paquets.ps1:212-219`). Pour que la version installée soit lisible dans le dossier
-  (`Get-VersionDans`), le plus simple est `<dossier_zip>\version.json`. À trancher à l'étape 2.
-- **Appli qui passe de PowerShell à Rust** (Mindcare, Evermind, Nevermind) : pendant la bascule, le dossier installé
-  est encore PowerShell et le zip publié est Rust. Mindset 2.15 doit accepter les deux formes pour la même entrée
-  (version.json d'abord, script en secours), quel que soit `type`.
+- **Fenêtre Tauri et `HwndWrapper`** : **réglé à l'étape 2**, classe « Tauri Window » acceptée (partie 7).
+- **Où mettre `version.json`** : **réglé à l'étape 2**, `<dossier_zip>\version.json` (partie 10) ; celui de la racine
+  du zip est accepté aussi, comme `suite-commun`.
+- **Appli qui passe de PowerShell à Rust** (Mindcare, Evermind, Nevermind) : **réglé à l'étape 2** pour Mindset 2.15 :
+  les deux formes de dossier sont reconnues pour la même entrée, quel que soit `type` (partie 2), et `version.json` est
+  lu d'abord, `$AppVersion` en secours (partie 10). Reste à faire au moment de chaque bascule : passer l'entrée à
+  `"type": "rust"` (ou garder `script` tant qu'elle ne l'a pas).
+- **`installer-admin.ps1` ne passe ni l'appli ni la version de Mindset à `Install-Paquet`** : l'appli est déduite de
+  apps.json par le dossier du zip, et `mindset_min` n'est contrôlé que par Mindset avant de fermer l'appli
+  (`Test-PaquetAppli`). Le futur `MindsetInstallateur.exe` (Rust, `suite-commun`) devra donner `appli` et
+  `version_mindset` (ce dernier lu dans le `Mindset.ps1` du dossier protégé) à `Demande`.
 - **`exe` pour une appli Rust** : garder un relais `<Nom>.exe` ou faire pointer `exe` sur `Mindset.exe` ; le second
   oblige à revoir les parties 2 et 9 et la recherche des copies (`installations.ps1:121-141`). Proposition : garder le
   relais.
