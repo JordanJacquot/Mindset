@@ -11,6 +11,9 @@ on:
   push:
     tags:
       - 'v*'
+    # (essai provisoire sur la branche de travail, à retirer)
+    branches:
+      - rust-2-installateur
   workflow_dispatch:
 
 permissions:
