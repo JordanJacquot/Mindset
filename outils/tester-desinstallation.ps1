@@ -263,12 +263,12 @@ static class Faux {
         (Test-Absent (Join-Path $E.Bureau 'Mindset.lnk')) -and (Test-Absent (Join-Path $E.Menu 'Mindset.lnk')) -and (Test-Absent (Join-Path $E.Menu 'Mindset'))
     }
     # Les mêmes cas pour chaque version
-    foreach ($version in $versions) {
-    $script:Version = "[$($version.Nom)]"
-    $script:VersionDossier = ($version.Nom -replace '[^A-Za-z]', '') + '-'
-    $desinstalleur = $version.Exe
+    foreach ($variante in $versions) {
+    $script:Version = "[$($variante.Nom)]"
+    $script:VersionDossier = ($variante.Nom -replace '[^A-Za-z]', '') + '-'
+    $desinstalleur = $variante.Exe
     Remove-Item -LiteralPath (Join-Path $marques '*') -Force -ErrorAction SilentlyContinue
-    Write-Partie "Version $($version.Nom) : $desinstalleur"
+    Write-Partie "Version $($variante.Nom) : $desinstalleur"
     Test-Cas 'Le faux environnement se prépare (tâches de test comprises)' { $e0 = New-Environnement 'essai'; (Test-DossierTachesPresent) -and (Test-Path -LiteralPath $e0.Exe) }
 
     # -------------------------------------------------------------------------------------------------------------
@@ -395,7 +395,7 @@ static class Faux {
     Test-Cas 'Le WebView2 de la suite est fermé, et le dossier WebView2 commun supprimé avec les données' { $wvSuite.WaitForExit(5000) -and (Test-Absent (Join-Path $e.Donnees 'WebView2')) }
     Test-Cas 'Le WebView2 d''un autre programme tourne toujours' { -not $wvAutre.HasExited }
     Test-Cas 'Un programme d''aide Mindset.exe lancé depuis les données d''une appli est fermé, et ses données supprimées' { $aideDonnees.WaitForExit(5000) -and (Test-Absent (Join-Path $e.Donnees 'Evermind')) }
-    if ($version.Nom -eq 'C#') {
+    if ($variante.Nom -eq 'C#') {
         $desinst = Get-Texte (Join-Path $PSScriptRoot 'desinstalleur.cs')
         Test-Cas 'Le désinstalleur ne cherche jamais un programme à fermer par son nom (GetProcessesByName seulement pour attendre)' {
             @([regex]::Matches($desinst, 'GetProcessesByName')).Count -le 1 -and $desinst -notmatch 'taskkill'
