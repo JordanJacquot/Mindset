@@ -27,8 +27,21 @@ function Test-Signature([byte[]]$Donnees, [byte[]]$Signature, [string]$ClePubliq
         foreach ($f in $fichiers) {
             $rsa = New-Object System.Security.Cryptography.RSACryptoServiceProvider
             $cles += $rsa
-            $rsa.FromXmlString([IO.File]::ReadAllText($f, [Text.Encoding]::UTF8))
+            $xml = [IO.File]::ReadAllText($f, [Text.Encoding]::UTF8)
+            # (Modulus et Exponent sont obligatoires : sans eux, FromXmlString échoue)
+            $rsa.FromXmlString($xml)
             if ($rsa.KeySize -lt 3072 -or -not $rsa.PublicOnly) { return $false }
+            # Aucun élément de clé privée, même vide ou incomplet (.NET ne regarde que P : une clé avec D seul passait
+            # pour publique). Lu par le même analyseur que FromXmlString ; même règle que suite-commun (Rust).
+            $aVoir = New-Object System.Collections.Stack
+            $aVoir.Push([System.Security.SecurityElement]::FromString($xml))
+            while ($aVoir.Count) {
+                $el = $aVoir.Pop()
+                foreach ($nom in 'P', 'Q', 'DP', 'DQ', 'InverseQ', 'D') {
+                    if ($el.Tag -ceq $nom -or $el.Tag.EndsWith(":$nom", [StringComparison]::Ordinal)) { return $false }
+                }
+                foreach ($enfant in @($el.Children)) { if ($enfant) { $aVoir.Push($enfant) } }
+            }
         }
         foreach ($rsa in $cles) {
             if ($rsa.VerifyData($Donnees, [System.Security.Cryptography.CryptoConfig]::MapNameToOID('SHA256'), $Signature)) { return $true }

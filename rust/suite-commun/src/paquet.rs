@@ -62,6 +62,10 @@ pub enum Erreur {
     AutreAppli { trouvee: String, attendue: String },
     /// `version.json` demande un Mindset plus récent
     MindsetTropAncien { demande: String },
+    /// Le contenu d'une entrée ne correspond pas à ce qu'annonce le zip (taille ou CRC), ou son deflate est abîmé
+    ZipAbime,
+    /// Une entrée à extraire est marquée « chiffrée »
+    ZipChiffre,
     /// Les fichiers sont utilisés (appli ouverte, antivirus) : le message à montrer
     Bloque(String),
     /// Toute autre erreur (zip illisible, nom de fichier impossible, disque...) : son détail
@@ -80,6 +84,8 @@ impl Erreur {
             Erreur::VersionMinimale { .. } => "version-minimale",
             Erreur::AutreAppli { .. } => "autre-appli",
             Erreur::MindsetTropAncien { .. } => "mindset-trop-ancien",
+            Erreur::ZipAbime => "zip-abime",
+            Erreur::ZipChiffre => "zip-chiffre",
             Erreur::Bloque(_) => "bloque",
             Erreur::Autre(_) => "autre",
         }
@@ -110,6 +116,8 @@ impl fmt::Display for Erreur {
             Erreur::MindsetTropAncien { demande } => {
                 write!(f, "Mets d'abord Mindset à jour : cette version demande Mindset {demande} ou plus récent.")
             }
+            Erreur::ZipAbime => write!(f, "Le zip est abîmé : rien n'a été installé."),
+            Erreur::ZipChiffre => write!(f, "Le zip contient un fichier chiffré : rien n'a été installé."),
             Erreur::Bloque(m) | Erreur::Autre(m) => write!(f, "{m}"),
         }
     }
@@ -221,6 +229,36 @@ fn supprimer_dossier(p: &Path) {
     let _ = std::fs::remove_dir_all(p);
 }
 
+/// Copie dans `vers` le contenu de l'entrée `i`, avec les mêmes contrôles que `Install-Paquet` (PowerShell) :
+/// - une entrée marquée « chiffrée » est refusée ;
+/// - le contenu doit avoir exactement la taille et le CRC annoncés par le zip, et un deflate illisible est refusé
+///   (un zip abîmé n'est jamais installé, même signé).
+fn copier_entree(archive: &mut zip::ZipArchive<Cursor<&[u8]>>, i: usize, vers: &mut impl Write) -> Result<(), Erreur> {
+    if archive.by_index_raw(i).map_err(autre)?.encrypted() {
+        return Err(Erreur::ZipChiffre);
+    }
+    // (le CRC est vérifié par la bibliothèque à la fin de la lecture ; un fichier plus long que la taille annoncée y est
+    // refusé dès qu'il la dépasse)
+    let mut entree = archive.by_index_with_options(i, zip::ZipReadOptions::new()).map_err(autre)?;
+    let taille = entree.size();
+    let mut tampon = vec![0u8; 64 * 1024];
+    let mut total: u64 = 0;
+    loop {
+        let n = match entree.read(&mut tampon) {
+            Ok(0) => break,
+            Ok(n) => n,
+            Err(e) if e.kind() == std::io::ErrorKind::Interrupted => continue,
+            Err(_) => return Err(Erreur::ZipAbime),
+        };
+        total = total.saturating_add(n as u64);
+        vers.write_all(&tampon[..n]).map_err(autre)?;
+    }
+    if total != taille {
+        return Err(Erreur::ZipAbime);
+    }
+    Ok(())
+}
+
 /// Extrait le dossier principal du zip dans `tmp` (qui n'existe pas encore). Rend le `version.json` de la racine
 /// du zip s'il y en a un (hors du dossier principal).
 fn extraire(
@@ -250,11 +288,9 @@ fn extraire(
     }
     for (i, nom_zip) in noms.into_iter().enumerate() {
         let nom = nom_zip.replace('/', "\\");
-        // (le contrôle CRC des entrées est laissé de côté, comme .NET : la signature couvre déjà tout le zip)
-        let options = || zip::ZipReadOptions::new().ignore_crc32(true);
         if nom_zip == "version.json" {
             let mut o = Vec::new();
-            archive.by_index_with_options(i, options()).map_err(autre)?.read_to_end(&mut o).map_err(autre)?;
+            copier_entree(archive, i, &mut o)?;
             version_racine = Some(o);
             continue;
         }
@@ -275,9 +311,8 @@ fn extraire(
         if let Some(parent) = cible.parent() {
             std::fs::create_dir_all(parent).map_err(autre)?;
         }
-        let mut entree = archive.by_index_with_options(i, options()).map_err(autre)?;
         let mut fichier = std::fs::File::create(&cible).map_err(autre)?;
-        std::io::copy(&mut entree, &mut fichier).map_err(autre)?;
+        copier_entree(archive, i, &mut fichier)?;
         fichier.flush().map_err(autre)?;
     }
     Ok(version_racine)
@@ -615,6 +650,51 @@ mod tests {
         let z = zip_de(&[("Appli/version.json", &json("1.0.0"))]);
         let e = installer_verifie(&demande(&z, &dest)).unwrap_err();
         assert_eq!(e.to_string(), "Le zip ne contient pas Appli.exe dans le dossier Appli.");
+    }
+
+    /// Change, dans l'en-tête local et dans le répertoire central, le CRC (et la taille annoncée si donnée) de `nom`.
+    fn trafiquer(zip: &mut [u8], nom: &str, crc: Option<u32>, taille: Option<u32>, drapeaux: Option<u16>) {
+        // (local PK 03 04 : drapeaux +6, CRC +14, taille +22, nom +30 ; central PK 01 02 : +8, +16, +24, +46)
+        for (sig, drap, pos_crc, pos_taille, pos_nom) in [([3u8, 4], 6, 14, 22, 30), ([1, 2], 8, 16, 24, 46)] {
+            for i in 0..zip.len().saturating_sub(pos_nom + nom.len()) {
+                if zip[i..i + 4] == [0x50, 0x4B, sig[0], sig[1]]
+                    && &zip[i + pos_nom..i + pos_nom + nom.len()] == nom.as_bytes()
+                {
+                    if let Some(c) = crc {
+                        zip[i + pos_crc..i + pos_crc + 4].copy_from_slice(&c.to_le_bytes());
+                    }
+                    if let Some(t) = taille {
+                        zip[i + pos_taille..i + pos_taille + 4].copy_from_slice(&t.to_le_bytes());
+                    }
+                    if let Some(d) = drapeaux {
+                        zip[i + drap..i + drap + 2].copy_from_slice(&d.to_le_bytes());
+                    }
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn zip_abime_ou_chiffre_refuse() {
+        let d = Dossier::nouveau("abime");
+        let dest = d.0.join("Appli");
+        let gros = "abcdefghij".repeat(500);
+        let base =
+            zip_de(&[("Appli/Appli.exe", "x"), ("Appli/version.json", &json("1.0.0")), ("Appli/gros.txt", &gros)]);
+        for (crc, taille, drapeaux, attendu) in [
+            (Some(12345), None, None, Erreur::ZipAbime),
+            (None, Some(100), None, Erreur::ZipAbime),
+            (None, Some(10_000), None, Erreur::ZipAbime),
+            (None, None, Some(1), Erreur::ZipChiffre),
+        ] {
+            let mut z = base.clone();
+            trafiquer(&mut z, "Appli/gros.txt", crc, taille, drapeaux);
+            assert_eq!(installer_verifie(&demande(&z, &dest)), Err(attendu));
+            assert!(!dest.exists());
+        }
+        assert_eq!(Erreur::ZipAbime.to_string(), "Le zip est abîmé : rien n'a été installé.");
+        installer_verifie(&demande(&base, &dest)).unwrap();
+        assert_eq!(std::fs::read_to_string(dest.join("gros.txt")).unwrap(), gros);
     }
 
     #[test]

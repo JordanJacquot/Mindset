@@ -320,13 +320,46 @@ function Install-Paquet([byte[]]$Zip, [byte[]]$Signature, [string]$ClePublique, 
     $racine = $tmp + '\'
     $prefixe = $DossierZip.TrimEnd('\') + '\'
     $versionRacine = $null   # (le version.json de la racine du zip, s'il y en a un : rangé ensuite avec l'appli)
+    # Le contenu d'une entrée, copié dans $Vers, avec les contrôles de suite-commun (Rust) que .NET ne fait pas :
+    # - une entrée marquée « chiffrée » est refusée (.NET en installerait les octets tels quels) ;
+    # - le contenu doit avoir exactement la taille et le CRC annoncés par le zip, et un deflate illisible est refusé
+    #   (.NET écrirait sans contrôle ce qu'il tire d'un deflate abîmé : parfois rien du tout, sans erreur).
+    # Même message que suite-commun dans les deux cas. Un zip abîmé n'est jamais installé, même signé.
+    # Le drapeau, le CRC annoncé et le calcul du CRC sont des parties internes de .NET : absentes, l'entrée est refusée.
+    # (pas une fonction à part : des tests chargent Install-Paquet seule)
+    $interne = [Reflection.BindingFlags]'NonPublic,Instance'
+    $champDrapeaux = [IO.Compression.ZipArchiveEntry].GetField('_generalPurposeBitFlag', $interne)
+    $champCrc = [IO.Compression.ZipArchiveEntry].GetField('_crc32', $interne)
+    $calculCrc = [IO.Compression.ZipArchive].Assembly.GetType('System.IO.Compression.Crc32Helper')
+    if ($calculCrc) { $calculCrc = $calculCrc.GetMethod('UpdateCrc32', [Reflection.BindingFlags]'NonPublic,Public,Static', $null, [type[]]@([uint32], [byte[]], [int], [int]), $null) }
+    $abime = 'Le zip est abîmé : rien n''a été installé.'
+    $copier = {
+        param($Entree, [IO.Stream]$Vers)
+        if (-not $champDrapeaux -or ([int]$champDrapeaux.GetValue($Entree) -band 1)) { throw 'Le zip contient un fichier chiffré : rien n''a été installé.' }
+        if (-not $calculCrc -or -not $champCrc) { throw $abime }
+        $flux = $Entree.Open()
+        try {
+            $tampon = [byte[]]::new(81920)   # (New-Object l'envelopperait : Invoke ne le prendrait pas)
+            $total = [long]0
+            [uint32]$crc = 0
+            while ($true) {
+                try { $n = $flux.Read($tampon, 0, $tampon.Length) } catch { throw $abime }   # (deflate illisible)
+                if ($n -le 0) { break }
+                $total += $n
+                if ($total -gt $Entree.Length) { throw $abime }
+                $crc = $calculCrc.Invoke($null, [object[]]@($crc, $tampon, 0, $n))
+                $Vers.Write($tampon, 0, $n)
+            }
+        } finally { $flux.Dispose() }
+        if ($total -ne $Entree.Length -or $crc -ne [uint32]$champCrc.GetValue($Entree)) { throw $abime }
+    }
     $archive = New-Object IO.Compression.ZipArchive((New-Object IO.MemoryStream (, $Zip)), [IO.Compression.ZipArchiveMode]::Read)
     try {
         New-Item -ItemType Directory -Force -Path $tmp | Out-Null
         foreach ($e in $archive.Entries) {
             if ($e.FullName -ceq 'version.json') {
-                $ms = New-Object IO.MemoryStream; $flux = $e.Open()
-                try { $flux.CopyTo($ms) } finally { $flux.Dispose() }
+                $ms = New-Object IO.MemoryStream
+                & $copier $e $ms
                 $versionRacine = $ms.ToArray(); continue
             }
             $nom = $e.FullName.Replace('/', '\')
@@ -336,7 +369,10 @@ function Install-Paquet([byte[]]$Zip, [byte[]]$Signature, [string]$ClePublique, 
             $cible = [IO.Path]::GetFullPath((Join-Path $tmp $rel))
             if (-not $cible.StartsWith($racine, [StringComparison]::OrdinalIgnoreCase)) { throw "Chemin refusé dans le zip : $($e.FullName)" }
             New-Item -ItemType Directory -Force -Path (Split-Path $cible -Parent) | Out-Null
-            [IO.Compression.ZipFileExtensions]::ExtractToFile($e, $cible, $true)
+            # (comme ExtractToFile : fichier remplacé s'il existe, date de modification reprise du zip)
+            $fichier = [IO.File]::Open($cible, [IO.FileMode]::Create, [IO.FileAccess]::Write, [IO.FileShare]::None)
+            try { & $copier $e $fichier } finally { $fichier.Dispose() }
+            [IO.File]::SetLastWriteTime($cible, $e.LastWriteTime.DateTime)
         }
     } catch {
         try { Remove-Item -LiteralPath $tmp -Recurse -Force -ErrorAction Stop } catch {}

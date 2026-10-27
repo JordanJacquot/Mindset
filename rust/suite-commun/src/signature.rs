@@ -61,14 +61,9 @@ pub fn lire_cle(texte: &str) -> Option<ClePublique> {
     };
     let module = decoder("Modulus")??;
     let exposant = decoder("Exponent")??;
-    // Les parties privées : chacune, si elle est là, doit être lisible (sinon .NET échoue) ; P présent = clé privée
-    let mut privee = false;
-    for nom in ["P", "Q", "DP", "DQ", "InverseQ", "D"] {
-        if decoder(nom)?.is_some() && nom == "P" {
-            privee = true;
-        }
-    }
-    if privee {
+    // Aucun élément de clé privée, même vide ou incomplet : plus strict que .NET, qui ne regarde que P (une clé avec
+    // D seul y passait pour publique). Même règle dans Test-Signature (PowerShell).
+    if ["P", "Q", "DP", "DQ", "InverseQ", "D"].iter().any(|nom| racine.contient(nom)) {
         return None;
     }
     // Limites de Windows (CryptoAPI) : exposant de 4 octets au plus, module de 16384 bits au plus
@@ -154,6 +149,21 @@ mod tests {
         assert!(lire_cle(&privee).is_none());
         let d_illisible = format!("<RSAKeyValue><Modulus>{m}</Modulus><Exponent>AQAB</Exponent><D>?</D></RSAKeyValue>");
         assert!(lire_cle(&d_illisible).is_none());
+        // Un élément privé, quel qu'il soit, même vide ou sans P : refusé
+        for prive in ["<D>AQAB</D>", "<P></P>", "<InverseQ/>", "<x:DQ>AQAB</x:DQ>", "<X><Q>AQAB</Q></X>"] {
+            let cle = format!("<RSAKeyValue><Modulus>{m}</Modulus><Exponent>AQAB</Exponent>{prive}</RSAKeyValue>");
+            assert!(lire_cle(&cle).is_none(), "{prive}");
+        }
+        // Modulus et Exponent obligatoires et lisibles
+        for sans in [
+            "<RSAKeyValue><D>AQAB</D></RSAKeyValue>".to_string(),
+            "<RSAKeyValue><Exponent>AQAB</Exponent></RSAKeyValue>".to_string(),
+            format!("<RSAKeyValue><Modulus>{m}</Modulus></RSAKeyValue>"),
+            format!("<RSAKeyValue><Modulus>{m}</Modulus><Exponent></Exponent></RSAKeyValue>"),
+            format!("<RSAKeyValue><Modulus>{m}</Modulus><Exponent>pas du base64</Exponent></RSAKeyValue>"),
+        ] {
+            assert!(lire_cle(&sans).is_none(), "{sans}");
+        }
         let courte =
             format!("<RSAKeyValue><Modulus>{}</Modulus><Exponent>AQAB</Exponent></RSAKeyValue>", "A".repeat(340));
         assert!(lire_cle(&courte).is_none());
