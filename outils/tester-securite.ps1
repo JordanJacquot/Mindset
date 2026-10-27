@@ -362,8 +362,8 @@ try {
     }
 
     # Zips abîmés ou chiffrés (.NET les installait tels quels ; suite-commun, en Rust, les refuse : outils\banc-suite-commun.ps1)
-    # Change, dans l'en-tête local et dans le répertoire central, les drapeaux ou la taille annoncée d'une entrée
-    function Edit-EntreeZip([byte[]]$Zip, [string]$Nom, [int]$Drapeaux = -1, [long]$Taille = -1) {
+    # Change, dans l'en-tête local et dans le répertoire central, les drapeaux, la taille annoncée ou le CRC d'une entrée
+    function Edit-EntreeZip([byte[]]$Zip, [string]$Nom, [int]$Drapeaux = -1, [long]$Taille = -1, [long]$Crc = -1) {
         $z = [byte[]]$Zip.Clone(); $n = [Text.Encoding]::UTF8.GetBytes($Nom)
         # (local PK 0x04034b50 : drapeaux +6, taille +22, longueur du nom +26, nom +30 ; central PK 0x02014b50 : +8, +24, +28, +46)
         foreach ($t in @(@{ Sig = 0x04034b50; Drap = 6; Taille = 22; Long = 26; Nom = 30 }, @{ Sig = 0x02014b50; Drap = 8; Taille = 24; Long = 28; Nom = 46 })) {
@@ -372,6 +372,8 @@ try {
                 if ([Text.Encoding]::UTF8.GetString($z, $i + $t.Nom, $n.Length) -cne $Nom) { continue }
                 if ($Drapeaux -ge 0) { [Array]::Copy([BitConverter]::GetBytes([uint16]$Drapeaux), 0, $z, $i + $t.Drap, 2) }
                 if ($Taille -ge 0) { [Array]::Copy([BitConverter]::GetBytes([uint32]$Taille), 0, $z, $i + $t.Taille, 4) }
+                # (le CRC est 8 octets avant la taille non compressée)
+                if ($Crc -ge 0) { [Array]::Copy([BitConverter]::GetBytes([uint32]$Crc), 0, $z, $i + $t.Taille - 8, 4) }
             }
         }
         , $z
@@ -396,8 +398,14 @@ try {
         $z = New-ZipAppli '9.0.0' $gros; $z[60] = $z[60] -bxor 0xFF
         (Test-Refus { Install-Test $z } 'abîmé') -and ((Get-VersionInstallee) -eq $versionAvant) -and (Test-SansReste)
     }
-    Test-Cas 'taille annoncée trop grande mais contenu juste (bon CRC) : installé, comme suite-commun' {
-        $null = Install-Test (Edit-EntreeZip (New-ZipAppli $versionAvant $gros) 'Appli/gros.txt' -Taille 10000)
+    Test-Cas 'deflate qui donne moins que la taille annoncée refusé (même avec le bon CRC)' {
+        (Test-Refus { Install-Test (Edit-EntreeZip (New-ZipAppli '9.0.0' $gros) 'Appli/gros.txt' -Taille 10000) } 'abîmé') -and ((Get-VersionInstallee) -eq $versionAvant) -and (Test-SansReste)
+    }
+    Test-Cas 'CRC faux (bonne taille) refusé' {
+        (Test-Refus { Install-Test (Edit-EntreeZip (New-ZipAppli '9.0.0' $gros) 'Appli/gros.txt' -Crc 12345) } 'abîmé') -and ((Get-VersionInstallee) -eq $versionAvant) -and (Test-SansReste)
+    }
+    Test-Cas 'zip intact, avec les mêmes contrôles : installé, contenu juste (témoin)' {
+        $null = Install-Test (New-ZipAppli $versionAvant $gros)
         ([IO.File]::ReadAllText((Join-Path $dest 'gros.txt')) -ceq ('abcdefghij' * 500)) -and (Test-SansReste)
     }
 

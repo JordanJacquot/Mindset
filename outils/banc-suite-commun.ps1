@@ -199,6 +199,8 @@ function Get-Categorie([string]$Message) {
     elseif ($Message -like '*ne dit pas quelle version*') { 'version-illisible' }
     elseif ($Message -like 'Version * refusée : la version *, plus récente, est déjà installée.') { 'version-installee' }
     elseif ($Message -like 'Version * refusée : la version *, plus récente, a déjà été installée sur ce PC.') { 'version-minimale' }
+    elseif ($Message -ceq 'Le zip est abîmé : rien n''a été installé.') { 'zip-abime' }
+    elseif ($Message -ceq 'Le zip contient un fichier chiffré : rien n''a été installé.') { 'zip-chiffre' }
     elseif ($Message -like '*fichiers bloqués*' -or $Message -like '*encore ouverte*' -or $Message -like 'Des fichiers de Mindset étaient encore utilisés*') { 'bloque' }
     else { 'autre' }
 }
@@ -510,6 +512,7 @@ try {
     $zg = New-ZipAppli '3.0.0' ([ordered]@{ 'Appli/gros.txt' = ('abcdefghij' * 500) })
     Add-CasInstall 'deflate plus long que la taille annoncée' (Set-TailleAnnoncee $zg 'Appli/gros.txt' 100)
     Add-CasInstall 'deflate plus court que la taille annoncée' (Set-TailleAnnoncee $zg 'Appli/gros.txt' 10000)
+    Add-CasInstall 'deflate plus court que la taille annoncée, CRC faux' (Set-TailleAnnoncee $zg 'Appli/gros.txt' 10000 12345)
     Add-CasInstall 'deflate de la bonne taille, CRC faux' (Set-TailleAnnoncee $zg 'Appli/gros.txt' 5000 12345)
     Add-CasInstall 'version.json de la racine plus long que la taille annoncée' (Set-TailleAnnoncee (New-ZipAppli '3.0.0' ([ordered]@{ 'version.json' = "{ `"version`": `"3.0.0`" }$(' ' * 500)" })) 'version.json' 10)
     Add-CasInstall 'fichier hors du dossier principal plus long que la taille annoncée (ignoré)' (Set-TailleAnnoncee (New-ZipAppli '3.0.0' ([ordered]@{ 'Autre/gros.txt' = ('abcdefghij' * 500) })) 'Autre/gros.txt' 100)

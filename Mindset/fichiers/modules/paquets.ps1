@@ -322,10 +322,9 @@ function Install-Paquet([byte[]]$Zip, [byte[]]$Signature, [string]$ClePublique, 
     $versionRacine = $null   # (le version.json de la racine du zip, s'il y en a un : rangé ensuite avec l'appli)
     # Le contenu d'une entrée, copié dans $Vers, avec les contrôles de suite-commun (Rust) que .NET ne fait pas :
     # - une entrée marquée « chiffrée » est refusée (.NET en installerait les octets tels quels) ;
-    # - un deflate abîmé est refusé : .NET écrit sans contrôle ce qu'il en tire, Rust le voit. Un fichier plus long que
-    #   la taille annoncée dans le zip est refusé ; plus court, il l'est si son CRC est faux aussi (.NET coupe alors un
-    #   deflate abîmé sans erreur, là où Rust le refuse ; une simple taille fausse, avec le bon contenu, passe des deux
-    #   côtés). Sinon le CRC n'est pas contrôlé, comme suite-commun : la signature couvre déjà tout le zip.
+    # - le contenu doit avoir exactement la taille et le CRC annoncés par le zip, et un deflate illisible est refusé
+    #   (.NET écrirait sans contrôle ce qu'il tire d'un deflate abîmé : parfois rien du tout, sans erreur).
+    # Même message que suite-commun dans les deux cas. Un zip abîmé n'est jamais installé, même signé.
     # Le drapeau, le CRC annoncé et le calcul du CRC sont des parties internes de .NET : absentes, l'entrée est refusée.
     # (pas une fonction à part : des tests chargent Install-Paquet seule)
     $interne = [Reflection.BindingFlags]'NonPublic,Instance'
@@ -337,19 +336,22 @@ function Install-Paquet([byte[]]$Zip, [byte[]]$Signature, [string]$ClePublique, 
     $copier = {
         param($Entree, [IO.Stream]$Vers)
         if (-not $champDrapeaux -or ([int]$champDrapeaux.GetValue($Entree) -band 1)) { throw 'Le zip contient un fichier chiffré : rien n''a été installé.' }
+        if (-not $calculCrc -or -not $champCrc) { throw $abime }
         $flux = $Entree.Open()
         try {
             $tampon = [byte[]]::new(81920)   # (New-Object l'envelopperait : Invoke ne le prendrait pas)
             $total = [long]0
             [uint32]$crc = 0
-            while (($n = $flux.Read($tampon, 0, $tampon.Length)) -gt 0) {
+            while ($true) {
+                try { $n = $flux.Read($tampon, 0, $tampon.Length) } catch { throw $abime }   # (deflate illisible)
+                if ($n -le 0) { break }
                 $total += $n
                 if ($total -gt $Entree.Length) { throw $abime }
-                if ($calculCrc) { $crc = $calculCrc.Invoke($null, [object[]]@($crc, $tampon, 0, $n)) }
+                $crc = $calculCrc.Invoke($null, [object[]]@($crc, $tampon, 0, $n))
                 $Vers.Write($tampon, 0, $n)
             }
         } finally { $flux.Dispose() }
-        if ($total -lt $Entree.Length -and (-not $calculCrc -or -not $champCrc -or $crc -ne [uint32]$champCrc.GetValue($Entree))) { throw $abime }
+        if ($total -ne $Entree.Length -or $crc -ne [uint32]$champCrc.GetValue($Entree)) { throw $abime }
     }
     $archive = New-Object IO.Compression.ZipArchive((New-Object IO.MemoryStream (, $Zip)), [IO.Compression.ZipArchiveMode]::Read)
     try {
