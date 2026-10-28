@@ -135,7 +135,8 @@ Test-Cas 'Mindset 2.12.0 : il ne connaît Nevermind que sous OptiGame' {
 # La vraie version publiée de Nevermind, trouvée par le NOUVEAU code (nom d'aujourd'hui, sinon l'ancien)
 $pub = Get-Publication 'JordanJacquot/Nevermind' @('Nevermind.zip', 'OptiGame.zip')
 Write-Host "    version publiée de Nevermind : $($pub.Version), fichier $($pub.Fichier)"
-$vraiZip = Join-Path $Paquets $pub.Fichier
+# (préfixe « vrai- » : depuis que Nevermind est publié sous Nevermind.zip, le zip fabriqué du même nom l'écrasait)
+$vraiZip = Join-Path $Paquets "vrai-$($pub.Fichier)"
 [IO.File]::WriteAllBytes($vraiZip, (Get-Octets $pub.UrlZip)); [IO.File]::WriteAllBytes("$vraiZip.sig", (Get-Octets $pub.UrlSig))
 $VersionReelle = [string]$pub.Version
 Test-Cas "Vraie version publiée de Nevermind ($($pub.Fichier) $VersionReelle) : téléchargée, signature valide (vraie clé)" {
