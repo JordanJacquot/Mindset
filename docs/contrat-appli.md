@@ -497,6 +497,8 @@ La mesure de lag en continu (`LagMon`, `natif.cs:1936-1937`) relève du réseau,
 
 - **Second lancement avec `-Demarrage`, appli déjà ouverte** : **réglé le 29/10**, l'appli ne dépose pas de demande
   d'affichage et rien ne s'affiche (partie 3).
+- **Croix (`WM_CLOSE`) du squelette nouvelle-appli** : **réglé le 29/10**, elle quitte, comme aujourd'hui (c'est aussi le
+  bouton « Fermer » de la barre de Mindset). La croix rouge de Mindset garde sa question Réduire / Quitter.
 - **Fenêtre Tauri et `HwndWrapper`** : **réglé à l'étape 2**, classe « Tauri Window » acceptée (partie 7).
 - **Où mettre `version.json`** : **réglé à l'étape 2**, `<dossier_zip>\version.json` (partie 10) ; celui de la racine
   du zip est accepté aussi, comme `suite-commun`.
