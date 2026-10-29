@@ -14,6 +14,10 @@
                             L'appli est une de apps.json (lu à côté de ce script, dans le dossier protégé) : son dossier
                             (<programmes>\<nom>), le dossier de son zip, son programme et sa partie administrateur viennent
                             de là, jamais de la demande (une valeur de la demande qui n'est pas celle de apps.json est refusée).
+                            -Liste <chemin> (facultatif) : la liste des applis en ligne gardée par Mindset (apps-en-ligne.json,
+                            sa signature à côté), revérifiée ici (modules\liste.ps1 : clés et apps-liste.txt de ce Mindset) ;
+                            bonne, l'appli y est cherchée, sinon dans apps.json seul. Par la tâche, seulement celle du
+                            dossier des données de l'utilisateur (à côté de la demande).
                             Sa partie administrateur (aide, aide_exe) : la tâche « \Mindset\<aide> » qui lance <aide_exe>
                             en SYSTEM pour l'utilisateur -Sid (lancée sans demande de Windows).
                             La plus haute version installée de chaque appli est gardée dans HKLM:\SOFTWARE\Mindset\Versions
@@ -53,7 +57,7 @@ param(
     [string]$Resultat, [string]$Demande,
     [string]$Zip, [string]$Signature, [string]$Destination, [string]$DossierZip, [string]$Exe, [string]$AncienExe,
     [string]$Source, [string]$Version, [int]$AttendrePid, [string]$TacheAide, [string]$ExeAide, [string]$Appli,
-    [ValidatePattern('^[A-Za-z]?$')][string]$Disque, [string]$Sid, [switch]$Cache
+    [ValidatePattern('^[A-Za-z]?$')][string]$Disque, [string]$Sid, [switch]$Cache, [string]$Liste
 )
 $ErrorActionPreference = 'Stop'
 # Avant toute autre commande : les modules de Windows seulement, chargés par leur chemin (le chargement automatique
@@ -213,13 +217,38 @@ function Get-DossierTache([string]$Dossier) {
     $d
 }
 
-# Une appli de apps.json, lu à côté de ce script (dans le dossier protégé de Mindset), jamais dans la demande : son nom
-# (celui de son dossier), le dossier de son zip (aujourd'hui, ou sous son ancien nom), son programme, sa partie
-# administrateur. Vérifiés comme Mindset le fait (modules\applis.ps1).
+# La liste en ligne donnée par -Liste, si elle peut être lue ici : un fichier apps-en-ligne.json donné par son chemin
+# complet, sans lien sur son chemin ni sur celui de sa signature ; par la tâche, seulement dans le dossier des données de
+# l'utilisateur (celui de la demande). Sinon '' : apps.json seul. (Elle est ensuite vérifiée par Get-EntreesApplis.)
+function Get-ListeDemandee {
+    if (-not $Liste) { return '' }
+    try {
+        if ($Liste -notmatch '^[A-Za-z]:\\[^"*?<>|]+\z') { return '' }
+        $f = [IO.Path]::GetFullPath($Liste)
+        if ($f -ine $Liste -or [IO.Path]::GetFileName($f) -cne $NomListeEnLigne -or -not (Test-SansLien $f) -or -not (Test-SansLien "$f.sig")) { return '' }
+        if ($ParTache -and [IO.Path]::GetDirectoryName($f) -ine (Split-Path $Demande -Parent)) { return '' }
+        $f
+    } catch { '' }
+}
+
+# Les entrées de la liste des applis, lues une seule fois (modules\liste.ps1, Get-EntreesApplis) : la liste en ligne de
+# -Liste si elle est bonne (signée par les clés de ce Mindset, numéro plus grand que son apps-liste.txt, pour sa version),
+# sinon apps.json, lu à côté de ce script (dans le dossier protégé de Mindset). Rien de lisible : aucune entrée.
+$script:EntreesListe = $null
+function Get-EntreesListe {
+    if ($null -eq $script:EntreesListe) {
+        $script:EntreesListe = @()
+        try { $script:EntreesListe = @((Get-EntreesApplis $PSScriptRoot $ListeGardee (Get-VersionDossier (Split-Path $PSScriptRoot -Parent))).Entrees) } catch {}
+    }
+    , $script:EntreesListe
+}
+
+# Une appli de la liste des applis (Get-EntreesListe), jamais de la demande : son nom (celui de son dossier), le dossier de
+# son zip (aujourd'hui, ou sous son ancien nom), son programme, sa partie administrateur. Vérifiés comme Mindset le fait
+# (modules\liste.ps1).
 function Get-AppliConnue([string]$Id) {
     if ($Id -cnotmatch '^[a-z0-9-]{1,40}\z') { throw 'Appli inconnue.' }
-    $liste = $null
-    try { $liste = [IO.File]::ReadAllText((Join-Path $PSScriptRoot 'apps.json'), [Text.Encoding]::UTF8) | ConvertFrom-Json } catch {}
+    $liste = Get-EntreesListe
     $nomFichier = '^[^\\/:*?"<>|\x00-\x1f]+\z'
     foreach ($a in $liste) {
         if ([string]$a.id -cne $Id) { continue }
@@ -250,9 +279,7 @@ function Save-VersionGardee([string]$Id, [string]$Version) {
 # Par la tâche, à chaque demande : les versions des applis déjà installées dans le dossier des programmes sont gardées
 # (une appli installée avant que Mindset ne les garde est protégée elle aussi)
 function Save-VersionsInstallees {
-    $liste = $null
-    try { $liste = [IO.File]::ReadAllText((Join-Path $PSScriptRoot 'apps.json'), [Text.Encoding]::UTF8) | ConvertFrom-Json } catch {}
-    foreach ($a in $liste) {
+    foreach ($a in (Get-EntreesListe)) {
         try {
             $x = Get-AppliConnue ([string]$a.id)
             $d = Join-Path $RacineTache $x.Nom
@@ -442,7 +469,7 @@ if ($ParTache) {
         try { New-Item -Path $CleInstallation -Force | Out-Null; Set-ItemProperty -Path $CleInstallation -Name 'Recu' -Value $IdDemande } catch {}
         if ([string]$j.Action -notin 'appli', 'mindset-maj', 'supprimer', 'taches') { Write-Resultat $false 'Demande refusée.'; exit }
         $Action = [string]$j.Action
-        foreach ($n in 'Zip', 'Signature', 'Destination', 'DossierZip', 'Exe', 'AncienExe', 'Version', 'TacheAide', 'ExeAide', 'Appli') {
+        foreach ($n in 'Zip', 'Signature', 'Destination', 'DossierZip', 'Exe', 'AncienExe', 'Version', 'TacheAide', 'ExeAide', 'Appli', 'Liste') {
             $v = $j.PSObject.Properties[$n]
             if ($v -and $v.Value -is [string]) { Set-Variable -Name $n -Value ([string]$v.Value) }
         }
@@ -461,6 +488,9 @@ if ($ParTache) {
 try {
     . (Join-Path $PSScriptRoot 'modules\signature.ps1')
     . (Join-Path $PSScriptRoot 'modules\paquets.ps1')
+    . (Join-Path $PSScriptRoot 'modules\liste.ps1')
+    # (lue par Get-EntreesListe, et par Get-AppliDuDossierZip de paquets.ps1 quand Install-Paquet cherche l'appli du zip)
+    $ListeGardee = Get-ListeDemandee
     if ($ParTache) {
         # (mise à jour de Mindset : il s'est déjà fermé, il est relancé même si rien n'est fait)
         try { Initialize-RacineTache } catch { if ($Action -eq 'mindset-maj') { $null = & $Schtasks /Run /TN '\Mindset\Mindset (démarrage)' 2>&1 }; throw }

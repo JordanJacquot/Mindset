@@ -488,7 +488,8 @@ Show-Page $(if ($EnTest -and $env:MINDSET_PAGE) { $env:MINDSET_PAGE } else { 'ac
 # Chercher les nouvelles versions (Mindset et ses applis) : au démarrage, toutes les heures, en rouvrant Mindset depuis
 # l'horloge (si la dernière fois date de plus de 15 minutes), et avec « Actualiser » sur l'accueil. Les bandeaux et les
 # cartes se mettent à jour d'eux-mêmes quand les réponses arrivent : plus besoin de fermer Mindset pour les voir.
-# GitHub accepte 60 questions par heure : une recherche en pose une par appli, plus une pour Mindset.
+# GitHub accepte 60 questions par heure : une recherche en pose une par appli, plus une pour Mindset. La liste des applis
+# en ligne (applis.ps1) est cherchée avec, au plus toutes les 6 heures, sans l'API (elle ne compte pas dans ces 60).
 # Tout seul, seulement si « Chercher les nouvelles versions » est activé (mindset.ps1, Test-VerifVersionsActive), et pas
 # tant que le bandeau d'installation de Mindset (qui présente ce réglage) est affiché. Un clic (-Clic) : toujours.
 # C'est le seul chemin vers GitHub qui ne vient pas d'un geste de l'utilisateur (outils\tester-securite.ps1 le vérifie).
@@ -509,6 +510,7 @@ function Invoke-Actualiser([switch]$Clic) {
     $script:DernieresPublications = Get-Date
     Update-Publications
     Start-VerifMajMindset
+    Update-ListeEnLigne   # (la liste des applis en ligne : au plus toutes les 6 heures, applis.ps1)
     $script:VerifieA = Get-Date
     Update-InfoActualiser
     if ($Clic) { Write-Log 'Actualiser : recherche des nouvelles versions' }

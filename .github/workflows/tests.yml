@@ -46,6 +46,9 @@ jobs:
       - name: "Fichiers de données jamais perdus (écriture sûre, fichier abîmé, copie .bak, réglage coupé qui reste coupé)"
         run: .\outils\tester-donnees.ps1
 
+      - name: "Liste des applis en ligne : signature, numéro, taille, forme, entrées, liste gardée revérifiée, Get-Applis, publier-liste.ps1 (faux dépôt, faux git et gh ; contre-épreuve)"
+        run: .\outils\tester-liste.ps1
+
       - name: "Tests du désinstalleur (faux environnement, sans droits)"
         run: .\outils\tester-desinstallation.ps1
 

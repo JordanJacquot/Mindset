@@ -13,6 +13,8 @@
         telle quelle à MindsetInstallateur.exe, qui n'y accepte que « taches », pour se remplacer par la tâche SYSTEM ;
       - la demande de Windows (les autres actions, -Resultat <fichier>) : les paramètres sont passés tels quels, et la
         réponse est celle de MindsetInstallateur.exe.
+    -Liste <chemin> (Mindset 2.16 et après) : la liste des applis en ligne gardée par Mindset (apps-en-ligne.json, sa
+    signature à côté), passée elle aussi telle quelle : MindsetInstallateur.exe la revérifie et y cherche l'appli.
     Gardé jusqu'à l'étape 7 du passage en Rust, pour les amis qui sautent des versions.
 
     Protections, comme avant : en administrateur, rien ne vient de l'utilisateur, ni ses modules PowerShell
@@ -26,7 +28,7 @@ param(
     [string]$Resultat, [string]$Demande,
     [string]$Zip, [string]$Signature, [string]$Destination, [string]$DossierZip, [string]$Exe, [string]$AncienExe,
     [string]$Source, [string]$Version, [int]$AttendrePid, [string]$TacheAide, [string]$ExeAide, [string]$Appli,
-    [ValidatePattern('^[A-Za-z]?$')][string]$Disque, [string]$Sid, [switch]$Cache
+    [ValidatePattern('^[A-Za-z]?$')][string]$Disque, [string]$Sid, [switch]$Cache, [string]$Liste
 )
 $ErrorActionPreference = 'Stop'
 # Avant toute autre commande : les modules de Windows seulement, chargés par leur chemin (le chargement automatique
@@ -159,7 +161,7 @@ function Invoke-Installateur([string[]]$Parametres) {
 
 # Les paramètres reçus, tels quels (dans l'ordre de la liste ci-dessus)
 $transmis = New-Object Collections.Generic.List[string]
-foreach ($n in 'Action', 'Resultat', 'Demande', 'Zip', 'Signature', 'Destination', 'DossierZip', 'Exe', 'AncienExe', 'Source', 'Version', 'AttendrePid', 'TacheAide', 'ExeAide', 'Appli', 'Disque', 'Sid') {
+foreach ($n in 'Action', 'Resultat', 'Demande', 'Zip', 'Signature', 'Destination', 'DossierZip', 'Exe', 'AncienExe', 'Source', 'Version', 'AttendrePid', 'TacheAide', 'ExeAide', 'Appli', 'Disque', 'Sid', 'Liste') {
     if ($PSBoundParameters.ContainsKey($n)) { $transmis.Add("-$n"); $transmis.Add([string]$PSBoundParameters[$n]) }
 }
 if ($Cache) { $transmis.Add('-Cache') }

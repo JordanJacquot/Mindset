@@ -378,7 +378,7 @@ if (-not $texteInstalleur.Contains($importTaches)) { throw 'Import du module Sch
 $texteCopie = $texteInstalleur.Replace($blocWindows.Value, $faux.Trim()).Replace($importTaches, "'CimCmdlets') {")
 if ($texteCopie -match "'ScheduledTasks'") { throw 'La copie de test importerait encore le module ScheduledTasks.' }
 [IO.File]::WriteAllText((Join-Path $copie 'installer-admin.ps1'), $texteCopie, (New-Object Text.UTF8Encoding $true))
-foreach ($m in 'signature.ps1', 'paquets.ps1') { Copy-Item -LiteralPath (Join-Path $fichiers "modules\$m") -Destination (Join-Path $copie 'modules') }
+foreach ($m in 'signature.ps1', 'paquets.ps1', 'liste.ps1') { Copy-Item -LiteralPath (Join-Path $fichiers "modules\$m") -Destination (Join-Path $copie 'modules') }
 # Son apps.json : l'appli de test (dossier Appli, programme Appli.exe, partie administrateur « Appli (aide) » Aide.exe)
 # et une autre appli
 $appsTest = @'
@@ -897,7 +897,7 @@ $Schtasks = 'schtasks'
         $r
     }
     # Les arguments attendus, dans l'ordre où le relais les passe (avec le fichier de réponse ajouté par le test)
-    $ordre = 'Action', 'Resultat', 'Demande', 'Zip', 'Signature', 'Destination', 'DossierZip', 'Exe', 'AncienExe', 'Source', 'Version', 'AttendrePid', 'TacheAide', 'ExeAide', 'Appli', 'Disque', 'Sid'
+    $ordre = 'Action', 'Resultat', 'Demande', 'Zip', 'Signature', 'Destination', 'DossierZip', 'Exe', 'AncienExe', 'Source', 'Version', 'AttendrePid', 'TacheAide', 'ExeAide', 'Appli', 'Disque', 'Sid', 'Liste'
     function Get-AppelAttendu([hashtable]$P) {
         $q = @{} + $P
         if (-not $q.ContainsKey('Resultat')) { $q.Resultat = Join-Path $tmp "resultats\$($script:NumeroCas).json" }
@@ -908,7 +908,8 @@ $Schtasks = 'schtasks'
 
     # La demande de Windows : chaque valeur arrive telle quelle (espaces, accents, guillemet, barre finale, valeur vide)
     $p = @{ Action = 'appli'; Appli = 'appli'; Zip = "C:\Users\$([char]0xC9)lodie Test\t$([char]0xE9)l$([char]0xE9)chargements\Appli.zip"; Signature = 'C:\a"b\Appli.zip.sig'
-            Destination = "$PM\Appli\"; DossierZip = 'Appli'; Exe = 'Appli.exe'; Version = ''; AttendrePid = 12; Sid = $sidActuel; Cache = $true }
+            Destination = "$PM\Appli\"; DossierZip = 'Appli'; Exe = 'Appli.exe'; Version = ''; AttendrePid = 12; Sid = $sidActuel; Cache = $true
+            Liste = "C:\Users\$([char]0xC9)lodie Test\AppData\Local\Mindset\Mindset\apps-en-ligne.json" }
     $r = Invoke-Relais $p
     Test-Cas 'demande de Windows : le relais lance MindsetInstallateur.exe une fois, avec les mêmes paramètres, valeur pour valeur' {
         $r.Appels.Count -eq 1 -and $r.Appels[0] -ceq (Get-AppelAttendu $p) -and -not $r.Erreur

@@ -501,6 +501,9 @@ function Complete-Telechargement($Appli, $Resultat, $Erreur, [string]$AncienDoss
     if ($AncienDossier) { $p.AncienExe = Join-Path $AncienDossier $Appli.Exe; $p.Sid = [Security.Principal.WindowsIdentity]::GetCurrent().User.Value }
     # Appli avec une partie administrateur (Nevermind) : sa tâche planifiée est créée ou remise à jour à chaque installation
     if ($Appli.Aide) { $p.TacheAide = $Appli.Aide; $p.ExeAide = $Appli.AideExe; $p.Sid = [Security.Principal.WindowsIdentity]::GetCurrent().User.Value }
+    # La liste des applis en ligne gardée (applis.ps1), s'il y en a une : l'installateur la revérifie lui-même (signature,
+    # numéro, version de Mindset) et y cherche l'appli ; refusée, il ne connaît que apps.json livré
+    if ($ListeGardee -and [IO.File]::Exists($ListeGardee)) { $p.Liste = $ListeGardee }
     # Première installation ou prise en charge : l'appli qui se lançait avec Windows s'ouvrira avec Mindset (sinon, prise
     # en charge, elle ne démarrerait plus du tout : plus de rappels pour Evermind). Regardé maintenant, avant que ses
     # anciens démarrages ne soient retirés. Une appli de rappels l'est d'office, sauf si elle avait été coupée.

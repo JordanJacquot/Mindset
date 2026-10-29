@@ -22,6 +22,7 @@ Add-Type -AssemblyName System.IO.Compression, System.IO.Compression.FileSystem
 # ---------------------------------------------------------------------------------------------------------------
 . (Join-Path $fichiers 'modules\signature.ps1')
 . (Join-Path $fichiers 'modules\paquets.ps1')
+. (Join-Path $fichiers 'modules\liste.ps1')   # (la liste des applis : Get-Applis et Get-AppliDuDossierZip y passent)
 
 # installer-admin.ps1 exécute du code dès son chargement : on n'en prend que les fonctions voulues (lues par l'analyseur).
 # (Sa version PowerShell, gardée pour les tests : le mini-installateur livré est MindsetInstallateur.exe, jugé sur le même
@@ -940,6 +941,7 @@ public static class FenetreCachee {
     $script:AppelsReseau = New-Object Collections.Generic.List[string]
     function Update-Publications { $script:AppelsReseau.Add('Update-Publications') }
     function Start-VerifMajMindset { $script:AppelsReseau.Add('Start-VerifMajMindset') }
+    function Update-ListeEnLigne { $script:AppelsReseau.Add('Update-ListeEnLigne') }
     function Get-Publication { $script:AppelsReseau.Add('Get-Publication') }
     function Start-InstallAppli($Appli) { $script:AppelsReseau.Add("Start-InstallAppli $($Appli.Id)") }
     function Start-MajMindset { $script:AppelsReseau.Add('Start-MajMindset') }
@@ -975,7 +977,7 @@ public static class FenetreCachee {
         Test-Cas 'activé : la recherche tout seul (démarrage, toutes les heures, retour) interroge GitHub' {
             Reset-EtatActualiser @{}
             Invoke-Actualiser
-            ($script:AppelsReseau -join ',') -eq 'Update-Publications,Start-VerifMajMindset'
+            ($script:AppelsReseau -join ',') -eq 'Update-Publications,Start-VerifMajMindset,Update-ListeEnLigne'
         }
         Test-Cas 'coupé : la recherche tout seul ne lance aucun appel réseau, et l''accueil le dit' {
             Reset-EtatActualiser @{ VerifVersions = $false }
@@ -986,7 +988,7 @@ public static class FenetreCachee {
         Test-Cas 'coupé : « Actualiser » ou « Vérifier maintenant » (un clic) cherche quand même' {
             Reset-EtatActualiser @{ VerifVersions = $false }
             Invoke-Actualiser -Clic
-            ($script:AppelsReseau -join ',') -eq 'Update-Publications,Start-VerifMajMindset' -and $ui.ActualiserInfo.Text -like 'Vérifié à *(recherche automatique coupée)'
+            ($script:AppelsReseau -join ',') -eq 'Update-Publications,Start-VerifMajMindset,Update-ListeEnLigne' -and $ui.ActualiserInfo.Text -like 'Vérifié à *(recherche automatique coupée)'
         }
         Test-Cas 'activé, mais bandeau d''installation pas encore répondu : rien ne part tout seul' {
             Reset-EtatActualiser @{} $true
@@ -1034,7 +1036,7 @@ public static class FenetreCachee {
             Reset-EtatActualiser @{}
             $env:MINDSET_SANS_RESEAU = '1'
             try { Invoke-Actualiser } finally { $env:MINDSET_SANS_RESEAU = $null }
-            ($script:AppelsReseau -join ',') -eq 'Update-Publications,Start-VerifMajMindset'
+            ($script:AppelsReseau -join ',') -eq 'Update-Publications,Start-VerifMajMindset,Update-ListeEnLigne'
         }
         Test-Cas 'MINDSET_SANS_RESEAU en test (MINDSET_TEST) : aucune recherche' {
             Reset-EtatActualiser @{}
@@ -1044,11 +1046,11 @@ public static class FenetreCachee {
         }
     } finally { $env:MINDSET_SANS_RESEAU = $sansReseau }
 
-    # MINDSET_CAPTURE (capture puis fermeture), MINDSET_SANS_RESEAU et MINDSET_CONSOLE_DEV (outils de développement de la
-    # console) : chaque lecture, hors de Start-Capture qui n'est appelée qu'ainsi, est gardée par « $EnTest -and ... »
+    # MINDSET_CAPTURE (capture puis fermeture), MINDSET_SANS_RESEAU, MINDSET_CONSOLE_DEV (outils de développement de la
+    # console) et MINDSET_LISTE_URL (la liste des applis en ligne lue dans un fichier) : chaque lecture, hors de Start-Capture qui n'est appelée qu'ainsi, est gardée par « $EnTest -and ... »
     $astsGardes = @{ 'Mindset.ps1 (script principal)' = [System.Management.Automation.Language.Parser]::ParseInput([IO.File]::ReadAllText((Join-Path $fichiers 'Mindset.ps1'), [Text.Encoding]::UTF8), [ref]$null, [ref]$null) }
     foreach ($k in $asts.Keys) { $astsGardes[$k] = $asts[$k] }
-    foreach ($nomVar in 'MINDSET_CAPTURE', 'MINDSET_SANS_RESEAU', 'MINDSET_CONSOLE_DEV') {
+    foreach ($nomVar in 'MINDSET_CAPTURE', 'MINDSET_SANS_RESEAU', 'MINDSET_CONSOLE_DEV', 'MINDSET_LISTE_URL') {
         Test-Cas "$nomVar ne compte qu'en test (gardée par `$EnTest partout où elle est lue)" {
             $lues = 0; $libres = @()
             foreach ($k in $astsGardes.Keys) {
@@ -1086,9 +1088,10 @@ public static class FenetreCachee {
     }
     $attendus = [ordered]@{
         'Get-Publication'       = @('installations.ps1:Start-InstallAppli', 'installations.ps1:Update-Publications', 'mindset.ps1:Start-VerifMajMindset')
-        'Get-Octets'            = @('installations.ps1:Start-InstallAppli', 'mindset.ps1:Start-VerifMajMindset')
+        'Get-Octets'            = @('applis.ps1:Update-ListeEnLigne', 'installations.ps1:Start-InstallAppli', 'mindset.ps1:Start-VerifMajMindset')
         'Update-Publications'   = @('accueil.ps1:Invoke-Actualiser')
         'Start-VerifMajMindset' = @('accueil.ps1:Invoke-Actualiser')
+        'Update-ListeEnLigne'   = @('accueil.ps1:Invoke-Actualiser')
     }
     foreach ($cmd in $attendus.Keys) {
         Test-Cas "$cmd n'est appelé que depuis $($attendus[$cmd] -join ', ')" {
