@@ -27,6 +27,9 @@ pub const VALEUR_RESULTAT: &str = "Resultat";
 pub const VALEUR_RESTES: &str = "Restes";
 pub const CLE_MINDSET: &str = r"SOFTWARE\Mindset";
 pub const CLE_VERSIONS: &str = r"SOFTWARE\Mindset\Versions";
+/// La liste des applis qui a servi (sous `CLE_INSTALLATION`), notée seulement quand Mindset a donné une liste en
+/// ligne (`Liste`) : « en ligne <numéro> » ou « livrée (<raison du refus>) ».
+pub const VALEUR_LISTE: &str = "Liste";
 
 /// Le fichier de la demande, dans le dossier de données de Mindset.
 pub const FICHIER_DEMANDE: &str = "installation.demande";
@@ -35,9 +38,21 @@ pub const TAILLE_MAX_DEMANDE: u64 = 16 * 1024;
 
 /// Les actions qu'une demande peut porter (les autres sont refusées : « Demande refusée. »).
 pub const ACTIONS_PAR_TACHE: [&str; 4] = ["appli", "mindset-maj", "supprimer", "taches"];
-/// Les champs texte repris d'une demande (tout autre champ est ignoré, comme `Sid` ou `Resultat`).
-pub const CHAMPS_TEXTE: [&str; 10] =
-    ["Zip", "Signature", "Destination", "DossierZip", "Exe", "AncienExe", "Version", "TacheAide", "ExeAide", "Appli"];
+/// Les champs texte repris d'une demande (tout autre champ est ignoré, comme `Sid` ou `Resultat`). `Liste` (Mindset
+/// 2.16) : la liste des applis en ligne gardée par Mindset, à côté de la demande.
+pub const CHAMPS_TEXTE: [&str; 11] = [
+    "Zip",
+    "Signature",
+    "Destination",
+    "DossierZip",
+    "Exe",
+    "AncienExe",
+    "Version",
+    "TacheAide",
+    "ExeAide",
+    "Appli",
+    "Liste",
+];
 
 /// Un numéro de demande valable : 8 à 32 chiffres hexadécimaux (majuscules permises).
 pub fn id_valable(id: &str) -> bool {

@@ -545,3 +545,123 @@ fn contre_epreuve() {
     ecrire(&e.racine_c.join("intrus.txt"), "x");
     assert!(!e.tout_retire());
 }
+
+// ---------------------------------------------------------------------------------------------------------------
+// La liste des applis en ligne gardée par Mindset (Mindset 2.16)
+// ---------------------------------------------------------------------------------------------------------------
+
+/// La clé de TEST de l'installateur (jamais la clé de la suite)
+fn cle_de_test() -> PathBuf {
+    Path::new(env!("CARGO_MANIFEST_DIR")).join(r"..\mindset-installateur\tests\cle-de-test")
+}
+
+fn signer(donnees: &[u8]) -> Vec<u8> {
+    let pk8 = std::fs::read(cle_de_test().join("privee-de-test.der")).unwrap();
+    let cle = ring::signature::RsaKeyPair::from_der(&pk8).unwrap();
+    let mut sig = vec![0u8; cle.public().modulus_len()];
+    cle.sign(&ring::signature::RSA_PKCS1_SHA256, &ring::rand::SystemRandom::new(), donnees, &mut sig).unwrap();
+    sig
+}
+
+/// Une appli seulement dans la liste en ligne, avec un désinstalleur que la recherche par le nom ne trouve pas
+const NOUVELLE: &str =
+    r#"{"id":"nouvelle","nom":"Nouvelle","exe":"Nouvelle.exe","desinstalleur":"Retirer Nouvelle.exe"}"#;
+
+fn liste(numero: &str, min: &str, applis: &[&str]) -> Vec<u8> {
+    format!(r#"{{"liste":{numero},"mindset_min":"{min}","applis":[{}]}}"#, applis.join(",")).into_bytes()
+}
+
+/// Comment la liste gardée est posée
+enum Pose {
+    Signee(Vec<u8>),
+    Modifiee(Vec<u8>, Vec<u8>),
+    SansSignature(Vec<u8>),
+}
+
+/// Le Mindset de la racine (2.16.0, liste livrée n° `livree`, clé de test), l'appli « Nouvelle » installée, et la
+/// liste gardée dans `donnees` (le dossier des données de ce Mindset)
+fn poser_liste(racine: &Path, donnees: &Path, livree: &str, pose: &Pose) {
+    let fichiers = racine.join("Mindset").join("fichiers");
+    ecrire(&fichiers.join("Mindset.ps1"), "$AppVersion = '2.16.0'\r\n");
+    ecrire(&fichiers.join("apps-liste.txt"), livree);
+    std::fs::create_dir_all(fichiers.join("cles-publiques")).unwrap();
+    std::fs::copy(cle_de_test().join("publique-de-test.xml"), fichiers.join("cles-publiques").join("test.xml"))
+        .unwrap();
+    ecrire(&racine.join("Nouvelle").join("Nouvelle.exe"), "programme");
+    ecrire(&racine.join("Nouvelle").join("Retirer Nouvelle.exe"), "désinstalleur");
+    let f = donnees.join("apps-en-ligne.json");
+    std::fs::create_dir_all(donnees).unwrap();
+    let (contenu, signe) = match pose {
+        Pose::Signee(o) => (o.clone(), Some(o.clone())),
+        Pose::Modifiee(o, apres) => (apres.clone(), Some(o.clone())),
+        Pose::SansSignature(o) => (o.clone(), None),
+    };
+    std::fs::write(&f, contenu).unwrap();
+    if let Some(s) = signe {
+        std::fs::write(donnees.join("apps-en-ligne.json.sig"), signer(&s)).unwrap();
+    }
+}
+
+/// Les applis trouvées (nom, programme) et le journal
+fn trouvees(e: &Env) -> (Vec<(String, Option<String>)>, Vec<String>) {
+    let journal = std::sync::Arc::new(Mutex::new(Vec::<String>::new()));
+    let j = journal.clone();
+    let bilan =
+        Bilan { journal: Some(Box::new(move |t: &str| j.lock().unwrap().push(t.to_string()))), ..Bilan::default() };
+    let mut tr = Travail::nouveau(&e.sys, e.lieux.clone(), bilan, None);
+    let a = tr.applis_avec_desinstalleur(&e.lieux.racines_programmes());
+    let noms = a.iter().map(|x| (x.nom.clone(), x.exe.clone())).collect();
+    let lignes = journal.lock().unwrap().clone();
+    (noms, lignes)
+}
+
+#[test]
+fn liste_en_ligne_valable_trouve_ses_applis() {
+    let bonne = liste("4", "2.16.0", &[NOUVELLE]);
+    // Program Files : la liste dans %LOCALAPPDATA%\Mindset\Mindset
+    let e = Env::nouveau("enligne-c", false, false);
+    poser_liste(&e.racine_c, &e.donnees.join("Mindset"), "3", &Pose::Signee(bonne.clone()));
+    let (a, journal) = trouvees(&e);
+    assert!(a.contains(&("Nouvelle".into(), Some("Nouvelle.exe".into()))), "{a:?}");
+    // (en plus de apps.json, pas à sa place)
+    assert!(a.contains(&("Appli".into(), Some("Appli.exe".into()))), "{a:?}");
+    assert!(journal.iter().any(|l| l.starts_with("Liste des applis en ligne 4 prise")), "{journal:?}");
+    // X:\Mindset\Programmes : la liste dans X:\Mindset\Donnees\Mindset
+    let e = Env::nouveau("enligne-x", true, false);
+    let racine = e.racine_x.join("Programmes");
+    poser_liste(&racine, &e.racine_x.join("Donnees").join("Mindset"), "3", &Pose::Signee(bonne));
+    let (a, _) = trouvees(&e);
+    assert!(a.contains(&("Nouvelle".into(), Some("Nouvelle.exe".into()))), "{a:?}");
+}
+
+#[test]
+fn liste_en_ligne_refusee_ignoree() {
+    let bonne = liste("4", "2.16.0", &[NOUVELLE]);
+    let autre = liste("4", "2.16.0", &[NOUVELLE, r#"{"id":"x","nom":"X","exe":"X.exe","desinstalleur":"X.exe"}"#]);
+    for (nom, livree, pose, raison) in [
+        ("modifiee", "3", Pose::Modifiee(bonne.clone(), autre), "signature invalide"),
+        ("sans-sig", "3", Pose::SansSignature(bonne.clone()), "signature absente"),
+        ("numero-egal", "4", Pose::Signee(bonne.clone()), "pas plus récente"),
+        ("numero-petit", "9", Pose::Signee(bonne.clone()), "pas plus récente"),
+        ("trop-recente", "3", Pose::Signee(liste("4", "2.17.0", &[NOUVELLE])), "plus récent"),
+        ("abimee", "3", Pose::Signee(b"{\"liste\":4,".to_vec()), "mal formée"),
+    ] {
+        let e = Env::nouveau(&format!("refus-{nom}"), false, false);
+        poser_liste(&e.racine_c, &e.donnees.join("Mindset"), livree, &pose);
+        let (a, journal) = trouvees(&e);
+        assert!(!a.iter().any(|(n, _)| n == "Nouvelle"), "{nom} : {a:?}");
+        // apps.json livré reste pris
+        assert!(a.contains(&("Appli".into(), Some("Appli.exe".into()))), "{nom} : {a:?}");
+        assert!(journal.iter().any(|l| l.contains("ignorée") && l.contains(raison)), "{nom} : {journal:?}");
+    }
+}
+
+#[test]
+fn liste_en_ligne_entree_mal_formee_ignoree() {
+    let piege = r#"{"id":"piege","nom":"..","exe":"P.exe","desinstalleur":"Retirer Nouvelle.exe"}"#;
+    let e = Env::nouveau("enligne-entree", false, false);
+    poser_liste(&e.racine_c, &e.donnees.join("Mindset"), "3", &Pose::Signee(liste("4", "2.16.0", &[piege, NOUVELLE])));
+    let (a, _) = trouvees(&e);
+    assert!(a.contains(&("Nouvelle".into(), Some("Nouvelle.exe".into()))), "{a:?}");
+    assert!(!a.iter().any(|(n, _)| n == ".."), "{a:?}");
+}
