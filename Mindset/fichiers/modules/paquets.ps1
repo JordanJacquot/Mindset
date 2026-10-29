@@ -1,7 +1,7 @@
 ﻿# Mindset : versions publiées sur GitHub, téléchargement et installation d'un zip signé.
 #
-# Autonome (pas de fenêtre, pas d'autre module que signature.ps1) : chargé par les tâches de fond de Mindset
-# et par installer-admin.ps1, lancé en administrateur pour les applis qui vont dans Program Files.
+# Autonome (pas de fenêtre, pas d'autre module que signature.ps1, et liste.ps1 pour Get-AppliDuDossierZip) : chargé par
+# les tâches de fond de Mindset et par installer-admin.ps1, lancé en administrateur pour les applis qui vont dans Program Files.
 
 # Dernière version publiée d'une appli : numéro, adresse du zip et de sa signature.
 # -Zip : son nom, ou plusieurs noms par ordre de préférence (le nom d'aujourd'hui, puis l'ancien : une version publiée
@@ -195,16 +195,20 @@ function Get-VersionJsonZip([byte[]]$Zip, [string]$DossierZip) {
     @{ Present = $true; Info = (Read-VersionJson $(if ($null -ne $dansDossier) { $dansDossier } else { $racine })) }
 }
 
-# L'appli attendue dans un zip quand l'appelant ne la donne pas (installer-admin.ps1) : l'id de l'entrée de apps.json
-# (celui de ce Mindset, à côté du dossier modules) dont le dossier du zip est $DossierZip, ou « mindset » pour Mindset
-# lui-même. '' si on ne sait pas : pas de contrôle de l'appli alors (le programme attendu dans <DossierZip>\ reste vérifié).
+# L'appli attendue dans un zip quand l'appelant ne la donne pas (installer-admin.ps1) : l'id de l'appli de la liste des
+# applis (celle de ce Mindset, à côté du dossier modules, lue par Get-EntreesApplis de liste.ps1 : la liste en ligne
+# $ListeGardee si l'appelant en a une et qu'elle est bonne, sinon apps.json livré) dont le dossier du zip est
+# $DossierZip, ou « mindset » pour Mindset lui-même. '' si on ne sait pas : pas de contrôle de l'appli alors (le programme
+# attendu dans <DossierZip>\ reste vérifié).
 function Get-AppliDuDossierZip([string]$DossierZip) {
     $d = $DossierZip.TrimEnd('\')
     if ($d -ieq 'Mindset') { return 'mindset' }
     if (-not $PSScriptRoot) { return '' }
     try {
-        $liste = [IO.File]::ReadAllText((Join-Path (Split-Path $PSScriptRoot -Parent) 'apps.json'), [Text.Encoding]::UTF8) | ConvertFrom-Json
-        foreach ($a in $liste) {
+        $fichiers = Split-Path $PSScriptRoot -Parent
+        # (la version de ce Mindset : celle de Mindset.ps1 s'il tourne, sinon celle écrite dans ses fichiers)
+        $version = if ($AppVersion) { [string]$AppVersion } else { Get-VersionDossier (Split-Path $fichiers -Parent) }
+        foreach ($a in (Get-EntreesApplis $fichiers $ListeGardee $version).Entrees) {
             if ([string]$a.id -cmatch '^[a-z0-9-]+$' -and ([string]$a.dossier_zip -ieq $d -or ($a.ancien_dossier_zip -and [string]$a.ancien_dossier_zip -ieq $d))) { return [string]$a.id }
         }
     } catch {}

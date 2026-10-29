@@ -1,87 +1,60 @@
-﻿# Mindset : la liste des applis de la suite (fichiers\apps.json) et leur état.
-# Chargé par Mindset.ps1, qui définit $AppDir.
+﻿# Mindset : la liste des applis de la suite et leur état.
+# Chargé par Mindset.ps1, qui définit $AppDir, après donnees.ps1 ($DataDir), signature.ps1 et taches.ps1.
 #
-# Sécurité : apps.json est livré avec Mindset ; on n'y lit que des champs connus, vérifiés un par un,
-# et aucun texte qui en vient n'est exécuté comme une commande.
+# La liste vient de liste.ps1 (chargé ici) : celle publiée en ligne et gardée dans le dossier des données de Mindset si
+# elle est bonne (signée, plus récente que celle livrée, pour ce Mindset), sinon fichiers\apps.json livré avec Mindset.
+# Chaque entrée y est vérifiée champ par champ (ConvertTo-Appli), et aucun texte qui en vient n'est exécuté comme une
+# commande.
+. (Join-Path $PSScriptRoot 'liste.ps1')
+
+# La liste en ligne gardée ('' en test sans dossier de données à part : jamais celle du vrai PC)
+$ListeGardee = if ($DataDir -and (-not $EnTest -or $env:MINDSET_DONNEES)) { Join-Path $DataDir $NomListeEnLigne } else { '' }
 
 function Get-Applis {
-    $f = Join-Path $AppDir 'apps.json'
-    # (sans @() : PowerShell 5.1 rend un tableau JSON en un seul bloc, que @() emballerait dans un autre tableau)
-    try { $liste = [IO.File]::ReadAllText($f, [Text.Encoding]::UTF8) | ConvertFrom-Json }
+    try { $l = Get-EntreesApplis $AppDir $ListeGardee ([string]$AppVersion) }
     catch { Write-Log "apps.json illisible : $_"; return @() }
-    $nomFichier = '^[^\\/:*?"<>|]+$'
-    foreach ($a in $liste) {
-        if ($a.id -isnot [string] -or $a.couleur -isnot [string]) { Write-Log 'apps.json : entrée mal formée ignorée'; continue }
-        # Son type (docs\contrat-appli.md, partie 1) : « powershell » (champ absent : les applis d'aujourd'hui) a un script
-        # principal ; « rust » n'en a pas forcément (sa version est dans son version.json). Tout autre type : ignorée.
-        $type = if ($null -eq $a.type) { 'powershell' } else { $a.type }
-        if ($type -isnot [string] -or $type -cnotmatch '^(powershell|rust)$') { Write-Log "apps.json : appli ignorée ($($a.id), type inconnu)"; continue }
-        $ok = $a.id -match '^[a-z0-9-]+$' -and $a.nom -and $a.couleur -match '^#[0-9A-Fa-f]{6}$' -and
-              $a.depot -match '^[\w.-]+/[\w.-]+$' -and $a.zip -match $nomFichier -and $a.dossier_zip -match $nomFichier -and
-              $a.exe -match '^[^\\/:*?"<>|]+\.exe$'
-        if ($type -eq 'powershell' -or $a.script) { $ok = $ok -and $a.script -match '^[\w\\.-]+\.ps1$' -and $a.script -notmatch '\.\.' }
-        # Les noms de son verrou et de son signal d'affichage, et la version de « cache_depuis » : contrôlés comme les autres
-        if ($a.mutex) { $ok = $ok -and $a.mutex -match '^Local\\[\w.-]+$' }
-        if ($a.afficher_signal) { $ok = $ok -and $a.afficher_signal -match '^Local\\[\w.-]+$' }
-        if ($a.cache_depuis) { $ok = $ok -and $a.cache_depuis -match '^\d+(\.\d+){1,3}$' }
-        if ($a.desinstalleur) { $ok = $ok -and $a.desinstalleur -match '^[^\\/:*?"<>|]+\.exe$' }
-        if ($a.afficher_fichier) { $ok = $ok -and $a.afficher_fichier -match $nomFichier }
-        if ($a.aide) { $ok = $ok -and $a.aide -cmatch '^[A-Za-z0-9 ]{1,40} \(aide\)$' -and $a.aide_exe -match '^[^\\/:*?"<>|]+\.exe$' }
-        if ($a.sans_droits_depuis) { $ok = $ok -and $a.sans_droits_depuis -match '^\d+(\.\d+){1,3}$' }
-        # Ses anciens noms (Nevermind s'appelait OptiGame) : seulement pour reconnaître une installation ou une version publiée
-        # d'avant le changement de nom, vérifiés comme les nouveaux
-        if ($a.ancien_zip) { $ok = $ok -and $a.ancien_zip -match $nomFichier }
-        if ($a.ancien_dossier_zip) { $ok = $ok -and $a.ancien_dossier_zip -match $nomFichier }
-        if ($a.ancien_script) { $ok = $ok -and $a.ancien_script -match '^[\w\\.-]+\.ps1$' -and $a.ancien_script -notmatch '\.\.' }
-        if ($a.ancien_mutex) { $ok = $ok -and $a.ancien_mutex -match '^Local\\[\w.-]+$' }
-        if (-not $ok) { Write-Log "apps.json : appli ignorée ($($a.id))"; continue }
-        # Son logo dans Mindset (à la place de sa première lettre) : un tracé de traits droits (M, L) sur une grille de 100,
-        # dessiné au trait épais comme les lettres de Nevermind et d'Evermind. Mal formé : ignoré, la lettre reste.
-        $logo = if ([string]$a.logo -match '^[ML0-9., ]{3,240}$' -and [string]$a.logo -match '^M') { [string]$a.logo } else { '' }
-        if ($a.logo -and -not $logo) { Write-Log "apps.json : logo de $($a.id) ignoré (tracé non compris)" }
-        # Sa page de confidentialité (ce que l'appli envoie sur Internet), montrée avant de l'installer : seulement une page
-        # du compte GitHub de la suite, sinon ignorée (la phrase renvoie alors à celle de Mindset)
-        $confidentialite = if ([string]$a.confidentialite -cmatch '^https://github\.com/JordanJacquot/[\w.-]+/blob/main/[\w.-]+\.md$') { [string]$a.confidentialite } else { '' }
-        if ($a.confidentialite -and -not $confidentialite) { Write-Log "apps.json : page de confidentialité de $($a.id) ignorée (adresse non acceptée)" }
-        $epaisseur = 0.0
-        if (-not [double]::TryParse([string]$a.logo_epaisseur, [Globalization.NumberStyles]::Float, [Globalization.CultureInfo]::InvariantCulture, [ref]$epaisseur) -or $epaisseur -lt 4 -or $epaisseur -gt 25) { $epaisseur = 12.0 }
-        [pscustomobject]@{
-            Id              = [string]$a.id
-            Type            = $type   # « powershell » ou « rust »
-            Nom             = [string]$a.nom
-            Couleur         = [string]$a.couleur
-            AppId           = 'JordanJacquot.' + ([string]$a.nom -replace '[^A-Za-z0-9]', '')   # son identité dans la barre des tâches (celle que l'appli se donne)
-            Description     = [string]$a.description
-            Presentation    = [string]$a.presentation   # ce que fait l'appli, en une phrase (console : menu en grand, écran « pas encore installée »)
-            Depot           = [string]$a.depot
-            Zip             = [string]$a.zip
-            DossierZip      = [string]$a.dossier_zip
-            Exe             = [string]$a.exe
-            Script          = [string]$a.script
-            Mutex           = [string]$a.mutex
-            # (anciens noms, ou '' : la version publiée sous l'ancien nom, le dossier de son zip, son script principal dans une
-            # installation d'avant, son mutex quand une version d'avant est ouverte)
-            AncienZip       = [string]$a.ancien_zip
-            AncienDossierZip = [string]$a.ancien_dossier_zip
-            AncienScript    = [string]$a.ancien_script
-            AncienMutex     = [string]$a.ancien_mutex
-            AfficherFichier = [string]$a.afficher_fichier   # nom du fichier, dans le dossier de données de l'appli
-            AfficherSignal  = [string]$a.afficher_signal
-            Desinstalleur   = [string]$a.desinstalleur
-            Donnees         = [Environment]::ExpandEnvironmentVariables([string]$a.donnees)
-            Admin           = [bool]$a.admin
-            Rappels         = ($a.rappels -eq $true)   # appli de rappels (Evermind) : elle doit tourner pour qu'ils sonnent, donc s'ouvre avec Mindset d'office
-            SansDroitsDepuis = [string]$a.sans_droits_depuis   # version à partir de laquelle elle n'a plus besoin des droits (son Aide les a)
-            Aide            = [string]$a.aide       # tâche planifiée de sa partie administrateur (« \Mindset\<aide> »)
-            AideExe         = [string]$a.aide_exe   # le programme qu'elle lance, à côté de l'exe de l'appli
-            CacheDepuis     = [string]$a.cache_depuis   # version à partir de laquelle l'appli lancée cachée se dessine une fois affichée dans Mindset
-            Confidentialite = $confidentialite   # page qui dit ce que l'appli envoie sur Internet (ou rien)
-            Logo            = $logo        # tracé du logo (grille de 100), sinon sa première lettre
-            LogoEpaisseur   = $epaisseur / 100
-        }
+    $origine = if ($l.Source -eq 'en-ligne') { "liste en ligne n° $($l.Numero)" } else { 'apps.json' }
+    if ($l.Source -eq 'en-ligne') { Write-Log "Liste des applis : $origine (gardée, vérifiée)" }
+    # (un id déjà vu plus haut : ignoré, la première entrée compte)
+    $vus = New-Object 'Collections.Generic.HashSet[string]' ([StringComparer]::Ordinal)
+    foreach ($e in $l.Entrees) {
+        $a = ConvertTo-Appli $e $origine
+        if (-not $a) { continue }
+        if (-not $vus.Add($a.Id)) { Write-Log "${origine} : appli ignorée ($($a.Id), déjà dans la liste)"; continue }
+        $a
     }
 }
 
+# La liste en ligne, cherchée au démarrage (en fond, sans retarder l'ouverture) puis toutes les 6 heures, avec les
+# nouvelles versions (Invoke-Actualiser, accueil.ps1 : donc jamais si « Chercher les nouvelles versions » est coupé).
+# Téléchargée sans l'API de GitHub (pas de limite de questions), 15 secondes au plus par fichier, vérifiée puis gardée
+# par Add-ListeEnLigne (liste.ps1). Une nouvelle liste acceptée sert au prochain démarrage de Mindset : les cartes, les
+# onglets et tout ce qui tient une appli ouverte sont faits au démarrage, les refaire en marche ne serait pas sûr.
+# (test seulement : MINDSET_LISTE_URL, un fichier de ce PC à la place de l'adresse de GitHub)
+$UrlListeEnLigne = "https://github.com/JordanJacquot/Mindset/releases/download/liste-applis/$NomListeEnLigne"
+$script:DerniereListe = [datetime]::MinValue
+function Update-ListeEnLigne {
+    if (-not $ListeGardee -or ((Get-Date) - $script:DerniereListe).TotalHours -lt 6) { return }
+    $script:DerniereListe = Get-Date
+    $p = @{ Url = $UrlListeEnLigne; Fichier = '' }
+    if ($EnTest -and $env:MINDSET_LISTE_URL) { $p.Fichier = $env:MINDSET_LISTE_URL }
+    Start-Tache {
+        $p = $args[0]
+        if ($p.Fichier) { return @{ Json = [IO.File]::ReadAllBytes($p.Fichier); Sig = [IO.File]::ReadAllBytes("$($p.Fichier).sig") } }
+        @{ Json = (Get-Octets $p.Url -MaxOctets 256KB -DelaiSecondes 15); Sig = (Get-Octets "$($p.Url).sig" -MaxOctets 64KB -DelaiSecondes 15) }
+    } $p { param($Resultat, $Erreur) Receive-ListeEnLigne $Resultat $Erreur }
+}
+function Receive-ListeEnLigne($Resultat, $Erreur) {
+    if ($Erreur -or -not $Resultat) {
+        $script:DerniereListe = (Get-Date).AddHours(-5)   # (réessai dans une heure)
+        Write-Log "Liste des applis en ligne : pas téléchargée ($Erreur)"
+        return
+    }
+    try {
+        $l = Add-ListeEnLigne ([byte[]]$Resultat.Json) ([byte[]]$Resultat.Sig) $AppDir $ListeGardee ([string]$AppVersion)
+        if ($l) { Write-Log "Liste des applis en ligne n° $($l.Numero) gardée ($(@($l.Entrees).Count) applis) : elle sera prise au prochain démarrage de Mindset" }
+    } catch { Write-Log "Liste des applis en ligne refusée : $($_.Exception.Message) (on garde celle qu'on avait)" }
+}
 # L'appli a-t-elle besoin des droits administrateur ? Selon la version installée : Nevermind n'en a plus besoin depuis
 # « sans_droits_depuis » (ce qui en demande passe par son Aide) ; une version plus ancienne les demande encore.
 function Test-AppliAdmin($Appli, $Inst = $null) {

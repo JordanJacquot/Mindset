@@ -3,7 +3,8 @@
     Mindset 2.15.0
     Le portail de la suite : installe, met à jour et affiche ses applis (Nevermind, Evermind et les suivantes).
 
-    La liste des applis est dans fichiers\apps.json. Les réglages et le journal sont dans %LOCALAPPDATA%\Mindset\Mindset.
+    La liste des applis est dans fichiers\apps.json, ou celle publiée en ligne si elle est plus récente (modules\liste.ps1).
+    Les réglages et le journal sont dans %LOCALAPPDATA%\Mindset\Mindset.
 
     Mindset.ps1 -Demarrage     lancé avec Windows : démarre en arrière-plan les applis choisies et reste caché près de l'horloge
     Mindset.ps1 -Desinstaller  depuis « Applications installées » de Windows : lance le désinstalleur autonome
@@ -100,7 +101,7 @@ try { Get-ChildItem -LiteralPath $PSScriptRoot -File -Recurse -ErrorAction Silen
 $AppDir = $PSScriptRoot
 $ModulesDir = Join-Path $AppDir 'modules'
 $msModules = 'donnees', 'suite', 'packs', 'themes', 'signature', 'paquets', 'taches', 'applis', 'installations', 'mindset', 'interface', 'logo', 'chargement', 'accueil', 'integration', 'parametres', 'zone', 'console'
-$missing = @(@('natif.cs', 'interface.xaml') + @($msModules | ForEach-Object { "$_.ps1" }) | Where-Object { -not (Test-Path -LiteralPath (Join-Path $ModulesDir $_)) })
+$missing = @(@('natif.cs', 'interface.xaml', 'liste.ps1') + @($msModules | ForEach-Object { "$_.ps1" }) | Where-Object { -not (Test-Path -LiteralPath (Join-Path $ModulesDir $_)) })
 if (-not @(Get-ChildItem -LiteralPath (Join-Path $AppDir 'cles-publiques') -Filter '*.xml' -File -ErrorAction SilentlyContinue).Count) { $missing += 'cles-publiques' }
 if ($missing) {
     [System.Windows.MessageBox]::Show("Des fichiers de Mindset sont manquants :`n`n$($missing -join ', ')`n`nRetélécharge Mindset et remplace tout le dossier.", 'Mindset', 'OK', 'Error') | Out-Null
