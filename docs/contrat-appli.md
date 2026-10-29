@@ -83,11 +83,13 @@ livré, inchangé, avec son numéro dans `Mindset/fichiers/apps-liste.txt`.
 Les règles sont à un seul endroit pour les exe Rust : `rust/suite-commun/src/liste_en_ligne.rs` (`lire_et_accepter`).
 Une liste n'est prise que si TOUT est bon, sinon la liste livrée sert, jamais à moitié :
 1. au plus 256 Ko, signature valide avec `fichiers\cles-publiques` (la même vérification que les zips) ;
-2. objet JSON, `liste` entier au moins 1, `mindset_min` de la forme x.y.z, `applis` tableau non vide ;
+2. objet JSON, `liste` entier au moins 1, `mindset_min` de la forme x.y.z, `applis` tableau non vide (noms des champs
+   exacts, majuscules comprises) ;
 3. `mindset_min` au plus la version de ce Mindset ;
 4. `liste` strictement plus grand que `apps-liste.txt` (absent ou illisible : refusée) ;
-5. deux entrées n'ont jamais le même id (sinon refusée) ; chaque entrée passe ensuite les contrôles habituels du
-   lecteur, une entrée refusée est ignorée et le reste est pris.
+5. une entrée mal formée (pas un objet ; `id`, `nom` ou `exe` absent ou mal écrit) est ignorée, le reste est pris ;
+   deux entrées avec le même id (comparé exactement) : la première gagne ; au moins une entrée valable, sinon la
+   liste est refusée. Chaque lecteur contrôle ensuite les entrées gardées comme celles de `apps.json`.
 
 La liste et sa signature sont lues une seule fois en mémoire, et tout est vérifié sur ces octets-là. Une liste acceptée
 **remplace** la liste livrée (elle peut retirer une appli).

@@ -7,12 +7,14 @@
 //!
 //! Une liste n'est acceptée que si TOUT est bon (sinon on garde la liste livrée, jamais à moitié) :
 //! 1. taille au plus 256 Ko, signature valide avec les clés livrées avec Mindset ;
-//! 2. JSON objet avec `liste` entier au moins 1, `mindset_min` version x.y.z, `applis` tableau non vide ;
+//! 2. JSON objet avec `liste` entier au moins 1, `mindset_min` version x.y.z, `applis` tableau non vide (noms des
+//!    champs exacts, majuscules comprises, comme Mindset) ;
 //! 3. `mindset_min` au plus la version de ce Mindset ;
 //! 4. `liste` strictement plus grand que le numéro livré (`fichiers\apps-liste.txt`) : une ancienne liste signée ne
 //!    peut pas revenir ;
-//! 5. deux entrées n'ont jamais le même id (sinon la liste est refusée) ; chaque entrée passe ensuite les contrôles
-//!    du lecteur, comme celles de apps.json (une entrée refusée est ignorée, le reste est pris).
+//! 5. une entrée mal formée (pas un objet, `id`, `nom` ou `exe` absent ou mal écrit) est ignorée, le reste est pris ;
+//!    deux entrées avec le même id (comparé exactement) : la première gagne ; au moins une entrée valable, sinon la
+//!    liste est refusée. Chaque lecteur contrôle ensuite les entrées gardées comme celles de apps.json.
 //!
 //! Le dossier des données est modifiable sans droits : la liste et sa signature sont lues UNE fois en mémoire, et
 //! tout est vérifié sur ces octets-là (rien n'est relu entre la vérification et l'usage).
@@ -23,8 +25,7 @@ use std::path::{Path, PathBuf};
 
 use serde_json::Value;
 
-use crate::chemins::egal;
-use crate::protocole_installateur::{champ, lire_json};
+use crate::protocole_installateur::lire_json;
 use crate::signature::verifier_signature;
 use crate::version::plus_recente;
 use crate::version_paquet::version_dossier;
@@ -59,8 +60,8 @@ pub enum Refus {
     PourMindsetPlusRecent { min: String, version: String },
     /// Numéro pas plus grand que celui de la liste livrée
     PasPlusRecente { liste: i64, livree: i64 },
-    /// Deux entrées ont le même id
-    IdEnDouble(String),
+    /// Aucune entrée valable
+    AucuneAppliValable,
 }
 
 impl fmt::Display for Refus {
@@ -79,7 +80,7 @@ impl fmt::Display for Refus {
             Refus::PasPlusRecente { liste, livree } => {
                 write!(f, "liste {liste} pas plus récente que la liste livrée ({livree})")
             }
-            Refus::IdEnDouble(id) => write!(f, "appli « {id} » en double"),
+            Refus::AucuneAppliValable => write!(f, "aucune appli valable"),
         }
     }
 }
@@ -89,7 +90,7 @@ impl fmt::Display for Refus {
 pub struct ListeAcceptee {
     pub numero: i64,
     pub mindset_min: String,
-    /// Les entrées, telles quelles : chaque lecteur les contrôle ensuite comme celles de apps.json
+    /// Les entrées valables, sans id en double : chaque lecteur les contrôle ensuite comme celles de apps.json
     pub applis: Vec<Value>,
 }
 
@@ -145,6 +146,24 @@ fn version_xyz(v: &str) -> bool {
     m.len() == 3 && m.iter().all(|x| !x.is_empty() && x.len() <= 9 && x.bytes().all(|b| b.is_ascii_digit()))
 }
 
+/// Un nom de programme seul : `^[^\\/:*?"<>|]+\.exe$` (majuscules permises).
+fn programme(nom: &str) -> bool {
+    nom.len() > 4
+        && nom.to_ascii_lowercase().ends_with(".exe")
+        && !nom.chars().any(|c| matches!(c, '\\' | '/' | ':' | '*' | '?' | '"' | '<' | '>' | '|') || (c as u32) < 0x20)
+}
+
+/// Une entrée bien formée (la base commune des contrôles d'apps.json) : un objet, `id` texte de lettres, chiffres et
+/// tirets (`^[a-z0-9-]+$` de Mindset, qui ne tient pas compte des majuscules), `nom` texte non vide, `exe` un nom de
+/// programme seul.
+pub fn entree_valable(a: &Value) -> bool {
+    let Some(o) = a.as_object() else { return false };
+    let texte = |n: &str| o.get(n).and_then(Value::as_str);
+    texte("id").is_some_and(|id| !id.is_empty() && id.bytes().all(|b| b.is_ascii_alphanumeric() || b == b'-'))
+        && texte("nom").is_some_and(|n| !n.is_empty())
+        && texte("exe").is_some_and(programme)
+}
+
 /// Les règles 1 à 5 sur des octets déjà lus. `numero_livre` : celui de `apps-liste.txt` (`None` : illisible) ;
 /// `version_mindset` : la version de ce Mindset ; `cles` : le dossier des clés publiques livrées.
 pub fn accepter(
@@ -170,11 +189,11 @@ pub fn accepter(
     let Some(Value::Object(objet)) = lire_json(texte) else {
         return Err(Refus::MalFormee("pas un objet JSON"));
     };
-    let numero = champ(&objet, "liste").and_then(Value::as_i64).filter(|n| *n >= 1);
+    let numero = objet.get("liste").and_then(Value::as_i64).filter(|n| *n >= 1);
     let Some(numero) = numero else { return Err(Refus::MalFormee("liste")) };
-    let min = champ(&objet, "mindset_min").and_then(Value::as_str).filter(|v| version_xyz(v));
+    let min = objet.get("mindset_min").and_then(Value::as_str).filter(|v| version_xyz(v));
     let Some(min) = min else { return Err(Refus::MalFormee("mindset_min")) };
-    let applis = champ(&objet, "applis").and_then(Value::as_array).filter(|a| !a.is_empty());
+    let applis = objet.get("applis").and_then(Value::as_array).filter(|a| !a.is_empty());
     let Some(applis) = applis else { return Err(Refus::MalFormee("applis")) };
     // 3. pour ce Mindset
     if version_mindset.is_empty() || crate::version::Version::lire(version_mindset).is_none() {
@@ -188,17 +207,18 @@ pub fn accepter(
     if numero <= livree {
         return Err(Refus::PasPlusRecente { liste: numero, livree });
     }
-    // 5. ids uniques (le reste des contrôles d'une entrée est celui du lecteur)
-    let mut ids: Vec<&str> = Vec::new();
-    for a in applis {
-        if let Some(id) = a.as_object().and_then(|o| champ(o, "id")).and_then(Value::as_str) {
-            if ids.iter().any(|x| egal(x, id)) {
-                return Err(Refus::IdEnDouble(id.to_string()));
-            }
-            ids.push(id);
+    // 5. les entrées mal formées ignorées, la première d'un id gagne, au moins une valable
+    let mut gardees: Vec<Value> = Vec::new();
+    for a in applis.iter().filter(|a| entree_valable(a)) {
+        let id = a.get("id").and_then(Value::as_str);
+        if !gardees.iter().any(|g| g.get("id").and_then(Value::as_str) == id) {
+            gardees.push(a.clone());
         }
     }
-    Ok(ListeAcceptee { numero, mindset_min: min.to_string(), applis: applis.clone() })
+    if gardees.is_empty() {
+        return Err(Refus::AucuneAppliValable);
+    }
+    Ok(ListeAcceptee { numero, mindset_min: min.to_string(), applis: gardees })
 }
 
 /// Tout en un : la liste `liste` (et `<liste>.sig`), jugée avec les clés, le numéro livré et la version du Mindset
@@ -345,6 +365,13 @@ mod tests {
             (liste("4", "2.16", APPLIS), "mindset_min"),
             (liste("4", r#""2.16.0""#, "[]"), "applis"),
             (liste("4", r#""2.16.0""#, r#"{"id":"a"}"#), "applis"),
+            // noms des champs exacts, majuscules comprises
+            (br#"{"Liste":4,"mindset_min":"2.16.0","applis":[{"id":"a","nom":"A","exe":"A.exe"}]}"#.to_vec(), "liste"),
+            (
+                br#"{"liste":4,"Mindset_min":"2.16.0","applis":[{"id":"a","nom":"A","exe":"A.exe"}]}"#.to_vec(),
+                "mindset_min",
+            ),
+            (br#"{"liste":4,"mindset_min":"2.16.0","Applis":[{"id":"a","nom":"A","exe":"A.exe"}]}"#.to_vec(), "applis"),
         ] {
             assert_eq!(
                 juger(&d, &o, Some(3), "2.16.0"),
@@ -372,13 +399,41 @@ mod tests {
     }
 
     #[test]
-    fn ids_en_double_refuses() {
+    fn id_en_double_la_premiere_gagne() {
         let d = Dossier::nouveau("ids");
-        let o = liste("4", r#""2.16.0""#, r#"[{"id":"appli","nom":"A"},{"id":"appli","nom":"B"}]"#);
-        assert_eq!(juger(&d, &o, Some(3), "2.16.0"), Err(Refus::IdEnDouble("appli".into())));
-        // une entrée mal formée (sans id, pas un objet) n'est pas refusée ici : le lecteur l'ignore
-        let o = liste("4", r#""2.16.0""#, r#"[{"id":"appli"},{"nom":"sans id"},"texte",{"id":5}]"#);
-        assert_eq!(juger(&d, &o, Some(3), "2.16.0").unwrap().applis.len(), 4);
+        let a = r#"{"id":"appli","nom":"A","exe":"A.exe"}"#;
+        let b = r#"{"id":"appli","nom":"B","exe":"B.exe"}"#;
+        let l = juger(&d, &liste("4", r#""2.16.0""#, &format!("[{a},{b}]")), Some(3), "2.16.0").unwrap();
+        assert_eq!(l.applis.len(), 1);
+        assert_eq!(l.applis[0]["nom"], "A");
+        // (comparaison exacte : « Appli » est un autre id)
+        let c = r#"{"id":"Appli","nom":"C","exe":"C.exe"}"#;
+        let l = juger(&d, &liste("4", r#""2.16.0""#, &format!("[{a},{c}]")), Some(3), "2.16.0").unwrap();
+        assert_eq!(l.applis.len(), 2);
+    }
+
+    #[test]
+    fn entrees_mal_formees_ignorees_au_moins_une_valable() {
+        let d = Dossier::nouveau("entrees");
+        let bonne = r#"{"id":"bonne","nom":"Bonne","exe":"Bonne.exe"}"#;
+        let fausses = [
+            r#""texte""#,
+            r#"{"id":5,"nom":"X","exe":"X.exe"}"#,
+            r#"{"id":"a b","nom":"X","exe":"X.exe"}"#,
+            r#"{"id":"","nom":"X","exe":"X.exe"}"#,
+            r#"{"id":"x","nom":"","exe":"X.exe"}"#,
+            r#"{"id":"x","exe":"X.exe"}"#,
+            r#"{"id":"x","nom":"X","exe":"..\\X.exe"}"#,
+            r#"{"id":"x","nom":"X","exe":"X.bat"}"#,
+            r#"{"Id":"x","nom":"X","exe":"X.exe"}"#,
+        ];
+        let o = liste("4", r#""2.16.0""#, &format!("[{},{bonne}]", fausses.join(",")));
+        let l = juger(&d, &o, Some(3), "2.16.0").unwrap();
+        assert_eq!(l.applis.len(), 1, "{:?}", l.applis);
+        assert_eq!(l.applis[0]["id"], "bonne");
+        // aucune valable : refusée
+        let o = liste("4", r#""2.16.0""#, &format!("[{}]", fausses.join(",")));
+        assert_eq!(juger(&d, &o, Some(3), "2.16.0"), Err(Refus::AucuneAppliValable));
     }
 
     #[test]
@@ -403,7 +458,7 @@ mod tests {
         assert!(matches!(lire_et_accepter(&f, &mindset), Err(Refus::PasPlusRecente { .. })));
         // modifiée après signature : refusée
         std::fs::write(fichiers.join(FICHIER_NUMERO), "3").unwrap();
-        std::fs::write(&f, liste("4", r#""2.16.0""#, r#"[{"id":"piege"}]"#)).unwrap();
+        std::fs::write(&f, liste("4", r#""2.16.0""#, r#"[{"id":"piege","nom":"P","exe":"P.exe"}]"#)).unwrap();
         assert_eq!(lire_et_accepter(&f, &mindset), Err(Refus::SignatureInvalide));
     }
 }

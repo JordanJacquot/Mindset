@@ -1596,7 +1596,7 @@ fn cas_liste_en_ligne() -> Vec<CasListe> {
             )),
             Some("3"),
             true,
-            installee,
+            installee.clone(),
         ),
         c(
             "entrée mal formée ignorée : elle est inconnue",
@@ -1614,12 +1614,27 @@ fn cas_liste_en_ligne() -> Vec<CasListe> {
             json!({ "reponse": "refus", "message_exact": "Appli inconnue.", "lignes": ["LISTE en ligne 4"] }),
         ),
         c(
-            "deux entrées avec le même id : apps.json seul",
+            "deux entrées avec le même id : la première gagne (sinon le dossier serait « Autre »)",
             "nouvelle",
-            Pose::Signee(liste_en_ligne("4", "1.0.0", &[NOUVELLE, NOUVELLE])),
+            Pose::Signee(liste_en_ligne(
+                "4",
+                "1.0.0",
+                &[
+                    NOUVELLE,
+                    r#"{ "id": "nouvelle", "nom": "Autre", "zip": "Nouvelle.zip", "dossier_zip": "Nouvelle", "exe": "Nouvelle.exe" }"#,
+                ],
+            )),
             Some("3"),
             true,
-            refus("appli « nouvelle » en double"),
+            installee,
+        ),
+        c(
+            "aucune entrée valable : apps.json seul",
+            "nouvelle",
+            Pose::Signee(liste_en_ligne("4", "1.0.0", &[r#"{ "id": "nouvelle", "nom": "Nouvelle" }"#, r#""texte""#])),
+            Some("3"),
+            true,
+            refus("aucune appli valable"),
         ),
     ]
 }
