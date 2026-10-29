@@ -1,6 +1,7 @@
 //! Les paramètres de la ligne de commande, lus comme Windows PowerShell liait ceux d'installer-admin.ps1 : mêmes
 //! noms (sans tenir compte des majuscules), `-Action` obligatoire et choisie dans la liste, `-Disque` d'une lettre au
-//! plus, `-AttendrePid` un nombre entier, `-Cache` sans valeur. Tout autre écart (paramètre inconnu, donné deux fois,
+//! plus, `-AttendrePid` un nombre entier, `-Cache` sans valeur. `-Liste` (Mindset 2.16, facultatif) : la liste des
+//! applis en ligne gardée par Mindset (`apps-en-ligne.json`, sa signature `.sig` à côté). Tout autre écart (paramètre inconnu, donné deux fois,
 //! sans valeur, valeur sans nom) arrête l'installateur avant qu'il ne fasse quoi que ce soit, sans réponse : comme
 //! PowerShell, qui refusait de lancer le script.
 
@@ -52,11 +53,13 @@ pub struct Parametres {
     pub appli: String,
     pub disque: String,
     pub sid: String,
+    /// La liste des applis en ligne (vide : apps.json livré seul)
+    pub liste: String,
     pub cache: bool,
 }
 
 /// Les noms des paramètres texte, dans l'ordre d'installer-admin.ps1.
-const TEXTES: [&str; 16] = [
+const TEXTES: [&str; 17] = [
     "Resultat",
     "Demande",
     "Zip",
@@ -73,6 +76,7 @@ const TEXTES: [&str; 16] = [
     "Disque",
     "Sid",
     "AttendrePid",
+    "Liste",
 ];
 
 impl Parametres {
@@ -94,6 +98,7 @@ impl Parametres {
             "Appli" => &mut self.appli,
             "Disque" => &mut self.disque,
             "Sid" => &mut self.sid,
+            "Liste" => &mut self.liste,
             _ => return None,
         })
     }
@@ -138,6 +143,7 @@ pub fn lire(args: &[String]) -> Result<Parametres, String> {
         appli: String::new(),
         disque: String::new(),
         sid: String::new(),
+        liste: String::new(),
         cache: false,
     };
     let mut action = None;
@@ -217,7 +223,9 @@ mod tests {
         assert_eq!(p.action, Action::Demande);
         assert_eq!(p.sid, "S-1-5-21-1-2-3-4");
         let p = lire(&a(&["-Action", "appli", "-Cache", "-AttendrePid", "12", "-Sid", ""])).unwrap();
-        assert!(p.cache && p.attendre_pid == 12 && p.sid.is_empty());
+        assert!(p.cache && p.attendre_pid == 12 && p.sid.is_empty() && p.liste.is_empty());
+        let p = lire(&a(&["-Action", "appli", "-liste", "C:/x/apps-en-ligne.json"])).unwrap();
+        assert_eq!(p.liste, "C:/x/apps-en-ligne.json");
         assert!(lire(&a(&["-Action", "formater"])).is_err());
         assert!(lire(&a(&["-Action", "mindset", "-Disque", "QQ"])).is_err());
         assert!(lire(&a(&["-Action", "mindset", "-Disque", "X:"])).is_err());

@@ -57,7 +57,9 @@ dependencies = [
 name = "desinstalleur"
 version = "0.1.0"
 dependencies = [
+ "ring",
  "serde_json",
+ "suite-commun",
  "windows",
  "windows-registry",
 ]

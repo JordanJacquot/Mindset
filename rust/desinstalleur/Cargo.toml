@@ -17,6 +17,8 @@ path = "src/main.rs"
 essai = []
 
 [dependencies]
+# Les règles de la liste des applis en ligne (et la vérification des signatures), les mêmes que l'installateur
+suite-commun = { path = "../suite-commun" }
 # Versions figées (« = ») : une nouvelle version n'entre que par un changement relu (les mêmes que l'Aide de Nevermind).
 serde_json = "=1.0.154"
 windows-registry = "=0.6.1"
@@ -44,6 +46,10 @@ features = [
     "Win32_UI_Shell",
     "Win32_UI_WindowsAndMessaging",
 ]
+
+[dev-dependencies]
+# Les tests signent leur liste en ligne avec la clé de test de l'installateur (jamais la clé de la suite)
+ring = "=0.17.14"
 
 [lints.rust]
 # Le code « unsafe » n'est permis que dans le module Windows (src/os), qui l'autorise lui-même ; ailleurs, interdit.

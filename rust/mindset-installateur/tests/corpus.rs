@@ -233,6 +233,11 @@ impl Systeme for FauxPc {
                     self.noter(&format!("RESTES {v}"));
                     return Ok(());
                 }
+                // (la liste des applis qui a servi : une note, pas une action)
+                "Liste" => {
+                    self.noter(&format!("LISTE {v}"));
+                    return Ok(());
+                }
                 _ => {}
             }
         }
@@ -1395,4 +1400,346 @@ fn corpus_dossier_protege() {
         }
     }
     assert!(echecs.is_empty(), "{} échec(s) :\n{}", echecs.len(), echecs.join("\n"));
+}
+
+// =============================================================================================================
+// La liste des applis en ligne (-Liste, Mindset 2.16) : écrite dans le test et non dans cas\installateur, car sa
+// signature est faite ici (clé de TEST) et la version PowerShell d'avant (tester-installer.ps1) ne la connaît pas
+// =============================================================================================================
+
+/// Une appli qui n'est que dans la liste en ligne
+const NOUVELLE: &str = r#"{ "id": "nouvelle", "nom": "Nouvelle", "zip": "Nouvelle.zip", "dossier_zip": "Nouvelle", "exe": "Nouvelle.exe" }"#;
+
+/// Une liste en ligne (Mindset de test : 1.0.0)
+fn liste_en_ligne(numero: &str, min: &str, applis: &[&str]) -> Vec<u8> {
+    format!(r#"{{ "liste": {numero}, "mindset_min": "{min}", "applis": [ {} ] }}"#, applis.join(", ")).into_bytes()
+}
+
+/// Comment la liste est posée pour un cas
+enum Pose {
+    /// Signée, posée à côté de la demande (le fichier gardé par Mindset)
+    Signee(Vec<u8>),
+    /// Signée, puis le fichier changé après la signature
+    Modifiee(Vec<u8>, Vec<u8>),
+    /// Sans son .sig
+    SansSignature(Vec<u8>),
+    /// Signée, mais posée ailleurs (dans ce dossier de {tmp})
+    Ailleurs(Vec<u8>, &'static str),
+}
+
+struct CasListe {
+    nom: &'static str,
+    lancement: &'static str,
+    /// L'appli demandée (« nouvelle » ou une de apps.json)
+    appli: &'static str,
+    pose: Pose,
+    /// Le numéro de la liste livrée (fichiers\apps-liste.txt) ; None : fichier absent
+    livree: Option<&'static str>,
+    /// Passer -Liste (le chemin où la liste est posée)
+    donner_liste: bool,
+    attendu: Value,
+}
+
+fn cas_liste_en_ligne() -> Vec<CasListe> {
+    let appli = r#"{ "id": "appli", "nom": "Appli", "zip": "Appli.zip", "dossier_zip": "Appli", "ancien_dossier_zip": "AncienAppli", "exe": "Appli.exe", "aide": "Appli (aide)", "aide_exe": "Aide.exe" }"#;
+    let bonne = liste_en_ligne("4", "1.0.0", &[appli, NOUVELLE]);
+    let refus = |raison: &str| json!({ "reponse": "refus", "message_exact": "Appli inconnue.", "lignes": [format!("LISTE livrée (liste en ligne refusée : {raison}*")], "absent": ["{pm}\\Nouvelle"] });
+    let installee = json!({ "reponse": "ok", "message_exact": "{pm}\\Nouvelle", "lignes": ["LISTE en ligne 4"], "existe": ["{pm}\\Nouvelle\\Nouvelle.exe"], "versions": { "{pm}\\Nouvelle": "1.0.0" } });
+    let c = |nom, appli, pose, livree, donner_liste, attendu| CasListe {
+        nom,
+        lancement: "tache",
+        appli,
+        pose,
+        livree,
+        donner_liste,
+        attendu,
+    };
+    let mut gros = liste_en_ligne("4", "1.0.0", &[NOUVELLE]);
+    gros.extend(std::iter::repeat_n(b' ', 256 * 1024 + 1 - gros.len()));
+    vec![
+        c(
+            "liste bonne : une appli seulement en ligne est installée",
+            "nouvelle",
+            Pose::Signee(bonne.clone()),
+            Some("3"),
+            true,
+            installee.clone(),
+        ),
+        CasListe {
+            lancement: "direct",
+            ..c(
+                "liste bonne en lancement direct (-Liste ailleurs permis) : installée",
+                "nouvelle",
+                Pose::Ailleurs(bonne.clone(), "listes"),
+                Some("3"),
+                true,
+                json!({ "reponse": "ok", "message_exact": "{pm}\\Nouvelle", "registre": false, "lignes": ["LISTE en ligne 4"] }),
+            )
+        },
+        c(
+            "appli seulement en ligne, sans -Liste : « Appli inconnue. », rien fait",
+            "nouvelle",
+            Pose::Signee(bonne.clone()),
+            Some("3"),
+            false,
+            json!({ "reponse": "refus", "message_exact": "Appli inconnue.", "lignes_absentes": ["LISTE *"], "rien_fait": true }),
+        ),
+        c(
+            "mauvaise signature (liste changée après signature) : apps.json seul",
+            "nouvelle",
+            Pose::Modifiee(
+                bonne.clone(),
+                liste_en_ligne(
+                    "4",
+                    "1.0.0",
+                    &[
+                        appli,
+                        NOUVELLE,
+                        r#"{ "id": "piege2", "nom": "Piege2", "zip": "P.zip", "dossier_zip": "P", "exe": "P.exe" }"#,
+                    ],
+                ),
+            ),
+            Some("3"),
+            true,
+            refus("signature invalide"),
+        ),
+        c(
+            "liste changée après signature : une appli de apps.json s'installe quand même",
+            "appli",
+            Pose::Modifiee(bonne.clone(), liste_en_ligne("4", "1.0.0", &[NOUVELLE])),
+            Some("3"),
+            true,
+            json!({ "reponse": "ok", "message_exact": "{pm}\\Appli", "lignes": ["LISTE livrée (liste en ligne refusée : signature invalide)"] }),
+        ),
+        c(
+            ".sig absent : apps.json seul",
+            "nouvelle",
+            Pose::SansSignature(bonne.clone()),
+            Some("3"),
+            true,
+            refus("signature absente"),
+        ),
+        c(
+            "numéro égal à celui de la liste livrée : apps.json seul",
+            "nouvelle",
+            Pose::Signee(bonne.clone()),
+            Some("4"),
+            true,
+            refus("liste 4 pas plus récente que la liste livrée (4)"),
+        ),
+        c(
+            "numéro plus petit que celui de la liste livrée : apps.json seul",
+            "nouvelle",
+            Pose::Signee(bonne.clone()),
+            Some("7"),
+            true,
+            refus("liste 4 pas plus récente"),
+        ),
+        c(
+            "apps-liste.txt absent : apps.json seul",
+            "nouvelle",
+            Pose::Signee(bonne.clone()),
+            None,
+            true,
+            refus("numéro de la liste livrée"),
+        ),
+        c(
+            "mindset_min plus haut que ce Mindset (1.0.0) : apps.json seul",
+            "nouvelle",
+            Pose::Signee(liste_en_ligne("4", "1.0.1", &[NOUVELLE])),
+            Some("3"),
+            true,
+            refus("liste pour Mindset 1.0.1"),
+        ),
+        c(
+            "JSON abîmé (signé) : apps.json seul",
+            "nouvelle",
+            Pose::Signee(b"{ \"liste\": 4, \"applis\": [".to_vec()),
+            Some("3"),
+            true,
+            refus("liste mal formée"),
+        ),
+        c(
+            "trop gros (signé) : apps.json seul",
+            "nouvelle",
+            Pose::Signee(gros),
+            Some("3"),
+            true,
+            refus("fichier trop gros"),
+        ),
+        c(
+            "par la tâche, liste hors du dossier de la demande : apps.json seul",
+            "nouvelle",
+            Pose::Ailleurs(bonne.clone(), "victime"),
+            Some("3"),
+            true,
+            refus("fichier refusé"),
+        ),
+        c(
+            "liste acceptée sans « appli » : elle remplace apps.json, « appli » est inconnue",
+            "appli",
+            Pose::Signee(liste_en_ligne("4", "1.0.0", &[NOUVELLE])),
+            Some("3"),
+            true,
+            json!({ "reponse": "refus", "message_exact": "Appli inconnue.", "lignes": ["LISTE en ligne 4"] }),
+        ),
+        c(
+            "entrée mal formée ignorée, le reste pris : l'appli valable s'installe",
+            "nouvelle",
+            Pose::Signee(liste_en_ligne(
+                "4",
+                "1.0.0",
+                &[
+                    r#"{ "id": "piege", "nom": "..\\Mindset", "zip": "P.zip", "dossier_zip": "P", "exe": "P.exe" }"#,
+                    NOUVELLE,
+                ],
+            )),
+            Some("3"),
+            true,
+            installee.clone(),
+        ),
+        c(
+            "entrée mal formée ignorée : elle est inconnue",
+            "piege",
+            Pose::Signee(liste_en_ligne(
+                "4",
+                "1.0.0",
+                &[
+                    r#"{ "id": "piege", "nom": "..\\Mindset", "zip": "P.zip", "dossier_zip": "P", "exe": "P.exe" }"#,
+                    NOUVELLE,
+                ],
+            )),
+            Some("3"),
+            true,
+            json!({ "reponse": "refus", "message_exact": "Appli inconnue.", "lignes": ["LISTE en ligne 4"] }),
+        ),
+        c(
+            "deux entrées avec le même id : la première gagne (sinon le dossier serait « Autre »)",
+            "nouvelle",
+            Pose::Signee(liste_en_ligne(
+                "4",
+                "1.0.0",
+                &[
+                    NOUVELLE,
+                    r#"{ "id": "nouvelle", "nom": "Autre", "zip": "Nouvelle.zip", "dossier_zip": "Nouvelle", "exe": "Nouvelle.exe" }"#,
+                ],
+            )),
+            Some("3"),
+            true,
+            installee,
+        ),
+        c(
+            "aucune entrée valable : apps.json seul",
+            "nouvelle",
+            Pose::Signee(liste_en_ligne("4", "1.0.0", &[r#"{ "id": "nouvelle", "nom": "Nouvelle" }"#, r#""texte""#])),
+            Some("3"),
+            true,
+            refus("aucune appli valable"),
+        ),
+    ]
+}
+
+/// Passe un cas de la liste en ligne : pose la liste, lance l'installateur, contrôle l'attendu
+fn passer_liste(banc: &mut Banc, zip_nouvelle: &str, c: &CasListe) -> Vec<String> {
+    let demandes = format!(r"{}\demandes", banc.tmp);
+    for d in ["listes", "victime"] {
+        let _ = std::fs::remove_dir_all(format!(r"{}\{d}", banc.tmp));
+    }
+    let gardee = format!(r"{demandes}\apps-en-ligne.json");
+    for f in [gardee.clone(), format!("{gardee}.sig")] {
+        let _ = std::fs::remove_file(f);
+    }
+    let mut chemin = gardee.clone();
+    let mut ailleurs = None;
+    match &c.pose {
+        Pose::Signee(o) => {
+            ecrire(&gardee, o);
+            ecrire(&format!("{gardee}.sig"), &signer(o));
+        }
+        Pose::Modifiee(o, apres) => {
+            ecrire(&format!("{gardee}.sig"), &signer(o));
+            ecrire(&gardee, apres);
+        }
+        Pose::SansSignature(o) => ecrire(&gardee, o),
+        Pose::Ailleurs(o, dossier) => {
+            chemin = format!(r"{}\{dossier}\apps-en-ligne.json", banc.tmp);
+            ailleurs = Some((chemin.clone(), o.clone()));
+        }
+    }
+    let mut demande = json!({ "Appli": c.appli });
+    if c.appli == "nouvelle" {
+        demande = json!({ "Appli": "nouvelle", "Zip": zip_nouvelle, "Signature": format!("{zip_nouvelle}.sig"),
+            "Destination": "{pm}\\Nouvelle", "DossierZip": "Nouvelle", "Exe": "Nouvelle.exe" });
+    }
+    if c.donner_liste {
+        demande["Liste"] = json!(chemin);
+    }
+    let mut fichiers = Map::new();
+    if let Some(n) = c.livree {
+        fichiers.insert(r"{pm}\Mindset\fichiers\apps-liste.txt".into(), json!(n));
+    }
+    let corpus = json!({ "format": 1, "base": { "demande": { "Action": "appli", "Appli": "appli", "Zip": "{zip-appli}",
+        "Signature": "{zip-appli}.sig", "Destination": "{pm}\\Appli", "DossierZip": "Appli", "Exe": "Appli.exe" } } });
+    let mut cas = json!({ "nom": c.nom, "entree": { "lancement": c.lancement, "demande": demande, "contexte": { "fichiers": fichiers } },
+        "attendu": c.attendu });
+    // Posée ailleurs : copiée par le contexte « copier », après la remise à zéro du faux PC (qui recrée « victime »
+    // vide ; « listes » est créé ici)
+    if let Some((f, o)) = &ailleurs {
+        let source = format!(r"{}\sources-listes\apps-en-ligne.json", banc.tmp);
+        ecrire(&source, o);
+        ecrire(&format!("{source}.sig"), &signer(o));
+        std::fs::create_dir_all(Path::new(f).parent().unwrap()).unwrap();
+        cas["entree"]["contexte"]["copier"] =
+            json!({ source.clone(): f.clone(), format!("{source}.sig"): format!("{f}.sig") });
+    }
+    match banc.lancer(&corpus, &cas) {
+        Ok((r, a)) => {
+            let m = verifier(&r, &a);
+            if m.is_empty() {
+                Vec::new()
+            } else {
+                vec![format!("{}\n    - {}\n    | {}", c.nom, m.join("\n    - "), r.lignes.join("\n    | "))]
+            }
+        }
+        Err(e) => vec![format!("{} : {e}", c.nom)],
+    }
+}
+
+/// Le zip signé de l'appli « nouvelle » (1.0.0), dans le dossier telechargements de l'utilisateur
+fn zip_nouvelle(banc: &Banc) -> String {
+    let z = zip_de(&[
+        ("Nouvelle/Nouvelle.exe", "nouvelle 1.0.0"),
+        ("Nouvelle/fichiers/Nouvelle.ps1", "$AppVersion = '1.0.0'\r\n"),
+    ]);
+    let f = format!(r"{}\demandes\telechargements\Nouvelle.zip", banc.tmp);
+    ecrire(&f, &z);
+    ecrire(&format!("{f}.sig"), &signer(&z));
+    f
+}
+
+#[test]
+fn liste_en_ligne_installateur() {
+    let mut banc = Banc::nouveau();
+    let zip = zip_nouvelle(&banc);
+    let cas = cas_liste_en_ligne();
+    let mut echecs = Vec::new();
+    for c in &cas {
+        echecs.extend(passer_liste(&mut banc, &zip, c));
+    }
+    println!("liste en ligne : {} cas sur {} réussis", cas.len() - echecs.len(), cas.len());
+    assert!(echecs.is_empty(), "{} échec(s) sur {} cas :\n{}", echecs.len(), cas.len(), echecs.join("\n\n"));
+}
+
+/// Contre-épreuve : un attendu à l'envers fait échouer le contrôle (la liste acceptée, puis la liste refusée).
+#[test]
+fn liste_en_ligne_contre_epreuve() {
+    let mut banc = Banc::nouveau();
+    let zip = zip_nouvelle(&banc);
+    let mut cas = cas_liste_en_ligne();
+    let mut faux_ok = cas.remove(0);
+    faux_ok.attendu["reponse"] = json!("refus");
+    let mut faux_refus = cas.remove(2);
+    faux_refus.attendu["reponse"] = json!("ok");
+    assert_eq!(passer_liste(&mut banc, &zip, &faux_ok).len(), 1);
+    assert_eq!(passer_liste(&mut banc, &zip, &faux_refus).len(), 1);
 }

@@ -3,9 +3,9 @@
 //!
 //! Ce qui est retiré :
 //!   programmes        <Program Files>\Mindset (Mindset et ses applis) et X:\Mindset\Programmes sur chaque disque fixe
-//!   applis            le désinstalleur de chaque appli qui en a un (champ « desinstalleur » de apps.json) est lancé
-//!                     d'abord, avec -GarderDonnees ou -SupprimerDonnees ; s'il échoue, la désinstallation continue et
-//!                     le signale
+//!   applis            le désinstalleur de chaque appli qui en a un (champ « desinstalleur » de apps.json, et de la
+//!                     liste des applis en ligne gardée par Mindset si elle est valable) est lancé d'abord, avec
+//!                     -GarderDonnees ou -SupprimerDonnees ; s'il échoue, la désinstallation continue et le signale
 //!   tâches            tout le dossier « \Mindset\ » du Planificateur (démarrage, installation, « <Appli> (aide) »...)
 //!   registre          HKLM\SOFTWARE\Mindset, HKLM\...\Uninstall\Mindset, la valeur « Mindset » de HKCU\...\Run
 //!   raccourcis        Mindset.lnk sur le Bureau et dans le menu Démarrer, et ceux des applis (dossier « Mindset »)
@@ -17,6 +17,8 @@
 use std::os::windows::fs::MetadataExt;
 use std::path::{Path, PathBuf};
 use std::time::{Duration, Instant};
+
+use suite_commun::{chemins, liste_en_ligne};
 
 use crate::bilan::Bilan;
 use crate::lieux::Lieux;
@@ -336,18 +338,20 @@ impl<'a> Travail<'a> {
     pub fn applis_avec_desinstalleur(&mut self, racines: &[PathBuf]) -> Vec<AppliGeree> {
         let mut r: Vec<AppliGeree> = Vec::new();
         for racine in racines {
+            let mut liste = Vec::new();
             let json = racine.join("Mindset").join("fichiers").join("apps.json");
             if json.is_file() {
                 match lire_apps(&json) {
-                    Ok(liste) => {
-                        for (nom_appli, exe, des) in liste {
-                            let dossier = racine.join(&nom_appli);
-                            if dossier.join(&des).is_file() {
-                                r.push(AppliGeree { nom: nom_appli, dossier, exe: Some(exe), desinstalleur: des });
-                            }
-                        }
-                    }
+                    Ok(l) => liste = l,
                     Err(e) => self.bilan.journal(&format!("apps.json illisible dans {} : {e}", t(racine))),
+                }
+            }
+            // En plus : la liste des applis en ligne gardée par ce Mindset (une appli ajoutée depuis sa version)
+            liste.extend(self.liste_en_ligne(racine));
+            for (nom_appli, exe, des) in liste {
+                let dossier = racine.join(&nom_appli);
+                if dossier.join(&des).is_file() && !r.iter().any(|x| egal(&t(&x.dossier), &t(&dossier))) {
+                    r.push(AppliGeree { nom: nom_appli, dossier, exe: Some(exe), desinstalleur: des });
                 }
             }
             for dossier in contenu(racine).unwrap_or_default() {
@@ -373,6 +377,31 @@ impl<'a> Travail<'a> {
             }
         }
         r
+    }
+
+    /// La liste des applis en ligne gardée par le Mindset de cette racine des programmes (Mindset 2.16), dans son
+    /// dossier de données (`X:\Mindset\Donnees\Mindset`, ou `%LOCALAPPDATA%\Mindset\Mindset`) : seulement si elle
+    /// passe toutes les règles (suite_commun::liste_en_ligne, avec les clés, le numéro livré et la version de ce
+    /// Mindset), lue une seule fois. Ses applis qui ont un désinstalleur, contrôlées comme celles de apps.json.
+    fn liste_en_ligne(&self, racine: &Path) -> Vec<(String, String, String)> {
+        let mindset = racine.join("Mindset");
+        let donnees = chemins::donnees_mindset(&t(&mindset), || Err(String::new()))
+            .ok()
+            .map(PathBuf::from)
+            .or_else(|| self.lieux.local_app_data.as_ref().map(|l| l.join("Mindset").join("Mindset")));
+        let Some(donnees) = donnees else { return Vec::new() };
+        let f = donnees.join(liste_en_ligne::FICHIER);
+        match liste_en_ligne::lire_et_accepter(&f, &mindset) {
+            Ok(l) => {
+                self.bilan.journal(&format!("Liste des applis en ligne {} prise ({})", l.numero, t(&f)));
+                applis_avec_desinstalleur(&l.applis)
+            }
+            Err(liste_en_ligne::Refus::Absente) => Vec::new(),
+            Err(e) => {
+                self.bilan.journal(&format!("Liste des applis en ligne ignorée ({}) : {e}", t(&f)));
+                Vec::new()
+            }
+        }
     }
 
     /// Les dossiers de données d'une appli qui ont quelque chose dedans (<racine des données>\<Appli>)
@@ -632,8 +661,14 @@ fn lire_apps(f: &Path) -> Result<Vec<(String, String, String)>, String> {
     let octets = std::fs::read(f).map_err(|e| e.to_string())?;
     let texte = String::from_utf8_lossy(octets.strip_prefix(&[0xEF, 0xBB, 0xBF]).unwrap_or(&octets)).into_owned();
     let v: serde_json::Value = serde_json::from_str(&texte).map_err(|e| e.to_string())?;
+    Ok(applis_avec_desinstalleur(v.as_array().map(Vec::as_slice).unwrap_or_default()))
+}
+
+/// Parmi des entrées de la forme de apps.json, celles qui ont un désinstalleur, noms vérifiés (les autres sont
+/// ignorées)
+fn applis_avec_desinstalleur(entrees: &[serde_json::Value]) -> Vec<(String, String, String)> {
     let mut r = Vec::new();
-    for a in v.as_array().map(Vec::as_slice).unwrap_or_default() {
+    for a in entrees {
         let champ = |c: &str| a.get(c).and_then(|x| x.as_str()).map(str::to_string);
         let (Some(n), Some(exe), Some(des)) = (champ("nom"), champ("exe"), champ("desinstalleur")) else { continue };
         if !nom_simple(&n)
@@ -646,7 +681,7 @@ fn lire_apps(f: &Path) -> Result<Vec<(String, String, String)>, String> {
         }
         r.push((n, exe, des));
     }
-    Ok(r)
+    r
 }
 
 #[cfg(test)]

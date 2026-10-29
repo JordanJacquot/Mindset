@@ -5,6 +5,8 @@
 //!   son dossier, le dossier de son zip, son programme et sa partie administrateur viennent de apps.json (lu à côté de
 //!   l'exe, dans le dossier protégé), jamais de la demande. La plus haute version installée de chaque appli est gardée
 //!   dans HKLM\SOFTWARE\Mindset\Versions : une version plus ancienne est refusée, même après une suppression.
+//!   Avec `-Liste` (Mindset 2.16) : la liste des applis en ligne gardée par Mindset, signée, remplace apps.json si
+//!   elle passe toutes les règles (suite_commun::liste_en_ligne) ; sinon apps.json livré, comme avant.
 //! - `mindset` : installe Mindset lui-même (Program Files\Mindset\Mindset, ou X:\Mindset\Programmes\Mindset).
 //! - `mindset-maj` : met Mindset à jour, puis le relance sans droits.
 //! - `taches` : les tâches planifiées de Mindset.
@@ -22,11 +24,12 @@ use std::panic::{AssertUnwindSafe, catch_unwind};
 
 use serde_json::Value;
 use suite_commun::chemins::{self, apres_debut, chemin_complet, commence_par_disque, egal, feuille, joindre, parent};
+use suite_commun::liste_en_ligne::{self, ListeAcceptee};
 use suite_commun::paquet;
 use suite_commun::protocole_installateur::{
     self as protocole, ACTIONS_PAR_TACHE, CHAMPS_TEXTE, CLE_INSTALLATION, CLE_MINDSET, CLE_VERSIONS, DOSSIER_TACHES,
-    TACHE_ANCIENNE, TACHE_DEMARRAGE, TACHE_INSTALLATION, VALEUR_RECU, VALEUR_RESTES, VALEUR_RESULTAT, champ, entier_ps,
-    id_valable, lire_json, sid_valable, texte_ps, vrai_ps,
+    TACHE_ANCIENNE, TACHE_DEMARRAGE, TACHE_INSTALLATION, VALEUR_LISTE, VALEUR_RECU, VALEUR_RESTES, VALEUR_RESULTAT,
+    champ, entier_ps, id_valable, lire_json, sid_valable, texte_ps, vrai_ps,
 };
 use suite_commun::signature::verifier_signature;
 use suite_commun::version::{forme_valide, plus_recente};
@@ -80,6 +83,8 @@ struct Installateur<'a> {
     /// Par la tâche : le dossier de Mindset et le dossier des programmes, vérifiés
     dossier_mindset_tache: String,
     racine_tache: String,
+    /// La liste des applis en ligne acceptée (`-Liste`), lue une seule fois ; `None` : apps.json livré
+    applis_en_ligne: Option<Vec<Value>>,
 }
 
 /// Lance l'installateur avec ces arguments (la ligne de commande, sans le nom du programme). `Err` : paramètres
@@ -96,6 +101,7 @@ pub fn executer(args: &[String], sys: &mut dyn Systeme) -> Result<(), String> {
         dossier_exe,
         dossier_mindset_tache: String::new(),
         racine_tache: String::new(),
+        applis_en_ligne: None,
     };
     // Une erreur imprévue (une panique) donne une réponse, au lieu d'un silence
     let r = catch_unwind(AssertUnwindSafe(|| {
@@ -345,7 +351,12 @@ impl Installateur<'_> {
     // apps.json et versions
     // =========================================================================================================
 
+    /// Les applis connues : la liste en ligne acceptée (elle REMPLACE apps.json : c'est la liste complète), sinon
+    /// apps.json livré.
     fn apps_json(&self) -> Vec<Value> {
+        if let Some(l) = &self.applis_en_ligne {
+            return l.clone();
+        }
         let f = joindre(&joindre(&self.dossier_exe, "fichiers"), "apps.json");
         match self.lire_texte(&f).ok().and_then(|t| lire_json(&t)) {
             Some(Value::Array(l)) => l,
@@ -396,6 +407,46 @@ impl Installateur<'_> {
             });
         }
         Err("Appli inconnue.".into())
+    }
+
+    /// La liste des applis en ligne donnée par Mindset (`-Liste`, Mindset 2.16) : lue une seule fois en mémoire avec
+    /// sa signature, jugée par les règles de [`liste_en_ligne`] avec les clés, le numéro livré (`apps-liste.txt`) et
+    /// la version du Mindset d'où tourne l'exe. Acceptée : elle remplace apps.json ; refusée : apps.json livré seul
+    /// (une appli inconnue est alors refusée, comme avant). La liste qui a servi est notée (HKLM, `Liste`).
+    fn choisir_liste(&mut self) {
+        if self.p.liste.is_empty() {
+            return;
+        }
+        let note = match self.lire_liste_en_ligne() {
+            Ok(l) => {
+                self.applis_en_ligne = Some(l.applis);
+                format!("en ligne {}", l.numero)
+            }
+            Err(e) => format!("livrée (liste en ligne refusée : {e})"),
+        };
+        if self.sys.registre_creer(CLE_INSTALLATION).is_ok() {
+            let _ = self.sys.registre_ecrire(CLE_INSTALLATION, VALEUR_LISTE, &ValeurRegistre::Texte(note));
+        }
+    }
+
+    fn lire_liste_en_ligne(&self) -> Res<ListeAcceptee> {
+        let f = self.p.liste.clone();
+        // Par la tâche : seulement la liste gardée par Mindset, à côté de la demande, sans lien (comme les zips, jamais
+        // un autre fichier du PC)
+        if self.par_tache {
+            let attendu = joindre(parent(&self.p.demande), liste_en_ligne::FICHIER);
+            let c = if commence_par_disque(&f) { chemin_complet(&f).unwrap_or_default() } else { String::new() };
+            let sig = format!("{c}.sig");
+            let ok = !c.is_empty()
+                && chemin_complet(&attendu).is_ok_and(|a| egal(&a, &c))
+                && self.sans_lien(&c).unwrap_or(false)
+                && (!self.existe(&sig) || self.sans_lien(&sig).unwrap_or(false));
+            if !ok {
+                return Err(format!("fichier refusé, il doit être {attendu}"));
+            }
+        }
+        liste_en_ligne::lire_et_accepter(&self.sys.reel(&f), &self.sys.reel(&self.dossier_exe))
+            .map_err(|e| e.to_string())
     }
 
     fn version_gardee(&self, id: &str) -> String {
@@ -722,6 +773,10 @@ impl Installateur<'_> {
                 }
                 return Err(e);
             }
+        }
+        // (avant tout le reste : les versions gardées ci-dessous suivent la même liste)
+        self.choisir_liste();
+        if self.par_tache {
             // À chaque demande : les versions déjà installées sont gardées, et les parties administrateur des applis
             // de cet utilisateur encore sous son compte sont refaites en SYSTEM
             self.garder_versions_installees();
