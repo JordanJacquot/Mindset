@@ -219,8 +219,10 @@ Test-Cas 'Contre-épreuve : Mindset 2.12.0 ne reconnaît pas cette installation 
 # =====================================================================================================================
 Write-Partie "2. Mindset 2.12.0 (VIEUX) et le dernier zip de compatibilité (OptiGame.zip $CompatVersion)"
 # =====================================================================================================================
-# Première installation par le vieux Mindset, avec le vrai zip de compatibilité
+# Première installation par le vieux Mindset, avec le vrai zip de compatibilité. La partie 1 a installé 9.0.0 : la
+# plus haute version gardée (HKLM\SOFTWARE\Mindset\Versions) refuserait ensuite 1.15.4, on repart d'un PC neuf
 Remove-Nevermind
+Remove-ItemProperty -LiteralPath 'HKLM:\SOFTWARE\Mindset\Versions' -Name 'nevermind' -ErrorAction SilentlyContinue
 $r = Install-Nevermind $Vieux $ZipCompat 'OptiGame'
 $v = Get-Vue $Vieux
 Test-Cas "Zip de compatibilité $CompatVersion : installé par Mindset 2.12.0 (fichiers\OptiGame.ps1 seul) et reconnu, version $CompatVersion" { $r.ok -and (Get-Scripts) -eq 'OptiGame.ps1' -and $v.Reconnue -and $v.Version -eq $CompatVersion }
