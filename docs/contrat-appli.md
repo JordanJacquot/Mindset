@@ -121,7 +121,9 @@ déjà tenu, il attend 5 s (une version qui se ferme après une mise à jour), p
 **Appli Rust.**
 - Créer le verrou nommé `Local\<Nom>-Instance` au démarrage (`CreateMutexW`) et le garder jusqu'à la fin du processus.
 - Verrou déjà tenu : attendre quelques secondes (relance après une mise à jour), puis, s'il reste tenu, déposer la
-  demande d'affichage (partie 5) et quitter sans ouvrir de fenêtre.
+  demande d'affichage (partie 5) et quitter sans ouvrir de fenêtre. Lancée avec `-Demarrage` (partie 6), elle quitte
+  sans rien déposer : un lancement caché n'a rien à montrer, l'appli déjà ouverte reste comme elle est (décidé par
+  Jordan le 29/10).
 - Ne jamais garder le processus en vie sans fenêtre après « Quitter » (le bug du 18/10 : Mindset arrête un tel
   processus, `integration.ps1:51-63`).
 
@@ -493,6 +495,8 @@ La mesure de lag en continu (`LagMon`, `natif.cs:1936-1937`) relève du réseau,
 
 ## Doutes et points à trancher
 
+- **Second lancement avec `-Demarrage`, appli déjà ouverte** : **réglé le 29/10**, l'appli ne dépose pas de demande
+  d'affichage et rien ne s'affiche (partie 3).
 - **Fenêtre Tauri et `HwndWrapper`** : **réglé à l'étape 2**, classe « Tauri Window » acceptée (partie 7).
 - **Où mettre `version.json`** : **réglé à l'étape 2**, `<dossier_zip>\version.json` (partie 10) ; celui de la racine
   du zip est accepté aussi, comme `suite-commun`.
