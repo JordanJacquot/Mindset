@@ -73,6 +73,34 @@ Mindset ne lit pas ses notifications, partie 5), `donnees` (son ancien dossier, 
 peut garder son entrée sans `type` pendant la bascule : son dossier Rust est reconnu quand même (partie 2), mais son
 entrée doit alors garder `script` (le nom de l'ancien script) tant qu'elle n'a pas `"type": "rust"`.
 
+### La liste des applis en ligne (Mindset 2.16)
+
+**Existe (côté Rust).** Une nouvelle appli peut entrer dans la suite sans publier Mindset : la liste complète est
+publiée signée (`apps-en-ligne.json` et `apps-en-ligne.json.sig`, release `liste-applis` en prerelease), de la forme
+`{ "liste": 4, "mindset_min": "2.16.0", "applis": [ ...entrées comme celles de apps.json... ] }`. `apps.json` reste
+livré, inchangé, avec son numéro dans `Mindset/fichiers/apps-liste.txt`.
+
+Les règles sont à un seul endroit pour les exe Rust : `rust/suite-commun/src/liste_en_ligne.rs` (`lire_et_accepter`).
+Une liste n'est prise que si TOUT est bon, sinon la liste livrée sert, jamais à moitié :
+1. au plus 256 Ko, signature valide avec `fichiers\cles-publiques` (la même vérification que les zips) ;
+2. objet JSON, `liste` entier au moins 1, `mindset_min` de la forme x.y.z, `applis` tableau non vide ;
+3. `mindset_min` au plus la version de ce Mindset ;
+4. `liste` strictement plus grand que `apps-liste.txt` (absent ou illisible : refusée) ;
+5. deux entrées n'ont jamais le même id (sinon refusée) ; chaque entrée passe ensuite les contrôles habituels du
+   lecteur, une entrée refusée est ignorée et le reste est pris.
+
+La liste et sa signature sont lues une seule fois en mémoire, et tout est vérifié sur ces octets-là. Une liste acceptée
+**remplace** la liste livrée (elle peut retirer une appli).
+
+- `MindsetInstallateur.exe` : paramètre `-Liste <chemin de apps-en-ligne.json>` (sa signature `<chemin>.sig` à côté),
+  ou le champ `"Liste"` de la demande passée par la tâche. Par la tâche, seul `apps-en-ligne.json` à côté de la
+  demande (le dossier des données de Mindset) est lu, sans lien. Liste refusée : `apps.json` livré seul (appli
+  inconnue = « Appli inconnue. », comme avant). La liste qui a servi est notée dans
+  `HKLM\SOFTWARE\Mindset\Installation`, valeur `Liste` : « en ligne 4 » ou « livrée (liste en ligne refusée : raison) ».
+- `Desinstaller Mindset.exe` : en plus de `apps.json`, la liste gardée dans le dossier des données du Mindset de
+  chaque racine (`X:\Mindset\Donnees\Mindset` ou `%LOCALAPPDATA%\Mindset\Mindset`), si elle passe les mêmes règles ;
+  ce qui a servi est noté dans son journal.
+
 ---
 
 ## 2. Test-DossierAppli : « ce dossier contient-il l'appli ? »
