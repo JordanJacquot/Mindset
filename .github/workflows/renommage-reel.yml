@@ -1,6 +1,7 @@
 # Le changement de nom de Nevermind (ancien nom : OptiGame) essayé en vrai sur la machine jetable de GitHub : vraie
-# version publiée de Nevermind, vraie Release de Mindset 2.12.0, vraie installation dans Program Files. Lancé à la main
-# seulement (gh workflow run renommage-reel.yml).
+# version publiée de Nevermind, vraie Release de Mindset 2.12.0, dernier zip de compatibilité de Nevermind (OptiGame.zip
+# de la Release figée v1.15.4), vraie installation dans Program Files. Lancé à la main seulement
+# (gh workflow run renommage-reel.yml).
 # Tout le code est dans outils\essai-renommage-reel.ps1 (UTF-8 avec BOM : un nom accentué écrit ici arriverait abîmé).
 name: Renommage de Nevermind en vrai
 

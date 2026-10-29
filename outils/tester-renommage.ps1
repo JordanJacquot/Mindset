@@ -123,6 +123,11 @@ try {
         $p = Get-Publication 'JordanJacquot/Nevermind' $noms
         $p.UrlZip -like '*/Nevermind.zip' -and $p.UrlSig -like '*/Nevermind.zip.sig' -and $p.Version -eq '1.12.0'
     }
+    $script:Release = New-Release 'Nevermind.zip', 'Nevermind.zip.sig'
+    Test-Cas 'Une version publiée sans le zip de compatibilité (Nevermind.zip seulement) : Nevermind.zip et sa signature' {
+        $p = Get-Publication 'JordanJacquot/Nevermind' $noms
+        -not $p.Erreur -and $p.Fichier -ceq 'Nevermind.zip' -and $p.UrlZip -like '*/Nevermind.zip' -and $p.UrlSig -like '*/Nevermind.zip.sig'
+    }
     $script:Release = New-Release 'OptiGame.zip', 'OptiGame.zip.sig'
     Test-Cas 'Une version publiée avant le changement de nom (OptiGame.zip seulement) : OptiGame.zip et sa signature' {
         $p = Get-Publication 'JordanJacquot/Nevermind' $noms

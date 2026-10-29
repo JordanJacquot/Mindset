@@ -5,11 +5,12 @@
 #   1. Mindset NOUVEAU : la vraie version publiée de Nevermind (trouvée sous son nom d'aujourd'hui ou l'ancien) s'installe,
 #      est reconnue, et vue ouverte quand elle tourne ; puis il la met à jour avec un zip renommé (Nevermind.zip, dossier
 #      Nevermind, fichiers\Nevermind.ps1) : plus d'ancien script à côté, version lue.
-#   2. Mindset 2.12.0 (VIEUX, sa vraie Release) : installe le zip de compatibilité (OptiGame.zip, dossier OptiGame, avec
-#      l'ancien script, seul ou à côté du nouveau) et le reconnaît ; Mindset NOUVEAU reconnaît cette installation et la
-#      met à jour avec Nevermind.zip.
-# Les zips renommés sont fabriqués ici à partir du vrai zip publié, signés avec une clé RSA de TEST ajoutée aux clés
-# publiques des copies d'essai seulement. Code de sortie 1 si un cas échoue.
+#   2. Mindset 2.12.0 (VIEUX, sa vraie Release) : installe le dernier zip de compatibilité publié (le vrai OptiGame.zip
+#      de Nevermind 1.15.4, Release figée : ensuite Nevermind ne publie plus que Nevermind.zip) et le reconnaît ;
+#      Mindset NOUVEAU reconnaît cette installation et la met à jour avec la vraie version publiée (Nevermind.zip).
+#      C'est le chemin d'un PC resté sur Mindset 2.12.0 : Mindset se met d'abord à jour, puis met Nevermind à jour.
+# Le zip renommé de la partie 1 est fabriqué ici à partir du vrai zip publié, signé avec une clé RSA de TEST ajoutée aux
+# clés publiques des copies d'essai seulement. Code de sortie 1 si un cas échoue.
 param([string]$Reconnaitre, [string]$Dossier)
 
 if ($env:GITHUB_ACTIONS -ne 'true') {
@@ -96,7 +97,7 @@ function Remove-Nevermind {
 }
 
 # =====================================================================================================================
-Write-Partie '0. Préparation : clé de TEST, Mindset nouveau et Mindset 2.12.0, vrai zip de Nevermind, zips renommés'
+Write-Partie '0. Préparation : clé de TEST, Mindset nouveau et Mindset 2.12.0, vrais zips de Nevermind, zip renommé'
 # =====================================================================================================================
 if (Test-Path -LiteralPath $Racine) { Remove-Item -LiteralPath $Racine -Recurse -Force }
 New-Item -ItemType Directory -Force -Path $Racine, $Paquets | Out-Null
@@ -139,13 +140,23 @@ Write-Host "    version publiée de Nevermind : $($pub.Version), fichier $($pub.
 $vraiZip = Join-Path $Paquets "vrai-$($pub.Fichier)"
 [IO.File]::WriteAllBytes($vraiZip, (Get-Octets $pub.UrlZip)); [IO.File]::WriteAllBytes("$vraiZip.sig", (Get-Octets $pub.UrlSig))
 $VersionReelle = [string]$pub.Version
-Test-Cas "Vraie version publiée de Nevermind ($($pub.Fichier) $VersionReelle) : téléchargée, signature valide (vraie clé)" {
-    -not $pub.Erreur -and (Test-Signature ([IO.File]::ReadAllBytes($vraiZip)) ([IO.File]::ReadAllBytes("$vraiZip.sig")) (Join-Path $Depot 'Mindset\fichiers\cles-publiques'))
+Test-Cas "Vraie version publiée de Nevermind ($($pub.Fichier) $VersionReelle) : Nevermind.zip, téléchargée, signature valide (vraie clé)" {
+    -not $pub.Erreur -and $pub.Fichier -eq 'Nevermind.zip' -and (Test-Signature ([IO.File]::ReadAllBytes($vraiZip)) ([IO.File]::ReadAllBytes("$vraiZip.sig")) (Join-Path $Depot 'Mindset\fichiers\cles-publiques'))
 }
 $DossierReel = Get-DossierZip ([IO.File]::ReadAllBytes($vraiZip)) @('Nevermind', 'OptiGame') 'Nevermind.exe'
 Write-Host "    dossier du vrai zip : $DossierReel"
 
-# Les zips fabriqués à partir du vrai : renommé (Nevermind) et de compatibilité (OptiGame), version 9.0.0 et 9.1.0
+# Le dernier zip de compatibilité publié (OptiGame.zip de Nevermind 1.15.4, Release figée), téléchargé tel quel
+$CompatVersion = '1.15.4'
+$compat = Join-Path $Racine 'release-compat'
+& gh release download "v$CompatVersion" -R JordanJacquot/Nevermind -p 'OptiGame.zip*' -D $compat | Out-Host
+$ZipCompat = Join-Path $compat 'OptiGame.zip'
+Test-Cas "Zip de compatibilité (OptiGame.zip $CompatVersion) : téléchargé, signature valide pour Mindset 2.12.0 (vraie clé), dossier OptiGame" {
+    (Test-Signature ([IO.File]::ReadAllBytes($ZipCompat)) ([IO.File]::ReadAllBytes("$ZipCompat.sig")) (Join-Path $Vieux 'cles-publiques')) -and
+    (Get-DossierZip ([IO.File]::ReadAllBytes($ZipCompat)) @('Nevermind', 'OptiGame') 'Nevermind.exe') -ceq 'OptiGame'
+}
+
+# Le zip renommé fabriqué à partir du vrai (dossier Nevermind, version 9.0.0)
 $x = Join-Path $Racine 'extrait'
 Expand-Archive -LiteralPath $vraiZip -DestinationPath $x -Force
 $base = Join-Path $x $DossierReel
@@ -165,12 +176,8 @@ function New-ZipFabrique([string]$Nom, [string]$DossierZip, [string[]]$Scripts, 
     $zip
 }
 $ZipRenomme = New-ZipFabrique 'Nevermind.zip' 'Nevermind' @('Nevermind.ps1') '9.0.0'
-$ZipCompatSeul = New-ZipFabrique 'OptiGame-seul.zip' 'OptiGame' @('OptiGame.ps1') '9.0.0'
-$ZipCompatDeux = New-ZipFabrique 'OptiGame-deux.zip' 'OptiGame' @('OptiGame.ps1', 'Nevermind.ps1') '9.0.0'
-$ZipRenomme2 = New-ZipFabrique 'Nevermind-9.1.zip' 'Nevermind' @('Nevermind.ps1') '9.1.0'
-Test-Cas 'Zips fabriqués : le dossier de chacun trouvé par le nouveau code (Nevermind, OptiGame)' {
-    (Get-DossierZip ([IO.File]::ReadAllBytes($ZipRenomme)) @('Nevermind', 'OptiGame') 'Nevermind.exe') -ceq 'Nevermind' -and
-    (Get-DossierZip ([IO.File]::ReadAllBytes($ZipCompatDeux)) @('Nevermind', 'OptiGame') 'Nevermind.exe') -ceq 'OptiGame'
+Test-Cas 'Zip fabriqué : son dossier Nevermind trouvé par le nouveau code' {
+    (Get-DossierZip ([IO.File]::ReadAllBytes($ZipRenomme)) @('Nevermind', 'OptiGame') 'Nevermind.exe') -ceq 'Nevermind'
 }
 
 # =====================================================================================================================
@@ -207,30 +214,22 @@ $v = Get-Vue $Neuf
 Test-Cas 'Mise à jour vers la version renommée : installée, fichiers\Nevermind.ps1 seul (plus d''OptiGame.ps1), version 9.0.0' { $r.ok -and (Get-Scripts) -eq 'Nevermind.ps1' -and $v.Reconnue -and $v.Version -eq '9.0.0' }
 Test-Cas 'Le vrai Nevermind ouvert a été fermé par l''installateur (plus aucun programme de son dossier)' { -not @(Get-CimInstance Win32_Process | Where-Object { $_.ExecutablePath -and ([string]$_.ExecutablePath).StartsWith($Dest, [StringComparison]::OrdinalIgnoreCase) }).Count }   # (ni de son dossier mis de côté)
 $v = Get-Vue $Vieux
-Test-Cas 'Contre-épreuve : Mindset 2.12.0 ne reconnaît pas cette installation renommée (d''où le zip de compatibilité)' { -not $v.Reconnue }
+Test-Cas 'Contre-épreuve : Mindset 2.12.0 ne reconnaît pas cette installation renommée (il doit d''abord se mettre à jour)' { -not $v.Reconnue }
 
 # =====================================================================================================================
-Write-Partie '2. Mindset 2.12.0 (VIEUX) et le zip de compatibilité (OptiGame.zip)'
+Write-Partie "2. Mindset 2.12.0 (VIEUX) et le dernier zip de compatibilité (OptiGame.zip $CompatVersion)"
 # =====================================================================================================================
-foreach ($cas in @(@{ Nom = 'ancien script seul'; Zip = $ZipCompatSeul; Scripts = 'OptiGame.ps1' }, @{ Nom = 'les deux scripts'; Zip = $ZipCompatDeux; Scripts = 'Nevermind.ps1,OptiGame.ps1' })) {
-    # Première installation par le vieux Mindset
-    Remove-Nevermind
-    $r = Install-Nevermind $Vieux $cas.Zip 'OptiGame'
-    $v = Get-Vue $Vieux
-    Test-Cas "Zip de compatibilité ($($cas.Nom)) : installé par Mindset 2.12.0 et reconnu, version 9.0.0" { $r.ok -and (Get-Scripts) -eq $cas.Scripts -and $v.Reconnue -and $v.Version -eq '9.0.0' }
-    # Mise à jour par-dessus une installation du vrai Nevermind par le vieux Mindset
-    Remove-Nevermind
-    $null = Install-Nevermind $Vieux $vraiZip $DossierReel
-    $r = Install-Nevermind $Vieux $cas.Zip 'OptiGame'
-    $v = Get-Vue $Vieux
-    Test-Cas "Zip de compatibilité ($($cas.Nom)) : mise à jour par Mindset 2.12.0 depuis $VersionReelle, reconnue en 9.0.0" { $r.ok -and $v.Reconnue -and $v.Version -eq '9.0.0' }
-    # Le nouveau Mindset reconnaît cette installation, puis la met à jour avec Nevermind.zip
-    $v = Get-Vue $Neuf
-    Test-Cas "Le nouveau Mindset reconnaît l'installation faite par 2.12.0 ($($cas.Nom)), version 9.0.0" { $v.Reconnue -and $v.Version -eq '9.0.0' }
-    $r = Install-Nevermind $Neuf $ZipRenomme2 (Get-DossierZip ([IO.File]::ReadAllBytes($ZipRenomme2)) @('Nevermind', 'OptiGame') 'Nevermind.exe')
-    $v = Get-Vue $Neuf
-    Test-Cas "Puis il la met à jour avec Nevermind.zip : fichiers\Nevermind.ps1 seul, version 9.1.0" { $r.ok -and (Get-Scripts) -eq 'Nevermind.ps1' -and $v.Reconnue -and $v.Version -eq '9.1.0' }
-}
+# Première installation par le vieux Mindset, avec le vrai zip de compatibilité
+Remove-Nevermind
+$r = Install-Nevermind $Vieux $ZipCompat 'OptiGame'
+$v = Get-Vue $Vieux
+Test-Cas "Zip de compatibilité $CompatVersion : installé par Mindset 2.12.0 (fichiers\OptiGame.ps1 seul) et reconnu, version $CompatVersion" { $r.ok -and (Get-Scripts) -eq 'OptiGame.ps1' -and $v.Reconnue -and $v.Version -eq $CompatVersion }
+# Le nouveau Mindset (celui vers lequel 2.12.0 se met à jour) reconnaît cette installation, puis la met à jour
+$v = Get-Vue $Neuf
+Test-Cas "Le nouveau Mindset reconnaît l'installation faite par 2.12.0, version $CompatVersion" { $v.Reconnue -and $v.Version -eq $CompatVersion }
+$r = Install-Nevermind $Neuf $vraiZip $DossierReel
+$v = Get-Vue $Neuf
+Test-Cas "Puis il la met à jour avec la vraie version publiée ($($pub.Fichier) $VersionReelle) : fichiers\Nevermind.ps1 seul, version $VersionReelle" { $r.ok -and (Get-Scripts) -eq 'Nevermind.ps1' -and $v.Reconnue -and $v.Version -eq $VersionReelle }
 Remove-Nevermind
 
 Write-Host ''
