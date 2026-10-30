@@ -8,8 +8,9 @@
 #   1. la tâche n'est utilisée que si c'est la tâche SYSTEM inscrite pour cet utilisateur ; l'ancienne (« avec les
 #      droits les plus élevés ») ne sert qu'à se remplacer, jamais à installer ;
 #   2. si la tâche ne marche pas (refusée, absente, pas d'accusé de réception dans le délai), la demande normale de
-#      Windows prend le relais (jamais l'ancienne tâche), sauf pendant une mise à jour automatique (personne pour
-#      répondre) ; une tâche lente mais qui a accusé réception n'est pas doublée ;
+#      Windows prend le relais (jamais l'ancienne tâche), sauf pour la mise à jour automatique elle-même (personne pour
+#      répondre ; une opération lancée à la main pendant qu'elle tourne garde la demande de Windows) ; une tâche lente
+#      mais qui a accusé réception n'est pas doublée ;
 #   3. Mindset ne se ferme pour se mettre à jour qu'à l'accusé de réception de la tâche (sinon : la demande de Windows) ;
 #   4. la demande est effacée par Mindset (le mini-installateur, en SYSTEM, n'efface rien dans ses dossiers) ;
 #   5. la ligne de commande de la demande de Windows avec un dossier qui finit par \ (Mindset lancé depuis E:\) ;
@@ -148,7 +149,8 @@ $PowerShellWindows = Join-Path ([Environment]::GetFolderPath('System')) 'Windows
 # (les applis de apps.json qui ont une partie administrateur)
 $Applis = @([pscustomobject]@{ Id = 'nevermind'; Aide = 'Nevermind (aide)' }, [pscustomobject]@{ Id = 'evermind'; Aide = '' })
 $script:AutresTaches = @{}
-Import-Fonctions 'mindset.ps1' @('Start-MajMindset', 'Start-MajMindsetDirecte')
+Import-Fonctions 'mindset.ps1' @('Start-MajMindset', 'Start-MajMindsetDirecte', 'Set-EchecMajAuto', 'Get-RaisonEchecMaj', 'Format-DeNom', 'Get-MajAutoReessai', 'Show-BulleMajAuto')
+$script:MajAutoEchecs = @{}; $script:MajAutoEssais = @{}
 Import-Fonctions 'taches.ps1' @('New-Action', 'Pop-Action')
 $script:Actions = New-Object System.Collections.Specialized.OrderedDictionary
 
@@ -258,12 +260,25 @@ try {
         Invoke-Admin 'appli' $appli $fin
         $script:RunAs.Count -eq 1 -and -not $script:Lancements.Count
     }
-    Test-Cas 'pendant une mise à jour automatique, tâche muette : pas de demande de Windows (personne pour répondre), échec noté' {
+    Test-Cas 'la mise à jour automatique elle-même (-Auto), tâche muette : pas de demande de Windows (personne pour répondre), échec noté' {
         Reset-Pc $xmlSysteme
         $script:MajAuto = @{ appli = '2.0.0' }
-        Invoke-Admin 'appli' $appli $fin
+        Invoke-Admin 'appli' $appli $fin -Auto
         Move-Horloge 31; Update-AttentesAdmin
         -not $script:RunAs.Count -and $script:Fins.Count -eq 1 -and $script:Fins[0] -like 'False|*'
+    }
+    Test-Cas 'une installation lancée à la main PENDANT une mise à jour automatique, tâche muette : elle garde la demande de Windows' {
+        Reset-Pc $xmlSysteme
+        $script:MajAuto = @{ autre = '2.0.0' }
+        Invoke-Admin 'appli' $appli $fin
+        Move-Horloge 31; Update-AttentesAdmin
+        $script:RunAs.Count -eq 1 -and $script:RunAs[0] -like '*-Action appli*'
+    }
+    Test-Cas '... et tâche refusée : la demande de Windows tout de suite pour elle aussi' {
+        Reset-Pc $xmlSysteme -RunKo
+        $script:MajAuto = @{ autre = '2.0.0' }
+        Invoke-Admin 'appli' $appli $fin
+        $script:RunAs.Count -eq 1
     }
     Test-Cas 'deux demandes : la seconde attend la première ; tâche muette sur la première, les deux passent par la demande de Windows' {
         Reset-Pc $xmlSysteme
@@ -406,6 +421,18 @@ try {
         Start-MajMindset -Cache
         Move-Horloge 31; Update-AttentesAdmin
         -not $script:RunAs.Count -and $script:Sorties -eq 0
+    }
+    Test-Cas 'mise à jour automatique à l''écran (-Auto, personne au PC), tâche muette : pas de demande de Windows, il reviendra à l''écran, l''échec est gardé pour la console' {
+        Reset-Pc $xmlSysteme; $script:MajAutoEchecs = @{}
+        Start-MajMindset -Auto
+        $visible = (Get-Setting 'MajMindsetVisible' $null) -eq $true
+        Move-Horloge 31; Update-AttentesAdmin
+        $visible -and -not $script:RunAs.Count -and $script:Sorties -eq 0 -and $script:MajAutoEchecs['mindset'].Version -eq '9.0.0' -and $script:MajAutoEchecs['mindset'].Raison -match 'outil d''installation'
+    }
+    Test-Cas '« Réessayer » (à la main, sans -Auto) : l''échec n''est plus montré' {
+        Reset-Pc $xmlSysteme
+        Start-MajMindset
+        -not $script:MajAutoEchecs['mindset']
     }
     Test-Cas 'deux clics sur « Mettre à jour » : une seule demande envoyée' {
         Reset-Pc $xmlSysteme

@@ -288,14 +288,16 @@ function Skip-TacheInstallation($D, [string]$Raison) {
     if ($D.Repli) { & $D.Repli $D } else { & $D.Fin $false "la tâche d'installation ne répond pas ($Raison)." }
 }
 
-function Invoke-Admin([string]$Action, [hashtable]$Parametres, [scriptblock]$Fin) {
+# -Auto : l'opération est une mise à jour automatique (Send-InstallationAppli)
+function Invoke-Admin([string]$Action, [hashtable]$Parametres, [scriptblock]$Fin, [switch]$Auto) {
     New-Item -ItemType Directory -Force -Path $TelechargementsDir | Out-Null
     if (-not $MindsetAdmin -and $Action -ne 'mindset' -and (Test-TacheInstallation)) {
         $c = @{ Id = [guid]::NewGuid().ToString('N'); Action = $Action }
         foreach ($k in $Parametres.Keys) { if ($null -ne $Parametres[$k] -and "$($Parametres[$k])" -ne '') { $c[$k] = [string]$Parametres[$k] } }
-        # Repli : la demande de Windows, sauf pendant une mise à jour automatique (personne n'est là pour y répondre :
-        # elle sera faite à la main, la carte le dit)
-        $repli = if ($script:MajAuto -and $script:MajAuto.Count) { $null } else { { param($D) Invoke-AdminDirect $D.Action $D.Parametres $D.Fin } }
+        # Repli : la demande de Windows, sauf pour la mise à jour automatique elle-même (personne n'est là pour y
+        # répondre : la console montre l'échec et « Réessayer »). Une opération lancée à la main pendant qu'une mise à
+        # jour automatique tourne garde son repli : l'utilisateur est là.
+        $repli = if ($Auto) { $null } else { { param($D) Invoke-AdminDirect $D.Action $D.Parametres $D.Fin } }
         $d = @{ Contenu = $c; Fin = $Fin; Action = $Action; Parametres = $Parametres; Repli = $repli }
         if (@($script:AttentesAdmin | Where-Object { $_.Id }).Count) { [void]$script:DemandesEnAttente.Add($d); return }
         [void](Send-DemandeInstallation $d)
@@ -468,6 +470,7 @@ function Start-InstallAppli($Appli, [string]$AncienDossier) {
     $script:ARelancer[$Appli.Id] = if ($script:MajAuto -and $script:MajAuto[$Appli.Id]) { [bool]$ouverte } else { [bool]($ouverte -or (Get-DemarrageAppli $Appli.Id)) }
     $script:Occupe[$Appli.Id] = 'Téléchargement...'
     $script:Messages.Remove($Appli.Id)
+    if ($script:MajAutoEchecs -and -not ($script:MajAuto -and $script:MajAuto[$Appli.Id])) { $script:MajAutoEchecs.Remove($Appli.Id) }   # (« Réessayer » : la console ne dit plus l'échec)
     Update-Cartes
     New-Item -ItemType Directory -Force -Path $TelechargementsDir | Out-Null
     $script:Progres[$Appli.Id] = [hashtable]::Synchronized(@{ Recu = 0; Total = 0 })
@@ -529,9 +532,11 @@ function Complete-Telechargement($Appli, $Resultat, $Erreur, [string]$AncienDoss
     Send-InstallationAppli $Appli
 }
 
-# Attente de la fermeture des applis avant leur installation : par leur mutex et leur chemin (Test-AppliOuverte),
-# $DelaiFermetureAppli secondes au plus ; ensuite l'installation part quand même (l'installateur ferme ce qui reste)
-$DelaiFermetureAppli = 10
+# Attente de la fermeture des applis avant leur installation : par leur mutex et leur chemin (Test-AppliOuverte, relu
+# toutes les 300 ms), $DelaiFermetureAppli secondes au plus ; ensuite l'installation part quand même (l'installateur
+# ferme ce qui reste). 30 secondes : une appli qui enregistre ses données a le temps de finir (avec 10, Mindcare était
+# encore ouvert à l'installation, qui ratait : « ses fichiers sont utilisés »)
+$DelaiFermetureAppli = 30
 $script:AttentesFermeture = @{}
 $script:FermetureTimer = New-Object System.Windows.Threading.DispatcherTimer
 $script:FermetureTimer.Interval = [TimeSpan]::FromMilliseconds(300)
@@ -558,7 +563,7 @@ function Send-InstallationAppli($Appli) {
     Invoke-Admin 'appli' $c.Parametres (New-Action @{ Id = $Appli.Id } {
         $a = Get-Appli $v.Id
         if ($Ok) { Complete-Installation $a $Message } else { Stop-Operation $a "Échec : $Message" }
-    } 'Ok', 'Message')
+    } 'Ok', 'Message') -Auto:([bool]($script:MajAuto -and $script:MajAuto[$Appli.Id]))
 }
 
 function Complete-Installation($Appli, [string]$Dossier) {
@@ -731,7 +736,11 @@ function Remove-AncienneCopie($Appli, [string]$Dossier, [string]$Zip, [string]$D
 
 function Stop-Operation($Appli, [string]$Message) {
     $script:Occupe.Remove($Appli.Id); $script:Progres.Remove($Appli.Id)
-    if ($script:MajAuto -and $script:MajAuto[$Appli.Id]) { Complete-MajAuto $Appli $Message }
+    if ($script:MajAuto -and $script:MajAuto[$Appli.Id]) {
+        Complete-MajAuto $Appli $Message
+        # Ratée : la carte le dit en mots simples, avec ce qu'il faut faire (le message technique est dans le journal)
+        if ($Message -notmatch 'est installé') { $Message = "La mise à jour automatique n'a pas pu se faire : $(Get-RaisonEchecMaj $Appli.Nom $Message) Clique sur « Mettre à jour » pour réessayer." }
+    }
     $script:Messages[$Appli.Id] = $Message
     Update-Trouvees
     Update-Cartes

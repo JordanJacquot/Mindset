@@ -256,6 +256,7 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: #07060D; col
 .icMaj.dispo { background: color-mix(in srgb, var(--mOrange) 18%, transparent); color: var(--mOrange); }
 .icMaj.pause { background: color-mix(in srgb, var(--mP) 15%, transparent); color: var(--mP); }
 .icMaj.coupe { background: rgba(255,255,255,0.08); color: var(--mDoux); }
+.icMaj.rate { background: color-mix(in srgb, #FF5C7A 18%, transparent); color: #FF5C7A; }
 .lgMaj { display: block; width: 40px; height: 40px; flex: none; border-radius: 12px; box-sizing: border-box; background: #141126 center / 74% no-repeat; border: 1px solid color-mix(in srgb, var(--c, #00E5FF) 55%, #2A2450); box-shadow: 0 0 12px color-mix(in srgb, var(--c, #00E5FF) 35%, transparent); }
 .barreMaj { display: block; height: 8px; border-radius: 4px; background: rgba(255,255,255,0.14); overflow: hidden; }
 .barreMaj > i { display: block; height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--mP), var(--mS), var(--mT), var(--mP)) 0 0 / 300% 100%; animation: coule 3s linear infinite; transition: width 300ms ease; }
@@ -454,7 +455,8 @@ function dessinerEcran(t) {
   ex.textAlign = 'center'; ex.fillStyle = C('#ECEAF7'); ex.font = `600 34px ${POLICE}`;
   const lm = ligneEcranMaj();   // (la mise à jour en cours, à la place de la consigne)
   if (lm) {
-    ex.font = `700 32px ${POLICE}`; ex.fillStyle = lm.c; ex.fillText(lm.t, 512, lm.p == null ? 470 : 452);
+    let tl = 32; ex.font = `700 ${tl}px ${POLICE}`; while (ex.measureText(lm.t).width > 960 && tl > 16) { tl -= 2; ex.font = `700 ${tl}px ${POLICE}`; }   // (une raison longue : plus petite, jamais coupée)
+    ex.fillStyle = lm.c; ex.fillText(lm.t, 512, lm.p == null ? 470 : 452);
     if (lm.p != null) { ex.fillStyle = 'rgba(255,255,255,0.18)'; ex.beginPath(); ex.roundRect(232, 486, 560, 14, 7); ex.fill(); const g2 = ex.createLinearGradient(232, 0, 792, 0); g2.addColorStop(0, C('#00E5FF')); g2.addColorStop(0.5, C('#B04BFF')); g2.addColorStop(1, C('#FF2EB5')); ex.fillStyle = g2; ex.beginPath(); ex.roundRect(232, 486, Math.max(14, 560 * lm.p), 14, 7); ex.fill(); }
     ex.textBaseline = 'alphabetic'; return;
   }
@@ -947,12 +949,21 @@ function vitesseAnimations(v) { vitesse = v === 'express' || reduit ? 0.4 : 1; }
 //   auto      la pastille « Mise à jour automatique » (le réglage de Paramètres > Mises à jour) ;
 //   verif     « Chercher les nouvelles versions » : coupé, la pastille est grisée (elle ne peut pas tourner à vide) ;
 //   phase     recherche, telechargement (progres : la part reçue), installation, prete (pastille décochée : le bouton
-//             « Mettre à jour »), attente (raison : jeu, utilise, veille, bientot), coupee (recherche coupée), ajour ;
+//             « Mettre à jour »), attente (raison : jeu, utilise, page, veille, bientot ; toujours le bouton « Mettre à
+//             jour » pour ne pas attendre), echec (la mise à jour automatique a raté : sa raison, et « Réessayer »),
+//             coupee (recherche coupée), ajour ;
+//   enAuto    pendant un téléchargement ou une installation : c'est vraiment la mise à jour automatique qui tourne ;
+//   jeu       raison « jeu » : le jeu (ou ce qui fait croire à une partie), entre parenthèses ;
+//   echec     phase « echec » : pourquoi, en mots simples ; reessai : dans combien de minutes Mindset réessaie tout
+//             seul (-1 ou rien : plus tout seul, le bouton seulement) ;
 //   appli     celle qui se met à jour (ou qui attend) : id, nom, couleur, version ;
 //   fait      la dernière mise à jour faite, gardée 12 heures (heure, auto, et ses nouveautés : bouton « Nouveautés »).
 // Un clic sur la pastille la coche ou la décoche (action « majAuto » : Mindset règle, puis renvoie l'état).
-const PHASES_MAJ = ['recherche', 'telechargement', 'installation', 'ajour', 'prete', 'attente', 'coupee'];
-const RAISONS_MAJ = { jeu: 'après ta partie', utilise: 'dès que tu ne t\'en sers plus', veille: 'à la prochaine mise en veille', bientot: 'dans un instant' };
+const PHASES_MAJ = ['recherche', 'telechargement', 'installation', 'ajour', 'prete', 'attente', 'echec', 'coupee'];
+const RAISONS_MAJ = { jeu: 'après ta partie', utilise: 'se fera toute seule dès que tu ne te sers plus du PC', page: 'se fera toute seule quand sa page ne sera plus à l\'écran',
+  veille: 'se fera toute seule dès que tu ne te sers plus du PC, ou quand Mindset sera réduit', bientot: 'dans un instant' };
+const raisonMaj = (m) => m.raison === 'jeu' && m.jeu ? `${RAISONS_MAJ.jeu} (${m.jeu})` : RAISONS_MAJ[m.raison];
+const reessaiMaj = (m) => m.reessai >= 0 ? ` (nouvel essai tout seul dans ${m.reessai} min)` : '';
 let MAJ = null, notesMaj = false;
 const deNom = (nom) => /^[aeiouyéèêh]/i.test(nom || '') ? `d'${nom}` : `de ${nom}`;   // (« d'Evermind », « de Nevermind »)
 const pourcent = (p) => `${Math.round(Math.max(0, Math.min(1, +p || 0)) * 100)} %`;
@@ -964,7 +975,9 @@ function lireMaj(e) {
   const fait = app(e.fait);
   if (fait) Object.assign(fait, { quand: String(e.fait.quand || '').slice(0, 40), auto: !!e.fait.auto, notes: String(e.fait.notes || '').slice(0, 4000) });
   return { auto: !!e.auto, verif: e.verif !== false, phase: PHASES_MAJ.includes(e.phase) ? e.phase : 'ajour', raison: Object.hasOwn(RAISONS_MAJ, e.raison) ? e.raison : 'bientot',
-    appli: app(e.appli) || { id: '', nom: 'une appli', c: C('#00E5FF'), version: '' }, progres: Math.max(0, Math.min(1, +e.progres || 0)), fait };
+    appli: app(e.appli) || { id: '', nom: 'une appli', c: C('#00E5FF'), version: '' }, progres: Math.max(0, Math.min(1, +e.progres || 0)), fait,
+    enAuto: !!e.enAuto, jeu: String(e.jeu || '').slice(0, 40), echec: String(e.echec || 'Elle n\'a pas pu aller au bout.').slice(0, 160),
+    reessai: Number.isInteger(e.reessai) && e.reessai >= 0 && e.reessai <= 60 ? e.reessai : -1 };
 }
 function majAuto(e) {
   if (!e || typeof e !== 'object') return;
@@ -973,13 +986,13 @@ function majAuto(e) {
   rafraichirMaj();
 }
 const logoMaj = (a) => `<i class="lgMaj" style="--c:${hex(a?.c, C('#00E5FF'))};background-image:url('${a?.id === 'mindset' ? logosDemandes.mindset || 'logos/mindset.png' : logosDemandes[a?.id] || ''}')"></i>`;
-const icMaj = (n) => `<i class="icMaj ${n}">${svgMaj({ ok: 'coche', dispo: 'fleche', pause: 'pause', coupe: 'coupe' }[n])}</i>`;
+const icMaj = (n) => `<i class="icMaj ${n}">${svgMaj({ ok: 'coche', dispo: 'fleche', pause: 'pause', coupe: 'coupe', rate: 'croix' }[n])}</i>`;
 const barreMaj = (p) => `<i class="barreMaj"><i style="width:${Math.round(Math.max(0.02, p) * 100)}%"></i></i>`;
 const pastilleMaj = (m) => {
   const oui = m.auto && m.verif;
   return `<button type="button" class="pastilleMaj${oui ? ' oui' : ''}${m.verif ? '' : ' grise'}" role="switch" aria-checked="${oui}" data-maj="${m.verif ? 'auto' : 'reglages'}"${m.verif ? '' : ' title="La recherche des nouvelles versions est coupée : ouvre les réglages"'}><i class="coche">${oui ? svgMaj('coche', 3.2) : ''}</i><strong>Mise à jour automatique</strong></button>`;
 };
-const boutonMaj = (m) => `<button type="button" class="btnMaj" data-maj="maj" data-id="${esc(m.appli.id)}">${svgMaj('fleche')}Mettre à jour</button>`;
+const boutonMaj = (m, t = 'Mettre à jour') => `<button type="button" class="btnMaj" data-maj="maj" data-id="${esc(m.appli.id)}">${svgMaj('fleche')}${t}</button>`;
 const boutonSecond = (quoi, t, ic) => `<button type="button" class="btnMaj second" data-maj="${quoi}"${quoi === 'notes' ? ` aria-expanded="${notesMaj}"` : ''}>${ic ? svgMaj(ic) : ''}${t}</button>`;
 // La carte, sur une ligne : pastille | icône ou logo, texte, puis la barre et son %, ou un bouton
 function htmlLoin(m) {
@@ -987,10 +1000,11 @@ function htmlLoin(m) {
   let ic = icMaj('ok'), titre = 'Tout est à jour', fin = '';
   switch (m.phase) {
     case 'recherche': ic = '<i class="tourneMaj"></i>'; titre = 'Recherche des mises à jour...'; break;
-    case 'telechargement': ic = logoMaj(a); titre = nv; fin = `${barreMaj(m.progres)}<em class="pct">${pourcent(m.progres)}</em>`; break;
-    case 'installation': ic = logoMaj(a); titre = `${nv} · installation...`; break;
+    case 'telechargement': ic = logoMaj(a); titre = `Téléchargement ${deNom(a.nom)} ${a.version}`.trim(); fin = `${barreMaj(m.progres)}<em class="pct">${pourcent(m.progres)}</em>`; break;
+    case 'installation': ic = logoMaj(a); titre = `${m.enAuto ? 'Mise à jour automatique' : 'Installation'} ${deNom(a.nom)} ${a.version}`.trim() + '...'; break;
     case 'prete': ic = icMaj('dispo'); titre = `Nouvelle version ${deNom(a.nom)} prête`; fin = boutonMaj(m); break;
-    case 'attente': ic = icMaj('pause'); titre = `${nv} : ${RAISONS_MAJ[m.raison]}`; if (m.raison === 'utilise' || m.raison === 'veille') fin = boutonMaj(m); break;
+    case 'attente': ic = icMaj('pause'); titre = `${nv} : ${raisonMaj(m)}`; fin = boutonMaj(m); break;
+    case 'echec': ic = icMaj('rate'); titre = `Mise à jour ${deNom(a.nom)} pas faite : ${m.echec}${reessaiMaj(m)}`; fin = boutonMaj(m, 'Réessayer'); break;
     case 'coupee': ic = icMaj('coupe'); titre = 'Recherche des nouvelles versions coupée'; fin = boutonSecond('reglages', 'Réglages'); break;
     default: if (m.fait) { titre = `${m.fait.nom} ${m.fait.version} mis à jour${m.fait.auto ? ' tout seul' : ''} ${m.fait.quand}`; if (m.fait.notes) fin = boutonSecond('notes', 'Nouveautés', 'etoile'); }
   }
@@ -1015,9 +1029,11 @@ function placerMajLoin() {
 function ligneEcranMaj() {
   const m = MAJ; if (!m) return null; const a = m.appli;
   if (m.phase === 'recherche') return { t: 'Recherche des mises à jour...', c: C('#ECEAF7') };
-  if (m.phase === 'telechargement' || m.phase === 'installation') return { t: `${m.auto ? 'Mise à jour automatique' : 'Mise à jour'} : ${a.nom} ${m.phase === 'installation' ? '' : pourcent(m.progres)}`, c: C('#ECEAF7'), p: m.phase === 'installation' ? 1 : m.progres };
+  if (m.phase === 'telechargement') return { t: `Téléchargement ${deNom(a.nom)} : ${pourcent(m.progres)}`, c: C('#ECEAF7'), p: m.progres };
+  if (m.phase === 'installation') return { t: m.enAuto ? `Mise à jour automatique : ${a.nom}` : `Installation ${deNom(a.nom)}...`, c: C('#ECEAF7'), p: 1 };
   if (m.phase === 'prete') return { t: `Nouvelle version ${deNom(a.nom)} prête`, c: C('#FFB020') };
-  if (m.phase === 'attente') return { t: `${a.nom} : mise à jour ${RAISONS_MAJ[m.raison]}`, c: C('#00E5FF') };
+  if (m.phase === 'attente') return { t: `Mise à jour ${deNom(a.nom)} : ${raisonMaj(m)}`, c: C('#00E5FF') };
+  if (m.phase === 'echec') return { t: `Mise à jour ${deNom(a.nom)} pas faite : ${m.echec}`, c: C('#FF5C7A') };
   return null;
 }
 // Tout redessiner (seulement ce qui a changé : les animations ne repartent pas de zéro)

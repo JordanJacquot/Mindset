@@ -243,13 +243,17 @@ function Start-VerifMajMindset {
     }
 }
 
-# -Cache : mise à jour automatique faite pendant que Mindset est caché : il revient caché près de l'horloge
-function Start-MajMindset([switch]$Cache) {
+# -Auto : mise à jour automatique (Invoke-MajAuto) : jamais de demande de Windows (personne pour y répondre), un échec
+# est montré par la console (Set-EchecMajAuto). -Cache : automatique, faite pendant que Mindset est caché : il revient
+# caché près de l'horloge (sans -Cache, il revient avec sa fenêtre)
+function Start-MajMindset([switch]$Cache, [switch]$Auto) {
+    $enAuto = [bool]($Auto -or $Cache)
     $m = $script:MajMindset
     if (-not $m -or $script:Occupe.Count) { if ($script:Occupe.Count) { $ui.MajTexte.Text = 'Une installation est en cours : réessaie quand elle sera finie.' }; return }
     if ($script:MajMindsetEnvoyee) { return }   # (déjà envoyée au mini-installateur : on attend son accusé de réception)
+    if (-not $enAuto -and $script:MajAutoEchecs) { $script:MajAutoEchecs.Remove('mindset') }   # (« Réessayer » : la carte ne dit plus l'échec)
     Remove-Item -LiteralPath $FichierMajMindset -Force -ErrorAction SilentlyContinue
-    Set-MajMindsetAttendue ([string]$m.Version) ([bool]$Cache) ([string]$m.Notes)   # (l'historique, au redémarrage)
+    Set-MajMindsetAttendue ([string]$m.Version) $enAuto ([string]$m.Notes)   # (l'historique, au redémarrage)
     # Demandée à l'écran : Mindset revient avec sa fenêtre (le mini-installateur le relance par sa tâche de démarrage, qui
     # le lancerait sinon caché près de l'horloge, voir Mindset.ps1)
     Set-Setting 'MajMindsetVisible' (-not $Cache)
@@ -260,11 +264,13 @@ function Start-MajMindset([switch]$Cache) {
         $c = @{ Id = $id; Action = 'mindset-maj'; Zip = [string]$m.Zip; Signature = [string]$m.Sig; Destination = [string]$DossierMindset; Version = [string]$m.Version; AttendrePid = [string]$PID }
         if ($Cache) { $c.Cache = '1' }
         $script:MajMindsetEnvoyee = $true
-        $d = @{ Contenu = $c; Cache = [bool]$Cache
+        $script:MajMindsetAuto = if ($enAuto) { [string]$m.Version } else { '' }   # (pour sa fin : un échec automatique se montre)
+        $d = @{ Contenu = $c; Auto = $enAuto
             Recu  = { param($D) Set-Setting 'MajMindsetDemande' $D.Contenu.Id; Write-Log "Mise à jour vers Mindset $($D.Contenu.Version) lancée"; Exit-Mindset }
-            Fin   = { param($Ok, $Message) $script:MajMindsetEnvoyee = $false; if (-not $Ok) { $ui.MajTexte.Text = "Mise à jour impossible : $Message" } }
+            Fin   = { param($Ok, $Message) $script:MajMindsetEnvoyee = $false
+                if (-not $Ok) { $ui.MajTexte.Text = "Mise à jour impossible : $Message"; if ($script:MajMindsetAuto) { Set-EchecMajAuto 'mindset' 'Mindset' ([string]$script:MajMindsetAuto) $Message } } }
             Repli = { param($D) $script:MajMindsetEnvoyee = $false
-                if ($D.Cache) { Write-Log 'Mise à jour automatique de Mindset : la tâche d''installation ne répond pas, elle se fera à la main' } else { Start-MajMindsetDirecte } } }
+                if ($D.Auto) { Set-EchecMajAuto 'mindset' 'Mindset' ([string]$D.Contenu.Version) 'la tâche d''installation ne répond pas' } else { Start-MajMindsetDirecte } } }
         [void](Send-DemandeInstallation $d)
         return
     }
@@ -333,16 +339,20 @@ function Show-RestesDesinstallation {
 # Mises à jour automatiques (réglage « MajAuto », activé par défaut ; Paramètres, Mises à jour) : vérifié toutes les
 # 30 secondes. Une appli fermée est mise à jour dès que sa nouvelle version est connue ; une appli qui tourne (souvent
 # cachée près de l'horloge) quand personne ne touche au PC depuis 5 minutes, puis elle est relancée cachée ; Mindset
-# lui-même quand il est caché, et il revient caché. Jamais pendant un jeu (Get-JeuEnCours : plein écran sur n'importe
-# quel écran, manette, jeu ouvert en fenêtre), jamais pendant une autre installation, et seulement par le
-# mini-installateur (aucune demande de Windows). Une appli fermée par l'utilisateur n'est pas rouverte. Une à la fois ; une
-# version ratée n'est pas réessayée avant 6 heures. Une notification (ou la bulle de la console) dit ce qui a changé.
+# lui-même quand il est caché, ou à l'écran quand personne ne touche au PC depuis 5 minutes (il revient comme il était).
+# Jamais pendant un jeu (Get-JeuEnCours : plein écran sur n'importe quel écran, manette, jeu ouvert en fenêtre), jamais
+# pendant une autre installation, et seulement par le mini-installateur (aucune demande de Windows). Une appli fermée par
+# l'utilisateur n'est pas rouverte. Une à la fois. Une version ratée est réessayée 15 minutes plus tard, 3 fois au plus
+# par session ; la console montre l'échec, sa raison et « Réessayer ». Une notification (ou la bulle de la console) dit
+# ce qui a changé, ou ce qui n'a pas pu se faire.
 # ---------------------------------------------------------------------------
 $script:MajAuto = @{}          # id -> version en cours de mise à jour automatique
-$script:MajAutoEssais = @{}    # id -> @{ Version; Quand } (dernier essai)
+$script:MajAutoEssais = @{}    # id -> @{ Version; Quand; Nombre } (dernier essai, et combien pour cette version)
+$script:MajAutoEchecs = @{}    # id -> @{ Version; Raison } (dernier essai raté, montré par la console avec « Réessayer »)
 $script:MajAutoDerniere = [datetime]::MinValue
 # Pourquoi une mise à jour attend (vu au dernier passage, montré par la console : Get-EtatMajConsole) : le jeu en cours
-# (sa raison, ou ''), et pour chaque appli (ou « mindset ») « utilise » (on s'en sert) ou « veille » (Mindset à l'écran)
+# (sa raison, ou ''), et pour chaque appli (ou « mindset ») « utilise » (on se sert du PC), « page » (sa page est à
+# l'écran dans Mindset) ou « veille » (Mindset à l'écran et le PC utilisé)
 $script:MajAutoJeu = ''
 $script:MajAutoAttentes = @{}
 function Test-MajAutoActive { [bool](Get-Setting 'MajAuto' $true) }
@@ -369,9 +379,22 @@ function Open-PageConfidentialite([string]$Id) {
     try { Start-Process -FilePath $url } catch { Write-Log "Navigateur : $($_.Exception.Message)" }
 }
 
-function Test-MajAutoRecente([string]$Id, [string]$Version) {
+# Un essai automatique de cette version vient d'être fait (moins de 15 minutes), ou il y en a déjà eu 3 dans cette
+# session : pas de nouvel essai tout seul (le bouton « Mettre à jour » ou « Réessayer » reste là)
+function Test-MajAutoRecente([string]$Id, [string]$Version) { $null -ne (Get-MajAutoReessai $Id $Version) }
+# Dans combien de minutes le prochain essai tout seul : 0 et plus (il attend), -1 (plus d'essai tout seul : 3 déjà
+# faits), $null (rien ne l'empêche)
+function Get-MajAutoReessai([string]$Id, [string]$Version) {
     $d = $script:MajAutoEssais[$Id]
-    $d -and $d.Version -eq $Version -and ((Get-Date) - $d.Quand).TotalHours -lt 6
+    if (-not $d -or $d.Version -ne $Version) { return $null }
+    if ([int]$d.Nombre -ge 3) { return -1 }
+    $reste = 15 - ((Get-Date) - $d.Quand).TotalMinutes
+    if ($reste -gt 0) { [int][math]::Ceiling($reste) } else { $null }
+}
+function Add-MajAutoEssai([string]$Id, [string]$Version) {
+    $d = $script:MajAutoEssais[$Id]
+    $n = if ($d -and $d.Version -eq $Version) { [int]$d.Nombre + 1 } else { 1 }
+    $script:MajAutoEssais[$Id] = @{ Version = $Version; Quand = Get-Date; Nombre = $n }
 }
 
 # ---------------------------------------------------------------------------
@@ -405,15 +428,35 @@ function Get-JeuxNevermind {
     @()
 }
 
+# Le nom d'un programme en mots lisibles : sa description (« Battlefield 6 »), sinon son nom de produit, sinon le nom de
+# son fichier sans « .exe »
+function Get-NomProgramme([string]$Chemin) {
+    try {
+        $i = [Diagnostics.FileVersionInfo]::GetVersionInfo($Chemin)
+        foreach ($n in $i.FileDescription, $i.ProductName) { $n = ([string]$n).Trim(); if ($n -and $n.Length -le 40) { return $n } }
+    } catch {}
+    [IO.Path]::GetFileNameWithoutExtension($Chemin)
+}
+
 function Get-JeuEnCours {
     try { if ([MSActivite]::PleinEcranQuelquePart()) { return 'une fenêtre en plein écran (jeu ou vidéo)' } } catch {}
     try { if ([MSActivite]::SecondesManette() -lt 300) { return 'une manette utilisée il y a moins de 5 minutes' } } catch {}
     try {
         $j = @([MSProcessus]::JeuxOuverts([string[]]$DossiersJeux, [string[]]$DossiersPasJeux, [string[]]@(Get-JeuxNevermind)))
-        if ($j.Count) { return "un jeu ouvert ($([IO.Path]::GetFileName($j[0])))" }
+        if ($j.Count) { return "un jeu ouvert ($(Get-NomProgramme $j[0]))" }
     } catch {}
     ''
 }
+# Ce que la console met entre parenthèses après « après ta partie » : le jeu, ou ce qui fait croire à une partie
+function Get-NomRaisonJeu([string]$Raison) {
+    if ($Raison -match '^un jeu ouvert \((.+)\)$') { return $Matches[1] }
+    if ($Raison -match 'plein écran') { return 'une fenêtre en plein écran' }
+    if ($Raison -match 'manette') { return 'manette utilisée' }
+    $Raison
+}
+
+# Depuis combien de secondes personne ne touche au clavier ni à la souris (à part : les tests le remplacent)
+function Get-SecondesInactif { [MSActivite]::SecondesInactif() }
 
 function Invoke-MajAuto {
     if ($EnTest -and -not $env:MINDSET_MAJAUTO_TEST) { return }
@@ -430,7 +473,8 @@ function Invoke-MajAuto {
         return
     }
     $script:MajAutoJeuNote = $null
-    try { $inactif = [MSActivite]::SecondesInactif() } catch { return }
+    try { $inactif = Get-SecondesInactif } catch { return }
+    $alEcran = $Window.IsVisible -and $Window.WindowState -ne 'Minimized'
     $attentes = @{}
     foreach ($a in $Applis) {
         $e = Get-EtatCarte $a
@@ -438,37 +482,66 @@ function Invoke-MajAuto {
         $v = [string]$e.Pub.Version
         if (Test-MajAutoRecente $a.Id $v) { continue }
         if ($e.Ouverte) {
-            if ($inactif -lt 300) { $attentes[$a.Id] = 'utilise'; continue }                                                     # on s'en sert peut-être
-            if ($script:PageCourante -eq $a.Id -and $Window.IsVisible -and $Window.WindowState -ne 'Minimized') { $attentes[$a.Id] = 'utilise'; continue }   # à l'écran dans Mindset
+            if ($inactif -lt 300) { $attentes[$a.Id] = 'utilise'; continue }                           # on s'en sert peut-être
+            if ($script:PageCourante -eq $a.Id -and $alEcran) { $attentes[$a.Id] = 'page'; continue }   # à l'écran dans Mindset
         }
         $script:MajAutoAttentes = $attentes
-        $script:MajAutoEssais[$a.Id] = @{ Version = $v; Quand = Get-Date }
+        Add-MajAutoEssai $a.Id $v
         $script:MajAuto[$a.Id] = $v
         Write-Log "Mise à jour automatique : $($a.Nom) $v$(if ($e.Ouverte) { ' (elle tournait, relancée cachée)' })"
         Start-InstallAppli $a
         return
     }
-    # Mindset lui-même, seulement caché (près de l'horloge, ou réduit)
+    # Mindset lui-même : caché (près de l'horloge, ou réduit), ou à l'écran quand personne ne touche au PC depuis
+    # 5 minutes (comme une appli ouverte : on ne coupe jamais quelqu'un qui s'en sert). Il revient comme il était.
     # (pas pendant qu'une version plus récente se télécharge : elle remplacera celle qui est prête)
     $m = $script:MajMindset
-    if ($m -and $Window.IsVisible -and $Window.WindowState -ne 'Minimized') { $attentes['mindset'] = 'veille' }
+    $attendre = $m -and $alEcran -and $inactif -lt 300
+    if ($attendre) { $attentes['mindset'] = 'veille' }
     $script:MajAutoAttentes = $attentes
-    if ($m -and -not $script:MajMindsetEnCours -and -not ($Window.IsVisible -and $Window.WindowState -ne 'Minimized') -and -not (Test-MajAutoRecente 'mindset' ([string]$m.Version))) {
-        $script:MajAutoEssais['mindset'] = @{ Version = [string]$m.Version; Quand = Get-Date }
-        Write-Log "Mise à jour automatique : Mindset $($m.Version)"
-        Start-MajMindset -Cache
+    if ($m -and -not $attendre -and -not $script:MajMindsetEnCours -and -not (Test-MajAutoRecente 'mindset' ([string]$m.Version))) {
+        Add-MajAutoEssai 'mindset' ([string]$m.Version)
+        Write-Log "Mise à jour automatique : Mindset $($m.Version)$(if ($alEcran) { ' (à l''écran, personne au clavier depuis 5 minutes)' })"
+        Start-MajMindset -Auto -Cache:(-not $alEcran)
     }
 }
 
 # Fin d'une mise à jour automatique (appelé par Stop-Operation) : la notification, ou la bulle de la console
 function Complete-MajAuto($Appli, [string]$Message) {
     $v = $script:MajAuto[$Appli.Id]; $script:MajAuto.Remove($Appli.Id)
-    if ($Message -notmatch 'est installé') { Write-Log "Mise à jour automatique de $($Appli.Nom) $v ratée : $Message"; return }
+    if ($Message -notmatch 'est installé') { Set-EchecMajAuto $Appli.Id $Appli.Nom ([string]$v) $Message; return }
+    $script:MajAutoEchecs.Remove($Appli.Id)
     $titre = "$($Appli.Nom) est passé en $v"
     $notes = [string]$script:Publications[$Appli.Id].Notes
     $resume = (($notes -split "`r?`n" | Where-Object { $_.Trim() } | Select-Object -First 1) -replace '^[-*#\s]+', '').Trim()
     if ($resume.Length -gt 180) { $resume = $resume.Substring(0, 177) + '...' }
     Show-BulleMajAuto $titre $resume
+}
+
+# Une mise à jour automatique ratée (d'une appli, ou de Mindset lui-même) : notée au journal, gardée pour la console
+# (Get-EtatMajConsole : la raison et « Réessayer »), et dite tout de suite (bulle de la console, ou notification)
+function Set-EchecMajAuto([string]$Id, [string]$Nom, [string]$Version, [string]$Message) {
+    Write-Log "Mise à jour automatique de $Nom $Version ratée : $Message"
+    $raison = Get-RaisonEchecMaj $Nom $Message
+    $script:MajAutoEchecs[$Id] = @{ Version = $Version; Raison = $raison }
+    $reessai = Get-MajAutoReessai $Id $Version
+    $suite = if ($reessai -ge 0) { "Mindset réessaiera tout seul dans $reessai minutes, ou clique sur Réessayer." } else { 'Clique sur Réessayer dans Mindset.' }
+    Show-BulleMajAuto "La mise à jour $(Format-DeNom $Nom) n'a pas pu se faire" "$raison $suite"
+}
+# « de Mindcare », « d'Evermind »
+function Format-DeNom([string]$Nom) { if ($Nom -match '^[aeiouyéèêh]') { "d'$Nom" } else { "de $Nom" } }
+# Pourquoi une mise à jour a raté, en mots simples (le message technique reste dans le journal)
+function Get-RaisonEchecMaj([string]$Nom, [string]$Message) {
+    $m = ([string]$Message -replace '^\s*Échec\s*:\s*', '').Trim()
+    if ($m -match 'encore ouvert|fichiers sont utilisés|being used|utilisé par un autre') { return "$Nom était encore ouvert et n'a pas pu être fermé." }
+    if ($m -match 'signature') { return "Le fichier téléchargé n'a pas passé la vérification de sécurité : rien n'a été changé." }
+    if ($m -match 'ne répond pas') { return "L'outil d'installation de Mindset n'a pas répondu." }
+    if ($m -match 'connexion|réseau|Internet|délai|timed? ?out|résoudre|remote|distant|\b(403|404|429|500|502|503)\b') { return 'Internet a coupé pendant le téléchargement.' }
+    if ($m -match 'espace disque|disque plein|not enough space|place sur le disque') { return "Il n'y a plus assez de place sur le disque." }
+    if (-not $m) { return 'Une erreur inconnue l''a arrêtée.' }
+    if ($m.Length -gt 140) { $m = $m.Substring(0, 137) + '...' }
+    if ($m -notmatch '[.!?]$') { $m += '.' }
+    $m
 }
 
 function Show-BulleMajAuto([string]$Titre, [string]$Texte) {

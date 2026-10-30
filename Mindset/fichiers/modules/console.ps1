@@ -386,10 +386,14 @@ function Send-EtatConsole([switch]$Force) {
 #   - la pastille « Mise à jour automatique » : le réglage MajAuto (le même que Paramètres > Mises à jour) ; grisée si
 #     « Chercher les nouvelles versions » est coupé (elles ne peuvent pas tourner) ;
 #   - ce qui se passe, par ordre d'importance : un téléchargement (avec son %) ou une installation, d'une appli ou de
-#     Mindset lui-même (la carte suit celle en cours) ; une recherche des nouvelles versions ; une version disponible,
-#     « prête » avec son bouton si les mises à jour automatiques ne la feront pas (pastille décochée, ou essai raté il
-#     y a moins de 6 heures), sinon « en attente » avec la raison (un jeu, une appli dont on se sert, Mindset à l'écran,
-#     ou dans un instant) ; la recherche coupée ; sinon tout est à jour ;
+#     Mindset lui-même (la carte suit celle en cours ; « enAuto » : c'est vraiment la mise à jour automatique qui
+#     tourne, pas un geste de l'utilisateur ni le simple téléchargement de la nouvelle version de Mindset) ; une
+#     recherche des nouvelles versions ; une version disponible : « echec » si sa mise à jour automatique vient de rater
+#     (la raison en mots simples, « reessai » : dans combien de minutes elle sera retentée toute seule, -1 plus du
+#     tout ; le bouton « Réessayer »), « prête » avec son bouton si les mises à jour automatiques ne la feront pas
+#     (pastille décochée), sinon « en attente » avec la raison (un jeu et son nom, le PC utilisé, sa page à l'écran,
+#     Mindset à l'écran, ou dans un instant) et toujours le bouton « Mettre à jour » ; la recherche coupée ; sinon tout
+#     est à jour ;
 #   - la dernière mise à jour faite, pendant 12 heures (mindset.ps1, Get-DerniereMaj), avec ses nouveautés.
 # Envoyé avec l'état des applis (toutes les 1,5 s, seulement s'il a changé), et tout de suite après un geste.
 # ---------------------------------------------------------------------------
@@ -398,7 +402,7 @@ function Get-EtatMajConsole {
     $auto = [bool](Test-MajAutoActive)
     $autoPossible = $auto -and $verif -and -not $MindsetAdmin -and (Test-TacheInstallation)
     $infos = { param($Id, $Nom, $Couleur, $Version) [ordered]@{ id = $Id; nom = $Nom; c = (ConvertTo-ThemeHex $Couleur); version = [string]$Version } }
-    $phase = ''; $appli = $null; $progres = 0.0; $raison = ''
+    $phase = ''; $appli = $null; $progres = 0.0; $raison = ''; $enAuto = $false; $jeu = ''; $echec = ''; $reessai = $null
     # 1. Ce qui se télécharge ou s'installe (pas une désinstallation : ni téléchargement, ni installation en cours)
     $occupees = @($Applis | Where-Object { $script:Occupe[$_.Id] -and ($script:Progres[$_.Id] -or $script:EnCours[$_.Id]) })
     $a = @($occupees | Where-Object { $script:Progres[$_.Id] }) + $occupees | Select-Object -First 1   # (d'abord celle qui télécharge)
@@ -406,6 +410,7 @@ function Get-EtatMajConsole {
         $pr = $script:Progres[$a.Id]; $c = $script:EnCours[$a.Id]; $pub = $script:Publications[$a.Id]
         $v = if ($c -and $c.Version) { $c.Version } elseif ($pub -and $pub.Version) { $pub.Version } else { [string]$script:MajAuto[$a.Id] }
         $appli = & $infos $a.Id $a.Nom $a.Couleur $v
+        $enAuto = [bool]($script:MajAuto -and $script:MajAuto[$a.Id])
         if ($pr) { $phase = 'telechargement'; if ($pr.Total -gt 0) { $progres = [math]::Min(1.0, [double]$pr.Recu / $pr.Total) } }
         else { $phase = 'installation'; $progres = 1.0 }
     } elseif ($script:MajMindsetEnCours -and $script:ProgresMindset -and $script:ProgresMindset.Version) {
@@ -430,10 +435,16 @@ function Get-EtatMajConsole {
         $d = $dispo | Select-Object -First 1
         if ($d) {
             $appli = & $infos $d.Id $d.Nom $d.Couleur $d.Version
-            if (-not $autoPossible -or (Test-MajAutoRecente $d.Id $d.Version)) { $phase = 'prete' }
+            $x = if ($script:MajAutoEchecs) { $script:MajAutoEchecs[$d.Id] }
+            if ($x -and [string]$x.Version -eq $d.Version) {
+                $phase = 'echec'; $echec = [string]$x.Raison
+                $reessai = if ($autoPossible) { Get-MajAutoReessai $d.Id $d.Version } else { -1 }
+            }
+            elseif (-not $autoPossible -or (Test-MajAutoRecente $d.Id $d.Version)) { $phase = 'prete' }
             else {
                 $phase = 'attente'
-                $raison = if ($script:MajAutoJeu) { 'jeu' } elseif ($d.Id -eq 'mindset') { 'veille' } elseif ($script:MajAutoAttentes[$d.Id]) { $script:MajAutoAttentes[$d.Id] } else { 'bientot' }
+                $raison = if ($script:MajAutoJeu) { 'jeu' } elseif ($script:MajAutoAttentes[$d.Id]) { $script:MajAutoAttentes[$d.Id] } elseif ($d.Id -eq 'mindset') { 'veille' } else { 'bientot' }
+                if ($raison -eq 'jeu') { $jeu = Get-NomRaisonJeu $script:MajAutoJeu }
             }
         }
     }
@@ -442,7 +453,7 @@ function Get-EtatMajConsole {
     $fait = $null; $f = Get-DerniereMaj
     if ($f) { $x = Get-AppliMaj $f.id $f.nom; $fait = & $infos $x.Id $x.Nom $x.Couleur $f.version; $fait.quand = Format-QuandMaj $f.quand; $fait.auto = [bool]$f.auto; $fait.notes = [string]$f.notes }
     ConvertTo-Json -InputObject ([ordered]@{ auto = $auto; verif = $verif; phase = $phase; raison = $raison; appli = $appli
-        progres = [math]::Round($progres, 3); fait = $fait }) -Depth 4 -Compress
+        progres = [math]::Round($progres, 3); enAuto = $enAuto; jeu = $jeu; echec = $echec; reessai = $reessai; fait = $fait }) -Depth 4 -Compress
 }
 function Send-MajConsole([switch]$Force) {
     if (-not $script:Console.Vue -or -not $script:Console.Pret) { return }

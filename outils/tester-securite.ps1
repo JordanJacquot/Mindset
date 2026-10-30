@@ -932,7 +932,7 @@ public static class FenetreCachee {
         foreach ($x in $d) { Set-Item -Path "function:script:$($x.Name)" -Value (Get-Item "function:$($x.Name)").ScriptBlock }
     }
     Import-FonctionsMindset 'accueil.ps1' @('Invoke-Actualiser', 'Update-InfoActualiser')
-    Import-FonctionsMindset 'mindset.ps1' @('Test-VerifVersionsActive', 'Test-MajAutoActive', 'Test-MajAutoRecente', 'Invoke-MajAuto')
+    Import-FonctionsMindset 'mindset.ps1' @('Test-VerifVersionsActive', 'Test-MajAutoActive', 'Test-MajAutoRecente', 'Get-MajAutoReessai', 'Add-MajAutoEssai', 'Invoke-MajAuto')
 
     # Les faux : réglages en mémoire, appels réseau comptés
     $script:ReglagesTest = @{}
@@ -949,6 +949,7 @@ public static class FenetreCachee {
     $script:OuverteTest = $false; $script:JeuTest = ''
     function Get-EtatCarte($Appli) { @{ MajDispo = $true; Occupe = $null; Ouverte = $script:OuverteTest; Pub = @{ Version = '9.9.9' } } }
     function Get-JeuEnCours { $script:JeuTest }
+    function Get-SecondesInactif { 3600 }   # (personne au clavier : jamais le vrai clavier ni la vraie souris)
     if (-not ('MSActivite' -as [type])) {
         Add-Type -TypeDefinition 'public static class MSActivite { public static bool PleinEcranDevant() { return false; } public static uint SecondesInactif() { return 3600; } }'
     }

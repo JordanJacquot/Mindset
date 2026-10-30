@@ -28,8 +28,8 @@ function Get-EtatAppli($Appli) { $null }
 function Find-InstallationExistante($Appli) { $null }
 function Test-TacheInstallation { $true }
 # Rien n'est jamais installé ni lancé en administrateur
-function Invoke-Admin([string]$Action, [hashtable]$Parametres, [scriptblock]$Fin) { Write-Log "Essai : $Action refusé (rien n'est installé)"; & $Fin $false 'essai' }
-function Start-MajMindset([switch]$Cache) { Write-Log 'Essai : Start-MajMindset (rien n''est installé)' }
+function Invoke-Admin([string]$Action, [hashtable]$Parametres, [scriptblock]$Fin, [switch]$Auto) { Write-Log "Essai : $Action refusé (rien n'est installé)"; & $Fin $false 'essai' }
+function Start-MajMindset([switch]$Cache, [switch]$Auto) { Write-Log 'Essai : Start-MajMindset (rien n''est installé)' }
 function Get-JeuEnCours { if ($script:Essai.Etape -eq 'attente') { 'un jeu ouvert (essai)' } else { '' } }
 $script:Publications = @{}
 foreach ($a in $Applis) { $script:Publications[$a.Id] = @{ Version = $script:EssaiVersions[$a.Id]; Notes = '' } }
