@@ -664,7 +664,7 @@ static class Essai {
             $script:Inactif = 3600; $Window.IsVisible = $true; $script:PageCourante = 'evermind'; $script:MajAutoDerniere = [datetime]::MinValue
             Invoke-MajAuto; $m2 = Get-Maj
         } finally { ${function:Test-AppliOuverte} = $ouverteAvant }
-        Test-Cas 'Appli ouverte, PC utilisé : « utilise » ; personne au PC mais sa page à l''écran : « page » (textes différents)' { $m1.raison -eq 'utilise' -and $m2.raison -eq 'page' -and -not $script:Occupe.Count }
+        Test-Cas 'Appli ouverte, PC utilisé : « utilise » ; personne au PC depuis 5 min, même sa page à l''écran : la mise à jour part' { $m1.raison -eq 'utilise' -and $m2.raison -ne 'page' -and ($script:Telecharges.Count -or $script:Occupe.Count) }
 
         # ---------------------------------------------------------------------------------------------------------
         # Mindset lui-même, à l'écran : quand personne ne touche au PC depuis 5 minutes (jamais sinon, ni pendant un jeu)

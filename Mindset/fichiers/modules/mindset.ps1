@@ -482,8 +482,9 @@ function Invoke-MajAuto {
         $v = [string]$e.Pub.Version
         if (Test-MajAutoRecente $a.Id $v) { continue }
         if ($e.Ouverte) {
-            if ($inactif -lt 300) { $attentes[$a.Id] = 'utilise'; continue }                           # on s'en sert peut-être
-            if ($script:PageCourante -eq $a.Id -and $alEcran) { $attentes[$a.Id] = 'page'; continue }   # à l'écran dans Mindset
+            # on s'en sert peut-être ; sa page à l'écran dans Mindset ne compte plus (décision de Jordan, 30/10) : après
+            # 5 minutes sans clavier ni souris, elle est fermée, mise à jour et relancée, comme Mindset lui-même
+            if ($inactif -lt 300) { $attentes[$a.Id] = 'utilise'; continue }
         }
         $script:MajAutoAttentes = $attentes
         Add-MajAutoEssai $a.Id $v
