@@ -13,6 +13,7 @@
 //!
 //! Pour la liste des applis en ligne (Mindset 2.16) :
 //! - [`liste_en_ligne`] : ses règles d'acceptation, les mêmes pour l'installateur et le désinstalleur.
+//! - [`micro`] : le micro et le casque de la suite (suite.json), retrouvés parmi ceux du PC comme en PowerShell.
 //!
 //! Le banc d'essai (outils\banc-suite-commun.ps1) passe les mêmes fichiers à la version PowerShell et à cette
 //! bibliothèque, et vérifie qu'elles répondent pareil.
@@ -26,6 +27,7 @@ mod base64;
 pub mod chemins;
 pub mod json_sur;
 pub mod liste_en_ligne;
+pub mod micro;
 pub mod paquet;
 pub mod protocole_installateur;
 pub mod signature;
