@@ -14,6 +14,9 @@
 //! Pour la liste des applis en ligne (Mindset 2.16) :
 //! - [`liste_en_ligne`] : ses règles d'acceptation, les mêmes pour l'installateur et le désinstalleur.
 //!
+//! Pour les applis en Rust (Mindcare d'abord) :
+//! - [`themes`] : le thème de la suite (suite.json, thèmes intégrés et packs, couleurs vérifiées), prêt pour l'écran.
+//!
 //! Le banc d'essai (outils\banc-suite-commun.ps1) passe les mêmes fichiers à la version PowerShell et à cette
 //! bibliothèque, et vérifie qu'elles répondent pareil.
 //!
@@ -44,6 +47,7 @@ pub mod protocole_installateur;
 #[cfg(feature = "signature")]
 pub mod signature;
 mod texte;
+pub mod themes;
 pub mod version;
 #[cfg(feature = "paquet")]
 pub mod version_paquet;
