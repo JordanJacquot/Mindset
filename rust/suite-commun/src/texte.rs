@@ -64,6 +64,7 @@ fn utf32(octets: &[u8], lire: fn([u8; 4]) -> u32) -> String {
 
 /// Un caractère en majuscule « invariante » simple, comme `OrdinalIgnoreCase` de .NET (un seul caractère : « ß »
 /// reste « ß »).
+#[cfg(feature = "paquet")]
 fn majuscule(c: char) -> char {
     let mut m = c.to_uppercase();
     match (m.next(), m.next()) {
@@ -73,6 +74,7 @@ fn majuscule(c: char) -> char {
 }
 
 /// `texte.StartsWith(debut, OrdinalIgnoreCase)` : la longueur en octets du début trouvé dans `texte`, ou `None`.
+#[cfg(feature = "paquet")]
 pub fn commence_par_sans_casse(texte: &str, debut: &str) -> Option<usize> {
     let mut t = texte.char_indices();
     for d in debut.chars() {
@@ -85,6 +87,7 @@ pub fn commence_par_sans_casse(texte: &str, debut: &str) -> Option<usize> {
 }
 
 /// Comparaison sans tenir compte des majuscules (`-ieq`, `OrdinalIgnoreCase`).
+#[cfg(feature = "paquet")]
 pub fn egal_sans_casse(a: &str, b: &str) -> bool {
     a.chars().count() == b.chars().count() && commence_par_sans_casse(a, b).is_some()
 }
@@ -129,6 +132,7 @@ mod tests {
         assert_eq!(decoder_fichier(b"\xE9", SansMarque::Utf8), "\u{FFFD}");
     }
 
+    #[cfg(feature = "paquet")]
     #[test]
     fn sans_casse() {
         assert_eq!(commence_par_sans_casse("APPLI\\x", "appli\\"), Some(6));

@@ -6,12 +6,35 @@ edition.workspace = true
 license.workspace = true
 publish.workspace = true
 
+[features]
+# Toutes activées par défaut (les crates de ce dépôt s'en servent). Une appli qui ne prend que json_sur et chemins
+# (Mindcare) les coupe avec `default-features = false` : ni ring, ni zip, ni appel à Windows.
+default = ["signature", "paquet", "heure-locale"]
+# La vérification des zips signés (module signature)
+signature = ["dep:ring"]
+# L'installation des zips, leur version, la liste des applis en ligne (modules paquet, version_paquet, liste_en_ligne)
+paquet = ["signature", "dep:zip"]
+# L'heure locale du PC pour les fichiers mis de côté par json_sur (sans elle : l'horloge donnée par l'appli)
+heure-locale = ["dep:windows"]
+
 [dependencies]
 # Versions figées (« = ») : une nouvelle version n'entre que par un changement relu.
-ring = "=0.17.14"
+ring = { version = "=0.17.14", optional = true }
 serde_json = "=1.0.154"
 # Sans les options par défaut : seulement « deflate » (le format des zips publiés)
-zip = { version = "=9.1.2", default-features = false, features = ["deflate"] }
+zip = { version = "=9.1.2", default-features = false, features = ["deflate"], optional = true }
 
-[lints]
-workspace = true
+# La même version que l'installateur et le désinstalleur (rien de nouveau dans Cargo.lock)
+[target.'cfg(windows)'.dependencies.windows]
+version = "=0.62.2"
+optional = true
+features = ["Win32_Foundation", "Win32_System_SystemInformation"]
+
+# Pas `workspace = true` : l'appel à l'heure de Windows (src/heure_windows.rs) a besoin d'autoriser le code
+# « unsafe », que le reste du dépôt interdit tout à fait (forbid). Ici, il est refusé partout (deny), sauf là.
+[lints.rust]
+unsafe_code = "deny"
+unsafe_op_in_unsafe_fn = "deny"
+
+[lints.clippy]
+all = { level = "warn", priority = -1 }

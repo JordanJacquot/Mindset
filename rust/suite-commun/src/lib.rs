@@ -17,19 +17,35 @@
 //! Le banc d'essai (outils\banc-suite-commun.ps1) passe les mêmes fichiers à la version PowerShell et à cette
 //! bibliothèque, et vérifie qu'elles répondent pareil.
 //!
-//! Aucun code « unsafe » ici (interdit dans tout le dépôt Rust, voir Cargo.toml).
+//! Options (features Cargo), toutes activées par défaut ; une appli qui n'a besoin que de [`json_sur`] et
+//! [`chemins`] (Mindcare) les coupe (`default-features = false`) et ne tire ni ring ni zip :
+//! - « signature » : [`signature`] (tire ring) ;
+//! - « paquet » : [`paquet`], [`version_paquet`] et [`liste_en_ligne`] (tire zip, et « signature ») ;
+//! - « heure-locale » : l'heure du PC pour les noms des fichiers mis de côté par [`json_sur`] (tire windows). Sans
+//!   elle, l'appli donne sa propre horloge à `json_sur::Options`.
+//!
+//! Aucun code « unsafe » ici (interdit dans tout le dépôt Rust, voir Cargo.toml), sauf l'appel à l'heure de Windows
+//! (heure_windows, avec l'option « heure-locale »), qui l'autorise lui-même.
 
 #![deny(unsafe_op_in_unsafe_fn)]
-#![forbid(unsafe_code)]
+#![deny(unsafe_code)]
 
+#[cfg(feature = "signature")]
 mod base64;
 pub mod chemins;
+#[cfg(all(windows, feature = "heure-locale"))]
+mod heure_windows;
 pub mod json_sur;
+#[cfg(feature = "paquet")]
 pub mod liste_en_ligne;
+#[cfg(feature = "paquet")]
 pub mod paquet;
 pub mod protocole_installateur;
+#[cfg(feature = "signature")]
 pub mod signature;
 mod texte;
 pub mod version;
+#[cfg(feature = "paquet")]
 pub mod version_paquet;
+#[cfg(feature = "signature")]
 mod xml;
