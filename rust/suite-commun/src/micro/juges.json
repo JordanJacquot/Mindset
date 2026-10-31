@@ -1,0 +1,1237 @@
+{
+  "note": "Fait par outils\\exporter-juges-micro.ps1 : ne pas modifier \u00e0 la main.",
+  "cas": [
+    {
+      "nom": "pas de suite.json",
+      "fichier": null,
+      "bak": null,
+      "micros": ["Microphone (Realtek(R) Audio)", "Micro USB (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "sorties": ["Haut-parleurs (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "mindset": {
+        "illisible": false,
+        "micro": null,
+        "casque": null
+      },
+      "mindcare": {
+        "micro": "",
+        "numero": 4294967295
+      },
+      "evermind": {
+        "micro": null,
+        "casque": null,
+        "numero_micro": 4294967295,
+        "numero_casque": 4294967295
+      }
+    },
+    {
+      "nom": "suite.json vide",
+      "fichier": "",
+      "bak": null,
+      "micros": ["Microphone (Realtek(R) Audio)", "Micro USB (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "sorties": ["Haut-parleurs (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "mindset": {
+        "illisible": false,
+        "micro": null,
+        "casque": null
+      },
+      "mindcare": {
+        "micro": "",
+        "numero": 4294967295
+      },
+      "evermind": {
+        "micro": null,
+        "casque": null,
+        "numero_micro": 4294967295,
+        "numero_casque": 4294967295
+      }
+    },
+    {
+      "nom": "seulement des espaces",
+      "fichier": "ICANCiA=",
+      "bak": null,
+      "micros": ["Microphone (Realtek(R) Audio)", "Micro USB (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "sorties": ["Haut-parleurs (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "mindset": {
+        "illisible": false,
+        "micro": null,
+        "casque": null
+      },
+      "mindcare": {
+        "micro": "",
+        "numero": 4294967295
+      },
+      "evermind": {
+        "micro": null,
+        "casque": null,
+        "numero_micro": 4294967295,
+        "numero_casque": 4294967295
+      }
+    },
+    {
+      "nom": "ab\u00eem\u00e9 (coup\u00e9 en plein milieu)",
+      "fichier": "eyJ0aGVtZSI6Im5lb24iLCJtaWNybyI6Ik1pY3JvIFVTQg==",
+      "bak": null,
+      "micros": ["Microphone (Realtek(R) Audio)", "Micro USB (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "sorties": ["Haut-parleurs (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "mindset": {
+        "illisible": false,
+        "micro": null,
+        "casque": null
+      },
+      "mindcare": {
+        "micro": "",
+        "numero": 4294967295
+      },
+      "evermind": {
+        "micro": null,
+        "casque": null,
+        "numero_micro": 4294967295,
+        "numero_casque": 4294967295
+      }
+    },
+    {
+      "nom": "ab\u00eem\u00e9, copie .bak bonne",
+      "fichier": "eyJtaWNybyI6IkNhc3F1ZSAoTG9n",
+      "bak": "eyJ0aGVtZSI6Im5lb24iLCJtaWNybyI6IkNhc3F1ZSAoTG9naXRlY2ggRzQzNSkiLCJjYXNxdWUiOiIifQ==",
+      "micros": ["Microphone (Realtek(R) Audio)", "Micro USB (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "sorties": ["Haut-parleurs (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "mindset": {
+        "illisible": false,
+        "micro": "Casque (Logitech G435)",
+        "casque": ""
+      },
+      "mindcare": {
+        "micro": "",
+        "numero": 4294967295
+      },
+      "evermind": {
+        "micro": null,
+        "casque": null,
+        "numero_micro": 4294967295,
+        "numero_casque": 4294967295
+      }
+    },
+    {
+      "nom": "du JSON, mais un tableau",
+      "fichier": "WzEsMl0=",
+      "bak": null,
+      "micros": ["Microphone (Realtek(R) Audio)", "Micro USB (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "sorties": ["Haut-parleurs (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "mindset": {
+        "illisible": false,
+        "micro": null,
+        "casque": null
+      },
+      "mindcare": {
+        "micro": "",
+        "numero": 4294967295
+      },
+      "evermind": {
+        "micro": null,
+        "casque": null,
+        "numero_micro": 4294967295,
+        "numero_casque": 4294967295
+      }
+    },
+    {
+      "nom": "un tableau d'un objet",
+      "fichier": "W3sibWljcm8iOiJNaWNybyBVU0IgKFJlYWx0ZWsoUikgQXVkaW8pIn1d",
+      "bak": null,
+      "micros": ["Microphone (Realtek(R) Audio)", "Micro USB (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "sorties": ["Haut-parleurs (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "mindset": {
+        "illisible": false,
+        "micro": null,
+        "casque": null
+      },
+      "mindcare": {
+        "micro": "Micro USB (Realtek(R) Audio)",
+        "numero": 1
+      },
+      "evermind": {
+        "micro": null,
+        "casque": null,
+        "numero_micro": 4294967295,
+        "numero_casque": 4294967295
+      }
+    },
+    {
+      "nom": "une cha\u00eene seule",
+      "fichier": "Ik1pY3JvIFVTQiI=",
+      "bak": null,
+      "micros": ["Microphone (Realtek(R) Audio)", "Micro USB (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "sorties": ["Haut-parleurs (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "mindset": {
+        "illisible": false,
+        "micro": null,
+        "casque": null
+      },
+      "mindcare": {
+        "micro": "",
+        "numero": 4294967295
+      },
+      "evermind": {
+        "micro": null,
+        "casque": null,
+        "numero_micro": 4294967295,
+        "numero_casque": 4294967295
+      }
+    },
+    {
+      "nom": "null",
+      "fichier": "bnVsbA==",
+      "bak": null,
+      "micros": ["Microphone (Realtek(R) Audio)", "Micro USB (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "sorties": ["Haut-parleurs (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "mindset": {
+        "illisible": false,
+        "micro": null,
+        "casque": null
+      },
+      "mindcare": {
+        "micro": "",
+        "numero": 4294967295
+      },
+      "evermind": {
+        "micro": null,
+        "casque": null,
+        "numero_micro": 4294967295,
+        "numero_casque": 4294967295
+      }
+    },
+    {
+      "nom": "aucun choix (que le th\u00e8me)",
+      "fichier": "eyJ0aGVtZSI6Im5lb24iLCJhcHBsaXMiOnt9fQ==",
+      "bak": null,
+      "micros": ["Microphone (Realtek(R) Audio)", "Micro USB (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "sorties": ["Haut-parleurs (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "mindset": {
+        "illisible": false,
+        "micro": null,
+        "casque": null
+      },
+      "mindcare": {
+        "micro": "",
+        "numero": 4294967295
+      },
+      "evermind": {
+        "micro": null,
+        "casque": null,
+        "numero_micro": 4294967295,
+        "numero_casque": 4294967295
+      }
+    },
+    {
+      "nom": "celui de Windows (vide)",
+      "fichier": "eyJ0aGVtZSI6Im5lb24iLCJtaWNybyI6IiIsImNhc3F1ZSI6IiJ9",
+      "bak": null,
+      "micros": ["Microphone (Realtek(R) Audio)", "Micro USB (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "sorties": ["Haut-parleurs (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "mindset": {
+        "illisible": false,
+        "micro": "",
+        "casque": ""
+      },
+      "mindcare": {
+        "micro": "",
+        "numero": 4294967295
+      },
+      "evermind": {
+        "micro": "",
+        "casque": "",
+        "numero_micro": 4294967295,
+        "numero_casque": 4294967295
+      }
+    },
+    {
+      "nom": "choix pr\u00e9sent",
+      "fichier": "eyJ0aGVtZSI6Im5lb24iLCJtaWNybyI6Ik1pY3JvIFVTQiAoUmVhbHRlayhSKSBBdWRpbykiLCJjYXNxdWUiOiJDYXNxdWUgKExvZ2l0ZWNoIEc0MzUpIn0=",
+      "bak": null,
+      "micros": ["Microphone (Realtek(R) Audio)", "Micro USB (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "sorties": ["Haut-parleurs (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "mindset": {
+        "illisible": false,
+        "micro": "Micro USB (Realtek(R) Audio)",
+        "casque": "Casque (Logitech G435)"
+      },
+      "mindcare": {
+        "micro": "Micro USB (Realtek(R) Audio)",
+        "numero": 1
+      },
+      "evermind": {
+        "micro": "Micro USB (Realtek(R) Audio)",
+        "casque": "Casque (Logitech G435)",
+        "numero_micro": 1,
+        "numero_casque": 1
+      }
+    },
+    {
+      "nom": "choix pr\u00e9sent, premier de la liste",
+      "fichier": "eyJtaWNybyI6Ik1pY3JvcGhvbmUgKFJlYWx0ZWsoUikgQXVkaW8pIiwiY2FzcXVlIjoiSGF1dC1wYXJsZXVycyAoUmVhbHRlayhSKSBBdWRpbykifQ==",
+      "bak": null,
+      "micros": ["Microphone (Realtek(R) Audio)", "Micro USB (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "sorties": ["Haut-parleurs (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "mindset": {
+        "illisible": false,
+        "micro": "Microphone (Realtek(R) Audio)",
+        "casque": "Haut-parleurs (Realtek(R) Audio)"
+      },
+      "mindcare": {
+        "micro": "Microphone (Realtek(R) Audio)",
+        "numero": 0
+      },
+      "evermind": {
+        "micro": "Microphone (Realtek(R) Audio)",
+        "casque": "Haut-parleurs (Realtek(R) Audio)",
+        "numero_micro": 0,
+        "numero_casque": 0
+      }
+    },
+    {
+      "nom": "choix d\u00e9branch\u00e9",
+      "fichier": "eyJtaWNybyI6Ik1pY3JvIEJsdWUgWWV0aSIsImNhc3F1ZSI6IkNhc3F1ZSBCbHVldG9vdGgifQ==",
+      "bak": null,
+      "micros": ["Microphone (Realtek(R) Audio)", "Micro USB (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "sorties": ["Haut-parleurs (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "mindset": {
+        "illisible": false,
+        "micro": "Micro Blue Yeti",
+        "casque": "Casque Bluetooth"
+      },
+      "mindcare": {
+        "micro": "Micro Blue Yeti",
+        "numero": 4294967295
+      },
+      "evermind": {
+        "micro": "Micro Blue Yeti",
+        "casque": "Casque Bluetooth",
+        "numero_micro": 4294967295,
+        "numero_casque": 4294967295
+      }
+    },
+    {
+      "nom": "aucun micro sur le PC",
+      "fichier": "eyJtaWNybyI6Ik1pY3JvIFVTQiAoUmVhbHRlayhSKSBBdWRpbykifQ==",
+      "bak": null,
+      "micros": [],
+      "sorties": [],
+      "mindset": {
+        "illisible": false,
+        "micro": "Micro USB (Realtek(R) Audio)",
+        "casque": null
+      },
+      "mindcare": {
+        "micro": "Micro USB (Realtek(R) Audio)",
+        "numero": 4294967295
+      },
+      "evermind": {
+        "micro": "Micro USB (Realtek(R) Audio)",
+        "casque": null,
+        "numero_micro": 4294967295,
+        "numero_casque": 4294967295
+      }
+    },
+    {
+      "nom": "deux micros au m\u00eame nom",
+      "fichier": "eyJtaWNybyI6Ik1pY3JvIFVTQiAoUmVhbHRlayhSKSBBdWRpbykifQ==",
+      "bak": null,
+      "micros": ["Microphone (Realtek(R) Audio)", "Micro USB (Realtek(R) Audio)", "Micro USB (Realtek(R) Audio)"],
+      "sorties": ["Haut-parleurs (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "mindset": {
+        "illisible": false,
+        "micro": "Micro USB (Realtek(R) Audio)",
+        "casque": null
+      },
+      "mindcare": {
+        "micro": "Micro USB (Realtek(R) Audio)",
+        "numero": 1
+      },
+      "evermind": {
+        "micro": "Micro USB (Realtek(R) Audio)",
+        "casque": null,
+        "numero_micro": 1,
+        "numero_casque": 4294967295
+      }
+    },
+    {
+      "nom": "nom coup\u00e9 \u00e0 31 lettres",
+      "fichier": "eyJtaWNybyI6Ik1pY3JvcGhvbmUgKDItIFVTQiBBdWRpbyBEZXZpY2UifQ==",
+      "bak": null,
+      "micros": ["Microphone (Realtek(R) Audio)", "Microphone (2- USB Audio Device"],
+      "sorties": ["Haut-parleurs (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "mindset": {
+        "illisible": false,
+        "micro": "Microphone (2- USB Audio Device",
+        "casque": null
+      },
+      "mindcare": {
+        "micro": "Microphone (2- USB Audio Device",
+        "numero": 1
+      },
+      "evermind": {
+        "micro": "Microphone (2- USB Audio Device",
+        "casque": null,
+        "numero_micro": 1,
+        "numero_casque": 4294967295
+      }
+    },
+    {
+      "nom": "nom entier alors que Windows le coupe",
+      "fichier": "eyJtaWNybyI6Ik1pY3JvcGhvbmUgKDItIFVTQiBBdWRpbyBEZXZpY2UpIn0=",
+      "bak": null,
+      "micros": ["Microphone (Realtek(R) Audio)", "Microphone (2- USB Audio Device"],
+      "sorties": ["Haut-parleurs (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "mindset": {
+        "illisible": false,
+        "micro": "Microphone (2- USB Audio Device)",
+        "casque": null
+      },
+      "mindcare": {
+        "micro": "Microphone (2- USB Audio Device)",
+        "numero": 4294967295
+      },
+      "evermind": {
+        "micro": "Microphone (2- USB Audio Device)",
+        "casque": null,
+        "numero_micro": 4294967295,
+        "numero_casque": 4294967295
+      }
+    },
+    {
+      "nom": "majuscules diff\u00e9rentes",
+      "fichier": "eyJtaWNybyI6Im1pY3JvIHVzYiAocmVhbHRlayhyKSBhdWRpbykiLCJjYXNxdWUiOiJDQVNRVUUgKExPR0lURUNIIEc0MzUpIn0=",
+      "bak": null,
+      "micros": ["Microphone (Realtek(R) Audio)", "Micro USB (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "sorties": ["Haut-parleurs (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "mindset": {
+        "illisible": false,
+        "micro": "micro usb (realtek(r) audio)",
+        "casque": "CASQUE (LOGITECH G435)"
+      },
+      "mindcare": {
+        "micro": "micro usb (realtek(r) audio)",
+        "numero": 4294967295
+      },
+      "evermind": {
+        "micro": "micro usb (realtek(r) audio)",
+        "casque": "CASQUE (LOGITECH G435)",
+        "numero_micro": 4294967295,
+        "numero_casque": 4294967295
+      }
+    },
+    {
+      "nom": "espace en plus \u00e0 la fin",
+      "fichier": "eyJtaWNybyI6Ik1pY3JvIFVTQiAoUmVhbHRlayhSKSBBdWRpbykgIn0=",
+      "bak": null,
+      "micros": ["Microphone (Realtek(R) Audio)", "Micro USB (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "sorties": ["Haut-parleurs (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "mindset": {
+        "illisible": false,
+        "micro": "Micro USB (Realtek(R) Audio) ",
+        "casque": null
+      },
+      "mindcare": {
+        "micro": "Micro USB (Realtek(R) Audio) ",
+        "numero": 4294967295
+      },
+      "evermind": {
+        "micro": "Micro USB (Realtek(R) Audio) ",
+        "casque": null,
+        "numero_micro": 4294967295,
+        "numero_casque": 4294967295
+      }
+    },
+    {
+      "nom": "liste avec un nom vide",
+      "fichier": "eyJtaWNybyI6IiJ9",
+      "bak": null,
+      "micros": ["", "Micro USB (Realtek(R) Audio)"],
+      "sorties": ["Haut-parleurs (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "mindset": {
+        "illisible": false,
+        "micro": "",
+        "casque": null
+      },
+      "mindcare": {
+        "micro": "",
+        "numero": 4294967295
+      },
+      "evermind": {
+        "micro": "",
+        "casque": null,
+        "numero_micro": 4294967295,
+        "numero_casque": 4294967295
+      }
+    },
+    {
+      "nom": "choix pr\u00e9sent apr\u00e8s un nom vide",
+      "fichier": "eyJtaWNybyI6Ik1pY3JvIFVTQiAoUmVhbHRlayhSKSBBdWRpbykifQ==",
+      "bak": null,
+      "micros": ["", "Micro USB (Realtek(R) Audio)"],
+      "sorties": ["Haut-parleurs (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "mindset": {
+        "illisible": false,
+        "micro": "Micro USB (Realtek(R) Audio)",
+        "casque": null
+      },
+      "mindcare": {
+        "micro": "Micro USB (Realtek(R) Audio)",
+        "numero": 1
+      },
+      "evermind": {
+        "micro": "Micro USB (Realtek(R) Audio)",
+        "casque": null,
+        "numero_micro": 1,
+        "numero_casque": 4294967295
+      }
+    },
+    {
+      "nom": "cl\u00e9 en majuscules",
+      "fichier": "eyJNSUNSTyI6Ik1pY3JvIFVTQiAoUmVhbHRlayhSKSBBdWRpbykiLCJDYXNxdWUiOiJDYXNxdWUgKExvZ2l0ZWNoIEc0MzUpIn0=",
+      "bak": null,
+      "micros": ["Microphone (Realtek(R) Audio)", "Micro USB (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "sorties": ["Haut-parleurs (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "mindset": {
+        "illisible": false,
+        "micro": "Micro USB (Realtek(R) Audio)",
+        "casque": "Casque (Logitech G435)"
+      },
+      "mindcare": {
+        "micro": "Micro USB (Realtek(R) Audio)",
+        "numero": 1
+      },
+      "evermind": {
+        "micro": "Micro USB (Realtek(R) Audio)",
+        "casque": "Casque (Logitech G435)",
+        "numero_micro": 1,
+        "numero_casque": 1
+      }
+    },
+    {
+      "nom": "cl\u00e9 en deux casses",
+      "fichier": "eyJtaWNybyI6Ik1pY3JvIFVTQiAoUmVhbHRlayhSKSBBdWRpbykiLCJNaWNybyI6IkNhc3F1ZSAoTG9naXRlY2ggRzQzNSkifQ==",
+      "bak": null,
+      "micros": ["Microphone (Realtek(R) Audio)", "Micro USB (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "sorties": ["Haut-parleurs (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "mindset": {
+        "illisible": false,
+        "micro": null,
+        "casque": null
+      },
+      "mindcare": {
+        "micro": "",
+        "numero": 4294967295
+      },
+      "evermind": {
+        "micro": null,
+        "casque": null,
+        "numero_micro": 4294967295,
+        "numero_casque": 4294967295
+      }
+    },
+    {
+      "nom": "cl\u00e9 en deux casses ailleurs (th\u00e8me)",
+      "fichier": "eyJtaWNybyI6Ik1pY3JvIFVTQiAoUmVhbHRlayhSKSBBdWRpbykiLCJ0aGVtZSI6Im5lb24iLCJUaGVtZSI6InJ1YmlzIn0=",
+      "bak": null,
+      "micros": ["Microphone (Realtek(R) Audio)", "Micro USB (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "sorties": ["Haut-parleurs (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "mindset": {
+        "illisible": false,
+        "micro": null,
+        "casque": null
+      },
+      "mindcare": {
+        "micro": "",
+        "numero": 4294967295
+      },
+      "evermind": {
+        "micro": null,
+        "casque": null,
+        "numero_micro": 4294967295,
+        "numero_casque": 4294967295
+      }
+    },
+    {
+      "nom": "cl\u00e9 en deux casses plus loin (applis)",
+      "fichier": "eyJtaWNybyI6Ik1pY3JvIFVTQiAoUmVhbHRlayhSKSBBdWRpbykiLCJhcHBsaXMiOnsibWluZGNhcmUiOiJDOlxcQSIsIk1pbmRDYXJlIjoiQzpcXEIifX0=",
+      "bak": null,
+      "micros": ["Microphone (Realtek(R) Audio)", "Micro USB (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "sorties": ["Haut-parleurs (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "mindset": {
+        "illisible": false,
+        "micro": null,
+        "casque": null
+      },
+      "mindcare": {
+        "micro": "",
+        "numero": 4294967295
+      },
+      "evermind": {
+        "micro": null,
+        "casque": null,
+        "numero_micro": 4294967295,
+        "numero_casque": 4294967295
+      }
+    },
+    {
+      "nom": "cl\u00e9 en deux casses dans un tableau",
+      "fichier": "eyJtaWNybyI6Ik1pY3JvIFVTQiAoUmVhbHRlayhSKSBBdWRpbykiLCJ4IjpbeyJhIjoxLCJBIjoyfV19",
+      "bak": null,
+      "micros": ["Microphone (Realtek(R) Audio)", "Micro USB (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "sorties": ["Haut-parleurs (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "mindset": {
+        "illisible": false,
+        "micro": null,
+        "casque": null
+      },
+      "mindcare": {
+        "micro": "",
+        "numero": 4294967295
+      },
+      "evermind": {
+        "micro": null,
+        "casque": null,
+        "numero_micro": 4294967295,
+        "numero_casque": 4294967295
+      }
+    },
+    {
+      "nom": "tr\u00e8s grand nombre ailleurs",
+      "fichier": "eyJtaWNybyI6Ik1pY3JvIFVTQiAoUmVhbHRlayhSKSBBdWRpbykiLCJuIjoxZTQwMH0=",
+      "bak": null,
+      "micros": ["Microphone (Realtek(R) Audio)", "Micro USB (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "sorties": ["Haut-parleurs (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "mindset": {
+        "illisible": false,
+        "micro": null,
+        "casque": null
+      },
+      "mindcare": {
+        "micro": "",
+        "numero": 4294967295
+      },
+      "evermind": {
+        "micro": null,
+        "casque": null,
+        "numero_micro": 4294967295,
+        "numero_casque": 4294967295
+      }
+    },
+    {
+      "nom": "imbriqu\u00e9 sur 102 niveaux (tableaux)",
+      "fichier": "eyJtaWNybyI6Ik1pY3JvIFVTQiAoUmVhbHRlayhSKSBBdWRpbykiLCJ4IjpbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW11dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dfQ==",
+      "bak": null,
+      "micros": ["Microphone (Realtek(R) Audio)", "Micro USB (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "sorties": ["Haut-parleurs (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "mindset": {
+        "illisible": false,
+        "micro": "Micro USB (Realtek(R) Audio)",
+        "casque": null
+      },
+      "mindcare": {
+        "micro": "Micro USB (Realtek(R) Audio)",
+        "numero": 1
+      },
+      "evermind": {
+        "micro": "Micro USB (Realtek(R) Audio)",
+        "casque": null,
+        "numero_micro": 1,
+        "numero_casque": 4294967295
+      }
+    },
+    {
+      "nom": "imbriqu\u00e9 sur 103 niveaux (tableaux)",
+      "fichier": "eyJtaWNybyI6Ik1pY3JvIFVTQiAoUmVhbHRlayhSKSBBdWRpbykiLCJ4IjpbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tdXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV19",
+      "bak": null,
+      "micros": ["Microphone (Realtek(R) Audio)", "Micro USB (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "sorties": ["Haut-parleurs (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "mindset": {
+        "illisible": false,
+        "micro": null,
+        "casque": null
+      },
+      "mindcare": {
+        "micro": "",
+        "numero": 4294967295
+      },
+      "evermind": {
+        "micro": null,
+        "casque": null,
+        "numero_micro": 4294967295,
+        "numero_casque": 4294967295
+      }
+    },
+    {
+      "nom": "imbriqu\u00e9 sur 102 niveaux (objets)",
+      "fichier": "eyJtaWNybyI6Ik1pY3JvIFVTQiAoUmVhbHRlayhSKSBBdWRpbykiLCJ4Ijp7ImEiOnsiYSI6eyJhIjp7ImEiOnsiYSI6eyJhIjp7ImEiOnsiYSI6eyJhIjp7ImEiOnsiYSI6eyJhIjp7ImEiOnsiYSI6eyJhIjp7ImEiOnsiYSI6eyJhIjp7ImEiOnsiYSI6eyJhIjp7ImEiOnsiYSI6eyJhIjp7ImEiOnsiYSI6eyJhIjp7ImEiOnsiYSI6eyJhIjp7ImEiOnsiYSI6eyJhIjp7ImEiOnsiYSI6eyJhIjp7ImEiOnsiYSI6eyJhIjp7ImEiOnsiYSI6eyJhIjp7ImEiOnsiYSI6eyJhIjp7ImEiOnsiYSI6eyJhIjp7ImEiOnsiYSI6eyJhIjp7ImEiOnsiYSI6eyJhIjp7ImEiOnsiYSI6eyJhIjp7ImEiOnsiYSI6eyJhIjp7ImEiOnsiYSI6eyJhIjp7ImEiOnsiYSI6eyJhIjp7ImEiOnsiYSI6eyJhIjp7ImEiOnsiYSI6eyJhIjp7ImEiOnsiYSI6eyJhIjp7ImEiOnsiYSI6eyJhIjp7ImEiOnsiYSI6eyJhIjp7ImEiOnsiYSI6eyJhIjp7ImEiOnsiYSI6eyJhIjp7ImEiOnsiYSI6eyJhIjp7ImEiOnsiYSI6eyJhIjp7ImEiOnsiYSI6eyJhIjp7ImEiOnsiYSI6eyJhIjp7ImEiOjF9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fQ==",
+      "bak": null,
+      "micros": ["Microphone (Realtek(R) Audio)", "Micro USB (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "sorties": ["Haut-parleurs (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "mindset": {
+        "illisible": false,
+        "micro": "Micro USB (Realtek(R) Audio)",
+        "casque": null
+      },
+      "mindcare": {
+        "micro": "Micro USB (Realtek(R) Audio)",
+        "numero": 1
+      },
+      "evermind": {
+        "micro": "Micro USB (Realtek(R) Audio)",
+        "casque": null,
+        "numero_micro": 1,
+        "numero_casque": 4294967295
+      }
+    },
+    {
+      "nom": "imbriqu\u00e9 sur 103 niveaux (objets)",
+      "fichier": "eyJtaWNybyI6Ik1pY3JvIFVTQiAoUmVhbHRlayhSKSBBdWRpbykiLCJ4Ijp7ImEiOnsiYSI6eyJhIjp7ImEiOnsiYSI6eyJhIjp7ImEiOnsiYSI6eyJhIjp7ImEiOnsiYSI6eyJhIjp7ImEiOnsiYSI6eyJhIjp7ImEiOnsiYSI6eyJhIjp7ImEiOnsiYSI6eyJhIjp7ImEiOnsiYSI6eyJhIjp7ImEiOnsiYSI6eyJhIjp7ImEiOnsiYSI6eyJhIjp7ImEiOnsiYSI6eyJhIjp7ImEiOnsiYSI6eyJhIjp7ImEiOnsiYSI6eyJhIjp7ImEiOnsiYSI6eyJhIjp7ImEiOnsiYSI6eyJhIjp7ImEiOnsiYSI6eyJhIjp7ImEiOnsiYSI6eyJhIjp7ImEiOnsiYSI6eyJhIjp7ImEiOnsiYSI6eyJhIjp7ImEiOnsiYSI6eyJhIjp7ImEiOnsiYSI6eyJhIjp7ImEiOnsiYSI6eyJhIjp7ImEiOnsiYSI6eyJhIjp7ImEiOnsiYSI6eyJhIjp7ImEiOnsiYSI6eyJhIjp7ImEiOnsiYSI6eyJhIjp7ImEiOnsiYSI6eyJhIjp7ImEiOnsiYSI6eyJhIjp7ImEiOnsiYSI6eyJhIjp7ImEiOnsiYSI6eyJhIjp7ImEiOnsiYSI6eyJhIjp7ImEiOnsiYSI6eyJhIjp7ImEiOnsiYSI6eyJhIjp7ImEiOnsiYSI6MX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fQ==",
+      "bak": null,
+      "micros": ["Microphone (Realtek(R) Audio)", "Micro USB (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "sorties": ["Haut-parleurs (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "mindset": {
+        "illisible": false,
+        "micro": null,
+        "casque": null
+      },
+      "mindcare": {
+        "micro": "",
+        "numero": 4294967295
+      },
+      "evermind": {
+        "micro": null,
+        "casque": null,
+        "numero_micro": 4294967295,
+        "numero_casque": 4294967295
+      }
+    },
+    {
+      "nom": "cl\u00e9 en double",
+      "fichier": "eyJtaWNybyI6Ik1pY3JvIEJsdWUgWWV0aSIsIm1pY3JvIjoiTWljcm8gVVNCIChSZWFsdGVrKFIpIEF1ZGlvKSJ9",
+      "bak": null,
+      "micros": ["Microphone (Realtek(R) Audio)", "Micro USB (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "sorties": ["Haut-parleurs (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "mindset": {
+        "illisible": false,
+        "micro": "Micro USB (Realtek(R) Audio)",
+        "casque": null
+      },
+      "mindcare": {
+        "micro": "Micro USB (Realtek(R) Audio)",
+        "numero": 1
+      },
+      "evermind": {
+        "micro": "Micro USB (Realtek(R) Audio)",
+        "casque": null,
+        "numero_micro": 1,
+        "numero_casque": 4294967295
+      }
+    },
+    {
+      "nom": "micro : un nombre",
+      "fichier": "eyJtaWNybyI6NSwiY2FzcXVlIjoxLjV9",
+      "bak": null,
+      "micros": ["Microphone (Realtek(R) Audio)", "Micro USB (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "sorties": ["Haut-parleurs (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "mindset": {
+        "illisible": false,
+        "micro": null,
+        "casque": null
+      },
+      "mindcare": {
+        "micro": "",
+        "numero": 4294967295
+      },
+      "evermind": {
+        "micro": null,
+        "casque": null,
+        "numero_micro": 4294967295,
+        "numero_casque": 4294967295
+      }
+    },
+    {
+      "nom": "micro : vrai",
+      "fichier": "eyJtaWNybyI6dHJ1ZSwiY2FzcXVlIjpmYWxzZX0=",
+      "bak": null,
+      "micros": ["Microphone (Realtek(R) Audio)", "Micro USB (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "sorties": ["Haut-parleurs (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "mindset": {
+        "illisible": false,
+        "micro": null,
+        "casque": null
+      },
+      "mindcare": {
+        "micro": "",
+        "numero": 4294967295
+      },
+      "evermind": {
+        "micro": null,
+        "casque": null,
+        "numero_micro": 4294967295,
+        "numero_casque": 4294967295
+      }
+    },
+    {
+      "nom": "micro : null",
+      "fichier": "eyJtaWNybyI6bnVsbCwiY2FzcXVlIjpudWxsfQ==",
+      "bak": null,
+      "micros": ["Microphone (Realtek(R) Audio)", "Micro USB (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "sorties": ["Haut-parleurs (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "mindset": {
+        "illisible": false,
+        "micro": null,
+        "casque": null
+      },
+      "mindcare": {
+        "micro": "",
+        "numero": 4294967295
+      },
+      "evermind": {
+        "micro": null,
+        "casque": null,
+        "numero_micro": 4294967295,
+        "numero_casque": 4294967295
+      }
+    },
+    {
+      "nom": "micro : un objet",
+      "fichier": "eyJtaWNybyI6eyJub20iOiJNaWNybyBVU0IgKFJlYWx0ZWsoUikgQXVkaW8pIn0sImNhc3F1ZSI6e319",
+      "bak": null,
+      "micros": ["Microphone (Realtek(R) Audio)", "Micro USB (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "sorties": ["Haut-parleurs (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "mindset": {
+        "illisible": false,
+        "micro": null,
+        "casque": null
+      },
+      "mindcare": {
+        "micro": "",
+        "numero": 4294967295
+      },
+      "evermind": {
+        "micro": null,
+        "casque": null,
+        "numero_micro": 4294967295,
+        "numero_casque": 4294967295
+      }
+    },
+    {
+      "nom": "micro : un tableau d'un nom",
+      "fichier": "eyJtaWNybyI6WyJNaWNybyBVU0IgKFJlYWx0ZWsoUikgQXVkaW8pIl0sImNhc3F1ZSI6W119",
+      "bak": null,
+      "micros": ["Microphone (Realtek(R) Audio)", "Micro USB (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "sorties": ["Haut-parleurs (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "mindset": {
+        "illisible": false,
+        "micro": null,
+        "casque": null
+      },
+      "mindcare": {
+        "micro": "",
+        "numero": 4294967295
+      },
+      "evermind": {
+        "micro": "Micro USB (Realtek(R) Audio)",
+        "casque": null,
+        "numero_micro": 1,
+        "numero_casque": 4294967295
+      }
+    },
+    {
+      "nom": "64 lettres",
+      "fichier": "eyJtaWNybyI6IkFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUEifQ==",
+      "bak": null,
+      "micros": ["AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"],
+      "sorties": ["Haut-parleurs (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "mindset": {
+        "illisible": false,
+        "micro": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+        "casque": null
+      },
+      "mindcare": {
+        "micro": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+        "numero": 0
+      },
+      "evermind": {
+        "micro": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+        "casque": null,
+        "numero_micro": 0,
+        "numero_casque": 4294967295
+      }
+    },
+    {
+      "nom": "65 lettres",
+      "fichier": "eyJtaWNybyI6IkFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBIn0=",
+      "bak": null,
+      "micros": ["AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"],
+      "sorties": ["Haut-parleurs (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "mindset": {
+        "illisible": false,
+        "micro": null,
+        "casque": null
+      },
+      "mindcare": {
+        "micro": "",
+        "numero": 4294967295
+      },
+      "evermind": {
+        "micro": null,
+        "casque": null,
+        "numero_micro": 4294967295,
+        "numero_casque": 4294967295
+      }
+    },
+    {
+      "nom": "62 lettres et un emoji (64 unit\u00e9s)",
+      "fichier": "eyJtaWNybyI6IkFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBXHVkODNjXHVkZmE0In0=",
+      "bak": null,
+      "micros": ["AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\ud83c\udfa4"],
+      "sorties": ["Haut-parleurs (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "mindset": {
+        "illisible": false,
+        "micro": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\ud83c\udfa4",
+        "casque": null
+      },
+      "mindcare": {
+        "micro": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\ud83c\udfa4",
+        "numero": 0
+      },
+      "evermind": {
+        "micro": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\ud83c\udfa4",
+        "casque": null,
+        "numero_micro": 0,
+        "numero_casque": 4294967295
+      }
+    },
+    {
+      "nom": "63 lettres et un emoji (65 unit\u00e9s)",
+      "fichier": "eyJtaWNybyI6IkFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQVx1ZDgzY1x1ZGZhNCJ9",
+      "bak": null,
+      "micros": ["AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\ud83c\udfa4"],
+      "sorties": ["Haut-parleurs (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "mindset": {
+        "illisible": false,
+        "micro": null,
+        "casque": null
+      },
+      "mindcare": {
+        "micro": "",
+        "numero": 4294967295
+      },
+      "evermind": {
+        "micro": null,
+        "casque": null,
+        "numero_micro": 4294967295,
+        "numero_casque": 4294967295
+      }
+    },
+    {
+      "nom": "64 lettres accentu\u00e9es",
+      "fichier": "eyJtaWNybyI6IsOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpIn0=",
+      "bak": null,
+      "micros": ["\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9"],
+      "sorties": ["Haut-parleurs (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "mindset": {
+        "illisible": false,
+        "micro": "\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9",
+        "casque": null
+      },
+      "mindcare": {
+        "micro": "\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9",
+        "numero": 0
+      },
+      "evermind": {
+        "micro": "\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9",
+        "casque": null,
+        "numero_micro": 0,
+        "numero_casque": 4294967295
+      }
+    },
+    {
+      "nom": "tabulation dans le nom",
+      "fichier": "eyJtaWNybyI6Ik1pY3JvXHRVU0IiLCJjYXNxdWUiOiJDYXNxdWVcdTAwMDAifQ==",
+      "bak": null,
+      "micros": ["Micro\u0009USB"],
+      "sorties": ["Haut-parleurs (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "mindset": {
+        "illisible": false,
+        "micro": null,
+        "casque": null
+      },
+      "mindcare": {
+        "micro": "",
+        "numero": 4294967295
+      },
+      "evermind": {
+        "micro": null,
+        "casque": null,
+        "numero_micro": 4294967295,
+        "numero_casque": 4294967295
+      }
+    },
+    {
+      "nom": "caract\u00e8re 0x1F",
+      "fichier": "eyJtaWNybyI6Ik1pY3JvXHUwMDFmVVNCIn0=",
+      "bak": null,
+      "micros": ["Micro\u001fUSB"],
+      "sorties": ["Haut-parleurs (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "mindset": {
+        "illisible": false,
+        "micro": null,
+        "casque": null
+      },
+      "mindcare": {
+        "micro": "",
+        "numero": 4294967295
+      },
+      "evermind": {
+        "micro": null,
+        "casque": null,
+        "numero_micro": 4294967295,
+        "numero_casque": 4294967295
+      }
+    },
+    {
+      "nom": "caract\u00e8re DEL (0x7F)",
+      "fichier": "eyJtaWNybyI6Ik1pY3JvXHUwMDdmVVNCIn0=",
+      "bak": null,
+      "micros": ["Micro\u007fUSB"],
+      "sorties": ["Haut-parleurs (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "mindset": {
+        "illisible": false,
+        "micro": "Micro\u007fUSB",
+        "casque": null
+      },
+      "mindcare": {
+        "micro": "Micro\u007fUSB",
+        "numero": 0
+      },
+      "evermind": {
+        "micro": null,
+        "casque": null,
+        "numero_micro": 4294967295,
+        "numero_casque": 4294967295
+      }
+    },
+    {
+      "nom": "caract\u00e8re de contr\u00f4le C1 (0x85)",
+      "fichier": "eyJtaWNybyI6Ik1pY3JvXHUwMDg1VVNCIn0=",
+      "bak": null,
+      "micros": ["Micro\u0085USB"],
+      "sorties": ["Haut-parleurs (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "mindset": {
+        "illisible": false,
+        "micro": "Micro\u0085USB",
+        "casque": null
+      },
+      "mindcare": {
+        "micro": "Micro\u0085USB",
+        "numero": 0
+      },
+      "evermind": {
+        "micro": null,
+        "casque": null,
+        "numero_micro": 4294967295,
+        "numero_casque": 4294967295
+      }
+    },
+    {
+      "nom": "accents \u00e9crits en \\u",
+      "fichier": "eyJtaWNybyI6Ik1pY3JvIFx1MDBlOXRcdTAwZTkiLCJjYXNxdWUiOiJDYXNxdWUgZCdcdTAwZTl0XHUwMGU5In0=",
+      "bak": null,
+      "micros": ["Micro \u00e9t\u00e9"],
+      "sorties": ["Haut-parleurs (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "mindset": {
+        "illisible": false,
+        "micro": "Micro \u00e9t\u00e9",
+        "casque": "Casque d'\u00e9t\u00e9"
+      },
+      "mindcare": {
+        "micro": "Micro \u00e9t\u00e9",
+        "numero": 0
+      },
+      "evermind": {
+        "micro": "Micro \u00e9t\u00e9",
+        "casque": "Casque d'\u00e9t\u00e9",
+        "numero_micro": 0,
+        "numero_casque": 4294967295
+      }
+    },
+    {
+      "nom": "marque UTF-8 (BOM)",
+      "fichier": "77u/eyJtaWNybyI6Ik1pY3JvIFVTQiAoUmVhbHRlayhSKSBBdWRpbykifQ==",
+      "bak": null,
+      "micros": ["Microphone (Realtek(R) Audio)", "Micro USB (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "sorties": ["Haut-parleurs (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "mindset": {
+        "illisible": false,
+        "micro": "Micro USB (Realtek(R) Audio)",
+        "casque": null
+      },
+      "mindcare": {
+        "micro": "Micro USB (Realtek(R) Audio)",
+        "numero": 1
+      },
+      "evermind": {
+        "micro": "Micro USB (Realtek(R) Audio)",
+        "casque": null,
+        "numero_micro": 1,
+        "numero_casque": 4294967295
+      }
+    },
+    {
+      "nom": "UTF-16 avec sa marque",
+      "fichier": "//57ACIAbQBpAGMAcgBvACIAOgAiAE0AaQBjAHIAbwAgAOkAdADpACIAfQA=",
+      "bak": null,
+      "micros": ["Micro \u00e9t\u00e9"],
+      "sorties": ["Haut-parleurs (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "mindset": {
+        "illisible": false,
+        "micro": "Micro \u00e9t\u00e9",
+        "casque": null
+      },
+      "mindcare": {
+        "micro": "Micro \u00e9t\u00e9",
+        "numero": 0
+      },
+      "evermind": {
+        "micro": "Micro \u00e9t\u00e9",
+        "casque": null,
+        "numero_micro": 0,
+        "numero_casque": 4294967295
+      }
+    },
+    {
+      "nom": "octet invalide dans le nom",
+      "fichier": "eyJtaWNybyI6Ik1pY3JvIOl0In0=",
+      "bak": null,
+      "micros": ["Micro \ufffdt", "Micro \u00e9t"],
+      "sorties": ["Haut-parleurs (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "mindset": {
+        "illisible": false,
+        "micro": "Micro \ufffdt",
+        "casque": null
+      },
+      "mindcare": {
+        "micro": "Micro \ufffdt",
+        "numero": 0
+      },
+      "evermind": {
+        "micro": "Micro \ufffdt",
+        "casque": null,
+        "numero_micro": 0,
+        "numero_casque": 4294967295
+      }
+    },
+    {
+      "nom": "virgule en trop",
+      "fichier": "eyJtaWNybyI6Ik1pY3JvIFVTQiAoUmVhbHRlayhSKSBBdWRpbykiLH0=",
+      "bak": null,
+      "micros": ["Microphone (Realtek(R) Audio)", "Micro USB (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "sorties": ["Haut-parleurs (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "mindset": {
+        "illisible": false,
+        "micro": null,
+        "casque": null
+      },
+      "mindcare": {
+        "micro": "",
+        "numero": 4294967295
+      },
+      "evermind": {
+        "micro": null,
+        "casque": null,
+        "numero_micro": 4294967295,
+        "numero_casque": 4294967295
+      }
+    },
+    {
+      "nom": "guillemets simples",
+      "fichier": "eydtaWNybyc6J01pY3JvIFVTQiAoUmVhbHRlayhSKSBBdWRpbyknfQ==",
+      "bak": null,
+      "micros": ["Microphone (Realtek(R) Audio)", "Micro USB (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "sorties": ["Haut-parleurs (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "mindset": {
+        "illisible": false,
+        "micro": "Micro USB (Realtek(R) Audio)",
+        "casque": null
+      },
+      "mindcare": {
+        "micro": "Micro USB (Realtek(R) Audio)",
+        "numero": 1
+      },
+      "evermind": {
+        "micro": "Micro USB (Realtek(R) Audio)",
+        "casque": null,
+        "numero_micro": 1,
+        "numero_casque": 4294967295
+      }
+    },
+    {
+      "nom": "texte apr\u00e8s l'objet",
+      "fichier": "eyJtaWNybyI6Ik1pY3JvIFVTQiAoUmVhbHRlayhSKSBBdWRpbykifSB4",
+      "bak": null,
+      "micros": ["Microphone (Realtek(R) Audio)", "Micro USB (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "sorties": ["Haut-parleurs (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "mindset": {
+        "illisible": false,
+        "micro": null,
+        "casque": null
+      },
+      "mindcare": {
+        "micro": "",
+        "numero": 4294967295
+      },
+      "evermind": {
+        "micro": null,
+        "casque": null,
+        "numero_micro": 4294967295,
+        "numero_casque": 4294967295
+      }
+    },
+    {
+      "nom": "casque choisi, micro absent",
+      "fichier": "eyJjYXNxdWUiOiJDYXNxdWUgKExvZ2l0ZWNoIEc0MzUpIn0=",
+      "bak": null,
+      "micros": ["Microphone (Realtek(R) Audio)", "Micro USB (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "sorties": ["Haut-parleurs (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "mindset": {
+        "illisible": false,
+        "micro": null,
+        "casque": "Casque (Logitech G435)"
+      },
+      "mindcare": {
+        "micro": "",
+        "numero": 4294967295
+      },
+      "evermind": {
+        "micro": null,
+        "casque": "Casque (Logitech G435)",
+        "numero_micro": 4294967295,
+        "numero_casque": 1
+      }
+    },
+    {
+      "nom": "casque d\u00e9branch\u00e9, micro pr\u00e9sent",
+      "fichier": "eyJtaWNybyI6Ik1pY3JvIFVTQiAoUmVhbHRlayhSKSBBdWRpbykiLCJjYXNxdWUiOiJDYXNxdWUgQmx1ZXRvb3RoIn0=",
+      "bak": null,
+      "micros": ["Microphone (Realtek(R) Audio)", "Micro USB (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "sorties": ["Haut-parleurs (Realtek(R) Audio)", "Casque (Logitech G435)"],
+      "mindset": {
+        "illisible": false,
+        "micro": "Micro USB (Realtek(R) Audio)",
+        "casque": "Casque Bluetooth"
+      },
+      "mindcare": {
+        "micro": "Micro USB (Realtek(R) Audio)",
+        "numero": 1
+      },
+      "evermind": {
+        "micro": "Micro USB (Realtek(R) Audio)",
+        "casque": "Casque Bluetooth",
+        "numero_micro": 1,
+        "numero_casque": 4294967295
+      }
+    }
+  ]
+}

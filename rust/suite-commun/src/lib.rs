@@ -16,6 +16,7 @@
 //!
 //! Pour les applis en Rust (Mindcare d'abord) :
 //! - [`themes`] : le thème de la suite (suite.json, thèmes intégrés et packs, couleurs vérifiées), prêt pour l'écran.
+//! - [`micro`] : le micro et le casque de la suite (suite.json), retrouvés parmi ceux du PC comme en PowerShell.
 //!
 //! Le banc d'essai (outils\banc-suite-commun.ps1) passe les mêmes fichiers à la version PowerShell et à cette
 //! bibliothèque, et vérifie qu'elles répondent pareil.
@@ -33,7 +34,8 @@
 #![deny(unsafe_op_in_unsafe_fn)]
 #![deny(unsafe_code)]
 
-#[cfg(feature = "signature")]
+// Aussi pour les tests, même sans « signature » : les juges du micro donnent leurs octets en base64
+#[cfg(any(feature = "signature", test))]
 mod base64;
 pub mod chemins;
 #[cfg(all(windows, feature = "heure-locale"))]
@@ -41,6 +43,7 @@ mod heure_windows;
 pub mod json_sur;
 #[cfg(feature = "paquet")]
 pub mod liste_en_ligne;
+pub mod micro;
 #[cfg(feature = "paquet")]
 pub mod paquet;
 pub mod protocole_installateur;
