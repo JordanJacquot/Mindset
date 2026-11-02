@@ -34,7 +34,8 @@
 # copie ailleurs (partie 8), pas de contre-épreuve. Différences avec le témoin : « Fermer » de Mindset (WM_CLOSE) doit la
 # faire QUITTER (son programme disparaît) ; le thème de suite.json peut être suivi par une relance cachée ; le second
 # lancement est caché (-Demarrage). L'appli n'est JAMAIS lancée sans -Demarrage (une copie gérée lancée « à la main »
-# ouvrirait le vrai Mindset du PC). Sur le PC, sur un bureau Windows à part comme le témoin.
+# ouvrirait le vrai Mindset du PC), et son signal d'affichage n'est levé que sur GitHub (pour la même raison). Sur le PC,
+# sur un bureau Windows à part comme le témoin.
 param(
     [ValidateSet('', 'verrou', 'titre', 'quitter', 'taille', 'fermer', 'version')][string]$Casser = '',
     [string]$AppliConstruite = '',
@@ -178,6 +179,7 @@ public static class ContratFenetre
     [DllImport("user32.dll")] public static extern IntPtr GetParent(IntPtr h);
     [DllImport("user32.dll")] public static extern bool IsWindowVisible(IntPtr h);
     [DllImport("user32.dll")] public static extern IntPtr GetForegroundWindow();
+    [DllImport("user32.dll")] public static extern bool ShowWindow(IntPtr h, int cmd);
     [DllImport("user32.dll", CharSet = CharSet.Unicode)] static extern int GetClassName(IntPtr h, System.Text.StringBuilder s, int n);
     [DllImport("user32.dll")] static extern bool GetWindowRect(IntPtr h, out RECT r);
     [StructLayout(LayoutKind.Sequential)] struct RECT { public int Left, Top, Right, Bottom; }
@@ -192,6 +194,9 @@ public static class ContratFenetre
         # témoin sauté (pas de construction, pas de témoin cassé, pas de copie ailleurs ; désinstalleur et bulles
         # seulement si son entrée les déclare). Jamais lancée sans -Demarrage : une copie gérée lancée « à la main »
         # ouvre le vrai Mindset du PC (Mindcare.ps1:35) ; un « Open-Appli » qui la relancerait est donc arrêté ici.
+        # Son signal d'affichage non plus n'est jamais levé sur le PC : une copie gérée (Mindcare en Rust) l'entend en
+        # ouvrant Mindset, trouvé par le registre, donc le VRAI Mindset du PC (02/11/2026 : il s'est montré 14 s sur
+        # l'écran de Jordan). Ce cas tourne seulement sur GitHub, où aucun Mindset n'est installé.
         # =========================================================================================================
         $dossierZip = [string]$entreeAutre.dossier_zip
         $construit = Join-Path $tmp "construit\$dossierZip"
@@ -260,8 +265,9 @@ public static class ContratFenetre
         Write-Partie 'Partie 2 : le dossier installé reconnu (Test-DossierAppli, Get-Installation)'
         # =========================================================================================================
         Save-Installation $t.Id $prog $true
+        Set-SuiteAppli $t.Id $prog   # (son dossier dans suite.json, comme Complete-Installation : c'est ainsi qu'elle se sait gérée)
         Test-Cas 'dossier reconnu (Test-DossierAppli)' { Test-DossierAppli $prog $t }
-        $inst = Get-Installation $t   # (écrit aussi son dossier dans suite.json : c'est ainsi qu'elle se sait gérée)
+        $inst = Get-Installation $t
         Test-Cas 'Get-Installation : gérée, dans le dossier protégé, sa version' { $inst -and $inst.Gere -and $inst.Dossier -eq $prog -and $inst.Version -eq $versionAutre }
 
         # =========================================================================================================
@@ -362,11 +368,20 @@ public static class ContratFenetre
         # =========================================================================================================
         Write-Partie 'Parties 3 et 5 : ramenée par Mindset, second lancement caché'
         # =========================================================================================================
-        Test-Cas "Open-Appli alors qu'elle tourne : $(if ($t.AfficherSignal) { "signal $($t.AfficherSignal)" } else { $t.AfficherFichier }), sa fenêtre se montre (sans rien relancer)" {
-            $script:Relancee = $false
-            & { function Start-Process { $script:Relancee = $true }; Open-Appli $t }
-            (Wait-Jusque { [ContratFenetre]::IsWindowVisible($h) } 6) -and -not $script:Relancee -and
-            (-not $t.AfficherFichier -or $t.AfficherSignal -or -not (Test-Path -LiteralPath (Join-Path $donneesAutre $t.AfficherFichier)))
+        if ($t.AfficherSignal -and -not $surGitHub) {
+            # (voir plus haut : sur le PC, le signal ferait ouvrir le vrai Mindset ; la fenêtre est montrée à la main
+            # pour que le cas suivant la trouve visible)
+            Write-Host "  (pas sur ce PC : le signal $($t.AfficherSignal) n'est levé que sur GitHub)" -ForegroundColor Yellow
+            [void][ContratFenetre]::ShowWindow($h, 5)
+            $null = Wait-Jusque { [ContratFenetre]::IsWindowVisible($h) } 6
+        }
+        else {
+            Test-Cas "Open-Appli alors qu'elle tourne : $(if ($t.AfficherSignal) { "signal $($t.AfficherSignal)" } else { $t.AfficherFichier }), sa fenêtre se montre (sans rien relancer)" {
+                $script:Relancee = $false
+                & { function Start-Process { $script:Relancee = $true }; Open-Appli $t }
+                (Wait-Jusque { [ContratFenetre]::IsWindowVisible($h) } 6) -and -not $script:Relancee -and
+                (-not $t.AfficherFichier -or $t.AfficherSignal -or -not (Test-Path -LiteralPath (Join-Path $donneesAutre $t.AfficherFichier)))
+            }
         }
         Test-Cas 'second lancement caché (Mindset.exe -Demarrage) : il attend, ne dépose rien et s''arrête ; la première reste comme elle est' {
             Start-Process -FilePath (Join-Path $prog 'Mindset.exe') -ArgumentList '-Demarrage' -WorkingDirectory $prog
