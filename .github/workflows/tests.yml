@@ -37,6 +37,9 @@ jobs:
       - name: Vérifications (syntaxe, fenêtre, tirets, encodage, licence)
         run: .\outils\verifier.ps1
 
+      - name: "Règles Tauri (docs/regles-tauri.md) : verifier-tauri.ps1 accepte un projet propre et refuse chaque projet cassé exprès sur sa règle (rien n'est construit)"
+        run: .\outils\tester-verifier-tauri.ps1
+
       - name: Tests de sécurité (signature, installation des zips, dossiers acceptés)
         run: .\outils\tester-securite.ps1
 
@@ -107,6 +110,9 @@ jobs:
 
       - name: "Tests Rust (cargo test)"
         run: cargo test --locked --workspace
+
+      - name: "Tests de suite-commun sans ses options (comme Mindcare : ni ring, ni zip, ni appel à Windows)"
+        run: cargo test --locked -p suite-commun --no-default-features
 
       - name: "Clippy strict (aucun avertissement permis)"
         run: cargo clippy --locked --workspace --all-targets -- -D warnings

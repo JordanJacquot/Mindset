@@ -35,8 +35,8 @@ pub const NEON: &str = "neon";
 const TAILLE_MAX_PACK: u64 = 1024 * 1024;
 
 /// Les extensions acceptées pour une image ou une police d'un pack (les mêmes qu'à l'import dans Mindset).
-const EXT_IMAGES: &[&str] = &["png", "jpg", "jpeg", "gif", "webp"];
-const EXT_POLICES: &[&str] = &["ttf", "otf"];
+pub(crate) const EXT_IMAGES: &[&str] = &["png", "jpg", "jpeg", "gif", "webp"];
+pub(crate) const EXT_POLICES: &[&str] = &["ttf", "otf"];
 
 /// Contraste minimal (W3C) du texte de l'écran sur les fonds du thème, puis des couleurs de la marque.
 pub const CONTRASTE_TEXTE: f64 = 4.5;
@@ -614,7 +614,7 @@ impl Pack {
 
 /// Un nom de fichier du pack : simple, sans dossier (comme `Test-NomFichierPack` : `^[\w .()-]{1,80}$` sans « .. »),
 /// et en plus ni nom réservé de Windows (CON, NUL...) ni point ou espace à la fin (Windows les retire).
-fn nom_fichier_valable(nom: &str) -> bool {
+pub(crate) fn nom_fichier_valable(nom: &str) -> bool {
     let n = nom.chars().count();
     if !(1..=80).contains(&n) || nom.contains("..") || nom.ends_with(['.', ' ']) {
         return false;

@@ -1,0 +1,36 @@
+# Projet d'essai de outils\verifier-tauri.ps1 : un extrait, jamais utilisé par cargo.
+version = 4
+
+[[package]]
+name = "essai-tauri"
+version = "0.1.0"
+dependencies = [
+ "suite-commun",
+ "tauri",
+ "tauri-build",
+]
+
+[[package]]
+name = "tauri"
+version = "2.12.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+
+[[package]]
+name = "tauri-build"
+version = "2.7.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+
+[[package]]
+name = "tauri-runtime-wry"
+version = "2.12.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+
+[[package]]
+name = "wry"
+version = "0.57.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+
+[[package]]
+name = "tauri-plugin-single-instance"
+version = "2.5.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"

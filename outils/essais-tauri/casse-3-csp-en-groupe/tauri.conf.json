@@ -1,0 +1,23 @@
+{
+  "productName": "Mindset",
+  "identifier": "JordanJacquot.EssaiTauri",
+  "build": {
+    "frontendDist": "ui"
+  },
+  "app": {
+    "windows": [],
+    "withGlobalTauri": false,
+    "security": {
+      "csp": {
+        "default-src": "'none'",
+        "script-src": [
+          "'self'",
+          "'unsafe-inline'"
+        ]
+      }
+    }
+  },
+  "bundle": {
+    "active": false
+  }
+}

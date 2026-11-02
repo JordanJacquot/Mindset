@@ -1,0 +1,3 @@
+identifier = "autre"
+windows = ["principale"]
+permissions = ["core:default"]

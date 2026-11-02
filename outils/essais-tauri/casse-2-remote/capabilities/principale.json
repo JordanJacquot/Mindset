@@ -1,0 +1,16 @@
+{
+  "identifier": "principale",
+  "description": "La fenêtre principale : seulement les commandes de l'appli dont elle se sert.",
+  "windows": [
+    "principale"
+  ],
+  "permissions": [
+    "allow-etat-appli",
+    "allow-quitter-appli"
+  ],
+  "remote": {
+    "urls": [
+      "https://exemple.org/*"
+    ]
+  }
+}

@@ -1,0 +1,2 @@
+[app]
+with-global-tauri = true

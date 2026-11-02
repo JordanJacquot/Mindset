@@ -1,0 +1,26 @@
+# Projet d'essai de outils\verifier-tauri.ps1 : jamais construit, seulement lu.
+[package]
+name = "essai-tauri"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[[bin]]
+name = "Mindset"
+path = "src/main.rs"
+
+[dependencies]
+# Sans les options par défaut (elles comprennent dynamic-acl), custom-protocol écrit en dur
+tauri = { version = "=2.12.5", default-features = false, features = [
+    "wry",
+    "compression",
+    "common-controls-v6",
+    "custom-protocol",
+] }
+suite-commun = { path = "../suite-commun", default-features = false }
+
+[build-dependencies]
+tauri-build = { version = "=2.7.4", default-features = false }
+
+[features]
+essai = ["tauri/devtools"]

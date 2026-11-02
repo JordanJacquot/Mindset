@@ -367,7 +367,9 @@ cachée (`SetIsVisible`), et `WS_CLIPCHILDREN` / `WS_CLIPSIBLINGS` quand c'est M
 - Mindset y lit aussi `reglages.json` ou `parametres.json` (valeur `DemarrageWindows`, `installations.ps1:750-763`).
 - WebView2 : le dossier commun `<données de la suite>\WebView2`, un profil par appli (`Mindset/fichiers/modules/console.ps1:19`,
   `:70-83` ; `Nevermind: Nevermind/fichiers/modules/vue.ps1:44-50`) ; à la désinstallation sans données, Mindset retire
-  le profil `WV2Profile_<nom en minuscules>` (`installations.ps1:856-862`). Voir `regles-tauri.md`.
+  le profil `WV2Profile_<nom en minuscules>` (`installations.ps1:856-862`). Une appli Tauri a son propre dossier
+  `<données de la suite>\WebView2-Tauri\<Nom>` (Tauri ne laisse pas choisir un profil, et toutes ses pages ont la même
+  adresse : un dossier commun mélangerait leurs stockages ; `suite_commun::webview`). Voir `regles-tauri.md`, règle 7.
 
 **Appli Rust.** Calculer son dossier avec la même règle (fonction de `suite-commun`), depuis l'emplacement de son
 propre exe ; y écrire tous ses fichiers ; déplacer elle-même ses anciennes données ; ne rien écrire dans son dossier

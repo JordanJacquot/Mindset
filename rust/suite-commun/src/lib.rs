@@ -17,6 +17,12 @@
 //! Pour les applis en Rust (Mindcare d'abord) :
 //! - [`themes`] : le thème de la suite (suite.json, thèmes intégrés et packs, couleurs vérifiées), prêt pour l'écran.
 //! - [`micro`] : le micro et le casque de la suite (suite.json), retrouvés parmi ceux du PC comme en PowerShell.
+//! - [`webview`] : pour une appli Tauri (docs\regles-tauri.md, règle 7), son dossier WebView2
+//!   (`<données de la suite>\WebView2-Tauri\<Nom>`, vérifié en écriture, sinon `<données de l'appli>\ecran-webview`)
+//!   et les options fixes de son navigateur, les mêmes pour toutes les applis Tauri. Sans dépendre de Tauri.
+//! - [`fichier_pack`] : pour une appli Tauri (règle 6), la lecture d'une image ou d'une police du thème pour le
+//!   protocole `pack` : nom simple, fichier directement dans le dossier du pack (chemins canoniques), ni lien ni
+//!   jonction, type reconnu à ses premiers octets, limites de taille de l'import. Toute erreur : « introuvable ».
 //!
 //! Le banc d'essai (outils\banc-suite-commun.ps1) passe les mêmes fichiers à la version PowerShell et à cette
 //! bibliothèque, et vérifie qu'elles répondent pareil.
@@ -38,6 +44,7 @@
 #[cfg(any(feature = "signature", test))]
 mod base64;
 pub mod chemins;
+pub mod fichier_pack;
 #[cfg(all(windows, feature = "heure-locale"))]
 mod heure_windows;
 pub mod json_sur;
@@ -54,5 +61,6 @@ pub mod themes;
 pub mod version;
 #[cfg(feature = "paquet")]
 pub mod version_paquet;
+pub mod webview;
 #[cfg(feature = "signature")]
 mod xml;
