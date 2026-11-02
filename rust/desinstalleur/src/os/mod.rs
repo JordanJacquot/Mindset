@@ -804,6 +804,8 @@ fn chemin_processus(pid: u32) -> Option<String> {
 
 #[cfg(test)]
 mod tests {
+    use std::os::windows::process::CommandExt;
+
     use super::*;
 
     #[test]
@@ -872,6 +874,7 @@ Disques : {:?}",
         let jonction = profil.join("Lien");
         let sortie = std::process::Command::new(format!("{}\\cmd.exe", dossier_systeme()))
             .args(["/c", "mklink", "/J", &t(&jonction), &t(&ailleurs)])
+            .creation_flags(CREATE_NO_WINDOW.0)
             .output()
             .unwrap();
         assert!(sortie.status.success());

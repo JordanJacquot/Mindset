@@ -13,7 +13,7 @@
 $ErrorActionPreference = 'Stop'
 $racine = Split-Path $PSScriptRoot -Parent
 $app = Join-Path $racine 'Mindset'
-$exclus = '\\(\.git|_test|release|outils\\icones)\\|\\console\\three\\'
+$exclus = '\\(\.git|_test|release|outils\\icones|rust\\target)\\|\\console\\three\\'
 $problemes = New-Object Collections.Generic.List[string]
 function Get-Relatif([string]$Chemin) { $Chemin.Substring($racine.Length).TrimStart('\') }
 
@@ -41,6 +41,19 @@ foreach ($f in $textes) {
     foreach ($l in [IO.File]::ReadAllLines($f.FullName, [Text.Encoding]::UTF8)) {
         $n++
         if ($l -match '[\u2013\u2014]') { $problemes.Add("Tiret long : $(Get-Relatif $f.FullName) ligne $n") }
+    }
+}
+
+# Programme lanc\u00e9 par du Rust (tests compris) : toujours sans fen\u00eatre (creation_flags avec CREATE_NO_WINDOW dans les
+# 12 lignes), sinon un cmd.exe s'ouvre sur l'\u00e9cran de Jordan \u00e0 chaque essai (02/11/2026 : tests du d\u00e9sinstalleur).
+# Seule exception : un commentaire \u00ab fen\u00eatre voulue \u00bb juste au-dessus (un programme \u00e0 ouvrir pour l'utilisateur).
+foreach ($f in @(Get-ChildItem -LiteralPath (Join-Path $racine 'rust') -Recurse -File -Filter '*.rs' -ErrorAction SilentlyContinue | Where-Object { $_.FullName -notmatch '\\target\\' })) {
+    $lignes = [IO.File]::ReadAllLines($f.FullName, [Text.Encoding]::UTF8)
+    for ($i = 0; $i -lt $lignes.Count; $i++) {
+        if ($lignes[$i] -notmatch 'Command::new\(') { continue }
+        $suite = ($lignes[$i..([Math]::Min($i + 12, $lignes.Count - 1))]) -join ' '
+        $avant = ($lignes[([Math]::Max($i - 3, 0))..$i]) -join ' '
+        if ($suite -notmatch 'creation_flags\(' -and $avant -notmatch 'fenêtre\s*(//)?\s*voulue') { $problemes.Add("Fen\u00eatre : $(Get-Relatif $f.FullName) ligne $($i + 1) lance un programme sans creation_flags (CREATE_NO_WINDOW)") }
     }
 }
 

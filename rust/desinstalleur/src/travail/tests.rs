@@ -3,6 +3,7 @@
 //! provoquer (Planificateur qui ne répond pas, registre qui refuse...).
 
 use std::collections::{BTreeMap, BTreeSet};
+use std::os::windows::process::CommandExt;
 use std::path::{Path, PathBuf};
 use std::sync::Mutex;
 use std::time::Duration;
@@ -10,6 +11,9 @@ use std::time::Duration;
 use super::*;
 use crate::fin::texte_bilan;
 use crate::systeme::{DossierTaches, ErreurTache, Fin, LectureTaches, Ruche, Systeme};
+
+/// CREATE_NO_WINDOW : un cmd.exe lancé par un test n'ouvre aucune fenêtre sur l'écran
+const SANS_FENETRE: u32 = 0x0800_0000;
 
 /// Un faux désinstalleur d'appli : ce qu'il fait quand on le lance
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -196,6 +200,7 @@ fn jonction(lien: &Path, vers: &Path) {
     std::fs::create_dir_all(lien.parent().unwrap()).unwrap();
     let ok = std::process::Command::new("cmd.exe")
         .args(["/c", "mklink", "/J", &t(lien), &t(vers)])
+        .creation_flags(SANS_FENETRE)
         .output()
         .unwrap()
         .status
@@ -326,7 +331,10 @@ impl Env {
 impl Drop for Env {
     fn drop(&mut self) {
         // (rd ne suit pas les jonctions)
-        let _ = std::process::Command::new("cmd.exe").args(["/c", "rd", "/s", "/q", &t(&self.dossier)]).output();
+        let _ = std::process::Command::new("cmd.exe")
+            .args(["/c", "rd", "/s", "/q", &t(&self.dossier)])
+            .creation_flags(SANS_FENETRE)
+            .output();
     }
 }
 

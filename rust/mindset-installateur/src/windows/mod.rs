@@ -261,7 +261,8 @@ impl Systeme for Windows {
         std::thread::sleep(std::time::Duration::from_millis(millisecondes));
     }
     fn lancer_par_explorateur(&mut self, programme: &str) {
-        // (l'Explorateur déjà ouvert dans la session lance le programme avec les droits de l'utilisateur)
+        // (l'Explorateur déjà ouvert dans la session lance le programme avec les droits de l'utilisateur ; fenêtre
+        // voulue : c'est Mindset qui s'ouvre pour l'utilisateur)
         let _ = std::process::Command::new(format!(r"{}\explorer.exe", self.windows))
             .raw_arg(format!("\"{programme}\""))
             .spawn();
