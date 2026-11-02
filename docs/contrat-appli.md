@@ -15,6 +15,23 @@ fenêtre, `quitter.demande`, taille minimale, croix, `version.json`) fait échou
 (`.github/workflows/tests.yml`) ; la partie 9 (désinstalleur) ne tourne que sur GitHub. Son entrée apps.json :
 `temoin/entree-apps.json`.
 
+**Une autre appli construite, avec le même test.** `outils/tester-contrat.ps1 -AppliConstruite <dossier ou zip>
+-EntreeApps <entrée.json>` pilote une vraie appli déjà construite (Mindcare en Rust d'abord : plan de l'étape 4, 4.6) à
+la place du témoin. `-AppliConstruite` est son dossier `dossier_zip` (zippé par le test) ou son zip tel quel ;
+`-EntreeApps` est un fichier JSON avec son entrée apps.json (un seul objet). Le zip est signé par une clé de test,
+installé par `Install-Paquet` sur le faux disque, puis les parties 1, 2, 3, 4, 5, 6, 7 et 10 passent par le même code de
+Mindset : entrée acceptée, `version.json`, dossier reconnu, hôte et relais, verrou, lancement caché, données et
+`etat.json`, `suite.json`, demande d'affichage, accrochage, `quitter.demande`, rien d'écrit dans son dossier des
+programmes. Ce qui est propre au témoin est sauté : rien n'est construit ni cassé exprès (pas de contre-épreuve), pas
+de copie ailleurs (partie 8), le fichier d'affichage et les bulles seulement avec `afficher_fichier` (avec
+`afficher_signal`, c'est le signal qui est vérifié), le désinstalleur seulement si l'entrée en a un (et sur GitHub).
+Trois différences avec le témoin : « Fermer » de Mindset (`WM_CLOSE`) doit faire **quitter** l'appli (son programme
+disparaît, verrou rendu) ; un nouveau thème peut être suivi par une relance cachée ; le second lancement essayé est
+caché (`-Demarrage`). L'appli n'est **jamais** lancée sans `-Demarrage` : une copie gérée lancée « à la main » ouvre le
+vrai Mindset du PC (`Mindcare: Mindcare/fichiers/Mindcare.ps1:35`). Une option mal donnée (dossier, zip ou entrée
+introuvable, entrée sans `id`, `nom`, `dossier_zip`, `exe` ou `mutex`) : un message clair et le code 1, rien n'est
+lancé. Sur le PC, comme le témoin, seulement sur un bureau Windows à part.
+
 Comment lire ce document :
 - les chemins sont relatifs à la racine du dépôt Mindset ; ceux qui commencent par « Nevermind: » sont relatifs à la
   racine du dépôt Nevermind ;

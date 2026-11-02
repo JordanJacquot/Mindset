@@ -18,7 +18,28 @@
 # registre. Le témoin montre sa fenêtre deux fois (demande d'affichage) : sur le PC, lancer ce test sur un bureau
 # Windows à part. Le désinstalleur du témoin n'est lancé que sur GitHub (règle : aucun désinstalleur lancé sur le PC).
 # Code de sortie 1 si un cas échoue (utilisé par la CI de GitHub).
-param([ValidateSet('', 'verrou', 'titre', 'quitter', 'taille', 'fermer', 'version')][string]$Casser = '')
+#
+# Une AUTRE appli déjà construite (par exemple Mindcare en Rust, depuis sa CI ou sur le PC) :
+#
+#   powershell -NoProfile -ExecutionPolicy Bypass -File .\outils\tester-contrat.ps1 -AppliConstruite <dossier ou zip>
+#              -EntreeApps <entrée.json>
+#
+#   -AppliConstruite  son dossier construit (celui de « dossier_zip », avec Mindset.exe, <exe> et version.json), zippé
+#                     ici ; ou son zip déjà fait (le dossier « dossier_zip » dedans), pris tel quel. Signé ici par une
+#                     clé de test (jamais la vraie), comme le témoin.
+#   -EntreeApps       un fichier JSON : son entrée apps.json (un seul objet, comme temoin\entree-apps.json).
+# Rien n'est construit ni cassé exprès : les mêmes parties du contrat (1, 2, 3, 4, 5, 6, 7, 10 ; 9 si l'entrée a un
+# « desinstalleur », sur GitHub seulement), pilotées par le même code de Mindset, avec ce qui est propre au témoin sauté :
+# bulles et clic sur une bulle seulement avec « afficher_fichier » (« afficher_signal » : le signal est vérifié), pas de
+# copie ailleurs (partie 8), pas de contre-épreuve. Différences avec le témoin : « Fermer » de Mindset (WM_CLOSE) doit la
+# faire QUITTER (son programme disparaît) ; le thème de suite.json peut être suivi par une relance cachée ; le second
+# lancement est caché (-Demarrage). L'appli n'est JAMAIS lancée sans -Demarrage (une copie gérée lancée « à la main »
+# ouvrirait le vrai Mindset du PC). Sur le PC, sur un bureau Windows à part comme le témoin.
+param(
+    [ValidateSet('', 'verrou', 'titre', 'quitter', 'taille', 'fermer', 'version')][string]$Casser = '',
+    [string]$AppliConstruite = '',
+    [string]$EntreeApps = ''
+)
 
 $ErrorActionPreference = 'Stop'
 $racine = Split-Path $PSScriptRoot -Parent
@@ -28,6 +49,39 @@ $temoinSource = Join-Path $racine 'temoin'
 $surGitHub = $env:GITHUB_ACTIONS -eq 'true'
 Add-Type -AssemblyName System.IO.Compression, System.IO.Compression.FileSystem, System.Windows.Forms
 [Net.WebRequest]::DefaultWebProxy = New-Object Net.WebProxy('http://127.0.0.1:9', $false)   # (aucun réseau)
+
+# -AppliConstruite et -EntreeApps : vérifiés avant tout (un message clair et le code 1, rien n'est créé ni lancé)
+$autre = [bool]($AppliConstruite -or $EntreeApps)
+if ($autre) {
+    $erreur = ''
+    $appliEstZip = $false
+    $entreeAutre = $null
+    if ($Casser) { $erreur = '-Casser ne va qu''avec le témoin (sans -AppliConstruite ni -EntreeApps).' }
+    elseif (-not $AppliConstruite -or -not $EntreeApps) { $erreur = 'il faut -AppliConstruite (dossier construit ou zip) et -EntreeApps (son entrée apps.json) ensemble.' }
+    else {
+        $AppliConstruite = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($AppliConstruite)
+        $EntreeApps = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($EntreeApps)
+        $appliEstZip = Test-Path -LiteralPath $AppliConstruite -PathType Leaf
+        if (-not (Test-Path -LiteralPath $AppliConstruite)) { $erreur = "le dossier ou le zip donné par -AppliConstruite n'existe pas : $AppliConstruite" }
+        elseif ($appliEstZip -and [IO.Path]::GetExtension($AppliConstruite) -ine '.zip') { $erreur = "-AppliConstruite doit être un dossier ou un fichier .zip : $AppliConstruite" }
+        elseif (-not (Test-Path -LiteralPath $EntreeApps -PathType Leaf)) { $erreur = "le fichier donné par -EntreeApps n'existe pas : $EntreeApps" }
+        else {
+            try { $entreeAutre = [IO.File]::ReadAllText($EntreeApps, [Text.Encoding]::UTF8) | ConvertFrom-Json } catch { $erreur = "le fichier donné par -EntreeApps n'est pas du JSON lisible : $($_.Exception.Message)" }
+            if (-not $erreur -and @($entreeAutre).Count -ne 1) { $erreur = '-EntreeApps doit contenir UNE entrée (un objet JSON), pas une liste.' }
+            elseif (-not $erreur) {
+                $manque = @('id', 'nom', 'dossier_zip', 'exe', 'mutex' | Where-Object { -not ($entreeAutre.$_ -is [string] -and $entreeAutre.$_) })
+                if ($manque.Count) { $erreur = "son entrée n'a pas : $($manque -join ', ')" }
+                elseif ($entreeAutre.dossier_zip -notmatch '^[\w .-]+$' -or $entreeAutre.dossier_zip -match '^\.+$') { $erreur = "« dossier_zip » doit être un simple nom de dossier : $($entreeAutre.dossier_zip)" }
+                elseif (-not $appliEstZip -and -not (Test-Path -LiteralPath (Join-Path $AppliConstruite 'Mindset.exe') -PathType Leaf)) { $erreur = "pas de Mindset.exe dans le dossier donné par -AppliConstruite : $AppliConstruite" }
+            }
+        }
+    }
+    if ($erreur) {
+        Write-Host "Contrat d'une autre appli : $erreur" -ForegroundColor Red
+        Write-Host 'Utilisation : tester-contrat.ps1 -AppliConstruite <dossier construit ou zip> -EntreeApps <entrée apps.json en JSON>'
+        exit 1
+    }
+}
 
 $script:Reussis = 0
 $script:Echoues = @()
@@ -71,7 +125,8 @@ $localVrai = $env:LOCALAPPDATA
 $donneesTestVrai = $env:MINDSET_DONNEES
 
 try {
-    Write-Host "Mindset : contrat d'une appli, vérifié avec l'appli témoin$(if ($Casser) { " (témoin cassé exprès : $Casser)" })" -ForegroundColor Cyan
+    if ($autre) { Write-Host "Mindset : contrat d'une appli, vérifié avec $($entreeAutre.nom) (appli construite donnée : $AppliConstruite)" -ForegroundColor Cyan }
+    else { Write-Host "Mindset : contrat d'une appli, vérifié avec l'appli témoin$(if ($Casser) { " (témoin cassé exprès : $Casser)" })" -ForegroundColor Cyan }
     Write-Host "Dossier de test : $tmp"
     # Le faux PC : %LOCALAPPDATA% (suite.json, données d'une copie non gérée) et le disque de la suite, sous $tmp
     $env:LOCALAPPDATA = Join-Path $tmp 'local'
@@ -79,7 +134,7 @@ try {
     New-Item -ItemType Directory -Force -Path (Join-Path $env:LOCALAPPDATA 'Mindset') | Out-Null
 
     # =============================================================================================================
-    Write-Partie 'Le vrai code de Mindset, et le témoin construit'
+    Write-Partie $(if ($autre) { 'Le vrai code de Mindset, et l''appli construite donnée' } else { 'Le vrai code de Mindset, et le témoin construit' })
     # =============================================================================================================
     $EnTest = $true
     $MindsetAdmin = $false
@@ -131,306 +186,560 @@ public static class ContratFenetre
 }
 '@
 
-    $construit = & (Join-Path $temoinSource 'construire.ps1') -Sortie (Join-Path $tmp 'construit')
-    $scriptTemoin = Join-Path $construit 'fichiers\Temoin.ps1'
-    $versionTemoin = ''
-    if ([IO.File]::ReadAllText($scriptTemoin) -match "(?m)^\`$AppVersion\s*=\s*'([\d.]+)'") { $versionTemoin = $Matches[1] }
-    Test-Cas 'le témoin se construit : Mindset.exe, Temoin.exe, Désinstaller Temoin.exe, version.json, fichiers\Temoin.ps1' {
-        $versionTemoin -and -not @('Mindset.exe', 'Temoin.exe', 'Désinstaller Temoin.exe', 'version.json', 'fichiers\Temoin.ps1' | Where-Object { -not (Test-Path -LiteralPath (Join-Path $construit $_)) }).Count
-    }
-
-    # Contre-épreuve : un point du contrat cassé exprès dans le témoin construit (le remplacement doit avoir eu lieu)
-    if ($Casser) {
-        $t = [IO.File]::ReadAllText($scriptTemoin, [Text.Encoding]::UTF8)
-        $remplacements = @{
-            verrou  = @('"Local\$AppNom-Instance"', '"Local\$AppNom-Autre"')
-            titre   = @('$Fenetre.Title = $AppNom', '$Fenetre.Title = "$AppNom 2"')
-            quitter = @("'quitter.demande'", "'quitter.demande.x'")
-            taille  = @('$Fenetre.MinWidth = $script:TailleMin.L; $Fenetre.MinHeight = $script:TailleMin.H', '$null = 0')
-            fermer  = @('$e.Cancel = $true; $Fenetre.Hide()', '$null = 0')
-        }
-        if ($Casser -eq 'version') {
-            [IO.File]::WriteAllText((Join-Path $construit 'version.json'), "{ `"appli`": `"temoin`", `"version`": `"9.9.9`", `"mindset_min`": `"2.15.0`" }")
+    if ($autre) {
+        # =========================================================================================================
+        # Une AUTRE appli déjà construite (-AppliConstruite, -EntreeApps) : les mêmes parties du contrat, avec ce qui est propre au
+        # témoin sauté (pas de construction, pas de témoin cassé, pas de copie ailleurs ; désinstalleur et bulles
+        # seulement si son entrée les déclare). Jamais lancée sans -Demarrage : une copie gérée lancée « à la main »
+        # ouvre le vrai Mindset du PC (Mindcare.ps1:35) ; un « Open-Appli » qui la relancerait est donc arrêté ici.
+        # =========================================================================================================
+        $dossierZip = [string]$entreeAutre.dossier_zip
+        $construit = Join-Path $tmp "construit\$dossierZip"
+        $zipFichier = Join-Path $tmp 'appli.zip'
+        New-Item -ItemType Directory -Force -Path (Join-Path $tmp 'construit') | Out-Null
+        if ($appliEstZip) {
+            Copy-Item -LiteralPath $AppliConstruite -Destination $zipFichier
+            [IO.Compression.ZipFile]::ExtractToDirectory($zipFichier, (Join-Path $tmp 'construit'))
         } else {
-            $r = $remplacements[$Casser]
-            if (-not $t.Contains($r[0])) { throw "contre-épreuve $Casser : « $($r[0]) » introuvable dans Temoin.ps1" }
-            [IO.File]::WriteAllText($scriptTemoin, $t.Replace($r[0], $r[1]), (New-Object Text.UTF8Encoding $true))
+            Copy-Item -LiteralPath $AppliConstruite -Destination $construit -Recurse
+            [IO.Compression.ZipFile]::CreateFromDirectory((Join-Path $tmp 'construit'), $zipFichier)
         }
-    }
-
-    # =============================================================================================================
-    Write-Partie 'Partie 10 : version.json, et l''installation du zip par Mindset (Install-Paquet)'
-    # =============================================================================================================
-    $infoVersion = Read-VersionJson ([IO.File]::ReadAllBytes((Join-Path $construit 'version.json')))
-    Test-Cas 'version.json lisible par Mindset (Read-VersionJson), appli « temoin »' { $infoVersion -and $infoVersion.Appli -ceq 'temoin' }
-    Test-Cas 'version.json : la même version que la ligne $AppVersion du script (une seule source)' { $infoVersion.Version -eq $versionTemoin }
-    Test-Cas 'version.json : mindset_min au moins 2.15.0' { $infoVersion.MindsetMin -and -not (Test-VersionPlusRecente '2.15.0' $infoVersion.MindsetMin) }
-    Test-Cas 'version.json en UTF-8 sans BOM' { [IO.File]::ReadAllBytes((Join-Path $construit 'version.json'))[0] -eq [byte][char]'{' }
-
-    # Le zip : le dossier Temoin\ (dossier_zip), signé avec une clé de test (jamais la vraie)
-    $rsa = New-Object System.Security.Cryptography.RSACryptoServiceProvider 3072
-    $rsa.PersistKeyInCsp = $false
-    $clePublique = Join-Path $tmp 'cle-publique.xml'
-    [IO.File]::WriteAllText($clePublique, $rsa.ToXmlString($false))
-    $zipFichier = Join-Path $tmp 'Temoin.zip'
-    [IO.Compression.ZipFile]::CreateFromDirectory((Join-Path $tmp 'construit'), $zipFichier)
-    $zip = [IO.File]::ReadAllBytes($zipFichier)
-    $signature = $rsa.SignData($zip, [System.Security.Cryptography.CryptoConfig]::MapNameToOID('SHA256'))
-    $prog = Join-Path $RacineProgrammes 'Temoin'
-    Test-Cas 'Test-PaquetAppli (avant de fermer l''appli) : accepté par Mindset 2.15.0' { $null = Test-PaquetAppli $zip 'Temoin' 'temoin' '2.15.0'; $true }
-    Test-Cas 'Test-PaquetAppli : refusé par un Mindset plus ancien (« Mets d''abord Mindset à jour »)' {
-        try { Test-PaquetAppli $zip 'Temoin' 'temoin' '2.14.0'; $false } catch { $_.Exception.Message -like 'Mets d''abord Mindset à jour*' }
-    }
-    Test-Cas 'Get-VersionZip : la version du témoin' { (Get-VersionZip $zip 'Temoin') -eq $versionTemoin }
-    Test-Cas 'Install-Paquet l''installe dans <disque>\Mindset\Programmes\Temoin, version lue dans le dossier' {
-        ((Install-Paquet -Zip $zip -Signature $signature -ClePublique $clePublique -Destination $prog -DossierZip 'Temoin' -Exe 'Temoin.exe' -Appli 'temoin' -VersionMindset '2.15.0') -eq $prog) -and
-        ((Get-VersionDossier $prog) -eq $versionTemoin)
-    }
-
-    # =============================================================================================================
-    Write-Partie 'Partie 1 : son entrée dans apps.json (Get-Applis, applis.ps1)'
-    # =============================================================================================================
-    $entree = [IO.File]::ReadAllText((Join-Path $temoinSource 'entree-apps.json'), [Text.Encoding]::UTF8) | ConvertFrom-Json
-    $AppDir = Join-Path $tmp 'apps'
-    New-Item -ItemType Directory -Force -Path $AppDir | Out-Null
-    function Get-ApplisAvec($Entree) {
-        [IO.File]::WriteAllText((Join-Path $AppDir 'apps.json'), (ConvertTo-Json @($Entree) -Depth 4), (New-Object Text.UTF8Encoding $false))
-        @(Get-Applis)
-    }
-    [IO.File]::WriteAllText((Join-Path $AppDir 'apps.json'), (ConvertTo-Json @($entree) -Depth 4), (New-Object Text.UTF8Encoding $false))
-    . (Join-Path $modules 'applis.ps1')   # (définit Get-Applis et lit apps.json dans $Applis, comme Mindset au démarrage)
-    $t = $Applis | Where-Object Id -eq 'temoin'
-    Test-Cas 'entrée acceptée par Mindset, de type « powershell » écrit en toutes lettres' { @($Applis).Count -eq 1 -and $t.Type -eq 'powershell' }
-    Test-Cas 'verrou : mutex = Local\<nom>-Instance' { $t.Mutex -ceq "Local\$($t.Nom)-Instance" }
-    Test-Cas 'afficher_fichier présent (sinon Mindset ne lit pas ses bulles) : afficher.demande' { $t.AfficherFichier -ceq 'afficher.demande' }
-    Test-Cas 'donnees présent (son ancien dossier), cache_depuis = sa première version' { $t.Donnees -and $t.CacheDepuis -eq '1.0.0' }
-    Test-Cas 'identité dans la barre des tâches : JordanJacquot.Temoin' { $t.AppId -ceq 'JordanJacquot.Temoin' }
-    Test-Cas 'son désinstalleur et son exe sont bien dans le dossier installé' { (Test-Path -LiteralPath (Join-Path $prog $t.Desinstalleur)) -and (Test-Path -LiteralPath (Join-Path $prog $t.Exe)) }
-    $variante = $entree | ConvertTo-Json -Depth 4 | ConvertFrom-Json
-    $variante.type = 'rust'; $variante.PSObject.Properties.Remove('script')
-    $tRust = @(Get-ApplisAvec $variante)
-    Test-Cas 'la même entrée en « type »: « rust » sans script : acceptée aussi' { $tRust.Count -eq 1 -and $tRust[0].Type -eq 'rust' -and $tRust[0].Script -eq '' }
-    $variante.type = 'Rust'
-    Test-Cas '« type » mal écrit (« Rust ») : entrée ignorée' { @(Get-ApplisAvec $variante).Count -eq 0 }
-    $null = Get-ApplisAvec $entree
-
-    # =============================================================================================================
-    Write-Partie 'Partie 2 : le dossier installé reconnu (Test-DossierAppli, Get-Installation)'
-    # =============================================================================================================
-    Save-Installation 'temoin' $prog $true
-    Test-Cas 'dossier reconnu par son script' { Test-DossierAppli $prog $t }
-    Test-Cas 'dossier reconnu aussi par Mindset.exe et version.json (forme d''une appli Rust, entrée sans script)' { Test-DossierAppli $prog $tRust[0] }
-    $inst = Get-Installation $t
-    Test-Cas 'Get-Installation : gérée, dans le dossier protégé, version du témoin' { $inst -and $inst.Gere -and $inst.Dossier -eq $prog -and $inst.Version -eq $versionTemoin }
-
-    # =============================================================================================================
-    Write-Partie 'Partie 4 : l''hôte Mindset.exe et le relais Temoin.exe'
-    # =============================================================================================================
-    Test-Cas 'Mindset.exe : « Mindset » dans ses informations (le Gestionnaire des tâches range la suite sur une ligne)' { [Diagnostics.FileVersionInfo]::GetVersionInfo((Join-Path $prog 'Mindset.exe')).FileDescription -ceq 'Mindset' }
-    Test-Cas 'Temoin.exe (le relais) et le désinstalleur : « Temoin »' {
-        [Diagnostics.FileVersionInfo]::GetVersionInfo((Join-Path $prog 'Temoin.exe')).FileDescription -ceq 'Temoin' -and
-        [Diagnostics.FileVersionInfo]::GetVersionInfo((Join-Path $prog 'Désinstaller Temoin.exe')).FileDescription -ceq 'Temoin'
-    }
-    Test-Cas 'numéro de version des programmes = version du témoin' { [Diagnostics.FileVersionInfo]::GetVersionInfo((Join-Path $prog 'Mindset.exe')).FileVersion -like "$versionTemoin*" }
-    $avant = @(Get-ChildItem -LiteralPath $prog -Recurse -File | ForEach-Object { "$($_.FullName)|$($_.Length)|$($_.LastWriteTimeUtc.Ticks)" })
-
-    # =============================================================================================================
-    Write-Partie 'Parties 6, 3, 7 et 8 : lancée cachée par Mindset (Open-Appli -Demarrage)'
-    # =============================================================================================================
-    Open-Appli $t -Demarrage
-    $h = [IntPtr]::Zero
-    $trouvee = Wait-Jusque { $script:h = Find-FenetreAppli $t; $script:h -ne [IntPtr]::Zero } 30
-    Test-Cas 'sa fenêtre est trouvée par Mindset (Find-FenetreAppli : titre exact, sans propriétaire, classe WPF)' { $trouvee }
-    $hotes = @(Get-ProcessusAppli $t -Hote)
-    Test-Cas 'un seul programme tourne : Mindset.exe de son dossier (trouvé par son chemin)' { $hotes.Count -eq 1 -and $hotes[0].Path -ieq (Join-Path $prog 'Mindset.exe') }
-    $pidTemoin = if ($hotes.Count) { $hotes[0].Id } else { 0 }
-    Test-Cas 'verrou Local\Temoin-Instance pris, et Test-AppliOuverte le voit' {
-        $m = $null; $ok = [Threading.Mutex]::TryOpenExisting('Local\Temoin-Instance', [ref]$m); if ($m) { $m.Dispose() }
-        $ok -and (Test-AppliOuverte $t)
-    }
-    Test-Cas '-Demarrage : fenêtre créée mais cachée, sans propriétaire, classe HwndWrapper' {
-        $h -ne [IntPtr]::Zero -and -not [ContratFenetre]::IsWindowVisible($h) -and [ContratFenetre]::GetWindow($h, 4) -eq [IntPtr]::Zero -and ([ContratFenetre]::Classe($h)).StartsWith('HwndWrapper')
-    }
-    Test-Cas '-Demarrage : le premier plan ne lui est pas donné' { [ContratFenetre]::GetForegroundWindow() -ne $h }
-    $donneesTemoin = Join-Path $SuiteDir 'Temoin'
-    Test-Cas 'données : <disque>\Mindset\Donnees\Temoin, le dossier que Mindset lui donne (Get-DossierDonnees)' {
-        (Wait-Jusque { Test-Path -LiteralPath (Join-Path $donneesTemoin 'etat.json') } 10) -and (Get-DossierDonnees $t) -eq $donneesTemoin
-    }
-    $script:Applis = $Applis
-    Test-Cas 'Start-AppliCachee : cache_depuis atteint, Mindset la lance cachée (-Demarrage)' {
-        $script:LanceeCachee = $null
-        & { function Open-Appli($Appli, [switch]$Demarrage) { $script:LanceeCachee = [bool]$Demarrage }; Start-AppliCachee $t }
-        $script:LanceeCachee -eq $true
-    }
-
-    # =============================================================================================================
-    Write-Partie 'Partie 5 : les fichiers échangés (etat.json, notification.demande, suite.json)'
-    # =============================================================================================================
-    function Get-Etat { $script:EtatsApplis = @{}; Get-EtatAppli $t }
-    function Test-Ligne([string]$Texte) { $e = Get-Etat; [bool]($e -and @($e.Lignes | Where-Object { $_.Texte -eq $Texte }).Count) }
-    $etat = Get-Etat
-    Test-Cas 'etat.json lu par Mindset (Get-EtatAppli, format commun) : titre, un score, des lignes' {
-        $etat -and $etat.Titre -eq "Témoin $versionTemoin" -and @($etat.Scores).Count -eq 1 -and $etat.Scores[0].Valeur -eq 100 -and @($etat.Lignes).Count -ge 2
-    }
-    Test-Cas 'etat.json en UTF-8 sans BOM' { [IO.File]::ReadAllBytes((Join-Path $donneesTemoin 'etat.json'))[0] -eq [byte][char]'{' }
-    Test-Cas 'notification.demande montrée par Mindset (Watch-NotificationsApplis), puis supprimée' {
-        $bulles.Clear()
-        (Wait-Jusque { Watch-NotificationsApplis; $bulles.Count -gt 0 } 10) -and $bulles[0].Titre -eq 'Témoin' -and $bulles[0].Texte -eq 'Le témoin est prêt.' -and
-        -not (Test-Path -LiteralPath (Join-Path $donneesTemoin 'notification.demande')) -and $script:BulleAppli.Id -cmatch '^[0-9a-f]{12}$'
-    }
-    $bulle = $script:BulleAppli
-    Test-Cas 'suite.json : le thème choisi dans Mindset (Set-SuiteTheme) est suivi' { Set-SuiteTheme 'crepuscule'; Wait-Jusque { Test-Ligne 'Thème : crepuscule' } 6 }
-    Test-Cas 'suite.json : un thème inconnu écrit par un autre programme est ignoré' {
-        [IO.File]::WriteAllText((Join-Path $SuiteFileDir 'suite.json'), '{ "theme": "..\\..\\piege", "applis": {} }')
-        Start-Sleep -Seconds 2
-        Test-Ligne 'Thème : crepuscule'
-    }
-
-    # =============================================================================================================
-    Write-Partie 'Partie 7 : accrochée dans Mindset (MSIntegration de natif.cs)'
-    # =============================================================================================================
-    # La place de l'appli : une fenêtre Windows Forms jamais montrée (comme le panneau de Mindset, mais hors de l'écran)
-    $panneau = New-Object System.Windows.Forms.Form
-    $panneau.ShowInTaskbar = $false; $panneau.StartPosition = 'Manual'; $panneau.Location = New-Object Drawing.Point(-32000, -32000)
-    $styles = [MSIntegration]::Accrocher($h, $panneau.Handle, 200, 200)
-    Test-Cas 'Windows accepte de l''accrocher (Accrocher rend ses styles d''avant)' { $null -ne $styles -and [MSIntegration]::EstEnfantDe($h, $panneau.Handle) }
-    Test-Cas 'accrochée : elle le voit, et se montre d''elle-même (WS_VISIBLE)' { (Wait-Jusque { Test-Ligne 'Affichée dans Mindset' } 6) -and [MSIntegration]::EstMontree($h) }
-    # (taille minimale à 0 : WPF ne l'impose pas à une fenêtre enfant, le cas ci-dessous ne voit donc que la taille donnée par
-    # Mindset ; c'est le retour de la taille minimale, une fois décrochée, qui montre que le témoin suit bien l'accrochage)
-    Test-Cas 'accrochée : redimensionnée à 150 x 120 par Mindset, elle garde cette taille' {
-        [MSIntegration]::Redimensionner($h, 150, 120)
-        $null = Wait-Jusque { $false } 1.5
-        $tl = [ContratFenetre]::Taille($h); $tl[0] -eq 150 -and $tl[1] -eq 120
-    }
-    Test-Cas 'pas de barre à elle (Mindset.BarrePropre absent) : la barre de Mindset reste' { -not [MSIntegration]::BarrePropre($h) }
-    Test-Cas 'clic sur sa bulle (Open-BulleAppli) : « notif:<id> » reçu, sa fenêtre accrochée n''est pas touchée' {
-        $script:BulleAppli = $bulle
-        Open-BulleAppli
-        (Wait-Jusque { Test-Ligne "Bulle ouverte : $($bulle.Id)" } 6) -and [MSIntegration]::EstEnfantDe($h, $panneau.Handle) -and
-        -not (Test-Path -LiteralPath (Join-Path $donneesTemoin 'afficher.demande'))
-    }
-    Test-Cas 'une bulle qu''elle n''a pas donnée (« notif:000000000000 ») : ignorée' {
-        [IO.File]::WriteAllText((Join-Path $donneesTemoin 'afficher.demande'), 'notif:000000000000')
-        (Wait-Jusque { -not (Test-Path -LiteralPath (Join-Path $donneesTemoin 'afficher.demande')) } 4) -and (Test-Ligne "Bulle ouverte : $($bulle.Id)") -and
-        [MSIntegration]::EstEnfantDe($h, $panneau.Handle)
-    }
-    Test-Cas '« Fermer » de Mindset (WM_CLOSE) : elle se range (cachée), sans se détruire ni quitter' {
-        [MSIntegration]::Fermer($h)
-        (Wait-Jusque { -not [MSIntegration]::EstMontree($h) } 5) -and [MSIntegration]::IsWindow($h) -and -not (Get-Process -Id $pidTemoin).HasExited
-    }
-    Test-Cas 'Mindset la rend (Liberer) : décrochée, cachée, sa taille minimale revient' {
-        [MSIntegration]::Liberer($h, $styles[0], $styles[1])
-        $ok = (Wait-Jusque { Test-Ligne 'Pas affichée dans Mindset' } 6) -and [ContratFenetre]::GetParent($h) -eq [IntPtr]::Zero -and -not [ContratFenetre]::IsWindowVisible($h)
-        [MSIntegration]::Redimensionner($h, 100, 100)
-        $null = Wait-Jusque { $false } 1
-        $tl = [ContratFenetre]::Taille($h)
-        $ok -and $tl[0] -ge 300 -and $tl[1] -ge 200
-    }
-    Test-Cas 'la même fenêtre tout du long (jamais recréée)' { (Find-FenetreAppli $t) -eq $h }
-    $panneau.Dispose()
-
-    # =============================================================================================================
-    Write-Partie 'Parties 3 et 5 : ramenée par Mindset ou par un second lancement (afficher.demande)'
-    # =============================================================================================================
-    Test-Cas 'Open-Appli alors qu''elle tourne : afficher.demande (numéro de Mindset), sa fenêtre se montre' {
-        Open-Appli $t
-        (Wait-Jusque { [ContratFenetre]::IsWindowVisible($h) } 6) -and -not (Test-Path -LiteralPath (Join-Path $donneesTemoin 'afficher.demande'))
-    }
-    [MSIntegration]::Fermer($h)
-    $null = Wait-Jusque { -not [ContratFenetre]::IsWindowVisible($h) } 5
-    Test-Cas 'second lancement par Temoin.exe : il attend, dépose sa demande d''affichage et s''arrête ; la première se montre' {
-        Start-Process -FilePath (Join-Path $prog 'Temoin.exe') -WorkingDirectory $prog
-        $deux = Wait-Jusque { @(Get-ProcessusAppli $t -Hote).Count -ge 2 } 5
-        $ok = (Wait-Jusque { [ContratFenetre]::IsWindowVisible($h) } 15)
-        $seul = Wait-Jusque { $p = @(Get-ProcessusAppli $t -Hote); $p.Count -eq 1 -and $p[0].Id -eq $pidTemoin } 5
-        $deux -and $ok -and $seul
-    }
-    [MSIntegration]::Fermer($h)
-    $null = Wait-Jusque { -not [ContratFenetre]::IsWindowVisible($h) } 5
-
-    # =============================================================================================================
-    Write-Partie 'Partie 5 : Mindset quitte avec les applis (quitter.demande)'
-    # =============================================================================================================
-    Test-Cas 'Request-FermetureApplis : elle quitte en moins de 6 s, verrou rendu, demande supprimée' {
-        Request-FermetureApplis
-        (Wait-Jusque { (Get-Process -Id $pidTemoin -ErrorAction SilentlyContinue) -eq $null } 6) -and -not (Test-AppliOuverte $t) -and
-        -not (Test-Path -LiteralPath (Join-Path $donneesTemoin 'quitter.demande'))
-    }
-    Test-Cas 'rien n''a été écrit dans son dossier des programmes' {
-        $apres = @(Get-ChildItem -LiteralPath $prog -Recurse -File | ForEach-Object { "$($_.FullName)|$($_.Length)|$($_.LastWriteTimeUtc.Ticks)" })
-        -not (Compare-Object $avant $apres)
-    }
-
-    # =============================================================================================================
-    Write-Partie 'Partie 8 : une copie hors de Mindset garde son ancien dossier (« donnees » de apps.json)'
-    # =============================================================================================================
-    if (-not $Casser) {
-        $ailleurs = Join-Path $tmp 'Telechargements\Temoin'
-        Copy-Item -LiteralPath $prog -Destination $ailleurs -Recurse
-        $p = Start-Process -FilePath (Join-Path $ailleurs 'Mindset.exe') -ArgumentList '-Demarrage' -WorkingDirectory $ailleurs -PassThru
-        Test-Cas "copie dans Téléchargements : ses données dans %LOCALAPPDATA%\Temoin, le dossier « donnees » que Mindset lit" {
-            (Wait-Jusque { Test-Path -LiteralPath (Join-Path $t.Donnees 'etat.json') } 20) -and $t.Donnees -eq (Join-Path $env:LOCALAPPDATA 'Temoin')
+        $exeAutre = [string]$entreeAutre.exe
+        Test-Cas "l'appli donnée : $dossierZip\Mindset.exe, $dossierZip\$exeAutre et $dossierZip\version.json dans son zip" {
+            -not @('Mindset.exe', $exeAutre, 'version.json' | Where-Object { -not (Test-Path -LiteralPath (Join-Path $construit $_) -PathType Leaf) }).Count
         }
-        [IO.File]::WriteAllText((Join-Path $t.Donnees 'quitter.demande'), [string]$PID)
-        $null = $p.WaitForExit(6000)
-    }
+        $versionMindset = ''
+        if ([IO.File]::ReadAllText((Join-Path $fichiers 'Mindset.ps1')) -match "(?m)^\`$AppVersion\s*=\s*'([\d.]+)'") { $versionMindset = $Matches[1] }
 
-    # =============================================================================================================
-    Write-Partie 'Partie 9 : son désinstalleur, lancé comme par « Désinstaller Mindset » (seulement sur GitHub)'
-    # =============================================================================================================
-    if ($Casser) { Write-Host '  (pas pour une contre-épreuve)' }
-    elseif (-not $surGitHub) { Write-Host '  (pas sur ce PC : aucun désinstalleur n''est lancé en local ; ces cas tournent sur GitHub)' -ForegroundColor Yellow }
-    else {
-        # Comme desinstalleur.cs (LancerDesinstalleur) : dans le dossier de l'appli, -GarderDonnees ou -SupprimerDonnees
-        function Invoke-Desinstalleur([string]$Option) {
-            $psi = New-Object Diagnostics.ProcessStartInfo((Join-Path $prog $t.Desinstalleur), $Option)
-            $psi.UseShellExecute = $false; $psi.WorkingDirectory = $prog
-            $d = [Diagnostics.Process]::Start($psi)
-            if (-not $d.WaitForExit(60000)) { try { $d.Kill() } catch {}; return $null }
-            $d.ExitCode
+        # =========================================================================================================
+        Write-Partie 'Partie 1 : son entrée dans apps.json (Get-Applis, applis.ps1)'
+        # =========================================================================================================
+        $AppDir = Join-Path $tmp 'apps'
+        New-Item -ItemType Directory -Force -Path $AppDir | Out-Null
+        [IO.File]::WriteAllText((Join-Path $AppDir 'apps.json'), (ConvertTo-Json @($entreeAutre) -Depth 4), (New-Object Text.UTF8Encoding $false))
+        . (Join-Path $modules 'applis.ps1')   # (définit Get-Applis et lit apps.json dans $Applis, comme Mindset au démarrage)
+        $t = $Applis | Where-Object Id -eq ([string]$entreeAutre.id)
+        if (-not $t) { throw "son entrée n'est pas acceptée par Mindset (Get-Applis l'ignore) : regarde chaque champ dans docs\contrat-appli.md, partie 1" }
+        $nomA = $t.Nom
+        Test-Cas "entrée acceptée par Mindset, de type « $($t.Type) » écrit en toutes lettres" { @($Applis).Count -eq 1 -and [string]$entreeAutre.type -ceq $t.Type }
+        Test-Cas 'verrou : mutex = Local\<nom>-Instance' { $t.Mutex -ceq "Local\$nomA-Instance" }
+        Test-Cas "demande d'affichage déclarée : $(if ($t.AfficherSignal) { "signal $($t.AfficherSignal)" } else { "fichier $($t.AfficherFichier)" })" {
+            if ($t.AfficherSignal) { $t.AfficherSignal -ceq "Local\$nomA-Afficher" } else { [bool]$t.AfficherFichier }
         }
-        function Install-Temoin { $null = Install-Paquet -Zip $zip -Signature $signature -ClePublique $clePublique -Destination $prog -DossierZip 'Temoin' -Exe 'Temoin.exe' -Appli 'temoin' -VersionMindset '2.15.0' }
+        Test-Cas 'donnees présent (son ancien dossier), cache_depuis présent' { $t.Donnees -and $t.CacheDepuis }
+        Test-Cas "identité dans la barre des tâches : $($t.AppId)" { $t.AppId -cmatch '^JordanJacquot\.[A-Za-z0-9]+$' }
+
+        # =========================================================================================================
+        Write-Partie 'Partie 10 : version.json, et l''installation du zip par Mindset (Install-Paquet)'
+        # =========================================================================================================
+        $infoVersion = Read-VersionJson ([IO.File]::ReadAllBytes((Join-Path $construit 'version.json')))
+        $versionAutre = if ($infoVersion) { $infoVersion.Version } else { '' }
+        Test-Cas "version.json lisible par Mindset (Read-VersionJson), appli « $($t.Id) »" { $infoVersion -and $infoVersion.Appli -ceq $t.Id }
+        Test-Cas 'version.json : mindset_min au moins 2.15.0' { $infoVersion.MindsetMin -and -not (Test-VersionPlusRecente '2.15.0' $infoVersion.MindsetMin) }
+        Test-Cas 'version.json en UTF-8 sans BOM' { [IO.File]::ReadAllBytes((Join-Path $construit 'version.json'))[0] -eq [byte][char]'{' }
+        # Le zip signé avec une clé de test (jamais la vraie)
+        $rsa = New-Object System.Security.Cryptography.RSACryptoServiceProvider 3072
+        $rsa.PersistKeyInCsp = $false
+        $clePublique = Join-Path $tmp 'cle-publique.xml'
+        [IO.File]::WriteAllText($clePublique, $rsa.ToXmlString($false))
+        $zip = [IO.File]::ReadAllBytes($zipFichier)
+        $signature = $rsa.SignData($zip, [System.Security.Cryptography.CryptoConfig]::MapNameToOID('SHA256'))
+        $prog = Get-DossierGere $t
+        Test-Cas "Test-PaquetAppli (avant de fermer l'appli) : accepté par ce Mindset ($versionMindset)" { $null = Test-PaquetAppli $zip $dossierZip $t.Id $versionMindset; $true }
+        Test-Cas 'Test-PaquetAppli : refusé par un Mindset plus ancien (« Mets d''abord Mindset à jour »)' {
+            try { Test-PaquetAppli $zip $dossierZip $t.Id '2.14.0'; $false } catch { $_.Exception.Message -like 'Mets d''abord Mindset à jour*' }
+        }
+        Test-Cas "Get-VersionZip : sa version ($versionAutre)" { $versionAutre -and (Get-VersionZip $zip $dossierZip) -eq $versionAutre }
+        Test-Cas "Install-Paquet l'installe dans <disque>\Mindset\Programmes\$nomA, version lue dans le dossier" {
+            ((Install-Paquet -Zip $zip -Signature $signature -ClePublique $clePublique -Destination $prog -DossierZip $dossierZip -Exe $t.Exe -Appli $t.Id -VersionMindset $versionMindset) -eq $prog) -and
+            ((Get-VersionDossier $prog) -eq $versionAutre)
+        }
+        if ($t.Desinstalleur) { Test-Cas 'son désinstalleur est bien dans le dossier installé' { Test-Path -LiteralPath (Join-Path $prog $t.Desinstalleur) -PathType Leaf } }
+
+        # =========================================================================================================
+        Write-Partie 'Partie 2 : le dossier installé reconnu (Test-DossierAppli, Get-Installation)'
+        # =========================================================================================================
+        Save-Installation $t.Id $prog $true
+        Test-Cas 'dossier reconnu (Test-DossierAppli)' { Test-DossierAppli $prog $t }
+        $inst = Get-Installation $t   # (écrit aussi son dossier dans suite.json : c'est ainsi qu'elle se sait gérée)
+        Test-Cas 'Get-Installation : gérée, dans le dossier protégé, sa version' { $inst -and $inst.Gere -and $inst.Dossier -eq $prog -and $inst.Version -eq $versionAutre }
+
+        # =========================================================================================================
+        Write-Partie "Partie 4 : l'hôte Mindset.exe et le relais $($t.Exe)"
+        # =========================================================================================================
+        Test-Cas 'Mindset.exe : « Mindset » dans ses informations (le Gestionnaire des tâches range la suite sur une ligne)' { [Diagnostics.FileVersionInfo]::GetVersionInfo((Join-Path $prog 'Mindset.exe')).FileDescription -ceq 'Mindset' }
+        Test-Cas "$($t.Exe) (le relais)$(if ($t.Desinstalleur) { ' et le désinstalleur' }) : « $nomA »" {
+            [Diagnostics.FileVersionInfo]::GetVersionInfo((Join-Path $prog $t.Exe)).FileDescription -ceq $nomA -and
+            (-not $t.Desinstalleur -or [Diagnostics.FileVersionInfo]::GetVersionInfo((Join-Path $prog $t.Desinstalleur)).FileDescription -ceq $nomA)
+        }
+        Test-Cas 'numéro de version de Mindset.exe = celui de version.json' { [Diagnostics.FileVersionInfo]::GetVersionInfo((Join-Path $prog 'Mindset.exe')).FileVersion -like "$versionAutre*" }
+        $avant = @(Get-ChildItem -LiteralPath $prog -Recurse -File | ForEach-Object { "$($_.FullName)|$($_.Length)|$($_.LastWriteTimeUtc.Ticks)" })
+
+        # =========================================================================================================
+        Write-Partie 'Parties 6, 3 et 8 : lancée cachée par Mindset (Open-Appli -Demarrage)'
+        # =========================================================================================================
+        $verrou = $t.Mutex
+        function Get-HoteSeul { $p = @(Get-ProcessusAppli $t -Hote); if ($p.Count -eq 1) { $p[0] } }
         Open-Appli $t -Demarrage
-        $null = Wait-Jusque { (Find-FenetreAppli $t) -ne [IntPtr]::Zero } 30
-        Test-Cas '-GarderDonnees : rend 0, ferme l''appli, Temoin.exe disparaît, ses données restent' {
-            ((Invoke-Desinstalleur '-GarderDonnees') -eq 0) -and -not (Test-Path -LiteralPath (Join-Path $prog 'Temoin.exe')) -and -not (Test-AppliOuverte $t) -and
-            (Test-Path -LiteralPath (Join-Path $donneesTemoin 'etat.json'))
+        $h = [IntPtr]::Zero
+        $trouvee = Wait-Jusque { $script:h = Find-FenetreAppli $t; $script:h -ne [IntPtr]::Zero } 30
+        Test-Cas 'sa fenêtre est trouvée par Mindset (Find-FenetreAppli : titre exact, sans propriétaire, classe WPF ou Tauri)' { $trouvee }
+        $hotes = @(Get-ProcessusAppli $t -Hote)
+        Test-Cas 'un seul programme tourne : Mindset.exe de son dossier (trouvé par son chemin)' { $hotes.Count -eq 1 -and $hotes[0].Path -ieq (Join-Path $prog 'Mindset.exe') }
+        $pidAutre = if ($hotes.Count) { $hotes[0].Id } else { 0 }
+        Test-Cas "verrou $verrou pris, et Test-AppliOuverte le voit" {
+            $m = $null; $ok = [Threading.Mutex]::TryOpenExisting($verrou, [ref]$m); if ($m) { $m.Dispose() }
+            $ok -and (Test-AppliOuverte $t)
         }
-        Test-Cas 'puis son dossier des programmes disparaît tout entier' { Wait-Jusque { -not (Test-Path -LiteralPath $prog) } 15 }
-        Install-Temoin
-        Test-Cas '-SupprimerDonnees : rend 0, Temoin.exe et ses données disparaissent' {
-            ((Invoke-Desinstalleur '-SupprimerDonnees') -eq 0) -and -not (Test-Path -LiteralPath (Join-Path $prog 'Temoin.exe')) -and -not (Test-Path -LiteralPath $donneesTemoin)
+        Test-Cas '-Demarrage : fenêtre créée mais cachée, sans propriétaire, classe HwndWrapper ou « Tauri Window »' {
+            $c = [ContratFenetre]::Classe($h)
+            $h -ne [IntPtr]::Zero -and -not [ContratFenetre]::IsWindowVisible($h) -and [ContratFenetre]::GetWindow($h, 4) -eq [IntPtr]::Zero -and ($c.StartsWith('HwndWrapper') -or $c -ceq 'Tauri Window')
         }
-        $null = Wait-Jusque { -not (Test-Path -LiteralPath $prog) } 15
-        Install-Temoin
-        Test-Cas 'les deux options à la fois : il pose la question (il attend, rien n''est supprimé)' {
-            $psi = New-Object Diagnostics.ProcessStartInfo((Join-Path $prog $t.Desinstalleur), '-GarderDonnees -SupprimerDonnees')
-            $psi.UseShellExecute = $false; $psi.WorkingDirectory = $prog
-            $d = [Diagnostics.Process]::Start($psi)
-            $attend = -not $d.WaitForExit(4000)
-            try { $d.Kill(); $null = $d.WaitForExit(3000) } catch {}
-            $attend -and (Test-Path -LiteralPath (Join-Path $prog 'Temoin.exe'))
+        Test-Cas '-Demarrage : le premier plan ne lui est pas donné' { [ContratFenetre]::GetForegroundWindow() -ne $h }
+        $donneesAutre = Join-Path $SuiteDir $nomA
+        Test-Cas "données : <disque>\Mindset\Donnees\$nomA, le dossier que Mindset lui donne (Get-DossierDonnees)" {
+            (Wait-Jusque { Test-Path -LiteralPath (Join-Path $donneesAutre 'etat.json') } 20) -and (Get-DossierDonnees $t) -eq $donneesAutre
         }
-    }
+        $script:Applis = $Applis
+        Test-Cas 'Start-AppliCachee : cache_depuis atteint, Mindset la lance cachée (-Demarrage)' {
+            $script:LanceeCachee = $null
+            & { function Open-Appli($AppliConstruite, [switch]$Demarrage) { $script:LanceeCachee = [bool]$Demarrage }; Start-AppliCachee $t }
+            $script:LanceeCachee -eq $true
+        }
 
-    # =============================================================================================================
-    Write-Partie 'Contre-épreuve : un point du contrat cassé exprès dans le témoin fait échouer ce test'
-    # =============================================================================================================
-    if ($Casser) { Write-Host '  (déjà dans une contre-épreuve)' }
-    else {
-        $ps = Join-Path $env:SystemRoot 'System32\WindowsPowerShell\v1.0\powershell.exe'
-        foreach ($cas in @(
-                @{ Point = 'verrou'; Cas = 'verrou Local\Temoin-Instance pris' },
-                @{ Point = 'titre'; Cas = 'sa fenêtre est trouvée par Mindset' },
-                @{ Point = 'quitter'; Cas = 'Request-FermetureApplis' },
-                @{ Point = 'taille'; Cas = 'Mindset la rend (Liberer)' },
-                @{ Point = 'fermer'; Cas = '« Fermer » de Mindset (WM_CLOSE)' },
-                @{ Point = 'version'; Cas = 'version.json : la même version' })) {
-            $c = $cas
-            Test-Cas "témoin cassé ($($c.Point)) : le test échoue, sur « $($c.Cas) »" {
-                $sortie = & $ps -NoProfile -ExecutionPolicy Bypass -File $PSCommandPath -Casser $c.Point 2>&1 | Out-String
-                $code = $LASTEXITCODE
-                $code -eq 1 -and @($sortie -split "`n" | Where-Object { $_ -like '*ÉCHEC*' -and $_ -like "*$($c.Cas)*" }).Count -gt 0
+        # =========================================================================================================
+        Write-Partie 'Partie 5 : les fichiers échangés (etat.json, suite.json, demande d''affichage)'
+        # =========================================================================================================
+        $script:EtatsApplis = @{}
+        $etat = Get-EtatAppli $t
+        Test-Cas 'etat.json lu par Mindset (Get-EtatAppli)' { $etat -and ($t.Id -in 'nevermind', 'evermind' -or $etat.Titre) }
+        Test-Cas 'etat.json en UTF-8 sans BOM' { [IO.File]::ReadAllBytes((Join-Path $donneesAutre 'etat.json'))[0] -eq [byte][char]'{' }
+        if ($t.AfficherFichier) {
+            Test-Cas "une bulle qu'elle n'a pas donnée (« notif:000000000000 » dans $($t.AfficherFichier)) : lue, supprimée, rien ne se montre" {
+                [IO.File]::WriteAllText((Join-Path $donneesAutre $t.AfficherFichier), 'notif:000000000000')
+                (Wait-Jusque { -not (Test-Path -LiteralPath (Join-Path $donneesAutre $t.AfficherFichier)) } 4) -and -not [ContratFenetre]::IsWindowVisible($h)
+            }
+        } else { Write-Host "  (pas de « afficher_fichier » : ni bulles ni clic sur une bulle à vérifier)" }
+        Test-Cas 'suite.json : un thème inconnu écrit par un autre programme est ignoré (elle tourne, même fenêtre, cachée)' {
+            # (son dossier reste dans « applis » : elle se sait toujours gérée)
+            [IO.File]::WriteAllText((Join-Path $SuiteFileDir 'suite.json'), (@{ theme = '..\..\piege'; applis = @{ ([string]$t.Id) = $prog } } | ConvertTo-Json))
+            $null = Wait-Jusque { $false } 3
+            (Get-HoteSeul).Id -eq $pidAutre -and (Find-FenetreAppli $t) -eq $h -and -not [ContratFenetre]::IsWindowVisible($h)
+        }
+        # (le thème suivi tel quel, ou par une relance cachée comme Mindcare : seule la suite est regardée de l'extérieur)
+        Test-Cas 'suite.json : le thème choisi dans Mindset (Set-SuiteTheme) : elle tourne toujours ensuite, une seule, fenêtre cachée' {
+            Set-SuiteTheme 'crepuscule'
+            $null = Wait-Jusque { -not (Get-Process -Id $pidAutre -ErrorAction SilentlyContinue) } 6
+            $ok = Wait-Jusque { $p = Get-HoteSeul; $script:h = Find-FenetreAppli $t; $p -and $script:h -ne [IntPtr]::Zero -and -not [ContratFenetre]::IsWindowVisible($script:h) } 30
+            $script:pidAutre = (Get-HoteSeul).Id
+            $ok -and (Test-AppliOuverte $t)
+        }
+
+        # =========================================================================================================
+        Write-Partie 'Partie 7 : accrochée dans Mindset (MSIntegration de natif.cs)'
+        # =========================================================================================================
+        $panneau = New-Object System.Windows.Forms.Form
+        $panneau.ShowInTaskbar = $false; $panneau.StartPosition = 'Manual'; $panneau.Location = New-Object Drawing.Point(-32000, -32000)
+        $styles = [MSIntegration]::Accrocher($h, $panneau.Handle, 200, 200)
+        Test-Cas 'Windows accepte de l''accrocher (Accrocher rend ses styles d''avant)' { $null -ne $styles -and [MSIntegration]::EstEnfantDe($h, $panneau.Handle) }
+        Test-Cas 'accrochée : elle se montre d''elle-même (WS_VISIBLE)' { Wait-Jusque { [MSIntegration]::EstMontree($h) } 6 }
+        Test-Cas 'accrochée : redimensionnée à 150 x 120 par Mindset, elle garde cette taille' {
+            [MSIntegration]::Redimensionner($h, 150, 120)
+            $null = Wait-Jusque { $false } 1.5
+            $tl = [ContratFenetre]::Taille($h); $tl[0] -eq 150 -and $tl[1] -eq 120
+        }
+        Test-Cas 'Mindset la rend (Liberer) : décrochée, cachée, une taille minimale revient (plus de 100 x 100)' {
+            [MSIntegration]::Liberer($h, $styles[0], $styles[1])
+            $ok = (Wait-Jusque { [ContratFenetre]::GetParent($h) -eq [IntPtr]::Zero -and -not [ContratFenetre]::IsWindowVisible($h) } 6)
+            $null = Wait-Jusque { $false } 1
+            [MSIntegration]::Redimensionner($h, 100, 100)
+            $null = Wait-Jusque { $false } 1
+            $tl = [ContratFenetre]::Taille($h)
+            $ok -and $tl[0] -gt 100 -and $tl[1] -gt 100
+        }
+        Test-Cas 'la même fenêtre tout du long (jamais recréée)' { (Find-FenetreAppli $t) -eq $h }
+
+        # =========================================================================================================
+        Write-Partie 'Parties 3 et 5 : ramenée par Mindset, second lancement caché'
+        # =========================================================================================================
+        Test-Cas "Open-Appli alors qu'elle tourne : $(if ($t.AfficherSignal) { "signal $($t.AfficherSignal)" } else { $t.AfficherFichier }), sa fenêtre se montre (sans rien relancer)" {
+            $script:Relancee = $false
+            & { function Start-Process { $script:Relancee = $true }; Open-Appli $t }
+            (Wait-Jusque { [ContratFenetre]::IsWindowVisible($h) } 6) -and -not $script:Relancee -and
+            (-not $t.AfficherFichier -or $t.AfficherSignal -or -not (Test-Path -LiteralPath (Join-Path $donneesAutre $t.AfficherFichier)))
+        }
+        Test-Cas 'second lancement caché (Mindset.exe -Demarrage) : il attend, ne dépose rien et s''arrête ; la première reste comme elle est' {
+            Start-Process -FilePath (Join-Path $prog 'Mindset.exe') -ArgumentList '-Demarrage' -WorkingDirectory $prog
+            $deux = Wait-Jusque { @(Get-ProcessusAppli $t -Hote).Count -ge 2 } 5
+            $seul = Wait-Jusque { $p = Get-HoteSeul; $p -and $p.Id -eq $pidAutre } 15
+            $deux -and $seul -and [ContratFenetre]::IsWindowVisible($h) -and (Find-FenetreAppli $t) -eq $h -and
+            (-not $t.AfficherFichier -or -not (Test-Path -LiteralPath (Join-Path $donneesAutre $t.AfficherFichier)))
+        }
+
+        # =========================================================================================================
+        Write-Partie 'Parties 7 et 5 : « Fermer » de Mindset et Mindset qui quitte'
+        # =========================================================================================================
+        $styles = [MSIntegration]::Accrocher($h, $panneau.Handle, 200, 200)
+        $null = Wait-Jusque { [MSIntegration]::EstMontree($h) } 6
+        Test-Cas '« Fermer » de Mindset (WM_CLOSE), accrochée : elle quitte, son programme disparaît, verrou rendu' {
+            [MSIntegration]::Fermer($h)
+            (Wait-Jusque { (Get-Process -Id $pidAutre -ErrorAction SilentlyContinue) -eq $null } 6) -and -not (Test-AppliOuverte $t)
+        }
+        if ([MSIntegration]::IsWindow($h)) { [MSIntegration]::Liberer($h, $styles[0], $styles[1]) }   # (restée là : rendue avant la fin du panneau)
+        $panneau.Dispose()
+        Open-Appli $t -Demarrage
+        $null = Wait-Jusque { $script:h = Find-FenetreAppli $t; $script:h -ne [IntPtr]::Zero } 30
+        $pidAutre = (Get-HoteSeul).Id
+        Test-Cas 'Request-FermetureApplis : elle quitte en moins de 6 s, verrou rendu, demande supprimée' {
+            Request-FermetureApplis
+            $pidAutre -and (Wait-Jusque { (Get-Process -Id $pidAutre -ErrorAction SilentlyContinue) -eq $null } 6) -and -not (Test-AppliOuverte $t) -and
+            -not (Test-Path -LiteralPath (Join-Path $donneesAutre 'quitter.demande'))
+        }
+        Test-Cas 'rien n''a été écrit dans son dossier des programmes' {
+            $apres = @(Get-ChildItem -LiteralPath $prog -Recurse -File | ForEach-Object { "$($_.FullName)|$($_.Length)|$($_.LastWriteTimeUtc.Ticks)" })
+            -not (Compare-Object $avant $apres)
+        }
+
+        # =========================================================================================================
+        Write-Partie 'Partie 9 : son désinstalleur, lancé comme par « Désinstaller Mindset » (seulement sur GitHub)'
+        # =========================================================================================================
+        if (-not $t.Desinstalleur) { Write-Host '  (son entrée n''a pas de « desinstalleur » : rien à vérifier)' }
+        elseif (-not $surGitHub) { Write-Host '  (pas sur ce PC : aucun désinstalleur n''est lancé en local ; ces cas tournent sur GitHub)' -ForegroundColor Yellow }
+        else {
+            function Invoke-Desinstalleur([string]$Option) {
+                $psi = New-Object Diagnostics.ProcessStartInfo((Join-Path $prog $t.Desinstalleur), $Option)
+                $psi.UseShellExecute = $false; $psi.WorkingDirectory = $prog
+                $d = [Diagnostics.Process]::Start($psi)
+                if (-not $d.WaitForExit(60000)) { try { $d.Kill() } catch {}; return $null }
+                $d.ExitCode
+            }
+            function Install-Autre { $null = Install-Paquet -Zip $zip -Signature $signature -ClePublique $clePublique -Destination $prog -DossierZip $dossierZip -Exe $t.Exe -Appli $t.Id -VersionMindset $versionMindset }
+            Open-Appli $t -Demarrage
+            $null = Wait-Jusque { (Find-FenetreAppli $t) -ne [IntPtr]::Zero } 30
+            Test-Cas "-GarderDonnees : rend 0, ferme l'appli, $($t.Exe) disparaît, ses données restent" {
+                ((Invoke-Desinstalleur '-GarderDonnees') -eq 0) -and -not (Test-Path -LiteralPath (Join-Path $prog $t.Exe)) -and -not (Test-AppliOuverte $t) -and
+                (Test-Path -LiteralPath (Join-Path $donneesAutre 'etat.json'))
+            }
+            Test-Cas 'puis son dossier des programmes disparaît tout entier' { Wait-Jusque { -not (Test-Path -LiteralPath $prog) } 15 }
+            Install-Autre
+            Test-Cas "-SupprimerDonnees : rend 0, $($t.Exe) et ses données disparaissent" {
+                ((Invoke-Desinstalleur '-SupprimerDonnees') -eq 0) -and -not (Test-Path -LiteralPath (Join-Path $prog $t.Exe)) -and -not (Test-Path -LiteralPath $donneesAutre)
+            }
+            $null = Wait-Jusque { -not (Test-Path -LiteralPath $prog) } 15
+            Install-Autre
+            Test-Cas 'les deux options à la fois : il pose la question (il attend, rien n''est supprimé)' {
+                $psi = New-Object Diagnostics.ProcessStartInfo((Join-Path $prog $t.Desinstalleur), '-GarderDonnees -SupprimerDonnees')
+                $psi.UseShellExecute = $false; $psi.WorkingDirectory = $prog
+                $d = [Diagnostics.Process]::Start($psi)
+                $attend = -not $d.WaitForExit(4000)
+                try { $d.Kill(); $null = $d.WaitForExit(3000) } catch {}
+                $attend -and (Test-Path -LiteralPath (Join-Path $prog $t.Exe))
+            }
+        }
+        Write-Partie 'Pas pour une autre appli : la copie ailleurs (partie 8) et la contre-épreuve (témoin cassé exprès)'
+        Write-Host '  (une copie non gérée lancée hors de Mindset peut se bloquer ou ouvrir le vrai Mindset ; la contre-épreuve casse le témoin)'
+    } else {
+        $construit = & (Join-Path $temoinSource 'construire.ps1') -Sortie (Join-Path $tmp 'construit')
+        $scriptTemoin = Join-Path $construit 'fichiers\Temoin.ps1'
+        $versionTemoin = ''
+        if ([IO.File]::ReadAllText($scriptTemoin) -match "(?m)^\`$AppVersion\s*=\s*'([\d.]+)'") { $versionTemoin = $Matches[1] }
+        Test-Cas 'le témoin se construit : Mindset.exe, Temoin.exe, Désinstaller Temoin.exe, version.json, fichiers\Temoin.ps1' {
+            $versionTemoin -and -not @('Mindset.exe', 'Temoin.exe', 'Désinstaller Temoin.exe', 'version.json', 'fichiers\Temoin.ps1' | Where-Object { -not (Test-Path -LiteralPath (Join-Path $construit $_)) }).Count
+        }
+
+        # Contre-épreuve : un point du contrat cassé exprès dans le témoin construit (le remplacement doit avoir eu lieu)
+        if ($Casser) {
+            $t = [IO.File]::ReadAllText($scriptTemoin, [Text.Encoding]::UTF8)
+            $remplacements = @{
+                verrou  = @('"Local\$AppNom-Instance"', '"Local\$AppNom-Autre"')
+                titre   = @('$Fenetre.Title = $AppNom', '$Fenetre.Title = "$AppNom 2"')
+                quitter = @("'quitter.demande'", "'quitter.demande.x'")
+                taille  = @('$Fenetre.MinWidth = $script:TailleMin.L; $Fenetre.MinHeight = $script:TailleMin.H', '$null = 0')
+                fermer  = @('$e.Cancel = $true; $Fenetre.Hide()', '$null = 0')
+            }
+            if ($Casser -eq 'version') {
+                [IO.File]::WriteAllText((Join-Path $construit 'version.json'), "{ `"appli`": `"temoin`", `"version`": `"9.9.9`", `"mindset_min`": `"2.15.0`" }")
+            } else {
+                $r = $remplacements[$Casser]
+                if (-not $t.Contains($r[0])) { throw "contre-épreuve $Casser : « $($r[0]) » introuvable dans Temoin.ps1" }
+                [IO.File]::WriteAllText($scriptTemoin, $t.Replace($r[0], $r[1]), (New-Object Text.UTF8Encoding $true))
+            }
+        }
+
+        # =============================================================================================================
+        Write-Partie 'Partie 10 : version.json, et l''installation du zip par Mindset (Install-Paquet)'
+        # =============================================================================================================
+        $infoVersion = Read-VersionJson ([IO.File]::ReadAllBytes((Join-Path $construit 'version.json')))
+        Test-Cas 'version.json lisible par Mindset (Read-VersionJson), appli « temoin »' { $infoVersion -and $infoVersion.Appli -ceq 'temoin' }
+        Test-Cas 'version.json : la même version que la ligne $AppVersion du script (une seule source)' { $infoVersion.Version -eq $versionTemoin }
+        Test-Cas 'version.json : mindset_min au moins 2.15.0' { $infoVersion.MindsetMin -and -not (Test-VersionPlusRecente '2.15.0' $infoVersion.MindsetMin) }
+        Test-Cas 'version.json en UTF-8 sans BOM' { [IO.File]::ReadAllBytes((Join-Path $construit 'version.json'))[0] -eq [byte][char]'{' }
+
+        # Le zip : le dossier Temoin\ (dossier_zip), signé avec une clé de test (jamais la vraie)
+        $rsa = New-Object System.Security.Cryptography.RSACryptoServiceProvider 3072
+        $rsa.PersistKeyInCsp = $false
+        $clePublique = Join-Path $tmp 'cle-publique.xml'
+        [IO.File]::WriteAllText($clePublique, $rsa.ToXmlString($false))
+        $zipFichier = Join-Path $tmp 'Temoin.zip'
+        [IO.Compression.ZipFile]::CreateFromDirectory((Join-Path $tmp 'construit'), $zipFichier)
+        $zip = [IO.File]::ReadAllBytes($zipFichier)
+        $signature = $rsa.SignData($zip, [System.Security.Cryptography.CryptoConfig]::MapNameToOID('SHA256'))
+        $prog = Join-Path $RacineProgrammes 'Temoin'
+        Test-Cas 'Test-PaquetAppli (avant de fermer l''appli) : accepté par Mindset 2.15.0' { $null = Test-PaquetAppli $zip 'Temoin' 'temoin' '2.15.0'; $true }
+        Test-Cas 'Test-PaquetAppli : refusé par un Mindset plus ancien (« Mets d''abord Mindset à jour »)' {
+            try { Test-PaquetAppli $zip 'Temoin' 'temoin' '2.14.0'; $false } catch { $_.Exception.Message -like 'Mets d''abord Mindset à jour*' }
+        }
+        Test-Cas 'Get-VersionZip : la version du témoin' { (Get-VersionZip $zip 'Temoin') -eq $versionTemoin }
+        Test-Cas 'Install-Paquet l''installe dans <disque>\Mindset\Programmes\Temoin, version lue dans le dossier' {
+            ((Install-Paquet -Zip $zip -Signature $signature -ClePublique $clePublique -Destination $prog -DossierZip 'Temoin' -Exe 'Temoin.exe' -Appli 'temoin' -VersionMindset '2.15.0') -eq $prog) -and
+            ((Get-VersionDossier $prog) -eq $versionTemoin)
+        }
+
+        # =============================================================================================================
+        Write-Partie 'Partie 1 : son entrée dans apps.json (Get-Applis, applis.ps1)'
+        # =============================================================================================================
+        $entree = [IO.File]::ReadAllText((Join-Path $temoinSource 'entree-apps.json'), [Text.Encoding]::UTF8) | ConvertFrom-Json
+        $AppDir = Join-Path $tmp 'apps'
+        New-Item -ItemType Directory -Force -Path $AppDir | Out-Null
+        function Get-ApplisAvec($Entree) {
+            [IO.File]::WriteAllText((Join-Path $AppDir 'apps.json'), (ConvertTo-Json @($Entree) -Depth 4), (New-Object Text.UTF8Encoding $false))
+            @(Get-Applis)
+        }
+        [IO.File]::WriteAllText((Join-Path $AppDir 'apps.json'), (ConvertTo-Json @($entree) -Depth 4), (New-Object Text.UTF8Encoding $false))
+        . (Join-Path $modules 'applis.ps1')   # (définit Get-Applis et lit apps.json dans $Applis, comme Mindset au démarrage)
+        $t = $Applis | Where-Object Id -eq 'temoin'
+        Test-Cas 'entrée acceptée par Mindset, de type « powershell » écrit en toutes lettres' { @($Applis).Count -eq 1 -and $t.Type -eq 'powershell' }
+        Test-Cas 'verrou : mutex = Local\<nom>-Instance' { $t.Mutex -ceq "Local\$($t.Nom)-Instance" }
+        Test-Cas 'afficher_fichier présent (sinon Mindset ne lit pas ses bulles) : afficher.demande' { $t.AfficherFichier -ceq 'afficher.demande' }
+        Test-Cas 'donnees présent (son ancien dossier), cache_depuis = sa première version' { $t.Donnees -and $t.CacheDepuis -eq '1.0.0' }
+        Test-Cas 'identité dans la barre des tâches : JordanJacquot.Temoin' { $t.AppId -ceq 'JordanJacquot.Temoin' }
+        Test-Cas 'son désinstalleur et son exe sont bien dans le dossier installé' { (Test-Path -LiteralPath (Join-Path $prog $t.Desinstalleur)) -and (Test-Path -LiteralPath (Join-Path $prog $t.Exe)) }
+        $variante = $entree | ConvertTo-Json -Depth 4 | ConvertFrom-Json
+        $variante.type = 'rust'; $variante.PSObject.Properties.Remove('script')
+        $tRust = @(Get-ApplisAvec $variante)
+        Test-Cas 'la même entrée en « type »: « rust » sans script : acceptée aussi' { $tRust.Count -eq 1 -and $tRust[0].Type -eq 'rust' -and $tRust[0].Script -eq '' }
+        $variante.type = 'Rust'
+        Test-Cas '« type » mal écrit (« Rust ») : entrée ignorée' { @(Get-ApplisAvec $variante).Count -eq 0 }
+        $null = Get-ApplisAvec $entree
+
+        # =============================================================================================================
+        Write-Partie 'Partie 2 : le dossier installé reconnu (Test-DossierAppli, Get-Installation)'
+        # =============================================================================================================
+        Save-Installation 'temoin' $prog $true
+        Test-Cas 'dossier reconnu par son script' { Test-DossierAppli $prog $t }
+        Test-Cas 'dossier reconnu aussi par Mindset.exe et version.json (forme d''une appli Rust, entrée sans script)' { Test-DossierAppli $prog $tRust[0] }
+        $inst = Get-Installation $t
+        Test-Cas 'Get-Installation : gérée, dans le dossier protégé, version du témoin' { $inst -and $inst.Gere -and $inst.Dossier -eq $prog -and $inst.Version -eq $versionTemoin }
+
+        # =============================================================================================================
+        Write-Partie 'Partie 4 : l''hôte Mindset.exe et le relais Temoin.exe'
+        # =============================================================================================================
+        Test-Cas 'Mindset.exe : « Mindset » dans ses informations (le Gestionnaire des tâches range la suite sur une ligne)' { [Diagnostics.FileVersionInfo]::GetVersionInfo((Join-Path $prog 'Mindset.exe')).FileDescription -ceq 'Mindset' }
+        Test-Cas 'Temoin.exe (le relais) et le désinstalleur : « Temoin »' {
+            [Diagnostics.FileVersionInfo]::GetVersionInfo((Join-Path $prog 'Temoin.exe')).FileDescription -ceq 'Temoin' -and
+            [Diagnostics.FileVersionInfo]::GetVersionInfo((Join-Path $prog 'Désinstaller Temoin.exe')).FileDescription -ceq 'Temoin'
+        }
+        Test-Cas 'numéro de version des programmes = version du témoin' { [Diagnostics.FileVersionInfo]::GetVersionInfo((Join-Path $prog 'Mindset.exe')).FileVersion -like "$versionTemoin*" }
+        $avant = @(Get-ChildItem -LiteralPath $prog -Recurse -File | ForEach-Object { "$($_.FullName)|$($_.Length)|$($_.LastWriteTimeUtc.Ticks)" })
+
+        # =============================================================================================================
+        Write-Partie 'Parties 6, 3, 7 et 8 : lancée cachée par Mindset (Open-Appli -Demarrage)'
+        # =============================================================================================================
+        Open-Appli $t -Demarrage
+        $h = [IntPtr]::Zero
+        $trouvee = Wait-Jusque { $script:h = Find-FenetreAppli $t; $script:h -ne [IntPtr]::Zero } 30
+        Test-Cas 'sa fenêtre est trouvée par Mindset (Find-FenetreAppli : titre exact, sans propriétaire, classe WPF)' { $trouvee }
+        $hotes = @(Get-ProcessusAppli $t -Hote)
+        Test-Cas 'un seul programme tourne : Mindset.exe de son dossier (trouvé par son chemin)' { $hotes.Count -eq 1 -and $hotes[0].Path -ieq (Join-Path $prog 'Mindset.exe') }
+        $pidTemoin = if ($hotes.Count) { $hotes[0].Id } else { 0 }
+        Test-Cas 'verrou Local\Temoin-Instance pris, et Test-AppliOuverte le voit' {
+            $m = $null; $ok = [Threading.Mutex]::TryOpenExisting('Local\Temoin-Instance', [ref]$m); if ($m) { $m.Dispose() }
+            $ok -and (Test-AppliOuverte $t)
+        }
+        Test-Cas '-Demarrage : fenêtre créée mais cachée, sans propriétaire, classe HwndWrapper' {
+            $h -ne [IntPtr]::Zero -and -not [ContratFenetre]::IsWindowVisible($h) -and [ContratFenetre]::GetWindow($h, 4) -eq [IntPtr]::Zero -and ([ContratFenetre]::Classe($h)).StartsWith('HwndWrapper')
+        }
+        Test-Cas '-Demarrage : le premier plan ne lui est pas donné' { [ContratFenetre]::GetForegroundWindow() -ne $h }
+        $donneesTemoin = Join-Path $SuiteDir 'Temoin'
+        Test-Cas 'données : <disque>\Mindset\Donnees\Temoin, le dossier que Mindset lui donne (Get-DossierDonnees)' {
+            (Wait-Jusque { Test-Path -LiteralPath (Join-Path $donneesTemoin 'etat.json') } 10) -and (Get-DossierDonnees $t) -eq $donneesTemoin
+        }
+        $script:Applis = $Applis
+        Test-Cas 'Start-AppliCachee : cache_depuis atteint, Mindset la lance cachée (-Demarrage)' {
+            $script:LanceeCachee = $null
+            & { function Open-Appli($Appli, [switch]$Demarrage) { $script:LanceeCachee = [bool]$Demarrage }; Start-AppliCachee $t }
+            $script:LanceeCachee -eq $true
+        }
+
+        # =============================================================================================================
+        Write-Partie 'Partie 5 : les fichiers échangés (etat.json, notification.demande, suite.json)'
+        # =============================================================================================================
+        function Get-Etat { $script:EtatsApplis = @{}; Get-EtatAppli $t }
+        function Test-Ligne([string]$Texte) { $e = Get-Etat; [bool]($e -and @($e.Lignes | Where-Object { $_.Texte -eq $Texte }).Count) }
+        $etat = Get-Etat
+        Test-Cas 'etat.json lu par Mindset (Get-EtatAppli, format commun) : titre, un score, des lignes' {
+            $etat -and $etat.Titre -eq "Témoin $versionTemoin" -and @($etat.Scores).Count -eq 1 -and $etat.Scores[0].Valeur -eq 100 -and @($etat.Lignes).Count -ge 2
+        }
+        Test-Cas 'etat.json en UTF-8 sans BOM' { [IO.File]::ReadAllBytes((Join-Path $donneesTemoin 'etat.json'))[0] -eq [byte][char]'{' }
+        Test-Cas 'notification.demande montrée par Mindset (Watch-NotificationsApplis), puis supprimée' {
+            $bulles.Clear()
+            (Wait-Jusque { Watch-NotificationsApplis; $bulles.Count -gt 0 } 10) -and $bulles[0].Titre -eq 'Témoin' -and $bulles[0].Texte -eq 'Le témoin est prêt.' -and
+            -not (Test-Path -LiteralPath (Join-Path $donneesTemoin 'notification.demande')) -and $script:BulleAppli.Id -cmatch '^[0-9a-f]{12}$'
+        }
+        $bulle = $script:BulleAppli
+        Test-Cas 'suite.json : le thème choisi dans Mindset (Set-SuiteTheme) est suivi' { Set-SuiteTheme 'crepuscule'; Wait-Jusque { Test-Ligne 'Thème : crepuscule' } 6 }
+        Test-Cas 'suite.json : un thème inconnu écrit par un autre programme est ignoré' {
+            [IO.File]::WriteAllText((Join-Path $SuiteFileDir 'suite.json'), '{ "theme": "..\\..\\piege", "applis": {} }')
+            Start-Sleep -Seconds 2
+            Test-Ligne 'Thème : crepuscule'
+        }
+
+        # =============================================================================================================
+        Write-Partie 'Partie 7 : accrochée dans Mindset (MSIntegration de natif.cs)'
+        # =============================================================================================================
+        # La place de l'appli : une fenêtre Windows Forms jamais montrée (comme le panneau de Mindset, mais hors de l'écran)
+        $panneau = New-Object System.Windows.Forms.Form
+        $panneau.ShowInTaskbar = $false; $panneau.StartPosition = 'Manual'; $panneau.Location = New-Object Drawing.Point(-32000, -32000)
+        $styles = [MSIntegration]::Accrocher($h, $panneau.Handle, 200, 200)
+        Test-Cas 'Windows accepte de l''accrocher (Accrocher rend ses styles d''avant)' { $null -ne $styles -and [MSIntegration]::EstEnfantDe($h, $panneau.Handle) }
+        Test-Cas 'accrochée : elle le voit, et se montre d''elle-même (WS_VISIBLE)' { (Wait-Jusque { Test-Ligne 'Affichée dans Mindset' } 6) -and [MSIntegration]::EstMontree($h) }
+        # (taille minimale à 0 : WPF ne l'impose pas à une fenêtre enfant, le cas ci-dessous ne voit donc que la taille donnée par
+        # Mindset ; c'est le retour de la taille minimale, une fois décrochée, qui montre que le témoin suit bien l'accrochage)
+        Test-Cas 'accrochée : redimensionnée à 150 x 120 par Mindset, elle garde cette taille' {
+            [MSIntegration]::Redimensionner($h, 150, 120)
+            $null = Wait-Jusque { $false } 1.5
+            $tl = [ContratFenetre]::Taille($h); $tl[0] -eq 150 -and $tl[1] -eq 120
+        }
+        Test-Cas 'pas de barre à elle (Mindset.BarrePropre absent) : la barre de Mindset reste' { -not [MSIntegration]::BarrePropre($h) }
+        Test-Cas 'clic sur sa bulle (Open-BulleAppli) : « notif:<id> » reçu, sa fenêtre accrochée n''est pas touchée' {
+            $script:BulleAppli = $bulle
+            Open-BulleAppli
+            (Wait-Jusque { Test-Ligne "Bulle ouverte : $($bulle.Id)" } 6) -and [MSIntegration]::EstEnfantDe($h, $panneau.Handle) -and
+            -not (Test-Path -LiteralPath (Join-Path $donneesTemoin 'afficher.demande'))
+        }
+        Test-Cas 'une bulle qu''elle n''a pas donnée (« notif:000000000000 ») : ignorée' {
+            [IO.File]::WriteAllText((Join-Path $donneesTemoin 'afficher.demande'), 'notif:000000000000')
+            (Wait-Jusque { -not (Test-Path -LiteralPath (Join-Path $donneesTemoin 'afficher.demande')) } 4) -and (Test-Ligne "Bulle ouverte : $($bulle.Id)") -and
+            [MSIntegration]::EstEnfantDe($h, $panneau.Handle)
+        }
+        Test-Cas '« Fermer » de Mindset (WM_CLOSE) : elle se range (cachée), sans se détruire ni quitter' {
+            [MSIntegration]::Fermer($h)
+            (Wait-Jusque { -not [MSIntegration]::EstMontree($h) } 5) -and [MSIntegration]::IsWindow($h) -and -not (Get-Process -Id $pidTemoin).HasExited
+        }
+        Test-Cas 'Mindset la rend (Liberer) : décrochée, cachée, sa taille minimale revient' {
+            [MSIntegration]::Liberer($h, $styles[0], $styles[1])
+            $ok = (Wait-Jusque { Test-Ligne 'Pas affichée dans Mindset' } 6) -and [ContratFenetre]::GetParent($h) -eq [IntPtr]::Zero -and -not [ContratFenetre]::IsWindowVisible($h)
+            [MSIntegration]::Redimensionner($h, 100, 100)
+            $null = Wait-Jusque { $false } 1
+            $tl = [ContratFenetre]::Taille($h)
+            $ok -and $tl[0] -ge 300 -and $tl[1] -ge 200
+        }
+        Test-Cas 'la même fenêtre tout du long (jamais recréée)' { (Find-FenetreAppli $t) -eq $h }
+        $panneau.Dispose()
+
+        # =============================================================================================================
+        Write-Partie 'Parties 3 et 5 : ramenée par Mindset ou par un second lancement (afficher.demande)'
+        # =============================================================================================================
+        Test-Cas 'Open-Appli alors qu''elle tourne : afficher.demande (numéro de Mindset), sa fenêtre se montre' {
+            Open-Appli $t
+            (Wait-Jusque { [ContratFenetre]::IsWindowVisible($h) } 6) -and -not (Test-Path -LiteralPath (Join-Path $donneesTemoin 'afficher.demande'))
+        }
+        [MSIntegration]::Fermer($h)
+        $null = Wait-Jusque { -not [ContratFenetre]::IsWindowVisible($h) } 5
+        Test-Cas 'second lancement par Temoin.exe : il attend, dépose sa demande d''affichage et s''arrête ; la première se montre' {
+            Start-Process -FilePath (Join-Path $prog 'Temoin.exe') -WorkingDirectory $prog
+            $deux = Wait-Jusque { @(Get-ProcessusAppli $t -Hote).Count -ge 2 } 5
+            $ok = (Wait-Jusque { [ContratFenetre]::IsWindowVisible($h) } 15)
+            $seul = Wait-Jusque { $p = @(Get-ProcessusAppli $t -Hote); $p.Count -eq 1 -and $p[0].Id -eq $pidTemoin } 5
+            $deux -and $ok -and $seul
+        }
+        [MSIntegration]::Fermer($h)
+        $null = Wait-Jusque { -not [ContratFenetre]::IsWindowVisible($h) } 5
+
+        # =============================================================================================================
+        Write-Partie 'Partie 5 : Mindset quitte avec les applis (quitter.demande)'
+        # =============================================================================================================
+        Test-Cas 'Request-FermetureApplis : elle quitte en moins de 6 s, verrou rendu, demande supprimée' {
+            Request-FermetureApplis
+            (Wait-Jusque { (Get-Process -Id $pidTemoin -ErrorAction SilentlyContinue) -eq $null } 6) -and -not (Test-AppliOuverte $t) -and
+            -not (Test-Path -LiteralPath (Join-Path $donneesTemoin 'quitter.demande'))
+        }
+        Test-Cas 'rien n''a été écrit dans son dossier des programmes' {
+            $apres = @(Get-ChildItem -LiteralPath $prog -Recurse -File | ForEach-Object { "$($_.FullName)|$($_.Length)|$($_.LastWriteTimeUtc.Ticks)" })
+            -not (Compare-Object $avant $apres)
+        }
+
+        # =============================================================================================================
+        Write-Partie 'Partie 8 : une copie hors de Mindset garde son ancien dossier (« donnees » de apps.json)'
+        # =============================================================================================================
+        if (-not $Casser) {
+            $ailleurs = Join-Path $tmp 'Telechargements\Temoin'
+            Copy-Item -LiteralPath $prog -Destination $ailleurs -Recurse
+            $p = Start-Process -FilePath (Join-Path $ailleurs 'Mindset.exe') -ArgumentList '-Demarrage' -WorkingDirectory $ailleurs -PassThru
+            Test-Cas "copie dans Téléchargements : ses données dans %LOCALAPPDATA%\Temoin, le dossier « donnees » que Mindset lit" {
+                (Wait-Jusque { Test-Path -LiteralPath (Join-Path $t.Donnees 'etat.json') } 20) -and $t.Donnees -eq (Join-Path $env:LOCALAPPDATA 'Temoin')
+            }
+            [IO.File]::WriteAllText((Join-Path $t.Donnees 'quitter.demande'), [string]$PID)
+            $null = $p.WaitForExit(6000)
+        }
+
+        # =============================================================================================================
+        Write-Partie 'Partie 9 : son désinstalleur, lancé comme par « Désinstaller Mindset » (seulement sur GitHub)'
+        # =============================================================================================================
+        if ($Casser) { Write-Host '  (pas pour une contre-épreuve)' }
+        elseif (-not $surGitHub) { Write-Host '  (pas sur ce PC : aucun désinstalleur n''est lancé en local ; ces cas tournent sur GitHub)' -ForegroundColor Yellow }
+        else {
+            # Comme desinstalleur.cs (LancerDesinstalleur) : dans le dossier de l'appli, -GarderDonnees ou -SupprimerDonnees
+            function Invoke-Desinstalleur([string]$Option) {
+                $psi = New-Object Diagnostics.ProcessStartInfo((Join-Path $prog $t.Desinstalleur), $Option)
+                $psi.UseShellExecute = $false; $psi.WorkingDirectory = $prog
+                $d = [Diagnostics.Process]::Start($psi)
+                if (-not $d.WaitForExit(60000)) { try { $d.Kill() } catch {}; return $null }
+                $d.ExitCode
+            }
+            function Install-Temoin { $null = Install-Paquet -Zip $zip -Signature $signature -ClePublique $clePublique -Destination $prog -DossierZip 'Temoin' -Exe 'Temoin.exe' -Appli 'temoin' -VersionMindset '2.15.0' }
+            Open-Appli $t -Demarrage
+            $null = Wait-Jusque { (Find-FenetreAppli $t) -ne [IntPtr]::Zero } 30
+            Test-Cas '-GarderDonnees : rend 0, ferme l''appli, Temoin.exe disparaît, ses données restent' {
+                ((Invoke-Desinstalleur '-GarderDonnees') -eq 0) -and -not (Test-Path -LiteralPath (Join-Path $prog 'Temoin.exe')) -and -not (Test-AppliOuverte $t) -and
+                (Test-Path -LiteralPath (Join-Path $donneesTemoin 'etat.json'))
+            }
+            Test-Cas 'puis son dossier des programmes disparaît tout entier' { Wait-Jusque { -not (Test-Path -LiteralPath $prog) } 15 }
+            Install-Temoin
+            Test-Cas '-SupprimerDonnees : rend 0, Temoin.exe et ses données disparaissent' {
+                ((Invoke-Desinstalleur '-SupprimerDonnees') -eq 0) -and -not (Test-Path -LiteralPath (Join-Path $prog 'Temoin.exe')) -and -not (Test-Path -LiteralPath $donneesTemoin)
+            }
+            $null = Wait-Jusque { -not (Test-Path -LiteralPath $prog) } 15
+            Install-Temoin
+            Test-Cas 'les deux options à la fois : il pose la question (il attend, rien n''est supprimé)' {
+                $psi = New-Object Diagnostics.ProcessStartInfo((Join-Path $prog $t.Desinstalleur), '-GarderDonnees -SupprimerDonnees')
+                $psi.UseShellExecute = $false; $psi.WorkingDirectory = $prog
+                $d = [Diagnostics.Process]::Start($psi)
+                $attend = -not $d.WaitForExit(4000)
+                try { $d.Kill(); $null = $d.WaitForExit(3000) } catch {}
+                $attend -and (Test-Path -LiteralPath (Join-Path $prog 'Temoin.exe'))
+            }
+        }
+
+        # =============================================================================================================
+        Write-Partie 'Contre-épreuve : un point du contrat cassé exprès dans le témoin fait échouer ce test'
+        # =============================================================================================================
+        if ($Casser) { Write-Host '  (déjà dans une contre-épreuve)' }
+        else {
+            $ps = Join-Path $env:SystemRoot 'System32\WindowsPowerShell\v1.0\powershell.exe'
+            foreach ($cas in @(
+                    @{ Point = 'verrou'; Cas = 'verrou Local\Temoin-Instance pris' },
+                    @{ Point = 'titre'; Cas = 'sa fenêtre est trouvée par Mindset' },
+                    @{ Point = 'quitter'; Cas = 'Request-FermetureApplis' },
+                    @{ Point = 'taille'; Cas = 'Mindset la rend (Liberer)' },
+                    @{ Point = 'fermer'; Cas = '« Fermer » de Mindset (WM_CLOSE)' },
+                    @{ Point = 'version'; Cas = 'version.json : la même version' })) {
+                $c = $cas
+                Test-Cas "témoin cassé ($($c.Point)) : le test échoue, sur « $($c.Cas) »" {
+                    $sortie = & $ps -NoProfile -ExecutionPolicy Bypass -File $PSCommandPath -Casser $c.Point 2>&1 | Out-String
+                    $code = $LASTEXITCODE
+                    $code -eq 1 -and @($sortie -split "`n" | Where-Object { $_ -like '*ÉCHEC*' -and $_ -like "*$($c.Cas)*" }).Count -gt 0
+                }
             }
         }
     }
