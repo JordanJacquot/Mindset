@@ -417,6 +417,11 @@
                     <Button x:Name="BtnVerifierMaj" Content="Vérifier maintenant" Style="{StaticResource BtnPrimary}"/>
                     <TextBlock x:Name="MajInfo" Foreground="{StaticResource Texte3}" FontSize="12" VerticalAlignment="Center" Margin="14,0,0,0"/>
                   </StackPanel>
+                  <!-- Le canal d'essai : une case par appli installée (réglage « VersionsEssai », parametres.ps1) -->
+                  <TextBlock Text="Versions d'essai" FontSize="17" FontWeight="SemiBold" Margin="0,24,0,4"/>
+                  <TextBlock TextWrapping="Wrap" Foreground="{StaticResource Texte2}" Margin="0,0,0,10"
+                             Text="Une version d'essai arrive avant les autres, pour la tester. Elle peut avoir des petits défauts. Elle est signée et vérifiée comme les autres."/>
+                  <StackPanel x:Name="VersionsEssai"/>
                 </StackPanel>
 
                 <!-- Consommation : ce que consomme toute la suite (parametres.ps1, mesuré seulement quand cet onglet est à l'écran) -->

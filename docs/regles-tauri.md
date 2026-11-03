@@ -208,8 +208,12 @@ polices y sont reconnues elles aussi à leurs premiers octets (TrueType ou OpenT
 - Un dossier par appli : `WebView2-Tauri\<Nom>` (« Mindcare »). Tauri 2.12.5 ne permet pas de choisir un profil
   WebView2 (wry sait le faire, Tauri ne le transmet pas), et toutes les applis Tauri ont la même adresse
   (`http://tauri.localhost`) : dans un seul profil, leurs stockages seraient mélangés. Mindset retire ce dossier
-  quand l'appli est désinstallée sans ses données (comme le profil d'aujourd'hui,
-  `Mindset/fichiers/modules/installations.ps1:887-894`). Si une version de Tauri permet un jour de nommer le profil,
+  quand l'appli est désinstallée sans ses données (comme le profil d'aujourd'hui : `Complete-Desinstallation`,
+  `Mindset/fichiers/modules/installations.ps1`, sans jamais suivre un lien ; `WebView2-Tauri` part aussi s'il est
+  vide). « Désinstaller Mindset » avec la case « Supprimer aussi mes données » l'efface avec toutes les données de la
+  suite, après avoir fermé son WebView2 ; case décochée, il reste. Tests : `outils/tester-desinstallation.ps1` et
+  `cargo test -p desinstalleur` (`dossier_webview2_tauri_suit_le_choix_des_donnees`). Si une version de Tauri
+  permet un jour de nommer le profil,
   les applis Tauri pourront partager un seul dossier, avec un profil chacune.
 - **Mêmes options pour toutes les applis Tauri**, fixées par la suite et données explicitement
   (`additional_browser_args`) : `--disable-features=msWebOOUI,msPdfOOUI,msSmartScreenProtection`. Ce sont celles que

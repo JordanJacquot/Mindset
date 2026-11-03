@@ -187,7 +187,7 @@ static class Essai {
     }
     $script:Pubs = @{}
     $script:Telecharges = New-Object Collections.Generic.List[string]
-    function Get-Publication([string]$Depot, [string]$Zip) { $v = $script:Pubs[$Depot]; @{ Version = $v; UrlZip = "zip $Depot $v"; UrlSig = "sig $Depot $v"; Notes = '' } }
+    function Get-Publication([string]$Depot, [string]$Zip, [switch]$Essai) { $v = $script:Pubs[$Depot]; @{ Version = $v; UrlZip = "zip $Depot $v"; UrlSig = "sig $Depot $v"; Notes = '' } }
     # (avec une table de progression : une fausse progression, 650 octets sur 1000, et $script:PendantTelechargement est appelé)
     function Get-Octets([string]$Url, $Progres = $null) {
         $script:Telecharges.Add($Url)
@@ -202,7 +202,7 @@ static class Essai {
     $ui = @{}
     foreach ($n in 'MajTitre', 'MajTexte', 'BtnMajMindset', 'BtnMajFermer', 'MajBandeau') { $ui[$n] = [pscustomobject]@{ Text = ''; Content = ''; Visibility = 'Collapsed' } }
 
-    Import-Fonctions 'installations.ps1' @('Start-InstallAppli', 'Complete-Telechargement', 'Send-InstallationAppli', 'Complete-Installation', 'Get-DemarrageAppli', 'Set-DemarrageAppli',
+    Import-Fonctions 'installations.ps1' @('Start-InstallAppli', 'Get-VersionsEssaiAppli', 'Complete-Telechargement', 'Send-InstallationAppli', 'Complete-Installation', 'Get-DemarrageAppli', 'Set-DemarrageAppli',
         'Get-DemarrageWindowsAppli', 'Repair-DemarrageApplis', 'Move-TachesDemarrage', 'Get-DossierGere')
     # (les valeurs données au code appelé plus tard : taches.ps1)
     Import-Fonctions 'taches.ps1' @('New-Action', 'Pop-Action'); $script:Actions = New-Object System.Collections.Specialized.OrderedDictionary
@@ -750,6 +750,171 @@ static class Essai {
         Start-InstallAppli $mindcare
         Test-Cas 'Pendant la mise à jour automatique d''Evermind, Mindcare mis à jour à la main : sans -Auto (il garde la demande de Windows)' { $script:AppelsAdmin.Count -eq 1 -and $script:AppelsAdmin[0].Auto -eq $false }
     } finally { $env:MINDSET_MAJAUTO_TEST = $ancienMajAuto }
+
+    # -------------------------------------------------------------------------------------------------------------
+    Write-Partie '6 ter. Le canal d''essai : les préversions seulement pour une appli cochée, avec les mêmes contrôles'
+    # -------------------------------------------------------------------------------------------------------------
+    # Le vrai Get-Publication (paquets.ps1) devant un faux GitHub : Invoke-RestMethod répond avec de fausses versions
+    # publiées (la dernière version normale, et la liste des versions avec ses préversions) ; rien ne part sur Internet.
+    Import-Fonctions 'paquets.ps1' @('Get-Publication', 'ConvertFrom-Release', 'Get-Preversion', 'Get-PreversionSansApi')
+    Import-Fonctions 'installations.ps1' @('Get-VersionsEssaiAppli', 'Set-VersionsEssaiAppli')
+    $script:QuestionsApi = New-Object Collections.Generic.List[string]
+    $script:ApiRefuse = $false; $script:ListeRefusee = $false
+    function New-Version([string]$Tag, [bool]$Pre, [string[]]$Fichiers = @('Mindcare.zip', 'Mindcare.zip.sig'), [bool]$Brouillon = $false) {
+        [pscustomobject]@{ tag_name = $Tag; prerelease = $Pre; draft = $Brouillon; body = "notes $Tag"
+            assets = @(foreach ($f in $Fichiers) { [pscustomobject]@{ name = $f; browser_download_url = "https://github.com/JordanJacquot/Mindcare/releases/download/$Tag/$f" } }) }
+    }
+    function Invoke-RestMethod([string]$Uri, $Headers, $TimeoutSec) {
+        $script:QuestionsApi.Add($Uri)
+        if ($script:ApiRefuse) { throw 'Le serveur distant a retourné une erreur : (403) Interdit.' }
+        if ($Uri -like '*/releases/latest') { if ($script:Normale) { return $script:Normale }; throw 'Le serveur distant a retourné une erreur : (404) Introuvable.' }
+        if ($Uri -like '*/releases?per_page=*') { if ($script:ListeRefusee) { throw '(403) Interdit.' }; return , @($script:ToutesVersions) }
+        throw "adresse inattendue : $Uri"
+    }
+    function Get-PublicationSansApi { $script:RepliNormale }
+    function Test-FichierPublie([string]$Url) { $script:FichiersAtom -contains $Url }
+    function Get-NotesPage { 'notes de la page' }
+    function Set-Github([string]$Normale, [object[]]$Versions) {
+        $script:Normale = if ($Normale) { New-Version $Normale $false } else { $null }
+        $script:ToutesVersions = @(if ($script:Normale) { $script:Normale }) + @($Versions)
+        $script:QuestionsApi.Clear(); $script:ApiRefuse = $false; $script:ListeRefusee = $false; $script:RepliNormale = $null
+    }
+    $zips = @('Mindcare.zip')
+
+    Set-Github 'v0.15.3' @((New-Version 'v0.90.0' $true), (New-Version 'liste-applis' $true))
+    $p = Get-Publication 'JordanJacquot/Mindcare' $zips
+    Test-Cas 'Case décochée : la version normale (0.15.3), sans demander la liste des préversions (rien ne change)' {
+        $p.Version -eq '0.15.3' -and -not $p.Essai -and $p.UrlSig -like '*/v0.15.3/Mindcare.zip.sig' -and @($script:QuestionsApi).Count -eq 1 -and $script:QuestionsApi[0] -like '*/releases/latest'
+    }
+    $p = Get-Publication 'JordanJacquot/Mindcare' $zips -Essai
+    Test-Cas 'Case cochée : la préversion plus récente (0.90.0), marquée « essai », avec son zip et sa signature à elle' {
+        $p.Version -eq '0.90.0' -and $p.Essai -eq $true -and $p.UrlZip -like '*/v0.90.0/Mindcare.zip' -and $p.UrlSig -like '*/v0.90.0/Mindcare.zip.sig' -and $p.Notes -eq 'notes v0.90.0'
+    }
+    Set-Github 'v0.91.0' @((New-Version 'v0.90.2' $true))
+    $p = Get-Publication 'JordanJacquot/Mindcare' $zips -Essai
+    Test-Cas 'Case cochée, préversion plus ancienne (0.90.2) que la version normale (0.91.0) : la version normale' { $p.Version -eq '0.91.0' -and -not $p.Essai }
+    Set-Github 'v0.15.3' @((New-Version 'v0.95.0' $true -Brouillon $true), (New-Version 'v0.92.0' $true @('Autre.zip', 'Autre.zip.sig')), (New-Version 'liste-applis' $true), (New-Version 'v0.90.1' $true))
+    $p = Get-Publication 'JordanJacquot/Mindcare' $zips -Essai
+    Test-Cas 'Un brouillon, une préversion sans le zip de l''appli, une version qui n''est pas un numéro : ignorés (0.90.1 prise)' { $p.Version -eq '0.90.1' -and $p.Essai }
+    Set-Github 'v0.15.3' @((New-Version 'v0.90.0' $true @('Mindcare.zip')))
+    $p = Get-Publication 'JordanJacquot/Mindcare' $zips -Essai
+    Test-Cas 'Une préversion sans signature : trouvée, mais sans signature (Mindset refuse alors de l''installer, voir plus bas)' { $p.Version -eq '0.90.0' -and -not $p.UrlSig }
+    Set-Github '' @((New-Version 'v0.90.0' $true))
+    Test-Cas 'Aucune version normale publiée : case décochée, l''erreur ; case cochée, la préversion' {
+        (Get-Publication 'JordanJacquot/Mindcare' $zips).Erreur -and (Get-Publication 'JordanJacquot/Mindcare' $zips -Essai).Version -eq '0.90.0'
+    }
+    Set-Github 'v0.15.3' @((New-Version 'v0.90.0' $true)); $script:ListeRefusee = $true
+    $script:FichiersAtom = @()
+    $script:Atom = ''
+    function New-Object {
+        if ("$args" -match 'Net\.WebClient') {
+            $w = [pscustomobject]@{ Headers = @{}; Encoding = $null }
+            $w | Add-Member ScriptMethod DownloadString { param($u) $script:AtomDemande = $u; $script:Atom }
+            $w | Add-Member ScriptMethod Dispose { }
+            return $w
+        }
+        Microsoft.PowerShell.Utility\New-Object @args
+    }
+    try {
+        $p = Get-Publication 'JordanJacquot/Mindcare' $zips -Essai
+        Test-Cas 'La liste des versions refusée, et le repli sans préversion lisible : la version normale, sans erreur' { $p.Version -eq '0.15.3' -and -not $p.Erreur }
+
+        # L'API refuse tout (60 questions par heure) : la version normale par la page des versions
+        # (Get-PublicationSansApi), la préversion par releases.atom (faux WebClient : rien ne part sur Internet)
+        Set-Github 'v0.15.3' @(); $script:ApiRefuse = $true
+        $script:RepliNormale = @{ Version = '0.15.3'; Fichier = 'Mindcare.zip'; UrlZip = 'https://github.com/JordanJacquot/Mindcare/releases/download/v0.15.3/Mindcare.zip'; UrlSig = 'https://github.com/JordanJacquot/Mindcare/releases/download/v0.15.3/Mindcare.zip.sig'; Notes = '' }
+        $script:Atom = '<feed><entry><link rel="alternate" type="text/html" href="https://github.com/JordanJacquot/Mindcare/releases/tag/v0.90.0"/></entry><entry><link href="https://github.com/JordanJacquot/Mindcare/releases/tag/liste-applis"/></entry><entry><link href="https://github.com/JordanJacquot/Mindcare/releases/tag/v0.15.3"/></entry></feed>'
+        $base = 'https://github.com/JordanJacquot/Mindcare/releases/download/v0.90.0'
+        $script:FichiersAtom = @("$base/Mindcare.zip", "$base/Mindcare.zip.sig")
+        $sans = Get-Publication 'JordanJacquot/Mindcare' $zips
+        $avec = Get-Publication 'JordanJacquot/Mindcare' $zips -Essai
+        $script:FichiersAtom = @("$base/Mindcare.zip")
+        $sansSig = Get-Publication 'JordanJacquot/Mindcare' $zips -Essai
+        $script:FichiersAtom = @()
+        $sansZip = Get-Publication 'JordanJacquot/Mindcare' $zips -Essai
+    } finally { Remove-Item -Path function:New-Object -ErrorAction SilentlyContinue }
+    Test-Cas 'Sans l''API, case décochée : la version normale par la page des versions' { $sans.Version -eq '0.15.3' -and -not $sans.Essai }
+    Test-Cas 'Sans l''API, case cochée : la préversion lue dans releases.atom (0.90.0), avec sa signature' {
+        $avec.Version -eq '0.90.0' -and $avec.Essai -and $avec.UrlZip -eq "$base/Mindcare.zip" -and $avec.UrlSig -eq "$base/Mindcare.zip.sig" -and $script:AtomDemande -eq 'https://github.com/JordanJacquot/Mindcare/releases.atom'
+    }
+    Test-Cas 'Sans l''API, préversion sans signature publiée : sans signature (refusée à l''installation) ; sans zip : la version normale' { $sansSig.Version -eq '0.90.0' -and -not $sansSig.UrlSig -and $sansZip.Version -eq '0.15.3' }
+
+    # Le retour en arrière (plan général) : la bêta Rust en 0.90.x ; si elle ne convient pas, la version PowerShell revient
+    # en 0.91.0, plus grande : proposée comme une mise à jour normale, case cochée ou non, sans cas spécial
+    Set-Github 'v0.91.0' @((New-Version 'v0.90.1' $true))
+    Test-Cas 'Retour en arrière : 0.90.1 (essai) installée, 0.91.0 normale publiée : proposée, case cochée ou non' {
+        $a = Get-Publication 'JordanJacquot/Mindcare' $zips; $b = Get-Publication 'JordanJacquot/Mindcare' $zips -Essai
+        $a.Version -eq '0.91.0' -and $b.Version -eq '0.91.0' -and (Test-VersionPlusRecente $a.Version '0.90.1') -and (Test-VersionPlusRecente $b.Version '0.90.1')
+    }
+    Set-Github 'v0.15.3' @((New-Version 'v0.90.1' $true))
+    Test-Cas 'Case décochée sur une version d''essai (0.90.1), seule la 0.15.3 normale publiée : rien n''est proposé (jamais une version plus ancienne)' {
+        $a = Get-Publication 'JordanJacquot/Mindcare' $zips; $a.Version -eq '0.15.3' -and -not (Test-VersionPlusRecente $a.Version '0.90.1')
+    }
+
+    # Le réglage : décoché au départ, rangé dans les réglages de Mindset (VersionsEssai), par appli
+    Reset-Maj
+    $script:DernieresPublications = Get-Date
+    Test-Cas 'Décoché au départ pour chaque appli' { -not (Get-VersionsEssaiAppli 'mindcare') -and -not (Get-VersionsEssaiAppli 'evermind') }
+    $script:Publications['mindcare'] = @{ Version = '0.15.3'; Notes = '' }
+    Set-VersionsEssaiAppli 'mindcare' $true
+    Test-Cas 'Coché pour Mindcare : rangé dans le réglage VersionsEssai, Evermind reste décoché' { (@($script:Reglages['VersionsEssai']) -join ',') -eq 'mindcare' -and (Get-VersionsEssaiAppli 'mindcare') -and -not (Get-VersionsEssaiAppli 'evermind') }
+    Test-Cas 'Changer la case oublie la version publiée connue de l''appli et relance la recherche au prochain passage' { -not $script:Publications.ContainsKey('mindcare') -and $script:DernieresPublications -eq [datetime]::MinValue }
+    Set-VersionsEssaiAppli 'appli-inconnue' $true
+    Set-VersionsEssaiAppli 'MINDCARE' $false
+    Test-Cas 'Une appli inconnue, ou un id d''une autre casse : rien ne change' { (@($script:Reglages['VersionsEssai']) -join ',') -eq 'mindcare' }
+
+    # La recherche (Update-Publications) et l'installation (Start-InstallAppli) demandent les préversions seulement pour
+    # l'appli cochée ; la signature est vérifiée de la même façon
+    $script:TachesVues = New-Object Collections.ArrayList
+    $vraiStartTache = (Get-Item function:Start-Tache).ScriptBlock
+    function Start-Tache([scriptblock]$Travail, [hashtable]$Parametres, [scriptblock]$Fin) { [void]$script:TachesVues.Add($Parametres) }
+    try { Update-Publications } finally { Set-Item function:script:Start-Tache $vraiStartTache }
+    Test-Cas 'Recherche des versions : canal d''essai pour Mindcare seulement (cochée), pas pour les autres' {
+        $m = @($script:TachesVues | Where-Object { $_.Depot -eq $mindcare.Depot }); $autres = @($script:TachesVues | Where-Object { $_.Depot -ne $mindcare.Depot })
+        $m.Count -eq 1 -and $m[0].Essai -eq $true -and $autres.Count -ge 1 -and @($autres | Where-Object { $_.Essai }).Count -eq 0
+    }
+    Set-Github 'v0.15.3' @((New-Version 'v0.90.0' $true))
+    $vraiTestSignature = (Get-Item function:Test-Signature).ScriptBlock
+    function Test-Signature { $script:SignatureVerifiee = $true; $false }   # (une signature fausse : rien ne doit être installé)
+    try {
+        $script:SignatureVerifiee = $false
+        Start-InstallAppli $mindcare
+        $finEssai = $script:Fins['mindcare']; $telEssai = @($script:Telecharges)
+        Set-VersionsEssaiAppli 'mindcare' $false
+        $script:Telecharges.Clear(); $script:Fins = @{}
+        Start-InstallAppli $mindcare
+        $finNormale = $script:Fins['mindcare']; $telNormale = @($script:Telecharges)
+        Set-VersionsEssaiAppli 'mindcare' $true
+        Set-Github 'v0.15.3' @((New-Version 'v0.90.0' $true @('Mindcare.zip')))
+        $script:Telecharges.Clear(); $script:Fins = @{}
+        Start-InstallAppli $mindcare
+        $finSansSig = $script:Fins['mindcare']; $telSansSig = @($script:Telecharges)
+    } finally { Set-Item function:script:Test-Signature $vraiTestSignature }
+    Test-Cas 'Installation, case cochée : la préversion est téléchargée, sa signature vérifiée, et une signature fausse refusée' {
+        $script:SignatureVerifiee -and ($telEssai -join ' ') -match 'v0\.90\.0/Mindcare\.zip' -and $finEssai.Message -match 'signature du fichier téléchargé est invalide' -and @($script:AppelsAdmin).Count -eq 0
+    }
+    Test-Cas 'Installation, case décochée (contre-épreuve) : la version normale, avec le même contrôle' { ($telNormale -join ' ') -match 'v0\.15\.3/Mindcare\.zip' -and ($telNormale -join ' ') -notmatch '0\.90\.0' -and $finNormale.Message -match 'signature' }
+    Test-Cas 'Installation, préversion sans signature : refusée avant tout téléchargement' { $telSansSig.Count -eq 0 -and $finSansSig.Message -match 'n''est pas signée' }
+    function Get-Publication([string]$Depot, [string]$Zip, [switch]$Essai) { $v = $script:Pubs[$Depot]; @{ Version = $v; UrlZip = "zip $Depot $v"; UrlSig = "sig $Depot $v"; Notes = '' } }
+    Remove-Item -Path function:Invoke-RestMethod -ErrorAction SilentlyContinue
+
+    # Les Paramètres : une case par appli installée (fenêtre classique et console), le geste de la console vérifié
+    $par = [IO.File]::ReadAllText((Join-Path $fichiers 'modules\parametres.ps1'), [Text.Encoding]::UTF8)
+    $xaml = [IO.File]::ReadAllText((Join-Path $fichiers 'modules\interface.xaml'), [Text.Encoding]::UTF8)
+    $scene = [IO.File]::ReadAllText((Join-Path $fichiers 'console\scene.html'), [Text.Encoding]::UTF8)
+    Test-Cas 'Paramètres : la case « Recevoir les versions d''essai » et son texte, dans la fenêtre et dans la console' {
+        $xaml -match 'x:Name="VersionsEssai"' -and $par -match 'Recevoir les versions d''essai de' -and $scene -match "Recevoir les versions d'essai de" -and $scene -match "a === 'essai'"
+    }
+    Test-Cas 'Les textes du canal d''essai n''ont aucun tiret long' { ($par + $xaml + $scene) -notmatch "[\u2013\u2014]" }
+    Import-Fonctions 'parametres.ps1' @('Invoke-ReglageConsole', 'Get-ApplisVersionsEssai')
+    function Update-VersionsEssaiParametres { }
+    $script:OngletParametres = 'maj'
+    Reset-Maj
+    Invoke-ReglageConsole ([pscustomobject]@{ quoi = 'essai'; valeur = $true; id = 'mindcare' })
+    Invoke-ReglageConsole ([pscustomobject]@{ quoi = 'essai'; valeur = $true; id = 'nevermind' })   # (pas installé ici)
+    Test-Cas 'Console : cocher Mindcare (installée) marche ; une appli pas installée est refusée' { (@($script:Reglages['VersionsEssai']) -join ',') -eq 'mindcare' }
+    Invoke-ReglageConsole ([pscustomobject]@{ quoi = 'essai'; valeur = $false; id = 'mindcare' })
+    Test-Cas 'Console : décocher retire Mindcare' { -not (Get-VersionsEssaiAppli 'mindcare') }
 
     # -------------------------------------------------------------------------------------------------------------
     Write-Partie '7. La vraie console reçoit l''état (Mindset de test hors de l''écran, outils\essai-maj-console.ps1)'

@@ -831,6 +831,8 @@ const PAGES = {
       titreBloc('Automatiques') + `<div class="reglages plaque">${rang('Chercher les nouvelles versions', 'Mindset demande à GitHub, au démarrage puis toutes les heures, s\'il existe une nouvelle version de lui-même et de tes applis. Rien d\'autre n\'est envoyé. Coupé, il ne cherche que quand tu cliques sur « Vérifier maintenant ».', bascule('verif', 'verif', verif, 'Chercher les nouvelles versions'))}`
       + `${rang('Mises à jour automatiques', verif ? 'Mindset installe tout seul les nouvelles versions : une appli fermée tout de suite, une appli qui tourne quand tu ne te sers pas du PC, et lui-même quand il est caché. Jamais pendant un jeu. La console te montre ce qui se passe, puis ce qui a changé.' : 'Elles ne peuvent pas tourner tant que « Chercher les nouvelles versions » est coupé : Mindset ne sait pas qu\'une nouvelle version existe. Tu peux toujours mettre à jour toi-même.', bascule('majauto', 'majauto', verif && m.auto !== false, 'Mises à jour automatiques', '', !verif))}</div>`
       + `<div class="boutons">${btn('confidentialite', 'Ce qui part sur Internet', 'second')}</div>`
+      + ((m.essai || []).length ? titreBloc("Versions d'essai") + texte("Une version d'essai arrive avant les autres, pour la tester. Elle peut avoir des petits défauts. Elle est signée et vérifiée comme les autres.")
+        + `<div class="reglages plaque">${m.essai.map((a) => rang(`Recevoir les versions d'essai de ${a.nom}`, m.essaiNote || '', bascule(`e:${a.id}`, 'essai', a.oui, `Recevoir les versions d'essai de ${a.nom}`, a.id))).join('')}</div>` : '')
       + titreBloc('Versions') + texte(verif ? 'Mindset cherche les nouvelles versions au démarrage puis toutes les heures. Elles sont signées : une version qui ne l\'est pas n\'est jamais installée.' : 'Mindset ne cherche plus les nouvelles versions tout seul : clique sur « Vérifier maintenant » quand tu veux. Elles sont signées : une version qui ne l\'est pas n\'est jamais installée.')
       + ligne('Mindset', '#ECEAF7', `version ${e.version}`, mm.texte, mm.ton) + (m.applis || []).map((a) => ligne(a.nom, a.couleur, a.version, a.texte, a.ton)).join('')
       + titreBloc('Dernières mises à jour') + ((m.historique || []).length ? m.historique.map((h) => `<div class="plaque ligne"><span class="ic" style="--a:${hex(h.couleur, '#ECEAF7')}"><span class="l">${esc(String(h.nom).charAt(0).toUpperCase())}</span></span><span class="txt"><b style="color:${hex(h.couleur, '#ECEAF7')}">${esc(`${h.nom} ${h.version}`)}</b><span class="n">${esc(h.quand)}</span></span><span class="tagMaj${h.auto ? ' auto' : ''}">${h.auto ? 'Automatique' : 'Faite par toi'}</span></div>`).join('') : texte("Aucune mise à jour pour l'instant."))];
@@ -925,9 +927,9 @@ elReg.addEventListener('click', (ev) => {
     return;
   }
   sons.ok();
-  if (a === 'reduire' || a === 'windows' || a === 'demarrage' || a === 'majauto' || a === 'verif') {
+  if (a === 'reduire' || a === 'windows' || a === 'demarrage' || a === 'majauto' || a === 'verif' || a === 'essai') {
     const oui = v === '1';
-    if (e) { if (a === 'majauto') e.maj.auto = oui; else if (a === 'verif') e.maj.verif = oui; else if (a === 'reduire') e.general.reduire = oui; else if (a === 'windows') e.general.windows = oui; else { const x = e.general.applis.find((p) => p.id === el.dataset.id); if (x) x.oui = oui; } remplirReglages(); }
+    if (e) { if (a === 'majauto') e.maj.auto = oui; else if (a === 'verif') e.maj.verif = oui; else if (a === 'reduire') e.general.reduire = oui; else if (a === 'windows') e.general.windows = oui; else if (a === 'essai') { const x = (e.maj.essai || []).find((p) => p.id === el.dataset.id); if (x) x.oui = oui; } else { const x = e.general.applis.find((p) => p.id === el.dataset.id); if (x) x.oui = oui; } remplirReglages(); }
     hote('reglage', { quoi: a, valeur: oui, id: el.dataset.id || '' }); return;
   }
   if (e && a === 'fermeture') { e.general.fermeture = v; remplirReglages(); }

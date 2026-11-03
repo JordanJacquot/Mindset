@@ -207,6 +207,9 @@ static class Faux {
         Save-Fichier (Join-Path $e.Donnees 'Mindset\telechargements\appli.zip') 'zip'
         Save-Fichier (Join-Path $e.Donnees 'Evermind\rendez-vous.json') '[]'
         Save-Fichier (Join-Path $e.Donnees 'Appli\parametres.json') '{}'   # (gardées ou supprimées par le désinstalleur de l'appli)
+        # Le dossier WebView2 d'une appli Tauri (docs\regles-tauri.md, règle 7), sur C: et sur X:
+        Save-Fichier (Join-Path $e.Donnees 'WebView2-Tauri\Mindcare\EBWebView\Default\Preferences') '{}'
+        Save-Fichier (Join-Path $e.RacineX 'Donnees\WebView2-Tauri\Mindcare\EBWebView\Default\Preferences') '{}'
         # Un point de jonction dans les données, vers un dossier précieux hors de Mindset : jamais suivi
         $e.Precieux = Join-Path $e.Dossier 'precieux'
         Save-Fichier (Join-Path $e.Precieux 'important.txt') 'à garder'
@@ -288,6 +291,9 @@ static class Faux {
     Test-Cas 'Tout est retiré : programmes (C: et X:), tâches, registre, lancement avec Windows, raccourcis' { Test-ToutRetire $e }
     Test-Cas 'Les raccourcis des applis (dossier « Mindset » du menu Démarrer) sont retirés, avec le dossier' { (Test-Absent (Join-Path $e.Menu 'Mindset\Nevermind.lnk')) -and (Test-Absent (Join-Path $e.Menu 'Mindset')) }
     Test-Cas 'Ce qui ne vient pas de Mindset reste (autre valeur Run, autre raccourci)' { (Test-Valeur "HKCU:\$CleTest\Run" 'Autre programme') -and (Test-Path -LiteralPath (Join-Path $e.Bureau 'Autre programme.lnk')) }
+    Test-Cas 'Données gardées : le dossier WebView2-Tauri d''une appli Tauri reste aussi (sur C: et sur X:)' {
+        (Test-Path -LiteralPath (Join-Path $e.Donnees 'WebView2-Tauri\Mindcare\EBWebView\Default\Preferences')) -and (Test-Path -LiteralPath (Join-Path $e.RacineX 'Donnees\WebView2-Tauri\Mindcare\EBWebView\Default\Preferences'))
+    }
     Test-Cas 'Les données sont gardées (réglages, rendez-vous, suite.json, sur C: et sur X:)' {
         (Test-Path -LiteralPath (Join-Path $e.Donnees 'suite.json')) -and (Test-Path -LiteralPath (Join-Path $e.Donnees 'Mindset\reglages.json')) -and
         (Test-Path -LiteralPath (Join-Path $e.Donnees 'Evermind\rendez-vous.json')) -and (Test-Path -LiteralPath (Join-Path $e.RacineX 'Donnees\Evermind\rendez-vous.json'))
@@ -365,8 +371,10 @@ static class Faux {
     Test-Cas 'Sans -SupprimerDonnees, les données restent' { (Test-Path -LiteralPath (Join-Path $e.Donnees 'Mindset\reglages.json')) -and (Test-Path -LiteralPath (Join-Path $e.RacineX 'Donnees\Mindset\reglages.json')) }
     $b = Invoke-Desinstalleur $e $desinstalleur @('-Nettoyer', '-Silencieux')
     Test-Cas 'Relancé : rien à faire, aucune erreur (idempotent)' { $b.ok -eq $true -and @($b.restes).Count -eq 0 -and @($b.faits).Count -eq 0 }
+    Test-Cas 'Sans -SupprimerDonnees, le dossier WebView2-Tauri d''une appli Tauri reste (contre-épreuve)' { Test-Path -LiteralPath (Join-Path $e.Donnees 'WebView2-Tauri\Mindcare\EBWebView\Default\Preferences') }
     $b = Invoke-Desinstalleur $e $desinstalleur @('-Nettoyer', '-Silencieux', '-SupprimerDonnees')
     Test-Cas 'Avec -SupprimerDonnees : plus aucun dossier Mindset, sur aucun disque' { $b.ok -eq $true -and (Test-Absent $e.Donnees) -and (Test-Absent $e.RacineX) -and (Test-Absent $e.RacineC) }
+    Test-Cas 'Avec -SupprimerDonnees : le dossier WebView2-Tauri (C: et X:) est parti avec les données' { (Test-Absent (Join-Path $e.Donnees 'WebView2-Tauri')) -and (Test-Absent (Join-Path $e.RacineX 'Donnees\WebView2-Tauri')) }
     Test-Cas 'Le lien dans les données n''a pas été suivi' { Test-Path -LiteralPath (Join-Path $e.Precieux 'important.txt') }
     Test-Cas 'Le désinstalleur lancé hors des programmes est gardé' { Test-Path -LiteralPath $desinstalleur }
 
@@ -385,14 +393,17 @@ static class Faux {
     Save-Fichier (Join-Path $e.Donnees 'WebView2\Mindset\profil.txt') 'profil'
     $wvSuite = Start-Process -FilePath (Join-Path $edge 'msedgewebview2.exe') -ArgumentList "--type=renderer `"--user-data-dir=$(Join-Path $e.Donnees 'WebView2')\EBWebView`"" -PassThru
     $wvAutre = Start-Process -FilePath (Join-Path $edge 'msedgewebview2.exe') -ArgumentList "--type=renderer `"--user-data-dir=$(Join-Path $tmp 'autre-programme')\EBWebView`"" -PassThru
+    # (le WebView2 d'une appli Tauri, dans son dossier WebView2-Tauri\<Nom> : fermé lui aussi, et son dossier supprimé)
+    $wvTauri = Start-Process -FilePath (Join-Path $edge 'msedgewebview2.exe') -ArgumentList "--type=renderer `"--user-data-dir=$(Join-Path $e.Donnees 'WebView2-Tauri\Mindcare')\EBWebView`"" -PassThru
     New-Item -ItemType Directory -Force -Path (Join-Path $e.Donnees 'Evermind\voix') | Out-Null
     Copy-Item -LiteralPath $faux -Destination (Join-Path $e.Donnees 'Evermind\voix\Mindset.exe') -Force
     $aideDonnees = Start-Process -FilePath (Join-Path $e.Donnees 'Evermind\voix\Mindset.exe') -PassThru
-    $script:Processus += $hote, $mindsetOuvert, $wvSuite, $wvAutre, $aideDonnees
+    $script:Processus += $hote, $mindsetOuvert, $wvSuite, $wvAutre, $aideDonnees, $wvTauri
     $b = Invoke-Desinstalleur $e $e.Exe @('-Nettoyer', '-SupprimerDonnees', '-Silencieux')
     Test-Cas 'Mindset (Mindset.exe de son dossier) est fermé' { $mindsetOuvert.WaitForExit(5000) }
     Test-Cas 'L''hôte Mindset.exe d''une appli est fermé avec les programmes, et son dossier retiré' { $hote.WaitForExit(5000) -and (Test-Absent (Join-Path $e.RacineC 'Evermind')) }
     Test-Cas 'Le WebView2 de la suite est fermé, et le dossier WebView2 commun supprimé avec les données' { $wvSuite.WaitForExit(5000) -and (Test-Absent (Join-Path $e.Donnees 'WebView2')) }
+    Test-Cas 'Le WebView2 d''une appli Tauri est fermé, et son dossier WebView2-Tauri supprimé avec les données' { $wvTauri.WaitForExit(5000) -and (Test-Absent (Join-Path $e.Donnees 'WebView2-Tauri')) }
     Test-Cas 'Le WebView2 d''un autre programme tourne toujours' { -not $wvAutre.HasExited }
     Test-Cas 'Un programme d''aide Mindset.exe lancé depuis les données d''une appli est fermé, et ses données supprimées' { $aideDonnees.WaitForExit(5000) -and (Test-Absent (Join-Path $e.Donnees 'Evermind')) }
     if ($variante.Nom -eq 'C#') {
@@ -442,6 +453,37 @@ static class Faux {
     Remove-Item -LiteralPath (Join-Path $SuiteDir 'Appli') -Recurse -Force
     Complete-Desinstallation $appli
     Test-Cas 'Données supprimées par le désinstalleur : « désinstallé, avec ses données »' { $script:MessageFin -match 'désinstallé, avec ses données' -and $script:MessageFin -notmatch 'gardées' }
+
+    # Une appli Tauri : son dossier WebView2-Tauri\<Nom> part avec ses données, jamais quand elles sont gardées ; celui
+    # d'une autre appli Tauri reste ; un lien n'est jamais suivi
+    $tauri = Join-Path $SuiteDir 'WebView2-Tauri'
+    $mindcare = [pscustomobject]@{ Id = 'mindcare'; Nom = 'Mindcare' }
+    Save-Fichier (Join-Path $SuiteDir 'Mindcare\reglages.json') '{}'
+    Save-Fichier (Join-Path $tauri 'Mindcare\EBWebView\Default\Preferences') '{}'
+    Complete-Desinstallation $mindcare
+    Test-Cas 'Appli Tauri, données gardées : son dossier WebView2-Tauri reste (contre-épreuve)' { (Test-Path -LiteralPath (Join-Path $tauri 'Mindcare\EBWebView\Default\Preferences')) -and $script:MessageFin -match 'gardées' }
+    Remove-Item -LiteralPath (Join-Path $SuiteDir 'Mindcare') -Recurse -Force
+    Save-Fichier (Join-Path $tauri 'Autre\EBWebView\Default\Preferences') '{}'
+    $precieuxTauri = Join-Path $tmp 'precieux-tauri'
+    Save-Fichier (Join-Path $precieuxTauri 'important.txt') 'à garder'
+    $null = & "$env:SystemRoot\System32\cmd.exe" /c mklink /J "$(Join-Path $tauri 'Mindcare\EBWebView\lien')" "$precieuxTauri" 2>&1
+    Test-Cas 'Le lien d''essai dans WebView2-Tauri\Mindcare est en place' { Test-Path -LiteralPath (Join-Path $tauri 'Mindcare\EBWebView\lien\important.txt') }
+    $lectureSeule = Join-Path $tauri 'Mindcare\EBWebView\Default\Local State'
+    Save-Fichier $lectureSeule '{}'; Set-ItemProperty -LiteralPath $lectureSeule -Name IsReadOnly -Value $true   # (un fichier en lecture seule part aussi)
+    Complete-Desinstallation $mindcare
+    Test-Cas 'Appli Tauri, données supprimées : son dossier WebView2-Tauri\Mindcare part' { (Test-Absent (Join-Path $tauri 'Mindcare')) -and $script:MessageFin -match 'avec ses données' }
+    Test-Cas 'Le dossier WebView2-Tauri d''une autre appli reste, et WebView2-Tauri aussi (pas vide)' { Test-Path -LiteralPath (Join-Path $tauri 'Autre\EBWebView\Default\Preferences') }
+    Test-Cas 'Le lien dans le dossier WebView2-Tauri n''a pas été suivi' { Test-Path -LiteralPath (Join-Path $precieuxTauri 'important.txt') }
+    Complete-Desinstallation ([pscustomobject]@{ Id = 'autre'; Nom = 'Autre' })
+    Test-Cas 'La dernière appli Tauri désinstallée sans ses données : WebView2-Tauri, vide, part aussi' { Test-Absent $tauri }
+    Save-Fichier (Join-Path $tauri 'Mindcare\EBWebView\Default\Preferences') '{}'
+    Complete-Desinstallation ([pscustomobject]@{ Id = 'x'; Nom = '..\WebView2-Tauri' })
+    Complete-Desinstallation ([pscustomobject]@{ Id = 'evermind'; Nom = 'Evermind' })
+    Test-Cas 'Un nom d''appli qui n''est pas un simple nom, ou une autre appli : rien n''est retiré dans WebView2-Tauri' { Test-Path -LiteralPath (Join-Path $tauri 'Mindcare\EBWebView\Default\Preferences') }
+    $null = & "$env:SystemRoot\System32\cmd.exe" /c rd /s /q "$(Join-Path $tauri 'Mindcare')" 2>&1
+    $null = & "$env:SystemRoot\System32\cmd.exe" /c mklink /J "$(Join-Path $tauri 'Mindcare')" "$precieuxTauri" 2>&1
+    Complete-Desinstallation $mindcare
+    Test-Cas 'WebView2-Tauri\Mindcare est lui-même un lien : seul le lien part, le dossier visé est intact' { (Test-Absent (Join-Path $tauri 'Mindcare')) -and (Test-Path -LiteralPath (Join-Path $precieuxTauri 'important.txt')) }
     $accueil = Get-Texte (Join-Path $fichiers 'modules\accueil.ps1')
     Test-Cas 'La confirmation annonce que le désinstalleur de l''appli demande si les données sont gardées' { $accueil -match 'Il te demande aussi si tu gardes tes données' }
 }

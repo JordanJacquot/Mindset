@@ -200,7 +200,7 @@ $script:Recherches = @{}
 function Update-Publications {
     foreach ($a in $Applis) {
         $script:Recherches[$a.Id] = Get-Date
-        Start-Tache { $p = $args[0]; Get-Publication $p.Depot $p.Zip } @{ Depot = $a.Depot; Zip = @($a.Zip, $a.AncienZip) } (New-Action @{ Id = $a.Id } {
+        Start-Tache { $p = $args[0]; Get-Publication $p.Depot $p.Zip -Essai:$p.Essai } @{ Depot = $a.Depot; Zip = @($a.Zip, $a.AncienZip); Essai = (Get-VersionsEssaiAppli $a.Id) } (New-Action @{ Id = $a.Id } {
             $script:Recherches.Remove($v.Id)
             $script:Publications[$v.Id] = if ($Erreur) { @{ Erreur = $Erreur } } else { $Resultat }
             # GitHub limite les questions (60 par heure et par connexion) : refusé, on réessaie dans 30 minutes
@@ -209,6 +209,23 @@ function Update-Publications {
             if ($script:OngletParametres -eq 'maj') { Update-ListeVersions }
         } 'Resultat', 'Erreur')
     }
+}
+
+# Le canal d'essai : les applis dont on reçoit aussi les versions d'essai (préversions de GitHub), cochées dans les
+# Paramètres (« Recevoir les versions d'essai »). Rangé dans les réglages de Mindset (réglage « VersionsEssai », la liste
+# des id) ; absent : aucune, comme avant. Changer la case oublie la version publiée connue de l'appli (elle ne vaut plus :
+# décochée, une préversion trouvée avant ne doit plus être proposée), et la recherche repart au prochain passage de la
+# minuterie, si « Chercher les nouvelles versions » est allumé (sinon : à « Vérifier maintenant »).
+function Get-VersionsEssaiAppli([string]$Id) { $Id -cin @(Get-Setting 'VersionsEssai' @()) }
+function Set-VersionsEssaiAppli([string]$Id, [bool]$Oui) {
+    if (-not (Get-Appli $Id)) { return }
+    if ((Get-VersionsEssaiAppli $Id) -eq $Oui) { return }
+    $l = @(@(Get-Setting 'VersionsEssai' @()) | Where-Object { $_ -cne $Id })
+    if ($Oui) { $l += $Id }
+    Set-Setting 'VersionsEssai' $l
+    Write-Log "Versions d'essai de $Id : $(if ($Oui) { 'oui' } else { 'non' })"
+    $script:Publications.Remove($Id)
+    $script:DernieresPublications = [datetime]::MinValue
 }
 
 # ---------------------------------------------------------------------------
@@ -476,10 +493,11 @@ function Start-InstallAppli($Appli, [string]$AncienDossier) {
     $script:Progres[$Appli.Id] = [hashtable]::Synchronized(@{ Recu = 0; Total = 0 })
     # (son zip et son dossier sous le nom d'aujourd'hui, ou sous l'ancien pour une version publiée avant le changement de nom)
     $params = @{ Depot = $Appli.Depot; Zip = @($Appli.Zip, $Appli.AncienZip); DossiersZip = @($Appli.DossierZip, $Appli.AncienDossierZip); Exe = $Appli.Exe
-                 Cle = $ClePublique; Dossier = $TelechargementsDir; Id = $Appli.Id; Progres = $script:Progres[$Appli.Id]; VersionMindset = [string]$AppVersion }
+                 Cle = $ClePublique; Dossier = $TelechargementsDir; Id = $Appli.Id; Progres = $script:Progres[$Appli.Id]; VersionMindset = [string]$AppVersion
+                 Essai = (Get-VersionsEssaiAppli $Appli.Id) }
     Start-Tache {
         $p = $args[0]
-        $pub = Get-Publication $p.Depot $p.Zip
+        $pub = Get-Publication $p.Depot $p.Zip -Essai:$p.Essai   # (canal d'essai : mêmes contrôles ci-dessous, aucun en moins)
         if ($pub.Erreur) { throw $pub.Erreur }
         if (-not $pub.UrlSig) { throw "La version $($pub.Version) n'est pas signée : Mindset ne l'installera pas." }
         $zip = Get-Octets $pub.UrlZip $p.Progres
@@ -890,6 +908,36 @@ function Complete-Desinstallation($Appli) {
         $profil = Join-Path $SuiteDir "WebView2\EBWebView\WV2Profile_$($Appli.Nom.ToLower())"   # (nom que WebView2 donne au dossier du profil)
         if ([IO.Directory]::Exists($profil)) {
             try { Remove-Item -LiteralPath $profil -Recurse -Force -ErrorAction Stop; Write-Log "Profil WebView2 de $($Appli.Nom) retiré" } catch { Write-Log "Profil WebView2 de $($Appli.Nom) pas retiré ($($_.Exception.Message))" }
+        }
+        # Une appli Tauri (Mindcare en Rust) a son propre dossier WebView2 : <données de la suite>\WebView2-Tauri\<Nom>
+        # (docs\regles-tauri.md, règle 7). Il part aussi, et WebView2-Tauri s'il est alors vide. Cherché pour toute appli,
+        # quel que soit son type (pendant la bascule, une appli Rust peut encore avoir une entrée sans « type »). Le nom
+        # suit la règle de suite_commun::webview (lettres, chiffres, tirets) ; un lien (point de jonction) n'est jamais
+        # suivi : seul le lien lui-même est retiré. Si WebView2 tient encore un fichier, le dossier reste : sans danger.
+        $tauri = Join-Path $SuiteDir 'WebView2-Tauri'
+        if ($Appli.Nom -cmatch '^[A-Za-z][A-Za-z0-9-]{0,39}$' -and [IO.Directory]::Exists($tauri) -and -not ([IO.File]::GetAttributes($tauri) -band [IO.FileAttributes]::ReparsePoint)) {
+            $dossierTauri = Join-Path $tauri $Appli.Nom
+            if ([IO.Directory]::Exists($dossierTauri)) {
+                # Supprimé dossier par dossier : un lien (point de jonction, lien symbolique) est retiré seul, sans
+                # jamais toucher à ce qu'il vise. (Ni Remove-Item -Recurse de PowerShell 5.1, qui peut suivre une
+                # jonction, ni Directory.Delete récursif de .NET Framework, qui s'arrête sur « accès refusé » devant une
+                # jonction.) Un fichier en lecture seule est d'abord remis en écriture.
+                function Remove-DossierSansLiens([string]$Dossier) {
+                    if ([IO.File]::GetAttributes($Dossier) -band [IO.FileAttributes]::ReparsePoint) { [IO.Directory]::Delete($Dossier, $false); return }
+                    foreach ($f in [IO.Directory]::GetFiles($Dossier)) {
+                        $a = [IO.File]::GetAttributes($f)
+                        if (($a -band [IO.FileAttributes]::ReadOnly) -and -not ($a -band [IO.FileAttributes]::ReparsePoint)) { [IO.File]::SetAttributes($f, [IO.FileAttributes]::Normal) }
+                        [IO.File]::Delete($f)
+                    }
+                    foreach ($d in [IO.Directory]::GetDirectories($Dossier)) { Remove-DossierSansLiens $d }
+                    [IO.Directory]::Delete($Dossier, $false)
+                }
+                try {
+                    Remove-DossierSansLiens $dossierTauri
+                    Write-Log "Dossier WebView2 de $($Appli.Nom) (WebView2-Tauri) retiré"
+                } catch { Write-Log "Dossier WebView2 de $($Appli.Nom) (WebView2-Tauri) pas retiré ($($_.Exception.Message))" }
+            }
+            if (-not @([IO.Directory]::EnumerateFileSystemEntries($tauri)).Count) { try { [IO.Directory]::Delete($tauri, $false) } catch {} }
         }
     }
     Stop-Operation $Appli $(if ($gardees) { "$($Appli.Nom) est désinstallé. Ses données sont gardées dans $donnees : une réinstallation les retrouve." } else { "$($Appli.Nom) est désinstallé, avec ses données (réglages, journal, sauvegarde)." })

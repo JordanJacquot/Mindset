@@ -400,6 +400,42 @@ fn case_cochee_donnees_supprimees_sans_suivre_les_liens() {
     assert!(!texte.contains("données sont gardées"));
 }
 
+/// Le dossier WebView2 d'une appli Tauri (`<données de la suite>\WebView2-Tauri\<Nom>`, docs\regles-tauri.md règle 7) :
+/// gardé avec les données, supprimé avec elles (sur C: et sur X:), son WebView2 fermé avant
+#[test]
+fn dossier_webview2_tauri_suit_le_choix_des_donnees() {
+    let poser = |e: &Env| {
+        for d in [e.donnees.clone(), e.racine_x.join("Donnees")] {
+            ecrire(
+                &d.join("WebView2-Tauri").join("Mindcare").join("EBWebView").join("Default").join("Preferences"),
+                "{}",
+            );
+        }
+    };
+    // Case décochée (contre-épreuve) : rien n'est effacé
+    let e = Env::nouveau("tauri-garde", false, false);
+    poser(&e);
+    let (b, _, _, _) = e.lancer(Some(&e.exe), false);
+    assert!(b.restes.is_empty(), "restes : {:?}", b.restes);
+    for d in [e.donnees.clone(), e.racine_x.join("Donnees")] {
+        assert!(
+            d.join("WebView2-Tauri").join("Mindcare").join("EBWebView").join("Default").join("Preferences").exists()
+        );
+    }
+    // Case cochée : le WebView2 de l'appli Tauri est fermé, et son dossier part avec les données
+    let e = Env::nouveau("tauri-supprime", false, false);
+    poser(&e);
+    e.sys.processus.lock().unwrap().push((
+        30,
+        "C:\\edge\\msedgewebview2.exe".to_string(),
+        format!("--user-data-dir={}\\WebView2-Tauri\\Mindcare\\EBWebView", t(&e.donnees)),
+    ));
+    let (b, _, _, _) = e.lancer(Some(&e.exe), true);
+    assert!(b.restes.is_empty(), "restes : {:?}", b.restes);
+    assert!(e.sys.fermes.lock().unwrap().contains(&30), "le WebView2 de l'appli Tauri est fermé");
+    assert!(!e.donnees.join("WebView2-Tauri").exists() && !e.racine_x.join("Donnees").join("WebView2-Tauri").exists());
+}
+
 #[test]
 fn ancienne_version_qui_supprime_ses_donnees() {
     let e = Env::nouveau("ancien", false, false);

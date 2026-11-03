@@ -109,7 +109,7 @@ try {
     # -----------------------------------------------------------------------------------------------------------------
     Write-Partie 'Version publiée : Nevermind.zip d''abord, sinon OptiGame.zip (sans réseau)'
     # -----------------------------------------------------------------------------------------------------------------
-    Import-Fonctions 'paquets.ps1' @('Get-Publication', 'Get-DossierZip', 'Install-Paquet', 'Move-DossierEssais', 'Get-VersionDossier', 'Test-VersionPlusRecente')
+    Import-Fonctions 'paquets.ps1' @('Get-Publication', 'ConvertFrom-Release', 'Get-DossierZip', 'Install-Paquet', 'Move-DossierEssais', 'Get-VersionDossier', 'Test-VersionPlusRecente')
     . (Join-Path $modules 'signature.ps1')
     $script:Release = $null
     function Invoke-RestMethod { $script:Release }

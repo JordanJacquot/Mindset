@@ -6,17 +6,30 @@
 # Dernière version publiée d'une appli : numéro, adresse du zip et de sa signature.
 # -Zip : son nom, ou plusieurs noms par ordre de préférence (le nom d'aujourd'hui, puis l'ancien : une version publiée
 # avant le changement de nom de l'appli n'a que l'ancien) ; le premier présent dans la version est pris.
-function Get-Publication([string]$Depot, [string[]]$Zip) {
+# -Essai : le canal d'essai de l'appli (case « Recevoir les versions d'essai » des Paramètres, cochée). Les préversions
+# de GitHub (« prerelease ») comptent aussi : la plus récente est prise si elle est plus récente que la dernière version
+# normale (sinon, ou si aucune préversion n'est lisible, c'est la version normale, exactement comme sans -Essai). Le
+# résultat a la même forme (et Essai = $true pour une préversion) : la suite (signature obligatoire, version.json,
+# installation) est la même, sans aucun contrôle en moins. Sans -Essai : rien ne change, les préversions sont ignorées.
+function Get-Publication([string]$Depot, [string[]]$Zip, [switch]$Essai) {
     $Zip = @($Zip | Where-Object { $_ })
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
     try {
         $r = Invoke-RestMethod -Uri "https://api.github.com/repos/$Depot/releases/latest" -Headers @{ 'User-Agent' = 'Mindset' } -TimeoutSec 15
+        $pub = ConvertFrom-Release $r $Zip
     } catch {
         # L'API de GitHub limite les questions (60 par heure et par connexion) : on passe alors par la page des versions
-        $repli = Get-PublicationSansApi $Depot $Zip
-        if ($repli) { return $repli }
-        return @{ Erreur = "Impossible de joindre GitHub ($($_.Exception.Message))." }
+        $pub = Get-PublicationSansApi $Depot $Zip
+        if (-not $pub) { $pub = @{ Erreur = "Impossible de joindre GitHub ($($_.Exception.Message))." } }
     }
+    if (-not $Essai) { return $pub }
+    $pre = Get-Preversion $Depot $Zip
+    if ($pre -and ($pub.Erreur -or (Test-VersionPlusRecente $pre.Version $pub.Version))) { return $pre }
+    $pub
+}
+
+# Une version publiée (réponse de l'API de GitHub) : son numéro, son zip (le premier des noms donnés), sa signature
+function ConvertFrom-Release($r, [string[]]$Zip) {
     $nom = @($Zip | Where-Object { $n = $_; @($r.assets | Where-Object { $_.name -eq $n }).Count }) | Select-Object -First 1
     if (-not $nom) { return @{ Erreur = "La dernière version publiée ne contient pas $($Zip[0])." } }
     $z = @($r.assets | Where-Object { $_.name -eq $nom }) | Select-Object -First 1
@@ -28,6 +41,50 @@ function Get-Publication([string]$Depot, [string[]]$Zip) {
         UrlSig  = if ($s) { [string]$s.browser_download_url } else { $null }
         Notes   = [string]$r.body
     }
+}
+
+# La préversion la plus récente d'une appli (canal d'essai), ou $null : seulement une préversion publiée (ni brouillon,
+# ni version normale), dont le nom est un numéro de version (v0.90.0 ; la « liste-applis » de Mindset n'en est pas une),
+# et qui contient le zip de l'appli. L'API de GitHub refuse (60 questions par heure) : la liste des versions du dépôt
+# (releases.atom, sans limite), où la plus haute version publiée qui a son zip est prise.
+function Get-Preversion([string]$Depot, [string[]]$Zip) {
+    $Zip = @($Zip | Where-Object { $_ })
+    try {
+        $liste = @(Invoke-RestMethod -Uri "https://api.github.com/repos/$Depot/releases?per_page=30" -Headers @{ 'User-Agent' = 'Mindset' } -TimeoutSec 15)
+    } catch { return Get-PreversionSansApi $Depot $Zip }
+    $meilleure = $null; $meilleureVersion = $null
+    foreach ($r in @($liste | ForEach-Object { $_ })) {
+        if ($r.prerelease -ne $true -or $r.draft -eq $true -or [string]$r.tag_name -notmatch '^[vV]?(\d+(\.\d+){1,3})$') { continue }
+        $v = [version]$Matches[1]
+        if ($null -ne $meilleureVersion -and $v -le $meilleureVersion) { continue }
+        $p = ConvertFrom-Release $r $Zip
+        if ($p.Erreur) { continue }   # (sans le zip de l'appli : pas pour elle)
+        $meilleure = $p; $meilleureVersion = $v
+    }
+    if (-not $meilleure) { return $null }
+    $meilleure.Essai = $true
+    $meilleure
+}
+
+# Sans l'API : https://github.com/<dépôt>/releases.atom liste les dernières versions publiées, préversions comprises
+# (jamais les brouillons). La plus haute dont le zip est publié est prise (ses fichiers : /releases/download/v<version>/).
+function Get-PreversionSansApi([string]$Depot, [string[]]$Zip) {
+    try {
+        $wc = New-Object Net.WebClient; $wc.Headers['User-Agent'] = 'Mindset'; $wc.Encoding = [Text.Encoding]::UTF8
+        try { $atom = $wc.DownloadString("https://github.com/$Depot/releases.atom") } finally { $wc.Dispose() }
+        # (le numéro tel qu'il est écrit : il sert à l'adresse des fichiers ; trié comme une version)
+        $versions = @([regex]::Matches($atom, '/releases/tag/v(\d+(?:\.\d+){1,3})"') | ForEach-Object { $_.Groups[1].Value } | Select-Object -Unique |
+                      Sort-Object -Property { [version]$_ } -Descending)
+        # (la plus haute qui contient le zip de l'appli ; 3 versions regardées au plus)
+        foreach ($version in @($versions | Select-Object -First 3)) {
+            $base = "https://github.com/$Depot/releases/download/v$version"
+            $nom = @($Zip | Where-Object { Test-FichierPublie "$base/$_" }) | Select-Object -First 1
+            if (-not $nom) { continue }
+            $sig = if (Test-FichierPublie "$base/$nom.sig") { "$base/$nom.sig" } else { $null }
+            return @{ Version = $version; Fichier = $nom; UrlZip = "$base/$nom"; UrlSig = $sig; Notes = (Get-NotesPage $Depot $version); Essai = $true }
+        }
+        $null
+    } catch { $null }
 }
 
 # Sans l'API : https://github.com/<dépôt>/releases/latest renvoie vers /releases/tag/v<version> (sans limite de questions),

@@ -395,10 +395,11 @@ function Update-ListeVersions {
         $i = Get-Installation $a; $p = $script:Publications[$a.Id]
         $inst = if ($i) { "version $(if ($i.Version) { $i.Version } else { '?' })" } else { 'pas installé' }
         $etat = if (-not $p) { @('pas encore vérifié', '#A6A1BC') } elseif ($p.Erreur) { @('GitHub injoignable', '#FF7A9C') }
-                elseif ($i -and $i.Version -and (Test-VersionPlusRecente $p.Version $i.Version)) { @("$($p.Version) disponible", '#FFB020') }
+                elseif ($i -and $i.Version -and (Test-VersionPlusRecente $p.Version $i.Version)) { @("$(Format-VersionPubliee $p) disponible", '#FFB020') }
                 elseif ($i) { @('à jour', '#3DDC84') } else { @("dernière : $($p.Version)", '#A6A1BC') }
         [void]$ui.ListeVersions.Children.Add((New-LigneVersion $a.Nom $a.Couleur $inst $etat[0] $etat[1]))
     }
+    Update-VersionsEssaiParametres
     # Les dernières mises à jour (mindset.ps1, Read-HistoriqueMaj)
     $h = @(Get-HistoriqueMajAffiche)
     $t = New-Text 'Dernières mises à jour' 17 '#ECEAF7' 'SemiBold'; $t.Margin = '0,18,0,8'
@@ -406,6 +407,28 @@ function Update-ListeVersions {
     if (-not $h.Count) { [void]$ui.ListeVersions.Children.Add((New-Text 'Aucune mise à jour pour l''instant.' 13 '#A6A1BC')) }
     foreach ($e in $h) { [void]$ui.ListeVersions.Children.Add((New-LigneVersion $e.nom $e.brut "version $($e.version)" "$($e.quand) · $(if ($e.auto) { 'automatique' } else { 'faite par toi' })" $(if ($e.auto) { '#7FF4FF' } else { '#A6A1BC' }))) }
 }
+# Une version publiée telle qu'elle s'affiche : « 0.90.0 », ou « 0.90.0 (essai) » pour une version d'essai
+function Format-VersionPubliee($Pub) { "$($Pub.Version)$(if ($Pub.Essai) { ' (essai)' })" }
+
+# Le canal d'essai (installations.ps1, Get-VersionsEssaiAppli) : une case par appli installée, décochée au départ, avec
+# ce qu'elle fait en mots simples. Les mêmes textes que l'écran de la console (scene.html, onglet Mises à jour).
+$TexteVersionsEssai = 'Tu reçois aussi ses versions d''essai, avant tout le monde. Décoché, tu gardes ta version jusqu''à la prochaine version normale.'
+function Get-ApplisVersionsEssai { @($Applis | Where-Object { Get-Installation $_ }) }
+function Update-VersionsEssaiParametres {
+    $ui.VersionsEssai.Children.Clear()
+    $liste = @(Get-ApplisVersionsEssai)
+    if (-not $liste.Count) { [void]$ui.VersionsEssai.Children.Add((New-Text 'Aucune appli installée pour l''instant.' 13 '#A6A1BC')); return }
+    foreach ($a in $liste) {
+        $c = New-Object System.Windows.Controls.CheckBox
+        $c.Content = "Recevoir les versions d'essai de $($a.Nom)"; $c.Foreground = Get-Brush '#ECEAF7'; $c.Tag = $a.Id
+        $c.IsChecked = Get-VersionsEssaiAppli $a.Id
+        $c.Add_Click({ Set-VersionsEssaiAppli $this.Tag ([bool]$this.IsChecked) })
+        [void]$ui.VersionsEssai.Children.Add($c)
+        $n = New-Text $TexteVersionsEssai 12 '#6F6894'; $n.TextWrapping = 'Wrap'; $n.Margin = '24,2,0,10'
+        [void]$ui.VersionsEssai.Children.Add($n)
+    }
+}
+
 # L'historique tel qu'il s'affiche (ici et dans l'écran de la console) : nom, couleur, version, quand, automatique ou non
 function Get-HistoriqueMajAffiche {
     foreach ($e in @((Read-HistoriqueMaj).Liste)) {
@@ -582,10 +605,12 @@ function Get-EtatParametres {
                 $i = Get-Installation $a; $p = $script:Publications[$a.Id]
                 $inst = if ($i) { "version $(if ($i.Version) { $i.Version } else { '?' })" } else { 'pas installé' }
                 $e = if (-not $p) { @('pas encore vérifié', '') } elseif ($p.Erreur) { @('GitHub injoignable', 'urgent') }
-                     elseif ($i -and $i.Version -and (Test-VersionPlusRecente $p.Version $i.Version)) { @("$($p.Version) disponible", 'attention') }
+                     elseif ($i -and $i.Version -and (Test-VersionPlusRecente $p.Version $i.Version)) { @("$(Format-VersionPubliee $p) disponible", 'attention') }
                      elseif ($i) { @('à jour', 'ok') } else { @("dernière : $($p.Version)", '') }
                 [ordered]@{ nom = $a.Nom; couleur = (ConvertTo-ThemeHex $a.Couleur); version = $inst; texte = $e[0]; ton = $e[1] } })
             historique = @(Get-HistoriqueMajAffiche)
+            essai = @(foreach ($a in Get-ApplisVersionsEssai) { [ordered]@{ id = $a.Id; nom = $a.Nom; oui = [bool](Get-VersionsEssaiAppli $a.Id) } })
+            essaiNote = $TexteVersionsEssai
         }
         dossiers = [ordered]@{ texte = [string]$ui.DossiersTexte.Text }
         conso = $script:ConsoEtat   # (mesuré seulement quand l'onglet Consommation est à l'écran)
@@ -609,6 +634,10 @@ function Invoke-ReglageConsole($M) {
         'windows'     { Set-LancerAvecWindows ([bool]$v) }
         'majauto'     { Set-Setting 'MajAuto' ([bool]$v); Write-Log "Mises à jour automatiques : $(if ([bool]$v) { 'oui' } else { 'non' })"; Update-ReglagesMaj }
         'verif'       { Set-VerifVersions ([bool]$v); Update-ReglagesMaj }
+        'essai'       {   # (seulement une appli installée : la même liste que les cases)
+            $a = Get-ApplisVersionsEssai | Where-Object { $_.Id -ceq [string]$M.id } | Select-Object -First 1
+            if ($a) { Set-VersionsEssaiAppli $a.Id ([bool]$v); if ($script:OngletParametres -eq 'maj') { Update-VersionsEssaiParametres } }
+        }
         'confidentialite' { Open-PageConfidentialite '' }
         'demarrage'   {
             $a = Get-ApplisDemarrage | Where-Object { $_.Id -eq [string]$M.id } | Select-Object -First 1

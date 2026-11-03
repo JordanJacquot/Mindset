@@ -386,7 +386,8 @@ cachée (`SetIsVisible`), et `WS_CLIPCHILDREN` / `WS_CLIPSIBLINGS` quand c'est M
   `:70-83` ; `Nevermind: Nevermind/fichiers/modules/vue.ps1:44-50`) ; à la désinstallation sans données, Mindset retire
   le profil `WV2Profile_<nom en minuscules>` (`installations.ps1:856-862`). Une appli Tauri a son propre dossier
   `<données de la suite>\WebView2-Tauri\<Nom>` (Tauri ne laisse pas choisir un profil, et toutes ses pages ont la même
-  adresse : un dossier commun mélangerait leurs stockages ; `suite_commun::webview`). Voir `regles-tauri.md`, règle 7.
+  adresse : un dossier commun mélangerait leurs stockages ; `suite_commun::webview`). À la désinstallation sans
+  données, Mindset le retire aussi (`Complete-Desinstallation`). Voir `regles-tauri.md`, règle 7.
 
 **Appli Rust.** Calculer son dossier avec la même règle (fonction de `suite-commun`), depuis l'emplacement de son
 propre exe ; y écrire tous ses fichiers ; déplacer elle-même ses anciennes données ; ne rien écrire dans son dossier
@@ -447,6 +448,16 @@ zip avant de fermer l'appli (`Get-VersionZip`, appelée par `installer-admin.ps1
 `installer-admin.ps1:246-256`, `:504`). Ces lectures restent, **en secours**.
 
 La version **publiée** vient du nom de la version sur GitHub (`paquets.ps1:25`, `:41`) : rien ne change là.
+
+**Le canal d'essai (étape 7 de Mindcare en Rust).** Une appli peut publier une version d'essai en **préversion**
+GitHub (« prerelease »), nommée `vX.Y.Z` comme les autres, avec les mêmes fichiers (`<zip>` et `<zip>.sig`). Seuls
+ceux qui cochent « Recevoir les versions d'essai de <Appli> » (Paramètres de Mindset, onglet Mises à jour ; réglage
+`VersionsEssai` de Mindset, décoché au départ) la reçoivent, et seulement si elle est plus récente que la dernière
+version normale (`Get-Publication -Essai` et `Get-Preversion`, `paquets.ps1` ; sans l'API de GitHub :
+`releases.atom`). Les autres ne voient rien de changé. Aucun contrôle en moins : signature obligatoire, `version.json`,
+refus d'un retour en arrière par l'installateur. Pour revenir d'une version d'essai, on publie une version normale
+plus haute (bêta Rust en 0.90.x, retour PowerShell en 0.91.0) : une version plus ancienne que celle installée n'est
+jamais proposée, case cochée ou non.
 
 **Existe (étape 2).** Le fichier, couvert par la signature du zip comme tout le reste :
 

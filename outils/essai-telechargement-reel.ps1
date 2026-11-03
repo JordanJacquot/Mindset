@@ -28,5 +28,18 @@ if ($s -and $s.UrlSig -and $s.UrlZip -like "*/$($s.Fichier)" -and $s.Fichier -in
     $zip = Get-Octets $s.UrlZip; $sig = Get-Octets $s.UrlSig
     if (Test-Signature $zip $sig $cles) { Write-Host "OK     sans l'API : $($s.Fichier) $($s.Version), signature valide" } else { Write-Host "ÉCHEC  sans l'API : signature INVALIDE"; $echecs++ }
 } else { Write-Host "ÉCHEC  sans l'API : $($s | ConvertTo-Json -Compress)"; $echecs++ }
+# Le canal d'essai (-Essai) sur les vraies versions : par l'API, puis par releases.atom (sans l'API). La version
+# « liste-applis » de Mindset (une préversion qui n'est pas un numéro) n'est jamais prise ; ce qui est trouvé est signé.
+foreach ($sansApi in $false, $true) {
+    $quoi = if ($sansApi) { 'canal d''essai, releases.atom' } else { 'canal d''essai, API' }
+    try {
+        $p = if ($sansApi) { Get-PreversionSansApi 'JordanJacquot/Mindset' @('Mindset.zip') } else { Get-Publication 'JordanJacquot/Mindset' 'Mindset.zip' -Essai }
+        if (-not $p -and $sansApi) { Write-Host "OK     $quoi : aucune préversion de Mindset avec son zip (la liste-applis est ignorée)"; continue }
+        if ($p.Erreur) { throw $p.Erreur }
+        if ($p.Version -notmatch '^\d+(\.\d+){1,3}$' -or -not $p.UrlSig) { throw "réponse inattendue : $($p | ConvertTo-Json -Compress)" }
+        $ok = Test-Signature (Get-Octets $p.UrlZip) (Get-Octets $p.UrlSig) $cles
+        if ($ok) { Write-Host "OK     $quoi : Mindset $($p.Version)$(if ($p.Essai) { ' (essai)' }), signature valide" } else { Write-Host "ÉCHEC  $quoi : signature INVALIDE"; $echecs++ }
+    } catch { Write-Host "ÉCHEC  $quoi : $($_.Exception.Message)"; $echecs++ }
+}
 if ($echecs) { Write-Host "$echecs échec(s)."; exit 1 }
 Write-Host 'Les 4 vrais zips sont téléchargés entiers par le nouveau code.'
