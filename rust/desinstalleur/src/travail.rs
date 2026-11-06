@@ -5,7 +5,8 @@
 //!   programmes        <Program Files>\Mindset (Mindset et ses applis) et X:\Mindset\Programmes sur chaque disque fixe
 //!   applis            le désinstalleur de chaque appli qui en a un (champ « desinstalleur » de apps.json, et de la
 //!                     liste des applis en ligne gardée par Mindset si elle est valable) est lancé d'abord, avec
-//!                     -GarderDonnees ou -SupprimerDonnees ; s'il échoue, la désinstallation continue et le signale
+//!                     -GarderDonnees ou -SupprimerDonnees ; s'il échoue, la désinstallation continue et le signale ;
+//!                     les conseils qu'il laisse (conseils.rs) sont lus aussitôt, avant que les données partent
 //!   tâches            tout le dossier « \Mindset\ » du Planificateur (démarrage, installation, « <Appli> (aide) »...)
 //!   registre          HKLM\SOFTWARE\Mindset, HKLM\...\Uninstall\Mindset, la valeur « Mindset » de HKCU\...\Run
 //!   raccourcis        Mindset.lnk sur le Bureau et dans le menu Démarrer, et ceux des applis (dossier « Mindset »)
@@ -21,6 +22,7 @@ use std::time::{Duration, Instant};
 use suite_commun::{chemins, liste_en_ligne};
 
 use crate::bilan::Bilan;
+use crate::conseils;
 use crate::lieux::Lieux;
 use crate::systeme::{Fin, LectureTaches, Ruche, Systeme};
 use crate::texte::{complet, contient, dans, egal, nom, nom_simple, sans_barre, t};
@@ -49,6 +51,8 @@ pub struct Travail<'a> {
     /// Les applis dont le désinstalleur a supprimé les données (malgré le choix de les garder)
     pub donnees_supprimees_par: Vec<String>,
     pub conseil_relance: String,
+    /// Les conseils laissés par les désinstalleurs des applis (appli, conseil), dans l'ordre, sans doublon
+    pub conseils: Vec<(String, String)>,
 }
 
 /// Attend un peu (le temps qu'un programme lâche ses fichiers)
@@ -103,6 +107,7 @@ impl<'a> Travail<'a> {
             donnees_gardees: Vec::new(),
             donnees_supprimees_par: Vec::new(),
             conseil_relance: String::new(),
+            conseils: Vec::new(),
         }
     }
 
@@ -431,6 +436,10 @@ impl<'a> Travail<'a> {
         let limite = Duration::from_secs(600);
         let restes_windows = "ses fichiers sont retirés quand même, mais les réglages de Windows qu'il avait changés sont peut-être restés.";
         let option = if supprimer_donnees { "-SupprimerDonnees" } else { "-GarderDonnees" };
+        // (des conseils restés d'une désinstallation précédente ne doivent pas être pris pour ceux de celle-ci)
+        for r in self.lieux.racines_donnees() {
+            conseils::effacer(&conseils::fichier(&r, &a.nom));
+        }
         let code = match self.sys.lancer_et_attendre(&a.dossier.join(&a.desinstalleur), option, &a.dossier, limite) {
             Err(e) => {
                 self.bilan
@@ -463,6 +472,7 @@ impl<'a> Travail<'a> {
             }
             None => code == 0,
         };
+        self.prendre_conseils(a);
         if !donnees_avant.is_empty() {
             let encore = self.dossiers_donnees_pleins(a);
             if !donnees_avant.iter().all(|d| encore.iter().any(|x| egal(x, d))) {
@@ -481,6 +491,36 @@ impl<'a> Travail<'a> {
                 "Le désinstalleur de {} n'a pas fini (annulé, ou en erreur{detail}) : {restes_windows}",
                 a.nom
             ));
+        }
+    }
+
+    /// Les conseils que le désinstalleur de l'appli a laissés (dans chaque dossier des données de la suite) : lus, puis
+    /// le fichier est effacé. Un conseil déjà donné par une autre appli n'est pas répété. Fichier refusé : seulement
+    /// noté dans le journal.
+    fn prendre_conseils(&mut self, a: &AppliGeree) {
+        for r in self.lieux.racines_donnees() {
+            let f = conseils::fichier(&r, &a.nom);
+            if std::fs::symlink_metadata(&f).is_err() {
+                continue;
+            }
+            let lignes = conseils::lire(&f);
+            if !conseils::effacer(&f) {
+                self.bilan.journal(&format!("Conseils de {} : fichier non effacé ({})", a.nom, t(&f)));
+            }
+            let Some(lignes) = lignes else {
+                self.bilan.journal(&format!(
+                    "Conseils de {} ignorés (lien, trop gros ou illisible) : {}",
+                    a.nom,
+                    t(&f)
+                ));
+                continue;
+            };
+            for l in lignes {
+                if !self.conseils.iter().any(|(_, x)| *x == l) {
+                    self.bilan.journal(&format!("Conseil de {} : {l}", a.nom));
+                    self.conseils.push((a.nom.clone(), l));
+                }
+            }
         }
     }
 

@@ -14,6 +14,7 @@
 #![deny(unsafe_op_in_unsafe_fn)]
 
 mod bilan;
+mod conseils;
 mod fin;
 mod lieux;
 mod options;

@@ -45,6 +45,18 @@ struct Faux {
     lances: Mutex<Vec<(String, String)>>,
     comportements: Mutex<BTreeMap<String, Comportement>>,
     donnees: Mutex<Option<PathBuf>>,
+    /// Ce que le désinstalleur de chaque appli (nom de son dossier) laisse comme conseils en finissant
+    conseils: Mutex<BTreeMap<String, Laisse>>,
+}
+
+/// Le fichier des conseils laissé par un faux désinstalleur d'appli
+enum Laisse {
+    /// Un fichier ordinaire, avec ces octets
+    Octets(Vec<u8>),
+    /// Un point de jonction vers ce dossier
+    Jonction(PathBuf),
+    /// Un lien symbolique vers ce fichier (seulement si Windows permet d'en créer)
+    LienFichier(PathBuf),
 }
 
 fn cle(r: Ruche, c: &str) -> String {
@@ -73,24 +85,33 @@ impl Systeme for Faux {
         let nom_exe = t(exe);
         self.lances.lock().unwrap().push((nom_exe.clone(), argument.to_string()));
         let c = self.comportements.lock().unwrap().get(&nom(&nom_exe)).copied().unwrap_or(Comportement::Normal);
-        match c {
-            Comportement::Introuvable => return Err("Le fichier spécifié est introuvable.".into()),
-            Comportement::Echec => return Ok(Fin::Code(3)),
-            _ => {}
+        if c == Comportement::Introuvable {
+            return Err("Le fichier spécifié est introuvable.".into());
         }
         let appli = nom(&t(dossier));
-        if (argument == "-SupprimerDonnees" || c == Comportement::Ancien)
-            && let Some(d) = self.donnees.lock().unwrap().clone()
-        {
-            let _ = std::fs::remove_dir_all(d.join(&appli));
-        }
-        for f in std::fs::read_dir(dossier).unwrap().flatten() {
-            let p = f.path();
-            if p.extension().is_some_and(|e| e == "exe") && !egal(&t(&p), &nom_exe) {
-                std::fs::remove_file(p).unwrap();
+        if c != Comportement::Echec {
+            if (argument == "-SupprimerDonnees" || c == Comportement::Ancien)
+                && let Some(d) = self.donnees.lock().unwrap().clone()
+            {
+                let _ = std::fs::remove_dir_all(d.join(&appli));
+            }
+            for f in std::fs::read_dir(dossier).unwrap().flatten() {
+                let p = f.path();
+                if p.extension().is_some_and(|e| e == "exe") && !egal(&t(&p), &nom_exe) {
+                    std::fs::remove_file(p).unwrap();
+                }
             }
         }
-        Ok(Fin::Code(0))
+        // Juste avant de rendre la main : ses conseils, dans le dossier des données de la suite
+        if let (Some(l), Some(d)) = (self.conseils.lock().unwrap().get(&appli), self.donnees.lock().unwrap().clone()) {
+            let f = d.join(format!("{appli}.conseils-desinstallation.txt"));
+            match l {
+                Laisse::Octets(o) => std::fs::write(&f, o).unwrap(),
+                Laisse::Jonction(vers) => jonction(&f, vers),
+                Laisse::LienFichier(vers) => std::os::windows::fs::symlink_file(vers, &f).unwrap(),
+            }
+        }
+        Ok(Fin::Code(if c == Comportement::Echec { 3 } else { 0 }))
     }
     fn nom_ruche(&self, r: Ruche) -> String {
         match r {
@@ -588,6 +609,154 @@ fn contre_epreuve() {
     assert!(e.tout_retire());
     ecrire(&e.racine_c.join("intrus.txt"), "x");
     assert!(!e.tout_retire());
+}
+
+// ---------------------------------------------------------------------------------------------------------------
+// Les conseils laissés par le désinstalleur d'une appli (<données de la suite>\<Nom>.conseils-desinstallation.txt)
+// ---------------------------------------------------------------------------------------------------------------
+
+const REDEMARRE: &str = "Redémarre le PC pour que tous les réglages d'origine soient pris en compte.";
+const PAS_RESTAURE: &str = "Certains éléments n'ont pas pu être restaurés : le thème de Windows.";
+
+fn fichier_conseils(e: &Env, appli: &str) -> PathBuf {
+    e.donnees.join(format!("{appli}.conseils-desinstallation.txt"))
+}
+
+fn laisser(e: &Env, appli: &str, l: Laisse) {
+    e.sys.conseils.lock().unwrap().insert(appli.into(), l);
+}
+
+/// Le travail fait, avec ses conseils, son texte et son bilan en JSON
+fn lancer_complet(e: &Env, supprimer: bool) -> (Vec<(String, String)>, String, serde_json::Value) {
+    let mut tr = Travail::nouveau(&e.sys, e.lieux.clone(), Bilan::default(), Some(&t(&e.exe)));
+    tr.executer(supprimer);
+    let texte = texte_bilan(&tr);
+    let json = crate::fin::rapport(&tr, None, supprimer, &texte);
+    (tr.conseils.clone(), texte, json)
+}
+
+#[test]
+fn conseils_des_applis_ajoutes_au_bilan() {
+    let e = Env::nouveau("conseils", false, false);
+    // Appli : deux conseils (fin de ligne Windows, ligne vide, espaces) ; Autre (qui échoue) : le même redémarrage, et
+    // un conseil à elle
+    laisser(&e, "Appli", Laisse::Octets(format!("{REDEMARRE}\r\n\r\n  {PAS_RESTAURE}  \r\n").into_bytes()));
+    laisser(&e, "Autre", Laisse::Octets(format!("{REDEMARRE}\nRelance Autre une fois.").into_bytes()));
+    // Un vieux fichier d'Evermind (pas de désinstalleur) : jamais lu, jamais effacé
+    ecrire(&fichier_conseils(&e, "Evermind"), "Ne pas montrer");
+    let (c, texte, json) = lancer_complet(&e, false);
+    assert_eq!(
+        c,
+        vec![
+            ("Appli".to_string(), REDEMARRE.to_string()),
+            ("Appli".to_string(), PAS_RESTAURE.to_string()),
+            ("Autre".to_string(), "Relance Autre une fois.".to_string()),
+        ]
+    );
+    let attendu = format!(
+        "tu retrouveras tout.\r\n\r\nAppli : {REDEMARRE}\r\nAppli : {PAS_RESTAURE}\r\nAutre : Relance Autre une fois.\r\n\r\nÀ savoir :"
+    );
+    assert!(texte.starts_with("Mindset est désinstallé.\r\n\r\nTes données sont gardées ("), "{texte}");
+    assert!(texte.contains(&attendu), "{texte}");
+    assert!(!texte.contains(&format!("Autre : {REDEMARRE}")), "pas de doublon d'une appli à l'autre");
+    assert!(!texte.contains("Ne pas montrer"));
+    assert_eq!(json["conseils"][0], format!("Appli : {REDEMARRE}"));
+    assert_eq!(json["conseils"].as_array().unwrap().len(), 3);
+    assert!(!fichier_conseils(&e, "Appli").exists() && !fichier_conseils(&e, "Autre").exists(), "fichiers effacés");
+    assert!(fichier_conseils(&e, "Evermind").exists());
+}
+
+#[test]
+fn conseils_lus_meme_si_les_donnees_sont_supprimees() {
+    let e = Env::nouveau("conseils-suppr", false, false);
+    laisser(&e, "Appli", Laisse::Octets(REDEMARRE.as_bytes().to_vec()));
+    let (c, texte, _) = lancer_complet(&e, true);
+    assert!(!e.donnees.exists(), "les données sont parties");
+    assert_eq!(c, vec![("Appli".to_string(), REDEMARRE.to_string())]);
+    assert!(texte.starts_with(&format!("Mindset est désinstallé.\r\n\r\nAppli : {REDEMARRE}")), "{texte}");
+}
+
+#[test]
+fn conseils_d_une_desinstallation_precedente_effaces_avant() {
+    // Un fichier resté d'avant, et le désinstalleur qui ne se lance pas : rien n'est montré, le vieux fichier part
+    let e = Env::nouveau("conseils-vieux", false, false);
+    ecrire(&fichier_conseils(&e, "Appli"), "Vieux conseil");
+    e.sys.comportements.lock().unwrap().insert("Désinstaller Appli.exe".into(), Comportement::Introuvable);
+    let (c, texte, _) = lancer_complet(&e, false);
+    assert!(c.is_empty() && !texte.contains("Vieux conseil"), "{texte}");
+    assert!(!fichier_conseils(&e, "Appli").exists());
+}
+
+#[test]
+fn conseils_au_travers_d_un_lien_jamais_lus() {
+    // Point de jonction vers un dossier : ni lu ni suivi, le lien lui-même part, le dossier visé reste
+    let e = Env::nouveau("conseils-jonction", false, false);
+    let vise = e.dossier.join("vise");
+    ecrire(&vise.join("secret.txt"), "SECRET");
+    laisser(&e, "Appli", Laisse::Jonction(vise.clone()));
+    let (c, texte, _) = lancer_complet(&e, false);
+    assert!(c.is_empty() && !texte.contains("SECRET"));
+    assert!(std::fs::symlink_metadata(fichier_conseils(&e, "Appli")).is_err(), "le lien est retiré");
+    assert!(vise.join("secret.txt").exists(), "ce vers quoi il pointe n'est pas touché");
+    // Lien symbolique vers un fichier (seulement si Windows permet d'en créer : mode développeur)
+    let essai = e.dossier.join("essai-lien");
+    if std::os::windows::fs::symlink_file(vise.join("secret.txt"), &essai).is_ok() {
+        let e2 = Env::nouveau("conseils-lien", false, false);
+        let cible = e2.dossier.join("cible.txt");
+        ecrire(&cible, "SECRET");
+        laisser(&e2, "Appli", Laisse::LienFichier(cible.clone()));
+        let (c, texte, _) = lancer_complet(&e2, false);
+        assert!(c.is_empty() && !texte.contains("SECRET"));
+        assert!(std::fs::symlink_metadata(fichier_conseils(&e2, "Appli")).is_err());
+        assert_eq!(std::fs::read_to_string(&cible).unwrap(), "SECRET");
+    }
+}
+
+#[test]
+fn conseils_trop_gros_abimes_ou_vides_ignores() {
+    let gros = {
+        let mut o = REDEMARRE.as_bytes().to_vec();
+        o.resize(8 * 1024 + 1, b' ');
+        o
+    };
+    let limite = {
+        let mut o = REDEMARRE.as_bytes().to_vec();
+        o.resize(8 * 1024, b' ');
+        o
+    };
+    let abime = [REDEMARRE.as_bytes(), b"\r\n\xff\xfe pas de l'UTF-8"].concat();
+    for (n, octets, pris) in [
+        ("gros", gros, false),
+        ("limite", limite, true),
+        ("abime", abime, false),
+        ("vide", Vec::new(), false),
+        ("blanc", b"\r\n \t \r\n\x07\r\n".to_vec(), false),
+    ] {
+        let e = Env::nouveau(&format!("conseils-{n}"), false, false);
+        laisser(&e, "Appli", Laisse::Octets(octets));
+        let (c, texte, _) = lancer_complet(&e, false);
+        assert_eq!(!c.is_empty(), pris, "{n} : {c:?}");
+        assert_eq!(texte.contains(&format!("Appli : {REDEMARRE}")), pris, "{n} : {texte}");
+        assert!(!fichier_conseils(&e, "Appli").exists(), "{n} : fichier effacé quand même");
+    }
+    // Trop de lignes, trop longues : 10 lignes de 300 caractères au plus
+    let e = Env::nouveau("conseils-coupes", false, false);
+    let beaucoup: String = (0..15).map(|i| format!("Conseil {i} {}\r\n", "x".repeat(400))).collect();
+    laisser(&e, "Appli", Laisse::Octets(beaucoup.into_bytes()));
+    let (c, _, _) = lancer_complet(&e, false);
+    assert_eq!(c.len(), 10);
+    assert!(c.iter().all(|(_, l)| l.chars().count() == 300));
+    assert!(c[9].1.starts_with("Conseil 9 "));
+}
+
+/// Contre-épreuve : sans fichier de conseils, le bilan n'en montre aucun (et il est le même qu'avant)
+#[test]
+fn conseils_contre_epreuve() {
+    let e = Env::nouveau("conseils-contre", false, false);
+    let (c, texte, json) = lancer_complet(&e, false);
+    assert!(c.is_empty() && json["conseils"].as_array().unwrap().is_empty());
+    assert!(!texte.contains("Appli : ") && !texte.contains("Redémarre le PC"));
+    assert!(texte.contains("tu retrouveras tout.\r\n\r\nÀ savoir :"), "{texte}");
 }
 
 // ---------------------------------------------------------------------------------------------------------------

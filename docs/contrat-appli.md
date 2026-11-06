@@ -427,12 +427,37 @@ Les options d'essai (`-Test`, `-EssaiFenetre`) n'existent que dans la constructi
 l'exe livré ne les connaît pas. Juges : `cargo test -p desinstalleur` (faux Windows) et
 `outils/tester-desinstallation.ps1`, qui passe les mêmes cas à la version C# et à la version Rust (sur GitHub). Tant
 que la publication des exe construits sur GitHub (plan 3.6) n'est pas en place, `construire.ps1` livre encore la
-version C#. Le contrat avec les désinstalleurs d'appli ne change pas (mêmes options, même attente, même critère).
+version C#. Le contrat avec les désinstalleurs d'appli ne change pas (mêmes options, même attente, même critère), sauf
+l'ajout des conseils ci-dessous (version Rust seulement, `desinstalleur.cs` ne les lit pas).
+
+**Ses conseils, quand il est lancé avec une option.** Piloté par « Désinstaller Mindset » (`-GarderDonnees` ou
+`-SupprimerDonnees`), le désinstalleur d'une appli ne montre pas sa fenêtre de fin (Mindset attendrait un clic). Ce
+qu'il y aurait dit d'important passe dans le bilan de Mindset :
+- juste avant de rendre la main, il peut laisser un fichier texte
+  `<données de la suite>\<Nom>.conseils-desinstallation.txt`, `<données de la suite>` étant le dossier qui contient
+  son dossier de données `<Nom>` (partie 8 : `%LOCALAPPDATA%\Mindset` ou `X:\Mindset\Donnees`) ; en UTF-8 sans BOM,
+  une ligne par conseil, au plus 10 lignes de 300 caractères (au-delà : coupé), en mots simples, par exemple
+  « Redémarre le PC pour que tous les réglages d'origine soient pris en compte. » ;
+- « Désinstaller Mindset » efface ce fichier avant de lancer le désinstalleur de l'appli (un reste d'une fois
+  précédente n'est jamais montré), puis, à son retour et avant de supprimer les données (si l'utilisateur a choisi de
+  tout supprimer), le lit dans chaque dossier des données de la suite, sans jamais suivre un lien (lien symbolique,
+  point de jonction : seul le lien est retiré), 8 Ko au plus, et l'efface ;
+- il garde les lignes sans les lignes vides, sans les caractères de contrôle ni invisibles, sans un conseil déjà donné
+  par une autre appli, et les ajoute au bilan, après « Mindset est désinstallé. » et la phrase sur les données (ou
+  après le conseil de relance s'il reste quelque chose), chacune précédée du nom de l'appli :
+  « Nevermind : Redémarre le PC pour que tous les réglages d'origine soient pris en compte. » ; elles sont aussi dans
+  le champ `conseils` du bilan en JSON (`-Rapport`) ;
+- fichier absent, lien, trop gros, pas en UTF-8, illisible ou vide : rien n'est ajouté, aucune erreur visible
+  (seulement une ligne du journal).
+Code : `rust/desinstalleur/src/conseils.rs`, `travail.rs` (`prendre_conseils`), `fin.rs` ; juges : les tests
+`conseils_*` de `rust/desinstalleur/src/travail/tests.rs`.
 
 **Appli Rust.** Seulement si elle change quelque chose dans Windows : `Désinstaller <Nom>.exe` dans son dossier, qui
 - sans option, pose la question des données ; avec `-GarderDonnees` ou `-SupprimerDonnees`, ne la pose pas ; avec les
   deux, la pose ;
 - remet Windows comme avant, puis supprime ses programmes (donc `exe` disparaît), et rend 0 ;
+- avec une option, ne montre pas de fenêtre de fin et laisse ses conseils importants dans
+  `<données de la suite>\<Nom>.conseils-desinstallation.txt` (ci-dessus) ;
 - ne dépend pas de l'appli elle-même (il marche si elle est abîmée).
 
 Sinon, pas de champ `desinstalleur` : Mindset supprime le dossier et garde les données.

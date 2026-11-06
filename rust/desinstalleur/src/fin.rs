@@ -19,6 +19,19 @@ pub fn texte_accueil(supprimer_donnees: bool) -> String {
     )
 }
 
+/// Les conseils laissés par les désinstalleurs des applis, une ligne chacun : « Nevermind : Redémarre le PC... »
+pub fn lignes_conseils(t: &Travail<'_>) -> Vec<String> {
+    t.conseils.iter().map(|(appli, c)| format!("{appli} : {c}")).collect()
+}
+
+fn ajouter_conseils(s: &mut String, t: &Travail<'_>) {
+    let l = lignes_conseils(t);
+    if !l.is_empty() {
+        s.push_str("\r\n\r\n");
+        s.push_str(&l.join("\r\n"));
+    }
+}
+
 /// Le texte du bilan, tel qu'il est affiché à la fin
 pub fn texte_bilan(t: &Travail<'_>) -> String {
     let b = &t.bilan;
@@ -45,6 +58,7 @@ pub fn texte_bilan(t: &Travail<'_>) -> String {
                 ));
             }
         }
+        ajouter_conseils(&mut s, t);
     } else {
         s.push_str("Ces éléments n'ont pas pu être retirés :\r\n");
         for r in &b.restes {
@@ -52,6 +66,7 @@ pub fn texte_bilan(t: &Travail<'_>) -> String {
         }
         s.push_str("\r\n");
         s.push_str(&t.conseil_relance);
+        ajouter_conseils(&mut s, t);
     }
     if !b.alertes.is_empty() {
         s.push_str("\r\n\r\nÀ savoir :\r\n");
@@ -80,6 +95,7 @@ pub fn rapport(t: &Travail<'_>, fenetre: Option<&VuFenetre>, donnees: bool, text
         "caseDonneesAuDepart": fenetre.map(|f| f.case_au_depart),
         "donneesSupprimees": donnees,
         "donneesSupprimeesPar": t.donnees_supprimees_par,
+        "conseils": lignes_conseils(t),
         "texteAffiche": texte,
         "accueilAuDepart": fenetre.map(|f| f.accueil_au_depart.clone()),
         "accueilAuLancement": fenetre.map(|f| f.accueil_au_lancement.clone()),
