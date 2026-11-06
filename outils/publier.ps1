@@ -38,7 +38,10 @@ foreach ($f in Get-ChildItem -LiteralPath $racine -Recurse -Filter '*.ps1' | Whe
 }
 try { [void][xml][IO.File]::ReadAllText((Join-Path $app 'fichiers\modules\interface.xaml'), [Text.Encoding]::UTF8) } catch { $problemes += "interface.xaml : $($_.Exception.Message)" }
 $tirets = Get-ChildItem -LiteralPath $racine -Recurse -File -Include '*.ps1', '*.cs', '*.xaml', '*.txt', '*.md', '*.json' |
-    Where-Object { $_.FullName -notmatch '\\(\.git|_test|release|target[^\\]*)\\' } | Select-String -Pattern '[\u2013\u2014]'
+    Where-Object { $_.Extension -in '.ps1', '.cs', '.xaml', '.txt', '.md', '.json' -and $_.FullName -notmatch '\\(\.git|_test|release|target[^\\]*)\\' } |
+    Select-String -Pattern '[\u2013\u2014]'
+# (l'extension revérifiée : avec -LiteralPath, Windows PowerShell 5.1 ignore -Include pour les fichiers de la racine ;
+# chez Nevermind, le zip de la publication d'avant annulait la suivante)
 foreach ($t in $tirets) { $problemes += "Tiret cadratin : $($t.Path) ligne $($t.LineNumber)" }
 if ($problemes) { $problemes | ForEach-Object { Write-Host $_ -ForegroundColor Red }; throw 'Publication annulée : corrige les points ci dessus.' }
 
