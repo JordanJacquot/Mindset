@@ -457,11 +457,15 @@ impl Hote {
             return Vec::new();
         }
         let t = self.ctx.ecoule();
+        let avant = self.taches_en_cours;
         let mut effets = self.taches_terminees();
+        // (un tic a tourné ou un travail a fini : l'état d'un bloc a pu changer, même sans aucun effet)
+        let mut appele = self.taches_en_cours != avant;
         for i in 0..self.blocs.len() {
             if !self.prochains[i].is_some_and(|p| p <= t) {
                 continue;
             }
+            appele = true;
             let mut ef = Effets::default();
             match self.appeler(i, "tic", |b, ctx| b.tic(ctx, &mut ef)) {
                 Some(d) => self.prochains[i] = d.map(|d| t + d),
@@ -470,7 +474,13 @@ impl Hote {
             effets.extend(ef.0.into_iter().map(|x| (Some(i), x)));
         }
         if effets.is_empty() && !self.force {
-            // (rien n'est arrivé : l'état d'un bloc a pu changer quand même, il est relu au plus tard au prochain tic)
+            // Aucun effet, mais l'état est relu (et envoyé à la page seulement s'il a changé). Avant le 07/11/2026,
+            // il ne l'était pas : la fin d'une recherche « à jour » ou une appli fermée dans Mindset (l'écran
+            // « Ouvrir » de l'accrochage) ne changent que l'état, et la page restait sur l'ancien (le rond
+            // « Recherche des mises à jour... » sans fin, vu par Jordan ; tests/recherche_sans_fin.rs).
+            if appele {
+                self.envoyer_etat(ecran);
+            }
             return Vec::new();
         }
         self.traiter(effets, ecran)
