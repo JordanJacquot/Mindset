@@ -10,9 +10,22 @@ publish.workspace = true
 mindset-noyau = { path = "../mindset-noyau" }
 # Versions figées (« = ») : les mêmes que Nevermind (D:\Projets\Nevermind\rust\Cargo.lock).
 serde_json = { version = "=1.0.154", features = ["preserve_order"] }
+# La bibliothèque commune de la suite : la vérification des signatures (Test-Signature)
+suite-commun = { path = "../suite-commun" }
+# Les expressions de Get-NotesPage, Get-PreversionSansApi et Get-PublicationSansApi (déjà dans Cargo.lock, par Tauri)
+regex = "=1.13.1"
 
-# Pas `workspace = true` : si ce bloc a un module Windows (src\windows), ce module autorise lui-même le code
-# « unsafe » (#![allow(unsafe_code)]) ; ailleurs il est refusé (deny).
+# Le seul module qui parle à Windows (src\windows) : WinHTTP, comme nevermind-noyau. La même version que la suite.
+[target.'cfg(windows)'.dependencies.windows]
+version = "=0.62.2"
+features = ["Win32_Foundation", "Win32_Networking_WinHttp"]
+
+[dev-dependencies]
+# Pour signer des zips d'essai avec la clé de TEST de l'installateur (mindset-installateur\tests\cle-de-test)
+ring = "=0.17.14"
+
+# Pas `workspace = true` : le module Windows (src\windows) autorise lui-même le code « unsafe » ; ailleurs il est
+# refusé (deny).
 [lints.rust]
 unsafe_code = "deny"
 unsafe_op_in_unsafe_fn = "deny"

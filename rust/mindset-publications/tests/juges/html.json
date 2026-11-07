@@ -1,0 +1,1198 @@
+{
+    "entites":  [
+                    {
+                        "nom":  "quot",
+                        "code":  34
+                    },
+                    {
+                        "nom":  "amp",
+                        "code":  38
+                    },
+                    {
+                        "nom":  "apos",
+                        "code":  39
+                    },
+                    {
+                        "nom":  "lt",
+                        "code":  60
+                    },
+                    {
+                        "nom":  "gt",
+                        "code":  62
+                    },
+                    {
+                        "nom":  "nbsp",
+                        "code":  160
+                    },
+                    {
+                        "nom":  "iexcl",
+                        "code":  161
+                    },
+                    {
+                        "nom":  "cent",
+                        "code":  162
+                    },
+                    {
+                        "nom":  "pound",
+                        "code":  163
+                    },
+                    {
+                        "nom":  "curren",
+                        "code":  164
+                    },
+                    {
+                        "nom":  "yen",
+                        "code":  165
+                    },
+                    {
+                        "nom":  "brvbar",
+                        "code":  166
+                    },
+                    {
+                        "nom":  "sect",
+                        "code":  167
+                    },
+                    {
+                        "nom":  "uml",
+                        "code":  168
+                    },
+                    {
+                        "nom":  "copy",
+                        "code":  169
+                    },
+                    {
+                        "nom":  "ordf",
+                        "code":  170
+                    },
+                    {
+                        "nom":  "laquo",
+                        "code":  171
+                    },
+                    {
+                        "nom":  "not",
+                        "code":  172
+                    },
+                    {
+                        "nom":  "shy",
+                        "code":  173
+                    },
+                    {
+                        "nom":  "reg",
+                        "code":  174
+                    },
+                    {
+                        "nom":  "macr",
+                        "code":  175
+                    },
+                    {
+                        "nom":  "deg",
+                        "code":  176
+                    },
+                    {
+                        "nom":  "plusmn",
+                        "code":  177
+                    },
+                    {
+                        "nom":  "sup2",
+                        "code":  178
+                    },
+                    {
+                        "nom":  "sup3",
+                        "code":  179
+                    },
+                    {
+                        "nom":  "acute",
+                        "code":  180
+                    },
+                    {
+                        "nom":  "micro",
+                        "code":  181
+                    },
+                    {
+                        "nom":  "para",
+                        "code":  182
+                    },
+                    {
+                        "nom":  "middot",
+                        "code":  183
+                    },
+                    {
+                        "nom":  "cedil",
+                        "code":  184
+                    },
+                    {
+                        "nom":  "sup1",
+                        "code":  185
+                    },
+                    {
+                        "nom":  "ordm",
+                        "code":  186
+                    },
+                    {
+                        "nom":  "raquo",
+                        "code":  187
+                    },
+                    {
+                        "nom":  "frac14",
+                        "code":  188
+                    },
+                    {
+                        "nom":  "frac12",
+                        "code":  189
+                    },
+                    {
+                        "nom":  "frac34",
+                        "code":  190
+                    },
+                    {
+                        "nom":  "iquest",
+                        "code":  191
+                    },
+                    {
+                        "nom":  "Agrave",
+                        "code":  192
+                    },
+                    {
+                        "nom":  "Aacute",
+                        "code":  193
+                    },
+                    {
+                        "nom":  "Acirc",
+                        "code":  194
+                    },
+                    {
+                        "nom":  "Atilde",
+                        "code":  195
+                    },
+                    {
+                        "nom":  "Auml",
+                        "code":  196
+                    },
+                    {
+                        "nom":  "Aring",
+                        "code":  197
+                    },
+                    {
+                        "nom":  "AElig",
+                        "code":  198
+                    },
+                    {
+                        "nom":  "Ccedil",
+                        "code":  199
+                    },
+                    {
+                        "nom":  "Egrave",
+                        "code":  200
+                    },
+                    {
+                        "nom":  "Eacute",
+                        "code":  201
+                    },
+                    {
+                        "nom":  "Ecirc",
+                        "code":  202
+                    },
+                    {
+                        "nom":  "Euml",
+                        "code":  203
+                    },
+                    {
+                        "nom":  "Igrave",
+                        "code":  204
+                    },
+                    {
+                        "nom":  "Iacute",
+                        "code":  205
+                    },
+                    {
+                        "nom":  "Icirc",
+                        "code":  206
+                    },
+                    {
+                        "nom":  "Iuml",
+                        "code":  207
+                    },
+                    {
+                        "nom":  "ETH",
+                        "code":  208
+                    },
+                    {
+                        "nom":  "Ntilde",
+                        "code":  209
+                    },
+                    {
+                        "nom":  "Ograve",
+                        "code":  210
+                    },
+                    {
+                        "nom":  "Oacute",
+                        "code":  211
+                    },
+                    {
+                        "nom":  "Ocirc",
+                        "code":  212
+                    },
+                    {
+                        "nom":  "Otilde",
+                        "code":  213
+                    },
+                    {
+                        "nom":  "Ouml",
+                        "code":  214
+                    },
+                    {
+                        "nom":  "times",
+                        "code":  215
+                    },
+                    {
+                        "nom":  "Oslash",
+                        "code":  216
+                    },
+                    {
+                        "nom":  "Ugrave",
+                        "code":  217
+                    },
+                    {
+                        "nom":  "Uacute",
+                        "code":  218
+                    },
+                    {
+                        "nom":  "Ucirc",
+                        "code":  219
+                    },
+                    {
+                        "nom":  "Uuml",
+                        "code":  220
+                    },
+                    {
+                        "nom":  "Yacute",
+                        "code":  221
+                    },
+                    {
+                        "nom":  "THORN",
+                        "code":  222
+                    },
+                    {
+                        "nom":  "szlig",
+                        "code":  223
+                    },
+                    {
+                        "nom":  "agrave",
+                        "code":  224
+                    },
+                    {
+                        "nom":  "aacute",
+                        "code":  225
+                    },
+                    {
+                        "nom":  "acirc",
+                        "code":  226
+                    },
+                    {
+                        "nom":  "atilde",
+                        "code":  227
+                    },
+                    {
+                        "nom":  "auml",
+                        "code":  228
+                    },
+                    {
+                        "nom":  "aring",
+                        "code":  229
+                    },
+                    {
+                        "nom":  "aelig",
+                        "code":  230
+                    },
+                    {
+                        "nom":  "ccedil",
+                        "code":  231
+                    },
+                    {
+                        "nom":  "egrave",
+                        "code":  232
+                    },
+                    {
+                        "nom":  "eacute",
+                        "code":  233
+                    },
+                    {
+                        "nom":  "ecirc",
+                        "code":  234
+                    },
+                    {
+                        "nom":  "euml",
+                        "code":  235
+                    },
+                    {
+                        "nom":  "igrave",
+                        "code":  236
+                    },
+                    {
+                        "nom":  "iacute",
+                        "code":  237
+                    },
+                    {
+                        "nom":  "icirc",
+                        "code":  238
+                    },
+                    {
+                        "nom":  "iuml",
+                        "code":  239
+                    },
+                    {
+                        "nom":  "eth",
+                        "code":  240
+                    },
+                    {
+                        "nom":  "ntilde",
+                        "code":  241
+                    },
+                    {
+                        "nom":  "ograve",
+                        "code":  242
+                    },
+                    {
+                        "nom":  "oacute",
+                        "code":  243
+                    },
+                    {
+                        "nom":  "ocirc",
+                        "code":  244
+                    },
+                    {
+                        "nom":  "otilde",
+                        "code":  245
+                    },
+                    {
+                        "nom":  "ouml",
+                        "code":  246
+                    },
+                    {
+                        "nom":  "divide",
+                        "code":  247
+                    },
+                    {
+                        "nom":  "oslash",
+                        "code":  248
+                    },
+                    {
+                        "nom":  "ugrave",
+                        "code":  249
+                    },
+                    {
+                        "nom":  "uacute",
+                        "code":  250
+                    },
+                    {
+                        "nom":  "ucirc",
+                        "code":  251
+                    },
+                    {
+                        "nom":  "uuml",
+                        "code":  252
+                    },
+                    {
+                        "nom":  "yacute",
+                        "code":  253
+                    },
+                    {
+                        "nom":  "thorn",
+                        "code":  254
+                    },
+                    {
+                        "nom":  "yuml",
+                        "code":  255
+                    },
+                    {
+                        "nom":  "OElig",
+                        "code":  338
+                    },
+                    {
+                        "nom":  "oelig",
+                        "code":  339
+                    },
+                    {
+                        "nom":  "Scaron",
+                        "code":  352
+                    },
+                    {
+                        "nom":  "scaron",
+                        "code":  353
+                    },
+                    {
+                        "nom":  "Yuml",
+                        "code":  376
+                    },
+                    {
+                        "nom":  "fnof",
+                        "code":  402
+                    },
+                    {
+                        "nom":  "circ",
+                        "code":  710
+                    },
+                    {
+                        "nom":  "tilde",
+                        "code":  732
+                    },
+                    {
+                        "nom":  "Alpha",
+                        "code":  913
+                    },
+                    {
+                        "nom":  "Beta",
+                        "code":  914
+                    },
+                    {
+                        "nom":  "Gamma",
+                        "code":  915
+                    },
+                    {
+                        "nom":  "Delta",
+                        "code":  916
+                    },
+                    {
+                        "nom":  "Epsilon",
+                        "code":  917
+                    },
+                    {
+                        "nom":  "Zeta",
+                        "code":  918
+                    },
+                    {
+                        "nom":  "Eta",
+                        "code":  919
+                    },
+                    {
+                        "nom":  "Theta",
+                        "code":  920
+                    },
+                    {
+                        "nom":  "Iota",
+                        "code":  921
+                    },
+                    {
+                        "nom":  "Kappa",
+                        "code":  922
+                    },
+                    {
+                        "nom":  "Lambda",
+                        "code":  923
+                    },
+                    {
+                        "nom":  "Mu",
+                        "code":  924
+                    },
+                    {
+                        "nom":  "Nu",
+                        "code":  925
+                    },
+                    {
+                        "nom":  "Xi",
+                        "code":  926
+                    },
+                    {
+                        "nom":  "Omicron",
+                        "code":  927
+                    },
+                    {
+                        "nom":  "Pi",
+                        "code":  928
+                    },
+                    {
+                        "nom":  "Rho",
+                        "code":  929
+                    },
+                    {
+                        "nom":  "Sigma",
+                        "code":  931
+                    },
+                    {
+                        "nom":  "Tau",
+                        "code":  932
+                    },
+                    {
+                        "nom":  "Upsilon",
+                        "code":  933
+                    },
+                    {
+                        "nom":  "Phi",
+                        "code":  934
+                    },
+                    {
+                        "nom":  "Chi",
+                        "code":  935
+                    },
+                    {
+                        "nom":  "Psi",
+                        "code":  936
+                    },
+                    {
+                        "nom":  "Omega",
+                        "code":  937
+                    },
+                    {
+                        "nom":  "alpha",
+                        "code":  945
+                    },
+                    {
+                        "nom":  "beta",
+                        "code":  946
+                    },
+                    {
+                        "nom":  "gamma",
+                        "code":  947
+                    },
+                    {
+                        "nom":  "delta",
+                        "code":  948
+                    },
+                    {
+                        "nom":  "epsilon",
+                        "code":  949
+                    },
+                    {
+                        "nom":  "zeta",
+                        "code":  950
+                    },
+                    {
+                        "nom":  "eta",
+                        "code":  951
+                    },
+                    {
+                        "nom":  "theta",
+                        "code":  952
+                    },
+                    {
+                        "nom":  "iota",
+                        "code":  953
+                    },
+                    {
+                        "nom":  "kappa",
+                        "code":  954
+                    },
+                    {
+                        "nom":  "lambda",
+                        "code":  955
+                    },
+                    {
+                        "nom":  "mu",
+                        "code":  956
+                    },
+                    {
+                        "nom":  "nu",
+                        "code":  957
+                    },
+                    {
+                        "nom":  "xi",
+                        "code":  958
+                    },
+                    {
+                        "nom":  "omicron",
+                        "code":  959
+                    },
+                    {
+                        "nom":  "pi",
+                        "code":  960
+                    },
+                    {
+                        "nom":  "rho",
+                        "code":  961
+                    },
+                    {
+                        "nom":  "sigmaf",
+                        "code":  962
+                    },
+                    {
+                        "nom":  "sigma",
+                        "code":  963
+                    },
+                    {
+                        "nom":  "tau",
+                        "code":  964
+                    },
+                    {
+                        "nom":  "upsilon",
+                        "code":  965
+                    },
+                    {
+                        "nom":  "phi",
+                        "code":  966
+                    },
+                    {
+                        "nom":  "chi",
+                        "code":  967
+                    },
+                    {
+                        "nom":  "psi",
+                        "code":  968
+                    },
+                    {
+                        "nom":  "omega",
+                        "code":  969
+                    },
+                    {
+                        "nom":  "thetasym",
+                        "code":  977
+                    },
+                    {
+                        "nom":  "upsih",
+                        "code":  978
+                    },
+                    {
+                        "nom":  "piv",
+                        "code":  982
+                    },
+                    {
+                        "nom":  "ensp",
+                        "code":  8194
+                    },
+                    {
+                        "nom":  "emsp",
+                        "code":  8195
+                    },
+                    {
+                        "nom":  "thinsp",
+                        "code":  8201
+                    },
+                    {
+                        "nom":  "zwnj",
+                        "code":  8204
+                    },
+                    {
+                        "nom":  "zwj",
+                        "code":  8205
+                    },
+                    {
+                        "nom":  "lrm",
+                        "code":  8206
+                    },
+                    {
+                        "nom":  "rlm",
+                        "code":  8207
+                    },
+                    {
+                        "nom":  "ndash",
+                        "code":  8211
+                    },
+                    {
+                        "nom":  "mdash",
+                        "code":  8212
+                    },
+                    {
+                        "nom":  "lsquo",
+                        "code":  8216
+                    },
+                    {
+                        "nom":  "rsquo",
+                        "code":  8217
+                    },
+                    {
+                        "nom":  "sbquo",
+                        "code":  8218
+                    },
+                    {
+                        "nom":  "ldquo",
+                        "code":  8220
+                    },
+                    {
+                        "nom":  "rdquo",
+                        "code":  8221
+                    },
+                    {
+                        "nom":  "bdquo",
+                        "code":  8222
+                    },
+                    {
+                        "nom":  "dagger",
+                        "code":  8224
+                    },
+                    {
+                        "nom":  "Dagger",
+                        "code":  8225
+                    },
+                    {
+                        "nom":  "bull",
+                        "code":  8226
+                    },
+                    {
+                        "nom":  "hellip",
+                        "code":  8230
+                    },
+                    {
+                        "nom":  "permil",
+                        "code":  8240
+                    },
+                    {
+                        "nom":  "prime",
+                        "code":  8242
+                    },
+                    {
+                        "nom":  "Prime",
+                        "code":  8243
+                    },
+                    {
+                        "nom":  "lsaquo",
+                        "code":  8249
+                    },
+                    {
+                        "nom":  "rsaquo",
+                        "code":  8250
+                    },
+                    {
+                        "nom":  "oline",
+                        "code":  8254
+                    },
+                    {
+                        "nom":  "frasl",
+                        "code":  8260
+                    },
+                    {
+                        "nom":  "euro",
+                        "code":  8364
+                    },
+                    {
+                        "nom":  "image",
+                        "code":  8465
+                    },
+                    {
+                        "nom":  "weierp",
+                        "code":  8472
+                    },
+                    {
+                        "nom":  "real",
+                        "code":  8476
+                    },
+                    {
+                        "nom":  "trade",
+                        "code":  8482
+                    },
+                    {
+                        "nom":  "alefsym",
+                        "code":  8501
+                    },
+                    {
+                        "nom":  "larr",
+                        "code":  8592
+                    },
+                    {
+                        "nom":  "uarr",
+                        "code":  8593
+                    },
+                    {
+                        "nom":  "rarr",
+                        "code":  8594
+                    },
+                    {
+                        "nom":  "darr",
+                        "code":  8595
+                    },
+                    {
+                        "nom":  "harr",
+                        "code":  8596
+                    },
+                    {
+                        "nom":  "crarr",
+                        "code":  8629
+                    },
+                    {
+                        "nom":  "lArr",
+                        "code":  8656
+                    },
+                    {
+                        "nom":  "uArr",
+                        "code":  8657
+                    },
+                    {
+                        "nom":  "rArr",
+                        "code":  8658
+                    },
+                    {
+                        "nom":  "dArr",
+                        "code":  8659
+                    },
+                    {
+                        "nom":  "hArr",
+                        "code":  8660
+                    },
+                    {
+                        "nom":  "forall",
+                        "code":  8704
+                    },
+                    {
+                        "nom":  "part",
+                        "code":  8706
+                    },
+                    {
+                        "nom":  "exist",
+                        "code":  8707
+                    },
+                    {
+                        "nom":  "empty",
+                        "code":  8709
+                    },
+                    {
+                        "nom":  "nabla",
+                        "code":  8711
+                    },
+                    {
+                        "nom":  "isin",
+                        "code":  8712
+                    },
+                    {
+                        "nom":  "notin",
+                        "code":  8713
+                    },
+                    {
+                        "nom":  "ni",
+                        "code":  8715
+                    },
+                    {
+                        "nom":  "prod",
+                        "code":  8719
+                    },
+                    {
+                        "nom":  "sum",
+                        "code":  8721
+                    },
+                    {
+                        "nom":  "minus",
+                        "code":  8722
+                    },
+                    {
+                        "nom":  "lowast",
+                        "code":  8727
+                    },
+                    {
+                        "nom":  "radic",
+                        "code":  8730
+                    },
+                    {
+                        "nom":  "prop",
+                        "code":  8733
+                    },
+                    {
+                        "nom":  "infin",
+                        "code":  8734
+                    },
+                    {
+                        "nom":  "ang",
+                        "code":  8736
+                    },
+                    {
+                        "nom":  "and",
+                        "code":  8743
+                    },
+                    {
+                        "nom":  "or",
+                        "code":  8744
+                    },
+                    {
+                        "nom":  "cap",
+                        "code":  8745
+                    },
+                    {
+                        "nom":  "cup",
+                        "code":  8746
+                    },
+                    {
+                        "nom":  "int",
+                        "code":  8747
+                    },
+                    {
+                        "nom":  "there4",
+                        "code":  8756
+                    },
+                    {
+                        "nom":  "sim",
+                        "code":  8764
+                    },
+                    {
+                        "nom":  "cong",
+                        "code":  8773
+                    },
+                    {
+                        "nom":  "asymp",
+                        "code":  8776
+                    },
+                    {
+                        "nom":  "ne",
+                        "code":  8800
+                    },
+                    {
+                        "nom":  "equiv",
+                        "code":  8801
+                    },
+                    {
+                        "nom":  "le",
+                        "code":  8804
+                    },
+                    {
+                        "nom":  "ge",
+                        "code":  8805
+                    },
+                    {
+                        "nom":  "sub",
+                        "code":  8834
+                    },
+                    {
+                        "nom":  "sup",
+                        "code":  8835
+                    },
+                    {
+                        "nom":  "nsub",
+                        "code":  8836
+                    },
+                    {
+                        "nom":  "sube",
+                        "code":  8838
+                    },
+                    {
+                        "nom":  "supe",
+                        "code":  8839
+                    },
+                    {
+                        "nom":  "oplus",
+                        "code":  8853
+                    },
+                    {
+                        "nom":  "otimes",
+                        "code":  8855
+                    },
+                    {
+                        "nom":  "perp",
+                        "code":  8869
+                    },
+                    {
+                        "nom":  "sdot",
+                        "code":  8901
+                    },
+                    {
+                        "nom":  "lceil",
+                        "code":  8968
+                    },
+                    {
+                        "nom":  "rceil",
+                        "code":  8969
+                    },
+                    {
+                        "nom":  "lfloor",
+                        "code":  8970
+                    },
+                    {
+                        "nom":  "rfloor",
+                        "code":  8971
+                    },
+                    {
+                        "nom":  "lang",
+                        "code":  9001
+                    },
+                    {
+                        "nom":  "rang",
+                        "code":  9002
+                    },
+                    {
+                        "nom":  "loz",
+                        "code":  9674
+                    },
+                    {
+                        "nom":  "spades",
+                        "code":  9824
+                    },
+                    {
+                        "nom":  "clubs",
+                        "code":  9827
+                    },
+                    {
+                        "nom":  "hearts",
+                        "code":  9829
+                    },
+                    {
+                        "nom":  "diams",
+                        "code":  9830
+                    }
+                ],
+    "decode":  [
+                   {
+                       "entree":  "",
+                       "sortie":  ""
+                   },
+                   {
+                       "entree":  "rien",
+                       "sortie":  "rien"
+                   },
+                   {
+                       "entree":  "\u0026",
+                       "sortie":  "\u0026"
+                   },
+                   {
+                       "entree":  "\u0026\u0026",
+                       "sortie":  "\u0026\u0026"
+                   },
+                   {
+                       "entree":  "\u0026;",
+                       "sortie":  "\u0026;"
+                   },
+                   {
+                       "entree":  "\u0026amp;",
+                       "sortie":  "\u0026"
+                   },
+                   {
+                       "entree":  "\u0026amp",
+                       "sortie":  "\u0026amp"
+                   },
+                   {
+                       "entree":  "\u0026amp;amp;",
+                       "sortie":  "\u0026amp;"
+                   },
+                   {
+                       "entree":  "\u0026lt;\u0026gt;\u0026quot;\u0026apos;",
+                       "sortie":  "\u003c\u003e\"\u0027"
+                   },
+                   {
+                       "entree":  "\u0026AMP;",
+                       "sortie":  "\u0026AMP;"
+                   },
+                   {
+                       "entree":  "\u0026Aacute;\u0026aacute;",
+                       "sortie":  "Áá"
+                   },
+                   {
+                       "entree":  "\u0026#65;",
+                       "sortie":  "A"
+                   },
+                   {
+                       "entree":  "\u0026#x41;",
+                       "sortie":  "A"
+                   },
+                   {
+                       "entree":  "\u0026#X41;",
+                       "sortie":  "A"
+                   },
+                   {
+                       "entree":  "\u0026#x;",
+                       "sortie":  "\u0026#x;"
+                   },
+                   {
+                       "entree":  "\u0026#;",
+                       "sortie":  "\u0026#;"
+                   },
+                   {
+                       "entree":  "\u0026#0;",
+                       "sortie":  "\u0026#0;"
+                   },
+                   {
+                       "entree":  "\u0026#-0;",
+                       "sortie":  "\u0026#-0;"
+                   },
+                   {
+                       "entree":  "\u0026#+65;",
+                       "sortie":  "A"
+                   },
+                   {
+                       "entree":  "\u0026# 65;",
+                       "sortie":  "A"
+                   },
+                   {
+                       "entree":  "\u0026#65 ;",
+                       "sortie":  "A"
+                   },
+                   {
+                       "entree":  "\u0026#\t65;",
+                       "sortie":  "A"
+                   },
+                   {
+                       "entree":  "\u0026#x 41;",
+                       "sortie":  "\u0026#x 41;"
+                   },
+                   {
+                       "entree":  "\u0026#65536;",
+                       "sortie":  "\u0026#65536;"
+                   },
+                   {
+                       "entree":  "\u0026#xFFFF;",
+                       "sortie":  "￿"
+                   },
+                   {
+                       "entree":  "\u0026#x10000;",
+                       "sortie":  "\u0026#x10000;"
+                   },
+                   {
+                       "entree":  "\u0026#4294967295;",
+                       "sortie":  "\u0026#4294967295;"
+                   },
+                   {
+                       "entree":  "\u0026#4294967296;",
+                       "sortie":  "\u0026#4294967296;"
+                   },
+                   {
+                       "entree":  "\u0026#00065;",
+                       "sortie":  "A"
+                   },
+                   {
+                       "entree":  "\u0026#x0041;",
+                       "sortie":  "A"
+                   },
+                   {
+                       "entree":  "\u0026#xg;",
+                       "sortie":  "\u0026#xg;"
+                   },
+                   {
+                       "entree":  "\u0026#1e2;",
+                       "sortie":  "\u0026#1e2;"
+                   },
+                   {
+                       "entree":  "\u0026nbsp;\u0026copy;\u0026euro;\u0026hearts;\u0026zwj;",
+                       "sortie":  " ©€♥‍"
+                   },
+                   {
+                       "entree":  "\u0026a\u0026amp;",
+                       "sortie":  "\u0026a\u0026"
+                   },
+                   {
+                       "entree":  "a\u0026b;c",
+                       "sortie":  "a\u0026b;c"
+                   },
+                   {
+                       "entree":  "x \u0026amp y \u0026lt; z",
+                       "sortie":  "x \u0026amp y \u003c z"
+                   },
+                   {
+                       "entree":  "\u0026#x2022;\u0026#8230;",
+                       "sortie":  "•…"
+                   },
+                   {
+                       "entree":  "\u0026#x1F600;",
+                       "sortie":  "\u0026#x1F600;"
+                   },
+                   {
+                       "entree":  "\u0026#128512;",
+                       "sortie":  "\u0026#128512;"
+                   },
+                   {
+                       "entree":  "\u0026thetasym;\u0026upsih;\u0026piv;",
+                       "sortie":  "ϑϒϖ"
+                   },
+                   {
+                       "entree":  "\u0026;\u0026amp;;",
+                       "sortie":  "\u0026;\u0026;"
+                   },
+                   {
+                       "entree":  "\u0026é;",
+                       "sortie":  "\u0026é;"
+                   },
+                   {
+                       "entree":  "\u0026eacute",
+                       "sortie":  "\u0026eacute"
+                   },
+                   {
+                       "entree":  "\u0026#١٢;",
+                       "sortie":  "\u0026#١٢;"
+                   },
+                   {
+                       "entree":  "\u0026#x٤١;",
+                       "sortie":  "\u0026#x٤١;"
+                   }
+               ]
+}

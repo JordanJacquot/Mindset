@@ -1,0 +1,118 @@
+[
+    {
+        "adresse":  "https://github.com/a/b.zip",
+        "acceptee":  true
+    },
+    {
+        "adresse":  "https://objects.githubusercontent.com/x",
+        "acceptee":  true
+    },
+    {
+        "adresse":  "https://release-assets.githubusercontent.com/y?z=1",
+        "acceptee":  true
+    },
+    {
+        "adresse":  "http://github.com/a/b.zip",
+        "acceptee":  false
+    },
+    {
+        "adresse":  "https://exemple.com/b.zip",
+        "acceptee":  false
+    },
+    {
+        "adresse":  "https://github.com.exemple.com/b.zip",
+        "acceptee":  false
+    },
+    {
+        "adresse":  "https://github.com@exemple.com/b.zip",
+        "acceptee":  false
+    },
+    {
+        "adresse":  "https://exemple.com/https://github.com/b.zip",
+        "acceptee":  false
+    },
+    {
+        "adresse":  "file:///C:/Windows/win.ini",
+        "acceptee":  false
+    },
+    {
+        "adresse":  "",
+        "acceptee":  false
+    },
+    {
+        "adresse":  "https://github.com",
+        "acceptee":  false
+    },
+    {
+        "adresse":  "https://github.com/",
+        "acceptee":  true
+    },
+    {
+        "adresse":  "HTTPS://GITHUB.COM/A",
+        "acceptee":  true
+    },
+    {
+        "adresse":  "https://GitHub.Com/x",
+        "acceptee":  true
+    },
+    {
+        "adresse":  "https://api.github.com/repos/a/b",
+        "acceptee":  false
+    },
+    {
+        "adresse":  "https://gİthub.com/x",
+        "acceptee":  true
+    },
+    {
+        "adresse":  "https://github.com:443/x",
+        "acceptee":  false
+    },
+    {
+        "adresse":  " https://github.com/x",
+        "acceptee":  false
+    },
+    {
+        "adresse":  "https://github.com/\n",
+        "acceptee":  true
+    },
+    {
+        "adresse":  "https://githubXcom/x",
+        "acceptee":  false
+    },
+    {
+        "adresse":  "https://objects.githubusercontent.com.evil/x",
+        "acceptee":  false
+    },
+    {
+        "adresse":  "https://raw.githubusercontent.com/x",
+        "acceptee":  false
+    },
+    {
+        "adresse":  "https://release-assets.githubusercontent.com/",
+        "acceptee":  true
+    },
+    {
+        "adresse":  "https://github.com\\x",
+        "acceptee":  false
+    },
+    {
+        "adresse":  "https://objects-githubusercontent.com/x",
+        "acceptee":  false
+    },
+    {
+        "adresse":  "https://OBJECTS.GİTHUBUSERCONTENT.COM/x",
+        "acceptee":  true
+    },
+    {
+        "adresse":  "https://github.ćom/x",
+        "acceptee":  false
+    },
+    {
+        "adresse":  "https://ｇithub.com/x",
+        "acceptee":  false
+    },
+    {
+        "adresse":  "https://github.com/éééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé",
+        "acceptee":  true
+    }
+]

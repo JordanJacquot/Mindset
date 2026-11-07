@@ -1,0 +1,1574 @@
+{
+    "lectures":  [
+                     {
+                         "texte":  "1.2",
+                         "version":  "1.2"
+                     },
+                     {
+                         "texte":  "1.2.0",
+                         "version":  "1.2.0"
+                     },
+                     {
+                         "texte":  "1.2.0.0",
+                         "version":  "1.2.0.0"
+                     },
+                     {
+                         "texte":  "1.10",
+                         "version":  "1.10"
+                     },
+                     {
+                         "texte":  "1.9.9",
+                         "version":  "1.9.9"
+                     },
+                     {
+                         "texte":  "0.90.1",
+                         "version":  "0.90.1"
+                     },
+                     {
+                         "texte":  "0.15.3",
+                         "version":  "0.15.3"
+                     },
+                     {
+                         "texte":  " 1.2",
+                         "version":  "1.2"
+                     },
+                     {
+                         "texte":  "1.2 ",
+                         "version":  "1.2"
+                     },
+                     {
+                         "texte":  "1.2\n",
+                         "version":  "1.2"
+                     },
+                     {
+                         "texte":  "+1.2",
+                         "version":  "1.2"
+                     },
+                     {
+                         "texte":  "1.+2",
+                         "version":  "1.2"
+                     },
+                     {
+                         "texte":  "-0.1",
+                         "version":  "0.1"
+                     },
+                     {
+                         "texte":  "1.-2",
+                         "version":  null
+                     },
+                     {
+                         "texte":  "01.2",
+                         "version":  "1.2"
+                     },
+                     {
+                         "texte":  "1.2.3.4.5",
+                         "version":  null
+                     },
+                     {
+                         "texte":  "1,2",
+                         "version":  null
+                     },
+                     {
+                         "texte":  "",
+                         "version":  null
+                     },
+                     {
+                         "texte":  "abc",
+                         "version":  null
+                     },
+                     {
+                         "texte":  "1",
+                         "version":  null
+                     },
+                     {
+                         "texte":  "1.",
+                         "version":  null
+                     },
+                     {
+                         "texte":  ".1",
+                         "version":  null
+                     },
+                     {
+                         "texte":  "1..2",
+                         "version":  null
+                     },
+                     {
+                         "texte":  "2147483647.0",
+                         "version":  "2147483647.0"
+                     },
+                     {
+                         "texte":  "2147483648.0",
+                         "version":  null
+                     },
+                     {
+                         "texte":  "1.2.3.4",
+                         "version":  "1.2.3.4"
+                     },
+                     {
+                         "texte":  "١.٢",
+                         "version":  null
+                     },
+                     {
+                         "texte":  "1 .2",
+                         "version":  "1.2"
+                     },
+                     {
+                         "texte":  "1.2\t",
+                         "version":  "1.2"
+                     },
+                     {
+                         "texte":  "0.0",
+                         "version":  "0.0"
+                     },
+                     {
+                         "texte":  "3.0.0",
+                         "version":  "3.0.0"
+                     },
+                     {
+                         "texte":  "2.18.0",
+                         "version":  "2.18.0"
+                     }
+                 ],
+    "comparaisons":  [
+                         {
+                             "a":  "1.2",
+                             "b":  "1.2",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.2",
+                             "b":  "1.2.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.2",
+                             "b":  " 1.2",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.2",
+                             "b":  "0.90.1",
+                             "plus_recente":  true
+                         },
+                         {
+                             "a":  "1.2",
+                             "b":  "2.18.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.2",
+                             "b":  "",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.2",
+                             "b":  "abc",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.2",
+                             "b":  "1.10",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.2",
+                             "b":  "3.0.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.2.0",
+                             "b":  "1.2",
+                             "plus_recente":  true
+                         },
+                         {
+                             "a":  "1.2.0",
+                             "b":  "1.2.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.2.0",
+                             "b":  " 1.2",
+                             "plus_recente":  true
+                         },
+                         {
+                             "a":  "1.2.0",
+                             "b":  "0.90.1",
+                             "plus_recente":  true
+                         },
+                         {
+                             "a":  "1.2.0",
+                             "b":  "2.18.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.2.0",
+                             "b":  "",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.2.0",
+                             "b":  "abc",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.2.0",
+                             "b":  "1.10",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.2.0",
+                             "b":  "3.0.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.2.0.0",
+                             "b":  "1.2",
+                             "plus_recente":  true
+                         },
+                         {
+                             "a":  "1.2.0.0",
+                             "b":  "1.2.0",
+                             "plus_recente":  true
+                         },
+                         {
+                             "a":  "1.2.0.0",
+                             "b":  " 1.2",
+                             "plus_recente":  true
+                         },
+                         {
+                             "a":  "1.2.0.0",
+                             "b":  "0.90.1",
+                             "plus_recente":  true
+                         },
+                         {
+                             "a":  "1.2.0.0",
+                             "b":  "2.18.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.2.0.0",
+                             "b":  "",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.2.0.0",
+                             "b":  "abc",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.2.0.0",
+                             "b":  "1.10",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.2.0.0",
+                             "b":  "3.0.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.10",
+                             "b":  "1.2",
+                             "plus_recente":  true
+                         },
+                         {
+                             "a":  "1.10",
+                             "b":  "1.2.0",
+                             "plus_recente":  true
+                         },
+                         {
+                             "a":  "1.10",
+                             "b":  " 1.2",
+                             "plus_recente":  true
+                         },
+                         {
+                             "a":  "1.10",
+                             "b":  "0.90.1",
+                             "plus_recente":  true
+                         },
+                         {
+                             "a":  "1.10",
+                             "b":  "2.18.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.10",
+                             "b":  "",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.10",
+                             "b":  "abc",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.10",
+                             "b":  "1.10",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.10",
+                             "b":  "3.0.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.9.9",
+                             "b":  "1.2",
+                             "plus_recente":  true
+                         },
+                         {
+                             "a":  "1.9.9",
+                             "b":  "1.2.0",
+                             "plus_recente":  true
+                         },
+                         {
+                             "a":  "1.9.9",
+                             "b":  " 1.2",
+                             "plus_recente":  true
+                         },
+                         {
+                             "a":  "1.9.9",
+                             "b":  "0.90.1",
+                             "plus_recente":  true
+                         },
+                         {
+                             "a":  "1.9.9",
+                             "b":  "2.18.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.9.9",
+                             "b":  "",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.9.9",
+                             "b":  "abc",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.9.9",
+                             "b":  "1.10",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.9.9",
+                             "b":  "3.0.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "0.90.1",
+                             "b":  "1.2",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "0.90.1",
+                             "b":  "1.2.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "0.90.1",
+                             "b":  " 1.2",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "0.90.1",
+                             "b":  "0.90.1",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "0.90.1",
+                             "b":  "2.18.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "0.90.1",
+                             "b":  "",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "0.90.1",
+                             "b":  "abc",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "0.90.1",
+                             "b":  "1.10",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "0.90.1",
+                             "b":  "3.0.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "0.15.3",
+                             "b":  "1.2",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "0.15.3",
+                             "b":  "1.2.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "0.15.3",
+                             "b":  " 1.2",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "0.15.3",
+                             "b":  "0.90.1",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "0.15.3",
+                             "b":  "2.18.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "0.15.3",
+                             "b":  "",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "0.15.3",
+                             "b":  "abc",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "0.15.3",
+                             "b":  "1.10",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "0.15.3",
+                             "b":  "3.0.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  " 1.2",
+                             "b":  "1.2",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  " 1.2",
+                             "b":  "1.2.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  " 1.2",
+                             "b":  " 1.2",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  " 1.2",
+                             "b":  "0.90.1",
+                             "plus_recente":  true
+                         },
+                         {
+                             "a":  " 1.2",
+                             "b":  "2.18.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  " 1.2",
+                             "b":  "",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  " 1.2",
+                             "b":  "abc",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  " 1.2",
+                             "b":  "1.10",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  " 1.2",
+                             "b":  "3.0.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.2 ",
+                             "b":  "1.2",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.2 ",
+                             "b":  "1.2.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.2 ",
+                             "b":  " 1.2",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.2 ",
+                             "b":  "0.90.1",
+                             "plus_recente":  true
+                         },
+                         {
+                             "a":  "1.2 ",
+                             "b":  "2.18.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.2 ",
+                             "b":  "",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.2 ",
+                             "b":  "abc",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.2 ",
+                             "b":  "1.10",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.2 ",
+                             "b":  "3.0.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.2\n",
+                             "b":  "1.2",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.2\n",
+                             "b":  "1.2.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.2\n",
+                             "b":  " 1.2",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.2\n",
+                             "b":  "0.90.1",
+                             "plus_recente":  true
+                         },
+                         {
+                             "a":  "1.2\n",
+                             "b":  "2.18.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.2\n",
+                             "b":  "",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.2\n",
+                             "b":  "abc",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.2\n",
+                             "b":  "1.10",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.2\n",
+                             "b":  "3.0.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "+1.2",
+                             "b":  "1.2",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "+1.2",
+                             "b":  "1.2.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "+1.2",
+                             "b":  " 1.2",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "+1.2",
+                             "b":  "0.90.1",
+                             "plus_recente":  true
+                         },
+                         {
+                             "a":  "+1.2",
+                             "b":  "2.18.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "+1.2",
+                             "b":  "",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "+1.2",
+                             "b":  "abc",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "+1.2",
+                             "b":  "1.10",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "+1.2",
+                             "b":  "3.0.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.+2",
+                             "b":  "1.2",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.+2",
+                             "b":  "1.2.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.+2",
+                             "b":  " 1.2",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.+2",
+                             "b":  "0.90.1",
+                             "plus_recente":  true
+                         },
+                         {
+                             "a":  "1.+2",
+                             "b":  "2.18.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.+2",
+                             "b":  "",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.+2",
+                             "b":  "abc",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.+2",
+                             "b":  "1.10",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.+2",
+                             "b":  "3.0.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "-0.1",
+                             "b":  "1.2",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "-0.1",
+                             "b":  "1.2.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "-0.1",
+                             "b":  " 1.2",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "-0.1",
+                             "b":  "0.90.1",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "-0.1",
+                             "b":  "2.18.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "-0.1",
+                             "b":  "",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "-0.1",
+                             "b":  "abc",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "-0.1",
+                             "b":  "1.10",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "-0.1",
+                             "b":  "3.0.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.-2",
+                             "b":  "1.2",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.-2",
+                             "b":  "1.2.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.-2",
+                             "b":  " 1.2",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.-2",
+                             "b":  "0.90.1",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.-2",
+                             "b":  "2.18.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.-2",
+                             "b":  "",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.-2",
+                             "b":  "abc",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.-2",
+                             "b":  "1.10",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.-2",
+                             "b":  "3.0.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "01.2",
+                             "b":  "1.2",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "01.2",
+                             "b":  "1.2.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "01.2",
+                             "b":  " 1.2",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "01.2",
+                             "b":  "0.90.1",
+                             "plus_recente":  true
+                         },
+                         {
+                             "a":  "01.2",
+                             "b":  "2.18.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "01.2",
+                             "b":  "",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "01.2",
+                             "b":  "abc",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "01.2",
+                             "b":  "1.10",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "01.2",
+                             "b":  "3.0.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.2.3.4.5",
+                             "b":  "1.2",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.2.3.4.5",
+                             "b":  "1.2.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.2.3.4.5",
+                             "b":  " 1.2",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.2.3.4.5",
+                             "b":  "0.90.1",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.2.3.4.5",
+                             "b":  "2.18.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.2.3.4.5",
+                             "b":  "",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.2.3.4.5",
+                             "b":  "abc",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.2.3.4.5",
+                             "b":  "1.10",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.2.3.4.5",
+                             "b":  "3.0.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1,2",
+                             "b":  "1.2",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1,2",
+                             "b":  "1.2.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1,2",
+                             "b":  " 1.2",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1,2",
+                             "b":  "0.90.1",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1,2",
+                             "b":  "2.18.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1,2",
+                             "b":  "",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1,2",
+                             "b":  "abc",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1,2",
+                             "b":  "1.10",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1,2",
+                             "b":  "3.0.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "",
+                             "b":  "1.2",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "",
+                             "b":  "1.2.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "",
+                             "b":  " 1.2",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "",
+                             "b":  "0.90.1",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "",
+                             "b":  "2.18.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "",
+                             "b":  "",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "",
+                             "b":  "abc",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "",
+                             "b":  "1.10",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "",
+                             "b":  "3.0.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "abc",
+                             "b":  "1.2",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "abc",
+                             "b":  "1.2.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "abc",
+                             "b":  " 1.2",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "abc",
+                             "b":  "0.90.1",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "abc",
+                             "b":  "2.18.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "abc",
+                             "b":  "",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "abc",
+                             "b":  "abc",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "abc",
+                             "b":  "1.10",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "abc",
+                             "b":  "3.0.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1",
+                             "b":  "1.2",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1",
+                             "b":  "1.2.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1",
+                             "b":  " 1.2",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1",
+                             "b":  "0.90.1",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1",
+                             "b":  "2.18.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1",
+                             "b":  "",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1",
+                             "b":  "abc",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1",
+                             "b":  "1.10",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1",
+                             "b":  "3.0.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.",
+                             "b":  "1.2",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.",
+                             "b":  "1.2.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.",
+                             "b":  " 1.2",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.",
+                             "b":  "0.90.1",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.",
+                             "b":  "2.18.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.",
+                             "b":  "",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.",
+                             "b":  "abc",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.",
+                             "b":  "1.10",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.",
+                             "b":  "3.0.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  ".1",
+                             "b":  "1.2",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  ".1",
+                             "b":  "1.2.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  ".1",
+                             "b":  " 1.2",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  ".1",
+                             "b":  "0.90.1",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  ".1",
+                             "b":  "2.18.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  ".1",
+                             "b":  "",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  ".1",
+                             "b":  "abc",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  ".1",
+                             "b":  "1.10",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  ".1",
+                             "b":  "3.0.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1..2",
+                             "b":  "1.2",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1..2",
+                             "b":  "1.2.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1..2",
+                             "b":  " 1.2",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1..2",
+                             "b":  "0.90.1",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1..2",
+                             "b":  "2.18.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1..2",
+                             "b":  "",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1..2",
+                             "b":  "abc",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1..2",
+                             "b":  "1.10",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1..2",
+                             "b":  "3.0.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "2147483647.0",
+                             "b":  "1.2",
+                             "plus_recente":  true
+                         },
+                         {
+                             "a":  "2147483647.0",
+                             "b":  "1.2.0",
+                             "plus_recente":  true
+                         },
+                         {
+                             "a":  "2147483647.0",
+                             "b":  " 1.2",
+                             "plus_recente":  true
+                         },
+                         {
+                             "a":  "2147483647.0",
+                             "b":  "0.90.1",
+                             "plus_recente":  true
+                         },
+                         {
+                             "a":  "2147483647.0",
+                             "b":  "2.18.0",
+                             "plus_recente":  true
+                         },
+                         {
+                             "a":  "2147483647.0",
+                             "b":  "",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "2147483647.0",
+                             "b":  "abc",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "2147483647.0",
+                             "b":  "1.10",
+                             "plus_recente":  true
+                         },
+                         {
+                             "a":  "2147483647.0",
+                             "b":  "3.0.0",
+                             "plus_recente":  true
+                         },
+                         {
+                             "a":  "2147483648.0",
+                             "b":  "1.2",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "2147483648.0",
+                             "b":  "1.2.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "2147483648.0",
+                             "b":  " 1.2",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "2147483648.0",
+                             "b":  "0.90.1",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "2147483648.0",
+                             "b":  "2.18.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "2147483648.0",
+                             "b":  "",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "2147483648.0",
+                             "b":  "abc",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "2147483648.0",
+                             "b":  "1.10",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "2147483648.0",
+                             "b":  "3.0.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.2.3.4",
+                             "b":  "1.2",
+                             "plus_recente":  true
+                         },
+                         {
+                             "a":  "1.2.3.4",
+                             "b":  "1.2.0",
+                             "plus_recente":  true
+                         },
+                         {
+                             "a":  "1.2.3.4",
+                             "b":  " 1.2",
+                             "plus_recente":  true
+                         },
+                         {
+                             "a":  "1.2.3.4",
+                             "b":  "0.90.1",
+                             "plus_recente":  true
+                         },
+                         {
+                             "a":  "1.2.3.4",
+                             "b":  "2.18.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.2.3.4",
+                             "b":  "",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.2.3.4",
+                             "b":  "abc",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.2.3.4",
+                             "b":  "1.10",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.2.3.4",
+                             "b":  "3.0.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "١.٢",
+                             "b":  "1.2",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "١.٢",
+                             "b":  "1.2.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "١.٢",
+                             "b":  " 1.2",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "١.٢",
+                             "b":  "0.90.1",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "١.٢",
+                             "b":  "2.18.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "١.٢",
+                             "b":  "",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "١.٢",
+                             "b":  "abc",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "١.٢",
+                             "b":  "1.10",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "١.٢",
+                             "b":  "3.0.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1 .2",
+                             "b":  "1.2",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1 .2",
+                             "b":  "1.2.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1 .2",
+                             "b":  " 1.2",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1 .2",
+                             "b":  "0.90.1",
+                             "plus_recente":  true
+                         },
+                         {
+                             "a":  "1 .2",
+                             "b":  "2.18.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1 .2",
+                             "b":  "",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1 .2",
+                             "b":  "abc",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1 .2",
+                             "b":  "1.10",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1 .2",
+                             "b":  "3.0.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.2\t",
+                             "b":  "1.2",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.2\t",
+                             "b":  "1.2.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.2\t",
+                             "b":  " 1.2",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.2\t",
+                             "b":  "0.90.1",
+                             "plus_recente":  true
+                         },
+                         {
+                             "a":  "1.2\t",
+                             "b":  "2.18.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.2\t",
+                             "b":  "",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.2\t",
+                             "b":  "abc",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.2\t",
+                             "b":  "1.10",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "1.2\t",
+                             "b":  "3.0.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "0.0",
+                             "b":  "1.2",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "0.0",
+                             "b":  "1.2.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "0.0",
+                             "b":  " 1.2",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "0.0",
+                             "b":  "0.90.1",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "0.0",
+                             "b":  "2.18.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "0.0",
+                             "b":  "",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "0.0",
+                             "b":  "abc",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "0.0",
+                             "b":  "1.10",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "0.0",
+                             "b":  "3.0.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "3.0.0",
+                             "b":  "1.2",
+                             "plus_recente":  true
+                         },
+                         {
+                             "a":  "3.0.0",
+                             "b":  "1.2.0",
+                             "plus_recente":  true
+                         },
+                         {
+                             "a":  "3.0.0",
+                             "b":  " 1.2",
+                             "plus_recente":  true
+                         },
+                         {
+                             "a":  "3.0.0",
+                             "b":  "0.90.1",
+                             "plus_recente":  true
+                         },
+                         {
+                             "a":  "3.0.0",
+                             "b":  "2.18.0",
+                             "plus_recente":  true
+                         },
+                         {
+                             "a":  "3.0.0",
+                             "b":  "",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "3.0.0",
+                             "b":  "abc",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "3.0.0",
+                             "b":  "1.10",
+                             "plus_recente":  true
+                         },
+                         {
+                             "a":  "3.0.0",
+                             "b":  "3.0.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "2.18.0",
+                             "b":  "1.2",
+                             "plus_recente":  true
+                         },
+                         {
+                             "a":  "2.18.0",
+                             "b":  "1.2.0",
+                             "plus_recente":  true
+                         },
+                         {
+                             "a":  "2.18.0",
+                             "b":  " 1.2",
+                             "plus_recente":  true
+                         },
+                         {
+                             "a":  "2.18.0",
+                             "b":  "0.90.1",
+                             "plus_recente":  true
+                         },
+                         {
+                             "a":  "2.18.0",
+                             "b":  "2.18.0",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "2.18.0",
+                             "b":  "",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "2.18.0",
+                             "b":  "abc",
+                             "plus_recente":  false
+                         },
+                         {
+                             "a":  "2.18.0",
+                             "b":  "1.10",
+                             "plus_recente":  true
+                         },
+                         {
+                             "a":  "2.18.0",
+                             "b":  "3.0.0",
+                             "plus_recente":  false
+                         }
+                     ]
+}

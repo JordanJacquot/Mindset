@@ -1863,7 +1863,11 @@ name = "mindset-publications"
 version = "0.1.0"
 dependencies = [
  "mindset-noyau",
+ "regex",
+ "ring",
  "serde_json",
+ "suite-commun",
+ "windows",
 ]
 
 [[package]]

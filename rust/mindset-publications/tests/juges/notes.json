@@ -1,0 +1,326 @@
+[
+    {
+        "nom":  "page simple",
+        "depot":  "JordanJacquot/Mindcare",
+        "version":  "1.2.3",
+        "github":  [
+                       {
+                           "url":  "https://github.com/JordanJacquot/Mindcare/releases/tag/v1.2.3",
+                           "statut":  200,
+                           "corps":  "\u003chtml\u003e\u003cdiv class=\"markdown-body my-3\"\u003e\u003cp\u003eCorrection \u0026amp; rapidité\u003c/p\u003e\u003cul\u003e\u003cli\u003eun\u003c/li\u003e\u003cli\u003edeux\u003c/li\u003e\u003c/ul\u003e\u003c/div\u003e\u003c/html\u003e",
+                           "location":  "",
+                           "erreur":  ""
+                       }
+                   ],
+        "notes":  "Correction \u0026 rapidité\n- un\n- deux",
+        "demandes":  [
+                         "GET https://github.com/JordanJacquot/Mindcare/releases/tag/v1.2.3"
+                     ]
+    },
+    {
+        "nom":  "page introuvable : le lien",
+        "depot":  "JordanJacquot/Mindcare",
+        "version":  "1.2.3",
+        "github":  [
+                       {
+                           "url":  "https://github.com/JordanJacquot/Mindcare/releases/tag/v1.2.3",
+                           "statut":  404,
+                           "corps":  "",
+                           "location":  "",
+                           "erreur":  ""
+                       }
+                   ],
+        "notes":  "Les nouveautés de cette version : https://github.com/JordanJacquot/Mindcare/releases/tag/v1.2.3",
+        "demandes":  [
+                         "GET https://github.com/JordanJacquot/Mindcare/releases/tag/v1.2.3"
+                     ]
+    },
+    {
+        "nom":  "pas de connexion : le lien",
+        "depot":  "JordanJacquot/Mindcare",
+        "version":  "1.2.3",
+        "github":  [
+                       {
+                           "url":  "https://github.com/JordanJacquot/Mindcare/releases/tag/v1.2.3",
+                           "statut":  0,
+                           "corps":  "",
+                           "location":  "",
+                           "erreur":  "Impossible de se connecter au serveur distant"
+                       }
+                   ],
+        "notes":  "Les nouveautés de cette version : https://github.com/JordanJacquot/Mindcare/releases/tag/v1.2.3",
+        "demandes":  [
+                         "GET https://github.com/JordanJacquot/Mindcare/releases/tag/v1.2.3"
+                     ]
+    },
+    {
+        "nom":  "pas de markdown-body : le lien",
+        "depot":  "JordanJacquot/Mindcare",
+        "version":  "1.2.3",
+        "github":  [
+                       {
+                           "url":  "https://github.com/JordanJacquot/Mindcare/releases/tag/v1.2.3",
+                           "statut":  200,
+                           "corps":  "\u003chtml\u003e\u003cp\u003ebonjour\u003c/p\u003e\u003c/html\u003e",
+                           "location":  "",
+                           "erreur":  ""
+                       }
+                   ],
+        "notes":  "Les nouveautés de cette version : https://github.com/JordanJacquot/Mindcare/releases/tag/v1.2.3",
+        "demandes":  [
+                         "GET https://github.com/JordanJacquot/Mindcare/releases/tag/v1.2.3"
+                     ]
+    },
+    {
+        "nom":  "markdown-body vide : le lien",
+        "depot":  "JordanJacquot/Mindcare",
+        "version":  "1.2.3",
+        "github":  [
+                       {
+                           "url":  "https://github.com/JordanJacquot/Mindcare/releases/tag/v1.2.3",
+                           "statut":  200,
+                           "corps":  "\u003cdiv class=\"markdown-body\"\u003e\u003c/div\u003e",
+                           "location":  "",
+                           "erreur":  ""
+                       }
+                   ],
+        "notes":  "Les nouveautés de cette version : https://github.com/JordanJacquot/Mindcare/releases/tag/v1.2.3",
+        "demandes":  [
+                         "GET https://github.com/JordanJacquot/Mindcare/releases/tag/v1.2.3"
+                     ]
+    },
+    {
+        "nom":  "markdown-body d\u0027espaces : le lien",
+        "depot":  "JordanJacquot/Mindcare",
+        "version":  "1.2.3",
+        "github":  [
+                       {
+                           "url":  "https://github.com/JordanJacquot/Mindcare/releases/tag/v1.2.3",
+                           "statut":  200,
+                           "corps":  "\u003cdiv class=\"markdown-body\"\u003e  \n  \u0026nbsp; \u003c/div\u003e",
+                           "location":  "",
+                           "erreur":  ""
+                       }
+                   ],
+        "notes":  "Les nouveautés de cette version : https://github.com/JordanJacquot/Mindcare/releases/tag/v1.2.3",
+        "demandes":  [
+                         "GET https://github.com/JordanJacquot/Mindcare/releases/tag/v1.2.3"
+                     ]
+    },
+    {
+        "nom":  "titres, br, li, entités",
+        "depot":  "JordanJacquot/Mindcare",
+        "version":  "1.2.3",
+        "github":  [
+                       {
+                           "url":  "https://github.com/JordanJacquot/Mindcare/releases/tag/v1.2.3",
+                           "statut":  200,
+                           "corps":  "\u003cdiv data-x=\"1\" class=\"markdown-body markdown-x\" id=\"a\"\u003e\u003ch2\u003eNouveautés\u003c/h2\u003e\u003cp\u003eLigne 1\u003cbr\u003eLigne 2\u003cBR/\u003eLigne 3\u003cbr /\u003efin\u003c/p\u003e\u003cul\u003e\n\u003cli class=\"x\"\u003eCafé \u0026eacute;t\u0026eacute; \u0026#233; \u0026#xE9; \u0026lt;b\u0026gt;\u003c/li\u003e\n\u003cLI\u003eForêt \u0026quot;verte\u0026quot; \u0026#39;ok\u0026#39; \u0026apos;\u003c/LI\u003e\u003c/ul\u003e\u003cH3\u003eFin\u003c/H3\u003e\u003c/div\u003e\u003cdiv\u003eautre\u003c/div\u003e",
+                           "location":  "",
+                           "erreur":  ""
+                       }
+                   ],
+        "notes":  "Nouveautés\nLigne 1\nLigne 2\nLigne 3\nfin\n\n- Café été é é \u003cb\u003e\n\n- Forêt \"verte\" \u0027ok\u0027 \u0027\nFin",
+        "demandes":  [
+                         "GET https://github.com/JordanJacquot/Mindcare/releases/tag/v1.2.3"
+                     ]
+    },
+    {
+        "nom":  "majuscules dans la balise",
+        "depot":  "JordanJacquot/Mindcare",
+        "version":  "1.2.3",
+        "github":  [
+                       {
+                           "url":  "https://github.com/JordanJacquot/Mindcare/releases/tag/v1.2.3",
+                           "statut":  200,
+                           "corps":  "\u003cDIV CLASS=\"MARKDOWN-BODY\"\u003eGros \u003cB\u003etexte\u003c/B\u003e\u003c/DIV\u003e",
+                           "location":  "",
+                           "erreur":  ""
+                       }
+                   ],
+        "notes":  "Gros texte",
+        "demandes":  [
+                         "GET https://github.com/JordanJacquot/Mindcare/releases/tag/v1.2.3"
+                     ]
+    },
+    {
+        "nom":  "lignes vides en trop et espaces",
+        "depot":  "JordanJacquot/Mindcare",
+        "version":  "1.2.3",
+        "github":  [
+                       {
+                           "url":  "https://github.com/JordanJacquot/Mindcare/releases/tag/v1.2.3",
+                           "statut":  200,
+                           "corps":  "\u003cdiv class=\"markdown-body\"\u003e\u003cp\u003ea   \u003c/p\u003e\u003cp\u003e\u003c/p\u003e\u003cp\u003e\u003c/p\u003e\u003cp\u003eb\u003c/p\u003e\r\n\r\n\r\n\r\n\u003cp\u003ec \t \u003c/p\u003e\u003c/div\u003e",
+                           "location":  "",
+                           "erreur":  ""
+                       }
+                   ],
+        "notes":  "a\n\nb\n\nc",
+        "demandes":  [
+                         "GET https://github.com/JordanJacquot/Mindcare/releases/tag/v1.2.3"
+                     ]
+    },
+    {
+        "nom":  "div imbriquée : coupée à la première fin",
+        "depot":  "JordanJacquot/Mindcare",
+        "version":  "1.2.3",
+        "github":  [
+                       {
+                           "url":  "https://github.com/JordanJacquot/Mindcare/releases/tag/v1.2.3",
+                           "statut":  200,
+                           "corps":  "\u003cdiv class=\"markdown-body\"\u003e\u003cdiv\u003ededans\u003c/div\u003eapres\u003c/div\u003e",
+                           "location":  "",
+                           "erreur":  ""
+                       }
+                   ],
+        "notes":  "dedans",
+        "demandes":  [
+                         "GET https://github.com/JordanJacquot/Mindcare/releases/tag/v1.2.3"
+                     ]
+    },
+    {
+        "nom":  "balise cassée",
+        "depot":  "JordanJacquot/Mindcare",
+        "version":  "1.2.3",
+        "github":  [
+                       {
+                           "url":  "https://github.com/JordanJacquot/Mindcare/releases/tag/v1.2.3",
+                           "statut":  200,
+                           "corps":  "\u003cdiv class=\"markdown-body\"\u003ea \u003c b et c \u003e d \u003ci\u003ee\u003c/div\u003e",
+                           "location":  "",
+                           "erreur":  ""
+                       }
+                   ],
+        "notes":  "a  d e",
+        "demandes":  [
+                         "GET https://github.com/JordanJacquot/Mindcare/releases/tag/v1.2.3"
+                     ]
+    },
+    {
+        "nom":  "entités inconnues et incomplètes",
+        "depot":  "JordanJacquot/Mindcare",
+        "version":  "1.2.3",
+        "github":  [
+                       {
+                           "url":  "https://github.com/JordanJacquot/Mindcare/releases/tag/v1.2.3",
+                           "statut":  200,
+                           "corps":  "\u003cdiv class=\"markdown-body\"\u003e\u0026inconnu; \u0026amp \u0026am\u0026amp; \u0026#; \u0026#x; \u0026#0; \u0026#65536; \u0026#x41;\u0026#X42;\u0026# 67; \u0026#+68; \u0026AMP; \u0026Eacute;\u0026eacute;\u0026nbsp;fin\u003c/div\u003e",
+                           "location":  "",
+                           "erreur":  ""
+                       }
+                   ],
+        "notes":  "\u0026inconnu; \u0026amp \u0026am\u0026 \u0026#; \u0026#x; \u0026#0; \u0026#65536; ABC D \u0026AMP; Éé fin",
+        "demandes":  [
+                         "GET https://github.com/JordanJacquot/Mindcare/releases/tag/v1.2.3"
+                     ]
+    },
+    {
+        "nom":  "emoji",
+        "depot":  "JordanJacquot/Mindcare",
+        "version":  "1.2.3",
+        "github":  [
+                       {
+                           "url":  "https://github.com/JordanJacquot/Mindcare/releases/tag/v1.2.3",
+                           "statut":  200,
+                           "corps":  "\u003cdiv class=\"markdown-body\"\u003eFusée 🚀 et \u0026#x2022; puce\u003c/div\u003e",
+                           "location":  "",
+                           "erreur":  ""
+                       }
+                   ],
+        "notes":  "Fusée 🚀 et • puce",
+        "demandes":  [
+                         "GET https://github.com/JordanJacquot/Mindcare/releases/tag/v1.2.3"
+                     ]
+    },
+    {
+        "nom":  "trop long : coupé à 4000",
+        "depot":  "JordanJacquot/Mindcare",
+        "version":  "1.2.3",
+        "github":  [
+                       {
+                           "url":  "https://github.com/JordanJacquot/Mindcare/releases/tag/v1.2.3",
+                           "statut":  200,
+                           "corps":  "\u003cdiv class=\"markdown-body\"\u003e\u003cp\u003eéééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\u003c/p\u003e\u003c/div\u003e",
+                           "location":  "",
+                           "erreur":  ""
+                       }
+                   ],
+        "notes":  "éééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé xxxxxxxxx...",
+        "demandes":  [
+                         "GET https://github.com/JordanJacquot/Mindcare/releases/tag/v1.2.3"
+                     ]
+    },
+    {
+        "nom":  "exactement 4000",
+        "depot":  "JordanJacquot/Mindcare",
+        "version":  "1.2.3",
+        "github":  [
+                       {
+                           "url":  "https://github.com/JordanJacquot/Mindcare/releases/tag/v1.2.3",
+                           "statut":  200,
+                           "corps":  "\u003cdiv class=\"markdown-body\"\u003eaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\u003c/div\u003e",
+                           "location":  "",
+                           "erreur":  ""
+                       }
+                   ],
+        "notes":  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "demandes":  [
+                         "GET https://github.com/JordanJacquot/Mindcare/releases/tag/v1.2.3"
+                     ]
+    },
+    {
+        "nom":  "markdown-body sans guillemet fermant",
+        "depot":  "JordanJacquot/Mindcare",
+        "version":  "1.2.3",
+        "github":  [
+                       {
+                           "url":  "https://github.com/JordanJacquot/Mindcare/releases/tag/v1.2.3",
+                           "statut":  200,
+                           "corps":  "\u003cdiv class=markdown-body\u003erien\u003c/div\u003e",
+                           "location":  "",
+                           "erreur":  ""
+                       }
+                   ],
+        "notes":  "Les nouveautés de cette version : https://github.com/JordanJacquot/Mindcare/releases/tag/v1.2.3",
+        "demandes":  [
+                         "GET https://github.com/JordanJacquot/Mindcare/releases/tag/v1.2.3"
+                     ]
+    },
+    {
+        "nom":  "version à 2 nombres",
+        "depot":  "JordanJacquot/Mindcare",
+        "version":  "4.5",
+        "github":  [
+                       {
+                           "url":  "https://github.com/JordanJacquot/Mindcare/releases/tag/v4.5",
+                           "statut":  200,
+                           "corps":  "\u003cdiv class=\"markdown-body\"\u003equatre\u003c/div\u003e",
+                           "location":  "",
+                           "erreur":  ""
+                       }
+                   ],
+        "notes":  "quatre",
+        "demandes":  [
+                         "GET https://github.com/JordanJacquot/Mindcare/releases/tag/v4.5"
+                     ]
+    },
+    {
+        "nom":  "retours Windows dans les notes",
+        "depot":  "JordanJacquot/Mindcare",
+        "version":  "1.2.3",
+        "github":  [
+                       {
+                           "url":  "https://github.com/JordanJacquot/Mindcare/releases/tag/v1.2.3",
+                           "statut":  200,
+                           "corps":  "\u003cdiv class=\"markdown-body\"\u003eun\r\ndeux  \r\n\r\n\r\n\r\ntrois\u003c/div\u003e",
+                           "location":  "",
+                           "erreur":  ""
+                       }
+                   ],
+        "notes":  "un\r\ndeux\n\ntrois",
+        "demandes":  [
+                         "GET https://github.com/JordanJacquot/Mindcare/releases/tag/v1.2.3"
+                     ]
+    }
+]
