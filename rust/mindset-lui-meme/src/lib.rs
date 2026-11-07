@@ -52,8 +52,10 @@ static DEMARRAGE_FORCE: AtomicBool = AtomicBool::new(false);
 /// ouvert en administrateur qui se rouvre sans les droits), `None` pour continuer.
 ///
 /// Rien n'est fait dans la construction d'essai (`MINDSET_ESSAI_DONNEES`) : ni marque lue dans le vrai %TEMP%, ni
-/// programme lancé.
+/// programme lancé. Ce contrôle n'existe que dans la construction d'essai : dans le Mindset livré, aucune variable
+/// d'environnement ne peut faire sauter la bascule.
 pub fn avant_tout(dossiers: &Dossiers, lancement: &Lancement, ports: &Ports) -> Option<i32> {
+    #[cfg(feature = "essai")]
     if std::env::var_os("MINDSET_ESSAI_DONNEES").is_some() {
         return None;
     }

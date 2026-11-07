@@ -318,7 +318,8 @@ impl BlocConsole {
         if let Some(t) = calculs::theme_console(theme.pack.as_ref(), &mut |f| images::fichier_anime(f)) {
             a.push_str(&format!("&theme={}", calculs::echapper(&calculs::json_compact(&t))));
         }
-        // (essai : le décor, quelle que soit l'heure)
+        // (construction d'essai seulement : le décor, quelle que soit l'heure ; absent du Mindset livré)
+        #[cfg(feature = "essai")]
         if ctx.essai
             && let Ok(d) = std::env::var("MINDSET_TEST_DECOR")
             && ["jour", "soir", "nuit"].contains(&d.as_str())

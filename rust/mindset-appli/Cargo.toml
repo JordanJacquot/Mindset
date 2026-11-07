@@ -26,7 +26,7 @@ test = false
 # (MINDSET_ESSAI_DONNEES), avec des verrous d'essai ; elle ne lit pas HKLM, ne lève aucun signal, ne lance aucun
 # programme (faux Windows pour les lancements), et fait la capture de sa fenêtre sur demande.
 [features]
-essai = []
+essai = ["mindset-console/essai", "mindset-horloge/essai", "mindset-lui-meme/essai"]
 
 [dependencies]
 mindset-noyau = { path = "../mindset-noyau" }

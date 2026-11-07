@@ -116,11 +116,12 @@ fn icone_permise(ctx: &Contexte) -> bool {
     if !ctx.essai {
         return true;
     }
-    #[cfg(windows)]
+    // (construction d'essai seulement : dans le Mindset livré, un contexte d'essai n'a jamais d'icône)
+    #[cfg(all(windows, feature = "essai"))]
     {
         std::env::var("MINDSET_ESSAI_ICONE").is_ok_and(|v| v == "1") && windows::bureau_a_part()
     }
-    #[cfg(not(windows))]
+    #[cfg(not(all(windows, feature = "essai")))]
     {
         false
     }

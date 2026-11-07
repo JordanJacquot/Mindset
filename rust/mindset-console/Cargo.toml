@@ -6,6 +6,10 @@ edition.workspace = true
 license.workspace = true
 publish.workspace = true
 
+# La construction d'essai seulement (activée par mindset-appli/essai), jamais dans le Mindset livré
+[features]
+essai = []
+
 [dependencies]
 mindset-noyau = { path = "../mindset-noyau" }
 # La bibliothèque commune de la suite : le thème (couleurs, packs), les versions, les types d'images, la lecture « à
