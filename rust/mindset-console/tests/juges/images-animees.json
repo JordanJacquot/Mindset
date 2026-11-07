@@ -1,0 +1,212 @@
+[
+    {
+        "nom":  "gif animé",
+        "octets":  "R0lGODlhAQABAAAAACH5BAAAAAAALCH5BAAAAAAAOw==",
+        "animee":  true
+    },
+    {
+        "nom":  "gif fixe",
+        "octets":  "R0lGODlhAQABAAAAACH5BAAAAAAALDs=",
+        "animee":  false
+    },
+    {
+        "nom":  "png fixe",
+        "octets":  "iVBORw0KGgouLi4uSUhEUi4uLi5JREFULi4uLg==",
+        "animee":  false
+    },
+    {
+        "nom":  "png animé",
+        "octets":  "iVBORw0KGgouLi4uSUhEUi4uLi5hY1RMLi4uLklEQVQuLi4u",
+        "animee":  true
+    },
+    {
+        "nom":  "webp animé",
+        "octets":  "UklGRgAAAABXRUJQVlA4WAAAAAACAAAA",
+        "animee":  true
+    },
+    {
+        "nom":  "webp fixe",
+        "octets":  "UklGRgAAAABXRUJQVlA4IAAAAAAAAAAA",
+        "animee":  false
+    },
+    {
+        "nom":  "jpeg",
+        "octets":  "/9j/4AAQSkZJRgABAQA=",
+        "animee":  false
+    },
+    {
+        "nom":  "trop court",
+        "octets":  "R0lG",
+        "animee":  false
+    },
+    {
+        "nom":  "vide",
+        "octets":  "",
+        "animee":  false
+    },
+    {
+        "nom":  "webp coupé",
+        "octets":  "UklGRgAAAABXRUJQVlA4WAAA",
+        "animee":  false
+    },
+    {
+        "nom":  "png acTL après IDAT",
+        "octets":  "iVBORwAAAAAAAAAASURBVGFjVEw=",
+        "animee":  false
+    },
+    {
+        "nom":  "png acTL sans IDAT",
+        "octets":  "iVBORwAAAAAAAAAAYWNUTA==",
+        "animee":  true
+    },
+    {
+        "nom":  "au hasard 1",
+        "octets":  "UklGRiBFjvJXRUJQVlA4WL4OkahYwFw0i8Aks3TudKmrL9Ao4BQ=",
+        "animee":  false
+    },
+    {
+        "nom":  "au hasard 2",
+        "octets":  "iVBORzcFQcZezArsScsEbg8cL2Ag2n63h30yuENLHqrn",
+        "animee":  false
+    },
+    {
+        "nom":  "au hasard 3",
+        "octets":  "UklGRoV/XlVXRUJQVlA4WMPlx5cql2GXutOIghKuXw==",
+        "animee":  true
+    },
+    {
+        "nom":  "au hasard 4",
+        "octets":  "UklGRh+p4MJXRUJQVlA4WDJaxB9CeKxGpQ==",
+        "animee":  true
+    },
+    {
+        "nom":  "au hasard 5",
+        "octets":  "9ttD+YSC77Zqm0akO+bUpcCOl5yA+6HgU5rmLrA=",
+        "animee":  false
+    },
+    {
+        "nom":  "au hasard 6",
+        "octets":  "Ukk=",
+        "animee":  false
+    },
+    {
+        "nom":  "au hasard 7",
+        "octets":  "UklGRn0umyJXRUJQVlA4WLgNpjL7OmOm6pzABlcbGcdF/O5j5EAa",
+        "animee":  true
+    },
+    {
+        "nom":  "au hasard 8",
+        "octets":  "2Fv0nRGtwd0nxyA2xO6s3zZj4W2VyynR7kM7f28HePM4TSLebgjY",
+        "animee":  false
+    },
+    {
+        "nom":  "au hasard 9",
+        "octets":  "R0lGOJCADkGErdw4/08NMSOuzXE=",
+        "animee":  false
+    },
+    {
+        "nom":  "au hasard 10",
+        "octets":  "H08s",
+        "animee":  false
+    },
+    {
+        "nom":  "au hasard 11",
+        "octets":  "y81wLYvybm2b1dhewy0961qbujn9FaxL",
+        "animee":  false
+    },
+    {
+        "nom":  "au hasard 12",
+        "octets":  "R0lGOATMkghDdBN/UEY=",
+        "animee":  false
+    },
+    {
+        "nom":  "au hasard 13",
+        "octets":  "clxKTwpDBILFtHLE",
+        "animee":  false
+    },
+    {
+        "nom":  "au hasard 14",
+        "octets":  "UklGRnSxsoxXRUJQVlA4WEp0pxujUAAK/zm4N0pQWs6PjVLtrA==",
+        "animee":  true
+    },
+    {
+        "nom":  "au hasard 15",
+        "octets":  "iVBORz+EUFk7qepp/h1eEtAlx4E6+HpBgLD9K1x2",
+        "animee":  false
+    },
+    {
+        "nom":  "au hasard 16",
+        "octets":  "e6LH673FwIav33yOYOdcsTB6",
+        "animee":  false
+    },
+    {
+        "nom":  "au hasard 17",
+        "octets":  "UklGRrSjCo5XRUJQVlA4WFU=",
+        "animee":  false
+    },
+    {
+        "nom":  "au hasard 18",
+        "octets":  "R0lGOFt77OGZVA==",
+        "animee":  false
+    },
+    {
+        "nom":  "au hasard 19",
+        "octets":  "iQ==",
+        "animee":  false
+    },
+    {
+        "nom":  "au hasard 20",
+        "octets":  "R0lGODcZujL+i+K3z6T5AFu9JXZio3w7a8fCcDo7KRvRmnI=",
+        "animee":  false
+    },
+    {
+        "nom":  "au hasard 21",
+        "octets":  "dDs7UTNDRnjEHT2gU/A9",
+        "animee":  false
+    },
+    {
+        "nom":  "au hasard 22",
+        "octets":  "R0lGOHVvV0r3wmHG5jQyN7Dn",
+        "animee":  false
+    },
+    {
+        "nom":  "au hasard 23",
+        "octets":  "UklGRsKmqoRXRUJQVlA4WBCA/8zkBzuA5LLe6Atoowi70lk=",
+        "animee":  false
+    },
+    {
+        "nom":  "au hasard 24",
+        "octets":  "UklGRtN5EXdXRUJQVlA4WLUFHfPfURDIwXhnQkIxjflG",
+        "animee":  true
+    },
+    {
+        "nom":  "au hasard 25",
+        "octets":  "iVBOR40pCG9MSo2kQXQgBcw7nmcp/AYCWhLPNUTYmhTikby3rQ==",
+        "animee":  false
+    },
+    {
+        "nom":  "au hasard 26",
+        "octets":  "UklGRn001CZXRUJQVlA4WHYpBbd6WtMrc7B4",
+        "animee":  true
+    },
+    {
+        "nom":  "au hasard 27",
+        "octets":  "R0lGOKvUkEc4ic2F7AASGBfdbMQlRY4=",
+        "animee":  false
+    },
+    {
+        "nom":  "au hasard 28",
+        "octets":  "UklGRlDNvBF2Frk=",
+        "animee":  false
+    },
+    {
+        "nom":  "au hasard 29",
+        "octets":  "iVBORz2gNzGO",
+        "animee":  false
+    },
+    {
+        "nom":  "au hasard 30",
+        "octets":  "R0lGOP6KcdqvmpVljJHouxF0delZRC3LmQ==",
+        "animee":  false
+    }
+]

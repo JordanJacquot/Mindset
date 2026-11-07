@@ -1,0 +1,222 @@
+[
+    {
+        "nom":  "couleurs neon",
+        "entree":  {
+                       "theme":  "neon",
+                       "applis":  [
+
+                                  ],
+                       "partage":  {
+
+                                   }
+                   },
+        "couleurs":  "{}",
+        "theme":  null
+    },
+    {
+        "nom":  "couleurs crepuscule",
+        "entree":  {
+                       "theme":  "crepuscule",
+                       "applis":  [
+
+                                  ],
+                       "partage":  {
+
+                                   }
+                   },
+        "couleurs":  "{\"07060D\":\"#0C0708\",\"0A0812\":\"#11090B\",\"1A1206\":\"#18080C\",\"00E5FF\":\"#FF8A3D\",\"3A355A\":\"#553A41\",\"14102A\":\"#271318\",\"3A3466\":\"#603A44\",\"C9C4DD\":\"#DAC7CC\",\"0C0920\":\"#1A0B12\",\"A9A3C9\":\"#C4A8AF\",\"B04BFF\":\"#FF3D7F\",\"FF2EB5\":\"#FFC83D\",\"CFCDE0\":\"#DECFD3\",\"6F6894\":\"#8E6E76\",\"0B0820\":\"#170910\",\"1A1738\":\"#341B21\",\"100D26\":\"#231015\",\"1A0610\":\"#18080C\",\"141126\":\"#231418\",\"2A2548\":\"#442930\",\"120E28\":\"#251116\",\"05040C\":\"#0B0506\",\"1B1830\":\"#2D1B20\",\"8F88B8\":\"#B28E97\"}",
+        "theme":  null
+    },
+    {
+        "nom":  "couleurs terminal",
+        "entree":  {
+                       "theme":  "terminal",
+                       "applis":  [
+
+                                  ],
+                       "partage":  {
+
+                                   }
+                   },
+        "couleurs":  "{\"07060D\":\"#080B09\",\"0A0812\":\"#0A100C\",\"1A1206\":\"#0A160E\",\"00E5FF\":\"#33FF77\",\"3A355A\":\"#3D5244\",\"14102A\":\"#16241B\",\"3A3466\":\"#3F5B48\",\"C9C4DD\":\"#CAD7CE\",\"0C0920\":\"#030B06\",\"A9A3C9\":\"#ACC0B3\",\"B04BFF\":\"#B6FF3B\",\"FF2EB5\":\"#00E0A0\",\"CFCDE0\":\"#D1DCD5\",\"6F6894\":\"#728A7A\",\"0B0820\":\"#020A05\",\"1A1738\":\"#1E3124\",\"100D26\":\"#132017\",\"1A0610\":\"#0A160E\",\"141126\":\"#16211A\",\"2A2548\":\"#2D4033\",\"120E28\":\"#142219\",\"05040C\":\"#060A07\",\"1B1830\":\"#1D2B22\",\"8F88B8\":\"#93AD9C\"}",
+        "theme":  null
+    },
+    {
+        "nom":  "couleurs arcade",
+        "entree":  {
+                       "theme":  "arcade",
+                       "applis":  [
+
+                                  ],
+                       "partage":  {
+
+                                   }
+                   },
+        "couleurs":  "{\"07060D\":\"#06080D\",\"0A0812\":\"#090A12\",\"1A1206\":\"#070B19\",\"00E5FF\":\"#FBD000\",\"3A355A\":\"#373E58\",\"14102A\":\"#111629\",\"3A3466\":\"#374064\",\"C9C4DD\":\"#C5CADC\",\"0C0920\":\"#0B1640\",\"A9A3C9\":\"#A5ACC7\",\"B04BFF\":\"#E52521\",\"FF2EB5\":\"#1E88E5\",\"CFCDE0\":\"#CED1DF\",\"6F6894\":\"#6A7292\",\"0B0820\":\"#0A1338\",\"1A1738\":\"#191F36\",\"100D26\":\"#0E1325\",\"1A0610\":\"#070B19\",\"141126\":\"#121625\",\"2A2548\":\"#272D46\",\"120E28\":\"#0F1427\",\"05040C\":\"#04060C\",\"1B1830\":\"#191E2F\",\"8F88B8\":\"#8A93B6\"}",
+        "theme":  null
+    },
+    {
+        "nom":  "couleurs rubis",
+        "entree":  {
+                       "theme":  "rubis",
+                       "applis":  [
+
+                                  ],
+                       "partage":  {
+
+                                   }
+                   },
+        "couleurs":  "{\"07060D\":\"#0A0909\",\"0A0812\":\"#0E0C0C\",\"1A1206\":\"#120E0E\",\"00E5FF\":\"#FF3B3B\",\"3A355A\":\"#4A4545\",\"14102A\":\"#1F1B1B\",\"3A3466\":\"#514949\",\"C9C4DD\":\"#D2CFCF\",\"0C0920\":\"#17171D\",\"A9A3C9\":\"#B9B3B3\",\"B04BFF\":\"#FFDE00\",\"FF2EB5\":\"#3B6FFF\",\"CFCDE0\":\"#D8D5D5\",\"6F6894\":\"#817B7B\",\"0B0820\":\"#141419\",\"1A1738\":\"#2A2525\",\"100D26\":\"#1B1818\",\"1A0610\":\"#120E0E\",\"141126\":\"#1D1A1A\",\"2A2548\":\"#393434\",\"120E28\":\"#1D1919\",\"05040C\":\"#090707\",\"1B1830\":\"#262222\",\"8F88B8\":\"#A49C9C\"}",
+        "theme":  null
+    },
+    {
+        "nom":  "pack complet (mascotte GIF animée, chargement qui tourne, logo de la console, police)",
+        "entree":  {
+                       "theme":  "pack:foret",
+                       "applis":  [
+
+                                  ],
+                       "partage":  {
+
+                                   },
+                       "fichiers":  {
+                                        "Donnees\\packs\\foret\\pack.json":  "ew0KICAgICJOYW1lIjogICJGb3LDqnQiLA0KICAgICJCYXNlIjogICJjcmVwdXNjdWxlIiwNCiAgICAiTG9nbyI6ICAibG9nby5wbmciLA0KICAgICJGb250IjogICJwb2xpY2UudHRmIiwNCiAgICAiQmFja2dyb3VuZCI6ICAiZm9uZC5qcGciLA0KICAgICJCYWNrZ3JvdW5kT3BhY2l0eSI6ICAwLjUsDQogICAgIkNvbnNvbGUiOiAgew0KICAgICAgICAgICAgICAgICAgICAiRm9uZCI6ICAiY29uc29sZS1mb25kLndlYnAiLA0KICAgICAgICAgICAgICAgICAgICAiRm9uZE9wYWNpdGUiOiAgMC44LA0KICAgICAgICAgICAgICAgICAgICAiTWFzY290dGUiOiAgIm1hc2NvdHRlLmdpZiIsDQogICAgICAgICAgICAgICAgICAgICJDaGFyZ2VtZW50IjogIHsNCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICJGaWxlIjogICJyb3VlLnBuZyIsDQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAiRWZmZXQiOiAgInRvdXJuZSINCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgfSwNCiAgICAgICAgICAgICAgICAgICAgIkxvZ28iOiAgImNvbnNvbGUgbG9nbyAoMSkuZ2lmIg0KICAgICAgICAgICAgICAgIH0NCn0=",
+                                        "Donnees\\packs\\foret\\logo.png":  "iVBORw0KGgouLi4uSUhEUi4uLi5JREFULi4uLg==",
+                                        "Donnees\\packs\\foret\\police.ttf":  "AAEAAAALAIAAAwAw",
+                                        "Donnees\\packs\\foret\\fond.jpg":  "/9j/4AAQSkZJRgABAQA=",
+                                        "Donnees\\packs\\foret\\console-fond.webp":  "UklGRgAAAABXRUJQVlA4IAAAAAAAAAAA",
+                                        "Donnees\\packs\\foret\\mascotte.gif":  "R0lGODlhAQABAAAAACH5BAAAAAAALCH5BAAAAAAAOw==",
+                                        "Donnees\\packs\\foret\\roue.png":  "iVBORw0KGgouLi4uSUhEUi4uLi5JREFULi4uLg==",
+                                        "Donnees\\packs\\foret\\console logo (1).gif":  "R0lGODlhAQABAAAAACH5BAAAAAAALDs="
+                                    }
+                   },
+        "couleurs":  "{\"07060D\":\"#0C0708\",\"0A0812\":\"#11090B\",\"1A1206\":\"#18080C\",\"00E5FF\":\"#FF8A3D\",\"3A355A\":\"#553A41\",\"14102A\":\"#271318\",\"3A3466\":\"#603A44\",\"C9C4DD\":\"#DAC7CC\",\"0C0920\":\"#1A0B12\",\"A9A3C9\":\"#C4A8AF\",\"B04BFF\":\"#FF3D7F\",\"FF2EB5\":\"#FFC83D\",\"CFCDE0\":\"#DECFD3\",\"6F6894\":\"#8E6E76\",\"0B0820\":\"#170910\",\"1A1738\":\"#341B21\",\"100D26\":\"#231015\",\"1A0610\":\"#18080C\",\"141126\":\"#231418\",\"2A2548\":\"#442930\",\"120E28\":\"#251116\",\"05040C\":\"#0B0506\",\"1B1830\":\"#2D1B20\",\"8F88B8\":\"#B28E97\"}",
+        "theme":  {
+                      "fond":  "https://theme.mindset.local/console-fond.webp",
+                      "opacite":  0.8,
+                      "mascotte":  "https://theme.mindset.local/mascotte.gif",
+                      "mascotteAnimee":  true,
+                      "chargement":  "https://theme.mindset.local/roue.png",
+                      "effet":  "tourne",
+                      "logo":  "https://theme.mindset.local/console%20logo%20(1).gif",
+                      "police":  "https://theme.mindset.local/police.ttf"
+                  }
+    },
+    {
+        "nom":  "pack : le fond du pack faute de fond de console, logo du pack, mascotte fixe",
+        "entree":  {
+                       "theme":  "pack:cafe-creme",
+                       "applis":  [
+
+                                  ],
+                       "partage":  {
+
+                                   },
+                       "fichiers":  {
+                                        "Donnees\\packs\\cafe-creme\\pack.json":  "ew0KICAgICJOYW1lIjogICJDYWbDqSBjcsOobWUiLA0KICAgICJCYXNlIjogICJydWJpcyIsDQogICAgIkxvZ28iOiAgImxvZ28ucG5nIiwNCiAgICAiQmFja2dyb3VuZCI6ICAiZm9uZC5qcGciLA0KICAgICJCYWNrZ3JvdW5kT3BhY2l0eSI6ICAwLjYsDQogICAgIkNvbnNvbGUiOiAgew0KICAgICAgICAgICAgICAgICAgICAiTWFzY290dGUiOiAgIm0ucG5nIiwNCiAgICAgICAgICAgICAgICAgICAgIkNoYXJnZW1lbnQiOiAgImNoYXJnZS53ZWJwIg0KICAgICAgICAgICAgICAgIH0NCn0=",
+                                        "Donnees\\packs\\cafe-creme\\logo.png":  "iVBORw0KGgouLi4uSUhEUi4uLi5JREFULi4uLg==",
+                                        "Donnees\\packs\\cafe-creme\\fond.jpg":  "/9j/4AAQSkZJRgABAQA=",
+                                        "Donnees\\packs\\cafe-creme\\m.png":  "iVBORw0KGgouLi4uSUhEUi4uLi5JREFULi4uLg==",
+                                        "Donnees\\packs\\cafe-creme\\charge.webp":  "UklGRgAAAABXRUJQVlA4WAAAAAACAAAA"
+                                    }
+                   },
+        "couleurs":  "{\"07060D\":\"#0A0909\",\"0A0812\":\"#0E0C0C\",\"1A1206\":\"#120E0E\",\"00E5FF\":\"#FF3B3B\",\"3A355A\":\"#4A4545\",\"14102A\":\"#1F1B1B\",\"3A3466\":\"#514949\",\"C9C4DD\":\"#D2CFCF\",\"0C0920\":\"#17171D\",\"A9A3C9\":\"#B9B3B3\",\"B04BFF\":\"#FFDE00\",\"FF2EB5\":\"#3B6FFF\",\"CFCDE0\":\"#D8D5D5\",\"6F6894\":\"#817B7B\",\"0B0820\":\"#141419\",\"1A1738\":\"#2A2525\",\"100D26\":\"#1B1818\",\"1A0610\":\"#120E0E\",\"141126\":\"#1D1A1A\",\"2A2548\":\"#393434\",\"120E28\":\"#1D1919\",\"05040C\":\"#090707\",\"1B1830\":\"#262222\",\"8F88B8\":\"#A49C9C\"}",
+        "theme":  {
+                      "fond":  "https://theme.mindset.local/fond.jpg",
+                      "opacite":  0.6,
+                      "mascotte":  "https://theme.mindset.local/m.png",
+                      "mascotteAnimee":  false,
+                      "chargement":  "https://theme.mindset.local/charge.webp",
+                      "effet":  "aucun",
+                      "logo":  "https://theme.mindset.local/logo.png",
+                      "police":  ""
+                  }
+    },
+    {
+        "nom":  "pack : planche animée, le logo de Mindset reste ; mascotte PNG animée",
+        "entree":  {
+                       "theme":  "pack:ete",
+                       "applis":  [
+
+                                  ],
+                       "partage":  {
+
+                                   },
+                       "fichiers":  {
+                                        "Donnees\\packs\\ete\\pack.json":  "ew0KICAgICJOYW1lIjogICLDiXTDqSIsDQogICAgIkxvZ28iOiAgInBsYW5jaGUucG5nIiwNCiAgICAiTG9nb0ZyYW1lcyI6ICA0LA0KICAgICJDb25zb2xlIjogIHsNCiAgICAgICAgICAgICAgICAgICAgIk1hc2NvdHRlIjogICJtLnBuZyIsDQogICAgICAgICAgICAgICAgICAgICJGb25kT3BhY2l0ZSI6ICAwLjAxDQogICAgICAgICAgICAgICAgfQ0KfQ==",
+                                        "Donnees\\packs\\ete\\planche.png":  "iVBORw0KGgouLi4uSUhEUi4uLi5JREFULi4uLg==",
+                                        "Donnees\\packs\\ete\\m.png":  "iVBORw0KGgouLi4uSUhEUi4uLi5hY1RMLi4uLklEQVQuLi4u"
+                                    }
+                   },
+        "couleurs":  "{}",
+        "theme":  {
+                      "fond":  "",
+                      "opacite":  0.35,
+                      "mascotte":  "https://theme.mindset.local/m.png",
+                      "mascotteAnimee":  true,
+                      "chargement":  "",
+                      "effet":  "",
+                      "logo":  "",
+                      "police":  ""
+                  }
+    },
+    {
+        "nom":  "pack sans bloc Console : rien",
+        "entree":  {
+                       "theme":  "pack:sans",
+                       "applis":  [
+
+                                  ],
+                       "partage":  {
+
+                                   },
+                       "fichiers":  {
+                                        "Donnees\\packs\\sans\\pack.json":  "ew0KICAgICJOYW1lIjogICJTYW5zIiwNCiAgICAiTG9nbyI6ICAibG9nby5wbmciDQp9",
+                                        "Donnees\\packs\\sans\\logo.png":  "iVBORw0KGgouLi4uSUhEUi4uLi5JREFULi4uLg=="
+                                    }
+                   },
+        "couleurs":  "{}",
+        "theme":  null
+    },
+    {
+        "nom":  "pack aux couleurs propres",
+        "entree":  {
+                       "theme":  "pack:couleurs",
+                       "applis":  [
+
+                                  ],
+                       "partage":  {
+
+                                   },
+                       "fichiers":  {
+                                        "Donnees\\packs\\couleurs\\pack.json":  "ew0KICAgICJOYW1lIjogICJDb3VsZXVycyIsDQogICAgIkNvbG9ycyI6ICB7DQogICAgICAgICAgICAgICAgICAgIlAiOiAgIiMyMkFBRkYiLA0KICAgICAgICAgICAgICAgICAgICJTIjogICIjRkZBQTIyIiwNCiAgICAgICAgICAgICAgICAgICAiVCI6ICAiI0FBMjJGRiIsDQogICAgICAgICAgICAgICAgICAgIk5IIjogIDIxMCwNCiAgICAgICAgICAgICAgICAgICAiTlMiOiAgMC41LA0KICAgICAgICAgICAgICAgICAgICJNYXAiOiAgew0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICIwNzA2MEQiOiAgIiMwMTAyMDMiDQogICAgICAgICAgICAgICAgICAgICAgICAgICB9DQogICAgICAgICAgICAgICB9LA0KICAgICJDb25zb2xlIjogIHsNCiAgICAgICAgICAgICAgICAgICAgIk1hc2NvdHRlIjogICJtLndlYnAiDQogICAgICAgICAgICAgICAgfQ0KfQ==",
+                                        "Donnees\\packs\\couleurs\\m.webp":  "UklGRgAAAABXRUJQVlA4WAAAAAACAAAA"
+                                    }
+                   },
+        "couleurs":  "{\"07060D\":\"#010203\",\"0A0812\":\"#0A0D0F\",\"1A1206\":\"#0B1015\",\"00E5FF\":\"#22AAFF\",\"3A355A\":\"#3E4851\",\"14102A\":\"#161D24\",\"3A3466\":\"#414D5A\",\"C9C4DD\":\"#CAD0D7\",\"0C0920\":\"#0F141A\",\"A9A3C9\":\"#ACB6C0\",\"B04BFF\":\"#FFAA22\",\"FF2EB5\":\"#AA22FF\",\"CFCDE0\":\"#D2D6DB\",\"6F6894\":\"#737E89\",\"0B0820\":\"#0E141A\",\"1A1738\":\"#1F2830\",\"100D26\":\"#131A20\",\"1A0610\":\"#0B1015\",\"141126\":\"#161C21\",\"2A2548\":\"#2E373F\",\"120E28\":\"#141B22\",\"05040C\":\"#06080A\",\"1B1830\":\"#1E242A\",\"8F88B8\":\"#94A0AC\"}",
+        "theme":  {
+                      "fond":  "",
+                      "opacite":  0.35,
+                      "mascotte":  "https://theme.mindset.local/m.webp",
+                      "mascotteAnimee":  true,
+                      "chargement":  "",
+                      "effet":  "",
+                      "logo":  "",
+                      "police":  ""
+                  }
+    },
+    {
+        "nom":  "pack introuvable : Néon",
+        "entree":  {
+                       "theme":  "pack:absent",
+                       "applis":  [
+
+                                  ],
+                       "partage":  {
+
+                                   }
+                   },
+        "couleurs":  "{}",
+        "theme":  null
+    }
+]

@@ -1,0 +1,1631 @@
+[
+    {
+        "nom":  "accueil, pas de cadre : il est créé (menu)",
+        "entree":  {
+                       "applis":  [
+                                      {
+                                          "id":  "nevermind",
+                                          "nom":  "Nevermind",
+                                          "couleur":  "#00E5FF",
+                                          "description":  "Ton PC au mieux.",
+                                          "presentation":  "",
+                                          "confidentialite":  "",
+                                          "cache_depuis":  ""
+                                      },
+                                      {
+                                          "id":  "evermind",
+                                          "nom":  "Evermind",
+                                          "couleur":  "#B04BFF",
+                                          "description":  "Ton agenda.",
+                                          "presentation":  "Ton agenda, qui te rappelle tes rendez-vous.",
+                                          "confidentialite":  "https://github.com/JordanJacquot/Evermind/blob/main/CONFIDENTIALITE.md",
+                                          "cache_depuis":  "0.14.0"
+                                      },
+                                      {
+                                          "id":  "mindcare",
+                                          "nom":  "Mindcare",
+                                          "couleur":  "#3DDC84",
+                                          "description":  "Prendre soin de toi.",
+                                          "presentation":  "Un coin calme.",
+                                          "confidentialite":  "",
+                                          "cache_depuis":  "0.2.0"
+                                      },
+                                      {
+                                          "id":  "cafe-creme",
+                                          "nom":  "Café crème",
+                                          "couleur":  "#FF8A3D",
+                                          "description":  "Une appli d\u0027essai, avec des accents : été, forêt.",
+                                          "presentation":  "",
+                                          "confidentialite":  "https://exemple.invalid/cafe",
+                                          "cache_depuis":  ""
+                                      }
+                                  ],
+                       "partage":  {
+
+                                   },
+                       "page":  "accueil",
+                       "console":  {
+                                       "possible":  true,
+                                       "cadre":  false,
+                                       "pret":  false,
+                                       "derniere":  null,
+                                       "ejecter":  null,
+                                       "parametres":  false,
+                                       "quittee":  false
+                                   },
+                       "vue":  null
+                   },
+        "notes":  {
+                      "appels":  [
+                                     "vue:menu"
+                                 ],
+                      "scripts":  [
+
+                                  ],
+                      "journal":  [
+
+                                  ]
+                  },
+        "final":  {
+                      "possible":  true,
+                      "cadre":  true,
+                      "pret":  false,
+                      "derniere":  null,
+                      "ejecter":  null,
+                      "en_fente":  null,
+                      "attente":  null,
+                      "lancee":  false,
+                      "parametres":  false,
+                      "quittee":  false,
+                      "a_jouer":  [
+
+                                  ],
+                      "page_console":  "Visible",
+                      "reglages":  {
+
+                                   }
+                  }
+    },
+    {
+        "nom":  "accueil, pas de cadre, retour d\u0027une appli : créé dedans, le menu en grand à jouer",
+        "entree":  {
+                       "applis":  [
+                                      {
+                                          "id":  "nevermind",
+                                          "nom":  "Nevermind",
+                                          "couleur":  "#00E5FF",
+                                          "description":  "Ton PC au mieux.",
+                                          "presentation":  "",
+                                          "confidentialite":  "",
+                                          "cache_depuis":  ""
+                                      },
+                                      {
+                                          "id":  "evermind",
+                                          "nom":  "Evermind",
+                                          "couleur":  "#B04BFF",
+                                          "description":  "Ton agenda.",
+                                          "presentation":  "Ton agenda, qui te rappelle tes rendez-vous.",
+                                          "confidentialite":  "https://github.com/JordanJacquot/Evermind/blob/main/CONFIDENTIALITE.md",
+                                          "cache_depuis":  "0.14.0"
+                                      },
+                                      {
+                                          "id":  "mindcare",
+                                          "nom":  "Mindcare",
+                                          "couleur":  "#3DDC84",
+                                          "description":  "Prendre soin de toi.",
+                                          "presentation":  "Un coin calme.",
+                                          "confidentialite":  "",
+                                          "cache_depuis":  "0.2.0"
+                                      },
+                                      {
+                                          "id":  "cafe-creme",
+                                          "nom":  "Café crème",
+                                          "couleur":  "#FF8A3D",
+                                          "description":  "Une appli d\u0027essai, avec des accents : été, forêt.",
+                                          "presentation":  "",
+                                          "confidentialite":  "https://exemple.invalid/cafe",
+                                          "cache_depuis":  ""
+                                      }
+                                  ],
+                       "partage":  {
+
+                                   },
+                       "page":  "accueil",
+                       "console":  {
+                                       "possible":  true,
+                                       "cadre":  false,
+                                       "pret":  false,
+                                       "derniere":  "evermind",
+                                       "ejecter":  null,
+                                       "parametres":  false,
+                                       "quittee":  false
+                                   },
+                       "vue":  null
+                   },
+        "notes":  {
+                      "appels":  [
+                                     "vue:dedans"
+                                 ],
+                      "scripts":  [
+
+                                  ],
+                      "journal":  [
+
+                                  ]
+                  },
+        "final":  {
+                      "possible":  true,
+                      "cadre":  true,
+                      "pret":  false,
+                      "derniere":  null,
+                      "ejecter":  null,
+                      "en_fente":  null,
+                      "attente":  null,
+                      "lancee":  false,
+                      "parametres":  false,
+                      "quittee":  false,
+                      "a_jouer":  [
+                                      {
+                                          "appel":  "jouerMenu",
+                                          "args":  "[\"evermind\"]"
+                                      }
+                                  ],
+                      "page_console":  "Visible",
+                      "reglages":  {
+
+                                   }
+                  }
+    },
+    {
+        "nom":  "accueil, pas de cadre, appli fermée : la cartouche ressortira",
+        "entree":  {
+                       "applis":  [
+                                      {
+                                          "id":  "nevermind",
+                                          "nom":  "Nevermind",
+                                          "couleur":  "#00E5FF",
+                                          "description":  "Ton PC au mieux.",
+                                          "presentation":  "",
+                                          "confidentialite":  "",
+                                          "cache_depuis":  ""
+                                      },
+                                      {
+                                          "id":  "evermind",
+                                          "nom":  "Evermind",
+                                          "couleur":  "#B04BFF",
+                                          "description":  "Ton agenda.",
+                                          "presentation":  "Ton agenda, qui te rappelle tes rendez-vous.",
+                                          "confidentialite":  "https://github.com/JordanJacquot/Evermind/blob/main/CONFIDENTIALITE.md",
+                                          "cache_depuis":  "0.14.0"
+                                      },
+                                      {
+                                          "id":  "mindcare",
+                                          "nom":  "Mindcare",
+                                          "couleur":  "#3DDC84",
+                                          "description":  "Prendre soin de toi.",
+                                          "presentation":  "Un coin calme.",
+                                          "confidentialite":  "",
+                                          "cache_depuis":  "0.2.0"
+                                      },
+                                      {
+                                          "id":  "cafe-creme",
+                                          "nom":  "Café crème",
+                                          "couleur":  "#FF8A3D",
+                                          "description":  "Une appli d\u0027essai, avec des accents : été, forêt.",
+                                          "presentation":  "",
+                                          "confidentialite":  "https://exemple.invalid/cafe",
+                                          "cache_depuis":  ""
+                                      }
+                                  ],
+                       "partage":  {
+
+                                   },
+                       "page":  "accueil",
+                       "console":  {
+                                       "possible":  true,
+                                       "cadre":  false,
+                                       "pret":  false,
+                                       "derniere":  "evermind",
+                                       "ejecter":  "evermind",
+                                       "parametres":  false,
+                                       "quittee":  false
+                                   },
+                       "vue":  null
+                   },
+        "notes":  {
+                      "appels":  [
+                                     "vue:dedans"
+                                 ],
+                      "scripts":  [
+
+                                  ],
+                      "journal":  [
+
+                                  ]
+                  },
+        "final":  {
+                      "possible":  true,
+                      "cadre":  true,
+                      "pret":  false,
+                      "derniere":  null,
+                      "ejecter":  null,
+                      "en_fente":  null,
+                      "attente":  null,
+                      "lancee":  false,
+                      "parametres":  false,
+                      "quittee":  false,
+                      "a_jouer":  [
+                                      {
+                                          "appel":  "jouerRetour",
+                                          "args":  "[\"evermind\", true]"
+                                      }
+                                  ],
+                      "page_console":  "Visible",
+                      "reglages":  {
+
+                                   }
+                  }
+    },
+    {
+        "nom":  "accueil, cadre qui se charge : à jouer quand il sera prêt",
+        "entree":  {
+                       "applis":  [
+                                      {
+                                          "id":  "nevermind",
+                                          "nom":  "Nevermind",
+                                          "couleur":  "#00E5FF",
+                                          "description":  "Ton PC au mieux.",
+                                          "presentation":  "",
+                                          "confidentialite":  "",
+                                          "cache_depuis":  ""
+                                      },
+                                      {
+                                          "id":  "evermind",
+                                          "nom":  "Evermind",
+                                          "couleur":  "#B04BFF",
+                                          "description":  "Ton agenda.",
+                                          "presentation":  "Ton agenda, qui te rappelle tes rendez-vous.",
+                                          "confidentialite":  "https://github.com/JordanJacquot/Evermind/blob/main/CONFIDENTIALITE.md",
+                                          "cache_depuis":  "0.14.0"
+                                      },
+                                      {
+                                          "id":  "mindcare",
+                                          "nom":  "Mindcare",
+                                          "couleur":  "#3DDC84",
+                                          "description":  "Prendre soin de toi.",
+                                          "presentation":  "Un coin calme.",
+                                          "confidentialite":  "",
+                                          "cache_depuis":  "0.2.0"
+                                      },
+                                      {
+                                          "id":  "cafe-creme",
+                                          "nom":  "Café crème",
+                                          "couleur":  "#FF8A3D",
+                                          "description":  "Une appli d\u0027essai, avec des accents : été, forêt.",
+                                          "presentation":  "",
+                                          "confidentialite":  "https://exemple.invalid/cafe",
+                                          "cache_depuis":  ""
+                                      }
+                                  ],
+                       "partage":  {
+
+                                   },
+                       "page":  "accueil",
+                       "console":  {
+                                       "possible":  true,
+                                       "cadre":  true,
+                                       "pret":  false,
+                                       "derniere":  "nevermind",
+                                       "ejecter":  null,
+                                       "parametres":  false,
+                                       "quittee":  false
+                                   },
+                       "vue":  null
+                   },
+        "notes":  {
+                      "appels":  [
+
+                                 ],
+                      "scripts":  [
+
+                                  ],
+                      "journal":  [
+
+                                  ]
+                  },
+        "final":  {
+                      "possible":  true,
+                      "cadre":  true,
+                      "pret":  false,
+                      "derniere":  null,
+                      "ejecter":  null,
+                      "en_fente":  null,
+                      "attente":  null,
+                      "lancee":  false,
+                      "parametres":  false,
+                      "quittee":  false,
+                      "a_jouer":  [
+                                      {
+                                          "appel":  "jouerMenu",
+                                          "args":  "[\"nevermind\"]"
+                                      }
+                                  ],
+                      "page_console":  "Visible",
+                      "reglages":  {
+
+                                   }
+                  }
+    },
+    {
+        "nom":  "accueil, cadre qui se charge, rien à jouer : ce qui attendait reste",
+        "entree":  {
+                       "applis":  [
+                                      {
+                                          "id":  "nevermind",
+                                          "nom":  "Nevermind",
+                                          "couleur":  "#00E5FF",
+                                          "description":  "Ton PC au mieux.",
+                                          "presentation":  "",
+                                          "confidentialite":  "",
+                                          "cache_depuis":  ""
+                                      },
+                                      {
+                                          "id":  "evermind",
+                                          "nom":  "Evermind",
+                                          "couleur":  "#B04BFF",
+                                          "description":  "Ton agenda.",
+                                          "presentation":  "Ton agenda, qui te rappelle tes rendez-vous.",
+                                          "confidentialite":  "https://github.com/JordanJacquot/Evermind/blob/main/CONFIDENTIALITE.md",
+                                          "cache_depuis":  "0.14.0"
+                                      },
+                                      {
+                                          "id":  "mindcare",
+                                          "nom":  "Mindcare",
+                                          "couleur":  "#3DDC84",
+                                          "description":  "Prendre soin de toi.",
+                                          "presentation":  "Un coin calme.",
+                                          "confidentialite":  "",
+                                          "cache_depuis":  "0.2.0"
+                                      },
+                                      {
+                                          "id":  "cafe-creme",
+                                          "nom":  "Café crème",
+                                          "couleur":  "#FF8A3D",
+                                          "description":  "Une appli d\u0027essai, avec des accents : été, forêt.",
+                                          "presentation":  "",
+                                          "confidentialite":  "https://exemple.invalid/cafe",
+                                          "cache_depuis":  ""
+                                      }
+                                  ],
+                       "partage":  {
+
+                                   },
+                       "page":  "accueil",
+                       "console":  {
+                                       "possible":  true,
+                                       "cadre":  true,
+                                       "pret":  false,
+                                       "derniere":  null,
+                                       "ejecter":  null,
+                                       "parametres":  false,
+                                       "quittee":  false
+                                   },
+                       "vue":  null
+                   },
+        "notes":  {
+                      "appels":  [
+
+                                 ],
+                      "scripts":  [
+
+                                  ],
+                      "journal":  [
+
+                                  ]
+                  },
+        "final":  {
+                      "possible":  true,
+                      "cadre":  true,
+                      "pret":  false,
+                      "derniere":  null,
+                      "ejecter":  null,
+                      "en_fente":  null,
+                      "attente":  null,
+                      "lancee":  false,
+                      "parametres":  false,
+                      "quittee":  false,
+                      "a_jouer":  [
+
+                                  ],
+                      "page_console":  "Visible",
+                      "reglages":  {
+
+                                   }
+                  }
+    },
+    {
+        "nom":  "accueil, cadre prêt : reprendre, puis le menu",
+        "entree":  {
+                       "applis":  [
+                                      {
+                                          "id":  "nevermind",
+                                          "nom":  "Nevermind",
+                                          "couleur":  "#00E5FF",
+                                          "description":  "Ton PC au mieux.",
+                                          "presentation":  "",
+                                          "confidentialite":  "",
+                                          "cache_depuis":  ""
+                                      },
+                                      {
+                                          "id":  "evermind",
+                                          "nom":  "Evermind",
+                                          "couleur":  "#B04BFF",
+                                          "description":  "Ton agenda.",
+                                          "presentation":  "Ton agenda, qui te rappelle tes rendez-vous.",
+                                          "confidentialite":  "https://github.com/JordanJacquot/Evermind/blob/main/CONFIDENTIALITE.md",
+                                          "cache_depuis":  "0.14.0"
+                                      },
+                                      {
+                                          "id":  "mindcare",
+                                          "nom":  "Mindcare",
+                                          "couleur":  "#3DDC84",
+                                          "description":  "Prendre soin de toi.",
+                                          "presentation":  "Un coin calme.",
+                                          "confidentialite":  "",
+                                          "cache_depuis":  "0.2.0"
+                                      },
+                                      {
+                                          "id":  "cafe-creme",
+                                          "nom":  "Café crème",
+                                          "couleur":  "#FF8A3D",
+                                          "description":  "Une appli d\u0027essai, avec des accents : été, forêt.",
+                                          "presentation":  "",
+                                          "confidentialite":  "https://exemple.invalid/cafe",
+                                          "cache_depuis":  ""
+                                      }
+                                  ],
+                       "partage":  {
+
+                                   },
+                       "page":  "accueil",
+                       "console":  {
+                                       "possible":  true,
+                                       "cadre":  true,
+                                       "pret":  true,
+                                       "derniere":  "nevermind",
+                                       "ejecter":  null,
+                                       "parametres":  false,
+                                       "quittee":  false
+                                   },
+                       "vue":  null
+                   },
+        "notes":  {
+                      "appels":  [
+
+                                 ],
+                      "scripts":  [
+                                      {
+                                          "appel":  "reprendre",
+                                          "args":  "[]"
+                                      },
+                                      {
+                                          "appel":  "jouerMenu",
+                                          "args":  "[\"nevermind\"]"
+                                      }
+                                  ],
+                      "journal":  [
+
+                                  ]
+                  },
+        "final":  {
+                      "possible":  true,
+                      "cadre":  true,
+                      "pret":  true,
+                      "derniere":  null,
+                      "ejecter":  null,
+                      "en_fente":  null,
+                      "attente":  null,
+                      "lancee":  false,
+                      "parametres":  false,
+                      "quittee":  false,
+                      "a_jouer":  [
+
+                                  ],
+                      "page_console":  "Visible",
+                      "reglages":  {
+
+                                   }
+                  }
+    },
+    {
+        "nom":  "accueil, cadre prêt, appli fermée : reprendre, puis le retour avec éjection",
+        "entree":  {
+                       "applis":  [
+                                      {
+                                          "id":  "nevermind",
+                                          "nom":  "Nevermind",
+                                          "couleur":  "#00E5FF",
+                                          "description":  "Ton PC au mieux.",
+                                          "presentation":  "",
+                                          "confidentialite":  "",
+                                          "cache_depuis":  ""
+                                      },
+                                      {
+                                          "id":  "evermind",
+                                          "nom":  "Evermind",
+                                          "couleur":  "#B04BFF",
+                                          "description":  "Ton agenda.",
+                                          "presentation":  "Ton agenda, qui te rappelle tes rendez-vous.",
+                                          "confidentialite":  "https://github.com/JordanJacquot/Evermind/blob/main/CONFIDENTIALITE.md",
+                                          "cache_depuis":  "0.14.0"
+                                      },
+                                      {
+                                          "id":  "mindcare",
+                                          "nom":  "Mindcare",
+                                          "couleur":  "#3DDC84",
+                                          "description":  "Prendre soin de toi.",
+                                          "presentation":  "Un coin calme.",
+                                          "confidentialite":  "",
+                                          "cache_depuis":  "0.2.0"
+                                      },
+                                      {
+                                          "id":  "cafe-creme",
+                                          "nom":  "Café crème",
+                                          "couleur":  "#FF8A3D",
+                                          "description":  "Une appli d\u0027essai, avec des accents : été, forêt.",
+                                          "presentation":  "",
+                                          "confidentialite":  "https://exemple.invalid/cafe",
+                                          "cache_depuis":  ""
+                                      }
+                                  ],
+                       "partage":  {
+
+                                   },
+                       "page":  "accueil",
+                       "console":  {
+                                       "possible":  true,
+                                       "cadre":  true,
+                                       "pret":  true,
+                                       "derniere":  "nevermind",
+                                       "ejecter":  "nevermind",
+                                       "parametres":  false,
+                                       "quittee":  false
+                                   },
+                       "vue":  null
+                   },
+        "notes":  {
+                      "appels":  [
+
+                                 ],
+                      "scripts":  [
+                                      {
+                                          "appel":  "reprendre",
+                                          "args":  "[]"
+                                      },
+                                      {
+                                          "appel":  "jouerRetour",
+                                          "args":  "[\"nevermind\", true]"
+                                      }
+                                  ],
+                      "journal":  [
+
+                                  ]
+                  },
+        "final":  {
+                      "possible":  true,
+                      "cadre":  true,
+                      "pret":  true,
+                      "derniere":  null,
+                      "ejecter":  null,
+                      "en_fente":  null,
+                      "attente":  null,
+                      "lancee":  false,
+                      "parametres":  false,
+                      "quittee":  false,
+                      "a_jouer":  [
+
+                                  ],
+                      "page_console":  "Visible",
+                      "reglages":  {
+
+                                   }
+                  }
+    },
+    {
+        "nom":  "accueil, Paramètres demandés, cadre prêt",
+        "entree":  {
+                       "applis":  [
+                                      {
+                                          "id":  "nevermind",
+                                          "nom":  "Nevermind",
+                                          "couleur":  "#00E5FF",
+                                          "description":  "Ton PC au mieux.",
+                                          "presentation":  "",
+                                          "confidentialite":  "",
+                                          "cache_depuis":  ""
+                                      },
+                                      {
+                                          "id":  "evermind",
+                                          "nom":  "Evermind",
+                                          "couleur":  "#B04BFF",
+                                          "description":  "Ton agenda.",
+                                          "presentation":  "Ton agenda, qui te rappelle tes rendez-vous.",
+                                          "confidentialite":  "https://github.com/JordanJacquot/Evermind/blob/main/CONFIDENTIALITE.md",
+                                          "cache_depuis":  "0.14.0"
+                                      },
+                                      {
+                                          "id":  "mindcare",
+                                          "nom":  "Mindcare",
+                                          "couleur":  "#3DDC84",
+                                          "description":  "Prendre soin de toi.",
+                                          "presentation":  "Un coin calme.",
+                                          "confidentialite":  "",
+                                          "cache_depuis":  "0.2.0"
+                                      },
+                                      {
+                                          "id":  "cafe-creme",
+                                          "nom":  "Café crème",
+                                          "couleur":  "#FF8A3D",
+                                          "description":  "Une appli d\u0027essai, avec des accents : été, forêt.",
+                                          "presentation":  "",
+                                          "confidentialite":  "https://exemple.invalid/cafe",
+                                          "cache_depuis":  ""
+                                      }
+                                  ],
+                       "partage":  {
+                                       "onglet-parametres":  "son"
+                                   },
+                       "page":  "accueil",
+                       "console":  {
+                                       "possible":  true,
+                                       "cadre":  true,
+                                       "pret":  true,
+                                       "derniere":  null,
+                                       "ejecter":  null,
+                                       "parametres":  true,
+                                       "quittee":  false
+                                   },
+                       "vue":  null
+                   },
+        "notes":  {
+                      "appels":  [
+
+                                 ],
+                      "scripts":  [
+                                      {
+                                          "appel":  "reprendre",
+                                          "args":  "[]"
+                                      },
+                                      {
+                                          "appel":  "reglages",
+                                          "args":  "[{}, \"son\", false, {}]"
+                                      }
+                                  ],
+                      "journal":  [
+
+                                  ]
+                  },
+        "final":  {
+                      "possible":  true,
+                      "cadre":  true,
+                      "pret":  true,
+                      "derniere":  null,
+                      "ejecter":  null,
+                      "en_fente":  null,
+                      "attente":  null,
+                      "lancee":  false,
+                      "parametres":  true,
+                      "quittee":  false,
+                      "a_jouer":  [
+
+                                  ],
+                      "page_console":  "Visible",
+                      "reglages":  {
+
+                                   }
+                  }
+    },
+    {
+        "nom":  "accueil, Paramètres demandés, pas de cadre : tout de suite",
+        "entree":  {
+                       "applis":  [
+                                      {
+                                          "id":  "nevermind",
+                                          "nom":  "Nevermind",
+                                          "couleur":  "#00E5FF",
+                                          "description":  "Ton PC au mieux.",
+                                          "presentation":  "",
+                                          "confidentialite":  "",
+                                          "cache_depuis":  ""
+                                      },
+                                      {
+                                          "id":  "evermind",
+                                          "nom":  "Evermind",
+                                          "couleur":  "#B04BFF",
+                                          "description":  "Ton agenda.",
+                                          "presentation":  "Ton agenda, qui te rappelle tes rendez-vous.",
+                                          "confidentialite":  "https://github.com/JordanJacquot/Evermind/blob/main/CONFIDENTIALITE.md",
+                                          "cache_depuis":  "0.14.0"
+                                      },
+                                      {
+                                          "id":  "mindcare",
+                                          "nom":  "Mindcare",
+                                          "couleur":  "#3DDC84",
+                                          "description":  "Prendre soin de toi.",
+                                          "presentation":  "Un coin calme.",
+                                          "confidentialite":  "",
+                                          "cache_depuis":  "0.2.0"
+                                      },
+                                      {
+                                          "id":  "cafe-creme",
+                                          "nom":  "Café crème",
+                                          "couleur":  "#FF8A3D",
+                                          "description":  "Une appli d\u0027essai, avec des accents : été, forêt.",
+                                          "presentation":  "",
+                                          "confidentialite":  "https://exemple.invalid/cafe",
+                                          "cache_depuis":  ""
+                                      }
+                                  ],
+                       "partage":  {
+                                       "onglet-parametres":  "maj"
+                                   },
+                       "page":  "accueil",
+                       "console":  {
+                                       "possible":  true,
+                                       "cadre":  false,
+                                       "pret":  false,
+                                       "derniere":  "evermind",
+                                       "ejecter":  null,
+                                       "parametres":  true,
+                                       "quittee":  false
+                                   },
+                       "vue":  null
+                   },
+        "notes":  {
+                      "appels":  [
+                                     "vue:dedans"
+                                 ],
+                      "scripts":  [
+
+                                  ],
+                      "journal":  [
+
+                                  ]
+                  },
+        "final":  {
+                      "possible":  true,
+                      "cadre":  true,
+                      "pret":  false,
+                      "derniere":  null,
+                      "ejecter":  null,
+                      "en_fente":  null,
+                      "attente":  null,
+                      "lancee":  false,
+                      "parametres":  true,
+                      "quittee":  false,
+                      "a_jouer":  [
+                                      {
+                                          "appel":  "jouerMenu",
+                                          "args":  "[\"evermind\"]"
+                                      },
+                                      {
+                                          "appel":  "reglages",
+                                          "args":  "[{}, \"maj\", true, {}]"
+                                      }
+                                  ],
+                      "page_console":  "Visible",
+                      "reglages":  {
+
+                                   }
+                  }
+    },
+    {
+        "nom":  "accueil, Paramètres demandés, onglet inconnu : général",
+        "entree":  {
+                       "applis":  [
+                                      {
+                                          "id":  "nevermind",
+                                          "nom":  "Nevermind",
+                                          "couleur":  "#00E5FF",
+                                          "description":  "Ton PC au mieux.",
+                                          "presentation":  "",
+                                          "confidentialite":  "",
+                                          "cache_depuis":  ""
+                                      },
+                                      {
+                                          "id":  "evermind",
+                                          "nom":  "Evermind",
+                                          "couleur":  "#B04BFF",
+                                          "description":  "Ton agenda.",
+                                          "presentation":  "Ton agenda, qui te rappelle tes rendez-vous.",
+                                          "confidentialite":  "https://github.com/JordanJacquot/Evermind/blob/main/CONFIDENTIALITE.md",
+                                          "cache_depuis":  "0.14.0"
+                                      },
+                                      {
+                                          "id":  "mindcare",
+                                          "nom":  "Mindcare",
+                                          "couleur":  "#3DDC84",
+                                          "description":  "Prendre soin de toi.",
+                                          "presentation":  "Un coin calme.",
+                                          "confidentialite":  "",
+                                          "cache_depuis":  "0.2.0"
+                                      },
+                                      {
+                                          "id":  "cafe-creme",
+                                          "nom":  "Café crème",
+                                          "couleur":  "#FF8A3D",
+                                          "description":  "Une appli d\u0027essai, avec des accents : été, forêt.",
+                                          "presentation":  "",
+                                          "confidentialite":  "https://exemple.invalid/cafe",
+                                          "cache_depuis":  ""
+                                      }
+                                  ],
+                       "partage":  {
+                                       "onglet-parametres":  "inconnu"
+                                   },
+                       "page":  "accueil",
+                       "console":  {
+                                       "possible":  true,
+                                       "cadre":  true,
+                                       "pret":  true,
+                                       "derniere":  null,
+                                       "ejecter":  null,
+                                       "parametres":  true,
+                                       "quittee":  false
+                                   },
+                       "vue":  null
+                   },
+        "notes":  {
+                      "appels":  [
+
+                                 ],
+                      "scripts":  [
+                                      {
+                                          "appel":  "reprendre",
+                                          "args":  "[]"
+                                      },
+                                      {
+                                          "appel":  "reglages",
+                                          "args":  "[{}, \"general\", false, {}]"
+                                      }
+                                  ],
+                      "journal":  [
+
+                                  ]
+                  },
+        "final":  {
+                      "possible":  true,
+                      "cadre":  true,
+                      "pret":  true,
+                      "derniere":  null,
+                      "ejecter":  null,
+                      "en_fente":  null,
+                      "attente":  null,
+                      "lancee":  false,
+                      "parametres":  true,
+                      "quittee":  false,
+                      "a_jouer":  [
+
+                                  ],
+                      "page_console":  "Visible",
+                      "reglages":  {
+
+                                   }
+                  }
+    },
+    {
+        "nom":  "une appli : pause, quittée",
+        "entree":  {
+                       "applis":  [
+                                      {
+                                          "id":  "nevermind",
+                                          "nom":  "Nevermind",
+                                          "couleur":  "#00E5FF",
+                                          "description":  "Ton PC au mieux.",
+                                          "presentation":  "",
+                                          "confidentialite":  "",
+                                          "cache_depuis":  ""
+                                      },
+                                      {
+                                          "id":  "evermind",
+                                          "nom":  "Evermind",
+                                          "couleur":  "#B04BFF",
+                                          "description":  "Ton agenda.",
+                                          "presentation":  "Ton agenda, qui te rappelle tes rendez-vous.",
+                                          "confidentialite":  "https://github.com/JordanJacquot/Evermind/blob/main/CONFIDENTIALITE.md",
+                                          "cache_depuis":  "0.14.0"
+                                      },
+                                      {
+                                          "id":  "mindcare",
+                                          "nom":  "Mindcare",
+                                          "couleur":  "#3DDC84",
+                                          "description":  "Prendre soin de toi.",
+                                          "presentation":  "Un coin calme.",
+                                          "confidentialite":  "",
+                                          "cache_depuis":  "0.2.0"
+                                      },
+                                      {
+                                          "id":  "cafe-creme",
+                                          "nom":  "Café crème",
+                                          "couleur":  "#FF8A3D",
+                                          "description":  "Une appli d\u0027essai, avec des accents : été, forêt.",
+                                          "presentation":  "",
+                                          "confidentialite":  "https://exemple.invalid/cafe",
+                                          "cache_depuis":  ""
+                                      }
+                                  ],
+                       "partage":  {
+
+                                   },
+                       "page":  "evermind",
+                       "console":  {
+                                       "possible":  true,
+                                       "cadre":  true,
+                                       "pret":  true,
+                                       "derniere":  null,
+                                       "ejecter":  null,
+                                       "parametres":  true,
+                                       "quittee":  false
+                                   },
+                       "vue":  null
+                   },
+        "notes":  {
+                      "appels":  [
+
+                                 ],
+                      "scripts":  [
+                                      {
+                                          "appel":  "pause",
+                                          "args":  "[]"
+                                      }
+                                  ],
+                      "journal":  [
+
+                                  ]
+                  },
+        "final":  {
+                      "possible":  true,
+                      "cadre":  true,
+                      "pret":  true,
+                      "derniere":  null,
+                      "ejecter":  null,
+                      "en_fente":  null,
+                      "attente":  null,
+                      "lancee":  false,
+                      "parametres":  false,
+                      "quittee":  true,
+                      "a_jouer":  [
+
+                                  ],
+                      "page_console":  "Collapsed",
+                      "reglages":  {
+
+                                   }
+                  }
+    },
+    {
+        "nom":  "une appli, déjà quittée : la minute continue",
+        "entree":  {
+                       "applis":  [
+                                      {
+                                          "id":  "nevermind",
+                                          "nom":  "Nevermind",
+                                          "couleur":  "#00E5FF",
+                                          "description":  "Ton PC au mieux.",
+                                          "presentation":  "",
+                                          "confidentialite":  "",
+                                          "cache_depuis":  ""
+                                      },
+                                      {
+                                          "id":  "evermind",
+                                          "nom":  "Evermind",
+                                          "couleur":  "#B04BFF",
+                                          "description":  "Ton agenda.",
+                                          "presentation":  "Ton agenda, qui te rappelle tes rendez-vous.",
+                                          "confidentialite":  "https://github.com/JordanJacquot/Evermind/blob/main/CONFIDENTIALITE.md",
+                                          "cache_depuis":  "0.14.0"
+                                      },
+                                      {
+                                          "id":  "mindcare",
+                                          "nom":  "Mindcare",
+                                          "couleur":  "#3DDC84",
+                                          "description":  "Prendre soin de toi.",
+                                          "presentation":  "Un coin calme.",
+                                          "confidentialite":  "",
+                                          "cache_depuis":  "0.2.0"
+                                      },
+                                      {
+                                          "id":  "cafe-creme",
+                                          "nom":  "Café crème",
+                                          "couleur":  "#FF8A3D",
+                                          "description":  "Une appli d\u0027essai, avec des accents : été, forêt.",
+                                          "presentation":  "",
+                                          "confidentialite":  "https://exemple.invalid/cafe",
+                                          "cache_depuis":  ""
+                                      }
+                                  ],
+                       "partage":  {
+
+                                   },
+                       "page":  "evermind",
+                       "console":  {
+                                       "possible":  true,
+                                       "cadre":  true,
+                                       "pret":  true,
+                                       "derniere":  null,
+                                       "ejecter":  null,
+                                       "parametres":  false,
+                                       "quittee":  true
+                                   },
+                       "vue":  null
+                   },
+        "notes":  {
+                      "appels":  [
+
+                                 ],
+                      "scripts":  [
+                                      {
+                                          "appel":  "pause",
+                                          "args":  "[]"
+                                      }
+                                  ],
+                      "journal":  [
+
+                                  ]
+                  },
+        "final":  {
+                      "possible":  true,
+                      "cadre":  true,
+                      "pret":  true,
+                      "derniere":  null,
+                      "ejecter":  null,
+                      "en_fente":  null,
+                      "attente":  null,
+                      "lancee":  false,
+                      "parametres":  false,
+                      "quittee":  true,
+                      "a_jouer":  [
+
+                                  ],
+                      "page_console":  "Collapsed",
+                      "reglages":  {
+
+                                   }
+                  }
+    },
+    {
+        "nom":  "une appli, cadre qui se charge : pas d\u0027ordre, quittée",
+        "entree":  {
+                       "applis":  [
+                                      {
+                                          "id":  "nevermind",
+                                          "nom":  "Nevermind",
+                                          "couleur":  "#00E5FF",
+                                          "description":  "Ton PC au mieux.",
+                                          "presentation":  "",
+                                          "confidentialite":  "",
+                                          "cache_depuis":  ""
+                                      },
+                                      {
+                                          "id":  "evermind",
+                                          "nom":  "Evermind",
+                                          "couleur":  "#B04BFF",
+                                          "description":  "Ton agenda.",
+                                          "presentation":  "Ton agenda, qui te rappelle tes rendez-vous.",
+                                          "confidentialite":  "https://github.com/JordanJacquot/Evermind/blob/main/CONFIDENTIALITE.md",
+                                          "cache_depuis":  "0.14.0"
+                                      },
+                                      {
+                                          "id":  "mindcare",
+                                          "nom":  "Mindcare",
+                                          "couleur":  "#3DDC84",
+                                          "description":  "Prendre soin de toi.",
+                                          "presentation":  "Un coin calme.",
+                                          "confidentialite":  "",
+                                          "cache_depuis":  "0.2.0"
+                                      },
+                                      {
+                                          "id":  "cafe-creme",
+                                          "nom":  "Café crème",
+                                          "couleur":  "#FF8A3D",
+                                          "description":  "Une appli d\u0027essai, avec des accents : été, forêt.",
+                                          "presentation":  "",
+                                          "confidentialite":  "https://exemple.invalid/cafe",
+                                          "cache_depuis":  ""
+                                      }
+                                  ],
+                       "partage":  {
+
+                                   },
+                       "page":  "evermind",
+                       "console":  {
+                                       "possible":  true,
+                                       "cadre":  true,
+                                       "pret":  false,
+                                       "derniere":  null,
+                                       "ejecter":  null,
+                                       "parametres":  false,
+                                       "quittee":  false
+                                   },
+                       "vue":  null
+                   },
+        "notes":  {
+                      "appels":  [
+
+                                 ],
+                      "scripts":  [
+
+                                  ],
+                      "journal":  [
+
+                                  ]
+                  },
+        "final":  {
+                      "possible":  true,
+                      "cadre":  true,
+                      "pret":  false,
+                      "derniere":  null,
+                      "ejecter":  null,
+                      "en_fente":  null,
+                      "attente":  null,
+                      "lancee":  false,
+                      "parametres":  false,
+                      "quittee":  true,
+                      "a_jouer":  [
+
+                                  ],
+                      "page_console":  "Collapsed",
+                      "reglages":  {
+
+                                   }
+                  }
+    },
+    {
+        "nom":  "une appli, pas de cadre",
+        "entree":  {
+                       "applis":  [
+                                      {
+                                          "id":  "nevermind",
+                                          "nom":  "Nevermind",
+                                          "couleur":  "#00E5FF",
+                                          "description":  "Ton PC au mieux.",
+                                          "presentation":  "",
+                                          "confidentialite":  "",
+                                          "cache_depuis":  ""
+                                      },
+                                      {
+                                          "id":  "evermind",
+                                          "nom":  "Evermind",
+                                          "couleur":  "#B04BFF",
+                                          "description":  "Ton agenda.",
+                                          "presentation":  "Ton agenda, qui te rappelle tes rendez-vous.",
+                                          "confidentialite":  "https://github.com/JordanJacquot/Evermind/blob/main/CONFIDENTIALITE.md",
+                                          "cache_depuis":  "0.14.0"
+                                      },
+                                      {
+                                          "id":  "mindcare",
+                                          "nom":  "Mindcare",
+                                          "couleur":  "#3DDC84",
+                                          "description":  "Prendre soin de toi.",
+                                          "presentation":  "Un coin calme.",
+                                          "confidentialite":  "",
+                                          "cache_depuis":  "0.2.0"
+                                      },
+                                      {
+                                          "id":  "cafe-creme",
+                                          "nom":  "Café crème",
+                                          "couleur":  "#FF8A3D",
+                                          "description":  "Une appli d\u0027essai, avec des accents : été, forêt.",
+                                          "presentation":  "",
+                                          "confidentialite":  "https://exemple.invalid/cafe",
+                                          "cache_depuis":  ""
+                                      }
+                                  ],
+                       "partage":  {
+
+                                   },
+                       "page":  "nevermind",
+                       "console":  {
+                                       "possible":  true,
+                                       "cadre":  false,
+                                       "pret":  false,
+                                       "derniere":  null,
+                                       "ejecter":  null,
+                                       "parametres":  false,
+                                       "quittee":  false
+                                   },
+                       "vue":  null
+                   },
+        "notes":  {
+                      "appels":  [
+
+                                 ],
+                      "scripts":  [
+
+                                  ],
+                      "journal":  [
+
+                                  ]
+                  },
+        "final":  {
+                      "possible":  true,
+                      "cadre":  false,
+                      "pret":  false,
+                      "derniere":  null,
+                      "ejecter":  null,
+                      "en_fente":  null,
+                      "attente":  null,
+                      "lancee":  false,
+                      "parametres":  false,
+                      "quittee":  false,
+                      "a_jouer":  [
+
+                                  ],
+                      "page_console":  "Collapsed",
+                      "reglages":  {
+
+                                   }
+                  }
+    },
+    {
+        "nom":  "les Paramètres (page) : ils restent demandés",
+        "entree":  {
+                       "applis":  [
+                                      {
+                                          "id":  "nevermind",
+                                          "nom":  "Nevermind",
+                                          "couleur":  "#00E5FF",
+                                          "description":  "Ton PC au mieux.",
+                                          "presentation":  "",
+                                          "confidentialite":  "",
+                                          "cache_depuis":  ""
+                                      },
+                                      {
+                                          "id":  "evermind",
+                                          "nom":  "Evermind",
+                                          "couleur":  "#B04BFF",
+                                          "description":  "Ton agenda.",
+                                          "presentation":  "Ton agenda, qui te rappelle tes rendez-vous.",
+                                          "confidentialite":  "https://github.com/JordanJacquot/Evermind/blob/main/CONFIDENTIALITE.md",
+                                          "cache_depuis":  "0.14.0"
+                                      },
+                                      {
+                                          "id":  "mindcare",
+                                          "nom":  "Mindcare",
+                                          "couleur":  "#3DDC84",
+                                          "description":  "Prendre soin de toi.",
+                                          "presentation":  "Un coin calme.",
+                                          "confidentialite":  "",
+                                          "cache_depuis":  "0.2.0"
+                                      },
+                                      {
+                                          "id":  "cafe-creme",
+                                          "nom":  "Café crème",
+                                          "couleur":  "#FF8A3D",
+                                          "description":  "Une appli d\u0027essai, avec des accents : été, forêt.",
+                                          "presentation":  "",
+                                          "confidentialite":  "https://exemple.invalid/cafe",
+                                          "cache_depuis":  ""
+                                      }
+                                  ],
+                       "partage":  {
+
+                                   },
+                       "page":  "parametres",
+                       "console":  {
+                                       "possible":  true,
+                                       "cadre":  true,
+                                       "pret":  true,
+                                       "derniere":  null,
+                                       "ejecter":  null,
+                                       "parametres":  true,
+                                       "quittee":  false
+                                   },
+                       "vue":  null
+                   },
+        "notes":  {
+                      "appels":  [
+
+                                 ],
+                      "scripts":  [
+                                      {
+                                          "appel":  "pause",
+                                          "args":  "[]"
+                                      }
+                                  ],
+                      "journal":  [
+
+                                  ]
+                  },
+        "final":  {
+                      "possible":  true,
+                      "cadre":  true,
+                      "pret":  true,
+                      "derniere":  null,
+                      "ejecter":  null,
+                      "en_fente":  null,
+                      "attente":  null,
+                      "lancee":  false,
+                      "parametres":  false,
+                      "quittee":  true,
+                      "a_jouer":  [
+
+                                  ],
+                      "page_console":  "Collapsed",
+                      "reglages":  {
+
+                                   }
+                  }
+    },
+    {
+        "nom":  "accueil, Mindset caché : pause",
+        "entree":  {
+                       "applis":  [
+                                      {
+                                          "id":  "nevermind",
+                                          "nom":  "Nevermind",
+                                          "couleur":  "#00E5FF",
+                                          "description":  "Ton PC au mieux.",
+                                          "presentation":  "",
+                                          "confidentialite":  "",
+                                          "cache_depuis":  ""
+                                      },
+                                      {
+                                          "id":  "evermind",
+                                          "nom":  "Evermind",
+                                          "couleur":  "#B04BFF",
+                                          "description":  "Ton agenda.",
+                                          "presentation":  "Ton agenda, qui te rappelle tes rendez-vous.",
+                                          "confidentialite":  "https://github.com/JordanJacquot/Evermind/blob/main/CONFIDENTIALITE.md",
+                                          "cache_depuis":  "0.14.0"
+                                      },
+                                      {
+                                          "id":  "mindcare",
+                                          "nom":  "Mindcare",
+                                          "couleur":  "#3DDC84",
+                                          "description":  "Prendre soin de toi.",
+                                          "presentation":  "Un coin calme.",
+                                          "confidentialite":  "",
+                                          "cache_depuis":  "0.2.0"
+                                      },
+                                      {
+                                          "id":  "cafe-creme",
+                                          "nom":  "Café crème",
+                                          "couleur":  "#FF8A3D",
+                                          "description":  "Une appli d\u0027essai, avec des accents : été, forêt.",
+                                          "presentation":  "",
+                                          "confidentialite":  "https://exemple.invalid/cafe",
+                                          "cache_depuis":  ""
+                                      }
+                                  ],
+                       "partage":  {
+
+                                   },
+                       "page":  "accueil",
+                       "console":  {
+                                       "possible":  true,
+                                       "cadre":  true,
+                                       "pret":  true,
+                                       "derniere":  "evermind",
+                                       "ejecter":  null,
+                                       "parametres":  false,
+                                       "quittee":  false
+                                   },
+                       "vue":  {
+                                   "visible":  false
+                               }
+                   },
+        "notes":  {
+                      "appels":  [
+
+                                 ],
+                      "scripts":  [
+                                      {
+                                          "appel":  "pause",
+                                          "args":  "[]"
+                                      }
+                                  ],
+                      "journal":  [
+
+                                  ]
+                  },
+        "final":  {
+                      "possible":  true,
+                      "cadre":  true,
+                      "pret":  true,
+                      "derniere":  "evermind",
+                      "ejecter":  null,
+                      "en_fente":  null,
+                      "attente":  null,
+                      "lancee":  false,
+                      "parametres":  false,
+                      "quittee":  true,
+                      "a_jouer":  [
+
+                                  ],
+                      "page_console":  "Visible",
+                      "reglages":  {
+
+                                   }
+                  }
+    },
+    {
+        "nom":  "accueil, Mindset réduit : pause",
+        "entree":  {
+                       "applis":  [
+                                      {
+                                          "id":  "nevermind",
+                                          "nom":  "Nevermind",
+                                          "couleur":  "#00E5FF",
+                                          "description":  "Ton PC au mieux.",
+                                          "presentation":  "",
+                                          "confidentialite":  "",
+                                          "cache_depuis":  ""
+                                      },
+                                      {
+                                          "id":  "evermind",
+                                          "nom":  "Evermind",
+                                          "couleur":  "#B04BFF",
+                                          "description":  "Ton agenda.",
+                                          "presentation":  "Ton agenda, qui te rappelle tes rendez-vous.",
+                                          "confidentialite":  "https://github.com/JordanJacquot/Evermind/blob/main/CONFIDENTIALITE.md",
+                                          "cache_depuis":  "0.14.0"
+                                      },
+                                      {
+                                          "id":  "mindcare",
+                                          "nom":  "Mindcare",
+                                          "couleur":  "#3DDC84",
+                                          "description":  "Prendre soin de toi.",
+                                          "presentation":  "Un coin calme.",
+                                          "confidentialite":  "",
+                                          "cache_depuis":  "0.2.0"
+                                      },
+                                      {
+                                          "id":  "cafe-creme",
+                                          "nom":  "Café crème",
+                                          "couleur":  "#FF8A3D",
+                                          "description":  "Une appli d\u0027essai, avec des accents : été, forêt.",
+                                          "presentation":  "",
+                                          "confidentialite":  "https://exemple.invalid/cafe",
+                                          "cache_depuis":  ""
+                                      }
+                                  ],
+                       "partage":  {
+
+                                   },
+                       "page":  "accueil",
+                       "console":  {
+                                       "possible":  true,
+                                       "cadre":  true,
+                                       "pret":  true,
+                                       "derniere":  null,
+                                       "ejecter":  null,
+                                       "parametres":  false,
+                                       "quittee":  false
+                                   },
+                       "vue":  {
+                                   "reduite":  true
+                               }
+                   },
+        "notes":  {
+                      "appels":  [
+
+                                 ],
+                      "scripts":  [
+                                      {
+                                          "appel":  "pause",
+                                          "args":  "[]"
+                                      }
+                                  ],
+                      "journal":  [
+
+                                  ]
+                  },
+        "final":  {
+                      "possible":  true,
+                      "cadre":  true,
+                      "pret":  true,
+                      "derniere":  null,
+                      "ejecter":  null,
+                      "en_fente":  null,
+                      "attente":  null,
+                      "lancee":  false,
+                      "parametres":  false,
+                      "quittee":  true,
+                      "a_jouer":  [
+
+                                  ],
+                      "page_console":  "Visible",
+                      "reglages":  {
+
+                                   }
+                  }
+    },
+    {
+        "nom":  "console impossible : rien",
+        "entree":  {
+                       "applis":  [
+                                      {
+                                          "id":  "nevermind",
+                                          "nom":  "Nevermind",
+                                          "couleur":  "#00E5FF",
+                                          "description":  "Ton PC au mieux.",
+                                          "presentation":  "",
+                                          "confidentialite":  "",
+                                          "cache_depuis":  ""
+                                      },
+                                      {
+                                          "id":  "evermind",
+                                          "nom":  "Evermind",
+                                          "couleur":  "#B04BFF",
+                                          "description":  "Ton agenda.",
+                                          "presentation":  "Ton agenda, qui te rappelle tes rendez-vous.",
+                                          "confidentialite":  "https://github.com/JordanJacquot/Evermind/blob/main/CONFIDENTIALITE.md",
+                                          "cache_depuis":  "0.14.0"
+                                      },
+                                      {
+                                          "id":  "mindcare",
+                                          "nom":  "Mindcare",
+                                          "couleur":  "#3DDC84",
+                                          "description":  "Prendre soin de toi.",
+                                          "presentation":  "Un coin calme.",
+                                          "confidentialite":  "",
+                                          "cache_depuis":  "0.2.0"
+                                      },
+                                      {
+                                          "id":  "cafe-creme",
+                                          "nom":  "Café crème",
+                                          "couleur":  "#FF8A3D",
+                                          "description":  "Une appli d\u0027essai, avec des accents : été, forêt.",
+                                          "presentation":  "",
+                                          "confidentialite":  "https://exemple.invalid/cafe",
+                                          "cache_depuis":  ""
+                                      }
+                                  ],
+                       "partage":  {
+
+                                   },
+                       "page":  "accueil",
+                       "console":  {
+                                       "possible":  false,
+                                       "cadre":  false,
+                                       "pret":  false,
+                                       "derniere":  "evermind",
+                                       "ejecter":  null,
+                                       "parametres":  false,
+                                       "quittee":  false
+                                   },
+                       "vue":  null
+                   },
+        "notes":  {
+                      "appels":  [
+
+                                 ],
+                      "scripts":  [
+
+                                  ],
+                      "journal":  [
+
+                                  ]
+                  },
+        "final":  {
+                      "possible":  false,
+                      "cadre":  false,
+                      "pret":  false,
+                      "derniere":  "evermind",
+                      "ejecter":  null,
+                      "en_fente":  null,
+                      "attente":  null,
+                      "lancee":  false,
+                      "parametres":  false,
+                      "quittee":  false,
+                      "a_jouer":  [
+
+                                  ],
+                      "page_console":  "Collapsed",
+                      "reglages":  {
+
+                                   }
+                  }
+    }
+]
