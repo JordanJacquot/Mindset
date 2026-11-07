@@ -1,0 +1,414 @@
+{
+    "cas":  [
+                {
+                    "nom":  "rien d\u0027installé",
+                    "entree":  {
+                                   "reglages":  {
+
+                                                }
+                               },
+                    "sortie":  "{\"version\":\"3.0.0\",\"general\":{\"reduire\":true,\"fermeture\":\"demander\",\"windows\":true,\"applis\":[]},\"apparence\":{\"actuel\":\"neon\",\"info\":\"\",\"themes\":[{\"cle\":\"neon\",\"nom\":\"Néon\",\"desc\":\"Cyan, violet et magenta sur fond de nuit.\",\"fond\":\"#0C0920\",\"couleurs\":[\"#00E5FF\",\"#B04BFF\",\"#FF2EB5\"],\"image\":false},{\"cle\":\"crepuscule\",\"nom\":\"Crépuscule\",\"desc\":\"Orange, rose et or, comme un coucher de soleil.\",\"fond\":\"#1A0B12\",\"couleurs\":[\"#FF8A3D\",\"#FF3D7F\",\"#FFC83D\"],\"image\":false},{\"cle\":\"terminal\",\"nom\":\"Terminal\",\"desc\":\"Vert phosphore sur fond noir, tout en police de code.\",\"fond\":\"#030B06\",\"couleurs\":[\"#33FF77\",\"#B6FF3B\",\"#00E0A0\"],\"image\":false},{\"cle\":\"arcade\",\"nom\":\"Arcade\",\"desc\":\"Jaune, rouge et bleu vifs sur fond bleu nuit, comme une vieille borne.\",\"fond\":\"#0B1640\",\"couleurs\":[\"#FBD000\",\"#E52521\",\"#1E88E5\"],\"image\":false},{\"cle\":\"rubis\",\"nom\":\"Rubis\",\"desc\":\"Rouge vif, jaune et bleu sur un gris anthracite sobre.\",\"fond\":\"#17171D\",\"couleurs\":[\"#FF3B3B\",\"#FFDE00\",\"#3B6FFF\"],\"image\":false}],\"animations\":\"completes\",\"animInfo\":\"\"},\"son\":{\"micros\":[{\"cle\":\"\",\"nom\":\"Celui de Windows\",\"oui\":true}],\"casques\":[{\"cle\":\"\",\"nom\":\"Celui de Windows\",\"oui\":true}]},\"maj\":{\"auto\":true,\"verif\":true,\"mindset\":{\"texte\":\"à jour\",\"ton\":\"ok\"},\"prete\":\"\",\"info\":\"\",\"applis\":[{\"nom\":\"Nevermind\",\"couleur\":\"#00E5FF\",\"version\":\"pas installé\",\"texte\":\"pas encore vérifié\",\"ton\":\"\"},{\"nom\":\"Evermind\",\"couleur\":\"#B04BFF\",\"version\":\"pas installé\",\"texte\":\"pas encore vérifié\",\"ton\":\"\"},{\"nom\":\"Mindcare\",\"couleur\":\"#FF2EB5\",\"version\":\"pas installé\",\"texte\":\"pas encore vérifié\",\"ton\":\"\"}],\"historique\":[],\"essai\":[],\"essaiNote\":\"Tu reçois aussi ses versions d\\u0027essai, avant tout le monde. Décoché, tu gardes ta version jusqu\\u0027à la prochaine version normale.\"},\"dossiers\":{\"texte\":\"Les programmes sont dans \u003cracine\u003e\\\\Programmes (protégé : seul un administrateur peut les modifier). Les données de Mindset et de chaque appli sont dans \u003cracine\u003e\\\\Donnees, un dossier par appli.\"},\"conso\":null}",
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "nom":  "tout réglé",
+                    "entree":  {
+                                   "maj_info":  "Vérifié à 19:58",
+                                   "onglet":  "maj",
+                                   "reglages":  {
+                                                    "VerifVersions":  true,
+                                                    "MajAuto":  false,
+                                                    "VersionsEssai":  [
+                                                                          "mindcare",
+                                                                          "Evermind"
+                                                                      ],
+                                                    "Fermeture":  "quitter",
+                                                    "ReduireHorloge":  false,
+                                                    "LancerAvecWindows":  false,
+                                                    "Demarrage":  [
+                                                                      "evermind",
+                                                                      "NEVERMIND"
+                                                                  ],
+                                                    "Animations":  "express"
+                                                },
+                                   "installations":  {
+                                                         "mindcare":  {
+                                                                          "gere":  false,
+                                                                          "version":  null,
+                                                                          "dossier":  "C:\\P\\Mindcare"
+                                                                      },
+                                                         "nevermind":  {
+                                                                           "gere":  true,
+                                                                           "version":  "2.0.1",
+                                                                           "dossier":  "C:\\P\\Nevermind"
+                                                                       },
+                                                         "evermind":  {
+                                                                          "gere":  true,
+                                                                          "version":  "1.4.0",
+                                                                          "dossier":  "C:\\P\\Evermind"
+                                                                      }
+                                                     },
+                                   "publications":  {
+                                                        "mindcare":  {
+                                                                         "Erreur":  "HTTP 403"
+                                                                     },
+                                                        "nevermind":  {
+                                                                          "Version":  "2.1.0",
+                                                                          "Essai":  true
+                                                                      },
+                                                        "evermind":  {
+                                                                         "Version":  "1.4.0"
+                                                                     }
+                                                    },
+                                   "maj_mindset":  "3.0.1",
+                                   "fichiers":  [
+                                                    {
+                                                        "chemin":  "Donnees\\Mindset\\packs\\foret\\pack.json",
+                                                        "b64":  "eyAiTmFtZSI6ICJGb3LDqnQiLCAiRGVzYyI6ICJWZXJ0IHRlbmRyZSBldCBib2lzLiIsICJCYXNlIjogInRlcm1pbmFsIiwgIkhlbGxvIjogInswfSwgcHJvbWVuZXVyICEiLCAiTWFzY290dGUiOiB7ICJGaWxlIjogIm1hc2NvdHRlLnBuZyIsICJGcmFtZXMiOiA0LCAiRGVsYXkiOiAxMjAgfSwgIkxvZ28iOiAibG9nby5wbmciLCAiQ29sb3JzIjogeyAiUCI6ICIjNENEOTY0IiwgIlMiOiAiI0I2RkYzQiIsICJUIjogIiNGRkM4M0QiLCAiTkgiOiAxNDAsICJOUyI6IDAuNSwgIk1hcCI6IHsgIjBDMDkyMCI6ICIwQTFBMEUiLCAiIzA2MDUwRiI6ICIwNDBDMDYiIH0gfSwgIlRhYkljb25zIjogeyAiYWNjdWVpbCI6IHsgIkZpbGUiOiAibG9nby5wbmciLCAiRnJhbWVzIjogMSwgIkRlbGF5IjogMTAgfSwgIk1hbCI6IHsgIkZpbGUiOiAiYWJzZW50LnBuZyIgfSB9IH0="
+                                                    },
+                                                    {
+                                                        "chemin":  "Donnees\\Mindset\\packs\\foret\\mascotte.png",
+                                                        "b64":  "iVBORw0KGgoAAAANSUhEUgAAAIAAAAAgCAYAAADaInAlAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABrSURBVHhe7dIhAQAgEMDAj04kItEEPBVu4sz05ux145o/xNIAuAbANQCuAXANgGsAXAPgGgDXALgGwDUArgFwDYBrAFwD4BoA1wC4BsA1AK4BcA2AawBcA+AaANcAuAbANQCuAXANgGsA3APNR/LRzkchlwAAAABJRU5ErkJggg=="
+                                                    },
+                                                    {
+                                                        "chemin":  "Donnees\\Mindset\\packs\\foret\\logo.png",
+                                                        "b64":  "iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAACLSURBVHhe7dAxAQAgEIDAD2gMS38a3akAwy2MzNn7zIbBpgEMNg1gsGkAg00DGGwawGDTAAabBjDYNIDBpgEMNg1gsGkAg00DGGwawGDTAAabBjDYNIDBpgEMNg1gsGkAg00DGGwawGDTAAabBjDYNIDBpgEMNg1gsGkAg00DGGwawGDTAAabBjDYfF/hglkwrZ+lAAAAAElFTkSuQmCC"
+                                                    },
+                                                    {
+                                                        "chemin":  "Donnees\\Mindset\\packs\\cafe-creme\\pack.json",
+                                                        "b64":  "eyAiTmFtZSI6ICJDYWbDqSBjcsOobWUiLCAiRGVzYyI6ICJEb3V4IGNvbW1lIHVuIG1hdGluLiIsICJCYXNlIjogImNyZXB1c2N1bGUiLCAiSGVsbG8iOiAiUGFzIGRlIHBocmFzZSIsICJNYXNjb3R0ZSI6IHsgIkZpbGUiOiAiYmFuZGUucG5nIiwgIkZyYW1lcyI6IDEgfSwgIkxvZ28iOiAibG9nby5wbmciLCAiQmFja2dyb3VuZCI6ICJsb2dvLnBuZyIsICJCYWNrZ3JvdW5kT3BhY2l0eSI6IDAuNSwgIkJhY2tncm91bmRBbGlnbiI6ICJiYXMtZHJvaXRlIiwgIkZvbnQiOiAicG9saWNlLnR0ZiIsICJGb250U2NvcGUiOiAidG91dCIgfQ=="
+                                                    },
+                                                    {
+                                                        "chemin":  "Donnees\\Mindset\\packs\\cafe-creme\\bande.png",
+                                                        "b64":  "iVBORw0KGgoAAAANSUhEUgAAASwAAAAoCAYAAABEm8fXAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAACjSURBVHhe7dQxDQAgAMAwjOEOmXiBHwUs6dFnAjbmXgegYLwB4FeGBWQYFpBhWECGYQEZhgVkGBaQYVhAhmEBGYYFZBgWkGFYQIZhARmGBWQYFpBhWECGYQEZhgVkGBaQYVhAhmEBGYYFZBgWkGFYQIZhARmGBWQYFpBhWECGYQEZhgVkGBaQYVhAhmEBGYYFZBgWkGFYQIZhARmGBWQYFpBxAURbV6fpwnvXAAAAAElFTkSuQmCC"
+                                                    },
+                                                    {
+                                                        "chemin":  "Donnees\\Mindset\\packs\\cafe-creme\\logo.png",
+                                                        "b64":  "iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAACLSURBVHhe7dAxAQAgEIDAD2gMS38a3akAwy2MzNn7zIbBpgEMNg1gsGkAg00DGGwawGDTAAabBjDYNIDBpgEMNg1gsGkAg00DGGwawGDTAAabBjDYNIDBpgEMNg1gsGkAg00DGGwawGDTAAabBjDYNIDBpgEMNg1gsGkAg00DGGwawGDTAAabBjDYfF/hglkwrZ+lAAAAAElFTkSuQmCC"
+                                                    },
+                                                    {
+                                                        "chemin":  "Donnees\\Mindset\\packs\\neige\\pack.json",
+                                                        "b64":  "eyAiTmFtZSI6ICJOZWlnZSIsICJEZXNjIjogIlRvdXQgYmxhbmMuIiwgIkJhc2UiOiAicnViaXMiIH0="
+                                                    },
+                                                    {
+                                                        "chemin":  "Donnees\\Mindset\\packs\\brume\\pack.json",
+                                                        "b64":  "eyAiTmFtZSI6ICJCcnVtZSIsICJCYXNlIjogImFyY2FkZSIsICJDb2xvcnMiOiB7ICJQIjogInJvdWdlIiwgIlMiOiAiI0I2RkYzQiIsICJUIjogIiNGRkM4M0QiIH0gfQ=="
+                                                    },
+                                                    {
+                                                        "chemin":  "Donnees\\Mindset\\mises-a-jour.json",
+                                                        "b64":  "eyAiaGlzdG9yaXF1ZSI6IFsgeyAiaWQiOiAiZXZlcm1pbmQiLCAibm9tIjogIkV2ZXJtaW5kIiwgInZlcnNpb24iOiAiMS40LjAiLCAicXVhbmQiOiAiMjAyNi0xMS0wN1QwMDoxNjowMCIsICJhdXRvIjogdHJ1ZSB9LCB7ICJpZCI6ICJtaW5kc2V0IiwgIm5vbSI6ICJNaW5kc2V0IiwgInZlcnNpb24iOiAiMi4xOC4wIiwgInF1YW5kIjogIjIwMjYtMTEtMDZUMjE6MDU6MDAiLCAiYXV0byI6IGZhbHNlIH0sIHsgImlkIjogImFuY2llbm5lIiwgIm5vbSI6ICJVbmUgYXBwbGkgcmV0aXLDqWUgZGUgbGEgbGlzdGUsIGF1IG5vbSBiaWVuIHRyb3AgbG9uZyBwb3VyIHRlbmlyIiwgInZlcnNpb24iOiAiMC45IiwgInF1YW5kIjogIjIwMjYtMTAtMThUMDk6MzA6MDAiLCAiYXV0byI6ICJub24iIH0sIHsgImlkIjogIk5ldmVybWluZCIsICJub20iOiAiTmV2ZXJtaW5kIiwgInZlcnNpb24iOiAiMi4wLjEiLCAicXVhbmQiOiAiMjAyNi0xMS0wOFQwODowMDowMCIsICJhdXRvIjogMCB9LCB7ICJpZCI6ICJtYWwgw6ljcml0IiwgInZlcnNpb24iOiAiMS4wLjAiLCAicXVhbmQiOiAiMjAyNi0xMS0wN1QwMDowMDowMCIgfSwgeyAiaWQiOiAieCIsICJ2ZXJzaW9uIjogIjEiLCAicXVhbmQiOiAiMjAyNi0xMS0wN1QwMDowMDowMCIgfSwgeyAiaWQiOiAieCIsICJ2ZXJzaW9uIjogIjEuMCIsICJxdWFuZCI6ICIyMDI2LTExLTA3IDAwOjAwOjAwIiB9LCBudWxsIF0gfQ=="
+                                                    }
+                                                ],
+                                   "micros":  [
+                                                  "Micro du casque",
+                                                  "Micro (Realtek(R) Audio Haute D",
+                                                  "Micro du casque",
+                                                  ""
+                                              ],
+                                   "theme":  "pack:foret",
+                                   "son":  {
+                                               "micro":  "Micro du casque",
+                                               "casque":  "Haut-parleurs (Realtek High Definition Audio)"
+                                           },
+                                   "theme_info":  "Une info",
+                                   "sorties":  [
+                                                   "Haut-parleurs (Realtek High Def",
+                                                   "Casque"
+                                               ]
+                               },
+                    "sortie":  "{\"version\":\"3.0.0\",\"general\":{\"reduire\":false,\"fermeture\":\"quitter\",\"windows\":false,\"applis\":[{\"id\":\"nevermind\",\"nom\":\"Nevermind\",\"oui\":true,\"note\":\"\"},{\"id\":\"evermind\",\"nom\":\"Evermind\",\"oui\":true,\"note\":\"Sinon ses rappels ne sonnent pas.\"},{\"id\":\"mindcare\",\"nom\":\"Mindcare\",\"oui\":false,\"note\":\"\"}]},\"apparence\":{\"actuel\":\"pack:foret\",\"info\":\"Une info\",\"themes\":[{\"cle\":\"neon\",\"nom\":\"Néon\",\"desc\":\"Cyan, violet et magenta sur fond de nuit.\",\"fond\":\"#0C0920\",\"couleurs\":[\"#00E5FF\",\"#B04BFF\",\"#FF2EB5\"],\"image\":false},{\"cle\":\"crepuscule\",\"nom\":\"Crépuscule\",\"desc\":\"Orange, rose et or, comme un coucher de soleil.\",\"fond\":\"#1A0B12\",\"couleurs\":[\"#FF8A3D\",\"#FF3D7F\",\"#FFC83D\"],\"image\":false},{\"cle\":\"terminal\",\"nom\":\"Terminal\",\"desc\":\"Vert phosphore sur fond noir, tout en police de code.\",\"fond\":\"#030B06\",\"couleurs\":[\"#33FF77\",\"#B6FF3B\",\"#00E0A0\"],\"image\":false},{\"cle\":\"arcade\",\"nom\":\"Arcade\",\"desc\":\"Jaune, rouge et bleu vifs sur fond bleu nuit, comme une vieille borne.\",\"fond\":\"#0B1640\",\"couleurs\":[\"#FBD000\",\"#E52521\",\"#1E88E5\"],\"image\":false},{\"cle\":\"rubis\",\"nom\":\"Rubis\",\"desc\":\"Rouge vif, jaune et bleu sur un gris anthracite sobre.\",\"fond\":\"#17171D\",\"couleurs\":[\"#FF3B3B\",\"#FFDE00\",\"#3B6FFF\"],\"image\":false},{\"cle\":\"pack:brume\",\"nom\":\"Brume\",\"desc\":\"\",\"fond\":\"#0B1640\",\"couleurs\":[\"#FBD000\",\"#E52521\",\"#1E88E5\"],\"image\":false},{\"cle\":\"pack:cafe-creme\",\"nom\":\"Café crème\",\"desc\":\"Doux comme un matin.\",\"fond\":\"#1A0B12\",\"couleurs\":[\"#FF8A3D\",\"#FF3D7F\",\"#FFC83D\"],\"image\":true},{\"cle\":\"pack:foret\",\"nom\":\"Forêt\",\"desc\":\"Vert tendre et bois.\",\"fond\":\"#0A1A0E\",\"couleurs\":[\"#4CD964\",\"#B6FF3B\",\"#FFC83D\"],\"image\":true},{\"cle\":\"pack:neige\",\"nom\":\"Neige\",\"desc\":\"Tout blanc.\",\"fond\":\"#17171D\",\"couleurs\":[\"#FF3B3B\",\"#FFDE00\",\"#3B6FFF\"],\"image\":false}],\"animations\":\"express\",\"animInfo\":\"\"},\"son\":{\"micros\":[{\"cle\":\"\",\"nom\":\"Celui de Windows\",\"oui\":false},{\"cle\":\"Micro du casque\",\"nom\":\"Micro du casque\",\"oui\":true},{\"cle\":\"Micro (Realtek(R) Audio Haute D\",\"nom\":\"Micro (Realtek(R) Audio Haute D…\",\"oui\":false}],\"casques\":[{\"cle\":\"\",\"nom\":\"Celui de Windows\",\"oui\":false},{\"cle\":\"Haut-parleurs (Realtek High Def\",\"nom\":\"Haut-parleurs (Realtek High Def…)\",\"oui\":false},{\"cle\":\"Casque\",\"nom\":\"Casque\",\"oui\":false},{\"cle\":\"Haut-parleurs (Realtek High Definition Audio)\",\"nom\":\"Haut-parleurs (Realtek High Def…)inition Audio) (débranché)\",\"oui\":true}]},\"maj\":{\"auto\":false,\"verif\":true,\"mindset\":{\"texte\":\"3.0.1 prête\",\"ton\":\"attention\"},\"prete\":\"3.0.1\",\"info\":\"Vérifié à 19:58\",\"applis\":[{\"nom\":\"Nevermind\",\"couleur\":\"#4CD964\",\"version\":\"version 2.0.1\",\"texte\":\"2.1.0 (essai) disponible\",\"ton\":\"attention\"},{\"nom\":\"Evermind\",\"couleur\":\"#B6FF3B\",\"version\":\"version 1.4.0\",\"texte\":\"à jour\",\"ton\":\"ok\"},{\"nom\":\"Mindcare\",\"couleur\":\"#FFC83D\",\"version\":\"version ?\",\"texte\":\"GitHub injoignable\",\"ton\":\"urgent\"}],\"historique\":[{\"nom\":\"Evermind\",\"couleur\":\"#B6FF3B\",\"brut\":\"#B04BFF\",\"version\":\"1.4.0\",\"quand\":\"Aujourd\\u0027hui à 00 h 16\",\"auto\":true},{\"nom\":\"Mindset\",\"couleur\":\"#ECEAF7\",\"brut\":\"#ECEAF7\",\"version\":\"2.18.0\",\"quand\":\"Hier à 21 h 05\",\"auto\":false},{\"nom\":\"Une appli retirée de la liste,\",\"couleur\":\"#ACC0B3\",\"brut\":\"#A9A3C9\",\"version\":\"0.9\",\"quand\":\"Le 18 octobre à 09 h 30\",\"auto\":true},{\"nom\":\"Nevermind\",\"couleur\":\"#4CD964\",\"brut\":\"#00E5FF\",\"version\":\"2.0.1\",\"quand\":\"Le 8 novembre à 08 h 00\",\"auto\":false}],\"essai\":[{\"id\":\"nevermind\",\"nom\":\"Nevermind\",\"oui\":false},{\"id\":\"evermind\",\"nom\":\"Evermind\",\"oui\":false},{\"id\":\"mindcare\",\"nom\":\"Mindcare\",\"oui\":true}],\"essaiNote\":\"Tu reçois aussi ses versions d\\u0027essai, avant tout le monde. Décoché, tu gardes ta version jusqu\\u0027à la prochaine version normale.\"},\"dossiers\":{\"texte\":\"Les programmes sont dans \u003cracine\u003e\\\\Programmes (protégé : seul un administrateur peut les modifier). Les données de Mindset et de chaque appli sont dans \u003cracine\u003e\\\\Donnees, un dossier par appli.\"},\"conso\":null}",
+                    "journal":  [
+                                    "Thème brume : couleurs mal écrites, ignorées (thème de base)"
+                                ]
+                },
+                {
+                    "nom":  "Nevermind encore administrateur",
+                    "entree":  {
+                                   "reglages":  {
+                                                    "VerifVersions":  false
+                                                },
+                                   "maj_en_cours":  true,
+                                   "installations":  {
+                                                         "nevermind":  {
+                                                                           "gere":  true,
+                                                                           "version":  "1.9.0",
+                                                                           "dossier":  "C:\\P\\Nevermind"
+                                                                       }
+                                                     },
+                                   "publications":  {
+                                                        "nevermind":  {
+                                                                          "Version":  "1.9.0"
+                                                                      }
+                                                    }
+                               },
+                    "sortie":  "{\"version\":\"3.0.0\",\"general\":{\"reduire\":true,\"fermeture\":\"demander\",\"windows\":true,\"applis\":[]},\"apparence\":{\"actuel\":\"neon\",\"info\":\"\",\"themes\":[{\"cle\":\"neon\",\"nom\":\"Néon\",\"desc\":\"Cyan, violet et magenta sur fond de nuit.\",\"fond\":\"#0C0920\",\"couleurs\":[\"#00E5FF\",\"#B04BFF\",\"#FF2EB5\"],\"image\":false},{\"cle\":\"crepuscule\",\"nom\":\"Crépuscule\",\"desc\":\"Orange, rose et or, comme un coucher de soleil.\",\"fond\":\"#1A0B12\",\"couleurs\":[\"#FF8A3D\",\"#FF3D7F\",\"#FFC83D\"],\"image\":false},{\"cle\":\"terminal\",\"nom\":\"Terminal\",\"desc\":\"Vert phosphore sur fond noir, tout en police de code.\",\"fond\":\"#030B06\",\"couleurs\":[\"#33FF77\",\"#B6FF3B\",\"#00E0A0\"],\"image\":false},{\"cle\":\"arcade\",\"nom\":\"Arcade\",\"desc\":\"Jaune, rouge et bleu vifs sur fond bleu nuit, comme une vieille borne.\",\"fond\":\"#0B1640\",\"couleurs\":[\"#FBD000\",\"#E52521\",\"#1E88E5\"],\"image\":false},{\"cle\":\"rubis\",\"nom\":\"Rubis\",\"desc\":\"Rouge vif, jaune et bleu sur un gris anthracite sobre.\",\"fond\":\"#17171D\",\"couleurs\":[\"#FF3B3B\",\"#FFDE00\",\"#3B6FFF\"],\"image\":false}],\"animations\":\"completes\",\"animInfo\":\"\"},\"son\":{\"micros\":[{\"cle\":\"\",\"nom\":\"Celui de Windows\",\"oui\":true}],\"casques\":[{\"cle\":\"\",\"nom\":\"Celui de Windows\",\"oui\":true}]},\"maj\":{\"auto\":true,\"verif\":false,\"mindset\":{\"texte\":\"recherche...\",\"ton\":\"\"},\"prete\":\"\",\"info\":\"\",\"applis\":[{\"nom\":\"Nevermind\",\"couleur\":\"#00E5FF\",\"version\":\"version 1.9.0\",\"texte\":\"à jour\",\"ton\":\"ok\"},{\"nom\":\"Evermind\",\"couleur\":\"#B04BFF\",\"version\":\"pas installé\",\"texte\":\"pas encore vérifié\",\"ton\":\"\"},{\"nom\":\"Mindcare\",\"couleur\":\"#FF2EB5\",\"version\":\"pas installé\",\"texte\":\"pas encore vérifié\",\"ton\":\"\"}],\"historique\":[],\"essai\":[{\"id\":\"nevermind\",\"nom\":\"Nevermind\",\"oui\":false}],\"essaiNote\":\"Tu reçois aussi ses versions d\\u0027essai, avant tout le monde. Décoché, tu gardes ta version jusqu\\u0027à la prochaine version normale.\"},\"dossiers\":{\"texte\":\"Les programmes sont dans \u003cracine\u003e\\\\Programmes (protégé : seul un administrateur peut les modifier). Les données de Mindset et de chaque appli sont dans \u003cracine\u003e\\\\Donnees, un dossier par appli.\"},\"conso\":null}",
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "nom":  "Mindset administrateur",
+                    "entree":  {
+                                   "admin":  true,
+                                   "reglages":  {
+                                                    "Demarrage":  "evermind",
+                                                    "VerifVersions":  false
+                                                },
+                                   "installations":  {
+                                                         "nevermind":  {
+                                                                           "gere":  true,
+                                                                           "version":  "1.9.0",
+                                                                           "dossier":  "C:\\P\\Nevermind"
+                                                                       },
+                                                         "evermind":  {
+                                                                          "gere":  false,
+                                                                          "version":  "",
+                                                                          "dossier":  "C:\\P\\Evermind"
+                                                                      }
+                                                     },
+                                   "publications":  {
+                                                        "mindcare":  {
+                                                                         "Version":  "0.5.0"
+                                                                     },
+                                                        "evermind":  {
+                                                                         "Version":  "1.0.0"
+                                                                     }
+                                                    }
+                               },
+                    "sortie":  "{\"version\":\"3.0.0\",\"general\":{\"reduire\":true,\"fermeture\":\"demander\",\"windows\":true,\"applis\":[{\"id\":\"nevermind\",\"nom\":\"Nevermind\",\"oui\":false,\"note\":\"\"},{\"id\":\"evermind\",\"nom\":\"Evermind\",\"oui\":true,\"note\":\"Sinon ses rappels ne sonnent pas.\"}]},\"apparence\":{\"actuel\":\"neon\",\"info\":\"\",\"themes\":[{\"cle\":\"neon\",\"nom\":\"Néon\",\"desc\":\"Cyan, violet et magenta sur fond de nuit.\",\"fond\":\"#0C0920\",\"couleurs\":[\"#00E5FF\",\"#B04BFF\",\"#FF2EB5\"],\"image\":false},{\"cle\":\"crepuscule\",\"nom\":\"Crépuscule\",\"desc\":\"Orange, rose et or, comme un coucher de soleil.\",\"fond\":\"#1A0B12\",\"couleurs\":[\"#FF8A3D\",\"#FF3D7F\",\"#FFC83D\"],\"image\":false},{\"cle\":\"terminal\",\"nom\":\"Terminal\",\"desc\":\"Vert phosphore sur fond noir, tout en police de code.\",\"fond\":\"#030B06\",\"couleurs\":[\"#33FF77\",\"#B6FF3B\",\"#00E0A0\"],\"image\":false},{\"cle\":\"arcade\",\"nom\":\"Arcade\",\"desc\":\"Jaune, rouge et bleu vifs sur fond bleu nuit, comme une vieille borne.\",\"fond\":\"#0B1640\",\"couleurs\":[\"#FBD000\",\"#E52521\",\"#1E88E5\"],\"image\":false},{\"cle\":\"rubis\",\"nom\":\"Rubis\",\"desc\":\"Rouge vif, jaune et bleu sur un gris anthracite sobre.\",\"fond\":\"#17171D\",\"couleurs\":[\"#FF3B3B\",\"#FFDE00\",\"#3B6FFF\"],\"image\":false}],\"animations\":\"completes\",\"animInfo\":\"\"},\"son\":{\"micros\":[{\"cle\":\"\",\"nom\":\"Celui de Windows\",\"oui\":true}],\"casques\":[{\"cle\":\"\",\"nom\":\"Celui de Windows\",\"oui\":true}]},\"maj\":{\"auto\":true,\"verif\":false,\"mindset\":{\"texte\":\"pas encore vérifié\",\"ton\":\"\"},\"prete\":\"\",\"info\":\"\",\"applis\":[{\"nom\":\"Nevermind\",\"couleur\":\"#00E5FF\",\"version\":\"version 1.9.0\",\"texte\":\"pas encore vérifié\",\"ton\":\"\"},{\"nom\":\"Evermind\",\"couleur\":\"#B04BFF\",\"version\":\"version ?\",\"texte\":\"à jour\",\"ton\":\"ok\"},{\"nom\":\"Mindcare\",\"couleur\":\"#FF2EB5\",\"version\":\"pas installé\",\"texte\":\"dernière : 0.5.0\",\"ton\":\"\"}],\"historique\":[],\"essai\":[{\"id\":\"nevermind\",\"nom\":\"Nevermind\",\"oui\":false},{\"id\":\"evermind\",\"nom\":\"Evermind\",\"oui\":false}],\"essaiNote\":\"Tu reçois aussi ses versions d\\u0027essai, avant tout le monde. Décoché, tu gardes ta version jusqu\\u0027à la prochaine version normale.\"},\"dossiers\":{\"texte\":\"Les programmes sont dans \u003cracine\u003e\\\\Programmes (protégé : seul un administrateur peut les modifier). Les données de Mindset et de chaque appli sont dans \u003cracine\u003e\\\\Donnees, un dossier par appli.\"},\"conso\":null}",
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "nom":  "recherche coupée et vérifié",
+                    "entree":  {
+                                   "reglages":  {
+                                                    "MajAuto":  true,
+                                                    "VerifVersions":  false
+                                                },
+                                   "son":  {
+                                               "micro":  "Débranché depuis",
+                                               "casque":  ""
+                                           },
+                                   "micros":  [
+                                                  "A",
+                                                  "B"
+                                              ],
+                                   "verifie_a":  true
+                               },
+                    "sortie":  "{\"version\":\"3.0.0\",\"general\":{\"reduire\":true,\"fermeture\":\"demander\",\"windows\":true,\"applis\":[]},\"apparence\":{\"actuel\":\"neon\",\"info\":\"\",\"themes\":[{\"cle\":\"neon\",\"nom\":\"Néon\",\"desc\":\"Cyan, violet et magenta sur fond de nuit.\",\"fond\":\"#0C0920\",\"couleurs\":[\"#00E5FF\",\"#B04BFF\",\"#FF2EB5\"],\"image\":false},{\"cle\":\"crepuscule\",\"nom\":\"Crépuscule\",\"desc\":\"Orange, rose et or, comme un coucher de soleil.\",\"fond\":\"#1A0B12\",\"couleurs\":[\"#FF8A3D\",\"#FF3D7F\",\"#FFC83D\"],\"image\":false},{\"cle\":\"terminal\",\"nom\":\"Terminal\",\"desc\":\"Vert phosphore sur fond noir, tout en police de code.\",\"fond\":\"#030B06\",\"couleurs\":[\"#33FF77\",\"#B6FF3B\",\"#00E0A0\"],\"image\":false},{\"cle\":\"arcade\",\"nom\":\"Arcade\",\"desc\":\"Jaune, rouge et bleu vifs sur fond bleu nuit, comme une vieille borne.\",\"fond\":\"#0B1640\",\"couleurs\":[\"#FBD000\",\"#E52521\",\"#1E88E5\"],\"image\":false},{\"cle\":\"rubis\",\"nom\":\"Rubis\",\"desc\":\"Rouge vif, jaune et bleu sur un gris anthracite sobre.\",\"fond\":\"#17171D\",\"couleurs\":[\"#FF3B3B\",\"#FFDE00\",\"#3B6FFF\"],\"image\":false}],\"animations\":\"completes\",\"animInfo\":\"\"},\"son\":{\"micros\":[{\"cle\":\"\",\"nom\":\"Celui de Windows\",\"oui\":false},{\"cle\":\"A\",\"nom\":\"A\",\"oui\":false},{\"cle\":\"B\",\"nom\":\"B\",\"oui\":false},{\"cle\":\"Débranché depuis\",\"nom\":\"Débranché depuis (débranché)\",\"oui\":true}],\"casques\":[{\"cle\":\"\",\"nom\":\"Celui de Windows\",\"oui\":true}]},\"maj\":{\"auto\":true,\"verif\":false,\"mindset\":{\"texte\":\"à jour\",\"ton\":\"ok\"},\"prete\":\"\",\"info\":\"\",\"applis\":[{\"nom\":\"Nevermind\",\"couleur\":\"#00E5FF\",\"version\":\"pas installé\",\"texte\":\"pas encore vérifié\",\"ton\":\"\"},{\"nom\":\"Evermind\",\"couleur\":\"#B04BFF\",\"version\":\"pas installé\",\"texte\":\"pas encore vérifié\",\"ton\":\"\"},{\"nom\":\"Mindcare\",\"couleur\":\"#FF2EB5\",\"version\":\"pas installé\",\"texte\":\"pas encore vérifié\",\"ton\":\"\"}],\"historique\":[],\"essai\":[],\"essaiNote\":\"Tu reçois aussi ses versions d\\u0027essai, avant tout le monde. Décoché, tu gardes ta version jusqu\\u0027à la prochaine version normale.\"},\"dossiers\":{\"texte\":\"Les programmes sont dans \u003cracine\u003e\\\\Programmes (protégé : seul un administrateur peut les modifier). Les données de Mindset et de chaque appli sont dans \u003cracine\u003e\\\\Donnees, un dossier par appli.\"},\"conso\":null}",
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "nom":  "thème Café crème",
+                    "entree":  {
+                                   "onglet":  "apparence",
+                                   "fichiers":  [
+                                                    {
+                                                        "chemin":  "Donnees\\Mindset\\packs\\foret\\pack.json",
+                                                        "b64":  "eyAiTmFtZSI6ICJGb3LDqnQiLCAiRGVzYyI6ICJWZXJ0IHRlbmRyZSBldCBib2lzLiIsICJCYXNlIjogInRlcm1pbmFsIiwgIkhlbGxvIjogInswfSwgcHJvbWVuZXVyICEiLCAiTWFzY290dGUiOiB7ICJGaWxlIjogIm1hc2NvdHRlLnBuZyIsICJGcmFtZXMiOiA0LCAiRGVsYXkiOiAxMjAgfSwgIkxvZ28iOiAibG9nby5wbmciLCAiQ29sb3JzIjogeyAiUCI6ICIjNENEOTY0IiwgIlMiOiAiI0I2RkYzQiIsICJUIjogIiNGRkM4M0QiLCAiTkgiOiAxNDAsICJOUyI6IDAuNSwgIk1hcCI6IHsgIjBDMDkyMCI6ICIwQTFBMEUiLCAiIzA2MDUwRiI6ICIwNDBDMDYiIH0gfSwgIlRhYkljb25zIjogeyAiYWNjdWVpbCI6IHsgIkZpbGUiOiAibG9nby5wbmciLCAiRnJhbWVzIjogMSwgIkRlbGF5IjogMTAgfSwgIk1hbCI6IHsgIkZpbGUiOiAiYWJzZW50LnBuZyIgfSB9IH0="
+                                                    },
+                                                    {
+                                                        "chemin":  "Donnees\\Mindset\\packs\\foret\\mascotte.png",
+                                                        "b64":  "iVBORw0KGgoAAAANSUhEUgAAAIAAAAAgCAYAAADaInAlAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABrSURBVHhe7dIhAQAgEMDAj04kItEEPBVu4sz05ux145o/xNIAuAbANQCuAXANgGsAXAPgGgDXALgGwDUArgFwDYBrAFwD4BoA1wC4BsA1AK4BcA2AawBcA+AaANcAuAbANQCuAXANgGsA3APNR/LRzkchlwAAAABJRU5ErkJggg=="
+                                                    },
+                                                    {
+                                                        "chemin":  "Donnees\\Mindset\\packs\\foret\\logo.png",
+                                                        "b64":  "iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAACLSURBVHhe7dAxAQAgEIDAD2gMS38a3akAwy2MzNn7zIbBpgEMNg1gsGkAg00DGGwawGDTAAabBjDYNIDBpgEMNg1gsGkAg00DGGwawGDTAAabBjDYNIDBpgEMNg1gsGkAg00DGGwawGDTAAabBjDYNIDBpgEMNg1gsGkAg00DGGwawGDTAAabBjDYfF/hglkwrZ+lAAAAAElFTkSuQmCC"
+                                                    },
+                                                    {
+                                                        "chemin":  "Donnees\\Mindset\\packs\\cafe-creme\\pack.json",
+                                                        "b64":  "eyAiTmFtZSI6ICJDYWbDqSBjcsOobWUiLCAiRGVzYyI6ICJEb3V4IGNvbW1lIHVuIG1hdGluLiIsICJCYXNlIjogImNyZXB1c2N1bGUiLCAiSGVsbG8iOiAiUGFzIGRlIHBocmFzZSIsICJNYXNjb3R0ZSI6IHsgIkZpbGUiOiAiYmFuZGUucG5nIiwgIkZyYW1lcyI6IDEgfSwgIkxvZ28iOiAibG9nby5wbmciLCAiQmFja2dyb3VuZCI6ICJsb2dvLnBuZyIsICJCYWNrZ3JvdW5kT3BhY2l0eSI6IDAuNSwgIkJhY2tncm91bmRBbGlnbiI6ICJiYXMtZHJvaXRlIiwgIkZvbnQiOiAicG9saWNlLnR0ZiIsICJGb250U2NvcGUiOiAidG91dCIgfQ=="
+                                                    },
+                                                    {
+                                                        "chemin":  "Donnees\\Mindset\\packs\\cafe-creme\\bande.png",
+                                                        "b64":  "iVBORw0KGgoAAAANSUhEUgAAASwAAAAoCAYAAABEm8fXAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAACjSURBVHhe7dQxDQAgAMAwjOEOmXiBHwUs6dFnAjbmXgegYLwB4FeGBWQYFpBhWECGYQEZhgVkGBaQYVhAhmEBGYYFZBgWkGFYQIZhARmGBWQYFpBhWECGYQEZhgVkGBaQYVhAhmEBGYYFZBgWkGFYQIZhARmGBWQYFpBhWECGYQEZhgVkGBaQYVhAhmEBGYYFZBgWkGFYQIZhARmGBWQYFpBxAURbV6fpwnvXAAAAAElFTkSuQmCC"
+                                                    },
+                                                    {
+                                                        "chemin":  "Donnees\\Mindset\\packs\\cafe-creme\\logo.png",
+                                                        "b64":  "iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAACLSURBVHhe7dAxAQAgEIDAD2gMS38a3akAwy2MzNn7zIbBpgEMNg1gsGkAg00DGGwawGDTAAabBjDYNIDBpgEMNg1gsGkAg00DGGwawGDTAAabBjDYNIDBpgEMNg1gsGkAg00DGGwawGDTAAabBjDYNIDBpgEMNg1gsGkAg00DGGwawGDTAAabBjDYfF/hglkwrZ+lAAAAAElFTkSuQmCC"
+                                                    },
+                                                    {
+                                                        "chemin":  "Donnees\\Mindset\\packs\\neige\\pack.json",
+                                                        "b64":  "eyAiTmFtZSI6ICJOZWlnZSIsICJEZXNjIjogIlRvdXQgYmxhbmMuIiwgIkJhc2UiOiAicnViaXMiIH0="
+                                                    },
+                                                    {
+                                                        "chemin":  "Donnees\\Mindset\\packs\\brume\\pack.json",
+                                                        "b64":  "eyAiTmFtZSI6ICJCcnVtZSIsICJCYXNlIjogImFyY2FkZSIsICJDb2xvcnMiOiB7ICJQIjogInJvdWdlIiwgIlMiOiAiI0I2RkYzQiIsICJUIjogIiNGRkM4M0QiIH0gfQ=="
+                                                    }
+                                                ],
+                                   "theme":  "pack:cafe-creme"
+                               },
+                    "sortie":  "{\"version\":\"3.0.0\",\"general\":{\"reduire\":true,\"fermeture\":\"demander\",\"windows\":true,\"applis\":[]},\"apparence\":{\"actuel\":\"pack:cafe-creme\",\"info\":\"\",\"themes\":[{\"cle\":\"neon\",\"nom\":\"Néon\",\"desc\":\"Cyan, violet et magenta sur fond de nuit.\",\"fond\":\"#0C0920\",\"couleurs\":[\"#00E5FF\",\"#B04BFF\",\"#FF2EB5\"],\"image\":false},{\"cle\":\"crepuscule\",\"nom\":\"Crépuscule\",\"desc\":\"Orange, rose et or, comme un coucher de soleil.\",\"fond\":\"#1A0B12\",\"couleurs\":[\"#FF8A3D\",\"#FF3D7F\",\"#FFC83D\"],\"image\":false},{\"cle\":\"terminal\",\"nom\":\"Terminal\",\"desc\":\"Vert phosphore sur fond noir, tout en police de code.\",\"fond\":\"#030B06\",\"couleurs\":[\"#33FF77\",\"#B6FF3B\",\"#00E0A0\"],\"image\":false},{\"cle\":\"arcade\",\"nom\":\"Arcade\",\"desc\":\"Jaune, rouge et bleu vifs sur fond bleu nuit, comme une vieille borne.\",\"fond\":\"#0B1640\",\"couleurs\":[\"#FBD000\",\"#E52521\",\"#1E88E5\"],\"image\":false},{\"cle\":\"rubis\",\"nom\":\"Rubis\",\"desc\":\"Rouge vif, jaune et bleu sur un gris anthracite sobre.\",\"fond\":\"#17171D\",\"couleurs\":[\"#FF3B3B\",\"#FFDE00\",\"#3B6FFF\"],\"image\":false},{\"cle\":\"pack:brume\",\"nom\":\"Brume\",\"desc\":\"\",\"fond\":\"#0B1640\",\"couleurs\":[\"#FBD000\",\"#E52521\",\"#1E88E5\"],\"image\":false},{\"cle\":\"pack:cafe-creme\",\"nom\":\"Café crème\",\"desc\":\"Doux comme un matin.\",\"fond\":\"#1A0B12\",\"couleurs\":[\"#FF8A3D\",\"#FF3D7F\",\"#FFC83D\"],\"image\":true},{\"cle\":\"pack:foret\",\"nom\":\"Forêt\",\"desc\":\"Vert tendre et bois.\",\"fond\":\"#0A1A0E\",\"couleurs\":[\"#4CD964\",\"#B6FF3B\",\"#FFC83D\"],\"image\":true},{\"cle\":\"pack:neige\",\"nom\":\"Neige\",\"desc\":\"Tout blanc.\",\"fond\":\"#17171D\",\"couleurs\":[\"#FF3B3B\",\"#FFDE00\",\"#3B6FFF\"],\"image\":false}],\"animations\":\"completes\",\"animInfo\":\"\"},\"son\":{\"micros\":[{\"cle\":\"\",\"nom\":\"Celui de Windows\",\"oui\":true}],\"casques\":[{\"cle\":\"\",\"nom\":\"Celui de Windows\",\"oui\":true}]},\"maj\":{\"auto\":true,\"verif\":true,\"mindset\":{\"texte\":\"à jour\",\"ton\":\"ok\"},\"prete\":\"\",\"info\":\"\",\"applis\":[{\"nom\":\"Nevermind\",\"couleur\":\"#FF8A3D\",\"version\":\"pas installé\",\"texte\":\"pas encore vérifié\",\"ton\":\"\"},{\"nom\":\"Evermind\",\"couleur\":\"#FF3D7F\",\"version\":\"pas installé\",\"texte\":\"pas encore vérifié\",\"ton\":\"\"},{\"nom\":\"Mindcare\",\"couleur\":\"#FFC83D\",\"version\":\"pas installé\",\"texte\":\"pas encore vérifié\",\"ton\":\"\"}],\"historique\":[],\"essai\":[],\"essaiNote\":\"Tu reçois aussi ses versions d\\u0027essai, avant tout le monde. Décoché, tu gardes ta version jusqu\\u0027à la prochaine version normale.\"},\"dossiers\":{\"texte\":\"Les programmes sont dans \u003cracine\u003e\\\\Programmes (protégé : seul un administrateur peut les modifier). Les données de Mindset et de chaque appli sont dans \u003cracine\u003e\\\\Donnees, un dossier par appli.\"},\"conso\":null}",
+                    "journal":  [
+                                    "Thème brume : couleurs mal écrites, ignorées (thème de base)"
+                                ]
+                },
+                {
+                    "nom":  "thème perso disparu",
+                    "entree":  {
+                                   "theme":  "pack:absent",
+                                   "fichiers":  [
+                                                    {
+                                                        "chemin":  "Donnees\\Mindset\\packs\\foret\\pack.json",
+                                                        "b64":  "eyAiTmFtZSI6ICJGb3LDqnQiLCAiRGVzYyI6ICJWZXJ0IHRlbmRyZSBldCBib2lzLiIsICJCYXNlIjogInRlcm1pbmFsIiwgIkhlbGxvIjogInswfSwgcHJvbWVuZXVyICEiLCAiTWFzY290dGUiOiB7ICJGaWxlIjogIm1hc2NvdHRlLnBuZyIsICJGcmFtZXMiOiA0LCAiRGVsYXkiOiAxMjAgfSwgIkxvZ28iOiAibG9nby5wbmciLCAiQ29sb3JzIjogeyAiUCI6ICIjNENEOTY0IiwgIlMiOiAiI0I2RkYzQiIsICJUIjogIiNGRkM4M0QiLCAiTkgiOiAxNDAsICJOUyI6IDAuNSwgIk1hcCI6IHsgIjBDMDkyMCI6ICIwQTFBMEUiLCAiIzA2MDUwRiI6ICIwNDBDMDYiIH0gfSwgIlRhYkljb25zIjogeyAiYWNjdWVpbCI6IHsgIkZpbGUiOiAibG9nby5wbmciLCAiRnJhbWVzIjogMSwgIkRlbGF5IjogMTAgfSwgIk1hbCI6IHsgIkZpbGUiOiAiYWJzZW50LnBuZyIgfSB9IH0="
+                                                    },
+                                                    {
+                                                        "chemin":  "Donnees\\Mindset\\packs\\foret\\mascotte.png",
+                                                        "b64":  "iVBORw0KGgoAAAANSUhEUgAAAIAAAAAgCAYAAADaInAlAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABrSURBVHhe7dIhAQAgEMDAj04kItEEPBVu4sz05ux145o/xNIAuAbANQCuAXANgGsAXAPgGgDXALgGwDUArgFwDYBrAFwD4BoA1wC4BsA1AK4BcA2AawBcA+AaANcAuAbANQCuAXANgGsA3APNR/LRzkchlwAAAABJRU5ErkJggg=="
+                                                    },
+                                                    {
+                                                        "chemin":  "Donnees\\Mindset\\packs\\foret\\logo.png",
+                                                        "b64":  "iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAACLSURBVHhe7dAxAQAgEIDAD2gMS38a3akAwy2MzNn7zIbBpgEMNg1gsGkAg00DGGwawGDTAAabBjDYNIDBpgEMNg1gsGkAg00DGGwawGDTAAabBjDYNIDBpgEMNg1gsGkAg00DGGwawGDTAAabBjDYNIDBpgEMNg1gsGkAg00DGGwawGDTAAabBjDYfF/hglkwrZ+lAAAAAElFTkSuQmCC"
+                                                    },
+                                                    {
+                                                        "chemin":  "Donnees\\Mindset\\packs\\cafe-creme\\pack.json",
+                                                        "b64":  "eyAiTmFtZSI6ICJDYWbDqSBjcsOobWUiLCAiRGVzYyI6ICJEb3V4IGNvbW1lIHVuIG1hdGluLiIsICJCYXNlIjogImNyZXB1c2N1bGUiLCAiSGVsbG8iOiAiUGFzIGRlIHBocmFzZSIsICJNYXNjb3R0ZSI6IHsgIkZpbGUiOiAiYmFuZGUucG5nIiwgIkZyYW1lcyI6IDEgfSwgIkxvZ28iOiAibG9nby5wbmciLCAiQmFja2dyb3VuZCI6ICJsb2dvLnBuZyIsICJCYWNrZ3JvdW5kT3BhY2l0eSI6IDAuNSwgIkJhY2tncm91bmRBbGlnbiI6ICJiYXMtZHJvaXRlIiwgIkZvbnQiOiAicG9saWNlLnR0ZiIsICJGb250U2NvcGUiOiAidG91dCIgfQ=="
+                                                    },
+                                                    {
+                                                        "chemin":  "Donnees\\Mindset\\packs\\cafe-creme\\bande.png",
+                                                        "b64":  "iVBORw0KGgoAAAANSUhEUgAAASwAAAAoCAYAAABEm8fXAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAACjSURBVHhe7dQxDQAgAMAwjOEOmXiBHwUs6dFnAjbmXgegYLwB4FeGBWQYFpBhWECGYQEZhgVkGBaQYVhAhmEBGYYFZBgWkGFYQIZhARmGBWQYFpBhWECGYQEZhgVkGBaQYVhAhmEBGYYFZBgWkGFYQIZhARmGBWQYFpBhWECGYQEZhgVkGBaQYVhAhmEBGYYFZBgWkGFYQIZhARmGBWQYFpBxAURbV6fpwnvXAAAAAElFTkSuQmCC"
+                                                    },
+                                                    {
+                                                        "chemin":  "Donnees\\Mindset\\packs\\cafe-creme\\logo.png",
+                                                        "b64":  "iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAACLSURBVHhe7dAxAQAgEIDAD2gMS38a3akAwy2MzNn7zIbBpgEMNg1gsGkAg00DGGwawGDTAAabBjDYNIDBpgEMNg1gsGkAg00DGGwawGDTAAabBjDYNIDBpgEMNg1gsGkAg00DGGwawGDTAAabBjDYNIDBpgEMNg1gsGkAg00DGGwawGDTAAabBjDYfF/hglkwrZ+lAAAAAElFTkSuQmCC"
+                                                    },
+                                                    {
+                                                        "chemin":  "Donnees\\Mindset\\packs\\neige\\pack.json",
+                                                        "b64":  "eyAiTmFtZSI6ICJOZWlnZSIsICJEZXNjIjogIlRvdXQgYmxhbmMuIiwgIkJhc2UiOiAicnViaXMiIH0="
+                                                    },
+                                                    {
+                                                        "chemin":  "Donnees\\Mindset\\packs\\brume\\pack.json",
+                                                        "b64":  "eyAiTmFtZSI6ICJCcnVtZSIsICJCYXNlIjogImFyY2FkZSIsICJDb2xvcnMiOiB7ICJQIjogInJvdWdlIiwgIlMiOiAiI0I2RkYzQiIsICJUIjogIiNGRkM4M0QiIH0gfQ=="
+                                                    }
+                                                ]
+                               },
+                    "sortie":  "{\"version\":\"3.0.0\",\"general\":{\"reduire\":true,\"fermeture\":\"demander\",\"windows\":true,\"applis\":[]},\"apparence\":{\"actuel\":\"pack:absent\",\"info\":\"\",\"themes\":[{\"cle\":\"neon\",\"nom\":\"Néon\",\"desc\":\"Cyan, violet et magenta sur fond de nuit.\",\"fond\":\"#0C0920\",\"couleurs\":[\"#00E5FF\",\"#B04BFF\",\"#FF2EB5\"],\"image\":false},{\"cle\":\"crepuscule\",\"nom\":\"Crépuscule\",\"desc\":\"Orange, rose et or, comme un coucher de soleil.\",\"fond\":\"#1A0B12\",\"couleurs\":[\"#FF8A3D\",\"#FF3D7F\",\"#FFC83D\"],\"image\":false},{\"cle\":\"terminal\",\"nom\":\"Terminal\",\"desc\":\"Vert phosphore sur fond noir, tout en police de code.\",\"fond\":\"#030B06\",\"couleurs\":[\"#33FF77\",\"#B6FF3B\",\"#00E0A0\"],\"image\":false},{\"cle\":\"arcade\",\"nom\":\"Arcade\",\"desc\":\"Jaune, rouge et bleu vifs sur fond bleu nuit, comme une vieille borne.\",\"fond\":\"#0B1640\",\"couleurs\":[\"#FBD000\",\"#E52521\",\"#1E88E5\"],\"image\":false},{\"cle\":\"rubis\",\"nom\":\"Rubis\",\"desc\":\"Rouge vif, jaune et bleu sur un gris anthracite sobre.\",\"fond\":\"#17171D\",\"couleurs\":[\"#FF3B3B\",\"#FFDE00\",\"#3B6FFF\"],\"image\":false},{\"cle\":\"pack:brume\",\"nom\":\"Brume\",\"desc\":\"\",\"fond\":\"#0B1640\",\"couleurs\":[\"#FBD000\",\"#E52521\",\"#1E88E5\"],\"image\":false},{\"cle\":\"pack:cafe-creme\",\"nom\":\"Café crème\",\"desc\":\"Doux comme un matin.\",\"fond\":\"#1A0B12\",\"couleurs\":[\"#FF8A3D\",\"#FF3D7F\",\"#FFC83D\"],\"image\":true},{\"cle\":\"pack:foret\",\"nom\":\"Forêt\",\"desc\":\"Vert tendre et bois.\",\"fond\":\"#0A1A0E\",\"couleurs\":[\"#4CD964\",\"#B6FF3B\",\"#FFC83D\"],\"image\":true},{\"cle\":\"pack:neige\",\"nom\":\"Neige\",\"desc\":\"Tout blanc.\",\"fond\":\"#17171D\",\"couleurs\":[\"#FF3B3B\",\"#FFDE00\",\"#3B6FFF\"],\"image\":false}],\"animations\":\"completes\",\"animInfo\":\"\"},\"son\":{\"micros\":[{\"cle\":\"\",\"nom\":\"Celui de Windows\",\"oui\":true}],\"casques\":[{\"cle\":\"\",\"nom\":\"Celui de Windows\",\"oui\":true}]},\"maj\":{\"auto\":true,\"verif\":true,\"mindset\":{\"texte\":\"à jour\",\"ton\":\"ok\"},\"prete\":\"\",\"info\":\"\",\"applis\":[{\"nom\":\"Nevermind\",\"couleur\":\"#00E5FF\",\"version\":\"pas installé\",\"texte\":\"pas encore vérifié\",\"ton\":\"\"},{\"nom\":\"Evermind\",\"couleur\":\"#B04BFF\",\"version\":\"pas installé\",\"texte\":\"pas encore vérifié\",\"ton\":\"\"},{\"nom\":\"Mindcare\",\"couleur\":\"#FF2EB5\",\"version\":\"pas installé\",\"texte\":\"pas encore vérifié\",\"ton\":\"\"}],\"historique\":[],\"essai\":[],\"essaiNote\":\"Tu reçois aussi ses versions d\\u0027essai, avant tout le monde. Décoché, tu gardes ta version jusqu\\u0027à la prochaine version normale.\"},\"dossiers\":{\"texte\":\"Les programmes sont dans \u003cracine\u003e\\\\Programmes (protégé : seul un administrateur peut les modifier). Les données de Mindset et de chaque appli sont dans \u003cracine\u003e\\\\Donnees, un dossier par appli.\"},\"conso\":null}",
+                    "journal":  [
+                                    "Thème brume : couleurs mal écrites, ignorées (thème de base)"
+                                ]
+                },
+                {
+                    "nom":  "thème Terminal, thème à retirer",
+                    "entree":  {
+                                   "theme":  "terminal",
+                                   "fichiers":  [
+                                                    {
+                                                        "chemin":  "Donnees\\Mindset\\packs\\foret\\pack.json",
+                                                        "b64":  "eyAiTmFtZSI6ICJGb3LDqnQiLCAiRGVzYyI6ICJWZXJ0IHRlbmRyZSBldCBib2lzLiIsICJCYXNlIjogInRlcm1pbmFsIiwgIkhlbGxvIjogInswfSwgcHJvbWVuZXVyICEiLCAiTWFzY290dGUiOiB7ICJGaWxlIjogIm1hc2NvdHRlLnBuZyIsICJGcmFtZXMiOiA0LCAiRGVsYXkiOiAxMjAgfSwgIkxvZ28iOiAibG9nby5wbmciLCAiQ29sb3JzIjogeyAiUCI6ICIjNENEOTY0IiwgIlMiOiAiI0I2RkYzQiIsICJUIjogIiNGRkM4M0QiLCAiTkgiOiAxNDAsICJOUyI6IDAuNSwgIk1hcCI6IHsgIjBDMDkyMCI6ICIwQTFBMEUiLCAiIzA2MDUwRiI6ICIwNDBDMDYiIH0gfSwgIlRhYkljb25zIjogeyAiYWNjdWVpbCI6IHsgIkZpbGUiOiAibG9nby5wbmciLCAiRnJhbWVzIjogMSwgIkRlbGF5IjogMTAgfSwgIk1hbCI6IHsgIkZpbGUiOiAiYWJzZW50LnBuZyIgfSB9IH0="
+                                                    },
+                                                    {
+                                                        "chemin":  "Donnees\\Mindset\\packs\\foret\\mascotte.png",
+                                                        "b64":  "iVBORw0KGgoAAAANSUhEUgAAAIAAAAAgCAYAAADaInAlAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABrSURBVHhe7dIhAQAgEMDAj04kItEEPBVu4sz05ux145o/xNIAuAbANQCuAXANgGsAXAPgGgDXALgGwDUArgFwDYBrAFwD4BoA1wC4BsA1AK4BcA2AawBcA+AaANcAuAbANQCuAXANgGsA3APNR/LRzkchlwAAAABJRU5ErkJggg=="
+                                                    },
+                                                    {
+                                                        "chemin":  "Donnees\\Mindset\\packs\\foret\\logo.png",
+                                                        "b64":  "iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAACLSURBVHhe7dAxAQAgEIDAD2gMS38a3akAwy2MzNn7zIbBpgEMNg1gsGkAg00DGGwawGDTAAabBjDYNIDBpgEMNg1gsGkAg00DGGwawGDTAAabBjDYNIDBpgEMNg1gsGkAg00DGGwawGDTAAabBjDYNIDBpgEMNg1gsGkAg00DGGwawGDTAAabBjDYfF/hglkwrZ+lAAAAAElFTkSuQmCC"
+                                                    },
+                                                    {
+                                                        "chemin":  "Donnees\\Mindset\\packs\\cafe-creme\\pack.json",
+                                                        "b64":  "eyAiTmFtZSI6ICJDYWbDqSBjcsOobWUiLCAiRGVzYyI6ICJEb3V4IGNvbW1lIHVuIG1hdGluLiIsICJCYXNlIjogImNyZXB1c2N1bGUiLCAiSGVsbG8iOiAiUGFzIGRlIHBocmFzZSIsICJNYXNjb3R0ZSI6IHsgIkZpbGUiOiAiYmFuZGUucG5nIiwgIkZyYW1lcyI6IDEgfSwgIkxvZ28iOiAibG9nby5wbmciLCAiQmFja2dyb3VuZCI6ICJsb2dvLnBuZyIsICJCYWNrZ3JvdW5kT3BhY2l0eSI6IDAuNSwgIkJhY2tncm91bmRBbGlnbiI6ICJiYXMtZHJvaXRlIiwgIkZvbnQiOiAicG9saWNlLnR0ZiIsICJGb250U2NvcGUiOiAidG91dCIgfQ=="
+                                                    },
+                                                    {
+                                                        "chemin":  "Donnees\\Mindset\\packs\\cafe-creme\\bande.png",
+                                                        "b64":  "iVBORw0KGgoAAAANSUhEUgAAASwAAAAoCAYAAABEm8fXAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAACjSURBVHhe7dQxDQAgAMAwjOEOmXiBHwUs6dFnAjbmXgegYLwB4FeGBWQYFpBhWECGYQEZhgVkGBaQYVhAhmEBGYYFZBgWkGFYQIZhARmGBWQYFpBhWECGYQEZhgVkGBaQYVhAhmEBGYYFZBgWkGFYQIZhARmGBWQYFpBhWECGYQEZhgVkGBaQYVhAhmEBGYYFZBgWkGFYQIZhARmGBWQYFpBxAURbV6fpwnvXAAAAAElFTkSuQmCC"
+                                                    },
+                                                    {
+                                                        "chemin":  "Donnees\\Mindset\\packs\\cafe-creme\\logo.png",
+                                                        "b64":  "iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAACLSURBVHhe7dAxAQAgEIDAD2gMS38a3akAwy2MzNn7zIbBpgEMNg1gsGkAg00DGGwawGDTAAabBjDYNIDBpgEMNg1gsGkAg00DGGwawGDTAAabBjDYNIDBpgEMNg1gsGkAg00DGGwawGDTAAabBjDYNIDBpgEMNg1gsGkAg00DGGwawGDTAAabBjDYfF/hglkwrZ+lAAAAAElFTkSuQmCC"
+                                                    },
+                                                    {
+                                                        "chemin":  "Donnees\\Mindset\\packs\\neige\\pack.json",
+                                                        "b64":  "eyAiTmFtZSI6ICJOZWlnZSIsICJEZXNjIjogIlRvdXQgYmxhbmMuIiwgIkJhc2UiOiAicnViaXMiIH0="
+                                                    },
+                                                    {
+                                                        "chemin":  "Donnees\\Mindset\\packs\\brume\\pack.json",
+                                                        "b64":  "eyAiTmFtZSI6ICJCcnVtZSIsICJCYXNlIjogImFyY2FkZSIsICJDb2xvcnMiOiB7ICJQIjogInJvdWdlIiwgIlMiOiAiI0I2RkYzQiIsICJUIjogIiNGRkM4M0QiIH0gfQ=="
+                                                    },
+                                                    {
+                                                        "chemin":  "Donnees\\Mindset\\packs-a-retirer.txt",
+                                                        "b64":  "bmVpZ2UNCg=="
+                                                    }
+                                                ]
+                               },
+                    "sortie":  "{\"version\":\"3.0.0\",\"general\":{\"reduire\":true,\"fermeture\":\"demander\",\"windows\":true,\"applis\":[]},\"apparence\":{\"actuel\":\"terminal\",\"info\":\"\",\"themes\":[{\"cle\":\"neon\",\"nom\":\"Néon\",\"desc\":\"Cyan, violet et magenta sur fond de nuit.\",\"fond\":\"#0C0920\",\"couleurs\":[\"#00E5FF\",\"#B04BFF\",\"#FF2EB5\"],\"image\":false},{\"cle\":\"crepuscule\",\"nom\":\"Crépuscule\",\"desc\":\"Orange, rose et or, comme un coucher de soleil.\",\"fond\":\"#1A0B12\",\"couleurs\":[\"#FF8A3D\",\"#FF3D7F\",\"#FFC83D\"],\"image\":false},{\"cle\":\"terminal\",\"nom\":\"Terminal\",\"desc\":\"Vert phosphore sur fond noir, tout en police de code.\",\"fond\":\"#030B06\",\"couleurs\":[\"#33FF77\",\"#B6FF3B\",\"#00E0A0\"],\"image\":false},{\"cle\":\"arcade\",\"nom\":\"Arcade\",\"desc\":\"Jaune, rouge et bleu vifs sur fond bleu nuit, comme une vieille borne.\",\"fond\":\"#0B1640\",\"couleurs\":[\"#FBD000\",\"#E52521\",\"#1E88E5\"],\"image\":false},{\"cle\":\"rubis\",\"nom\":\"Rubis\",\"desc\":\"Rouge vif, jaune et bleu sur un gris anthracite sobre.\",\"fond\":\"#17171D\",\"couleurs\":[\"#FF3B3B\",\"#FFDE00\",\"#3B6FFF\"],\"image\":false},{\"cle\":\"pack:brume\",\"nom\":\"Brume\",\"desc\":\"\",\"fond\":\"#0B1640\",\"couleurs\":[\"#FBD000\",\"#E52521\",\"#1E88E5\"],\"image\":false},{\"cle\":\"pack:cafe-creme\",\"nom\":\"Café crème\",\"desc\":\"Doux comme un matin.\",\"fond\":\"#1A0B12\",\"couleurs\":[\"#FF8A3D\",\"#FF3D7F\",\"#FFC83D\"],\"image\":true},{\"cle\":\"pack:foret\",\"nom\":\"Forêt\",\"desc\":\"Vert tendre et bois.\",\"fond\":\"#0A1A0E\",\"couleurs\":[\"#4CD964\",\"#B6FF3B\",\"#FFC83D\"],\"image\":true}],\"animations\":\"completes\",\"animInfo\":\"\"},\"son\":{\"micros\":[{\"cle\":\"\",\"nom\":\"Celui de Windows\",\"oui\":true}],\"casques\":[{\"cle\":\"\",\"nom\":\"Celui de Windows\",\"oui\":true}]},\"maj\":{\"auto\":true,\"verif\":true,\"mindset\":{\"texte\":\"à jour\",\"ton\":\"ok\"},\"prete\":\"\",\"info\":\"\",\"applis\":[{\"nom\":\"Nevermind\",\"couleur\":\"#33FF77\",\"version\":\"pas installé\",\"texte\":\"pas encore vérifié\",\"ton\":\"\"},{\"nom\":\"Evermind\",\"couleur\":\"#B6FF3B\",\"version\":\"pas installé\",\"texte\":\"pas encore vérifié\",\"ton\":\"\"},{\"nom\":\"Mindcare\",\"couleur\":\"#00E0A0\",\"version\":\"pas installé\",\"texte\":\"pas encore vérifié\",\"ton\":\"\"}],\"historique\":[],\"essai\":[],\"essaiNote\":\"Tu reçois aussi ses versions d\\u0027essai, avant tout le monde. Décoché, tu gardes ta version jusqu\\u0027à la prochaine version normale.\"},\"dossiers\":{\"texte\":\"Les programmes sont dans \u003cracine\u003e\\\\Programmes (protégé : seul un administrateur peut les modifier). Les données de Mindset et de chaque appli sont dans \u003cracine\u003e\\\\Donnees, un dossier par appli.\"},\"conso\":null}",
+                    "journal":  [
+                                    "Thème brume : couleurs mal écrites, ignorées (thème de base)"
+                                ]
+                },
+                {
+                    "nom":  "consommation",
+                    "entree":  {
+                                   "onglet":  "conso",
+                                   "parties":  [
+                                                   {
+                                                       "nombre":  3,
+                                                       "nom":  "Mindset",
+                                                       "processeur":  1.25,
+                                                       "memoire":  432013312
+                                                   },
+                                                   {
+                                                       "nombre":  1,
+                                                       "nom":  "Evermind",
+                                                       "processeur":  12.5,
+                                                       "memoire":  1153433600
+                                                   },
+                                                   {
+                                                       "nombre":  0,
+                                                       "nom":  "Nevermind",
+                                                       "processeur":  0,
+                                                       "memoire":  0
+                                                   },
+                                                   {
+                                                       "nombre":  6,
+                                                       "nom":  "WebView2 de la suite",
+                                                       "processeur":  0.04,
+                                                       "memoire":  1047527424
+                                                   },
+                                                   {
+                                                       "nombre":  2,
+                                                       "nom":  "Programmes d\u0027aide",
+                                                       "processeur":  9.96,
+                                                       "memoire":  5242880
+                                                   }
+                                               ],
+                                   "installations":  {
+                                                         "evermind":  {
+                                                                          "gere":  true,
+                                                                          "version":  "1.0.0",
+                                                                          "dossier":  "C:\\P\\Evermind"
+                                                                      }
+                                                     },
+                                   "premiere":  false
+                               },
+                    "sortie":  "{\"version\":\"3.0.0\",\"general\":{\"reduire\":true,\"fermeture\":\"demander\",\"windows\":true,\"applis\":[{\"id\":\"evermind\",\"nom\":\"Evermind\",\"oui\":false,\"note\":\"Sinon ses rappels ne sonnent pas.\"}]},\"apparence\":{\"actuel\":\"neon\",\"info\":\"\",\"themes\":[{\"cle\":\"neon\",\"nom\":\"Néon\",\"desc\":\"Cyan, violet et magenta sur fond de nuit.\",\"fond\":\"#0C0920\",\"couleurs\":[\"#00E5FF\",\"#B04BFF\",\"#FF2EB5\"],\"image\":false},{\"cle\":\"crepuscule\",\"nom\":\"Crépuscule\",\"desc\":\"Orange, rose et or, comme un coucher de soleil.\",\"fond\":\"#1A0B12\",\"couleurs\":[\"#FF8A3D\",\"#FF3D7F\",\"#FFC83D\"],\"image\":false},{\"cle\":\"terminal\",\"nom\":\"Terminal\",\"desc\":\"Vert phosphore sur fond noir, tout en police de code.\",\"fond\":\"#030B06\",\"couleurs\":[\"#33FF77\",\"#B6FF3B\",\"#00E0A0\"],\"image\":false},{\"cle\":\"arcade\",\"nom\":\"Arcade\",\"desc\":\"Jaune, rouge et bleu vifs sur fond bleu nuit, comme une vieille borne.\",\"fond\":\"#0B1640\",\"couleurs\":[\"#FBD000\",\"#E52521\",\"#1E88E5\"],\"image\":false},{\"cle\":\"rubis\",\"nom\":\"Rubis\",\"desc\":\"Rouge vif, jaune et bleu sur un gris anthracite sobre.\",\"fond\":\"#17171D\",\"couleurs\":[\"#FF3B3B\",\"#FFDE00\",\"#3B6FFF\"],\"image\":false}],\"animations\":\"completes\",\"animInfo\":\"\"},\"son\":{\"micros\":[{\"cle\":\"\",\"nom\":\"Celui de Windows\",\"oui\":true}],\"casques\":[{\"cle\":\"\",\"nom\":\"Celui de Windows\",\"oui\":true}]},\"maj\":{\"auto\":true,\"verif\":true,\"mindset\":{\"texte\":\"à jour\",\"ton\":\"ok\"},\"prete\":\"\",\"info\":\"\",\"applis\":[{\"nom\":\"Nevermind\",\"couleur\":\"#00E5FF\",\"version\":\"pas installé\",\"texte\":\"pas encore vérifié\",\"ton\":\"\"},{\"nom\":\"Evermind\",\"couleur\":\"#B04BFF\",\"version\":\"version 1.0.0\",\"texte\":\"pas encore vérifié\",\"ton\":\"\"},{\"nom\":\"Mindcare\",\"couleur\":\"#FF2EB5\",\"version\":\"pas installé\",\"texte\":\"pas encore vérifié\",\"ton\":\"\"}],\"historique\":[],\"essai\":[{\"id\":\"evermind\",\"nom\":\"Evermind\",\"oui\":false}],\"essaiNote\":\"Tu reçois aussi ses versions d\\u0027essai, avant tout le monde. Décoché, tu gardes ta version jusqu\\u0027à la prochaine version normale.\"},\"dossiers\":{\"texte\":\"Les programmes sont dans \u003cracine\u003e\\\\Programmes (protégé : seul un administrateur peut les modifier). Les données de Mindset et de chaque appli sont dans \u003cracine\u003e\\\\Donnees, un dossier par appli.\"},\"conso\":{\"memoire\":\"2,5 Go\",\"processeur\":\"24 %\",\"lignes\":[{\"nom\":\"Mindset\",\"detail\":\"le portail, 3 programmes\",\"memoire\":\"412 Mo\",\"processeur\":\"1,2 %\"},{\"nom\":\"Evermind\",\"detail\":\"ouvert\",\"memoire\":\"1,1 Go\",\"processeur\":\"12 %\"},{\"nom\":\"WebView2 de la suite\",\"detail\":\"l\\u0027affichage de la console et des écrans, 6 programmes\",\"memoire\":\"999 Mo\",\"processeur\":\"0 %\"},{\"nom\":\"Programmes d\\u0027aide\",\"detail\":\"lancés depuis les dossiers de la suite, 2 programmes\",\"memoire\":\"5 Mo\",\"processeur\":\"10 %\"}]}}",
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "nom":  "consommation, première mesure",
+                    "entree":  {
+                                   "onglet":  "conso",
+                                   "parties":  [
+                                                   {
+                                                       "nombre":  1,
+                                                       "nom":  "Mindset",
+                                                       "processeur":  50,
+                                                       "memoire":  1023999999
+                                                   }
+                                               ],
+                                   "premiere":  true
+                               },
+                    "sortie":  "{\"version\":\"3.0.0\",\"general\":{\"reduire\":true,\"fermeture\":\"demander\",\"windows\":true,\"applis\":[]},\"apparence\":{\"actuel\":\"neon\",\"info\":\"\",\"themes\":[{\"cle\":\"neon\",\"nom\":\"Néon\",\"desc\":\"Cyan, violet et magenta sur fond de nuit.\",\"fond\":\"#0C0920\",\"couleurs\":[\"#00E5FF\",\"#B04BFF\",\"#FF2EB5\"],\"image\":false},{\"cle\":\"crepuscule\",\"nom\":\"Crépuscule\",\"desc\":\"Orange, rose et or, comme un coucher de soleil.\",\"fond\":\"#1A0B12\",\"couleurs\":[\"#FF8A3D\",\"#FF3D7F\",\"#FFC83D\"],\"image\":false},{\"cle\":\"terminal\",\"nom\":\"Terminal\",\"desc\":\"Vert phosphore sur fond noir, tout en police de code.\",\"fond\":\"#030B06\",\"couleurs\":[\"#33FF77\",\"#B6FF3B\",\"#00E0A0\"],\"image\":false},{\"cle\":\"arcade\",\"nom\":\"Arcade\",\"desc\":\"Jaune, rouge et bleu vifs sur fond bleu nuit, comme une vieille borne.\",\"fond\":\"#0B1640\",\"couleurs\":[\"#FBD000\",\"#E52521\",\"#1E88E5\"],\"image\":false},{\"cle\":\"rubis\",\"nom\":\"Rubis\",\"desc\":\"Rouge vif, jaune et bleu sur un gris anthracite sobre.\",\"fond\":\"#17171D\",\"couleurs\":[\"#FF3B3B\",\"#FFDE00\",\"#3B6FFF\"],\"image\":false}],\"animations\":\"completes\",\"animInfo\":\"\"},\"son\":{\"micros\":[{\"cle\":\"\",\"nom\":\"Celui de Windows\",\"oui\":true}],\"casques\":[{\"cle\":\"\",\"nom\":\"Celui de Windows\",\"oui\":true}]},\"maj\":{\"auto\":true,\"verif\":true,\"mindset\":{\"texte\":\"à jour\",\"ton\":\"ok\"},\"prete\":\"\",\"info\":\"\",\"applis\":[{\"nom\":\"Nevermind\",\"couleur\":\"#00E5FF\",\"version\":\"pas installé\",\"texte\":\"pas encore vérifié\",\"ton\":\"\"},{\"nom\":\"Evermind\",\"couleur\":\"#B04BFF\",\"version\":\"pas installé\",\"texte\":\"pas encore vérifié\",\"ton\":\"\"},{\"nom\":\"Mindcare\",\"couleur\":\"#FF2EB5\",\"version\":\"pas installé\",\"texte\":\"pas encore vérifié\",\"ton\":\"\"}],\"historique\":[],\"essai\":[],\"essaiNote\":\"Tu reçois aussi ses versions d\\u0027essai, avant tout le monde. Décoché, tu gardes ta version jusqu\\u0027à la prochaine version normale.\"},\"dossiers\":{\"texte\":\"Les programmes sont dans \u003cracine\u003e\\\\Programmes (protégé : seul un administrateur peut les modifier). Les données de Mindset et de chaque appli sont dans \u003cracine\u003e\\\\Donnees, un dossier par appli.\"},\"conso\":{\"memoire\":\"977 Mo\",\"processeur\":\"...\",\"lignes\":[{\"nom\":\"Mindset\",\"detail\":\"le portail\",\"memoire\":\"977 Mo\",\"processeur\":\"...\"}]}}",
+                    "journal":  [
+
+                                ]
+                }
+            ]
+}

@@ -1,0 +1,149 @@
+/* Mindset : la page des Paramètres (bloc « paramètres »), à l'identique de PageParametres d'interface.xaml et des
+   lignes créées par parametres.ps1 (New-ChoixTheme, New-LigneAppareil, New-LigneVersion, interrupteurs...).
+   SemiBold d'interface.xaml est dessiné en épaisseur normale par WPF avec « Segoe UI Variable Text » (police
+   variable : WPF ne sait pas en prendre les épaisseurs, mesuré) : 400 ici aussi, pour le même rendu.
+   Toutes les couleurs sont des variables --pm-* posées par parametres.js depuis la palette Néon traduite dans le thème
+   de la suite (état parametres.couleurs), comme Convert-ThemeXaml. Unités : 1 unité WPF = 1 px CSS à 100 %. */
+
+#page-parametres.pm-page { display: flex; flex-direction: column; overflow: hidden; color: var(--pm-texte); }
+#page-parametres.pm-page[hidden] { display: none; }
+
+.pm-haut { flex: none; margin: 22px 32px 0 32px; }
+.pm-titre { font-size: 26px; font-weight: 400; }
+.pm-sous { color: var(--pm-texte2); margin: 4px 0 14px 0; }
+.pm-onglets { display: flex; flex-wrap: wrap; }
+.pm-onglets .pm-bouton { margin: 0 8px 8px 0; }
+.pm-defile { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; }
+.pm-panneau { margin: 18px 32px 28px 32px; width: fit-content; max-width: 780px; }
+
+.pm-h { font-size: 17px; font-weight: 400; margin: 0 0 4px 0; }
+.pm-h.pm-loin { margin-top: 28px; }
+.pm-h.pm-loin24 { margin-top: 24px; }
+.pm-h.pm-histo { margin: 18px 0 8px 0; }
+.pm-t2 { color: var(--pm-texte2); }
+.pm-t3 { color: var(--pm-texte3); font-size: 12px; }
+.pm-gris { color: var(--pm-gris); font-size: 13px; }
+.pm-sb { font-size: 13px; font-weight: 400; margin-bottom: 4px; }
+.pm-mb10 { margin-bottom: 10px; }
+.pm-mb12 { margin-bottom: 12px; }
+.pm-mb14 { margin-bottom: 14px; }
+.pm-vide:empty { display: none; }
+
+/* Boutons (BtnPrimary, BtnSecondary) : coins de 19, reflet au survol, halo cyan, petit enfoncement au clic */
+.pm-bouton {
+  position: relative; display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box;
+  font: inherit; font-size: 13px; font-weight: 400; padding: 9px 18px; border-radius: 19px; border: 0; cursor: pointer;
+  transition: transform 0.15s ease, filter 0.18s ease; white-space: nowrap; outline: none;
+}
+.pm-bouton::after {
+  content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; opacity: 0;
+  background: linear-gradient(180deg, var(--pm-reflet) 0%, rgba(255, 255, 255, 0) 65%); transition: opacity 0.25s;
+}
+.pm-bouton:hover::after { opacity: 1; transition-duration: 0.18s; }
+.pm-bouton:active { transform: scale(0.96); transition-duration: 0.08s; }
+.pm-bouton:disabled { opacity: 0.4; cursor: default; transform: none; }
+.pm-bouton:disabled::after { opacity: 0; }
+.pm-primaire { background: linear-gradient(90deg, var(--pm-cyan), var(--pm-violet)); color: var(--pm-noir); }
+.pm-primaire:hover:not(:disabled) { filter: drop-shadow(0 0 11px var(--pm-halo6)); }
+.pm-secondaire { background: var(--pm-b-fond) padding-box; color: var(--pm-b-texte); border: 1px solid var(--pm-b-bord); }
+.pm-secondaire:hover:not(:disabled) { border-color: var(--pm-survol); filter: drop-shadow(0 0 8px var(--pm-halo3)); }
+.pm-ligne-boutons { display: flex; align-items: center; }
+.pm-ligne-boutons .pm-bouton + .pm-bouton { margin-left: 10px; }
+.pm-gauche { margin-top: 12px; }
+
+/* Cases et boutons ronds (CheckBox et RadioButton de Windows, thème Aero2) */
+.pm-case, .pm-rond { display: flex; align-items: flex-start; cursor: default; color: var(--pm-texte); width: max-content; max-width: 100%; }
+.pm-case .pm-boite, .pm-rond .pm-boite {
+  flex: none; box-sizing: border-box; width: 13px; height: 13px; margin: 3px 4px 0 1px; background: #FFFFFF;
+  border: 1px solid #707070; position: relative;
+}
+.pm-rond .pm-boite { border-radius: 50%; width: 12px; height: 12px; margin-top: 3px; }
+.pm-case:hover .pm-boite, .pm-rond:hover .pm-boite { border-color: #3C7FB1; background: #F3F9FF; }
+.pm-case.pm-oui .pm-boite::after {
+  content: ''; position: absolute; left: 3px; top: 0; width: 4px; height: 8px; border: solid #212121;
+  border-width: 0 2px 2px 0; transform: rotate(40deg);
+}
+.pm-rond.pm-oui .pm-boite::after {
+  content: ''; position: absolute; left: 2px; top: 2px; width: 6px; height: 6px; border-radius: 50%; background: #212121;
+}
+.pm-case.pm-gris-case .pm-boite { background: #E6E6E6; border-color: #BCBCBC; }
+.pm-case.pm-gris-case.pm-oui .pm-boite::after { border-color: #707070; }
+.pm-choix { margin: 2px 0; }
+
+/* L'interrupteur (Switch, le même que Nevermind) */
+.pm-inter {
+  flex: none; position: relative; box-sizing: border-box; width: 46px; height: 26px; border-radius: 13px; cursor: pointer;
+  border: 1px solid var(--pm-p-bord); background: var(--pm-piste); transition: background-color 0.2s, border-color 0.2s;
+}
+.pm-inter::before {
+  content: ''; position: absolute; box-sizing: border-box; left: 2px; top: 2px; width: 20px; height: 20px; border-radius: 50%;
+  background: var(--pm-bouton); border: 1px solid var(--pm-ombre); transition: transform 0.2s cubic-bezier(0.33, 1, 0.68, 1);
+}
+.pm-inter:hover::before { background: #FFFFFF; }
+.pm-inter.pm-oui { background: var(--pm-p-on); border-color: var(--pm-clair); }
+.pm-inter.pm-oui::before { transform: translateX(20px); }
+.pm-demarrage { display: flex; align-items: center; width: 520px; max-width: 100%; margin-bottom: 10px; }
+.pm-demarrage.pm-mindset { margin-bottom: 14px; }
+.pm-demarrage .pm-txt { flex: 1; min-width: 0; margin-right: 16px; font-size: 13px; }
+.pm-aide { font-size: 11.5px; color: var(--pm-texte3); margin-top: 2px; }
+
+/* Les cartes des thèmes (New-ChoixTheme) : 220 x 82, dans leurs propres couleurs */
+.pm-themes { display: flex; flex-wrap: wrap; }
+.pm-carte {
+  position: relative; box-sizing: border-box; width: 220px; height: 82px; margin: 0 12px 12px 0; padding: 9px 18px;
+  border-radius: 19px; border: 1px solid; cursor: pointer; display: flex; align-items: center; transition: transform 0.15s;
+}
+.pm-carte::after {
+  content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; opacity: 0;
+  background: linear-gradient(180deg, var(--pm-reflet) 0%, rgba(255, 255, 255, 0) 65%); transition: opacity 0.25s;
+}
+.pm-carte:hover::after { opacity: 1; transition-duration: 0.18s; }
+.pm-carte:hover { filter: drop-shadow(0 0 8px var(--pm-halo3)); }
+.pm-carte:active { transform: scale(0.96); transition-duration: 0.08s; }
+.pm-carte-corps { width: 178px; }
+.pm-carte-haut { display: flex; align-items: center; justify-content: space-between; height: 34px; margin-bottom: 6px; }
+.pm-pastilles { display: flex; }
+.pm-pastilles i { display: block; width: 14px; height: 14px; border-radius: 50%; margin-right: 6px; }
+.pm-vignette { width: 48px; height: 34px; display: flex; align-items: center; justify-content: flex-end; overflow: hidden; }
+.pm-vignette span { display: block; background-repeat: no-repeat; }
+.pm-carte-nom { font-size: 14px; font-weight: 400; color: #FFFFFF; white-space: pre; overflow: hidden; text-overflow: ellipsis; }
+
+/* Les appareils (New-LigneAppareil) : coins de 14, bord de 1,5 */
+.pm-appareil {
+  position: relative; display: flex; align-items: center; box-sizing: border-box; padding: 9px 14px; margin-bottom: 6px;
+  border-radius: 14px; border: 1.5px solid var(--pm-l-bord); background: var(--pm-ligne) padding-box; cursor: pointer;
+}
+.pm-appareil.pm-oui { border-color: transparent; background: var(--pm-choisi) padding-box; }
+.pm-appareil.pm-oui::before {
+  content: ''; position: absolute; inset: -1.5px; border-radius: 14px; padding: 1.5px; pointer-events: none;
+  background: linear-gradient(90deg, var(--pm-cyan), var(--pm-violet));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+.pm-appareil .pm-nom { flex: 1; min-width: 0; font-size: 14px; color: #FFFFFF; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pm-appareil .pm-etat { flex: none; margin-left: 12px; font-size: 13px; color: var(--pm-gris); white-space: nowrap; }
+.pm-appareil.pm-oui .pm-etat { color: var(--pm-clair); }
+
+/* Les versions (New-LigneVersion) : une carte de verre, coins de 14 */
+.pm-version {
+  position: relative; display: flex; align-items: center; box-sizing: border-box; padding: 10px 16px; margin-bottom: 6px;
+  border-radius: 14px; border: 1px solid transparent; background: linear-gradient(135deg, var(--pm-carte1), var(--pm-carte2)) padding-box;
+}
+.pm-version::before {
+  content: ''; position: absolute; inset: -1px; border-radius: 14px; padding: 1px; pointer-events: none;
+  background: linear-gradient(135deg, var(--pm-cbord1), var(--pm-cbord2));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+.pm-version .pm-gauche-v { flex: 1; min-width: 0; display: flex; align-items: center; white-space: nowrap; }
+.pm-version .pm-nom-v { font-size: 15px; font-weight: 400; }
+.pm-version .pm-num { font-size: 13px; color: var(--pm-gris); white-space: pre; }
+.pm-version .pm-etat { flex: none; font-size: 13px; white-space: nowrap; }
+.pm-essai { margin: 2px 0 10px 24px; font-size: 12px; color: var(--pm-texte3); }
+
+/* La consommation */
+.pm-total { font-size: 15px; font-weight: 400; color: var(--pm-texte); margin-bottom: 2px; }
+.pm-conso { display: flex; width: 520px; max-width: 100%; margin-bottom: 8px; }
+.pm-conso .pm-txt { flex: 1; min-width: 0; margin-right: 16px; }
+.pm-conso .pm-nom-c { font-size: 13px; font-weight: 400; }
+.pm-conso .pm-chiffres { flex: none; font-size: 13px; white-space: pre; }

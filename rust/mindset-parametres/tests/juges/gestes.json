@@ -1,0 +1,600 @@
+{
+    "cas":  [
+                {
+                    "nom":  "interrupteurs",
+                    "entree":  {
+
+                               },
+                    "gestes":  [
+                                   {
+                                       "valeur":  false,
+                                       "quoi":  "reduire"
+                                   },
+                                   {
+                                       "valeur":  0,
+                                       "quoi":  "windows"
+                                   },
+                                   {
+                                       "valeur":  "non",
+                                       "quoi":  "majauto"
+                                   },
+                                   {
+                                       "valeur":  false,
+                                       "quoi":  "verif"
+                                   },
+                                   {
+                                       "valeur":  true,
+                                       "quoi":  "verif"
+                                   }
+                               ],
+                    "evenements":  [
+
+                                   ],
+                    "reglages":  {
+                                     "LancerAvecWindows":  false,
+                                     "MajAuto":  true,
+                                     "ReduireHorloge":  false,
+                                     "VerifVersions":  true
+                                 },
+                    "onglet":  "general",
+                    "info":  "",
+                    "maj_info":  "",
+                    "journal":  [
+                                    "Mises à jour automatiques : oui",
+                                    "Chercher les nouvelles versions tout seul : non",
+                                    "Chercher les nouvelles versions tout seul : oui"
+                                ],
+                    "suite_theme":  "neon"
+                },
+                {
+                    "nom":  "fermeture",
+                    "entree":  {
+
+                               },
+                    "gestes":  [
+                                   {
+                                       "valeur":  "reduire",
+                                       "quoi":  "fermeture"
+                                   },
+                                   {
+                                       "valeur":  "autre",
+                                       "quoi":  "fermeture"
+                                   },
+                                   {
+                                       "valeur":  "QUITTER",
+                                       "quoi":  "fermeture"
+                                   }
+                               ],
+                    "evenements":  [
+
+                                   ],
+                    "reglages":  {
+                                     "Fermeture":  "QUITTER"
+                                 },
+                    "onglet":  "general",
+                    "info":  "",
+                    "maj_info":  "",
+                    "journal":  [
+
+                                ],
+                    "suite_theme":  "neon"
+                },
+                {
+                    "nom":  "onglets",
+                    "entree":  {
+
+                               },
+                    "gestes":  [
+                                   {
+                                       "valeur":  "son",
+                                       "quoi":  "onglet"
+                                   },
+                                   {
+                                       "valeur":  "inconnu",
+                                       "quoi":  "onglet"
+                                   },
+                                   {
+                                       "valeur":  "maj",
+                                       "quoi":  "onglet"
+                                   }
+                               ],
+                    "evenements":  [
+
+                                   ],
+                    "reglages":  {
+
+                                 },
+                    "onglet":  "maj",
+                    "info":  "",
+                    "maj_info":  "",
+                    "journal":  [
+
+                                ],
+                    "suite_theme":  "neon"
+                },
+                {
+                    "nom":  "versions d\u0027essai",
+                    "entree":  {
+
+                               },
+                    "gestes":  [
+                                   {
+                                       "valeur":  true,
+                                       "id":  "evermind",
+                                       "quoi":  "essai"
+                                   },
+                                   {
+                                       "valeur":  true,
+                                       "id":  "Evermind",
+                                       "quoi":  "essai"
+                                   },
+                                   {
+                                       "valeur":  true,
+                                       "id":  "mindcare",
+                                       "quoi":  "essai"
+                                   },
+                                   {
+                                       "valeur":  0,
+                                       "id":  "nevermind",
+                                       "quoi":  "essai"
+                                   }
+                               ],
+                    "evenements":  [
+                                       {
+                                           "signal":  "versions-essai",
+                                           "id":  "evermind",
+                                           "oui":  true
+                                       },
+                                       {
+                                           "signal":  "versions-essai",
+                                           "id":  "nevermind",
+                                           "oui":  false
+                                       }
+                                   ],
+                    "reglages":  {
+
+                                 },
+                    "onglet":  "general",
+                    "info":  "",
+                    "maj_info":  "",
+                    "journal":  [
+
+                                ],
+                    "suite_theme":  "neon"
+                },
+                {
+                    "nom":  "démarrage des applis",
+                    "entree":  {
+
+                               },
+                    "gestes":  [
+                                   {
+                                       "valeur":  true,
+                                       "id":  "EVERMIND",
+                                       "quoi":  "demarrage"
+                                   },
+                                   {
+                                       "valeur":  true,
+                                       "id":  "nevermind",
+                                       "quoi":  "demarrage"
+                                   },
+                                   {
+                                       "valeur":  true,
+                                       "id":  "mindcare",
+                                       "quoi":  "demarrage"
+                                   }
+                               ],
+                    "evenements":  [
+                                       {
+                                           "signal":  "demarrage-appli",
+                                           "id":  "evermind",
+                                           "oui":  true
+                                       }
+                                   ],
+                    "reglages":  {
+
+                                 },
+                    "onglet":  "general",
+                    "info":  "",
+                    "maj_info":  "",
+                    "journal":  [
+
+                                ],
+                    "suite_theme":  "neon"
+                },
+                {
+                    "nom":  "démarrage, Mindset administrateur",
+                    "entree":  {
+                                   "installations":  {
+                                                         "nevermind":  {
+                                                                           "gere":  true,
+                                                                           "version":  "2.0.0",
+                                                                           "dossier":  "C:\\P\\Nevermind"
+                                                                       }
+                                                     }
+                               },
+                    "gestes":  [
+                                   {
+                                       "valeur":  true,
+                                       "id":  "nevermind",
+                                       "quoi":  "demarrage"
+                                   }
+                               ],
+                    "evenements":  [
+                                       {
+                                           "signal":  "demarrage-appli",
+                                           "id":  "nevermind",
+                                           "oui":  true
+                                       }
+                                   ],
+                    "reglages":  {
+
+                                 },
+                    "onglet":  "general",
+                    "info":  "",
+                    "maj_info":  "",
+                    "journal":  [
+
+                                ],
+                    "suite_theme":  "neon"
+                },
+                {
+                    "nom":  "son",
+                    "entree":  {
+
+                               },
+                    "gestes":  [
+                                   {
+                                       "valeur":  "Micro du casque",
+                                       "quoi":  "micro"
+                                   },
+                                   {
+                                       "valeur":  "",
+                                       "quoi":  "casque"
+                                   },
+                                   {
+                                       "quoi":  "sonActualiser"
+                                   }
+                               ],
+                    "evenements":  [
+                                       {
+                                           "son":  [
+                                                       "micro",
+                                                       "Micro du casque"
+                                                   ]
+                                       },
+                                       {
+                                           "son":  [
+                                                       "casque",
+                                                       ""
+                                                   ]
+                                       }
+                                   ],
+                    "reglages":  {
+
+                                 },
+                    "onglet":  "general",
+                    "info":  "",
+                    "maj_info":  "",
+                    "journal":  [
+
+                                ],
+                    "suite_theme":  "neon"
+                },
+                {
+                    "nom":  "boutons",
+                    "entree":  {
+
+                               },
+                    "gestes":  [
+                                   {
+                                       "quoi":  "confidentialite"
+                                   },
+                                   {
+                                       "quoi":  "verifier"
+                                   },
+                                   {
+                                       "quoi":  "majMindset"
+                                   },
+                                   {
+                                       "quoi":  "dossierProgrammes"
+                                   },
+                                   {
+                                       "quoi":  "dossierDonnees"
+                                   },
+                                   {
+                                       "quoi":  "desinstaller"
+                                   },
+                                   {
+                                       "quoi":  "importer"
+                                   },
+                                   {
+                                       "quoi":  "rien du tout"
+                                   }
+                               ],
+                    "evenements":  [
+                                       {
+                                           "signal":  "confidentialite",
+                                           "id":  ""
+                                       },
+                                       {
+                                           "signal":  "actualiser",
+                                           "clic":  true
+                                       },
+                                       {
+                                           "signal":  "maj-mindset"
+                                       },
+                                       {
+                                           "ouvrir":  "\u003cracine\u003e\\Programmes\\Mindset"
+                                       },
+                                       {
+                                           "ouvrir":  "\u003cracine\u003e\\Donnees"
+                                       },
+                                       {
+                                           "signal":  "desinstaller-mindset"
+                                       },
+                                       {
+                                           "importer":  true
+                                       }
+                                   ],
+                    "reglages":  {
+
+                                 },
+                    "onglet":  "general",
+                    "info":  "",
+                    "maj_info":  "Vérifié à 20:00",
+                    "journal":  [
+
+                                ],
+                    "suite_theme":  "neon"
+                },
+                {
+                    "nom":  "animations",
+                    "entree":  {
+
+                               },
+                    "gestes":  [
+                                   {
+                                       "valeur":  "express",
+                                       "quoi":  "animations"
+                                   },
+                                   {
+                                       "valeur":  "vite",
+                                       "quoi":  "animations"
+                                   },
+                                   {
+                                       "valeur":  "aucune",
+                                       "quoi":  "animations"
+                                   }
+                               ],
+                    "evenements":  [
+                                       {
+                                           "onglet":  "apparence"
+                                       },
+                                       {
+                                           "page":  "parametres"
+                                       }
+                                   ],
+                    "reglages":  {
+                                     "Animations":  "aucune"
+                                 },
+                    "onglet":  "apparence",
+                    "info":  "",
+                    "maj_info":  "",
+                    "journal":  [
+
+                                ],
+                    "suite_theme":  "neon"
+                },
+                {
+                    "nom":  "thème (test)",
+                    "entree":  {
+
+                               },
+                    "gestes":  [
+                                   {
+                                       "valeur":  "neon",
+                                       "quoi":  "theme"
+                                   },
+                                   {
+                                       "valeur":  "inconnu",
+                                       "quoi":  "theme"
+                                   },
+                                   {
+                                       "valeur":  "arcade",
+                                       "quoi":  "theme"
+                                   }
+                               ],
+                    "evenements":  [
+                                       {
+                                           "theme_suite":  "arcade"
+                                       }
+                                   ],
+                    "reglages":  {
+
+                                 },
+                    "onglet":  "general",
+                    "info":  "Thème « arcade » choisi (test : pas de relance).",
+                    "maj_info":  "",
+                    "journal":  [
+
+                                ],
+                    "suite_theme":  "arcade"
+                },
+                {
+                    "nom":  "thème (relance)",
+                    "entree":  {
+                                   "en_test":  false,
+                                   "fichiers":  [
+                                                    {
+                                                        "chemin":  "Donnees\\Mindset\\packs\\foret\\pack.json",
+                                                        "b64":  "eyAiTmFtZSI6ICJGb3LDqnQiLCAiRGVzYyI6ICJWZXJ0IHRlbmRyZSBldCBib2lzLiIsICJCYXNlIjogInRlcm1pbmFsIiwgIkhlbGxvIjogInswfSwgcHJvbWVuZXVyICEiLCAiTWFzY290dGUiOiB7ICJGaWxlIjogIm1hc2NvdHRlLnBuZyIsICJGcmFtZXMiOiA0LCAiRGVsYXkiOiAxMjAgfSwgIkxvZ28iOiAibG9nby5wbmciLCAiQ29sb3JzIjogeyAiUCI6ICIjNENEOTY0IiwgIlMiOiAiI0I2RkYzQiIsICJUIjogIiNGRkM4M0QiLCAiTkgiOiAxNDAsICJOUyI6IDAuNSwgIk1hcCI6IHsgIjBDMDkyMCI6ICIwQTFBMEUiLCAiIzA2MDUwRiI6ICIwNDBDMDYiIH0gfSwgIlRhYkljb25zIjogeyAiYWNjdWVpbCI6IHsgIkZpbGUiOiAibG9nby5wbmciLCAiRnJhbWVzIjogMSwgIkRlbGF5IjogMTAgfSwgIk1hbCI6IHsgIkZpbGUiOiAiYWJzZW50LnBuZyIgfSB9IH0="
+                                                    },
+                                                    {
+                                                        "chemin":  "Donnees\\Mindset\\packs\\foret\\mascotte.png",
+                                                        "b64":  "iVBORw0KGgoAAAANSUhEUgAAAIAAAAAgCAYAAADaInAlAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABrSURBVHhe7dIhAQAgEMDAj04kItEEPBVu4sz05ux145o/xNIAuAbANQCuAXANgGsAXAPgGgDXALgGwDUArgFwDYBrAFwD4BoA1wC4BsA1AK4BcA2AawBcA+AaANcAuAbANQCuAXANgGsA3APNR/LRzkchlwAAAABJRU5ErkJggg=="
+                                                    },
+                                                    {
+                                                        "chemin":  "Donnees\\Mindset\\packs\\foret\\logo.png",
+                                                        "b64":  "iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAACLSURBVHhe7dAxAQAgEIDAD2gMS38a3akAwy2MzNn7zIbBpgEMNg1gsGkAg00DGGwawGDTAAabBjDYNIDBpgEMNg1gsGkAg00DGGwawGDTAAabBjDYNIDBpgEMNg1gsGkAg00DGGwawGDTAAabBjDYNIDBpgEMNg1gsGkAg00DGGwawGDTAAabBjDYfF/hglkwrZ+lAAAAAElFTkSuQmCC"
+                                                    },
+                                                    {
+                                                        "chemin":  "Donnees\\Mindset\\packs\\cafe-creme\\pack.json",
+                                                        "b64":  "eyAiTmFtZSI6ICJDYWbDqSBjcsOobWUiLCAiRGVzYyI6ICJEb3V4IGNvbW1lIHVuIG1hdGluLiIsICJCYXNlIjogImNyZXB1c2N1bGUiLCAiSGVsbG8iOiAiUGFzIGRlIHBocmFzZSIsICJNYXNjb3R0ZSI6IHsgIkZpbGUiOiAiYmFuZGUucG5nIiwgIkZyYW1lcyI6IDEgfSwgIkxvZ28iOiAibG9nby5wbmciLCAiQmFja2dyb3VuZCI6ICJsb2dvLnBuZyIsICJCYWNrZ3JvdW5kT3BhY2l0eSI6IDAuNSwgIkJhY2tncm91bmRBbGlnbiI6ICJiYXMtZHJvaXRlIiwgIkZvbnQiOiAicG9saWNlLnR0ZiIsICJGb250U2NvcGUiOiAidG91dCIgfQ=="
+                                                    },
+                                                    {
+                                                        "chemin":  "Donnees\\Mindset\\packs\\cafe-creme\\bande.png",
+                                                        "b64":  "iVBORw0KGgoAAAANSUhEUgAAASwAAAAoCAYAAABEm8fXAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAACjSURBVHhe7dQxDQAgAMAwjOEOmXiBHwUs6dFnAjbmXgegYLwB4FeGBWQYFpBhWECGYQEZhgVkGBaQYVhAhmEBGYYFZBgWkGFYQIZhARmGBWQYFpBhWECGYQEZhgVkGBaQYVhAhmEBGYYFZBgWkGFYQIZhARmGBWQYFpBhWECGYQEZhgVkGBaQYVhAhmEBGYYFZBgWkGFYQIZhARmGBWQYFpBxAURbV6fpwnvXAAAAAElFTkSuQmCC"
+                                                    },
+                                                    {
+                                                        "chemin":  "Donnees\\Mindset\\packs\\cafe-creme\\logo.png",
+                                                        "b64":  "iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAACLSURBVHhe7dAxAQAgEIDAD2gMS38a3akAwy2MzNn7zIbBpgEMNg1gsGkAg00DGGwawGDTAAabBjDYNIDBpgEMNg1gsGkAg00DGGwawGDTAAabBjDYNIDBpgEMNg1gsGkAg00DGGwawGDTAAabBjDYNIDBpgEMNg1gsGkAg00DGGwawGDTAAabBjDYfF/hglkwrZ+lAAAAAElFTkSuQmCC"
+                                                    },
+                                                    {
+                                                        "chemin":  "Donnees\\Mindset\\packs\\neige\\pack.json",
+                                                        "b64":  "eyAiTmFtZSI6ICJOZWlnZSIsICJEZXNjIjogIlRvdXQgYmxhbmMuIiwgIkJhc2UiOiAicnViaXMiIH0="
+                                                    },
+                                                    {
+                                                        "chemin":  "Donnees\\Mindset\\packs\\brume\\pack.json",
+                                                        "b64":  "eyAiTmFtZSI6ICJCcnVtZSIsICJCYXNlIjogImFyY2FkZSIsICJDb2xvcnMiOiB7ICJQIjogInJvdWdlIiwgIlMiOiAiI0I2RkYzQiIsICJUIjogIiNGRkM4M0QiIH0gfQ=="
+                                                    }
+                                                ]
+                               },
+                    "gestes":  [
+                                   {
+                                       "valeur":  "pack:foret",
+                                       "quoi":  "theme"
+                                   }
+                               ],
+                    "evenements":  [
+                                       {
+                                           "theme_suite":  "pack:foret"
+                                       },
+                                       {
+                                           "relancer":  true
+                                       }
+                                   ],
+                    "reglages":  {
+
+                                 },
+                    "onglet":  "general",
+                    "info":  "",
+                    "maj_info":  "",
+                    "journal":  [
+
+                                ],
+                    "suite_theme":  "pack:foret"
+                },
+                {
+                    "nom":  "thème pendant une installation",
+                    "entree":  {
+                                   "occupe":  true
+                               },
+                    "gestes":  [
+                                   {
+                                       "valeur":  "rubis",
+                                       "quoi":  "theme"
+                                   }
+                               ],
+                    "evenements":  [
+
+                                   ],
+                    "reglages":  {
+
+                                 },
+                    "onglet":  "general",
+                    "info":  "Une installation est en cours : réessaie quand elle sera finie.",
+                    "maj_info":  "",
+                    "journal":  [
+
+                                ],
+                    "suite_theme":  "neon"
+                },
+                {
+                    "nom":  "supprimer un thème : la question",
+                    "entree":  {
+                                   "theme":  "pack:foret",
+                                   "fichiers":  [
+                                                    {
+                                                        "chemin":  "Donnees\\Mindset\\packs\\foret\\pack.json",
+                                                        "b64":  "eyAiTmFtZSI6ICJGb3LDqnQiLCAiRGVzYyI6ICJWZXJ0IHRlbmRyZSBldCBib2lzLiIsICJCYXNlIjogInRlcm1pbmFsIiwgIkhlbGxvIjogInswfSwgcHJvbWVuZXVyICEiLCAiTWFzY290dGUiOiB7ICJGaWxlIjogIm1hc2NvdHRlLnBuZyIsICJGcmFtZXMiOiA0LCAiRGVsYXkiOiAxMjAgfSwgIkxvZ28iOiAibG9nby5wbmciLCAiQ29sb3JzIjogeyAiUCI6ICIjNENEOTY0IiwgIlMiOiAiI0I2RkYzQiIsICJUIjogIiNGRkM4M0QiLCAiTkgiOiAxNDAsICJOUyI6IDAuNSwgIk1hcCI6IHsgIjBDMDkyMCI6ICIwQTFBMEUiLCAiIzA2MDUwRiI6ICIwNDBDMDYiIH0gfSwgIlRhYkljb25zIjogeyAiYWNjdWVpbCI6IHsgIkZpbGUiOiAibG9nby5wbmciLCAiRnJhbWVzIjogMSwgIkRlbGF5IjogMTAgfSwgIk1hbCI6IHsgIkZpbGUiOiAiYWJzZW50LnBuZyIgfSB9IH0="
+                                                    },
+                                                    {
+                                                        "chemin":  "Donnees\\Mindset\\packs\\foret\\mascotte.png",
+                                                        "b64":  "iVBORw0KGgoAAAANSUhEUgAAAIAAAAAgCAYAAADaInAlAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABrSURBVHhe7dIhAQAgEMDAj04kItEEPBVu4sz05ux145o/xNIAuAbANQCuAXANgGsAXAPgGgDXALgGwDUArgFwDYBrAFwD4BoA1wC4BsA1AK4BcA2AawBcA+AaANcAuAbANQCuAXANgGsA3APNR/LRzkchlwAAAABJRU5ErkJggg=="
+                                                    },
+                                                    {
+                                                        "chemin":  "Donnees\\Mindset\\packs\\foret\\logo.png",
+                                                        "b64":  "iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAACLSURBVHhe7dAxAQAgEIDAD2gMS38a3akAwy2MzNn7zIbBpgEMNg1gsGkAg00DGGwawGDTAAabBjDYNIDBpgEMNg1gsGkAg00DGGwawGDTAAabBjDYNIDBpgEMNg1gsGkAg00DGGwawGDTAAabBjDYNIDBpgEMNg1gsGkAg00DGGwawGDTAAabBjDYfF/hglkwrZ+lAAAAAElFTkSuQmCC"
+                                                    },
+                                                    {
+                                                        "chemin":  "Donnees\\Mindset\\packs\\cafe-creme\\pack.json",
+                                                        "b64":  "eyAiTmFtZSI6ICJDYWbDqSBjcsOobWUiLCAiRGVzYyI6ICJEb3V4IGNvbW1lIHVuIG1hdGluLiIsICJCYXNlIjogImNyZXB1c2N1bGUiLCAiSGVsbG8iOiAiUGFzIGRlIHBocmFzZSIsICJNYXNjb3R0ZSI6IHsgIkZpbGUiOiAiYmFuZGUucG5nIiwgIkZyYW1lcyI6IDEgfSwgIkxvZ28iOiAibG9nby5wbmciLCAiQmFja2dyb3VuZCI6ICJsb2dvLnBuZyIsICJCYWNrZ3JvdW5kT3BhY2l0eSI6IDAuNSwgIkJhY2tncm91bmRBbGlnbiI6ICJiYXMtZHJvaXRlIiwgIkZvbnQiOiAicG9saWNlLnR0ZiIsICJGb250U2NvcGUiOiAidG91dCIgfQ=="
+                                                    },
+                                                    {
+                                                        "chemin":  "Donnees\\Mindset\\packs\\cafe-creme\\bande.png",
+                                                        "b64":  "iVBORw0KGgoAAAANSUhEUgAAASwAAAAoCAYAAABEm8fXAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAACjSURBVHhe7dQxDQAgAMAwjOEOmXiBHwUs6dFnAjbmXgegYLwB4FeGBWQYFpBhWECGYQEZhgVkGBaQYVhAhmEBGYYFZBgWkGFYQIZhARmGBWQYFpBhWECGYQEZhgVkGBaQYVhAhmEBGYYFZBgWkGFYQIZhARmGBWQYFpBhWECGYQEZhgVkGBaQYVhAhmEBGYYFZBgWkGFYQIZhARmGBWQYFpBxAURbV6fpwnvXAAAAAElFTkSuQmCC"
+                                                    },
+                                                    {
+                                                        "chemin":  "Donnees\\Mindset\\packs\\cafe-creme\\logo.png",
+                                                        "b64":  "iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAACLSURBVHhe7dAxAQAgEIDAD2gMS38a3akAwy2MzNn7zIbBpgEMNg1gsGkAg00DGGwawGDTAAabBjDYNIDBpgEMNg1gsGkAg00DGGwawGDTAAabBjDYNIDBpgEMNg1gsGkAg00DGGwawGDTAAabBjDYNIDBpgEMNg1gsGkAg00DGGwawGDTAAabBjDYfF/hglkwrZ+lAAAAAElFTkSuQmCC"
+                                                    },
+                                                    {
+                                                        "chemin":  "Donnees\\Mindset\\packs\\neige\\pack.json",
+                                                        "b64":  "eyAiTmFtZSI6ICJOZWlnZSIsICJEZXNjIjogIlRvdXQgYmxhbmMuIiwgIkJhc2UiOiAicnViaXMiIH0="
+                                                    },
+                                                    {
+                                                        "chemin":  "Donnees\\Mindset\\packs\\brume\\pack.json",
+                                                        "b64":  "eyAiTmFtZSI6ICJCcnVtZSIsICJCYXNlIjogImFyY2FkZSIsICJDb2xvcnMiOiB7ICJQIjogInJvdWdlIiwgIlMiOiAiI0I2RkYzQiIsICJUIjogIiNGRkM4M0QiIH0gfQ=="
+                                                    }
+                                                ]
+                               },
+                    "gestes":  [
+                                   {
+                                       "valeur":  "pack:neige",
+                                       "quoi":  "supprimerTheme"
+                                   },
+                                   {
+                                       "valeur":  "pack:foret",
+                                       "quoi":  "supprimerTheme"
+                                   },
+                                   {
+                                       "valeur":  "pack:absent",
+                                       "quoi":  "supprimerTheme"
+                                   },
+                                   {
+                                       "valeur":  "neige",
+                                       "quoi":  "supprimerTheme"
+                                   }
+                               ],
+                    "evenements":  [
+                                       {
+                                           "confirmation":  {
+                                                                "titre":  "Supprimer le thème « Neige » ?",
+                                                                "texte":  "Il sera retiré de Mindset et de toutes les applis.",
+                                                                "bouton":  "Supprimer"
+                                                            }
+                                       },
+                                       {
+                                           "confirmation":  {
+                                                                "titre":  "Supprimer le thème « Forêt » ?",
+                                                                "texte":  "Il sera retiré de Mindset et de toutes les applis. C\u0027est le thème actuel : la suite repasse d\u0027abord sur le thème Néon, et Mindset se relance.",
+                                                                "bouton":  "Supprimer"
+                                                            }
+                                       }
+                                   ],
+                    "reglages":  {
+
+                                 },
+                    "onglet":  "general",
+                    "info":  "",
+                    "maj_info":  "",
+                    "journal":  [
+                                    "Thème brume : couleurs mal écrites, ignorées (thème de base)",
+                                    "Thème brume : couleurs mal écrites, ignorées (thème de base)",
+                                    "Thème brume : couleurs mal écrites, ignorées (thème de base)"
+                                ],
+                    "suite_theme":  "pack:foret"
+                }
+            ]
+}

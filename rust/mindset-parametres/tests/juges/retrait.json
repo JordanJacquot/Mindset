@@ -1,0 +1,341 @@
+{
+    "cas":  [
+                {
+                    "nom":  "un thème qui n\u0027est pas l\u0027actuel",
+                    "id":  "neige",
+                    "theme":  "neon",
+                    "en_test":  true,
+                    "occupe":  false,
+                    "pris":  [
+
+                             ],
+                    "evenements":  [
+
+                                   ],
+                    "info":  "Thème « Neige » supprimé de Mindset et de toutes les applis.",
+                    "apres":  [
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\brume\\pack.json",
+                                      "taille":  97
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\cafe-creme\\bande.png",
+                                      "taille":  270
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\cafe-creme\\logo.png",
+                                      "taille":  246
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\cafe-creme\\pack.json",
+                                      "taille":  304
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\foret\\logo.png",
+                                      "taille":  246
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\foret\\mascotte.png",
+                                      "taille":  214
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\foret\\pack.json",
+                                      "taille":  434
+                                  }
+                              ],
+                    "suite_theme":  "neon",
+                    "journal":  [
+                                    "Thème brume : couleurs mal écrites, ignorées (thème de base)",
+                                    "Thème neige retiré : \u003cracine\u003e\\Donnees\\Mindset\\packs\\neige",
+                                    "Thème de la suite supprimé : neige",
+                                    "Thème brume : couleurs mal écrites, ignorées (thème de base)"
+                                ]
+                },
+                {
+                    "nom":  "le thème actuel",
+                    "id":  "foret",
+                    "theme":  "pack:foret",
+                    "en_test":  false,
+                    "occupe":  false,
+                    "pris":  [
+
+                             ],
+                    "evenements":  [
+                                       {
+                                           "theme_suite":  "neon"
+                                       },
+                                       {
+                                           "relancer":  true
+                                       }
+                                   ],
+                    "info":  "Thème « Forêt » supprimé de Mindset et de toutes les applis. La suite repasse sur le thème Néon.",
+                    "apres":  [
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\brume\\pack.json",
+                                      "taille":  97
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\cafe-creme\\bande.png",
+                                      "taille":  270
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\cafe-creme\\logo.png",
+                                      "taille":  246
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\cafe-creme\\pack.json",
+                                      "taille":  304
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\neige\\pack.json",
+                                      "taille":  59
+                                  }
+                              ],
+                    "suite_theme":  "neon",
+                    "journal":  [
+                                    "Thème brume : couleurs mal écrites, ignorées (thème de base)",
+                                    "Thème foret retiré : \u003cracine\u003e\\Donnees\\Mindset\\packs\\foret",
+                                    "Thème de la suite supprimé : foret",
+                                    "Thème brume : couleurs mal écrites, ignorées (thème de base)"
+                                ]
+                },
+                {
+                    "nom":  "le thème actuel (test)",
+                    "id":  "foret",
+                    "theme":  "pack:foret",
+                    "en_test":  true,
+                    "occupe":  false,
+                    "pris":  [
+
+                             ],
+                    "evenements":  [
+                                       {
+                                           "theme_suite":  "neon"
+                                       }
+                                   ],
+                    "info":  "Thème « Forêt » supprimé de Mindset et de toutes les applis. La suite repasse sur le thème Néon.",
+                    "apres":  [
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\brume\\pack.json",
+                                      "taille":  97
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\cafe-creme\\bande.png",
+                                      "taille":  270
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\cafe-creme\\logo.png",
+                                      "taille":  246
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\cafe-creme\\pack.json",
+                                      "taille":  304
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\neige\\pack.json",
+                                      "taille":  59
+                                  }
+                              ],
+                    "suite_theme":  "neon",
+                    "journal":  [
+                                    "Thème brume : couleurs mal écrites, ignorées (thème de base)",
+                                    "Thème foret retiré : \u003cracine\u003e\\Donnees\\Mindset\\packs\\foret",
+                                    "Thème de la suite supprimé : foret",
+                                    "Thème brume : couleurs mal écrites, ignorées (thème de base)"
+                                ]
+                },
+                {
+                    "nom":  "encore pris",
+                    "id":  "cafe-creme",
+                    "theme":  "neon",
+                    "en_test":  true,
+                    "occupe":  false,
+                    "pris":  [
+                                 "Donnees\\Mindset\\packs\\cafe-creme\\logo.png"
+                             ],
+                    "evenements":  [
+
+                                   ],
+                    "info":  "Thème « Café crème » supprimé de Mindset et de toutes les applis. Une appli ouverte s\u0027en sert encore : il finira d\u0027être retiré au prochain démarrage de Mindset.",
+                    "apres":  [
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\brume\\pack.json",
+                                      "taille":  97
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\cafe-creme\\logo.png",
+                                      "taille":  246
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\cafe-creme\\pack.json",
+                                      "taille":  304
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\foret\\logo.png",
+                                      "taille":  246
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\foret\\mascotte.png",
+                                      "taille":  214
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\foret\\pack.json",
+                                      "taille":  434
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\neige\\pack.json",
+                                      "taille":  59
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs-a-retirer.txt",
+                                      "taille":  12
+                                  }
+                              ],
+                    "suite_theme":  "neon",
+                    "journal":  [
+                                    "Thème brume : couleurs mal écrites, ignorées (thème de base)",
+                                    "Thème cafe-creme : \u003cracine\u003e\\Donnees\\Mindset\\packs\\cafe-creme pas encore retiré (Le processus ne peut pas accéder au fichier \u0027logo.png\u0027, car il est en cours d\u0027utilisation par un autre processus.)",
+                                    "Thème de la suite supprimé : cafe-creme (des dossiers encore pris, retirés plus tard)",
+                                    "Thème brume : couleurs mal écrites, ignorées (thème de base)"
+                                ]
+                },
+                {
+                    "nom":  "pendant une installation",
+                    "id":  "neige",
+                    "theme":  "neon",
+                    "en_test":  true,
+                    "occupe":  true,
+                    "pris":  [
+
+                             ],
+                    "evenements":  [
+
+                                   ],
+                    "info":  "Une installation est en cours : réessaie quand elle sera finie.",
+                    "apres":  [
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\brume\\pack.json",
+                                      "taille":  97
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\cafe-creme\\bande.png",
+                                      "taille":  270
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\cafe-creme\\logo.png",
+                                      "taille":  246
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\cafe-creme\\pack.json",
+                                      "taille":  304
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\foret\\logo.png",
+                                      "taille":  246
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\foret\\mascotte.png",
+                                      "taille":  214
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\foret\\pack.json",
+                                      "taille":  434
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\neige\\pack.json",
+                                      "taille":  59
+                                  }
+                              ],
+                    "suite_theme":  "neon",
+                    "journal":  [
+                                    "Thème brume : couleurs mal écrites, ignorées (thème de base)"
+                                ]
+                },
+                {
+                    "nom":  "absent",
+                    "id":  "absent",
+                    "theme":  "neon",
+                    "en_test":  true,
+                    "occupe":  false,
+                    "pris":  [
+
+                             ],
+                    "evenements":  [
+
+                                   ],
+                    "info":  "",
+                    "apres":  [
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\brume\\pack.json",
+                                      "taille":  97
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\cafe-creme\\bande.png",
+                                      "taille":  270
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\cafe-creme\\logo.png",
+                                      "taille":  246
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\cafe-creme\\pack.json",
+                                      "taille":  304
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\foret\\logo.png",
+                                      "taille":  246
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\foret\\mascotte.png",
+                                      "taille":  214
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\foret\\pack.json",
+                                      "taille":  434
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\neige\\pack.json",
+                                      "taille":  59
+                                  }
+                              ],
+                    "suite_theme":  "neon",
+                    "journal":  [
+                                    "Thème brume : couleurs mal écrites, ignorées (thème de base)"
+                                ]
+                }
+            ],
+    "avant":  [
+                  {
+                      "chemin":  "Donnees\\Mindset\\packs\\foret\\pack.json",
+                      "b64":  "eyAiTmFtZSI6ICJGb3LDqnQiLCAiRGVzYyI6ICJWZXJ0IHRlbmRyZSBldCBib2lzLiIsICJCYXNlIjogInRlcm1pbmFsIiwgIkhlbGxvIjogInswfSwgcHJvbWVuZXVyICEiLCAiTWFzY290dGUiOiB7ICJGaWxlIjogIm1hc2NvdHRlLnBuZyIsICJGcmFtZXMiOiA0LCAiRGVsYXkiOiAxMjAgfSwgIkxvZ28iOiAibG9nby5wbmciLCAiQ29sb3JzIjogeyAiUCI6ICIjNENEOTY0IiwgIlMiOiAiI0I2RkYzQiIsICJUIjogIiNGRkM4M0QiLCAiTkgiOiAxNDAsICJOUyI6IDAuNSwgIk1hcCI6IHsgIjBDMDkyMCI6ICIwQTFBMEUiLCAiIzA2MDUwRiI6ICIwNDBDMDYiIH0gfSwgIlRhYkljb25zIjogeyAiYWNjdWVpbCI6IHsgIkZpbGUiOiAibG9nby5wbmciLCAiRnJhbWVzIjogMSwgIkRlbGF5IjogMTAgfSwgIk1hbCI6IHsgIkZpbGUiOiAiYWJzZW50LnBuZyIgfSB9IH0="
+                  },
+                  {
+                      "chemin":  "Donnees\\Mindset\\packs\\foret\\mascotte.png",
+                      "b64":  "iVBORw0KGgoAAAANSUhEUgAAAIAAAAAgCAYAAADaInAlAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABrSURBVHhe7dIhAQAgEMDAj04kItEEPBVu4sz05ux145o/xNIAuAbANQCuAXANgGsAXAPgGgDXALgGwDUArgFwDYBrAFwD4BoA1wC4BsA1AK4BcA2AawBcA+AaANcAuAbANQCuAXANgGsA3APNR/LRzkchlwAAAABJRU5ErkJggg=="
+                  },
+                  {
+                      "chemin":  "Donnees\\Mindset\\packs\\foret\\logo.png",
+                      "b64":  "iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAACLSURBVHhe7dAxAQAgEIDAD2gMS38a3akAwy2MzNn7zIbBpgEMNg1gsGkAg00DGGwawGDTAAabBjDYNIDBpgEMNg1gsGkAg00DGGwawGDTAAabBjDYNIDBpgEMNg1gsGkAg00DGGwawGDTAAabBjDYNIDBpgEMNg1gsGkAg00DGGwawGDTAAabBjDYfF/hglkwrZ+lAAAAAElFTkSuQmCC"
+                  },
+                  {
+                      "chemin":  "Donnees\\Mindset\\packs\\cafe-creme\\pack.json",
+                      "b64":  "eyAiTmFtZSI6ICJDYWbDqSBjcsOobWUiLCAiRGVzYyI6ICJEb3V4IGNvbW1lIHVuIG1hdGluLiIsICJCYXNlIjogImNyZXB1c2N1bGUiLCAiSGVsbG8iOiAiUGFzIGRlIHBocmFzZSIsICJNYXNjb3R0ZSI6IHsgIkZpbGUiOiAiYmFuZGUucG5nIiwgIkZyYW1lcyI6IDEgfSwgIkxvZ28iOiAibG9nby5wbmciLCAiQmFja2dyb3VuZCI6ICJsb2dvLnBuZyIsICJCYWNrZ3JvdW5kT3BhY2l0eSI6IDAuNSwgIkJhY2tncm91bmRBbGlnbiI6ICJiYXMtZHJvaXRlIiwgIkZvbnQiOiAicG9saWNlLnR0ZiIsICJGb250U2NvcGUiOiAidG91dCIgfQ=="
+                  },
+                  {
+                      "chemin":  "Donnees\\Mindset\\packs\\cafe-creme\\bande.png",
+                      "b64":  "iVBORw0KGgoAAAANSUhEUgAAASwAAAAoCAYAAABEm8fXAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAACjSURBVHhe7dQxDQAgAMAwjOEOmXiBHwUs6dFnAjbmXgegYLwB4FeGBWQYFpBhWECGYQEZhgVkGBaQYVhAhmEBGYYFZBgWkGFYQIZhARmGBWQYFpBhWECGYQEZhgVkGBaQYVhAhmEBGYYFZBgWkGFYQIZhARmGBWQYFpBhWECGYQEZhgVkGBaQYVhAhmEBGYYFZBgWkGFYQIZhARmGBWQYFpBxAURbV6fpwnvXAAAAAElFTkSuQmCC"
+                  },
+                  {
+                      "chemin":  "Donnees\\Mindset\\packs\\cafe-creme\\logo.png",
+                      "b64":  "iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAACLSURBVHhe7dAxAQAgEIDAD2gMS38a3akAwy2MzNn7zIbBpgEMNg1gsGkAg00DGGwawGDTAAabBjDYNIDBpgEMNg1gsGkAg00DGGwawGDTAAabBjDYNIDBpgEMNg1gsGkAg00DGGwawGDTAAabBjDYNIDBpgEMNg1gsGkAg00DGGwawGDTAAabBjDYfF/hglkwrZ+lAAAAAElFTkSuQmCC"
+                  },
+                  {
+                      "chemin":  "Donnees\\Mindset\\packs\\neige\\pack.json",
+                      "b64":  "eyAiTmFtZSI6ICJOZWlnZSIsICJEZXNjIjogIlRvdXQgYmxhbmMuIiwgIkJhc2UiOiAicnViaXMiIH0="
+                  },
+                  {
+                      "chemin":  "Donnees\\Mindset\\packs\\brume\\pack.json",
+                      "b64":  "eyAiTmFtZSI6ICJCcnVtZSIsICJCYXNlIjogImFyY2FkZSIsICJDb2xvcnMiOiB7ICJQIjogInJvdWdlIiwgIlMiOiAiI0I2RkYzQiIsICJUIjogIiNGRkM4M0QiIH0gfQ=="
+                  }
+              ]
+}

@@ -1,0 +1,135 @@
+{
+    "cas":  [
+                {
+                    "nom":  "rien d\u0027installé",
+                    "applis":  [
+                                   {
+                                       "Id":  "nevermind",
+                                       "Nom":  "Nevermind",
+                                       "Donnees":  ""
+                                   },
+                                   {
+                                       "Id":  "evermind",
+                                       "Nom":  "Evermind",
+                                       "Donnees":  ""
+                                   },
+                                   {
+                                       "Id":  "mindcare",
+                                       "Nom":  "Mindcare",
+                                       "Donnees":  ""
+                                   }
+                               ],
+                    "installations":  {
+
+                                      },
+                    "dossiers":  [
+
+                                 ],
+                    "noms":  [
+                                 "Programmes d\u0027aide",
+                                 "Programmes d\u0027aide"
+                             ],
+                    "chemins":  [
+                                    "\u003cracine\u003e\\Donnees",
+                                    "\u003cracine\u003e\\Programmes"
+                                ],
+                    "moi":  "\u003cracine\u003e\\Programmes\\Mindset"
+                },
+                {
+                    "nom":  "gérées, données adoptées",
+                    "applis":  [
+                                   {
+                                       "Id":  "nevermind",
+                                       "Nom":  "Nevermind",
+                                       "Donnees":  ""
+                                   },
+                                   {
+                                       "Id":  "evermind",
+                                       "Nom":  "Evermind",
+                                       "Donnees":  ""
+                                   },
+                                   {
+                                       "Id":  "mindcare",
+                                       "Nom":  "Mindcare",
+                                       "Donnees":  ""
+                                   }
+                               ],
+                    "installations":  {
+                                          "nevermind":  {
+                                                            "gere":  true,
+                                                            "version":  "2.0.0",
+                                                            "dossier":  "C:\\P\\Nevermind"
+                                                        },
+                                          "evermind":  {
+                                                           "gere":  false,
+                                                           "version":  "1.0.0",
+                                                           "dossier":  "C:\\P\\Evermind"
+                                                       }
+                                      },
+                    "dossiers":  [
+                                     "Donnees\\Nevermind",
+                                     "Donnees\\Evermind"
+                                 ],
+                    "noms":  [
+                                 "Nevermind",
+                                 "Nevermind",
+                                 "Evermind",
+                                 "Programmes d\u0027aide",
+                                 "Programmes d\u0027aide"
+                             ],
+                    "chemins":  [
+                                    "C:\\P\\Nevermind",
+                                    "\u003cracine\u003e\\Donnees\\Nevermind",
+                                    "C:\\P\\Evermind",
+                                    "\u003cracine\u003e\\Donnees",
+                                    "\u003cracine\u003e\\Programmes"
+                                ],
+                    "moi":  "\u003cracine\u003e\\Programmes\\Mindset"
+                },
+                {
+                    "nom":  "anciens dossiers de données",
+                    "applis":  [
+                                   {
+                                       "Id":  "evermind",
+                                       "Nom":  "Evermind",
+                                       "Donnees":  "C:\\Users\\x\\AppData\\Local\\Evermind"
+                                   },
+                                   {
+                                       "Id":  "nevermind",
+                                       "Nom":  "Nevermind",
+                                       "Donnees":  "C:\\Users\\x\\AppData\\Local\\Nevermind"
+                                   },
+                                   {
+                                       "Id":  "suite",
+                                       "Nom":  "Suite",
+                                       "Donnees":  "\u003cracine\u003e\\Donnees\\"
+                                   }
+                               ],
+                    "installations":  {
+                                          "evermind":  {
+                                                           "gere":  false,
+                                                           "version":  "1.0.0",
+                                                           "dossier":  "D:\\Evermind"
+                                                       }
+                                      },
+                    "dossiers":  [
+
+                                 ],
+                    "noms":  [
+                                 "Evermind",
+                                 "Evermind",
+                                 "Programmes d\u0027aide",
+                                 "Programmes d\u0027aide",
+                                 "Programmes d\u0027aide"
+                             ],
+                    "chemins":  [
+                                    "D:\\Evermind",
+                                    "C:\\Users\\x\\AppData\\Local\\Evermind",
+                                    "C:\\Users\\x\\AppData\\Local\\Nevermind",
+                                    "\u003cracine\u003e\\Donnees",
+                                    "\u003cracine\u003e\\Programmes"
+                                ],
+                    "moi":  "\u003cracine\u003e\\Programmes\\Mindset"
+                }
+            ]
+}
