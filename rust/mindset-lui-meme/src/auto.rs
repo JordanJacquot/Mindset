@@ -1,7 +1,7 @@
 //! Les mises à jour automatiques (mindset.ps1:338-555) : vérifiées toutes les 30 secondes. Une appli fermée est mise à
 //! jour dès que sa nouvelle version est connue ; une appli qui tourne quand personne ne touche au PC depuis 5 minutes ;
-//! Mindset lui-même quand il est caché, ou à l'écran quand personne ne touche au PC depuis 5 minutes. Jamais pendant un
-//! jeu, jamais pendant une autre installation, seulement par le mini-installateur. Une à la fois. Une version ratée est
+//! Mindset lui-même quand il est caché, ou à l'écran quand personne ne touche au PC depuis 5 minutes. Même pendant un
+//! jeu (décision de Jordan du 07/11/2026), jamais pendant une autre installation, seulement par le mini-installateur. Une à la fois. Une version ratée est
 //! réessayée 15 minutes plus tard, 3 fois au plus par session.
 
 use mindset_noyau::appli::appli_admin;
@@ -79,16 +79,11 @@ impl LuiMeme {
         if partage::une_occupation(ctx) || attentes_admin || !self.maj_auto.is_empty() {
             return;
         }
-        // Pendant une partie : rien (ni les applis, ouvertes ou non, ni Mindset) ; on réessaie 30 secondes plus tard
-        let jeu = self.jeu_en_cours(ctx);
-        self.jeu = jeu.clone();
-        if !jeu.is_empty() {
-            if self.jeu_note.as_deref() != Some(jeu.as_str()) {
-                ctx.journal(&format!("Mises à jour automatiques en attente : {jeu}"));
-                self.jeu_note = Some(jeu);
-            }
-            return;
-        }
+        // Un jeu ouvert n'arrête plus rien (décision de Jordan du 07/11/2026 : « si tu as activé les mises à jour
+        // automatiques, elles se font peu importe si tu as un jeu ouvert ou non »). Avant, le lanceur de League of
+        // Legends, ouvert des jours, bloquait tout. Seule reste l'attente de 5 minutes sans clavier ni souris pour une
+        // appli ouverte (ou Mindset à l'écran).
+        self.jeu = String::new();
         self.jeu_note = None;
         let Ok(inactif) = pc.secondes_inactif() else { return };
         let vue = ctx.vue();

@@ -37,7 +37,14 @@ fn cas(v: &Value) -> Vec<Value> {
 }
 
 fn juge(nom: &str) -> Vec<Value> {
-    cas(&lire_juge(&juge_texte(nom)))
+    let l = cas(&lire_juge(&juge_texte(nom)));
+    if nom != "maj-auto" {
+        return l;
+    }
+    // Écart voulu avec la version PowerShell (décision de Jordan du 07/11/2026) : un jeu ouvert n'arrête plus les
+    // mises à jour automatiques. Les cas « pendant un jeu » du juge ne sont plus rejoués ; c'est
+    // maj_auto_meme_pendant_un_jeu qui vérifie le contraire.
+    l.into_iter().filter(|c| s(&c["scenario"]["jeu"]).is_empty()).collect()
 }
 
 /// Un texte du juge (null : « »).
@@ -1214,4 +1221,31 @@ fn contre_epreuve() {
     assert!(alterer(&mut c[1], false));
     j["cas"] = json!(c);
     assert!(!rejouer_verif(&j).is_empty(), "juge verif changé : il passe encore");
+}
+
+/// Un jeu ouvert n'arrête plus les mises à jour automatiques (décision de Jordan du 07/11/2026) : chaque cas du juge
+/// sans jeu, rejoué avec un jeu en plein écran, une manette utilisée ou un jeu ouvert, doit donner exactement la même
+/// chose que sans jeu (mêmes installations, mêmes attentes, même journal).
+#[test]
+fn maj_auto_meme_pendant_un_jeu() {
+    let l = juge("maj-auto");
+    assert!(l.len() > 100, "juge maj-auto : trop peu de cas sans jeu ({})", l.len());
+    let mut installe = 0;
+    for jeu in [
+        "une fenêtre en plein écran (jeu ou vidéo)",
+        "une manette utilisée il y a moins de 5 minutes",
+        "un jeu ouvert (Jeu Essai)",
+    ] {
+        let avec: Vec<Value> = l
+            .iter()
+            .map(|c| {
+                let mut c = c.clone();
+                c["scenario"]["jeu"] = json!(jeu);
+                c
+            })
+            .collect();
+        installe += avec.iter().filter(|c| c["actions"].as_array().is_some_and(|a| !a.is_empty())).count();
+        verifier(&format!("maj-auto avec {jeu}"), rejouer_maj_auto(&avec));
+    }
+    assert!(installe > 0, "aucun cas où une mise à jour part");
 }

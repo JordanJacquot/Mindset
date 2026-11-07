@@ -43,6 +43,11 @@ pub const DOSSIERS_PAS_JEUX: &[&str] = &[
     r"\Epic Games\Launcher\",
     r"\Epic Games\Epic Online Services\",
     r"\Riot Games\Riot Client\",
+    // (le lanceur de League of Legends, ouvert des jours sans partie : il bloquait les mises à jour automatiques,
+    // « un jeu ouvert (League of Legends) », vu chez Jordan le 07/11/2026 ; la partie elle-même est
+    // \League of Legends\Game\League of Legends.exe, toujours un jeu)
+    r"\League of Legends\LeagueClient",
+    r"\League of Legends\LeagueCrashHandler",
     r"\Rockstar Games\Launcher\",
     r"\Rockstar Games\Social Club\",
     r"\steamapps\common\Steamworks Shared\",
@@ -583,5 +588,27 @@ mod tests {
         assert_eq!(format_quand_maj("2026-10-18T09:30:00", &m, false).unwrap(), "le 18 octobre à 09 h 30");
         assert!(lire_s("2026-1-07T10:00:00").is_none());
         assert!(lire_s("2026-02-30T10:00:00").is_none());
+    }
+
+    /// Le lanceur de League of Legends n'est pas un jeu (il bloquait les mises à jour automatiques chez Jordan, le
+    /// 07/11/2026) ; la partie, si.
+    #[test]
+    fn le_lanceur_de_league_of_legends_n_est_pas_un_jeu() {
+        let lanceur: Vec<String> = [
+            r"C:\Riot Games\League of Legends\LeagueClient.exe",
+            r"C:\Riot Games\League of Legends\LeagueClientUx.exe",
+            r"C:\Riot Games\League of Legends\LeagueClientUxRender.exe",
+            r"C:\Riot Games\League of Legends\LeagueCrashHandler64.exe",
+            r"C:\Riot Games\Riot Client\RiotClientServices.exe",
+        ]
+        .map(String::from)
+        .to_vec();
+        assert!(jeux_ouverts(&lanceur, &[]).is_empty(), "le lanceur compté comme un jeu");
+        let partie = r"C:\Riot Games\League of Legends\Game\League of Legends.exe".to_string();
+        let mut tout = lanceur.clone();
+        tout.push(partie.clone());
+        assert_eq!(jeux_ouverts(&tout, &[]), vec![partie], "la partie n'est plus vue");
+        let valorant = r"C:\Riot Games\VALORANT\live\VALORANT.exe".to_string();
+        assert_eq!(jeux_ouverts(std::slice::from_ref(&valorant), &[]), vec![valorant]);
     }
 }
