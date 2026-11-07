@@ -1,0 +1,432 @@
+[
+    {
+        "nom":  "sans gravité",
+        "etapes":  [
+                       {
+                           "pas":  {
+                                       "quoi":  "incident",
+                                       "attendre":  1,
+                                       "genre":  "GpuProcessExited",
+                                       "valeur":  null
+                                   },
+                           "possible":  true,
+                           "arretee":  false,
+                           "incidents":  0,
+                           "pages":  0,
+                           "journal":  [
+                                           "Console 3D : incident sans gravité (GpuProcessExited), elle continue"
+                                       ]
+                       },
+                       {
+                           "pas":  {
+                                       "quoi":  "incident",
+                                       "attendre":  1,
+                                       "genre":  "UtilityProcessExited",
+                                       "valeur":  null
+                                   },
+                           "possible":  true,
+                           "arretee":  false,
+                           "incidents":  0,
+                           "pages":  0,
+                           "journal":  [
+                                           "Console 3D : incident sans gravité (UtilityProcessExited), elle continue"
+                                       ]
+                       }
+                   ]
+    },
+    {
+        "nom":  "trois redémarrages, puis l\u0027accueil classique",
+        "etapes":  [
+                       {
+                           "pas":  {
+                                       "quoi":  "incident",
+                                       "attendre":  1,
+                                       "genre":  "RenderProcessExited",
+                                       "valeur":  null
+                                   },
+                           "possible":  true,
+                           "arretee":  false,
+                           "incidents":  1,
+                           "pages":  1,
+                           "journal":  [
+                                           "Console 3D : processus de la 3D arrêté (RenderProcessExited), elle redémarre"
+                                       ]
+                       },
+                       {
+                           "pas":  {
+                                       "quoi":  "incident",
+                                       "attendre":  60,
+                                       "genre":  "RenderProcessExited",
+                                       "valeur":  null
+                                   },
+                           "possible":  true,
+                           "arretee":  false,
+                           "incidents":  2,
+                           "pages":  1,
+                           "journal":  [
+                                           "Console 3D : processus de la 3D arrêté (RenderProcessExited), elle redémarre"
+                                       ]
+                       },
+                       {
+                           "pas":  {
+                                       "quoi":  "incident",
+                                       "attendre":  60,
+                                       "genre":  "BrowserProcessExited",
+                                       "valeur":  null
+                                   },
+                           "possible":  true,
+                           "arretee":  false,
+                           "incidents":  3,
+                           "pages":  1,
+                           "journal":  [
+                                           "Console 3D : processus de la 3D arrêté (BrowserProcessExited), elle redémarre"
+                                       ]
+                       },
+                       {
+                           "pas":  {
+                                       "quoi":  "incident",
+                                       "attendre":  60,
+                                       "genre":  "RenderProcessUnresponsive",
+                                       "valeur":  null
+                                   },
+                           "possible":  false,
+                           "arretee":  true,
+                           "incidents":  0,
+                           "pages":  1,
+                           "journal":  [
+                                           "Console 3D : processus de la 3D arrêté 4 fois en 10 minutes, accueil classique"
+                                       ]
+                       }
+                   ]
+    },
+    {
+        "nom":  "les incidents de plus de 10 minutes ne comptent plus",
+        "etapes":  [
+                       {
+                           "pas":  {
+                                       "quoi":  "incident",
+                                       "attendre":  1,
+                                       "genre":  "RenderProcessExited",
+                                       "valeur":  null
+                                   },
+                           "possible":  true,
+                           "arretee":  false,
+                           "incidents":  1,
+                           "pages":  1,
+                           "journal":  [
+                                           "Console 3D : processus de la 3D arrêté (RenderProcessExited), elle redémarre"
+                                       ]
+                       },
+                       {
+                           "pas":  {
+                                       "quoi":  "incident",
+                                       "attendre":  30,
+                                       "genre":  "RenderProcessExited",
+                                       "valeur":  null
+                                   },
+                           "possible":  true,
+                           "arretee":  false,
+                           "incidents":  2,
+                           "pages":  1,
+                           "journal":  [
+                                           "Console 3D : processus de la 3D arrêté (RenderProcessExited), elle redémarre"
+                                       ]
+                       },
+                       {
+                           "pas":  {
+                                       "quoi":  "incident",
+                                       "attendre":  30,
+                                       "genre":  "RenderProcessExited",
+                                       "valeur":  null
+                                   },
+                           "possible":  true,
+                           "arretee":  false,
+                           "incidents":  3,
+                           "pages":  1,
+                           "journal":  [
+                                           "Console 3D : processus de la 3D arrêté (RenderProcessExited), elle redémarre"
+                                       ]
+                       },
+                       {
+                           "pas":  {
+                                       "quoi":  "incident",
+                                       "attendre":  601,
+                                       "genre":  "RenderProcessExited",
+                                       "valeur":  null
+                                   },
+                           "possible":  true,
+                           "arretee":  false,
+                           "incidents":  1,
+                           "pages":  1,
+                           "journal":  [
+                                           "Console 3D : processus de la 3D arrêté (RenderProcessExited), elle redémarre"
+                                       ]
+                       },
+                       {
+                           "pas":  {
+                                       "quoi":  "incident",
+                                       "attendre":  1,
+                                       "genre":  "RenderProcessExited",
+                                       "valeur":  null
+                                   },
+                           "possible":  true,
+                           "arretee":  false,
+                           "incidents":  2,
+                           "pages":  1,
+                           "journal":  [
+                                           "Console 3D : processus de la 3D arrêté (RenderProcessExited), elle redémarre"
+                                       ]
+                       }
+                   ]
+    },
+    {
+        "nom":  "rouvert avant 10 minutes : pas de nouvel essai ; après : réessayée",
+        "etapes":  [
+                       {
+                           "pas":  {
+                                       "quoi":  "incident",
+                                       "attendre":  1,
+                                       "genre":  "RenderProcessExited",
+                                       "valeur":  null
+                                   },
+                           "possible":  true,
+                           "arretee":  false,
+                           "incidents":  1,
+                           "pages":  1,
+                           "journal":  [
+                                           "Console 3D : processus de la 3D arrêté (RenderProcessExited), elle redémarre"
+                                       ]
+                       },
+                       {
+                           "pas":  {
+                                       "quoi":  "incident",
+                                       "attendre":  1,
+                                       "genre":  "RenderProcessExited",
+                                       "valeur":  null
+                                   },
+                           "possible":  true,
+                           "arretee":  false,
+                           "incidents":  2,
+                           "pages":  1,
+                           "journal":  [
+                                           "Console 3D : processus de la 3D arrêté (RenderProcessExited), elle redémarre"
+                                       ]
+                       },
+                       {
+                           "pas":  {
+                                       "quoi":  "incident",
+                                       "attendre":  1,
+                                       "genre":  "RenderProcessExited",
+                                       "valeur":  null
+                                   },
+                           "possible":  true,
+                           "arretee":  false,
+                           "incidents":  3,
+                           "pages":  1,
+                           "journal":  [
+                                           "Console 3D : processus de la 3D arrêté (RenderProcessExited), elle redémarre"
+                                       ]
+                       },
+                       {
+                           "pas":  {
+                                       "quoi":  "incident",
+                                       "attendre":  1,
+                                       "genre":  "RenderProcessExited",
+                                       "valeur":  null
+                                   },
+                           "possible":  false,
+                           "arretee":  true,
+                           "incidents":  0,
+                           "pages":  1,
+                           "journal":  [
+                                           "Console 3D : processus de la 3D arrêté 4 fois en 10 minutes, accueil classique"
+                                       ]
+                       },
+                       {
+                           "pas":  {
+                                       "quoi":  "rouvrir",
+                                       "attendre":  300,
+                                       "genre":  "RenderProcessExited",
+                                       "valeur":  null
+                                   },
+                           "possible":  false,
+                           "arretee":  true,
+                           "incidents":  0,
+                           "pages":  0,
+                           "journal":  [
+
+                                       ]
+                       },
+                       {
+                           "pas":  {
+                                       "quoi":  "rouvrir",
+                                       "attendre":  299,
+                                       "genre":  "RenderProcessExited",
+                                       "valeur":  null
+                                   },
+                           "possible":  false,
+                           "arretee":  true,
+                           "incidents":  0,
+                           "pages":  0,
+                           "journal":  [
+
+                                       ]
+                       },
+                       {
+                           "pas":  {
+                                       "quoi":  "rouvrir",
+                                       "attendre":  2,
+                                       "genre":  "RenderProcessExited",
+                                       "valeur":  null
+                                   },
+                           "possible":  true,
+                           "arretee":  false,
+                           "incidents":  0,
+                           "pages":  0,
+                           "journal":  [
+                                           "Console 3D : nouvel essai après un incident"
+                                       ]
+                       },
+                       {
+                           "pas":  {
+                                       "quoi":  "incident",
+                                       "attendre":  1,
+                                       "genre":  "RenderProcessExited",
+                                       "valeur":  null
+                                   },
+                           "possible":  true,
+                           "arretee":  false,
+                           "incidents":  1,
+                           "pages":  1,
+                           "journal":  [
+                                           "Console 3D : processus de la 3D arrêté (RenderProcessExited), elle redémarre"
+                                       ]
+                       }
+                   ]
+    },
+    {
+        "nom":  "réessayée seulement si possible",
+        "etapes":  [
+                       {
+                           "pas":  {
+                                       "quoi":  "incident",
+                                       "attendre":  1,
+                                       "genre":  "RenderProcessExited",
+                                       "valeur":  null
+                                   },
+                           "possible":  true,
+                           "arretee":  false,
+                           "incidents":  1,
+                           "pages":  1,
+                           "journal":  [
+                                           "Console 3D : processus de la 3D arrêté (RenderProcessExited), elle redémarre"
+                                       ]
+                       },
+                       {
+                           "pas":  {
+                                       "quoi":  "incident",
+                                       "attendre":  1,
+                                       "genre":  "RenderProcessExited",
+                                       "valeur":  null
+                                   },
+                           "possible":  true,
+                           "arretee":  false,
+                           "incidents":  2,
+                           "pages":  1,
+                           "journal":  [
+                                           "Console 3D : processus de la 3D arrêté (RenderProcessExited), elle redémarre"
+                                       ]
+                       },
+                       {
+                           "pas":  {
+                                       "quoi":  "incident",
+                                       "attendre":  1,
+                                       "genre":  "RenderProcessExited",
+                                       "valeur":  null
+                                   },
+                           "possible":  true,
+                           "arretee":  false,
+                           "incidents":  3,
+                           "pages":  1,
+                           "journal":  [
+                                           "Console 3D : processus de la 3D arrêté (RenderProcessExited), elle redémarre"
+                                       ]
+                       },
+                       {
+                           "pas":  {
+                                       "quoi":  "incident",
+                                       "attendre":  1,
+                                       "genre":  "RenderProcessExited",
+                                       "valeur":  null
+                                   },
+                           "possible":  false,
+                           "arretee":  true,
+                           "incidents":  0,
+                           "pages":  1,
+                           "journal":  [
+                                           "Console 3D : processus de la 3D arrêté 4 fois en 10 minutes, accueil classique"
+                                       ]
+                       },
+                       {
+                           "pas":  {
+                                       "quoi":  "reglage",
+                                       "attendre":  1,
+                                       "genre":  "",
+                                       "valeur":  "aucune"
+                                   },
+                           "possible":  false,
+                           "arretee":  true,
+                           "incidents":  0,
+                           "pages":  0,
+                           "journal":  [
+
+                                       ]
+                       },
+                       {
+                           "pas":  {
+                                       "quoi":  "rouvrir",
+                                       "attendre":  700,
+                                       "genre":  "RenderProcessExited",
+                                       "valeur":  null
+                                   },
+                           "possible":  false,
+                           "arretee":  false,
+                           "incidents":  0,
+                           "pages":  0,
+                           "journal":  [
+                                           "Console 3D : toujours impossible (réglage Animations : aucune)"
+                                       ]
+                       },
+                       {
+                           "pas":  {
+                                       "quoi":  "reglage",
+                                       "attendre":  1,
+                                       "genre":  "",
+                                       "valeur":  "completes"
+                                   },
+                           "possible":  false,
+                           "arretee":  false,
+                           "incidents":  0,
+                           "pages":  0,
+                           "journal":  [
+
+                                       ]
+                       },
+                       {
+                           "pas":  {
+                                       "quoi":  "rouvrir",
+                                       "attendre":  700,
+                                       "genre":  "RenderProcessExited",
+                                       "valeur":  null
+                                   },
+                           "possible":  false,
+                           "arretee":  false,
+                           "incidents":  0,
+                           "pages":  0,
+                           "journal":  [
+
+                                       ]
+                       }
+                   ]
+    }
+]

@@ -1,0 +1,1386 @@
+{
+    "quand":  [
+                  {
+                      "quand":  "2026-11-07T00:16:00",
+                      "maintenant":  "2026-11-07T20:00:00",
+                      "texte":  "à 00 h 16"
+                  },
+                  {
+                      "quand":  "2026-11-06T21:05:00",
+                      "maintenant":  "2026-11-07T00:30:00",
+                      "texte":  "hier à 21 h 05"
+                  },
+                  {
+                      "quand":  "2026-10-18T09:30:00",
+                      "maintenant":  "2026-11-07T20:00:00",
+                      "texte":  "le 18 octobre à 09 h 30"
+                  },
+                  {
+                      "quand":  "2026-01-01T00:00:00",
+                      "maintenant":  "2026-12-31T23:59:59",
+                      "texte":  "le 1 janvier à 00 h 00"
+                  },
+                  {
+                      "quand":  "2026-02-28T23:59:59",
+                      "maintenant":  "2026-03-01T00:00:00",
+                      "texte":  "hier à 23 h 59"
+                  },
+                  {
+                      "quand":  "2024-02-29T12:00:00",
+                      "maintenant":  "2024-03-01T08:00:00",
+                      "texte":  "hier à 12 h 00"
+                  },
+                  {
+                      "quand":  "2026-08-15T07:07:00",
+                      "maintenant":  "2026-08-17T07:07:00",
+                      "texte":  "le 15 août à 07 h 07"
+                  },
+                  {
+                      "quand":  "2026-11-08T10:00:00",
+                      "maintenant":  "2026-11-07T20:00:00",
+                      "texte":  "le 8 novembre à 10 h 00"
+                  }
+              ],
+    "jeu":  [
+                {
+                    "raison":  "un jeu ouvert (Forêt magique)",
+                    "nom":  "Forêt magique"
+                },
+                {
+                    "raison":  "un jeu ouvert ()",
+                    "nom":  "un jeu ouvert ()"
+                },
+                {
+                    "raison":  "Un jeu ouvert (MAJUSCULES)",
+                    "nom":  "MAJUSCULES"
+                },
+                {
+                    "raison":  "une fenêtre en plein écran (jeu ou vidéo)",
+                    "nom":  "une fenêtre en plein écran"
+                },
+                {
+                    "raison":  "une manette utilisée il y a moins de 5 minutes",
+                    "nom":  "manette utilisée"
+                },
+                {
+                    "raison":  "autre chose",
+                    "nom":  "autre chose"
+                },
+                {
+                    "raison":  "",
+                    "nom":  ""
+                },
+                {
+                    "raison":  "un jeu ouvert (a (b))",
+                    "nom":  "a (b)"
+                },
+                {
+                    "raison":  "PLEIN ÉCRAN",
+                    "nom":  "une fenêtre en plein écran"
+                }
+            ],
+    "avancee":  [
+                    {
+                        "id":  "nevermind",
+                        "reglage":  null,
+                        "ecoule":  -1,
+                        "avancee":  0
+                    },
+                    {
+                        "id":  "nevermind",
+                        "reglage":  null,
+                        "ecoule":  0,
+                        "avancee":  0
+                    },
+                    {
+                        "id":  "nevermind",
+                        "reglage":  null,
+                        "ecoule":  0.3,
+                        "avancee":  0.027
+                    },
+                    {
+                        "id":  "nevermind",
+                        "reglage":  null,
+                        "ecoule":  1,
+                        "avancee":  0.088
+                    },
+                    {
+                        "id":  "nevermind",
+                        "reglage":  null,
+                        "ecoule":  2.5,
+                        "avancee":  0.211
+                    },
+                    {
+                        "id":  "nevermind",
+                        "reglage":  null,
+                        "ecoule":  5,
+                        "avancee":  0.394
+                    },
+                    {
+                        "id":  "nevermind",
+                        "reglage":  null,
+                        "ecoule":  9.99,
+                        "avancee":  0.675
+                    },
+                    {
+                        "id":  "nevermind",
+                        "reglage":  null,
+                        "ecoule":  10,
+                        "avancee":  0.675
+                    },
+                    {
+                        "id":  "nevermind",
+                        "reglage":  null,
+                        "ecoule":  12.5,
+                        "avancee":  0.773
+                    },
+                    {
+                        "id":  "nevermind",
+                        "reglage":  null,
+                        "ecoule":  20,
+                        "avancee":  0.9
+                    },
+                    {
+                        "id":  "nevermind",
+                        "reglage":  null,
+                        "ecoule":  30,
+                        "avancee":  0.935
+                    },
+                    {
+                        "id":  "nevermind",
+                        "reglage":  null,
+                        "ecoule":  45,
+                        "avancee":  0.964
+                    },
+                    {
+                        "id":  "nevermind",
+                        "reglage":  null,
+                        "ecoule":  61,
+                        "avancee":  0.978
+                    },
+                    {
+                        "id":  "nevermind",
+                        "reglage":  null,
+                        "ecoule":  200,
+                        "avancee":  0.99
+                    },
+                    {
+                        "id":  "nevermind",
+                        "reglage":  12.5,
+                        "ecoule":  -1,
+                        "avancee":  0
+                    },
+                    {
+                        "id":  "nevermind",
+                        "reglage":  12.5,
+                        "ecoule":  0,
+                        "avancee":  0
+                    },
+                    {
+                        "id":  "nevermind",
+                        "reglage":  12.5,
+                        "ecoule":  0.3,
+                        "avancee":  0.043
+                    },
+                    {
+                        "id":  "nevermind",
+                        "reglage":  12.5,
+                        "ecoule":  1,
+                        "avancee":  0.138
+                    },
+                    {
+                        "id":  "nevermind",
+                        "reglage":  12.5,
+                        "ecoule":  2.5,
+                        "avancee":  0.324
+                    },
+                    {
+                        "id":  "nevermind",
+                        "reglage":  12.5,
+                        "ecoule":  5,
+                        "avancee":  0.576
+                    },
+                    {
+                        "id":  "nevermind",
+                        "reglage":  12.5,
+                        "ecoule":  9.99,
+                        "avancee":  0.864
+                    },
+                    {
+                        "id":  "nevermind",
+                        "reglage":  12.5,
+                        "ecoule":  10,
+                        "avancee":  0.864
+                    },
+                    {
+                        "id":  "nevermind",
+                        "reglage":  12.5,
+                        "ecoule":  12.5,
+                        "avancee":  0.9
+                    },
+                    {
+                        "id":  "nevermind",
+                        "reglage":  12.5,
+                        "ecoule":  20,
+                        "avancee":  0.941
+                    },
+                    {
+                        "id":  "nevermind",
+                        "reglage":  12.5,
+                        "ecoule":  30,
+                        "avancee":  0.968
+                    },
+                    {
+                        "id":  "nevermind",
+                        "reglage":  12.5,
+                        "ecoule":  45,
+                        "avancee":  0.983
+                    },
+                    {
+                        "id":  "nevermind",
+                        "reglage":  12.5,
+                        "ecoule":  61,
+                        "avancee":  0.988
+                    },
+                    {
+                        "id":  "nevermind",
+                        "reglage":  12.5,
+                        "ecoule":  200,
+                        "avancee":  0.99
+                    },
+                    {
+                        "id":  "nevermind",
+                        "reglage":  0.4,
+                        "ecoule":  -1,
+                        "avancee":  0
+                    },
+                    {
+                        "id":  "nevermind",
+                        "reglage":  0.4,
+                        "ecoule":  0,
+                        "avancee":  0
+                    },
+                    {
+                        "id":  "nevermind",
+                        "reglage":  0.4,
+                        "ecoule":  0.3,
+                        "avancee":  0.066
+                    },
+                    {
+                        "id":  "nevermind",
+                        "reglage":  0.4,
+                        "ecoule":  1,
+                        "avancee":  0.211
+                    },
+                    {
+                        "id":  "nevermind",
+                        "reglage":  0.4,
+                        "ecoule":  2.5,
+                        "avancee":  0.475
+                    },
+                    {
+                        "id":  "nevermind",
+                        "reglage":  0.4,
+                        "ecoule":  5,
+                        "avancee":  0.773
+                    },
+                    {
+                        "id":  "nevermind",
+                        "reglage":  0.4,
+                        "ecoule":  9.99,
+                        "avancee":  0.92
+                    },
+                    {
+                        "id":  "nevermind",
+                        "reglage":  0.4,
+                        "ecoule":  10,
+                        "avancee":  0.92
+                    },
+                    {
+                        "id":  "nevermind",
+                        "reglage":  0.4,
+                        "ecoule":  12.5,
+                        "avancee":  0.939
+                    },
+                    {
+                        "id":  "nevermind",
+                        "reglage":  0.4,
+                        "ecoule":  20,
+                        "avancee":  0.97
+                    },
+                    {
+                        "id":  "nevermind",
+                        "reglage":  0.4,
+                        "ecoule":  30,
+                        "avancee":  0.984
+                    },
+                    {
+                        "id":  "nevermind",
+                        "reglage":  0.4,
+                        "ecoule":  45,
+                        "avancee":  0.989
+                    },
+                    {
+                        "id":  "nevermind",
+                        "reglage":  0.4,
+                        "ecoule":  61,
+                        "avancee":  0.99
+                    },
+                    {
+                        "id":  "nevermind",
+                        "reglage":  0.4,
+                        "ecoule":  200,
+                        "avancee":  0.99
+                    },
+                    {
+                        "id":  "nevermind",
+                        "reglage":  "abc",
+                        "ecoule":  -1,
+                        "avancee":  "erreur"
+                    },
+                    {
+                        "id":  "nevermind",
+                        "reglage":  "abc",
+                        "ecoule":  0,
+                        "avancee":  "erreur"
+                    },
+                    {
+                        "id":  "nevermind",
+                        "reglage":  "abc",
+                        "ecoule":  0.3,
+                        "avancee":  "erreur"
+                    },
+                    {
+                        "id":  "nevermind",
+                        "reglage":  "abc",
+                        "ecoule":  1,
+                        "avancee":  "erreur"
+                    },
+                    {
+                        "id":  "nevermind",
+                        "reglage":  "abc",
+                        "ecoule":  2.5,
+                        "avancee":  "erreur"
+                    },
+                    {
+                        "id":  "nevermind",
+                        "reglage":  "abc",
+                        "ecoule":  5,
+                        "avancee":  "erreur"
+                    },
+                    {
+                        "id":  "nevermind",
+                        "reglage":  "abc",
+                        "ecoule":  9.99,
+                        "avancee":  "erreur"
+                    },
+                    {
+                        "id":  "nevermind",
+                        "reglage":  "abc",
+                        "ecoule":  10,
+                        "avancee":  "erreur"
+                    },
+                    {
+                        "id":  "nevermind",
+                        "reglage":  "abc",
+                        "ecoule":  12.5,
+                        "avancee":  "erreur"
+                    },
+                    {
+                        "id":  "nevermind",
+                        "reglage":  "abc",
+                        "ecoule":  20,
+                        "avancee":  "erreur"
+                    },
+                    {
+                        "id":  "nevermind",
+                        "reglage":  "abc",
+                        "ecoule":  30,
+                        "avancee":  "erreur"
+                    },
+                    {
+                        "id":  "nevermind",
+                        "reglage":  "abc",
+                        "ecoule":  45,
+                        "avancee":  "erreur"
+                    },
+                    {
+                        "id":  "nevermind",
+                        "reglage":  "abc",
+                        "ecoule":  61,
+                        "avancee":  "erreur"
+                    },
+                    {
+                        "id":  "nevermind",
+                        "reglage":  "abc",
+                        "ecoule":  200,
+                        "avancee":  "erreur"
+                    },
+                    {
+                        "id":  "nevermind",
+                        "reglage":  3,
+                        "ecoule":  -1,
+                        "avancee":  0
+                    },
+                    {
+                        "id":  "nevermind",
+                        "reglage":  3,
+                        "ecoule":  0,
+                        "avancee":  0
+                    },
+                    {
+                        "id":  "nevermind",
+                        "reglage":  3,
+                        "ecoule":  0.3,
+                        "avancee":  0.171
+                    },
+                    {
+                        "id":  "nevermind",
+                        "reglage":  3,
+                        "ecoule":  1,
+                        "avancee":  0.5
+                    },
+                    {
+                        "id":  "nevermind",
+                        "reglage":  3,
+                        "ecoule":  2.5,
+                        "avancee":  0.875
+                    },
+                    {
+                        "id":  "nevermind",
+                        "reglage":  3,
+                        "ecoule":  5,
+                        "avancee":  0.944
+                    },
+                    {
+                        "id":  "nevermind",
+                        "reglage":  3,
+                        "ecoule":  9.99,
+                        "avancee":  0.981
+                    },
+                    {
+                        "id":  "nevermind",
+                        "reglage":  3,
+                        "ecoule":  10,
+                        "avancee":  0.981
+                    },
+                    {
+                        "id":  "nevermind",
+                        "reglage":  3,
+                        "ecoule":  12.5,
+                        "avancee":  0.986
+                    },
+                    {
+                        "id":  "nevermind",
+                        "reglage":  3,
+                        "ecoule":  20,
+                        "avancee":  0.99
+                    },
+                    {
+                        "id":  "nevermind",
+                        "reglage":  3,
+                        "ecoule":  30,
+                        "avancee":  0.99
+                    },
+                    {
+                        "id":  "nevermind",
+                        "reglage":  3,
+                        "ecoule":  45,
+                        "avancee":  0.99
+                    },
+                    {
+                        "id":  "nevermind",
+                        "reglage":  3,
+                        "ecoule":  61,
+                        "avancee":  0.99
+                    },
+                    {
+                        "id":  "nevermind",
+                        "reglage":  3,
+                        "ecoule":  200,
+                        "avancee":  0.99
+                    },
+                    {
+                        "id":  "evermind",
+                        "reglage":  null,
+                        "ecoule":  -1,
+                        "avancee":  0
+                    },
+                    {
+                        "id":  "evermind",
+                        "reglage":  null,
+                        "ecoule":  0,
+                        "avancee":  0
+                    },
+                    {
+                        "id":  "evermind",
+                        "reglage":  null,
+                        "ecoule":  0.3,
+                        "avancee":  0.053
+                    },
+                    {
+                        "id":  "evermind",
+                        "reglage":  null,
+                        "ecoule":  1,
+                        "avancee":  0.171
+                    },
+                    {
+                        "id":  "evermind",
+                        "reglage":  null,
+                        "ecoule":  2.5,
+                        "avancee":  0.394
+                    },
+                    {
+                        "id":  "evermind",
+                        "reglage":  null,
+                        "ecoule":  5,
+                        "avancee":  0.675
+                    },
+                    {
+                        "id":  "evermind",
+                        "reglage":  null,
+                        "ecoule":  9.99,
+                        "avancee":  0.9
+                    },
+                    {
+                        "id":  "evermind",
+                        "reglage":  null,
+                        "ecoule":  10,
+                        "avancee":  0.9
+                    },
+                    {
+                        "id":  "evermind",
+                        "reglage":  null,
+                        "ecoule":  12.5,
+                        "avancee":  0.92
+                    },
+                    {
+                        "id":  "evermind",
+                        "reglage":  null,
+                        "ecoule":  20,
+                        "avancee":  0.957
+                    },
+                    {
+                        "id":  "evermind",
+                        "reglage":  null,
+                        "ecoule":  30,
+                        "avancee":  0.978
+                    },
+                    {
+                        "id":  "evermind",
+                        "reglage":  null,
+                        "ecoule":  45,
+                        "avancee":  0.987
+                    },
+                    {
+                        "id":  "evermind",
+                        "reglage":  null,
+                        "ecoule":  61,
+                        "avancee":  0.989
+                    },
+                    {
+                        "id":  "evermind",
+                        "reglage":  null,
+                        "ecoule":  200,
+                        "avancee":  0.99
+                    },
+                    {
+                        "id":  "evermind",
+                        "reglage":  12.5,
+                        "ecoule":  -1,
+                        "avancee":  0
+                    },
+                    {
+                        "id":  "evermind",
+                        "reglage":  12.5,
+                        "ecoule":  0,
+                        "avancee":  0
+                    },
+                    {
+                        "id":  "evermind",
+                        "reglage":  12.5,
+                        "ecoule":  0.3,
+                        "avancee":  0.043
+                    },
+                    {
+                        "id":  "evermind",
+                        "reglage":  12.5,
+                        "ecoule":  1,
+                        "avancee":  0.138
+                    },
+                    {
+                        "id":  "evermind",
+                        "reglage":  12.5,
+                        "ecoule":  2.5,
+                        "avancee":  0.324
+                    },
+                    {
+                        "id":  "evermind",
+                        "reglage":  12.5,
+                        "ecoule":  5,
+                        "avancee":  0.576
+                    },
+                    {
+                        "id":  "evermind",
+                        "reglage":  12.5,
+                        "ecoule":  9.99,
+                        "avancee":  0.864
+                    },
+                    {
+                        "id":  "evermind",
+                        "reglage":  12.5,
+                        "ecoule":  10,
+                        "avancee":  0.864
+                    },
+                    {
+                        "id":  "evermind",
+                        "reglage":  12.5,
+                        "ecoule":  12.5,
+                        "avancee":  0.9
+                    },
+                    {
+                        "id":  "evermind",
+                        "reglage":  12.5,
+                        "ecoule":  20,
+                        "avancee":  0.941
+                    },
+                    {
+                        "id":  "evermind",
+                        "reglage":  12.5,
+                        "ecoule":  30,
+                        "avancee":  0.968
+                    },
+                    {
+                        "id":  "evermind",
+                        "reglage":  12.5,
+                        "ecoule":  45,
+                        "avancee":  0.983
+                    },
+                    {
+                        "id":  "evermind",
+                        "reglage":  12.5,
+                        "ecoule":  61,
+                        "avancee":  0.988
+                    },
+                    {
+                        "id":  "evermind",
+                        "reglage":  12.5,
+                        "ecoule":  200,
+                        "avancee":  0.99
+                    },
+                    {
+                        "id":  "evermind",
+                        "reglage":  0.4,
+                        "ecoule":  -1,
+                        "avancee":  0
+                    },
+                    {
+                        "id":  "evermind",
+                        "reglage":  0.4,
+                        "ecoule":  0,
+                        "avancee":  0
+                    },
+                    {
+                        "id":  "evermind",
+                        "reglage":  0.4,
+                        "ecoule":  0.3,
+                        "avancee":  0.066
+                    },
+                    {
+                        "id":  "evermind",
+                        "reglage":  0.4,
+                        "ecoule":  1,
+                        "avancee":  0.211
+                    },
+                    {
+                        "id":  "evermind",
+                        "reglage":  0.4,
+                        "ecoule":  2.5,
+                        "avancee":  0.475
+                    },
+                    {
+                        "id":  "evermind",
+                        "reglage":  0.4,
+                        "ecoule":  5,
+                        "avancee":  0.773
+                    },
+                    {
+                        "id":  "evermind",
+                        "reglage":  0.4,
+                        "ecoule":  9.99,
+                        "avancee":  0.92
+                    },
+                    {
+                        "id":  "evermind",
+                        "reglage":  0.4,
+                        "ecoule":  10,
+                        "avancee":  0.92
+                    },
+                    {
+                        "id":  "evermind",
+                        "reglage":  0.4,
+                        "ecoule":  12.5,
+                        "avancee":  0.939
+                    },
+                    {
+                        "id":  "evermind",
+                        "reglage":  0.4,
+                        "ecoule":  20,
+                        "avancee":  0.97
+                    },
+                    {
+                        "id":  "evermind",
+                        "reglage":  0.4,
+                        "ecoule":  30,
+                        "avancee":  0.984
+                    },
+                    {
+                        "id":  "evermind",
+                        "reglage":  0.4,
+                        "ecoule":  45,
+                        "avancee":  0.989
+                    },
+                    {
+                        "id":  "evermind",
+                        "reglage":  0.4,
+                        "ecoule":  61,
+                        "avancee":  0.99
+                    },
+                    {
+                        "id":  "evermind",
+                        "reglage":  0.4,
+                        "ecoule":  200,
+                        "avancee":  0.99
+                    },
+                    {
+                        "id":  "evermind",
+                        "reglage":  "abc",
+                        "ecoule":  -1,
+                        "avancee":  "erreur"
+                    },
+                    {
+                        "id":  "evermind",
+                        "reglage":  "abc",
+                        "ecoule":  0,
+                        "avancee":  "erreur"
+                    },
+                    {
+                        "id":  "evermind",
+                        "reglage":  "abc",
+                        "ecoule":  0.3,
+                        "avancee":  "erreur"
+                    },
+                    {
+                        "id":  "evermind",
+                        "reglage":  "abc",
+                        "ecoule":  1,
+                        "avancee":  "erreur"
+                    },
+                    {
+                        "id":  "evermind",
+                        "reglage":  "abc",
+                        "ecoule":  2.5,
+                        "avancee":  "erreur"
+                    },
+                    {
+                        "id":  "evermind",
+                        "reglage":  "abc",
+                        "ecoule":  5,
+                        "avancee":  "erreur"
+                    },
+                    {
+                        "id":  "evermind",
+                        "reglage":  "abc",
+                        "ecoule":  9.99,
+                        "avancee":  "erreur"
+                    },
+                    {
+                        "id":  "evermind",
+                        "reglage":  "abc",
+                        "ecoule":  10,
+                        "avancee":  "erreur"
+                    },
+                    {
+                        "id":  "evermind",
+                        "reglage":  "abc",
+                        "ecoule":  12.5,
+                        "avancee":  "erreur"
+                    },
+                    {
+                        "id":  "evermind",
+                        "reglage":  "abc",
+                        "ecoule":  20,
+                        "avancee":  "erreur"
+                    },
+                    {
+                        "id":  "evermind",
+                        "reglage":  "abc",
+                        "ecoule":  30,
+                        "avancee":  "erreur"
+                    },
+                    {
+                        "id":  "evermind",
+                        "reglage":  "abc",
+                        "ecoule":  45,
+                        "avancee":  "erreur"
+                    },
+                    {
+                        "id":  "evermind",
+                        "reglage":  "abc",
+                        "ecoule":  61,
+                        "avancee":  "erreur"
+                    },
+                    {
+                        "id":  "evermind",
+                        "reglage":  "abc",
+                        "ecoule":  200,
+                        "avancee":  "erreur"
+                    },
+                    {
+                        "id":  "evermind",
+                        "reglage":  3,
+                        "ecoule":  -1,
+                        "avancee":  0
+                    },
+                    {
+                        "id":  "evermind",
+                        "reglage":  3,
+                        "ecoule":  0,
+                        "avancee":  0
+                    },
+                    {
+                        "id":  "evermind",
+                        "reglage":  3,
+                        "ecoule":  0.3,
+                        "avancee":  0.171
+                    },
+                    {
+                        "id":  "evermind",
+                        "reglage":  3,
+                        "ecoule":  1,
+                        "avancee":  0.5
+                    },
+                    {
+                        "id":  "evermind",
+                        "reglage":  3,
+                        "ecoule":  2.5,
+                        "avancee":  0.875
+                    },
+                    {
+                        "id":  "evermind",
+                        "reglage":  3,
+                        "ecoule":  5,
+                        "avancee":  0.944
+                    },
+                    {
+                        "id":  "evermind",
+                        "reglage":  3,
+                        "ecoule":  9.99,
+                        "avancee":  0.981
+                    },
+                    {
+                        "id":  "evermind",
+                        "reglage":  3,
+                        "ecoule":  10,
+                        "avancee":  0.981
+                    },
+                    {
+                        "id":  "evermind",
+                        "reglage":  3,
+                        "ecoule":  12.5,
+                        "avancee":  0.986
+                    },
+                    {
+                        "id":  "evermind",
+                        "reglage":  3,
+                        "ecoule":  20,
+                        "avancee":  0.99
+                    },
+                    {
+                        "id":  "evermind",
+                        "reglage":  3,
+                        "ecoule":  30,
+                        "avancee":  0.99
+                    },
+                    {
+                        "id":  "evermind",
+                        "reglage":  3,
+                        "ecoule":  45,
+                        "avancee":  0.99
+                    },
+                    {
+                        "id":  "evermind",
+                        "reglage":  3,
+                        "ecoule":  61,
+                        "avancee":  0.99
+                    },
+                    {
+                        "id":  "evermind",
+                        "reglage":  3,
+                        "ecoule":  200,
+                        "avancee":  0.99
+                    },
+                    {
+                        "id":  "cafe-creme",
+                        "reglage":  null,
+                        "ecoule":  -1,
+                        "avancee":  0
+                    },
+                    {
+                        "id":  "cafe-creme",
+                        "reglage":  null,
+                        "ecoule":  0,
+                        "avancee":  0
+                    },
+                    {
+                        "id":  "cafe-creme",
+                        "reglage":  null,
+                        "ecoule":  0.3,
+                        "avancee":  0.066
+                    },
+                    {
+                        "id":  "cafe-creme",
+                        "reglage":  null,
+                        "ecoule":  1,
+                        "avancee":  0.211
+                    },
+                    {
+                        "id":  "cafe-creme",
+                        "reglage":  null,
+                        "ecoule":  2.5,
+                        "avancee":  0.475
+                    },
+                    {
+                        "id":  "cafe-creme",
+                        "reglage":  null,
+                        "ecoule":  5,
+                        "avancee":  0.773
+                    },
+                    {
+                        "id":  "cafe-creme",
+                        "reglage":  null,
+                        "ecoule":  9.99,
+                        "avancee":  0.92
+                    },
+                    {
+                        "id":  "cafe-creme",
+                        "reglage":  null,
+                        "ecoule":  10,
+                        "avancee":  0.92
+                    },
+                    {
+                        "id":  "cafe-creme",
+                        "reglage":  null,
+                        "ecoule":  12.5,
+                        "avancee":  0.939
+                    },
+                    {
+                        "id":  "cafe-creme",
+                        "reglage":  null,
+                        "ecoule":  20,
+                        "avancee":  0.97
+                    },
+                    {
+                        "id":  "cafe-creme",
+                        "reglage":  null,
+                        "ecoule":  30,
+                        "avancee":  0.984
+                    },
+                    {
+                        "id":  "cafe-creme",
+                        "reglage":  null,
+                        "ecoule":  45,
+                        "avancee":  0.989
+                    },
+                    {
+                        "id":  "cafe-creme",
+                        "reglage":  null,
+                        "ecoule":  61,
+                        "avancee":  0.99
+                    },
+                    {
+                        "id":  "cafe-creme",
+                        "reglage":  null,
+                        "ecoule":  200,
+                        "avancee":  0.99
+                    },
+                    {
+                        "id":  "cafe-creme",
+                        "reglage":  12.5,
+                        "ecoule":  -1,
+                        "avancee":  0
+                    },
+                    {
+                        "id":  "cafe-creme",
+                        "reglage":  12.5,
+                        "ecoule":  0,
+                        "avancee":  0
+                    },
+                    {
+                        "id":  "cafe-creme",
+                        "reglage":  12.5,
+                        "ecoule":  0.3,
+                        "avancee":  0.043
+                    },
+                    {
+                        "id":  "cafe-creme",
+                        "reglage":  12.5,
+                        "ecoule":  1,
+                        "avancee":  0.138
+                    },
+                    {
+                        "id":  "cafe-creme",
+                        "reglage":  12.5,
+                        "ecoule":  2.5,
+                        "avancee":  0.324
+                    },
+                    {
+                        "id":  "cafe-creme",
+                        "reglage":  12.5,
+                        "ecoule":  5,
+                        "avancee":  0.576
+                    },
+                    {
+                        "id":  "cafe-creme",
+                        "reglage":  12.5,
+                        "ecoule":  9.99,
+                        "avancee":  0.864
+                    },
+                    {
+                        "id":  "cafe-creme",
+                        "reglage":  12.5,
+                        "ecoule":  10,
+                        "avancee":  0.864
+                    },
+                    {
+                        "id":  "cafe-creme",
+                        "reglage":  12.5,
+                        "ecoule":  12.5,
+                        "avancee":  0.9
+                    },
+                    {
+                        "id":  "cafe-creme",
+                        "reglage":  12.5,
+                        "ecoule":  20,
+                        "avancee":  0.941
+                    },
+                    {
+                        "id":  "cafe-creme",
+                        "reglage":  12.5,
+                        "ecoule":  30,
+                        "avancee":  0.968
+                    },
+                    {
+                        "id":  "cafe-creme",
+                        "reglage":  12.5,
+                        "ecoule":  45,
+                        "avancee":  0.983
+                    },
+                    {
+                        "id":  "cafe-creme",
+                        "reglage":  12.5,
+                        "ecoule":  61,
+                        "avancee":  0.988
+                    },
+                    {
+                        "id":  "cafe-creme",
+                        "reglage":  12.5,
+                        "ecoule":  200,
+                        "avancee":  0.99
+                    },
+                    {
+                        "id":  "cafe-creme",
+                        "reglage":  0.4,
+                        "ecoule":  -1,
+                        "avancee":  0
+                    },
+                    {
+                        "id":  "cafe-creme",
+                        "reglage":  0.4,
+                        "ecoule":  0,
+                        "avancee":  0
+                    },
+                    {
+                        "id":  "cafe-creme",
+                        "reglage":  0.4,
+                        "ecoule":  0.3,
+                        "avancee":  0.066
+                    },
+                    {
+                        "id":  "cafe-creme",
+                        "reglage":  0.4,
+                        "ecoule":  1,
+                        "avancee":  0.211
+                    },
+                    {
+                        "id":  "cafe-creme",
+                        "reglage":  0.4,
+                        "ecoule":  2.5,
+                        "avancee":  0.475
+                    },
+                    {
+                        "id":  "cafe-creme",
+                        "reglage":  0.4,
+                        "ecoule":  5,
+                        "avancee":  0.773
+                    },
+                    {
+                        "id":  "cafe-creme",
+                        "reglage":  0.4,
+                        "ecoule":  9.99,
+                        "avancee":  0.92
+                    },
+                    {
+                        "id":  "cafe-creme",
+                        "reglage":  0.4,
+                        "ecoule":  10,
+                        "avancee":  0.92
+                    },
+                    {
+                        "id":  "cafe-creme",
+                        "reglage":  0.4,
+                        "ecoule":  12.5,
+                        "avancee":  0.939
+                    },
+                    {
+                        "id":  "cafe-creme",
+                        "reglage":  0.4,
+                        "ecoule":  20,
+                        "avancee":  0.97
+                    },
+                    {
+                        "id":  "cafe-creme",
+                        "reglage":  0.4,
+                        "ecoule":  30,
+                        "avancee":  0.984
+                    },
+                    {
+                        "id":  "cafe-creme",
+                        "reglage":  0.4,
+                        "ecoule":  45,
+                        "avancee":  0.989
+                    },
+                    {
+                        "id":  "cafe-creme",
+                        "reglage":  0.4,
+                        "ecoule":  61,
+                        "avancee":  0.99
+                    },
+                    {
+                        "id":  "cafe-creme",
+                        "reglage":  0.4,
+                        "ecoule":  200,
+                        "avancee":  0.99
+                    },
+                    {
+                        "id":  "cafe-creme",
+                        "reglage":  "abc",
+                        "ecoule":  -1,
+                        "avancee":  "erreur"
+                    },
+                    {
+                        "id":  "cafe-creme",
+                        "reglage":  "abc",
+                        "ecoule":  0,
+                        "avancee":  "erreur"
+                    },
+                    {
+                        "id":  "cafe-creme",
+                        "reglage":  "abc",
+                        "ecoule":  0.3,
+                        "avancee":  "erreur"
+                    },
+                    {
+                        "id":  "cafe-creme",
+                        "reglage":  "abc",
+                        "ecoule":  1,
+                        "avancee":  "erreur"
+                    },
+                    {
+                        "id":  "cafe-creme",
+                        "reglage":  "abc",
+                        "ecoule":  2.5,
+                        "avancee":  "erreur"
+                    },
+                    {
+                        "id":  "cafe-creme",
+                        "reglage":  "abc",
+                        "ecoule":  5,
+                        "avancee":  "erreur"
+                    },
+                    {
+                        "id":  "cafe-creme",
+                        "reglage":  "abc",
+                        "ecoule":  9.99,
+                        "avancee":  "erreur"
+                    },
+                    {
+                        "id":  "cafe-creme",
+                        "reglage":  "abc",
+                        "ecoule":  10,
+                        "avancee":  "erreur"
+                    },
+                    {
+                        "id":  "cafe-creme",
+                        "reglage":  "abc",
+                        "ecoule":  12.5,
+                        "avancee":  "erreur"
+                    },
+                    {
+                        "id":  "cafe-creme",
+                        "reglage":  "abc",
+                        "ecoule":  20,
+                        "avancee":  "erreur"
+                    },
+                    {
+                        "id":  "cafe-creme",
+                        "reglage":  "abc",
+                        "ecoule":  30,
+                        "avancee":  "erreur"
+                    },
+                    {
+                        "id":  "cafe-creme",
+                        "reglage":  "abc",
+                        "ecoule":  45,
+                        "avancee":  "erreur"
+                    },
+                    {
+                        "id":  "cafe-creme",
+                        "reglage":  "abc",
+                        "ecoule":  61,
+                        "avancee":  "erreur"
+                    },
+                    {
+                        "id":  "cafe-creme",
+                        "reglage":  "abc",
+                        "ecoule":  200,
+                        "avancee":  "erreur"
+                    },
+                    {
+                        "id":  "cafe-creme",
+                        "reglage":  3,
+                        "ecoule":  -1,
+                        "avancee":  0
+                    },
+                    {
+                        "id":  "cafe-creme",
+                        "reglage":  3,
+                        "ecoule":  0,
+                        "avancee":  0
+                    },
+                    {
+                        "id":  "cafe-creme",
+                        "reglage":  3,
+                        "ecoule":  0.3,
+                        "avancee":  0.171
+                    },
+                    {
+                        "id":  "cafe-creme",
+                        "reglage":  3,
+                        "ecoule":  1,
+                        "avancee":  0.5
+                    },
+                    {
+                        "id":  "cafe-creme",
+                        "reglage":  3,
+                        "ecoule":  2.5,
+                        "avancee":  0.875
+                    },
+                    {
+                        "id":  "cafe-creme",
+                        "reglage":  3,
+                        "ecoule":  5,
+                        "avancee":  0.944
+                    },
+                    {
+                        "id":  "cafe-creme",
+                        "reglage":  3,
+                        "ecoule":  9.99,
+                        "avancee":  0.981
+                    },
+                    {
+                        "id":  "cafe-creme",
+                        "reglage":  3,
+                        "ecoule":  10,
+                        "avancee":  0.981
+                    },
+                    {
+                        "id":  "cafe-creme",
+                        "reglage":  3,
+                        "ecoule":  12.5,
+                        "avancee":  0.986
+                    },
+                    {
+                        "id":  "cafe-creme",
+                        "reglage":  3,
+                        "ecoule":  20,
+                        "avancee":  0.99
+                    },
+                    {
+                        "id":  "cafe-creme",
+                        "reglage":  3,
+                        "ecoule":  30,
+                        "avancee":  0.99
+                    },
+                    {
+                        "id":  "cafe-creme",
+                        "reglage":  3,
+                        "ecoule":  45,
+                        "avancee":  0.99
+                    },
+                    {
+                        "id":  "cafe-creme",
+                        "reglage":  3,
+                        "ecoule":  61,
+                        "avancee":  0.99
+                    },
+                    {
+                        "id":  "cafe-creme",
+                        "reglage":  3,
+                        "ecoule":  200,
+                        "avancee":  0.99
+                    }
+                ],
+    "incident":  [
+                     {
+                         "genre":  "BrowserProcessExited",
+                         "reaction":  "recreer"
+                     },
+                     {
+                         "genre":  "RenderProcessExited",
+                         "reaction":  "recreer"
+                     },
+                     {
+                         "genre":  "RenderProcessUnresponsive",
+                         "reaction":  "recreer"
+                     },
+                     {
+                         "genre":  "GpuProcessExited",
+                         "reaction":  "continuer"
+                     },
+                     {
+                         "genre":  "UtilityProcessExited",
+                         "reaction":  "continuer"
+                     },
+                     {
+                         "genre":  "FrameRenderProcessExited",
+                         "reaction":  "continuer"
+                     },
+                     {
+                         "genre":  "UnknownProcessExited",
+                         "reaction":  "continuer"
+                     },
+                     {
+                         "genre":  "SandboxHelperProcessExited",
+                         "reaction":  "continuer"
+                     },
+                     {
+                         "genre":  "renderprocessexited",
+                         "reaction":  "recreer"
+                     },
+                     {
+                         "genre":  "",
+                         "reaction":  "continuer"
+                     }
+                 ]
+}
