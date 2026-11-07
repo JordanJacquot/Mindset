@@ -1,0 +1,4442 @@
+[
+    {
+        "etapes":  [
+                       {
+                           "op":  "ajouter",
+                           "minutes":  30,
+                           "id":  "evermind",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  30,
+                           "id":  "evermind",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  46,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  46.01,
+                           "id":  "evermind",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  46.01,
+                           "id":  "evermind",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  61,
+                           "id":  "evermind",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  76.01,
+                           "id":  "evermind",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  81.01,
+                           "id":  "mindset",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  96,
+                           "id":  "evermind",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  96,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       }
+                   ]
+    },
+    {
+        "etapes":  [
+                       {
+                           "op":  "lire",
+                           "minutes":  30,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  30.01,
+                           "id":  "evermind",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  35.010000000000005,
+                           "id":  "evermind",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  65.01,
+                           "id":  "mindset",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  80.02000000000001,
+                           "id":  "evermind",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  110.02000000000001,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  125.01,
+                           "id":  "mindset",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  125.51,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  15
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  126.51,
+                           "id":  "mindset",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  126.51,
+                           "id":  "evermind",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       }
+                   ]
+    },
+    {
+        "etapes":  [
+                       {
+                           "op":  "lire",
+                           "minutes":  16,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  21,
+                           "id":  "mindset",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  36.01,
+                           "id":  "mindset",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  51.019999999999996,
+                           "id":  "evermind",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  66.009999999999991,
+                           "id":  "evermind",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  81.009999999999991,
+                           "id":  "mindset",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  86.009999999999991,
+                           "id":  "evermind",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  100.00999999999999,
+                           "id":  "evermind",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  100.50999999999999,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  100.52,
+                           "id":  "evermind",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       }
+                   ]
+    },
+    {
+        "etapes":  [
+                       {
+                           "op":  "ajouter",
+                           "minutes":  0.5,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  5.5,
+                           "id":  "evermind",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  6.5,
+                           "id":  "evermind",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  21.509999999999998,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  21.509999999999998,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  22.509999999999998,
+                           "id":  "mindset",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  52.51,
+                           "id":  "evermind",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  67.52,
+                           "id":  "evermind",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  83.52,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  98.52,
+                           "id":  "evermind",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       }
+                   ]
+    },
+    {
+        "etapes":  [
+                       {
+                           "op":  "lire",
+                           "minutes":  15,
+                           "id":  "mindset",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  15,
+                           "id":  "mindset",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  30.009999999999998,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  31.009999999999998,
+                           "id":  "mindset",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  45.01,
+                           "id":  "evermind",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  60.01,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  60.51,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  75.52,
+                           "id":  "evermind",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  90.52,
+                           "id":  "mindset",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  106.52,
+                           "id":  "evermind",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       }
+                   ]
+    },
+    {
+        "etapes":  [
+                       {
+                           "op":  "ajouter",
+                           "minutes":  30,
+                           "id":  "evermind",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  44,
+                           "id":  "mindset",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  44.5,
+                           "id":  "mindset",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  49.5,
+                           "id":  "evermind",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  64.51,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  80.51,
+                           "id":  "mindset",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  95.51,
+                           "id":  "evermind",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  96.01,
+                           "id":  "evermind",
+                           "version":  "1.0.0-beta",
+                           "attendu":  15
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  126.01,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  131.01,
+                           "id":  "evermind",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       }
+                   ]
+    },
+    {
+        "etapes":  [
+                       {
+                           "op":  "lire",
+                           "minutes":  15.01,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  31.009999999999998,
+                           "id":  "mindset",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  31.509999999999998,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  36.51,
+                           "id":  "evermind",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  51.51,
+                           "id":  "mindset",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  51.519999999999996,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  66.53,
+                           "id":  "evermind",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  66.53,
+                           "id":  "evermind",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  15
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  81.53,
+                           "id":  "mindset",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  81.54,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       }
+                   ]
+    },
+    {
+        "etapes":  [
+                       {
+                           "op":  "ajouter",
+                           "minutes":  14,
+                           "id":  "evermind",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  28,
+                           "id":  "evermind",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  42.99,
+                           "id":  "mindset",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  43,
+                           "id":  "evermind",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  73,
+                           "id":  "mindset",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  73.01,
+                           "id":  "mindset",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  73.02000000000001,
+                           "id":  "evermind",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  88.030000000000015,
+                           "id":  "evermind",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  88.030000000000015,
+                           "id":  "evermind",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  102.03000000000002,
+                           "id":  "evermind",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       }
+                   ]
+    },
+    {
+        "etapes":  [
+                       {
+                           "op":  "lire",
+                           "minutes":  14.99,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  29.98,
+                           "id":  "evermind",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  34.980000000000004,
+                           "id":  "evermind",
+                           "version":  "1.0.0-beta",
+                           "attendu":  10
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  34.99,
+                           "id":  "evermind",
+                           "version":  "1.0.0-beta",
+                           "attendu":  10
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  35,
+                           "id":  "evermind",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  10
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  51,
+                           "id":  "evermind",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  66,
+                           "id":  "mindset",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  66.5,
+                           "id":  "mindset",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  80.5,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  110.5,
+                           "id":  "evermind",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       }
+                   ]
+    },
+    {
+        "etapes":  [
+                       {
+                           "op":  "lire",
+                           "minutes":  16,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  21,
+                           "id":  "evermind",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  35,
+                           "id":  "evermind",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  50,
+                           "id":  "evermind",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  66,
+                           "id":  "mindset",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  81.01,
+                           "id":  "mindset",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  97.01,
+                           "id":  "evermind",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  98.01,
+                           "id":  "mindset",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  98.02000000000001,
+                           "id":  "mindset",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  98.030000000000015,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  15
+                       }
+                   ]
+    },
+    {
+        "etapes":  [
+                       {
+                           "op":  "ajouter",
+                           "minutes":  14.99,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  44.99,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  45.49,
+                           "id":  "mindset",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  60.49,
+                           "id":  "evermind",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  65.490000000000009,
+                           "id":  "mindset",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  79.490000000000009,
+                           "id":  "evermind",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  109.49000000000001,
+                           "id":  "evermind",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  109.50000000000001,
+                           "id":  "mindset",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  110.00000000000001,
+                           "id":  "evermind",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  126.00000000000001,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       }
+                   ]
+    },
+    {
+        "etapes":  [
+                       {
+                           "op":  "lire",
+                           "minutes":  14,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  29,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  59,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  73,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  73,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  88.01,
+                           "id":  "evermind",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  102.01,
+                           "id":  "evermind",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  102.51,
+                           "id":  "evermind",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  117.52000000000001,
+                           "id":  "evermind",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  117.52000000000001,
+                           "id":  "evermind",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       }
+                   ]
+    },
+    {
+        "etapes":  [
+                       {
+                           "op":  "lire",
+                           "minutes":  30,
+                           "id":  "evermind",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  30.01,
+                           "id":  "mindset",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  30.51,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  30.520000000000003,
+                           "id":  "mindset",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  45.52,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  46.02,
+                           "id":  "mindset",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  60.02,
+                           "id":  "evermind",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  75.01,
+                           "id":  "evermind",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  90.02000000000001,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  105.01,
+                           "id":  "mindset",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       }
+                   ]
+    },
+    {
+        "etapes":  [
+                       {
+                           "op":  "lire",
+                           "minutes":  30,
+                           "id":  "evermind",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  30.01,
+                           "id":  "mindset",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  30.020000000000003,
+                           "id":  "evermind",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  30.520000000000003,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  15
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  30.520000000000003,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  31.520000000000003,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  45.52,
+                           "id":  "evermind",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  45.53,
+                           "id":  "evermind",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  50.53,
+                           "id":  "mindset",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  65.52,
+                           "id":  "evermind",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       }
+                   ]
+    },
+    {
+        "etapes":  [
+                       {
+                           "op":  "lire",
+                           "minutes":  16,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  16,
+                           "id":  "evermind",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  46,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  60.99,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  1
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  76,
+                           "id":  "evermind",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  90.99,
+                           "id":  "evermind",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  106.99,
+                           "id":  "evermind",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  120.99,
+                           "id":  "evermind",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  120.99,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  134.99,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       }
+                   ]
+    },
+    {
+        "etapes":  [
+                       {
+                           "op":  "lire",
+                           "minutes":  5,
+                           "id":  "mindset",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  5.01,
+                           "id":  "mindset",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  19.009999999999998,
+                           "id":  "evermind",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  20.009999999999998,
+                           "id":  "evermind",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  21.009999999999998,
+                           "id":  "evermind",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  21.02,
+                           "id":  "evermind",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  22.02,
+                           "id":  "evermind",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  37.03,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  51.03,
+                           "id":  "mindset",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  51.53,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       }
+                   ]
+    },
+    {
+        "etapes":  [
+                       {
+                           "op":  "lire",
+                           "minutes":  15.01,
+                           "id":  "evermind",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  16.009999999999998,
+                           "id":  "evermind",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  32.01,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  33.01,
+                           "id":  "mindset",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  34.01,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  39.01,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  10
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  40.01,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  55.01,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  70,
+                           "id":  "mindset",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  70.5,
+                           "id":  "evermind",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       }
+                   ]
+    },
+    {
+        "etapes":  [
+                       {
+                           "op":  "ajouter",
+                           "minutes":  15,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  45,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  46,
+                           "id":  "evermind",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  61.01,
+                           "id":  "evermind",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  76,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  91,
+                           "id":  "evermind",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  105,
+                           "id":  "mindset",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  120.01,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  120.51,
+                           "id":  "evermind",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  135.5,
+                           "id":  "mindset",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       }
+                   ]
+    },
+    {
+        "etapes":  [
+                       {
+                           "op":  "lire",
+                           "minutes":  0,
+                           "id":  "evermind",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  5,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  6,
+                           "id":  "evermind",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  36,
+                           "id":  "evermind",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  37,
+                           "id":  "evermind",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  37.5,
+                           "id":  "evermind",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  52.5,
+                           "id":  "evermind",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  82.5,
+                           "id":  "mindset",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  83,
+                           "id":  "mindset",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  98,
+                           "id":  "evermind",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       }
+                   ]
+    },
+    {
+        "etapes":  [
+                       {
+                           "op":  "lire",
+                           "minutes":  15.01,
+                           "id":  "evermind",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  45.01,
+                           "id":  "evermind",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  45.019999999999996,
+                           "id":  "mindset",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  59.019999999999996,
+                           "id":  "evermind",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  74.009999999999991,
+                           "id":  "mindset",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  79.009999999999991,
+                           "id":  "evermind",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  95.009999999999991,
+                           "id":  "mindset",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  125.00999999999999,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  155.01,
+                           "id":  "mindset",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  155.01999999999998,
+                           "id":  "evermind",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       }
+                   ]
+    },
+    {
+        "etapes":  [
+                       {
+                           "op":  "lire",
+                           "minutes":  0,
+                           "id":  "evermind",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  14,
+                           "id":  "evermind",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  15,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  30.009999999999998,
+                           "id":  "evermind",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  45.01,
+                           "id":  "mindset",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  45.51,
+                           "id":  "evermind",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  60.519999999999996,
+                           "id":  "evermind",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  75.509999999999991,
+                           "id":  "evermind",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  80.509999999999991,
+                           "id":  "evermind",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  95.52,
+                           "id":  "evermind",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       }
+                   ]
+    },
+    {
+        "etapes":  [
+                       {
+                           "op":  "lire",
+                           "minutes":  14.99,
+                           "id":  "evermind",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  14.99,
+                           "id":  "evermind",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  19.990000000000002,
+                           "id":  "evermind",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  20.000000000000004,
+                           "id":  "evermind",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  20.500000000000004,
+                           "id":  "evermind",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  15
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  50.5,
+                           "id":  "evermind",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  66.5,
+                           "id":  "mindset",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  81.5,
+                           "id":  "mindset",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  81.51,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  82.01,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       }
+                   ]
+    },
+    {
+        "etapes":  [
+                       {
+                           "op":  "lire",
+                           "minutes":  0,
+                           "id":  "mindset",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  0,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  14.99,
+                           "id":  "evermind",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  30.990000000000002,
+                           "id":  "evermind",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  31.000000000000004,
+                           "id":  "evermind",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  31.010000000000005,
+                           "id":  "evermind",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  47.010000000000005,
+                           "id":  "evermind",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  62.000000000000007,
+                           "id":  "evermind",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  76,
+                           "id":  "evermind",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  76.01,
+                           "id":  "evermind",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       }
+                   ]
+    },
+    {
+        "etapes":  [
+                       {
+                           "op":  "ajouter",
+                           "minutes":  16,
+                           "id":  "evermind",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  31,
+                           "id":  "evermind",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  36,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  41,
+                           "id":  "mindset",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  42,
+                           "id":  "mindset",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  57.01,
+                           "id":  "evermind",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  62.01,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  62.01,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  77,
+                           "id":  "mindset",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  82,
+                           "id":  "evermind",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       }
+                   ]
+    },
+    {
+        "etapes":  [
+                       {
+                           "op":  "ajouter",
+                           "minutes":  15.01,
+                           "id":  "evermind",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  29.009999999999998,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  44,
+                           "id":  "mindset",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  60,
+                           "id":  "mindset",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  75.01,
+                           "id":  "evermind",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  90.01,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  105,
+                           "id":  "mindset",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  120.01,
+                           "id":  "mindset",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  135,
+                           "id":  "evermind",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  149.99,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       }
+                   ]
+    },
+    {
+        "etapes":  [
+                       {
+                           "op":  "lire",
+                           "minutes":  16,
+                           "id":  "evermind",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  16.5,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  17.5,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  17.51,
+                           "id":  "evermind",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  22.51,
+                           "id":  "evermind",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  37.5,
+                           "id":  "evermind",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  42.5,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  57.5,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  72.49,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  1
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  87.49,
+                           "id":  "mindset",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       }
+                   ]
+    },
+    {
+        "etapes":  [
+                       {
+                           "op":  "lire",
+                           "minutes":  0.01,
+                           "id":  "mindset",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  30.01,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  44.010000000000005,
+                           "id":  "evermind",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  58.010000000000005,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  73.01,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  73.02000000000001,
+                           "id":  "evermind",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  87.02000000000001,
+                           "id":  "mindset",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  87.030000000000015,
+                           "id":  "mindset",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  102.04000000000002,
+                           "id":  "mindset",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  117.04000000000002,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       }
+                   ]
+    },
+    {
+        "etapes":  [
+                       {
+                           "op":  "lire",
+                           "minutes":  15,
+                           "id":  "mindset",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  29.990000000000002,
+                           "id":  "mindset",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  59.99,
+                           "id":  "evermind",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  75.990000000000009,
+                           "id":  "mindset",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  90.990000000000009,
+                           "id":  "evermind",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  91.990000000000009,
+                           "id":  "mindset",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  92.490000000000009,
+                           "id":  "mindset",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  92.490000000000009,
+                           "id":  "evermind",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  108.49000000000001,
+                           "id":  "evermind",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  108.99000000000001,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       }
+                   ]
+    },
+    {
+        "etapes":  [
+                       {
+                           "op":  "ajouter",
+                           "minutes":  14,
+                           "id":  "mindset",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  14,
+                           "id":  "evermind",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  14.01,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  15.01,
+                           "id":  "mindset",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  16.009999999999998,
+                           "id":  "evermind",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  16.009999999999998,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  21.009999999999998,
+                           "id":  "mindset",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  21.02,
+                           "id":  "evermind",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  21.02,
+                           "id":  "mindset",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  36.03,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       }
+                   ]
+    },
+    {
+        "etapes":  [
+                       {
+                           "op":  "lire",
+                           "minutes":  16,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  16.01,
+                           "id":  "mindset",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  32.010000000000005,
+                           "id":  "evermind",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  47.010000000000005,
+                           "id":  "evermind",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  62.010000000000005,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  92.01,
+                           "id":  "evermind",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  107,
+                           "id":  "evermind",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  1
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  121,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  136.01,
+                           "id":  "evermind",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  136.01999999999998,
+                           "id":  "mindset",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       }
+                   ]
+    },
+    {
+        "etapes":  [
+                       {
+                           "op":  "ajouter",
+                           "minutes":  0,
+                           "id":  "evermind",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  0.01,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  1.01,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  14
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  16.01,
+                           "id":  "evermind",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  16.51,
+                           "id":  "evermind",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  17.01,
+                           "id":  "evermind",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  31.01,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  31.01,
+                           "id":  "mindset",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  31.020000000000003,
+                           "id":  "evermind",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  46.010000000000005,
+                           "id":  "evermind",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       }
+                   ]
+    },
+    {
+        "etapes":  [
+                       {
+                           "op":  "ajouter",
+                           "minutes":  1,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  17,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  18,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  19,
+                           "id":  "evermind",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  19.01,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  34.02,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  35.02,
+                           "id":  "evermind",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  35.52,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  50.510000000000005,
+                           "id":  "mindset",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  51.010000000000005,
+                           "id":  "mindset",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       }
+                   ]
+    },
+    {
+        "etapes":  [
+                       {
+                           "op":  "ajouter",
+                           "minutes":  0.5,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  15.5,
+                           "id":  "mindset",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  45.5,
+                           "id":  "mindset",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  45.5,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  61.5,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  77.5,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  91.5,
+                           "id":  "evermind",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  106.5,
+                           "id":  "evermind",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  121.49,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  136.49,
+                           "id":  "evermind",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       }
+                   ]
+    },
+    {
+        "etapes":  [
+                       {
+                           "op":  "ajouter",
+                           "minutes":  15,
+                           "id":  "evermind",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  15,
+                           "id":  "evermind",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  29.990000000000002,
+                           "id":  "mindset",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  45,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  75,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  90,
+                           "id":  "evermind",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  90.01,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  105.01,
+                           "id":  "evermind",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  120.01,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  125.01,
+                           "id":  "evermind",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       }
+                   ]
+    },
+    {
+        "etapes":  [
+                       {
+                           "op":  "ajouter",
+                           "minutes":  1,
+                           "id":  "evermind",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  15.99,
+                           "id":  "evermind",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  31.990000000000002,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  32.99,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  62.99,
+                           "id":  "mindset",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  63.49,
+                           "id":  "mindset",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  64.490000000000009,
+                           "id":  "evermind",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  80.490000000000009,
+                           "id":  "evermind",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  80.500000000000014,
+                           "id":  "evermind",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  81.000000000000014,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       }
+                   ]
+    },
+    {
+        "etapes":  [
+                       {
+                           "op":  "lire",
+                           "minutes":  5,
+                           "id":  "evermind",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  19.990000000000002,
+                           "id":  "mindset",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  19.990000000000002,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  20.000000000000004,
+                           "id":  "evermind",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  50,
+                           "id":  "mindset",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  50,
+                           "id":  "evermind",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  64,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  65,
+                           "id":  "mindset",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  79.99,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  80,
+                           "id":  "evermind",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       }
+                   ]
+    },
+    {
+        "etapes":  [
+                       {
+                           "op":  "lire",
+                           "minutes":  16,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  30,
+                           "id":  "evermind",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  30,
+                           "id":  "mindset",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  31,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  45,
+                           "id":  "mindset",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  60.01,
+                           "id":  "evermind",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  61.01,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  77.009999999999991,
+                           "id":  "evermind",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  82.009999999999991,
+                           "id":  "mindset",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  96.999999999999986,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       }
+                   ]
+    },
+    {
+        "etapes":  [
+                       {
+                           "op":  "ajouter",
+                           "minutes":  1,
+                           "id":  "evermind",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  1.5,
+                           "id":  "evermind",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  17.5,
+                           "id":  "evermind",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  33.5,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  34,
+                           "id":  "evermind",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  35,
+                           "id":  "evermind",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  51,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  51.5,
+                           "id":  "mindset",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  67.5,
+                           "id":  "mindset",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  68,
+                           "id":  "evermind",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       }
+                   ]
+    },
+    {
+        "etapes":  [
+                       {
+                           "op":  "lire",
+                           "minutes":  16,
+                           "id":  "mindset",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  16.01,
+                           "id":  "mindset",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  16.51,
+                           "id":  "evermind",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  46.510000000000005,
+                           "id":  "evermind",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  46.52,
+                           "id":  "evermind",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  47.02,
+                           "id":  "mindset",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  77.02000000000001,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  77.52000000000001,
+                           "id":  "evermind",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  107.52000000000001,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  122.52000000000001,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       }
+                   ]
+    },
+    {
+        "etapes":  [
+                       {
+                           "op":  "lire",
+                           "minutes":  0.5,
+                           "id":  "evermind",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  16.5,
+                           "id":  "evermind",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  16.51,
+                           "id":  "mindset",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  17.51,
+                           "id":  "evermind",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  17.520000000000003,
+                           "id":  "mindset",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  14
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  32.510000000000005,
+                           "id":  "mindset",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  47.500000000000007,
+                           "id":  "mindset",
+                           "version":  "1.0.1",
+                           "attendu":  1
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  62.490000000000009,
+                           "id":  "mindset",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  67.490000000000009,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  82.48,
+                           "id":  "evermind",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       }
+                   ]
+    },
+    {
+        "etapes":  [
+                       {
+                           "op":  "ajouter",
+                           "minutes":  30,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  45.01,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  60.019999999999996,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  60.019999999999996,
+                           "id":  "mindset",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  60.029999999999994,
+                           "id":  "evermind",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  90.03,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  90.04,
+                           "id":  "evermind",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  90.54,
+                           "id":  "evermind",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  95.54,
+                           "id":  "mindset",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  109.54,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       }
+                   ]
+    },
+    {
+        "etapes":  [
+                       {
+                           "op":  "ajouter",
+                           "minutes":  0.5,
+                           "id":  "mindset",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  1.5,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  6.5,
+                           "id":  "evermind",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  22.5,
+                           "id":  "evermind",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  23,
+                           "id":  "evermind",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  23.5,
+                           "id":  "evermind",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  28.5,
+                           "id":  "evermind",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  29,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  29.5,
+                           "id":  "mindset",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  34.5,
+                           "id":  "evermind",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       }
+                   ]
+    },
+    {
+        "etapes":  [
+                       {
+                           "op":  "ajouter",
+                           "minutes":  0.5,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  15.49,
+                           "id":  "evermind",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  15.99,
+                           "id":  "evermind",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  16.490000000000002,
+                           "id":  "mindset",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  16.990000000000002,
+                           "id":  "evermind",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  32.99,
+                           "id":  "evermind",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  37.99,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  53,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  67,
+                           "id":  "evermind",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  68,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       }
+                   ]
+    },
+    {
+        "etapes":  [
+                       {
+                           "op":  "ajouter",
+                           "minutes":  5,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  19.990000000000002,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  1
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  19.990000000000002,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  20.000000000000004,
+                           "id":  "mindset",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  21.000000000000004,
+                           "id":  "mindset",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  26.000000000000004,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  40.99,
+                           "id":  "evermind",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  55.980000000000004,
+                           "id":  "evermind",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  1
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  56.980000000000004,
+                           "id":  "evermind",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  56.980000000000004,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       }
+                   ]
+    },
+    {
+        "etapes":  [
+                       {
+                           "op":  "ajouter",
+                           "minutes":  15.01,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  30,
+                           "id":  "evermind",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  45,
+                           "id":  "evermind",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  59,
+                           "id":  "evermind",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  74,
+                           "id":  "evermind",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  74.01,
+                           "id":  "evermind",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  75.01,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  75.01,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  91.01,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  91.01,
+                           "id":  "evermind",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       }
+                   ]
+    },
+    {
+        "etapes":  [
+                       {
+                           "op":  "lire",
+                           "minutes":  14,
+                           "id":  "evermind",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  15,
+                           "id":  "evermind",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  30.009999999999998,
+                           "id":  "evermind",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  35.01,
+                           "id":  "mindset",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  51.01,
+                           "id":  "evermind",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  56.01,
+                           "id":  "evermind",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  10
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  56.019999999999996,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  56.029999999999994,
+                           "id":  "mindset",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  61.029999999999994,
+                           "id":  "evermind",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  91.03,
+                           "id":  "evermind",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       }
+                   ]
+    },
+    {
+        "etapes":  [
+                       {
+                           "op":  "ajouter",
+                           "minutes":  30,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  30.5,
+                           "id":  "evermind",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  45.49,
+                           "id":  "evermind",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  60.5,
+                           "id":  "evermind",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  75.5,
+                           "id":  "evermind",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  76,
+                           "id":  "evermind",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  76,
+                           "id":  "evermind",
+                           "version":  "1.0.1",
+                           "attendu":  15
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  77,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  92,
+                           "id":  "evermind",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  107,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       }
+                   ]
+    },
+    {
+        "etapes":  [
+                       {
+                           "op":  "lire",
+                           "minutes":  14,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  14,
+                           "id":  "evermind",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  28.990000000000002,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  29.000000000000004,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  44.010000000000005,
+                           "id":  "evermind",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  44.510000000000005,
+                           "id":  "evermind",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  59.52,
+                           "id":  "mindset",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  74.51,
+                           "id":  "evermind",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  75.51,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  76.51,
+                           "id":  "mindset",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       }
+                   ]
+    },
+    {
+        "etapes":  [
+                       {
+                           "op":  "lire",
+                           "minutes":  16,
+                           "id":  "evermind",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  30.990000000000002,
+                           "id":  "evermind",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  44.99,
+                           "id":  "evermind",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  49.99,
+                           "id":  "evermind",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  54.99,
+                           "id":  "evermind",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  55,
+                           "id":  "evermind",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  60,
+                           "id":  "mindset",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  90,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  104.99,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  119.99,
+                           "id":  "evermind",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       }
+                   ]
+    },
+    {
+        "etapes":  [
+                       {
+                           "op":  "lire",
+                           "minutes":  5,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  20.009999999999998,
+                           "id":  "mindset",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  35.01,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  35.51,
+                           "id":  "evermind",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  65.509999999999991,
+                           "id":  "evermind",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  81.509999999999991,
+                           "id":  "evermind",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  82.009999999999991,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  82.009999999999991,
+                           "id":  "evermind",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  15
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  82.009999999999991,
+                           "id":  "evermind",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  96.009999999999991,
+                           "id":  "evermind",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       }
+                   ]
+    },
+    {
+        "etapes":  [
+                       {
+                           "op":  "ajouter",
+                           "minutes":  5,
+                           "id":  "evermind",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  5,
+                           "id":  "evermind",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  6,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  6,
+                           "id":  "evermind",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  6,
+                           "id":  "evermind",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  6.5,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  7,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  7.5,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  7.51,
+                           "id":  "mindset",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  37.51,
+                           "id":  "mindset",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       }
+                   ]
+    },
+    {
+        "etapes":  [
+                       {
+                           "op":  "ajouter",
+                           "minutes":  0,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  14.99,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  19.990000000000002,
+                           "id":  "evermind",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  33.99,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  34.49,
+                           "id":  "evermind",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  39.49,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  53.49,
+                           "id":  "mindset",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  68.5,
+                           "id":  "evermind",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  84.5,
+                           "id":  "evermind",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  100.5,
+                           "id":  "mindset",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       }
+                   ]
+    },
+    {
+        "etapes":  [
+                       {
+                           "op":  "lire",
+                           "minutes":  14.99,
+                           "id":  "evermind",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  29.98,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  44.980000000000004,
+                           "id":  "evermind",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  44.99,
+                           "id":  "evermind",
+                           "version":  "1.0.1",
+                           "attendu":  15
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  58.99,
+                           "id":  "evermind",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  59.99,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  60,
+                           "id":  "mindset",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  90,
+                           "id":  "mindset",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  105,
+                           "id":  "evermind",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  106,
+                           "id":  "evermind",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       }
+                   ]
+    },
+    {
+        "etapes":  [
+                       {
+                           "op":  "ajouter",
+                           "minutes":  14,
+                           "id":  "mindset",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  44,
+                           "id":  "evermind",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  59.01,
+                           "id":  "evermind",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  73.009999999999991,
+                           "id":  "mindset",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  74.009999999999991,
+                           "id":  "evermind",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  89.009999999999991,
+                           "id":  "mindset",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  103.00999999999999,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  108.00999999999999,
+                           "id":  "evermind",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  113.00999999999999,
+                           "id":  "mindset",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  127.00999999999999,
+                           "id":  "evermind",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       }
+                   ]
+    },
+    {
+        "etapes":  [
+                       {
+                           "op":  "lire",
+                           "minutes":  15,
+                           "id":  "mindset",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  29,
+                           "id":  "evermind",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  59,
+                           "id":  "evermind",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  59.01,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  74,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  88,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  102,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  103,
+                           "id":  "evermind",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  104,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  118,
+                           "id":  "evermind",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       }
+                   ]
+    },
+    {
+        "etapes":  [
+                       {
+                           "op":  "lire",
+                           "minutes":  14,
+                           "id":  "evermind",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  28.990000000000002,
+                           "id":  "evermind",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  44.99,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  58.99,
+                           "id":  "evermind",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  73.990000000000009,
+                           "id":  "evermind",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  88.98,
+                           "id":  "mindset",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  89.48,
+                           "id":  "evermind",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  103.48,
+                           "id":  "evermind",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  103.49000000000001,
+                           "id":  "evermind",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  118.49000000000001,
+                           "id":  "evermind",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       }
+                   ]
+    },
+    {
+        "etapes":  [
+                       {
+                           "op":  "lire",
+                           "minutes":  15,
+                           "id":  "evermind",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  16,
+                           "id":  "evermind",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  30.990000000000002,
+                           "id":  "evermind",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  31.490000000000002,
+                           "id":  "evermind",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  46.480000000000004,
+                           "id":  "evermind",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  76.48,
+                           "id":  "mindset",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  106.48,
+                           "id":  "evermind",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  121.47,
+                           "id":  "mindset",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  135.47,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  150.48,
+                           "id":  "evermind",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       }
+                   ]
+    },
+    {
+        "etapes":  [
+                       {
+                           "op":  "lire",
+                           "minutes":  30,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  30,
+                           "id":  "mindset",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  45.01,
+                           "id":  "mindset",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  50.01,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  66.009999999999991,
+                           "id":  "evermind",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  80.999999999999986,
+                           "id":  "evermind",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  95.999999999999986,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  96.999999999999986,
+                           "id":  "evermind",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  110.99999999999999,
+                           "id":  "evermind",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  111.49999999999999,
+                           "id":  "mindset",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       }
+                   ]
+    },
+    {
+        "etapes":  [
+                       {
+                           "op":  "ajouter",
+                           "minutes":  1,
+                           "id":  "evermind",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  2,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  32,
+                           "id":  "evermind",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  32.5,
+                           "id":  "mindset",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  32.51,
+                           "id":  "evermind",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  33.01,
+                           "id":  "evermind",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  48.019999999999996,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  48.019999999999996,
+                           "id":  "mindset",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  63.01,
+                           "id":  "evermind",
+                           "version":  "1.0.0-Beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  78,
+                           "id":  "mindset",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       }
+                   ]
+    },
+    {
+        "etapes":  [
+                       {
+                           "op":  "lire",
+                           "minutes":  15,
+                           "id":  "mindset",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  29,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  44.01,
+                           "id":  "mindset",
+                           "version":  "1.0.1",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  44.01,
+                           "id":  "evermind",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  59,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  75,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  91,
+                           "id":  "mindset",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  105,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "lire",
+                           "minutes":  135,
+                           "id":  "evermind",
+                           "version":  "1.0.0-beta",
+                           "attendu":  null
+                       },
+                       {
+                           "op":  "ajouter",
+                           "minutes":  165,
+                           "id":  "mindset",
+                           "version":  "1.0.0",
+                           "attendu":  null
+                       }
+                   ]
+    }
+]

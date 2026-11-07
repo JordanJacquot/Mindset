@@ -1,0 +1,184 @@
+[
+    {
+        "prete":  true,
+        "zip":  "C:\\T\\mindset.zip",
+        "refus":  false,
+        "texte":  "",
+        "parametres":  [
+                           [
+                               "Zip",
+                               "C:\\T\\mindset.zip"
+                           ],
+                           [
+                               "Signature",
+                               "C:\\T\\mindset.zip.sig"
+                           ],
+                           [
+                               "Destination",
+                               "DOSSIER"
+                           ],
+                           [
+                               "Version",
+                               "3.1.0"
+                           ],
+                           [
+                               "AttendrePid",
+                               "PID"
+                           ],
+                           [
+                               "Sid",
+                               "SID"
+                           ]
+                       ],
+        "sortie":  true,
+        "journal":  [
+                        "Mise à jour vers Mindset 3.1.0 lancée"
+                    ]
+    },
+    {
+        "prete":  true,
+        "zip":  "C:\\T\\mindset.zip",
+        "refus":  true,
+        "texte":  "Mise à jour annulée : l\u0027autorisation de Windows a été refusée. Tu peux réessayer.",
+        "parametres":  null,
+        "sortie":  false,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "prete":  true,
+        "zip":  "C:\\T\\min\"dset.zip",
+        "refus":  false,
+        "texte":  "Mise à jour impossible : Valeur refusée (guillemet) : C:\\T\\min\"dset.zip",
+        "parametres":  null,
+        "sortie":  false,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "prete":  true,
+        "zip":  "C:\\T\\min\"dset.zip",
+        "refus":  true,
+        "texte":  "Mise à jour impossible : Valeur refusée (guillemet) : C:\\T\\min\"dset.zip",
+        "parametres":  null,
+        "sortie":  false,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "prete":  true,
+        "zip":  "C:\\Program Files\\T\\",
+        "refus":  false,
+        "texte":  "",
+        "parametres":  [
+                           [
+                               "Zip",
+                               "C:\\Program Files\\T\\"
+                           ],
+                           [
+                               "Signature",
+                               "C:\\T\\mindset.zip.sig"
+                           ],
+                           [
+                               "Destination",
+                               "DOSSIER"
+                           ],
+                           [
+                               "Version",
+                               "3.1.0"
+                           ],
+                           [
+                               "AttendrePid",
+                               "PID"
+                           ],
+                           [
+                               "Sid",
+                               "SID"
+                           ]
+                       ],
+        "sortie":  true,
+        "journal":  [
+                        "Mise à jour vers Mindset 3.1.0 lancée"
+                    ]
+    },
+    {
+        "prete":  true,
+        "zip":  "C:\\Program Files\\T\\",
+        "refus":  true,
+        "texte":  "Mise à jour annulée : l\u0027autorisation de Windows a été refusée. Tu peux réessayer.",
+        "parametres":  null,
+        "sortie":  false,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "prete":  false,
+        "zip":  "C:\\T\\mindset.zip",
+        "refus":  false,
+        "texte":  "",
+        "parametres":  null,
+        "sortie":  false,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "prete":  false,
+        "zip":  "C:\\T\\mindset.zip",
+        "refus":  true,
+        "texte":  "",
+        "parametres":  null,
+        "sortie":  false,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "prete":  false,
+        "zip":  "C:\\T\\min\"dset.zip",
+        "refus":  false,
+        "texte":  "",
+        "parametres":  null,
+        "sortie":  false,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "prete":  false,
+        "zip":  "C:\\T\\min\"dset.zip",
+        "refus":  true,
+        "texte":  "",
+        "parametres":  null,
+        "sortie":  false,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "prete":  false,
+        "zip":  "C:\\Program Files\\T\\",
+        "refus":  false,
+        "texte":  "",
+        "parametres":  null,
+        "sortie":  false,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "prete":  false,
+        "zip":  "C:\\Program Files\\T\\",
+        "refus":  true,
+        "texte":  "",
+        "parametres":  null,
+        "sortie":  false,
+        "journal":  [
+
+                    ]
+    }
+]

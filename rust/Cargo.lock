@@ -1846,7 +1846,11 @@ name = "mindset-lui-meme"
 version = "0.1.0"
 dependencies = [
  "mindset-noyau",
+ "regex",
  "serde_json",
+ "suite-commun",
+ "windows",
+ "windows-registry",
 ]
 
 [[package]]

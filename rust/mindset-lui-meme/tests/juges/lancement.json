@@ -1,0 +1,2674 @@
+[
+    {
+        "demarrage":  true,
+        "reglages":  {
+
+                     },
+        "sortie":  false,
+        "demarrage_apres":  true,
+        "visible_apres":  "-",
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "MajMindsetDemande":  ""
+                     },
+        "sortie":  false,
+        "demarrage_apres":  true,
+        "visible_apres":  "-",
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "MajMindsetDemande":  "0123456789abcdef0123456789abcdef"
+                     },
+        "sortie":  false,
+        "demarrage_apres":  true,
+        "visible_apres":  "-",
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "MajMindsetDemande":  0
+                     },
+        "sortie":  false,
+        "demarrage_apres":  true,
+        "visible_apres":  "-",
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "LancerAvecWindows":  true
+                     },
+        "sortie":  false,
+        "demarrage_apres":  true,
+        "visible_apres":  "-",
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "LancerAvecWindows":  true,
+                         "MajMindsetDemande":  ""
+                     },
+        "sortie":  false,
+        "demarrage_apres":  true,
+        "visible_apres":  "-",
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "LancerAvecWindows":  true,
+                         "MajMindsetDemande":  "0123456789abcdef0123456789abcdef"
+                     },
+        "sortie":  false,
+        "demarrage_apres":  true,
+        "visible_apres":  "-",
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "LancerAvecWindows":  true,
+                         "MajMindsetDemande":  0
+                     },
+        "sortie":  false,
+        "demarrage_apres":  true,
+        "visible_apres":  "-",
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "LancerAvecWindows":  false
+                     },
+        "sortie":  true,
+        "demarrage_apres":  true,
+        "visible_apres":  "-",
+        "journal":  [
+                        "Lancé avec Windows, mais « Mindset se lance avec Windows » est coupé : rien n\u0027est ouvert"
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "LancerAvecWindows":  false,
+                         "MajMindsetDemande":  ""
+                     },
+        "sortie":  true,
+        "demarrage_apres":  true,
+        "visible_apres":  "-",
+        "journal":  [
+                        "Lancé avec Windows, mais « Mindset se lance avec Windows » est coupé : rien n\u0027est ouvert"
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "LancerAvecWindows":  false,
+                         "MajMindsetDemande":  "0123456789abcdef0123456789abcdef"
+                     },
+        "sortie":  false,
+        "demarrage_apres":  true,
+        "visible_apres":  "-",
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "LancerAvecWindows":  false,
+                         "MajMindsetDemande":  0
+                     },
+        "sortie":  true,
+        "demarrage_apres":  true,
+        "visible_apres":  "-",
+        "journal":  [
+                        "Lancé avec Windows, mais « Mindset se lance avec Windows » est coupé : rien n\u0027est ouvert"
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "LancerAvecWindows":  0
+                     },
+        "sortie":  true,
+        "demarrage_apres":  true,
+        "visible_apres":  "-",
+        "journal":  [
+                        "Lancé avec Windows, mais « Mindset se lance avec Windows » est coupé : rien n\u0027est ouvert"
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "LancerAvecWindows":  0,
+                         "MajMindsetDemande":  ""
+                     },
+        "sortie":  true,
+        "demarrage_apres":  true,
+        "visible_apres":  "-",
+        "journal":  [
+                        "Lancé avec Windows, mais « Mindset se lance avec Windows » est coupé : rien n\u0027est ouvert"
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "LancerAvecWindows":  0,
+                         "MajMindsetDemande":  "0123456789abcdef0123456789abcdef"
+                     },
+        "sortie":  false,
+        "demarrage_apres":  true,
+        "visible_apres":  "-",
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "LancerAvecWindows":  0,
+                         "MajMindsetDemande":  0
+                     },
+        "sortie":  true,
+        "demarrage_apres":  true,
+        "visible_apres":  "-",
+        "journal":  [
+                        "Lancé avec Windows, mais « Mindset se lance avec Windows » est coupé : rien n\u0027est ouvert"
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "LancerAvecWindows":  ""
+                     },
+        "sortie":  true,
+        "demarrage_apres":  true,
+        "visible_apres":  "-",
+        "journal":  [
+                        "Lancé avec Windows, mais « Mindset se lance avec Windows » est coupé : rien n\u0027est ouvert"
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "LancerAvecWindows":  "",
+                         "MajMindsetDemande":  ""
+                     },
+        "sortie":  true,
+        "demarrage_apres":  true,
+        "visible_apres":  "-",
+        "journal":  [
+                        "Lancé avec Windows, mais « Mindset se lance avec Windows » est coupé : rien n\u0027est ouvert"
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "LancerAvecWindows":  "",
+                         "MajMindsetDemande":  "0123456789abcdef0123456789abcdef"
+                     },
+        "sortie":  false,
+        "demarrage_apres":  true,
+        "visible_apres":  "-",
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "LancerAvecWindows":  "",
+                         "MajMindsetDemande":  0
+                     },
+        "sortie":  true,
+        "demarrage_apres":  true,
+        "visible_apres":  "-",
+        "journal":  [
+                        "Lancé avec Windows, mais « Mindset se lance avec Windows » est coupé : rien n\u0027est ouvert"
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "MajMindsetVisible":  true
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  false,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "MajMindsetDemande":  "",
+                         "MajMindsetVisible":  true
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  false,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "MajMindsetDemande":  "0123456789abcdef0123456789abcdef",
+                         "MajMindsetVisible":  true
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  false,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "MajMindsetDemande":  0,
+                         "MajMindsetVisible":  true
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  false,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "LancerAvecWindows":  true,
+                         "MajMindsetVisible":  true
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  false,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "LancerAvecWindows":  true,
+                         "MajMindsetDemande":  "",
+                         "MajMindsetVisible":  true
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  false,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "LancerAvecWindows":  true,
+                         "MajMindsetDemande":  "0123456789abcdef0123456789abcdef",
+                         "MajMindsetVisible":  true
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  false,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "LancerAvecWindows":  true,
+                         "MajMindsetDemande":  0,
+                         "MajMindsetVisible":  true
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  false,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "LancerAvecWindows":  false,
+                         "MajMindsetVisible":  true
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  false,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "LancerAvecWindows":  false,
+                         "MajMindsetDemande":  "",
+                         "MajMindsetVisible":  true
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  false,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "LancerAvecWindows":  false,
+                         "MajMindsetDemande":  "0123456789abcdef0123456789abcdef",
+                         "MajMindsetVisible":  true
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  false,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "LancerAvecWindows":  false,
+                         "MajMindsetDemande":  0,
+                         "MajMindsetVisible":  true
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  false,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "LancerAvecWindows":  0,
+                         "MajMindsetVisible":  true
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  false,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "LancerAvecWindows":  0,
+                         "MajMindsetDemande":  "",
+                         "MajMindsetVisible":  true
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  false,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "LancerAvecWindows":  0,
+                         "MajMindsetDemande":  "0123456789abcdef0123456789abcdef",
+                         "MajMindsetVisible":  true
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  false,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "LancerAvecWindows":  0,
+                         "MajMindsetDemande":  0,
+                         "MajMindsetVisible":  true
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  false,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "LancerAvecWindows":  "",
+                         "MajMindsetVisible":  true
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  false,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "LancerAvecWindows":  "",
+                         "MajMindsetDemande":  "",
+                         "MajMindsetVisible":  true
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  false,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "LancerAvecWindows":  "",
+                         "MajMindsetDemande":  "0123456789abcdef0123456789abcdef",
+                         "MajMindsetVisible":  true
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  false,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "LancerAvecWindows":  "",
+                         "MajMindsetDemande":  0,
+                         "MajMindsetVisible":  true
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  false,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "MajMindsetVisible":  false
+                     },
+        "sortie":  false,
+        "demarrage_apres":  true,
+        "visible_apres":  false,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "MajMindsetDemande":  "",
+                         "MajMindsetVisible":  false
+                     },
+        "sortie":  false,
+        "demarrage_apres":  true,
+        "visible_apres":  false,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "MajMindsetDemande":  "0123456789abcdef0123456789abcdef",
+                         "MajMindsetVisible":  false
+                     },
+        "sortie":  false,
+        "demarrage_apres":  true,
+        "visible_apres":  false,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "MajMindsetDemande":  0,
+                         "MajMindsetVisible":  false
+                     },
+        "sortie":  false,
+        "demarrage_apres":  true,
+        "visible_apres":  false,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "LancerAvecWindows":  true,
+                         "MajMindsetVisible":  false
+                     },
+        "sortie":  false,
+        "demarrage_apres":  true,
+        "visible_apres":  false,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "LancerAvecWindows":  true,
+                         "MajMindsetDemande":  "",
+                         "MajMindsetVisible":  false
+                     },
+        "sortie":  false,
+        "demarrage_apres":  true,
+        "visible_apres":  false,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "LancerAvecWindows":  true,
+                         "MajMindsetDemande":  "0123456789abcdef0123456789abcdef",
+                         "MajMindsetVisible":  false
+                     },
+        "sortie":  false,
+        "demarrage_apres":  true,
+        "visible_apres":  false,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "LancerAvecWindows":  true,
+                         "MajMindsetDemande":  0,
+                         "MajMindsetVisible":  false
+                     },
+        "sortie":  false,
+        "demarrage_apres":  true,
+        "visible_apres":  false,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "LancerAvecWindows":  false,
+                         "MajMindsetVisible":  false
+                     },
+        "sortie":  true,
+        "demarrage_apres":  true,
+        "visible_apres":  false,
+        "journal":  [
+                        "Lancé avec Windows, mais « Mindset se lance avec Windows » est coupé : rien n\u0027est ouvert"
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "LancerAvecWindows":  false,
+                         "MajMindsetDemande":  "",
+                         "MajMindsetVisible":  false
+                     },
+        "sortie":  true,
+        "demarrage_apres":  true,
+        "visible_apres":  false,
+        "journal":  [
+                        "Lancé avec Windows, mais « Mindset se lance avec Windows » est coupé : rien n\u0027est ouvert"
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "LancerAvecWindows":  false,
+                         "MajMindsetDemande":  "0123456789abcdef0123456789abcdef",
+                         "MajMindsetVisible":  false
+                     },
+        "sortie":  false,
+        "demarrage_apres":  true,
+        "visible_apres":  false,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "LancerAvecWindows":  false,
+                         "MajMindsetDemande":  0,
+                         "MajMindsetVisible":  false
+                     },
+        "sortie":  true,
+        "demarrage_apres":  true,
+        "visible_apres":  false,
+        "journal":  [
+                        "Lancé avec Windows, mais « Mindset se lance avec Windows » est coupé : rien n\u0027est ouvert"
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "LancerAvecWindows":  0,
+                         "MajMindsetVisible":  false
+                     },
+        "sortie":  true,
+        "demarrage_apres":  true,
+        "visible_apres":  false,
+        "journal":  [
+                        "Lancé avec Windows, mais « Mindset se lance avec Windows » est coupé : rien n\u0027est ouvert"
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "LancerAvecWindows":  0,
+                         "MajMindsetDemande":  "",
+                         "MajMindsetVisible":  false
+                     },
+        "sortie":  true,
+        "demarrage_apres":  true,
+        "visible_apres":  false,
+        "journal":  [
+                        "Lancé avec Windows, mais « Mindset se lance avec Windows » est coupé : rien n\u0027est ouvert"
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "LancerAvecWindows":  0,
+                         "MajMindsetDemande":  "0123456789abcdef0123456789abcdef",
+                         "MajMindsetVisible":  false
+                     },
+        "sortie":  false,
+        "demarrage_apres":  true,
+        "visible_apres":  false,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "LancerAvecWindows":  0,
+                         "MajMindsetDemande":  0,
+                         "MajMindsetVisible":  false
+                     },
+        "sortie":  true,
+        "demarrage_apres":  true,
+        "visible_apres":  false,
+        "journal":  [
+                        "Lancé avec Windows, mais « Mindset se lance avec Windows » est coupé : rien n\u0027est ouvert"
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "LancerAvecWindows":  "",
+                         "MajMindsetVisible":  false
+                     },
+        "sortie":  true,
+        "demarrage_apres":  true,
+        "visible_apres":  false,
+        "journal":  [
+                        "Lancé avec Windows, mais « Mindset se lance avec Windows » est coupé : rien n\u0027est ouvert"
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "LancerAvecWindows":  "",
+                         "MajMindsetDemande":  "",
+                         "MajMindsetVisible":  false
+                     },
+        "sortie":  true,
+        "demarrage_apres":  true,
+        "visible_apres":  false,
+        "journal":  [
+                        "Lancé avec Windows, mais « Mindset se lance avec Windows » est coupé : rien n\u0027est ouvert"
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "LancerAvecWindows":  "",
+                         "MajMindsetDemande":  "0123456789abcdef0123456789abcdef",
+                         "MajMindsetVisible":  false
+                     },
+        "sortie":  false,
+        "demarrage_apres":  true,
+        "visible_apres":  false,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "LancerAvecWindows":  "",
+                         "MajMindsetDemande":  0,
+                         "MajMindsetVisible":  false
+                     },
+        "sortie":  true,
+        "demarrage_apres":  true,
+        "visible_apres":  false,
+        "journal":  [
+                        "Lancé avec Windows, mais « Mindset se lance avec Windows » est coupé : rien n\u0027est ouvert"
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "MajMindsetVisible":  "x"
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  false,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "MajMindsetDemande":  "",
+                         "MajMindsetVisible":  "x"
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  false,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "MajMindsetDemande":  "0123456789abcdef0123456789abcdef",
+                         "MajMindsetVisible":  "x"
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  false,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "MajMindsetDemande":  0,
+                         "MajMindsetVisible":  "x"
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  false,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "LancerAvecWindows":  true,
+                         "MajMindsetVisible":  "x"
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  false,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "LancerAvecWindows":  true,
+                         "MajMindsetDemande":  "",
+                         "MajMindsetVisible":  "x"
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  false,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "LancerAvecWindows":  true,
+                         "MajMindsetDemande":  "0123456789abcdef0123456789abcdef",
+                         "MajMindsetVisible":  "x"
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  false,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "LancerAvecWindows":  true,
+                         "MajMindsetDemande":  0,
+                         "MajMindsetVisible":  "x"
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  false,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "LancerAvecWindows":  false,
+                         "MajMindsetVisible":  "x"
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  false,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "LancerAvecWindows":  false,
+                         "MajMindsetDemande":  "",
+                         "MajMindsetVisible":  "x"
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  false,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "LancerAvecWindows":  false,
+                         "MajMindsetDemande":  "0123456789abcdef0123456789abcdef",
+                         "MajMindsetVisible":  "x"
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  false,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "LancerAvecWindows":  false,
+                         "MajMindsetDemande":  0,
+                         "MajMindsetVisible":  "x"
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  false,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "LancerAvecWindows":  0,
+                         "MajMindsetVisible":  "x"
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  false,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "LancerAvecWindows":  0,
+                         "MajMindsetDemande":  "",
+                         "MajMindsetVisible":  "x"
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  false,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "LancerAvecWindows":  0,
+                         "MajMindsetDemande":  "0123456789abcdef0123456789abcdef",
+                         "MajMindsetVisible":  "x"
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  false,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "LancerAvecWindows":  0,
+                         "MajMindsetDemande":  0,
+                         "MajMindsetVisible":  "x"
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  false,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "LancerAvecWindows":  "",
+                         "MajMindsetVisible":  "x"
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  false,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "LancerAvecWindows":  "",
+                         "MajMindsetDemande":  "",
+                         "MajMindsetVisible":  "x"
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  false,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "LancerAvecWindows":  "",
+                         "MajMindsetDemande":  "0123456789abcdef0123456789abcdef",
+                         "MajMindsetVisible":  "x"
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  false,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "LancerAvecWindows":  "",
+                         "MajMindsetDemande":  0,
+                         "MajMindsetVisible":  "x"
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  false,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "MajMindsetVisible":  0
+                     },
+        "sortie":  false,
+        "demarrage_apres":  true,
+        "visible_apres":  0,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "MajMindsetDemande":  "",
+                         "MajMindsetVisible":  0
+                     },
+        "sortie":  false,
+        "demarrage_apres":  true,
+        "visible_apres":  0,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "MajMindsetDemande":  "0123456789abcdef0123456789abcdef",
+                         "MajMindsetVisible":  0
+                     },
+        "sortie":  false,
+        "demarrage_apres":  true,
+        "visible_apres":  0,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "MajMindsetDemande":  0,
+                         "MajMindsetVisible":  0
+                     },
+        "sortie":  false,
+        "demarrage_apres":  true,
+        "visible_apres":  0,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "LancerAvecWindows":  true,
+                         "MajMindsetVisible":  0
+                     },
+        "sortie":  false,
+        "demarrage_apres":  true,
+        "visible_apres":  0,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "LancerAvecWindows":  true,
+                         "MajMindsetDemande":  "",
+                         "MajMindsetVisible":  0
+                     },
+        "sortie":  false,
+        "demarrage_apres":  true,
+        "visible_apres":  0,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "LancerAvecWindows":  true,
+                         "MajMindsetDemande":  "0123456789abcdef0123456789abcdef",
+                         "MajMindsetVisible":  0
+                     },
+        "sortie":  false,
+        "demarrage_apres":  true,
+        "visible_apres":  0,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "LancerAvecWindows":  true,
+                         "MajMindsetDemande":  0,
+                         "MajMindsetVisible":  0
+                     },
+        "sortie":  false,
+        "demarrage_apres":  true,
+        "visible_apres":  0,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "LancerAvecWindows":  false,
+                         "MajMindsetVisible":  0
+                     },
+        "sortie":  true,
+        "demarrage_apres":  true,
+        "visible_apres":  0,
+        "journal":  [
+                        "Lancé avec Windows, mais « Mindset se lance avec Windows » est coupé : rien n\u0027est ouvert"
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "LancerAvecWindows":  false,
+                         "MajMindsetDemande":  "",
+                         "MajMindsetVisible":  0
+                     },
+        "sortie":  true,
+        "demarrage_apres":  true,
+        "visible_apres":  0,
+        "journal":  [
+                        "Lancé avec Windows, mais « Mindset se lance avec Windows » est coupé : rien n\u0027est ouvert"
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "LancerAvecWindows":  false,
+                         "MajMindsetDemande":  "0123456789abcdef0123456789abcdef",
+                         "MajMindsetVisible":  0
+                     },
+        "sortie":  false,
+        "demarrage_apres":  true,
+        "visible_apres":  0,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "LancerAvecWindows":  false,
+                         "MajMindsetDemande":  0,
+                         "MajMindsetVisible":  0
+                     },
+        "sortie":  true,
+        "demarrage_apres":  true,
+        "visible_apres":  0,
+        "journal":  [
+                        "Lancé avec Windows, mais « Mindset se lance avec Windows » est coupé : rien n\u0027est ouvert"
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "LancerAvecWindows":  0,
+                         "MajMindsetVisible":  0
+                     },
+        "sortie":  true,
+        "demarrage_apres":  true,
+        "visible_apres":  0,
+        "journal":  [
+                        "Lancé avec Windows, mais « Mindset se lance avec Windows » est coupé : rien n\u0027est ouvert"
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "LancerAvecWindows":  0,
+                         "MajMindsetDemande":  "",
+                         "MajMindsetVisible":  0
+                     },
+        "sortie":  true,
+        "demarrage_apres":  true,
+        "visible_apres":  0,
+        "journal":  [
+                        "Lancé avec Windows, mais « Mindset se lance avec Windows » est coupé : rien n\u0027est ouvert"
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "LancerAvecWindows":  0,
+                         "MajMindsetDemande":  "0123456789abcdef0123456789abcdef",
+                         "MajMindsetVisible":  0
+                     },
+        "sortie":  false,
+        "demarrage_apres":  true,
+        "visible_apres":  0,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "LancerAvecWindows":  0,
+                         "MajMindsetDemande":  0,
+                         "MajMindsetVisible":  0
+                     },
+        "sortie":  true,
+        "demarrage_apres":  true,
+        "visible_apres":  0,
+        "journal":  [
+                        "Lancé avec Windows, mais « Mindset se lance avec Windows » est coupé : rien n\u0027est ouvert"
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "LancerAvecWindows":  "",
+                         "MajMindsetVisible":  0
+                     },
+        "sortie":  true,
+        "demarrage_apres":  true,
+        "visible_apres":  0,
+        "journal":  [
+                        "Lancé avec Windows, mais « Mindset se lance avec Windows » est coupé : rien n\u0027est ouvert"
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "LancerAvecWindows":  "",
+                         "MajMindsetDemande":  "",
+                         "MajMindsetVisible":  0
+                     },
+        "sortie":  true,
+        "demarrage_apres":  true,
+        "visible_apres":  0,
+        "journal":  [
+                        "Lancé avec Windows, mais « Mindset se lance avec Windows » est coupé : rien n\u0027est ouvert"
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "LancerAvecWindows":  "",
+                         "MajMindsetDemande":  "0123456789abcdef0123456789abcdef",
+                         "MajMindsetVisible":  0
+                     },
+        "sortie":  false,
+        "demarrage_apres":  true,
+        "visible_apres":  0,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  true,
+        "reglages":  {
+                         "LancerAvecWindows":  "",
+                         "MajMindsetDemande":  0,
+                         "MajMindsetVisible":  0
+                     },
+        "sortie":  true,
+        "demarrage_apres":  true,
+        "visible_apres":  0,
+        "journal":  [
+                        "Lancé avec Windows, mais « Mindset se lance avec Windows » est coupé : rien n\u0027est ouvert"
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  "-",
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "MajMindsetDemande":  ""
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  "-",
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "MajMindsetDemande":  "0123456789abcdef0123456789abcdef"
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  "-",
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "MajMindsetDemande":  0
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  "-",
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "LancerAvecWindows":  true
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  "-",
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "LancerAvecWindows":  true,
+                         "MajMindsetDemande":  ""
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  "-",
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "LancerAvecWindows":  true,
+                         "MajMindsetDemande":  "0123456789abcdef0123456789abcdef"
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  "-",
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "LancerAvecWindows":  true,
+                         "MajMindsetDemande":  0
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  "-",
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "LancerAvecWindows":  false
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  "-",
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "LancerAvecWindows":  false,
+                         "MajMindsetDemande":  ""
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  "-",
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "LancerAvecWindows":  false,
+                         "MajMindsetDemande":  "0123456789abcdef0123456789abcdef"
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  "-",
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "LancerAvecWindows":  false,
+                         "MajMindsetDemande":  0
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  "-",
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "LancerAvecWindows":  0
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  "-",
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "LancerAvecWindows":  0,
+                         "MajMindsetDemande":  ""
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  "-",
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "LancerAvecWindows":  0,
+                         "MajMindsetDemande":  "0123456789abcdef0123456789abcdef"
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  "-",
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "LancerAvecWindows":  0,
+                         "MajMindsetDemande":  0
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  "-",
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "LancerAvecWindows":  ""
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  "-",
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "LancerAvecWindows":  "",
+                         "MajMindsetDemande":  ""
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  "-",
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "LancerAvecWindows":  "",
+                         "MajMindsetDemande":  "0123456789abcdef0123456789abcdef"
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  "-",
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "LancerAvecWindows":  "",
+                         "MajMindsetDemande":  0
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  "-",
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "MajMindsetVisible":  true
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  true,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "MajMindsetDemande":  "",
+                         "MajMindsetVisible":  true
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  true,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "MajMindsetDemande":  "0123456789abcdef0123456789abcdef",
+                         "MajMindsetVisible":  true
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  true,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "MajMindsetDemande":  0,
+                         "MajMindsetVisible":  true
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  true,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "LancerAvecWindows":  true,
+                         "MajMindsetVisible":  true
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  true,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "LancerAvecWindows":  true,
+                         "MajMindsetDemande":  "",
+                         "MajMindsetVisible":  true
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  true,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "LancerAvecWindows":  true,
+                         "MajMindsetDemande":  "0123456789abcdef0123456789abcdef",
+                         "MajMindsetVisible":  true
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  true,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "LancerAvecWindows":  true,
+                         "MajMindsetDemande":  0,
+                         "MajMindsetVisible":  true
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  true,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "LancerAvecWindows":  false,
+                         "MajMindsetVisible":  true
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  true,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "LancerAvecWindows":  false,
+                         "MajMindsetDemande":  "",
+                         "MajMindsetVisible":  true
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  true,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "LancerAvecWindows":  false,
+                         "MajMindsetDemande":  "0123456789abcdef0123456789abcdef",
+                         "MajMindsetVisible":  true
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  true,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "LancerAvecWindows":  false,
+                         "MajMindsetDemande":  0,
+                         "MajMindsetVisible":  true
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  true,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "LancerAvecWindows":  0,
+                         "MajMindsetVisible":  true
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  true,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "LancerAvecWindows":  0,
+                         "MajMindsetDemande":  "",
+                         "MajMindsetVisible":  true
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  true,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "LancerAvecWindows":  0,
+                         "MajMindsetDemande":  "0123456789abcdef0123456789abcdef",
+                         "MajMindsetVisible":  true
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  true,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "LancerAvecWindows":  0,
+                         "MajMindsetDemande":  0,
+                         "MajMindsetVisible":  true
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  true,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "LancerAvecWindows":  "",
+                         "MajMindsetVisible":  true
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  true,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "LancerAvecWindows":  "",
+                         "MajMindsetDemande":  "",
+                         "MajMindsetVisible":  true
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  true,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "LancerAvecWindows":  "",
+                         "MajMindsetDemande":  "0123456789abcdef0123456789abcdef",
+                         "MajMindsetVisible":  true
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  true,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "LancerAvecWindows":  "",
+                         "MajMindsetDemande":  0,
+                         "MajMindsetVisible":  true
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  true,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "MajMindsetVisible":  false
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  false,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "MajMindsetDemande":  "",
+                         "MajMindsetVisible":  false
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  false,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "MajMindsetDemande":  "0123456789abcdef0123456789abcdef",
+                         "MajMindsetVisible":  false
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  false,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "MajMindsetDemande":  0,
+                         "MajMindsetVisible":  false
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  false,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "LancerAvecWindows":  true,
+                         "MajMindsetVisible":  false
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  false,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "LancerAvecWindows":  true,
+                         "MajMindsetDemande":  "",
+                         "MajMindsetVisible":  false
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  false,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "LancerAvecWindows":  true,
+                         "MajMindsetDemande":  "0123456789abcdef0123456789abcdef",
+                         "MajMindsetVisible":  false
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  false,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "LancerAvecWindows":  true,
+                         "MajMindsetDemande":  0,
+                         "MajMindsetVisible":  false
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  false,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "LancerAvecWindows":  false,
+                         "MajMindsetVisible":  false
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  false,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "LancerAvecWindows":  false,
+                         "MajMindsetDemande":  "",
+                         "MajMindsetVisible":  false
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  false,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "LancerAvecWindows":  false,
+                         "MajMindsetDemande":  "0123456789abcdef0123456789abcdef",
+                         "MajMindsetVisible":  false
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  false,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "LancerAvecWindows":  false,
+                         "MajMindsetDemande":  0,
+                         "MajMindsetVisible":  false
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  false,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "LancerAvecWindows":  0,
+                         "MajMindsetVisible":  false
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  false,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "LancerAvecWindows":  0,
+                         "MajMindsetDemande":  "",
+                         "MajMindsetVisible":  false
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  false,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "LancerAvecWindows":  0,
+                         "MajMindsetDemande":  "0123456789abcdef0123456789abcdef",
+                         "MajMindsetVisible":  false
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  false,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "LancerAvecWindows":  0,
+                         "MajMindsetDemande":  0,
+                         "MajMindsetVisible":  false
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  false,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "LancerAvecWindows":  "",
+                         "MajMindsetVisible":  false
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  false,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "LancerAvecWindows":  "",
+                         "MajMindsetDemande":  "",
+                         "MajMindsetVisible":  false
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  false,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "LancerAvecWindows":  "",
+                         "MajMindsetDemande":  "0123456789abcdef0123456789abcdef",
+                         "MajMindsetVisible":  false
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  false,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "LancerAvecWindows":  "",
+                         "MajMindsetDemande":  0,
+                         "MajMindsetVisible":  false
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  false,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "MajMindsetVisible":  "x"
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  "x",
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "MajMindsetDemande":  "",
+                         "MajMindsetVisible":  "x"
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  "x",
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "MajMindsetDemande":  "0123456789abcdef0123456789abcdef",
+                         "MajMindsetVisible":  "x"
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  "x",
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "MajMindsetDemande":  0,
+                         "MajMindsetVisible":  "x"
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  "x",
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "LancerAvecWindows":  true,
+                         "MajMindsetVisible":  "x"
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  "x",
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "LancerAvecWindows":  true,
+                         "MajMindsetDemande":  "",
+                         "MajMindsetVisible":  "x"
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  "x",
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "LancerAvecWindows":  true,
+                         "MajMindsetDemande":  "0123456789abcdef0123456789abcdef",
+                         "MajMindsetVisible":  "x"
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  "x",
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "LancerAvecWindows":  true,
+                         "MajMindsetDemande":  0,
+                         "MajMindsetVisible":  "x"
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  "x",
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "LancerAvecWindows":  false,
+                         "MajMindsetVisible":  "x"
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  "x",
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "LancerAvecWindows":  false,
+                         "MajMindsetDemande":  "",
+                         "MajMindsetVisible":  "x"
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  "x",
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "LancerAvecWindows":  false,
+                         "MajMindsetDemande":  "0123456789abcdef0123456789abcdef",
+                         "MajMindsetVisible":  "x"
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  "x",
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "LancerAvecWindows":  false,
+                         "MajMindsetDemande":  0,
+                         "MajMindsetVisible":  "x"
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  "x",
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "LancerAvecWindows":  0,
+                         "MajMindsetVisible":  "x"
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  "x",
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "LancerAvecWindows":  0,
+                         "MajMindsetDemande":  "",
+                         "MajMindsetVisible":  "x"
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  "x",
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "LancerAvecWindows":  0,
+                         "MajMindsetDemande":  "0123456789abcdef0123456789abcdef",
+                         "MajMindsetVisible":  "x"
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  "x",
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "LancerAvecWindows":  0,
+                         "MajMindsetDemande":  0,
+                         "MajMindsetVisible":  "x"
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  "x",
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "LancerAvecWindows":  "",
+                         "MajMindsetVisible":  "x"
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  "x",
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "LancerAvecWindows":  "",
+                         "MajMindsetDemande":  "",
+                         "MajMindsetVisible":  "x"
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  "x",
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "LancerAvecWindows":  "",
+                         "MajMindsetDemande":  "0123456789abcdef0123456789abcdef",
+                         "MajMindsetVisible":  "x"
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  "x",
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "LancerAvecWindows":  "",
+                         "MajMindsetDemande":  0,
+                         "MajMindsetVisible":  "x"
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  "x",
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "MajMindsetVisible":  0
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  0,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "MajMindsetDemande":  "",
+                         "MajMindsetVisible":  0
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  0,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "MajMindsetDemande":  "0123456789abcdef0123456789abcdef",
+                         "MajMindsetVisible":  0
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  0,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "MajMindsetDemande":  0,
+                         "MajMindsetVisible":  0
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  0,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "LancerAvecWindows":  true,
+                         "MajMindsetVisible":  0
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  0,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "LancerAvecWindows":  true,
+                         "MajMindsetDemande":  "",
+                         "MajMindsetVisible":  0
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  0,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "LancerAvecWindows":  true,
+                         "MajMindsetDemande":  "0123456789abcdef0123456789abcdef",
+                         "MajMindsetVisible":  0
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  0,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "LancerAvecWindows":  true,
+                         "MajMindsetDemande":  0,
+                         "MajMindsetVisible":  0
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  0,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "LancerAvecWindows":  false,
+                         "MajMindsetVisible":  0
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  0,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "LancerAvecWindows":  false,
+                         "MajMindsetDemande":  "",
+                         "MajMindsetVisible":  0
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  0,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "LancerAvecWindows":  false,
+                         "MajMindsetDemande":  "0123456789abcdef0123456789abcdef",
+                         "MajMindsetVisible":  0
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  0,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "LancerAvecWindows":  false,
+                         "MajMindsetDemande":  0,
+                         "MajMindsetVisible":  0
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  0,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "LancerAvecWindows":  0,
+                         "MajMindsetVisible":  0
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  0,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "LancerAvecWindows":  0,
+                         "MajMindsetDemande":  "",
+                         "MajMindsetVisible":  0
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  0,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "LancerAvecWindows":  0,
+                         "MajMindsetDemande":  "0123456789abcdef0123456789abcdef",
+                         "MajMindsetVisible":  0
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  0,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "LancerAvecWindows":  0,
+                         "MajMindsetDemande":  0,
+                         "MajMindsetVisible":  0
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  0,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "LancerAvecWindows":  "",
+                         "MajMindsetVisible":  0
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  0,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "LancerAvecWindows":  "",
+                         "MajMindsetDemande":  "",
+                         "MajMindsetVisible":  0
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  0,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "LancerAvecWindows":  "",
+                         "MajMindsetDemande":  "0123456789abcdef0123456789abcdef",
+                         "MajMindsetVisible":  0
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  0,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "demarrage":  false,
+        "reglages":  {
+                         "LancerAvecWindows":  "",
+                         "MajMindsetDemande":  0,
+                         "MajMindsetVisible":  0
+                     },
+        "sortie":  false,
+        "demarrage_apres":  false,
+        "visible_apres":  0,
+        "journal":  [
+
+                    ]
+    }
+]

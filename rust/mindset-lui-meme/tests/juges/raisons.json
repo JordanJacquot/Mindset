@@ -1,0 +1,2092 @@
+[
+    {
+        "nom":  "Mindcare",
+        "message":  "Échec : Mindcare est encore ouvert",
+        "attendu":  "Mindcare était encore ouvert et n\u0027a pas pu être fermé."
+    },
+    {
+        "nom":  "Mindcare",
+        "message":  "Les fichiers sont utilisés par un autre programme",
+        "attendu":  "Mindcare était encore ouvert et n\u0027a pas pu être fermé."
+    },
+    {
+        "nom":  "Mindcare",
+        "message":  "The process cannot access the file because it is being used by another process",
+        "attendu":  "Mindcare était encore ouvert et n\u0027a pas pu être fermé."
+    },
+    {
+        "nom":  "Mindcare",
+        "message":  "la signature de la version 1.2.0 est invalide",
+        "attendu":  "Le fichier téléchargé n\u0027a pas passé la vérification de sécurité : rien n\u0027a été changé."
+    },
+    {
+        "nom":  "Mindcare",
+        "message":  "la tâche d\u0027installation ne répond pas",
+        "attendu":  "L\u0027outil d\u0027installation de Mindset n\u0027a pas répondu."
+    },
+    {
+        "nom":  "Mindcare",
+        "message":  "Impossible de se connecter au serveur distant",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Mindcare",
+        "message":  "Le délai d\u0027attente est dépassé",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Mindcare",
+        "message":  "Le serveur distant a retourné une erreur : (503) Serveur non disponible.",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Mindcare",
+        "message":  "Il n\u0027y a pas assez d\u0027espace disque.",
+        "attendu":  "Il n\u0027y a plus assez de place sur le disque."
+    },
+    {
+        "nom":  "Mindcare",
+        "message":  "",
+        "attendu":  "Une erreur inconnue l\u0027a arrêtée."
+    },
+    {
+        "nom":  "Mindcare",
+        "message":  "   ",
+        "attendu":  "Une erreur inconnue l\u0027a arrêtée."
+    },
+    {
+        "nom":  "Mindcare",
+        "message":  "Échec :",
+        "attendu":  "Une erreur inconnue l\u0027a arrêtée."
+    },
+    {
+        "nom":  "Mindcare",
+        "message":  "Échec : erreur bizarre",
+        "attendu":  "erreur bizarre."
+    },
+    {
+        "nom":  "Mindcare",
+        "message":  "Fini !",
+        "attendu":  "Fini !"
+    },
+    {
+        "nom":  "Mindcare",
+        "message":  "Vraiment ?",
+        "attendu":  "Vraiment ?"
+    },
+    {
+        "nom":  "Mindcare",
+        "message":  "Point final.\n",
+        "attendu":  "Point final."
+    },
+    {
+        "nom":  "Mindcare",
+        "message":  "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "attendu":  "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx..."
+    },
+    {
+        "nom":  "Mindcare",
+        "message":  "ééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé",
+        "attendu":  "ééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé..."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "éééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé place sur le disque 502.Le serveur distant a retourné une erreur : (404) Introuvable. ",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "impossible de résoudre ",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "\n?bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb ok",
+        "attendu":  "?bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb..."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "timed outbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbFininternet ",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "",
+        "attendu":  "Une erreur inconnue l\u0027a arrêtée."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc Ne Répond Pasne répond pas",
+        "attendu":  "L\u0027outil d\u0027installation de Mindset n\u0027a pas répondu."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "",
+        "attendu":  "Une erreur inconnue l\u0027a arrêtée."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "ﬁnaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaréseauﬁn ",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "\t\r\n timedout",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "502. ",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "fichiers sont utilisés la tâche d\u0027installation ne répond pas (pas de réponse de la tâche en 30 secondes).la tâche d\u0027installation ne répond pas (pas de réponse de la tâche en 30 secondes). ",
+        "attendu":  "Evermind était encore ouvert et n\u0027a pas pu être fermé."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "SIGNATURE échec: place sur le disqueÉCHEC :",
+        "attendu":  "Le fichier téléchargé n\u0027a pas passé la vérification de sécurité : rien n\u0027a été changé."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "fichiers sont utilisésﬁn éééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé ",
+        "attendu":  "Evermind était encore ouvert et n\u0027a pas pu être fermé."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "",
+        "attendu":  "Une erreur inconnue l\u0027a arrêtée."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "impossible de résoudre",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "123 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "attendu":  "123 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc..."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa x429yAccès refusé",
+        "attendu":  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa..."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "\nplace sur le disque",
+        "attendu":  "Il n\u0027y a plus assez de place sur le disque."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "",
+        "attendu":  "Une erreur inconnue l\u0027a arrêtée."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "délai dépasséNe Répond PasMindcare est encore ouvert(403)",
+        "attendu":  "Evermind était encore ouvert et n\u0027a pas pu être fermé."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "ÉCHEC :",
+        "attendu":  "Une erreur inconnue l\u0027a arrêtée."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  ". ",
+        "attendu":  "."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc? ",
+        "attendu":  "ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc..."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "erreur 404quelque chosela tâche d\u0027installation ne répond pas (pas de réponse de la tâche en 30 secondes).",
+        "attendu":  "L\u0027outil d\u0027installation de Mindset n\u0027a pas répondu."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "(403)erreur 404 impossible de résoudre ",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  ".ne répond pasquelque chose impossible de résoudre",
+        "attendu":  "L\u0027outil d\u0027installation de Mindset n\u0027a pas répondu."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "  timeout",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "",
+        "attendu":  "Une erreur inconnue l\u0027a arrêtée."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "timed out time out",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "serveur distant 🙂 ",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "la tâche d\u0027installation ne répond pas (pas de réponse de la tâche en 30 secondes).",
+        "attendu":  "L\u0027outil d\u0027installation de Mindset n\u0027a pas répondu."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "",
+        "attendu":  "Une erreur inconnue l\u0027a arrêtée."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "ﬁn Mindcare est encore ouvert (403) Mindcare est encore ouvert",
+        "attendu":  "Café crème était encore ouvert et n\u0027a pas pu être fermé."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "code 4040",
+        "attendu":  "code 4040."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "time out",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "_500 ",
+        "attendu":  "_500."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "🙂SIGNATURE  503 ",
+        "attendu":  "Le fichier téléchargé n\u0027a pas passé la vérification de sécurité : rien n\u0027a été changé."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "place sur le disque Le serveur distant a retourné une erreur : (404) Introuvable. ",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "Remote aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa code 4040",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "",
+        "attendu":  "Une erreur inconnue l\u0027a arrêtée."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "timedoutéchec:",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "502.réseau ",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "fichiers sont utilisés ?. ",
+        "attendu":  "Nevermind était encore ouvert et n\u0027a pas pu être fermé."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "!",
+        "attendu":  "!"
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "_500erreur 404",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "",
+        "attendu":  "Une erreur inconnue l\u0027a arrêtée."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  " 503 Fin impossible de résoudreÉCHEC : ",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "Échec :  503 FinRemote",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "time out",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "connexion perduetimedoututilisé par un autre processus délai dépassé ",
+        "attendu":  "Evermind était encore ouvert et n\u0027a pas pu être fermé."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "signature invalide",
+        "attendu":  "Le fichier téléchargé n\u0027a pas passé la vérification de sécurité : rien n\u0027a été changé."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "timeoutNe Répond Paserreur 404",
+        "attendu":  "L\u0027outil d\u0027installation de Mindset n\u0027a pas répondu."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "échec:ﬁn",
+        "attendu":  "ﬁn."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "SIGNATURE 503 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc Le serveur distant a retourné une erreur : (404) Introuvable.",
+        "attendu":  "Le fichier téléchargé n\u0027a pas passé la vérification de sécurité : rien n\u0027a été changé."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "Hôteespace disque",
+        "attendu":  "Il n\u0027y a plus assez de place sur le disque."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "502.",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "x429ySIGNATUREsignature invalide",
+        "attendu":  "Le fichier téléchargé n\u0027a pas passé la vérification de sécurité : rien n\u0027a été changé."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "(403)place sur le disquefichiers sont utilisés",
+        "attendu":  "Café crème était encore ouvert et n\u0027a pas pu être fermé."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "la tâche d\u0027installation ne répond pas (pas de réponse de la tâche en 30 secondes). 502. aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "attendu":  "L\u0027outil d\u0027installation de Mindset n\u0027a pas répondu."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "Le serveur distant a retourné une erreur : (404) Introuvable.internetÉCHEC :",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "time out Remote ",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "la tâche d\u0027installation ne répond pas (pas de réponse de la tâche en 30 secondes).place sur le disque code 4040aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "attendu":  "L\u0027outil d\u0027installation de Mindset n\u0027a pas répondu."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "",
+        "attendu":  "Une erreur inconnue l\u0027a arrêtée."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "serveur distant 🙂 Fin ",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa?",
+        "attendu":  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa?"
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "connexion perdue échec:ﬁn",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "erreur 404not enough spaceFinFin ",
+        "attendu":  "Il n\u0027y a plus assez de place sur le disque."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "",
+        "attendu":  "Une erreur inconnue l\u0027a arrêtée."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "serveur distant ",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "",
+        "attendu":  "Une erreur inconnue l\u0027a arrêtée."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "\r\n ",
+        "attendu":  "Une erreur inconnue l\u0027a arrêtée."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "Ne Répond Passerveur distant",
+        "attendu":  "L\u0027outil d\u0027installation de Mindset n\u0027a pas répondu."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "502.ne répond pas time out",
+        "attendu":  "L\u0027outil d\u0027installation de Mindset n\u0027a pas répondu."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "not enough space ",
+        "attendu":  "Il n\u0027y a plus assez de place sur le disque."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "_500  fichiers sont utilisés ",
+        "attendu":  "Mindset était encore ouvert et n\u0027a pas pu être fermé."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "disque plein",
+        "attendu":  "Il n\u0027y a plus assez de place sur le disque."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "Échec :  Le serveur distant a retourné une erreur : (404) Introuvable. serveur distant",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "",
+        "attendu":  "Une erreur inconnue l\u0027a arrêtée."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "",
+        "attendu":  "Une erreur inconnue l\u0027a arrêtée."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "Hôte  signature invalide ",
+        "attendu":  "Le fichier téléchargé n\u0027a pas passé la vérification de sécurité : rien n\u0027a été changé."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "",
+        "attendu":  "Une erreur inconnue l\u0027a arrêtée."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "x429yRemote? quelque chose",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "signature invalideutilisé par un autre processus \n",
+        "attendu":  "Café crème était encore ouvert et n\u0027a pas pu être fermé."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "éééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé ? aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.",
+        "attendu":  "ééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé..."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "Mindcare est encore ouvert",
+        "attendu":  "Evermind était encore ouvert et n\u0027a pas pu être fermé."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "espace disque ",
+        "attendu":  "Il n\u0027y a plus assez de place sur le disque."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "not enough space",
+        "attendu":  "Il n\u0027y a plus assez de place sur le disque."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "",
+        "attendu":  "Une erreur inconnue l\u0027a arrêtée."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "   erreur 404serveur distant ",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "délai dépassé",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "délai dépassé Accès refuséccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc 123 ",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "internetok ne répond pas",
+        "attendu":  "L\u0027outil d\u0027installation de Mindset n\u0027a pas répondu."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "",
+        "attendu":  "Une erreur inconnue l\u0027a arrêtée."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "\n délai dépassé🙂",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "",
+        "attendu":  "Une erreur inconnue l\u0027a arrêtée."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "fichiers sont utilisés🙂\n",
+        "attendu":  "Nevermind était encore ouvert et n\u0027a pas pu être fermé."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "123connexion perdue timedout ",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "(403) aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaMindcare est encore ouvert ",
+        "attendu":  "Mindset était encore ouvert et n\u0027a pas pu être fermé."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "internet cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccÉchec : ",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "utilisé par un autre processusAccès refusébbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "attendu":  "Evermind était encore ouvert et n\u0027a pas pu être fermé."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "\nbeing used",
+        "attendu":  "Evermind était encore ouvert et n\u0027a pas pu être fermé."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "quelque choseccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc Hôte",
+        "attendu":  "quelque chosecccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc..."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "?not enough space ",
+        "attendu":  "Il n\u0027y a plus assez de place sur le disque."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "\tplace sur le disque",
+        "attendu":  "Il n\u0027y a plus assez de place sur le disque."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "okAccès refusé ",
+        "attendu":  "okAccès refusé."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "",
+        "attendu":  "Une erreur inconnue l\u0027a arrêtée."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "Échec : ",
+        "attendu":  "Une erreur inconnue l\u0027a arrêtée."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "timed out",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "  Accès refusé serveur distantaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "  \tﬁn",
+        "attendu":  "ﬁn."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  ".time outespace disque123 ",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa ",
+        "attendu":  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "éééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé.la tâche d\u0027installation ne répond pas (pas de réponse de la tâche en 30 secondes).",
+        "attendu":  "L\u0027outil d\u0027installation de Mindset n\u0027a pas répondu."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "🙂",
+        "attendu":  "🙂."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "",
+        "attendu":  "Une erreur inconnue l\u0027a arrêtée."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  " 503  x429yespace disqueHôte",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "being used",
+        "attendu":  "Mindset était encore ouvert et n\u0027a pas pu être fermé."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "connexion perdue",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "?fichiers sont utilisésréseau ",
+        "attendu":  "Café crème était encore ouvert et n\u0027a pas pu être fermé."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaacode 4040la tâche d\u0027installation ne répond pas (pas de réponse de la tâche en 30 secondes).",
+        "attendu":  "L\u0027outil d\u0027installation de Mindset n\u0027a pas répondu."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "\n\n",
+        "attendu":  "Une erreur inconnue l\u0027a arrêtée."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "",
+        "attendu":  "Une erreur inconnue l\u0027a arrêtée."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "éééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé",
+        "attendu":  "ééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé..."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "échec:Échec : code 4040",
+        "attendu":  "Échec : code 4040."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "Le serveur distant a retourné une erreur : (404) Introuvable.(403)_500",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "",
+        "attendu":  "Une erreur inconnue l\u0027a arrêtée."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "échec: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbFin",
+        "attendu":  "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb..."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "",
+        "attendu":  "Une erreur inconnue l\u0027a arrêtée."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "",
+        "attendu":  "Une erreur inconnue l\u0027a arrêtée."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "Ne Répond Pasutilisé par un autre processus (403)serveur distant",
+        "attendu":  "Café crème était encore ouvert et n\u0027a pas pu être fermé."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "",
+        "attendu":  "Une erreur inconnue l\u0027a arrêtée."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "not enough space    échec:ÉCHEC : ",
+        "attendu":  "Il n\u0027y a plus assez de place sur le disque."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "",
+        "attendu":  "Une erreur inconnue l\u0027a arrêtée."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "éééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé (403)",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "signature invalide",
+        "attendu":  "Le fichier téléchargé n\u0027a pas passé la vérification de sécurité : rien n\u0027a été changé."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "réseauespace disque ﬁn!",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "ÉCHEC : connexion perdueimpossible de résoudrebeing used ",
+        "attendu":  "Mindset était encore ouvert et n\u0027a pas pu être fermé."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "x429y ",
+        "attendu":  "x429y."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "timedout ÉCHEC :x429y",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  ".",
+        "attendu":  "."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "erreur 404Remote",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "timed outcode 4040",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "Ne Répond Pasne répond pas\n",
+        "attendu":  "L\u0027outil d\u0027installation de Mindset n\u0027a pas répondu."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "",
+        "attendu":  "Une erreur inconnue l\u0027a arrêtée."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "123serveur distant(403) Échec : ",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "place sur le disque_500",
+        "attendu":  "Il n\u0027y a plus assez de place sur le disque."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "?la tâche d\u0027installation ne répond pas (pas de réponse de la tâche en 30 secondes). ",
+        "attendu":  "L\u0027outil d\u0027installation de Mindset n\u0027a pas répondu."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "délai dépassé place sur le disque",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "place sur le disquetimeoutSIGNATURE\n",
+        "attendu":  "Le fichier téléchargé n\u0027a pas passé la vérification de sécurité : rien n\u0027a été changé."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "ÉCHEC : ﬁnx429y",
+        "attendu":  "ﬁnx429y."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "échec:connexion perdue ",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "timedoutéééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "",
+        "attendu":  "Une erreur inconnue l\u0027a arrêtée."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "la tâche d\u0027installation ne répond pas (pas de réponse de la tâche en 30 secondes). Mindcare est encore ouvert",
+        "attendu":  "Mindset était encore ouvert et n\u0027a pas pu être fermé."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "not enough space ? internet",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "Mindcare est encore ouvertÉCHEC :ÉCHEC : ",
+        "attendu":  "Café crème était encore ouvert et n\u0027a pas pu être fermé."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  ". !502.",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "Ne Répond Pas ",
+        "attendu":  "L\u0027outil d\u0027installation de Mindset n\u0027a pas répondu."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "timed out! ",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa ÉCHEC : ",
+        "attendu":  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa..."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "x429y",
+        "attendu":  "x429y."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "time outMindcare est encore ouvert ",
+        "attendu":  "Nevermind était encore ouvert et n\u0027a pas pu être fermé."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "",
+        "attendu":  "Une erreur inconnue l\u0027a arrêtée."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "la tâche d\u0027installation ne répond pas (pas de réponse de la tâche en 30 secondes).ne répond pastimed out",
+        "attendu":  "L\u0027outil d\u0027installation de Mindset n\u0027a pas répondu."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "(403)",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "",
+        "attendu":  "Une erreur inconnue l\u0027a arrêtée."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "",
+        "attendu":  "Une erreur inconnue l\u0027a arrêtée."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "time outespace disquetimeout",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "espace disque ﬁnokéchec: ",
+        "attendu":  "Il n\u0027y a plus assez de place sur le disque."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "connexion perdueinternet ?Ne Répond Pas",
+        "attendu":  "L\u0027outil d\u0027installation de Mindset n\u0027a pas répondu."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "",
+        "attendu":  "Une erreur inconnue l\u0027a arrêtée."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "",
+        "attendu":  "Une erreur inconnue l\u0027a arrêtée."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "ﬁn",
+        "attendu":  "ﬁn."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "not enough spaceerreur 404123",
+        "attendu":  "Il n\u0027y a plus assez de place sur le disque."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "",
+        "attendu":  "Une erreur inconnue l\u0027a arrêtée."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "timed out",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "",
+        "attendu":  "Une erreur inconnue l\u0027a arrêtée."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "la tâche d\u0027installation ne répond pas (pas de réponse de la tâche en 30 secondes).time out Ne Répond Pas",
+        "attendu":  "L\u0027outil d\u0027installation de Mindset n\u0027a pas répondu."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "! x429y",
+        "attendu":  "! x429y."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "place sur le disque\tdisque plein",
+        "attendu":  "Il n\u0027y a plus assez de place sur le disque."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "Finccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccctime out(403)",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "502. ",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "being used",
+        "attendu":  "Evermind était encore ouvert et n\u0027a pas pu être fermé."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "Remotequelque chosebbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "!Ne Répond Pasdisque plein",
+        "attendu":  "L\u0027outil d\u0027installation de Mindset n\u0027a pas répondu."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "ééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééimpossible de résoudrex429ybeing used",
+        "attendu":  "Evermind était encore ouvert et n\u0027a pas pu être fermé."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "Hôte",
+        "attendu":  "Hôte."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "time out ",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "impossible de résoudreréseau ÉCHEC : 123",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "not enough spaceplace sur le disque",
+        "attendu":  "Il n\u0027y a plus assez de place sur le disque."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "serveur distantÉCHEC :réseau",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "internetbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb _500 ",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "🙂Remotequelque chosetimedout ",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "Ne Répond Pasdélai dépasséquelque chose \r\n",
+        "attendu":  "L\u0027outil d\u0027installation de Mindset n\u0027a pas répondu."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "réseau disque plein\t",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "connexion perduesignature invalide",
+        "attendu":  "Le fichier téléchargé n\u0027a pas passé la vérification de sécurité : rien n\u0027a été changé."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "oktime out123",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "SIGNATURE\r\n x429y",
+        "attendu":  "Le fichier téléchargé n\u0027a pas passé la vérification de sécurité : rien n\u0027a été changé."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "erreur 404time outAccès refusé",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "🙂 place sur le disque  ! ",
+        "attendu":  "Il n\u0027y a plus assez de place sur le disque."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "not enough spaceéééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé",
+        "attendu":  "Il n\u0027y a plus assez de place sur le disque."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "",
+        "attendu":  "Une erreur inconnue l\u0027a arrêtée."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "ok !",
+        "attendu":  "ok !"
+    },
+    {
+        "nom":  "Evermind",
+        "message":  " 503 ",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "not enough space ",
+        "attendu":  "Il n\u0027y a plus assez de place sur le disque."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "",
+        "attendu":  "Une erreur inconnue l\u0027a arrêtée."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "ﬁn",
+        "attendu":  "ﬁn."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "\r\n \r\n",
+        "attendu":  "Une erreur inconnue l\u0027a arrêtée."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "fichiers sont utilisés ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccctimedout 502. ",
+        "attendu":  "Café crème était encore ouvert et n\u0027a pas pu être fermé."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "timeoutNe Répond Pastime outnot enough space",
+        "attendu":  "L\u0027outil d\u0027installation de Mindset n\u0027a pas répondu."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "",
+        "attendu":  "Une erreur inconnue l\u0027a arrêtée."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "  Le serveur distant a retourné une erreur : (404) Introuvable.",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  ".serveur distant Accès refusé utilisé par un autre processus",
+        "attendu":  "Nevermind était encore ouvert et n\u0027a pas pu être fermé."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb.SIGNATURE",
+        "attendu":  "Le fichier téléchargé n\u0027a pas passé la vérification de sécurité : rien n\u0027a été changé."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  " 503 Mindcare est encore ouvert ",
+        "attendu":  "Nevermind était encore ouvert et n\u0027a pas pu être fermé."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "Le serveur distant a retourné une erreur : (404) Introuvable.",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "being usedbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "attendu":  "Evermind était encore ouvert et n\u0027a pas pu être fermé."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "code 4040 espace disque éééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé ",
+        "attendu":  "Il n\u0027y a plus assez de place sur le disque."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaanot enough space erreur 404time out ",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "internet ",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "ﬁn impossible de résoudre",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "réseau \r\n ",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "",
+        "attendu":  "Une erreur inconnue l\u0027a arrêtée."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "signature invalide!not enough space Remote",
+        "attendu":  "Le fichier téléchargé n\u0027a pas passé la vérification de sécurité : rien n\u0027a été changé."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "connexion perdueconnexion perdue",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "réseau ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc ",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "\n(403)",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "connexion perdue utilisé par un autre processus",
+        "attendu":  "Evermind était encore ouvert et n\u0027a pas pu être fermé."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "utilisé par un autre processusplace sur le disque",
+        "attendu":  "Nevermind était encore ouvert et n\u0027a pas pu être fermé."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "ÉCHEC : (403).",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "timeout ÉCHEC :",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "!",
+        "attendu":  "!"
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "🙂serveur distanterreur 404Remote",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "?123quelque chose ok",
+        "attendu":  "?123quelque chose ok."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "signature invalidetimedout internet Ne Répond Pas ",
+        "attendu":  "Le fichier téléchargé n\u0027a pas passé la vérification de sécurité : rien n\u0027a été changé."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "\ndélai dépassécccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccréseau ",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "",
+        "attendu":  "Une erreur inconnue l\u0027a arrêtée."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "502.\nconnexion perduetimeout",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "? quelque chose 503  ",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "ne répond pas quelque chose",
+        "attendu":  "L\u0027outil d\u0027installation de Mindset n\u0027a pas répondu."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "ne répond pas ",
+        "attendu":  "L\u0027outil d\u0027installation de Mindset n\u0027a pas répondu."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "",
+        "attendu":  "Une erreur inconnue l\u0027a arrêtée."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "fichiers sont utilisésserveur distant ok",
+        "attendu":  "Nevermind était encore ouvert et n\u0027a pas pu être fermé."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "ééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc ",
+        "attendu":  "ééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé..."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  ".signature invalide   quelque chose",
+        "attendu":  "Le fichier téléchargé n\u0027a pas passé la vérification de sécurité : rien n\u0027a été changé."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "Ne Répond Pas",
+        "attendu":  "L\u0027outil d\u0027installation de Mindset n\u0027a pas répondu."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "Accès refusé utilisé par un autre processus ",
+        "attendu":  "Mindset était encore ouvert et n\u0027a pas pu être fermé."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "place sur le disqueHôtedisque plein",
+        "attendu":  "Il n\u0027y a plus assez de place sur le disque."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "",
+        "attendu":  "Une erreur inconnue l\u0027a arrêtée."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "time outSIGNATURE espace disque ",
+        "attendu":  "Le fichier téléchargé n\u0027a pas passé la vérification de sécurité : rien n\u0027a été changé."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "",
+        "attendu":  "Une erreur inconnue l\u0027a arrêtée."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "ÉCHEC :utilisé par un autre processus ÉCHEC : 502. ",
+        "attendu":  "Café crème était encore ouvert et n\u0027a pas pu être fermé."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "serveur distantne répond pastimedout",
+        "attendu":  "L\u0027outil d\u0027installation de Mindset n\u0027a pas répondu."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "la tâche d\u0027installation ne répond pas (pas de réponse de la tâche en 30 secondes)._500bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb ",
+        "attendu":  "L\u0027outil d\u0027installation de Mindset n\u0027a pas répondu."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "\r\n HôteÉCHEC :",
+        "attendu":  "HôteÉCHEC :."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "",
+        "attendu":  "Une erreur inconnue l\u0027a arrêtée."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "disque pleintimeoututilisé par un autre processustimed out",
+        "attendu":  "Mindset était encore ouvert et n\u0027a pas pu être fermé."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "connexion perdue\r\nutilisé par un autre processus ",
+        "attendu":  "Evermind était encore ouvert et n\u0027a pas pu être fermé."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "time outla tâche d\u0027installation ne répond pas (pas de réponse de la tâche en 30 secondes).délai dépassé ",
+        "attendu":  "L\u0027outil d\u0027installation de Mindset n\u0027a pas répondu."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "SIGNATURE",
+        "attendu":  "Le fichier téléchargé n\u0027a pas passé la vérification de sécurité : rien n\u0027a été changé."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "code 4040 ﬁn",
+        "attendu":  "code 4040 ﬁn."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "x429y ",
+        "attendu":  "x429y."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "ne répond pas ﬁn  503  x429y",
+        "attendu":  "L\u0027outil d\u0027installation de Mindset n\u0027a pas répondu."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "place sur le disqueéééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé SIGNATUREserveur distant ",
+        "attendu":  "Le fichier téléchargé n\u0027a pas passé la vérification de sécurité : rien n\u0027a été changé."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "timedoutbeing usedNe Répond Pas _500",
+        "attendu":  "Mindset était encore ouvert et n\u0027a pas pu être fermé."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "\r\n impossible de résoudretime out",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "",
+        "attendu":  "Une erreur inconnue l\u0027a arrêtée."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "",
+        "attendu":  "Une erreur inconnue l\u0027a arrêtée."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "being usedLe serveur distant a retourné une erreur : (404) Introuvable.Ne Répond PasNe Répond Pas",
+        "attendu":  "Café crème était encore ouvert et n\u0027a pas pu être fermé."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "FinAccès refusé ",
+        "attendu":  "FinAccès refusé."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "",
+        "attendu":  "Une erreur inconnue l\u0027a arrêtée."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "\r\n ",
+        "attendu":  "Une erreur inconnue l\u0027a arrêtée."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "Mindcare est encore ouvertsignature invalide",
+        "attendu":  "Café crème était encore ouvert et n\u0027a pas pu être fermé."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "?réseau ",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "Le serveur distant a retourné une erreur : (404) Introuvable. ﬁn ",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "utilisé par un autre processusaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa connexion perdue",
+        "attendu":  "Nevermind était encore ouvert et n\u0027a pas pu être fermé."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "",
+        "attendu":  "Une erreur inconnue l\u0027a arrêtée."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "ÉCHEC :réseauquelque chose",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "\t",
+        "attendu":  "Une erreur inconnue l\u0027a arrêtée."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "ÉCHEC :Ne Répond Pastimeout ",
+        "attendu":  "L\u0027outil d\u0027installation de Mindset n\u0027a pas répondu."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "ne répond pastimedout ﬁn",
+        "attendu":  "L\u0027outil d\u0027installation de Mindset n\u0027a pas répondu."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "réseau \tdisque pleindélai dépassé",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb x429y",
+        "attendu":  "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb..."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "not enough space",
+        "attendu":  "Il n\u0027y a plus assez de place sur le disque."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "  ",
+        "attendu":  "Une erreur inconnue l\u0027a arrêtée."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "place sur le disque espace disqueéchec: ",
+        "attendu":  "Il n\u0027y a plus assez de place sur le disque."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "ﬁnMindcare est encore ouvert🙂 Ne Répond Pas ",
+        "attendu":  "Evermind était encore ouvert et n\u0027a pas pu être fermé."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  " 503 ",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "signature invalide",
+        "attendu":  "Le fichier téléchargé n\u0027a pas passé la vérification de sécurité : rien n\u0027a été changé."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "",
+        "attendu":  "Une erreur inconnue l\u0027a arrêtée."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "(403)\tx429y ",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "impossible de résoudre",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "ééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééne répond pasespace disquedélai dépassé ",
+        "attendu":  "L\u0027outil d\u0027installation de Mindset n\u0027a pas répondu."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "123",
+        "attendu":  "123."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "impossible de résoudre    SIGNATURE?",
+        "attendu":  "Le fichier téléchargé n\u0027a pas passé la vérification de sécurité : rien n\u0027a été changé."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "ne répond pasbeing used",
+        "attendu":  "Mindset était encore ouvert et n\u0027a pas pu être fermé."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "\n502.échec: fichiers sont utilisés",
+        "attendu":  "Café crème était encore ouvert et n\u0027a pas pu être fermé."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "éééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé ",
+        "attendu":  "ééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé..."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "(403) ",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "\ttimed out\r\n",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  " 503 time out Le serveur distant a retourné une erreur : (404) Introuvable.fichiers sont utilisés ",
+        "attendu":  "Evermind était encore ouvert et n\u0027a pas pu être fermé."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "signature invalideLe serveur distant a retourné une erreur : (404) Introuvable. ",
+        "attendu":  "Le fichier téléchargé n\u0027a pas passé la vérification de sécurité : rien n\u0027a été changé."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "échec:being used",
+        "attendu":  "Evermind était encore ouvert et n\u0027a pas pu être fermé."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "utilisé par un autre processus ",
+        "attendu":  "Café crème était encore ouvert et n\u0027a pas pu être fermé."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "  502.",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "(403) .internet",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "Mindcare est encore ouvert ",
+        "attendu":  "Nevermind était encore ouvert et n\u0027a pas pu être fermé."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "Fin bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbespace disquetimedout",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "Remote erreur 404 signature invalide",
+        "attendu":  "Le fichier téléchargé n\u0027a pas passé la vérification de sécurité : rien n\u0027a été changé."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "\n 🙂ﬁn",
+        "attendu":  "🙂ﬁn."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "signature invalide erreur 404serveur distant ",
+        "attendu":  "Le fichier téléchargé n\u0027a pas passé la vérification de sécurité : rien n\u0027a été changé."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "ne répond pas",
+        "attendu":  "L\u0027outil d\u0027installation de Mindset n\u0027a pas répondu."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "éééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé",
+        "attendu":  "ééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé..."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccla tâche d\u0027installation ne répond pas (pas de réponse de la tâche en 30 secondes).échec: ",
+        "attendu":  "L\u0027outil d\u0027installation de Mindset n\u0027a pas répondu."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "",
+        "attendu":  "Une erreur inconnue l\u0027a arrêtée."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "_500",
+        "attendu":  "_500."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "Mindcare est encore ouvert réseau",
+        "attendu":  "Nevermind était encore ouvert et n\u0027a pas pu être fermé."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "impossible de résoudre ",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "",
+        "attendu":  "Une erreur inconnue l\u0027a arrêtée."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "",
+        "attendu":  "Une erreur inconnue l\u0027a arrêtée."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "\r\n ",
+        "attendu":  "Une erreur inconnue l\u0027a arrêtée."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "",
+        "attendu":  "Une erreur inconnue l\u0027a arrêtée."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "",
+        "attendu":  "Une erreur inconnue l\u0027a arrêtée."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "attendu":  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "",
+        "attendu":  "Une erreur inconnue l\u0027a arrêtée."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "éééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé ",
+        "attendu":  "ééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé..."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "serveur distant\tutilisé par un autre processus ok",
+        "attendu":  "Evermind était encore ouvert et n\u0027a pas pu être fermé."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "(403)quelque choseÉchec : time out",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "serveur distant\t",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "fichiers sont utilisés",
+        "attendu":  "Café crème était encore ouvert et n\u0027a pas pu être fermé."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "",
+        "attendu":  "Une erreur inconnue l\u0027a arrêtée."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "_500",
+        "attendu":  "_500."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "502.",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "signature invalidela tâche d\u0027installation ne répond pas (pas de réponse de la tâche en 30 secondes).éééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé timed out",
+        "attendu":  "Le fichier téléchargé n\u0027a pas passé la vérification de sécurité : rien n\u0027a été changé."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "échec:502. espace disqueÉchec : ",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "Hôte 123? fichiers sont utilisés",
+        "attendu":  "Mindset était encore ouvert et n\u0027a pas pu être fermé."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "Fin  internet ",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "",
+        "attendu":  "Une erreur inconnue l\u0027a arrêtée."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "",
+        "attendu":  "Une erreur inconnue l\u0027a arrêtée."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "x429y",
+        "attendu":  "x429y."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  ". ",
+        "attendu":  "."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "",
+        "attendu":  "Une erreur inconnue l\u0027a arrêtée."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "serveur distant123",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "Mindcare est encore ouvert",
+        "attendu":  "Mindset était encore ouvert et n\u0027a pas pu être fermé."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "\t   ",
+        "attendu":  "Une erreur inconnue l\u0027a arrêtée."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "ﬁnLe serveur distant a retourné une erreur : (404) Introuvable.okok",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "",
+        "attendu":  "Une erreur inconnue l\u0027a arrêtée."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "code 4040Accès refusé ",
+        "attendu":  "code 4040Accès refusé."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "502. ",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "Accès refuséFin",
+        "attendu":  "Accès refuséFin."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "code 4040 éééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé",
+        "attendu":  "code 4040 ééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé..."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "réseauconnexion perdue quelque choseÉCHEC : ",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "🙂",
+        "attendu":  "🙂."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "attendu":  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  " 503 Ne Répond Pasccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc ",
+        "attendu":  "L\u0027outil d\u0027installation de Mindset n\u0027a pas répondu."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "Le serveur distant a retourné une erreur : (404) Introuvable.ne répond pas",
+        "attendu":  "L\u0027outil d\u0027installation de Mindset n\u0027a pas répondu."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "Échec : not enough space",
+        "attendu":  "Il n\u0027y a plus assez de place sur le disque."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "",
+        "attendu":  "Une erreur inconnue l\u0027a arrêtée."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "ﬁnerreur 404 espace disque connexion perdue",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "ne répond pas timedoutnot enough space",
+        "attendu":  "L\u0027outil d\u0027installation de Mindset n\u0027a pas répondu."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "ne répond pas la tâche d\u0027installation ne répond pas (pas de réponse de la tâche en 30 secondes).fichiers sont utilisés   ",
+        "attendu":  "Nevermind était encore ouvert et n\u0027a pas pu être fermé."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "!ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "attendu":  "!cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc..."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "ééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééMindcare est encore ouvert",
+        "attendu":  "Nevermind était encore ouvert et n\u0027a pas pu être fermé."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "timed out aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 503  signature invalide",
+        "attendu":  "Le fichier téléchargé n\u0027a pas passé la vérification de sécurité : rien n\u0027a été changé."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "fichiers sont utilisésﬁnsignature invalideinternet ",
+        "attendu":  "Evermind était encore ouvert et n\u0027a pas pu être fermé."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "",
+        "attendu":  "Une erreur inconnue l\u0027a arrêtée."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "  cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccÉchec : ",
+        "attendu":  "ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc..."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "Accès refusé Ne Répond Pas\t",
+        "attendu":  "L\u0027outil d\u0027installation de Mindset n\u0027a pas répondu."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "?internet (403)",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "",
+        "attendu":  "Une erreur inconnue l\u0027a arrêtée."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "(403)espace disque",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "connexion perdueéchec:  503  ",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "Accès refusé internet",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "\tAccès refusé502.",
+        "attendu":  "Accès refusé502."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "délai dépassé ",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "\ttimeout ne répond pas123",
+        "attendu":  "L\u0027outil d\u0027installation de Mindset n\u0027a pas répondu."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "",
+        "attendu":  "Une erreur inconnue l\u0027a arrêtée."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "being used.Accès refusé ",
+        "attendu":  "Nevermind était encore ouvert et n\u0027a pas pu être fermé."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "timed out \tLe serveur distant a retourné une erreur : (404) Introuvable.time out",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "timeoutréseautimeoutfichiers sont utilisés ",
+        "attendu":  "Mindset était encore ouvert et n\u0027a pas pu être fermé."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "Hôte erreur 404",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "",
+        "attendu":  "Une erreur inconnue l\u0027a arrêtée."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "?? \r\n 503 ",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "502. ",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "",
+        "attendu":  "Une erreur inconnue l\u0027a arrêtée."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "attendu":  "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "timed out \t",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "",
+        "attendu":  "Une erreur inconnue l\u0027a arrêtée."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "quelque chose ",
+        "attendu":  "quelque chose."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "_500SIGNATURENe Répond Pas ",
+        "attendu":  "Le fichier téléchargé n\u0027a pas passé la vérification de sécurité : rien n\u0027a été changé."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "utilisé par un autre processus",
+        "attendu":  "Café crème était encore ouvert et n\u0027a pas pu être fermé."
+    },
+    {
+        "nom":  "Nevermind",
+        "message":  "\tÉCHEC :délai dépassé ",
+        "attendu":  "Internet a coupé pendant le téléchargement."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "! disque pleinne répond pasfichiers sont utilisés",
+        "attendu":  "Café crème était encore ouvert et n\u0027a pas pu être fermé."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "ﬁn",
+        "attendu":  "ﬁn."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  ".HôteÉCHEC :",
+        "attendu":  ".HôteÉCHEC :."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "",
+        "attendu":  "Une erreur inconnue l\u0027a arrêtée."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "Mindcare est encore ouvertespace disque 🙂 ",
+        "attendu":  "Café crème était encore ouvert et n\u0027a pas pu être fermé."
+    },
+    {
+        "nom":  "Café crème",
+        "message":  "serveur distantfichiers sont utilisés",
+        "attendu":  "Café crème était encore ouvert et n\u0027a pas pu être fermé."
+    },
+    {
+        "nom":  "Evermind",
+        "message":  "place sur le disqueÉCHEC : ",
+        "attendu":  "Il n\u0027y a plus assez de place sur le disque."
+    },
+    {
+        "nom":  "Mindset",
+        "message":  "quelque chose?signature invalide Fin ",
+        "attendu":  "Le fichier téléchargé n\u0027a pas passé la vérification de sécurité : rien n\u0027a été changé."
+    }
+]

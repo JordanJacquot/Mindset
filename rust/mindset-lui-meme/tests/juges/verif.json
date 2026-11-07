@@ -1,0 +1,3201 @@
+{
+    "cle":  "\u003cRSAKeyValue\u003e\u003cModulus\u003euQfEksikaGdeayZGlYAbhAPPwJJQuZZ+ZRUw+J1K8lTsndtPiL3X3kG5dCBShCq2Aa/KWo7sSUXgHtSoQ78JyNTp+al1XivJjCIB1YO/PW8tYkhREIZur+ye663yES9RA3bOhWOSYkXrqWmocDKtlm1anI6K/6GiddLE3qa/lc2hEAU9ByMYTf4Q0GjI+6M/ggem1dWmulz/Vk0TvVRnJrKD2PB/LuXcidkKeQ30VXbZUGrKTCnaP3TsSIYUNLmOcAF0a0Lv4jzfE0yToD4nacHsM/ewlE2bfzxG4VuvFT2c9eMUCLJ+ZcaHMsYfoAd3mgIkPHEyBjZtJrk7Mvktsvczdl6GiSDiBl4cRcRWqcM7ksQrYdSoyNFQkgJ1dZcIPOfZ2XR4w7gUX3BZK7VkIpEtdYARNTCIRQkYSXVx+KNmU73n7nz1RPVOvxvrsZhVcfHDlJgJYgv+oFwwHz/Y195aHZBxvzmL9ETXHsRCWGBNLM3+2wtGRnzh2VFAoANp\u003c/Modulus\u003e\u003cExponent\u003eAQAB\u003c/Exponent\u003e\u003c/RSAKeyValue\u003e",
+    "zip":  "emlwIGRlIE1pbmRzZXQgMy4xLjA=",
+    "sig_bonne":  "BYdv/wBJ2GIBIeXUVLpuhdJzeWmEgvfz/nd3V/6i+yFEEA9x7s2YwzfBJiLzI1rQe4sGmXLVgjEpxuBGFDh2xe0mj/BcPqJbRKopYlR11PcV/Saux3qJ38thn88Ozw6vufv6T6CooOCCqMxvR5URiyrqi0yOYWQWzjAPsRZbHiWsM4JYrBWNZsbWjWBp/+uCrpZ9LVJ5AUllnRmtR7Kinof7kCB7yU7WXZ7nZJ6Ssi4XQB0FL/Aw9H/C1iL/RbF6Ak0vCjUZGGjOPyLBqbGkPXLwQlsZkBZEGNRhqipCteBrDM4/YpxuU6NgmD33IavuOWjn/crYzctiHnizqTKkqjkPuPrQ79YQNAdAYqWHAc98shFLBVcpxxoy98xPj+nzsEXRAgJoqDwAiFAw237jFxjGMK4o36J2tCBbulY48PVoJ9GP45CFZugvfh0SSSgzhbgu6fS97/Fq0ZePOL91BWwXNeYZLJbGMZz6v0dUpAaR7y1z5iPOCov7klPMSPHT",
+    "sig_fausse":  "BYdv/wBJ2GIBIeTUVLpuhdJzeWmEgvfz/nd3V/6i+yFEEA9x7s2YwzfBJiLzI1rQe4sGmXLVgjEpxuBGFDh2xe0mj/BcPqJbRKopYlR11PcV/Saux3qJ38thn88Ozw6vufv6T6CooOCCqMxvR5URiyrqi0yOYWQWzjAPsRZbHiWsM4JYrBWNZsbWjWBp/+uCrpZ9LVJ5AUllnRmtR7Kinof7kCB7yU7WXZ7nZJ6Ssi4XQB0FL/Aw9H/C1iL/RbF6Ak0vCjUZGGjOPyLBqbGkPXLwQlsZkBZEGNRhqipCteBrDM4/YpxuU6NgmD33IavuOWjn/crYzctiHnizqTKkqjkPuPrQ79YQNAdAYqWHAc98shFLBVcpxxoy98xPj+nzsEXRAgJoqDwAiFAw237jFxjGMK4o36J2tCBbulY48PVoJ9GP45CFZugvfh0SSSgzhbgu6fS97/Fq0ZePOL91BWwXNeYZLJbGMZz6v0dUpAaR7y1z5iPOCov7klPMSPHT",
+    "cas":  [
+                {
+                    "publication":  {
+                                        "erreur":  "GitHub a refusé la demande (403)"
+                                    },
+                    "signature":  "bonne",
+                    "zip":  "bon",
+                    "prete_avant":  null,
+                    "prete":  null,
+                    "en_cours":  false,
+                    "fichiers":  {
+
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+                                    "Mise à jour de Mindset : GitHub a refusé la demande (403)"
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "erreur":  "GitHub a refusé la demande (403)"
+                                    },
+                    "signature":  "bonne",
+                    "zip":  "bon",
+                    "prete_avant":  "3.0.5",
+                    "prete":  {
+                                  "version":  "3.0.5",
+                                  "notes":  "ancienne",
+                                  "zip":  "mindset.zip",
+                                  "sig":  "mindset.zip.sig"
+                              },
+                    "en_cours":  false,
+                    "fichiers":  {
+                                     "mindset.zip":  "emlwIDMuMC41",
+                                     "mindset.zip.sig":  "c2lnIDMuMC41"
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+                                    "Mise à jour de Mindset : GitHub a refusé la demande (403)"
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "erreur":  "GitHub a refusé la demande (403)"
+                                    },
+                    "signature":  "bonne",
+                    "zip":  "bon",
+                    "prete_avant":  "3.2.0",
+                    "prete":  {
+                                  "version":  "3.2.0",
+                                  "notes":  "ancienne",
+                                  "zip":  "mindset.zip",
+                                  "sig":  "mindset.zip.sig"
+                              },
+                    "en_cours":  false,
+                    "fichiers":  {
+                                     "mindset.zip":  "emlwIDMuMi4w",
+                                     "mindset.zip.sig":  "c2lnIDMuMi4w"
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+                                    "Mise à jour de Mindset : GitHub a refusé la demande (403)"
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "erreur":  "GitHub a refusé la demande (403)"
+                                    },
+                    "signature":  "bonne",
+                    "zip":  "erreur",
+                    "prete_avant":  null,
+                    "prete":  null,
+                    "en_cours":  false,
+                    "fichiers":  {
+
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+                                    "Mise à jour de Mindset : GitHub a refusé la demande (403)"
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "erreur":  "GitHub a refusé la demande (403)"
+                                    },
+                    "signature":  "bonne",
+                    "zip":  "erreur",
+                    "prete_avant":  "3.0.5",
+                    "prete":  {
+                                  "version":  "3.0.5",
+                                  "notes":  "ancienne",
+                                  "zip":  "mindset.zip",
+                                  "sig":  "mindset.zip.sig"
+                              },
+                    "en_cours":  false,
+                    "fichiers":  {
+                                     "mindset.zip":  "emlwIDMuMC41",
+                                     "mindset.zip.sig":  "c2lnIDMuMC41"
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+                                    "Mise à jour de Mindset : GitHub a refusé la demande (403)"
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "erreur":  "GitHub a refusé la demande (403)"
+                                    },
+                    "signature":  "bonne",
+                    "zip":  "erreur",
+                    "prete_avant":  "3.2.0",
+                    "prete":  {
+                                  "version":  "3.2.0",
+                                  "notes":  "ancienne",
+                                  "zip":  "mindset.zip",
+                                  "sig":  "mindset.zip.sig"
+                              },
+                    "en_cours":  false,
+                    "fichiers":  {
+                                     "mindset.zip":  "emlwIDMuMi4w",
+                                     "mindset.zip.sig":  "c2lnIDMuMi4w"
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+                                    "Mise à jour de Mindset : GitHub a refusé la demande (403)"
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "erreur":  "GitHub a refusé la demande (403)"
+                                    },
+                    "signature":  "fausse",
+                    "zip":  "bon",
+                    "prete_avant":  null,
+                    "prete":  null,
+                    "en_cours":  false,
+                    "fichiers":  {
+
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+                                    "Mise à jour de Mindset : GitHub a refusé la demande (403)"
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "erreur":  "GitHub a refusé la demande (403)"
+                                    },
+                    "signature":  "fausse",
+                    "zip":  "bon",
+                    "prete_avant":  "3.0.5",
+                    "prete":  {
+                                  "version":  "3.0.5",
+                                  "notes":  "ancienne",
+                                  "zip":  "mindset.zip",
+                                  "sig":  "mindset.zip.sig"
+                              },
+                    "en_cours":  false,
+                    "fichiers":  {
+                                     "mindset.zip":  "emlwIDMuMC41",
+                                     "mindset.zip.sig":  "c2lnIDMuMC41"
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+                                    "Mise à jour de Mindset : GitHub a refusé la demande (403)"
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "erreur":  "GitHub a refusé la demande (403)"
+                                    },
+                    "signature":  "fausse",
+                    "zip":  "bon",
+                    "prete_avant":  "3.2.0",
+                    "prete":  {
+                                  "version":  "3.2.0",
+                                  "notes":  "ancienne",
+                                  "zip":  "mindset.zip",
+                                  "sig":  "mindset.zip.sig"
+                              },
+                    "en_cours":  false,
+                    "fichiers":  {
+                                     "mindset.zip":  "emlwIDMuMi4w",
+                                     "mindset.zip.sig":  "c2lnIDMuMi4w"
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+                                    "Mise à jour de Mindset : GitHub a refusé la demande (403)"
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "erreur":  "GitHub a refusé la demande (403)"
+                                    },
+                    "signature":  "fausse",
+                    "zip":  "erreur",
+                    "prete_avant":  null,
+                    "prete":  null,
+                    "en_cours":  false,
+                    "fichiers":  {
+
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+                                    "Mise à jour de Mindset : GitHub a refusé la demande (403)"
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "erreur":  "GitHub a refusé la demande (403)"
+                                    },
+                    "signature":  "fausse",
+                    "zip":  "erreur",
+                    "prete_avant":  "3.0.5",
+                    "prete":  {
+                                  "version":  "3.0.5",
+                                  "notes":  "ancienne",
+                                  "zip":  "mindset.zip",
+                                  "sig":  "mindset.zip.sig"
+                              },
+                    "en_cours":  false,
+                    "fichiers":  {
+                                     "mindset.zip":  "emlwIDMuMC41",
+                                     "mindset.zip.sig":  "c2lnIDMuMC41"
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+                                    "Mise à jour de Mindset : GitHub a refusé la demande (403)"
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "erreur":  "GitHub a refusé la demande (403)"
+                                    },
+                    "signature":  "fausse",
+                    "zip":  "erreur",
+                    "prete_avant":  "3.2.0",
+                    "prete":  {
+                                  "version":  "3.2.0",
+                                  "notes":  "ancienne",
+                                  "zip":  "mindset.zip",
+                                  "sig":  "mindset.zip.sig"
+                              },
+                    "en_cours":  false,
+                    "fichiers":  {
+                                     "mindset.zip":  "emlwIDMuMi4w",
+                                     "mindset.zip.sig":  "c2lnIDMuMi4w"
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+                                    "Mise à jour de Mindset : GitHub a refusé la demande (403)"
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "erreur":  "GitHub a refusé la demande (403)"
+                                    },
+                    "signature":  "absente",
+                    "zip":  "bon",
+                    "prete_avant":  null,
+                    "prete":  null,
+                    "en_cours":  false,
+                    "fichiers":  {
+
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+                                    "Mise à jour de Mindset : GitHub a refusé la demande (403)"
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "erreur":  "GitHub a refusé la demande (403)"
+                                    },
+                    "signature":  "absente",
+                    "zip":  "bon",
+                    "prete_avant":  "3.0.5",
+                    "prete":  {
+                                  "version":  "3.0.5",
+                                  "notes":  "ancienne",
+                                  "zip":  "mindset.zip",
+                                  "sig":  "mindset.zip.sig"
+                              },
+                    "en_cours":  false,
+                    "fichiers":  {
+                                     "mindset.zip":  "emlwIDMuMC41",
+                                     "mindset.zip.sig":  "c2lnIDMuMC41"
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+                                    "Mise à jour de Mindset : GitHub a refusé la demande (403)"
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "erreur":  "GitHub a refusé la demande (403)"
+                                    },
+                    "signature":  "absente",
+                    "zip":  "bon",
+                    "prete_avant":  "3.2.0",
+                    "prete":  {
+                                  "version":  "3.2.0",
+                                  "notes":  "ancienne",
+                                  "zip":  "mindset.zip",
+                                  "sig":  "mindset.zip.sig"
+                              },
+                    "en_cours":  false,
+                    "fichiers":  {
+                                     "mindset.zip":  "emlwIDMuMi4w",
+                                     "mindset.zip.sig":  "c2lnIDMuMi4w"
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+                                    "Mise à jour de Mindset : GitHub a refusé la demande (403)"
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "erreur":  "GitHub a refusé la demande (403)"
+                                    },
+                    "signature":  "absente",
+                    "zip":  "erreur",
+                    "prete_avant":  null,
+                    "prete":  null,
+                    "en_cours":  false,
+                    "fichiers":  {
+
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+                                    "Mise à jour de Mindset : GitHub a refusé la demande (403)"
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "erreur":  "GitHub a refusé la demande (403)"
+                                    },
+                    "signature":  "absente",
+                    "zip":  "erreur",
+                    "prete_avant":  "3.0.5",
+                    "prete":  {
+                                  "version":  "3.0.5",
+                                  "notes":  "ancienne",
+                                  "zip":  "mindset.zip",
+                                  "sig":  "mindset.zip.sig"
+                              },
+                    "en_cours":  false,
+                    "fichiers":  {
+                                     "mindset.zip":  "emlwIDMuMC41",
+                                     "mindset.zip.sig":  "c2lnIDMuMC41"
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+                                    "Mise à jour de Mindset : GitHub a refusé la demande (403)"
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "erreur":  "GitHub a refusé la demande (403)"
+                                    },
+                    "signature":  "absente",
+                    "zip":  "erreur",
+                    "prete_avant":  "3.2.0",
+                    "prete":  {
+                                  "version":  "3.2.0",
+                                  "notes":  "ancienne",
+                                  "zip":  "mindset.zip",
+                                  "sig":  "mindset.zip.sig"
+                              },
+                    "en_cours":  false,
+                    "fichiers":  {
+                                     "mindset.zip":  "emlwIDMuMi4w",
+                                     "mindset.zip.sig":  "c2lnIDMuMi4w"
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+                                    "Mise à jour de Mindset : GitHub a refusé la demande (403)"
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "3.1.0",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "https://github.com/s",
+                                        "notes":  "- Nouveautés"
+                                    },
+                    "signature":  "bonne",
+                    "zip":  "bon",
+                    "prete_avant":  null,
+                    "prete":  {
+                                  "version":  "3.1.0",
+                                  "notes":  "- Nouveautés",
+                                  "zip":  "mindset.zip",
+                                  "sig":  "mindset.zip.sig"
+                              },
+                    "en_cours":  false,
+                    "fichiers":  {
+                                     "mindset.zip":  "emlwIGRlIE1pbmRzZXQgMy4xLjA=",
+                                     "mindset.zip.sig":  "BYdv/wBJ2GIBIeXUVLpuhdJzeWmEgvfz/nd3V/6i+yFEEA9x7s2YwzfBJiLzI1rQe4sGmXLVgjEpxuBGFDh2xe0mj/BcPqJbRKopYlR11PcV/Saux3qJ38thn88Ozw6vufv6T6CooOCCqMxvR5URiyrqi0yOYWQWzjAPsRZbHiWsM4JYrBWNZsbWjWBp/+uCrpZ9LVJ5AUllnRmtR7Kinof7kCB7yU7WXZ7nZJ6Ssi4XQB0FL/Aw9H/C1iL/RbF6Ak0vCjUZGGjOPyLBqbGkPXLwQlsZkBZEGNRhqipCteBrDM4/YpxuU6NgmD33IavuOWjn/crYzctiHnizqTKkqjkPuPrQ79YQNAdAYqWHAc98shFLBVcpxxoy98xPj+nzsEXRAgJoqDwAiFAw237jFxjGMK4o36J2tCBbulY48PVoJ9GP45CFZugvfh0SSSgzhbgu6fS97/Fq0ZePOL91BWwXNeYZLJbGMZz6v0dUpAaR7y1z5iPOCov7klPMSPHT"
+                                 },
+                    "bandeau":  {
+                                    "visible":  true,
+                                    "titre":  "Mindset 3.1.0 est prêt",
+                                    "texte":  "La nouvelle version est téléchargée et sa signature vérifiée. Mindset va se fermer, se mettre à jour et se rouvrir tout seul.",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "Plus tard"
+                                },
+                    "journal":  [
+                                    "Mindset 3.1.0 téléchargé et vérifié, prêt à installer"
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "3.1.0",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "https://github.com/s",
+                                        "notes":  "- Nouveautés"
+                                    },
+                    "signature":  "bonne",
+                    "zip":  "bon",
+                    "prete_avant":  "3.0.5",
+                    "prete":  {
+                                  "version":  "3.1.0",
+                                  "notes":  "- Nouveautés",
+                                  "zip":  "mindset.zip",
+                                  "sig":  "mindset.zip.sig"
+                              },
+                    "en_cours":  false,
+                    "fichiers":  {
+                                     "mindset.zip":  "emlwIGRlIE1pbmRzZXQgMy4xLjA=",
+                                     "mindset.zip.sig":  "BYdv/wBJ2GIBIeXUVLpuhdJzeWmEgvfz/nd3V/6i+yFEEA9x7s2YwzfBJiLzI1rQe4sGmXLVgjEpxuBGFDh2xe0mj/BcPqJbRKopYlR11PcV/Saux3qJ38thn88Ozw6vufv6T6CooOCCqMxvR5URiyrqi0yOYWQWzjAPsRZbHiWsM4JYrBWNZsbWjWBp/+uCrpZ9LVJ5AUllnRmtR7Kinof7kCB7yU7WXZ7nZJ6Ssi4XQB0FL/Aw9H/C1iL/RbF6Ak0vCjUZGGjOPyLBqbGkPXLwQlsZkBZEGNRhqipCteBrDM4/YpxuU6NgmD33IavuOWjn/crYzctiHnizqTKkqjkPuPrQ79YQNAdAYqWHAc98shFLBVcpxxoy98xPj+nzsEXRAgJoqDwAiFAw237jFxjGMK4o36J2tCBbulY48PVoJ9GP45CFZugvfh0SSSgzhbgu6fS97/Fq0ZePOL91BWwXNeYZLJbGMZz6v0dUpAaR7y1z5iPOCov7klPMSPHT"
+                                 },
+                    "bandeau":  {
+                                    "visible":  true,
+                                    "titre":  "Mindset 3.1.0 est prêt",
+                                    "texte":  "La nouvelle version est téléchargée et sa signature vérifiée. Mindset va se fermer, se mettre à jour et se rouvrir tout seul.",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "Plus tard"
+                                },
+                    "journal":  [
+                                    "Mindset 3.0.5 était prêt, remplacé par la 3.1.0, plus récente",
+                                    "Mindset 3.1.0 téléchargé et vérifié, prêt à installer"
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "3.1.0",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "https://github.com/s",
+                                        "notes":  "- Nouveautés"
+                                    },
+                    "signature":  "bonne",
+                    "zip":  "bon",
+                    "prete_avant":  "3.2.0",
+                    "prete":  {
+                                  "version":  "3.2.0",
+                                  "notes":  "ancienne",
+                                  "zip":  "mindset.zip",
+                                  "sig":  "mindset.zip.sig"
+                              },
+                    "en_cours":  false,
+                    "fichiers":  {
+                                     "mindset.zip":  "emlwIDMuMi4w",
+                                     "mindset.zip.sig":  "c2lnIDMuMi4w"
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "3.1.0",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "https://github.com/s",
+                                        "notes":  "- Nouveautés"
+                                    },
+                    "signature":  "bonne",
+                    "zip":  "erreur",
+                    "prete_avant":  null,
+                    "prete":  null,
+                    "en_cours":  false,
+                    "fichiers":  {
+
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+                                    "Mise à jour de Mindset : Impossible de se connecter au serveur distant"
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "3.1.0",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "https://github.com/s",
+                                        "notes":  "- Nouveautés"
+                                    },
+                    "signature":  "bonne",
+                    "zip":  "erreur",
+                    "prete_avant":  "3.0.5",
+                    "prete":  {
+                                  "version":  "3.0.5",
+                                  "notes":  "ancienne",
+                                  "zip":  "mindset.zip",
+                                  "sig":  "mindset.zip.sig"
+                              },
+                    "en_cours":  false,
+                    "fichiers":  {
+                                     "mindset.zip":  "emlwIDMuMC41",
+                                     "mindset.zip.sig":  "c2lnIDMuMC41"
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+                                    "Mise à jour de Mindset : Impossible de se connecter au serveur distant"
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "3.1.0",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "https://github.com/s",
+                                        "notes":  "- Nouveautés"
+                                    },
+                    "signature":  "bonne",
+                    "zip":  "erreur",
+                    "prete_avant":  "3.2.0",
+                    "prete":  {
+                                  "version":  "3.2.0",
+                                  "notes":  "ancienne",
+                                  "zip":  "mindset.zip",
+                                  "sig":  "mindset.zip.sig"
+                              },
+                    "en_cours":  false,
+                    "fichiers":  {
+                                     "mindset.zip":  "emlwIDMuMi4w",
+                                     "mindset.zip.sig":  "c2lnIDMuMi4w"
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "3.1.0",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "https://github.com/s",
+                                        "notes":  "- Nouveautés"
+                                    },
+                    "signature":  "fausse",
+                    "zip":  "bon",
+                    "prete_avant":  null,
+                    "prete":  null,
+                    "en_cours":  false,
+                    "fichiers":  {
+
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+                                    "Mise à jour de Mindset : la signature de la version 3.1.0 est invalide"
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "3.1.0",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "https://github.com/s",
+                                        "notes":  "- Nouveautés"
+                                    },
+                    "signature":  "fausse",
+                    "zip":  "bon",
+                    "prete_avant":  "3.0.5",
+                    "prete":  {
+                                  "version":  "3.0.5",
+                                  "notes":  "ancienne",
+                                  "zip":  "mindset.zip",
+                                  "sig":  "mindset.zip.sig"
+                              },
+                    "en_cours":  false,
+                    "fichiers":  {
+                                     "mindset.zip":  "emlwIDMuMC41",
+                                     "mindset.zip.sig":  "c2lnIDMuMC41"
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+                                    "Mise à jour de Mindset : la signature de la version 3.1.0 est invalide"
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "3.1.0",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "https://github.com/s",
+                                        "notes":  "- Nouveautés"
+                                    },
+                    "signature":  "fausse",
+                    "zip":  "bon",
+                    "prete_avant":  "3.2.0",
+                    "prete":  {
+                                  "version":  "3.2.0",
+                                  "notes":  "ancienne",
+                                  "zip":  "mindset.zip",
+                                  "sig":  "mindset.zip.sig"
+                              },
+                    "en_cours":  false,
+                    "fichiers":  {
+                                     "mindset.zip":  "emlwIDMuMi4w",
+                                     "mindset.zip.sig":  "c2lnIDMuMi4w"
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "3.1.0",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "https://github.com/s",
+                                        "notes":  "- Nouveautés"
+                                    },
+                    "signature":  "fausse",
+                    "zip":  "erreur",
+                    "prete_avant":  null,
+                    "prete":  null,
+                    "en_cours":  false,
+                    "fichiers":  {
+
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+                                    "Mise à jour de Mindset : Impossible de se connecter au serveur distant"
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "3.1.0",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "https://github.com/s",
+                                        "notes":  "- Nouveautés"
+                                    },
+                    "signature":  "fausse",
+                    "zip":  "erreur",
+                    "prete_avant":  "3.0.5",
+                    "prete":  {
+                                  "version":  "3.0.5",
+                                  "notes":  "ancienne",
+                                  "zip":  "mindset.zip",
+                                  "sig":  "mindset.zip.sig"
+                              },
+                    "en_cours":  false,
+                    "fichiers":  {
+                                     "mindset.zip":  "emlwIDMuMC41",
+                                     "mindset.zip.sig":  "c2lnIDMuMC41"
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+                                    "Mise à jour de Mindset : Impossible de se connecter au serveur distant"
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "3.1.0",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "https://github.com/s",
+                                        "notes":  "- Nouveautés"
+                                    },
+                    "signature":  "fausse",
+                    "zip":  "erreur",
+                    "prete_avant":  "3.2.0",
+                    "prete":  {
+                                  "version":  "3.2.0",
+                                  "notes":  "ancienne",
+                                  "zip":  "mindset.zip",
+                                  "sig":  "mindset.zip.sig"
+                              },
+                    "en_cours":  false,
+                    "fichiers":  {
+                                     "mindset.zip":  "emlwIDMuMi4w",
+                                     "mindset.zip.sig":  "c2lnIDMuMi4w"
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "3.1.0",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "https://github.com/s",
+                                        "notes":  "- Nouveautés"
+                                    },
+                    "signature":  "absente",
+                    "zip":  "bon",
+                    "prete_avant":  null,
+                    "prete":  null,
+                    "en_cours":  false,
+                    "fichiers":  {
+
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+                                    "Mise à jour de Mindset : Adresse inconnue : https://github.com/s"
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "3.1.0",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "https://github.com/s",
+                                        "notes":  "- Nouveautés"
+                                    },
+                    "signature":  "absente",
+                    "zip":  "bon",
+                    "prete_avant":  "3.0.5",
+                    "prete":  {
+                                  "version":  "3.0.5",
+                                  "notes":  "ancienne",
+                                  "zip":  "mindset.zip",
+                                  "sig":  "mindset.zip.sig"
+                              },
+                    "en_cours":  false,
+                    "fichiers":  {
+                                     "mindset.zip":  "emlwIDMuMC41",
+                                     "mindset.zip.sig":  "c2lnIDMuMC41"
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+                                    "Mise à jour de Mindset : Adresse inconnue : https://github.com/s"
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "3.1.0",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "https://github.com/s",
+                                        "notes":  "- Nouveautés"
+                                    },
+                    "signature":  "absente",
+                    "zip":  "bon",
+                    "prete_avant":  "3.2.0",
+                    "prete":  {
+                                  "version":  "3.2.0",
+                                  "notes":  "ancienne",
+                                  "zip":  "mindset.zip",
+                                  "sig":  "mindset.zip.sig"
+                              },
+                    "en_cours":  false,
+                    "fichiers":  {
+                                     "mindset.zip":  "emlwIDMuMi4w",
+                                     "mindset.zip.sig":  "c2lnIDMuMi4w"
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "3.1.0",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "https://github.com/s",
+                                        "notes":  "- Nouveautés"
+                                    },
+                    "signature":  "absente",
+                    "zip":  "erreur",
+                    "prete_avant":  null,
+                    "prete":  null,
+                    "en_cours":  false,
+                    "fichiers":  {
+
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+                                    "Mise à jour de Mindset : Impossible de se connecter au serveur distant"
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "3.1.0",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "https://github.com/s",
+                                        "notes":  "- Nouveautés"
+                                    },
+                    "signature":  "absente",
+                    "zip":  "erreur",
+                    "prete_avant":  "3.0.5",
+                    "prete":  {
+                                  "version":  "3.0.5",
+                                  "notes":  "ancienne",
+                                  "zip":  "mindset.zip",
+                                  "sig":  "mindset.zip.sig"
+                              },
+                    "en_cours":  false,
+                    "fichiers":  {
+                                     "mindset.zip":  "emlwIDMuMC41",
+                                     "mindset.zip.sig":  "c2lnIDMuMC41"
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+                                    "Mise à jour de Mindset : Impossible de se connecter au serveur distant"
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "3.1.0",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "https://github.com/s",
+                                        "notes":  "- Nouveautés"
+                                    },
+                    "signature":  "absente",
+                    "zip":  "erreur",
+                    "prete_avant":  "3.2.0",
+                    "prete":  {
+                                  "version":  "3.2.0",
+                                  "notes":  "ancienne",
+                                  "zip":  "mindset.zip",
+                                  "sig":  "mindset.zip.sig"
+                              },
+                    "en_cours":  false,
+                    "fichiers":  {
+                                     "mindset.zip":  "emlwIDMuMi4w",
+                                     "mindset.zip.sig":  "c2lnIDMuMi4w"
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "3.1.0",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "",
+                                        "notes":  ""
+                                    },
+                    "signature":  "bonne",
+                    "zip":  "bon",
+                    "prete_avant":  null,
+                    "prete":  null,
+                    "en_cours":  false,
+                    "fichiers":  {
+
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+                                    "Mise à jour de Mindset : la version 3.1.0 n\u0027est pas signée"
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "3.1.0",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "",
+                                        "notes":  ""
+                                    },
+                    "signature":  "bonne",
+                    "zip":  "bon",
+                    "prete_avant":  "3.0.5",
+                    "prete":  {
+                                  "version":  "3.0.5",
+                                  "notes":  "ancienne",
+                                  "zip":  "mindset.zip",
+                                  "sig":  "mindset.zip.sig"
+                              },
+                    "en_cours":  false,
+                    "fichiers":  {
+                                     "mindset.zip":  "emlwIDMuMC41",
+                                     "mindset.zip.sig":  "c2lnIDMuMC41"
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+                                    "Mise à jour de Mindset : la version 3.1.0 n\u0027est pas signée"
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "3.1.0",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "",
+                                        "notes":  ""
+                                    },
+                    "signature":  "bonne",
+                    "zip":  "bon",
+                    "prete_avant":  "3.2.0",
+                    "prete":  {
+                                  "version":  "3.2.0",
+                                  "notes":  "ancienne",
+                                  "zip":  "mindset.zip",
+                                  "sig":  "mindset.zip.sig"
+                              },
+                    "en_cours":  false,
+                    "fichiers":  {
+                                     "mindset.zip":  "emlwIDMuMi4w",
+                                     "mindset.zip.sig":  "c2lnIDMuMi4w"
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "3.1.0",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "",
+                                        "notes":  ""
+                                    },
+                    "signature":  "bonne",
+                    "zip":  "erreur",
+                    "prete_avant":  null,
+                    "prete":  null,
+                    "en_cours":  false,
+                    "fichiers":  {
+
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+                                    "Mise à jour de Mindset : la version 3.1.0 n\u0027est pas signée"
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "3.1.0",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "",
+                                        "notes":  ""
+                                    },
+                    "signature":  "bonne",
+                    "zip":  "erreur",
+                    "prete_avant":  "3.0.5",
+                    "prete":  {
+                                  "version":  "3.0.5",
+                                  "notes":  "ancienne",
+                                  "zip":  "mindset.zip",
+                                  "sig":  "mindset.zip.sig"
+                              },
+                    "en_cours":  false,
+                    "fichiers":  {
+                                     "mindset.zip":  "emlwIDMuMC41",
+                                     "mindset.zip.sig":  "c2lnIDMuMC41"
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+                                    "Mise à jour de Mindset : la version 3.1.0 n\u0027est pas signée"
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "3.1.0",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "",
+                                        "notes":  ""
+                                    },
+                    "signature":  "bonne",
+                    "zip":  "erreur",
+                    "prete_avant":  "3.2.0",
+                    "prete":  {
+                                  "version":  "3.2.0",
+                                  "notes":  "ancienne",
+                                  "zip":  "mindset.zip",
+                                  "sig":  "mindset.zip.sig"
+                              },
+                    "en_cours":  false,
+                    "fichiers":  {
+                                     "mindset.zip":  "emlwIDMuMi4w",
+                                     "mindset.zip.sig":  "c2lnIDMuMi4w"
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "3.1.0",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "",
+                                        "notes":  ""
+                                    },
+                    "signature":  "fausse",
+                    "zip":  "bon",
+                    "prete_avant":  null,
+                    "prete":  null,
+                    "en_cours":  false,
+                    "fichiers":  {
+
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+                                    "Mise à jour de Mindset : la version 3.1.0 n\u0027est pas signée"
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "3.1.0",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "",
+                                        "notes":  ""
+                                    },
+                    "signature":  "fausse",
+                    "zip":  "bon",
+                    "prete_avant":  "3.0.5",
+                    "prete":  {
+                                  "version":  "3.0.5",
+                                  "notes":  "ancienne",
+                                  "zip":  "mindset.zip",
+                                  "sig":  "mindset.zip.sig"
+                              },
+                    "en_cours":  false,
+                    "fichiers":  {
+                                     "mindset.zip":  "emlwIDMuMC41",
+                                     "mindset.zip.sig":  "c2lnIDMuMC41"
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+                                    "Mise à jour de Mindset : la version 3.1.0 n\u0027est pas signée"
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "3.1.0",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "",
+                                        "notes":  ""
+                                    },
+                    "signature":  "fausse",
+                    "zip":  "bon",
+                    "prete_avant":  "3.2.0",
+                    "prete":  {
+                                  "version":  "3.2.0",
+                                  "notes":  "ancienne",
+                                  "zip":  "mindset.zip",
+                                  "sig":  "mindset.zip.sig"
+                              },
+                    "en_cours":  false,
+                    "fichiers":  {
+                                     "mindset.zip":  "emlwIDMuMi4w",
+                                     "mindset.zip.sig":  "c2lnIDMuMi4w"
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "3.1.0",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "",
+                                        "notes":  ""
+                                    },
+                    "signature":  "fausse",
+                    "zip":  "erreur",
+                    "prete_avant":  null,
+                    "prete":  null,
+                    "en_cours":  false,
+                    "fichiers":  {
+
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+                                    "Mise à jour de Mindset : la version 3.1.0 n\u0027est pas signée"
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "3.1.0",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "",
+                                        "notes":  ""
+                                    },
+                    "signature":  "fausse",
+                    "zip":  "erreur",
+                    "prete_avant":  "3.0.5",
+                    "prete":  {
+                                  "version":  "3.0.5",
+                                  "notes":  "ancienne",
+                                  "zip":  "mindset.zip",
+                                  "sig":  "mindset.zip.sig"
+                              },
+                    "en_cours":  false,
+                    "fichiers":  {
+                                     "mindset.zip":  "emlwIDMuMC41",
+                                     "mindset.zip.sig":  "c2lnIDMuMC41"
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+                                    "Mise à jour de Mindset : la version 3.1.0 n\u0027est pas signée"
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "3.1.0",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "",
+                                        "notes":  ""
+                                    },
+                    "signature":  "fausse",
+                    "zip":  "erreur",
+                    "prete_avant":  "3.2.0",
+                    "prete":  {
+                                  "version":  "3.2.0",
+                                  "notes":  "ancienne",
+                                  "zip":  "mindset.zip",
+                                  "sig":  "mindset.zip.sig"
+                              },
+                    "en_cours":  false,
+                    "fichiers":  {
+                                     "mindset.zip":  "emlwIDMuMi4w",
+                                     "mindset.zip.sig":  "c2lnIDMuMi4w"
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "3.1.0",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "",
+                                        "notes":  ""
+                                    },
+                    "signature":  "absente",
+                    "zip":  "bon",
+                    "prete_avant":  null,
+                    "prete":  null,
+                    "en_cours":  false,
+                    "fichiers":  {
+
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+                                    "Mise à jour de Mindset : la version 3.1.0 n\u0027est pas signée"
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "3.1.0",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "",
+                                        "notes":  ""
+                                    },
+                    "signature":  "absente",
+                    "zip":  "bon",
+                    "prete_avant":  "3.0.5",
+                    "prete":  {
+                                  "version":  "3.0.5",
+                                  "notes":  "ancienne",
+                                  "zip":  "mindset.zip",
+                                  "sig":  "mindset.zip.sig"
+                              },
+                    "en_cours":  false,
+                    "fichiers":  {
+                                     "mindset.zip":  "emlwIDMuMC41",
+                                     "mindset.zip.sig":  "c2lnIDMuMC41"
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+                                    "Mise à jour de Mindset : la version 3.1.0 n\u0027est pas signée"
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "3.1.0",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "",
+                                        "notes":  ""
+                                    },
+                    "signature":  "absente",
+                    "zip":  "bon",
+                    "prete_avant":  "3.2.0",
+                    "prete":  {
+                                  "version":  "3.2.0",
+                                  "notes":  "ancienne",
+                                  "zip":  "mindset.zip",
+                                  "sig":  "mindset.zip.sig"
+                              },
+                    "en_cours":  false,
+                    "fichiers":  {
+                                     "mindset.zip":  "emlwIDMuMi4w",
+                                     "mindset.zip.sig":  "c2lnIDMuMi4w"
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "3.1.0",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "",
+                                        "notes":  ""
+                                    },
+                    "signature":  "absente",
+                    "zip":  "erreur",
+                    "prete_avant":  null,
+                    "prete":  null,
+                    "en_cours":  false,
+                    "fichiers":  {
+
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+                                    "Mise à jour de Mindset : la version 3.1.0 n\u0027est pas signée"
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "3.1.0",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "",
+                                        "notes":  ""
+                                    },
+                    "signature":  "absente",
+                    "zip":  "erreur",
+                    "prete_avant":  "3.0.5",
+                    "prete":  {
+                                  "version":  "3.0.5",
+                                  "notes":  "ancienne",
+                                  "zip":  "mindset.zip",
+                                  "sig":  "mindset.zip.sig"
+                              },
+                    "en_cours":  false,
+                    "fichiers":  {
+                                     "mindset.zip":  "emlwIDMuMC41",
+                                     "mindset.zip.sig":  "c2lnIDMuMC41"
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+                                    "Mise à jour de Mindset : la version 3.1.0 n\u0027est pas signée"
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "3.1.0",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "",
+                                        "notes":  ""
+                                    },
+                    "signature":  "absente",
+                    "zip":  "erreur",
+                    "prete_avant":  "3.2.0",
+                    "prete":  {
+                                  "version":  "3.2.0",
+                                  "notes":  "ancienne",
+                                  "zip":  "mindset.zip",
+                                  "sig":  "mindset.zip.sig"
+                              },
+                    "en_cours":  false,
+                    "fichiers":  {
+                                     "mindset.zip":  "emlwIDMuMi4w",
+                                     "mindset.zip.sig":  "c2lnIDMuMi4w"
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "3.0.0",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "https://github.com/s",
+                                        "notes":  ""
+                                    },
+                    "signature":  "bonne",
+                    "zip":  "bon",
+                    "prete_avant":  null,
+                    "prete":  null,
+                    "en_cours":  false,
+                    "fichiers":  {
+
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "3.0.0",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "https://github.com/s",
+                                        "notes":  ""
+                                    },
+                    "signature":  "bonne",
+                    "zip":  "bon",
+                    "prete_avant":  "3.0.5",
+                    "prete":  {
+                                  "version":  "3.0.5",
+                                  "notes":  "ancienne",
+                                  "zip":  "mindset.zip",
+                                  "sig":  "mindset.zip.sig"
+                              },
+                    "en_cours":  false,
+                    "fichiers":  {
+                                     "mindset.zip":  "emlwIDMuMC41",
+                                     "mindset.zip.sig":  "c2lnIDMuMC41"
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "3.0.0",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "https://github.com/s",
+                                        "notes":  ""
+                                    },
+                    "signature":  "bonne",
+                    "zip":  "bon",
+                    "prete_avant":  "3.2.0",
+                    "prete":  {
+                                  "version":  "3.2.0",
+                                  "notes":  "ancienne",
+                                  "zip":  "mindset.zip",
+                                  "sig":  "mindset.zip.sig"
+                              },
+                    "en_cours":  false,
+                    "fichiers":  {
+                                     "mindset.zip":  "emlwIDMuMi4w",
+                                     "mindset.zip.sig":  "c2lnIDMuMi4w"
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "3.0.0",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "https://github.com/s",
+                                        "notes":  ""
+                                    },
+                    "signature":  "bonne",
+                    "zip":  "erreur",
+                    "prete_avant":  null,
+                    "prete":  null,
+                    "en_cours":  false,
+                    "fichiers":  {
+
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "3.0.0",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "https://github.com/s",
+                                        "notes":  ""
+                                    },
+                    "signature":  "bonne",
+                    "zip":  "erreur",
+                    "prete_avant":  "3.0.5",
+                    "prete":  {
+                                  "version":  "3.0.5",
+                                  "notes":  "ancienne",
+                                  "zip":  "mindset.zip",
+                                  "sig":  "mindset.zip.sig"
+                              },
+                    "en_cours":  false,
+                    "fichiers":  {
+                                     "mindset.zip":  "emlwIDMuMC41",
+                                     "mindset.zip.sig":  "c2lnIDMuMC41"
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "3.0.0",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "https://github.com/s",
+                                        "notes":  ""
+                                    },
+                    "signature":  "bonne",
+                    "zip":  "erreur",
+                    "prete_avant":  "3.2.0",
+                    "prete":  {
+                                  "version":  "3.2.0",
+                                  "notes":  "ancienne",
+                                  "zip":  "mindset.zip",
+                                  "sig":  "mindset.zip.sig"
+                              },
+                    "en_cours":  false,
+                    "fichiers":  {
+                                     "mindset.zip":  "emlwIDMuMi4w",
+                                     "mindset.zip.sig":  "c2lnIDMuMi4w"
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "3.0.0",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "https://github.com/s",
+                                        "notes":  ""
+                                    },
+                    "signature":  "fausse",
+                    "zip":  "bon",
+                    "prete_avant":  null,
+                    "prete":  null,
+                    "en_cours":  false,
+                    "fichiers":  {
+
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "3.0.0",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "https://github.com/s",
+                                        "notes":  ""
+                                    },
+                    "signature":  "fausse",
+                    "zip":  "bon",
+                    "prete_avant":  "3.0.5",
+                    "prete":  {
+                                  "version":  "3.0.5",
+                                  "notes":  "ancienne",
+                                  "zip":  "mindset.zip",
+                                  "sig":  "mindset.zip.sig"
+                              },
+                    "en_cours":  false,
+                    "fichiers":  {
+                                     "mindset.zip":  "emlwIDMuMC41",
+                                     "mindset.zip.sig":  "c2lnIDMuMC41"
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "3.0.0",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "https://github.com/s",
+                                        "notes":  ""
+                                    },
+                    "signature":  "fausse",
+                    "zip":  "bon",
+                    "prete_avant":  "3.2.0",
+                    "prete":  {
+                                  "version":  "3.2.0",
+                                  "notes":  "ancienne",
+                                  "zip":  "mindset.zip",
+                                  "sig":  "mindset.zip.sig"
+                              },
+                    "en_cours":  false,
+                    "fichiers":  {
+                                     "mindset.zip":  "emlwIDMuMi4w",
+                                     "mindset.zip.sig":  "c2lnIDMuMi4w"
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "3.0.0",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "https://github.com/s",
+                                        "notes":  ""
+                                    },
+                    "signature":  "fausse",
+                    "zip":  "erreur",
+                    "prete_avant":  null,
+                    "prete":  null,
+                    "en_cours":  false,
+                    "fichiers":  {
+
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "3.0.0",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "https://github.com/s",
+                                        "notes":  ""
+                                    },
+                    "signature":  "fausse",
+                    "zip":  "erreur",
+                    "prete_avant":  "3.0.5",
+                    "prete":  {
+                                  "version":  "3.0.5",
+                                  "notes":  "ancienne",
+                                  "zip":  "mindset.zip",
+                                  "sig":  "mindset.zip.sig"
+                              },
+                    "en_cours":  false,
+                    "fichiers":  {
+                                     "mindset.zip":  "emlwIDMuMC41",
+                                     "mindset.zip.sig":  "c2lnIDMuMC41"
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "3.0.0",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "https://github.com/s",
+                                        "notes":  ""
+                                    },
+                    "signature":  "fausse",
+                    "zip":  "erreur",
+                    "prete_avant":  "3.2.0",
+                    "prete":  {
+                                  "version":  "3.2.0",
+                                  "notes":  "ancienne",
+                                  "zip":  "mindset.zip",
+                                  "sig":  "mindset.zip.sig"
+                              },
+                    "en_cours":  false,
+                    "fichiers":  {
+                                     "mindset.zip":  "emlwIDMuMi4w",
+                                     "mindset.zip.sig":  "c2lnIDMuMi4w"
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "3.0.0",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "https://github.com/s",
+                                        "notes":  ""
+                                    },
+                    "signature":  "absente",
+                    "zip":  "bon",
+                    "prete_avant":  null,
+                    "prete":  null,
+                    "en_cours":  false,
+                    "fichiers":  {
+
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "3.0.0",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "https://github.com/s",
+                                        "notes":  ""
+                                    },
+                    "signature":  "absente",
+                    "zip":  "bon",
+                    "prete_avant":  "3.0.5",
+                    "prete":  {
+                                  "version":  "3.0.5",
+                                  "notes":  "ancienne",
+                                  "zip":  "mindset.zip",
+                                  "sig":  "mindset.zip.sig"
+                              },
+                    "en_cours":  false,
+                    "fichiers":  {
+                                     "mindset.zip":  "emlwIDMuMC41",
+                                     "mindset.zip.sig":  "c2lnIDMuMC41"
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "3.0.0",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "https://github.com/s",
+                                        "notes":  ""
+                                    },
+                    "signature":  "absente",
+                    "zip":  "bon",
+                    "prete_avant":  "3.2.0",
+                    "prete":  {
+                                  "version":  "3.2.0",
+                                  "notes":  "ancienne",
+                                  "zip":  "mindset.zip",
+                                  "sig":  "mindset.zip.sig"
+                              },
+                    "en_cours":  false,
+                    "fichiers":  {
+                                     "mindset.zip":  "emlwIDMuMi4w",
+                                     "mindset.zip.sig":  "c2lnIDMuMi4w"
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "3.0.0",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "https://github.com/s",
+                                        "notes":  ""
+                                    },
+                    "signature":  "absente",
+                    "zip":  "erreur",
+                    "prete_avant":  null,
+                    "prete":  null,
+                    "en_cours":  false,
+                    "fichiers":  {
+
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "3.0.0",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "https://github.com/s",
+                                        "notes":  ""
+                                    },
+                    "signature":  "absente",
+                    "zip":  "erreur",
+                    "prete_avant":  "3.0.5",
+                    "prete":  {
+                                  "version":  "3.0.5",
+                                  "notes":  "ancienne",
+                                  "zip":  "mindset.zip",
+                                  "sig":  "mindset.zip.sig"
+                              },
+                    "en_cours":  false,
+                    "fichiers":  {
+                                     "mindset.zip":  "emlwIDMuMC41",
+                                     "mindset.zip.sig":  "c2lnIDMuMC41"
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "3.0.0",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "https://github.com/s",
+                                        "notes":  ""
+                                    },
+                    "signature":  "absente",
+                    "zip":  "erreur",
+                    "prete_avant":  "3.2.0",
+                    "prete":  {
+                                  "version":  "3.2.0",
+                                  "notes":  "ancienne",
+                                  "zip":  "mindset.zip",
+                                  "sig":  "mindset.zip.sig"
+                              },
+                    "en_cours":  false,
+                    "fichiers":  {
+                                     "mindset.zip":  "emlwIDMuMi4w",
+                                     "mindset.zip.sig":  "c2lnIDMuMi4w"
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "2.18.0",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "https://github.com/s",
+                                        "notes":  ""
+                                    },
+                    "signature":  "bonne",
+                    "zip":  "bon",
+                    "prete_avant":  null,
+                    "prete":  null,
+                    "en_cours":  false,
+                    "fichiers":  {
+
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "2.18.0",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "https://github.com/s",
+                                        "notes":  ""
+                                    },
+                    "signature":  "bonne",
+                    "zip":  "bon",
+                    "prete_avant":  "3.0.5",
+                    "prete":  {
+                                  "version":  "3.0.5",
+                                  "notes":  "ancienne",
+                                  "zip":  "mindset.zip",
+                                  "sig":  "mindset.zip.sig"
+                              },
+                    "en_cours":  false,
+                    "fichiers":  {
+                                     "mindset.zip":  "emlwIDMuMC41",
+                                     "mindset.zip.sig":  "c2lnIDMuMC41"
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "2.18.0",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "https://github.com/s",
+                                        "notes":  ""
+                                    },
+                    "signature":  "bonne",
+                    "zip":  "bon",
+                    "prete_avant":  "3.2.0",
+                    "prete":  {
+                                  "version":  "3.2.0",
+                                  "notes":  "ancienne",
+                                  "zip":  "mindset.zip",
+                                  "sig":  "mindset.zip.sig"
+                              },
+                    "en_cours":  false,
+                    "fichiers":  {
+                                     "mindset.zip":  "emlwIDMuMi4w",
+                                     "mindset.zip.sig":  "c2lnIDMuMi4w"
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "2.18.0",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "https://github.com/s",
+                                        "notes":  ""
+                                    },
+                    "signature":  "bonne",
+                    "zip":  "erreur",
+                    "prete_avant":  null,
+                    "prete":  null,
+                    "en_cours":  false,
+                    "fichiers":  {
+
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "2.18.0",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "https://github.com/s",
+                                        "notes":  ""
+                                    },
+                    "signature":  "bonne",
+                    "zip":  "erreur",
+                    "prete_avant":  "3.0.5",
+                    "prete":  {
+                                  "version":  "3.0.5",
+                                  "notes":  "ancienne",
+                                  "zip":  "mindset.zip",
+                                  "sig":  "mindset.zip.sig"
+                              },
+                    "en_cours":  false,
+                    "fichiers":  {
+                                     "mindset.zip":  "emlwIDMuMC41",
+                                     "mindset.zip.sig":  "c2lnIDMuMC41"
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "2.18.0",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "https://github.com/s",
+                                        "notes":  ""
+                                    },
+                    "signature":  "bonne",
+                    "zip":  "erreur",
+                    "prete_avant":  "3.2.0",
+                    "prete":  {
+                                  "version":  "3.2.0",
+                                  "notes":  "ancienne",
+                                  "zip":  "mindset.zip",
+                                  "sig":  "mindset.zip.sig"
+                              },
+                    "en_cours":  false,
+                    "fichiers":  {
+                                     "mindset.zip":  "emlwIDMuMi4w",
+                                     "mindset.zip.sig":  "c2lnIDMuMi4w"
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "2.18.0",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "https://github.com/s",
+                                        "notes":  ""
+                                    },
+                    "signature":  "fausse",
+                    "zip":  "bon",
+                    "prete_avant":  null,
+                    "prete":  null,
+                    "en_cours":  false,
+                    "fichiers":  {
+
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "2.18.0",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "https://github.com/s",
+                                        "notes":  ""
+                                    },
+                    "signature":  "fausse",
+                    "zip":  "bon",
+                    "prete_avant":  "3.0.5",
+                    "prete":  {
+                                  "version":  "3.0.5",
+                                  "notes":  "ancienne",
+                                  "zip":  "mindset.zip",
+                                  "sig":  "mindset.zip.sig"
+                              },
+                    "en_cours":  false,
+                    "fichiers":  {
+                                     "mindset.zip":  "emlwIDMuMC41",
+                                     "mindset.zip.sig":  "c2lnIDMuMC41"
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "2.18.0",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "https://github.com/s",
+                                        "notes":  ""
+                                    },
+                    "signature":  "fausse",
+                    "zip":  "bon",
+                    "prete_avant":  "3.2.0",
+                    "prete":  {
+                                  "version":  "3.2.0",
+                                  "notes":  "ancienne",
+                                  "zip":  "mindset.zip",
+                                  "sig":  "mindset.zip.sig"
+                              },
+                    "en_cours":  false,
+                    "fichiers":  {
+                                     "mindset.zip":  "emlwIDMuMi4w",
+                                     "mindset.zip.sig":  "c2lnIDMuMi4w"
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "2.18.0",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "https://github.com/s",
+                                        "notes":  ""
+                                    },
+                    "signature":  "fausse",
+                    "zip":  "erreur",
+                    "prete_avant":  null,
+                    "prete":  null,
+                    "en_cours":  false,
+                    "fichiers":  {
+
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "2.18.0",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "https://github.com/s",
+                                        "notes":  ""
+                                    },
+                    "signature":  "fausse",
+                    "zip":  "erreur",
+                    "prete_avant":  "3.0.5",
+                    "prete":  {
+                                  "version":  "3.0.5",
+                                  "notes":  "ancienne",
+                                  "zip":  "mindset.zip",
+                                  "sig":  "mindset.zip.sig"
+                              },
+                    "en_cours":  false,
+                    "fichiers":  {
+                                     "mindset.zip":  "emlwIDMuMC41",
+                                     "mindset.zip.sig":  "c2lnIDMuMC41"
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "2.18.0",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "https://github.com/s",
+                                        "notes":  ""
+                                    },
+                    "signature":  "fausse",
+                    "zip":  "erreur",
+                    "prete_avant":  "3.2.0",
+                    "prete":  {
+                                  "version":  "3.2.0",
+                                  "notes":  "ancienne",
+                                  "zip":  "mindset.zip",
+                                  "sig":  "mindset.zip.sig"
+                              },
+                    "en_cours":  false,
+                    "fichiers":  {
+                                     "mindset.zip":  "emlwIDMuMi4w",
+                                     "mindset.zip.sig":  "c2lnIDMuMi4w"
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "2.18.0",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "https://github.com/s",
+                                        "notes":  ""
+                                    },
+                    "signature":  "absente",
+                    "zip":  "bon",
+                    "prete_avant":  null,
+                    "prete":  null,
+                    "en_cours":  false,
+                    "fichiers":  {
+
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "2.18.0",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "https://github.com/s",
+                                        "notes":  ""
+                                    },
+                    "signature":  "absente",
+                    "zip":  "bon",
+                    "prete_avant":  "3.0.5",
+                    "prete":  {
+                                  "version":  "3.0.5",
+                                  "notes":  "ancienne",
+                                  "zip":  "mindset.zip",
+                                  "sig":  "mindset.zip.sig"
+                              },
+                    "en_cours":  false,
+                    "fichiers":  {
+                                     "mindset.zip":  "emlwIDMuMC41",
+                                     "mindset.zip.sig":  "c2lnIDMuMC41"
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "2.18.0",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "https://github.com/s",
+                                        "notes":  ""
+                                    },
+                    "signature":  "absente",
+                    "zip":  "bon",
+                    "prete_avant":  "3.2.0",
+                    "prete":  {
+                                  "version":  "3.2.0",
+                                  "notes":  "ancienne",
+                                  "zip":  "mindset.zip",
+                                  "sig":  "mindset.zip.sig"
+                              },
+                    "en_cours":  false,
+                    "fichiers":  {
+                                     "mindset.zip":  "emlwIDMuMi4w",
+                                     "mindset.zip.sig":  "c2lnIDMuMi4w"
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "2.18.0",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "https://github.com/s",
+                                        "notes":  ""
+                                    },
+                    "signature":  "absente",
+                    "zip":  "erreur",
+                    "prete_avant":  null,
+                    "prete":  null,
+                    "en_cours":  false,
+                    "fichiers":  {
+
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "2.18.0",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "https://github.com/s",
+                                        "notes":  ""
+                                    },
+                    "signature":  "absente",
+                    "zip":  "erreur",
+                    "prete_avant":  "3.0.5",
+                    "prete":  {
+                                  "version":  "3.0.5",
+                                  "notes":  "ancienne",
+                                  "zip":  "mindset.zip",
+                                  "sig":  "mindset.zip.sig"
+                              },
+                    "en_cours":  false,
+                    "fichiers":  {
+                                     "mindset.zip":  "emlwIDMuMC41",
+                                     "mindset.zip.sig":  "c2lnIDMuMC41"
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "2.18.0",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "https://github.com/s",
+                                        "notes":  ""
+                                    },
+                    "signature":  "absente",
+                    "zip":  "erreur",
+                    "prete_avant":  "3.2.0",
+                    "prete":  {
+                                  "version":  "3.2.0",
+                                  "notes":  "ancienne",
+                                  "zip":  "mindset.zip",
+                                  "sig":  "mindset.zip.sig"
+                              },
+                    "en_cours":  false,
+                    "fichiers":  {
+                                     "mindset.zip":  "emlwIDMuMi4w",
+                                     "mindset.zip.sig":  "c2lnIDMuMi4w"
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "abc",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "https://github.com/s",
+                                        "notes":  ""
+                                    },
+                    "signature":  "bonne",
+                    "zip":  "bon",
+                    "prete_avant":  null,
+                    "prete":  null,
+                    "en_cours":  false,
+                    "fichiers":  {
+
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "abc",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "https://github.com/s",
+                                        "notes":  ""
+                                    },
+                    "signature":  "bonne",
+                    "zip":  "bon",
+                    "prete_avant":  "3.0.5",
+                    "prete":  {
+                                  "version":  "3.0.5",
+                                  "notes":  "ancienne",
+                                  "zip":  "mindset.zip",
+                                  "sig":  "mindset.zip.sig"
+                              },
+                    "en_cours":  false,
+                    "fichiers":  {
+                                     "mindset.zip":  "emlwIDMuMC41",
+                                     "mindset.zip.sig":  "c2lnIDMuMC41"
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "abc",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "https://github.com/s",
+                                        "notes":  ""
+                                    },
+                    "signature":  "bonne",
+                    "zip":  "bon",
+                    "prete_avant":  "3.2.0",
+                    "prete":  {
+                                  "version":  "3.2.0",
+                                  "notes":  "ancienne",
+                                  "zip":  "mindset.zip",
+                                  "sig":  "mindset.zip.sig"
+                              },
+                    "en_cours":  false,
+                    "fichiers":  {
+                                     "mindset.zip":  "emlwIDMuMi4w",
+                                     "mindset.zip.sig":  "c2lnIDMuMi4w"
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "abc",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "https://github.com/s",
+                                        "notes":  ""
+                                    },
+                    "signature":  "bonne",
+                    "zip":  "erreur",
+                    "prete_avant":  null,
+                    "prete":  null,
+                    "en_cours":  false,
+                    "fichiers":  {
+
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "abc",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "https://github.com/s",
+                                        "notes":  ""
+                                    },
+                    "signature":  "bonne",
+                    "zip":  "erreur",
+                    "prete_avant":  "3.0.5",
+                    "prete":  {
+                                  "version":  "3.0.5",
+                                  "notes":  "ancienne",
+                                  "zip":  "mindset.zip",
+                                  "sig":  "mindset.zip.sig"
+                              },
+                    "en_cours":  false,
+                    "fichiers":  {
+                                     "mindset.zip":  "emlwIDMuMC41",
+                                     "mindset.zip.sig":  "c2lnIDMuMC41"
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "abc",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "https://github.com/s",
+                                        "notes":  ""
+                                    },
+                    "signature":  "bonne",
+                    "zip":  "erreur",
+                    "prete_avant":  "3.2.0",
+                    "prete":  {
+                                  "version":  "3.2.0",
+                                  "notes":  "ancienne",
+                                  "zip":  "mindset.zip",
+                                  "sig":  "mindset.zip.sig"
+                              },
+                    "en_cours":  false,
+                    "fichiers":  {
+                                     "mindset.zip":  "emlwIDMuMi4w",
+                                     "mindset.zip.sig":  "c2lnIDMuMi4w"
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "abc",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "https://github.com/s",
+                                        "notes":  ""
+                                    },
+                    "signature":  "fausse",
+                    "zip":  "bon",
+                    "prete_avant":  null,
+                    "prete":  null,
+                    "en_cours":  false,
+                    "fichiers":  {
+
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "abc",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "https://github.com/s",
+                                        "notes":  ""
+                                    },
+                    "signature":  "fausse",
+                    "zip":  "bon",
+                    "prete_avant":  "3.0.5",
+                    "prete":  {
+                                  "version":  "3.0.5",
+                                  "notes":  "ancienne",
+                                  "zip":  "mindset.zip",
+                                  "sig":  "mindset.zip.sig"
+                              },
+                    "en_cours":  false,
+                    "fichiers":  {
+                                     "mindset.zip":  "emlwIDMuMC41",
+                                     "mindset.zip.sig":  "c2lnIDMuMC41"
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "abc",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "https://github.com/s",
+                                        "notes":  ""
+                                    },
+                    "signature":  "fausse",
+                    "zip":  "bon",
+                    "prete_avant":  "3.2.0",
+                    "prete":  {
+                                  "version":  "3.2.0",
+                                  "notes":  "ancienne",
+                                  "zip":  "mindset.zip",
+                                  "sig":  "mindset.zip.sig"
+                              },
+                    "en_cours":  false,
+                    "fichiers":  {
+                                     "mindset.zip":  "emlwIDMuMi4w",
+                                     "mindset.zip.sig":  "c2lnIDMuMi4w"
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "abc",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "https://github.com/s",
+                                        "notes":  ""
+                                    },
+                    "signature":  "fausse",
+                    "zip":  "erreur",
+                    "prete_avant":  null,
+                    "prete":  null,
+                    "en_cours":  false,
+                    "fichiers":  {
+
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "abc",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "https://github.com/s",
+                                        "notes":  ""
+                                    },
+                    "signature":  "fausse",
+                    "zip":  "erreur",
+                    "prete_avant":  "3.0.5",
+                    "prete":  {
+                                  "version":  "3.0.5",
+                                  "notes":  "ancienne",
+                                  "zip":  "mindset.zip",
+                                  "sig":  "mindset.zip.sig"
+                              },
+                    "en_cours":  false,
+                    "fichiers":  {
+                                     "mindset.zip":  "emlwIDMuMC41",
+                                     "mindset.zip.sig":  "c2lnIDMuMC41"
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "abc",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "https://github.com/s",
+                                        "notes":  ""
+                                    },
+                    "signature":  "fausse",
+                    "zip":  "erreur",
+                    "prete_avant":  "3.2.0",
+                    "prete":  {
+                                  "version":  "3.2.0",
+                                  "notes":  "ancienne",
+                                  "zip":  "mindset.zip",
+                                  "sig":  "mindset.zip.sig"
+                              },
+                    "en_cours":  false,
+                    "fichiers":  {
+                                     "mindset.zip":  "emlwIDMuMi4w",
+                                     "mindset.zip.sig":  "c2lnIDMuMi4w"
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "abc",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "https://github.com/s",
+                                        "notes":  ""
+                                    },
+                    "signature":  "absente",
+                    "zip":  "bon",
+                    "prete_avant":  null,
+                    "prete":  null,
+                    "en_cours":  false,
+                    "fichiers":  {
+
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "abc",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "https://github.com/s",
+                                        "notes":  ""
+                                    },
+                    "signature":  "absente",
+                    "zip":  "bon",
+                    "prete_avant":  "3.0.5",
+                    "prete":  {
+                                  "version":  "3.0.5",
+                                  "notes":  "ancienne",
+                                  "zip":  "mindset.zip",
+                                  "sig":  "mindset.zip.sig"
+                              },
+                    "en_cours":  false,
+                    "fichiers":  {
+                                     "mindset.zip":  "emlwIDMuMC41",
+                                     "mindset.zip.sig":  "c2lnIDMuMC41"
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "abc",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "https://github.com/s",
+                                        "notes":  ""
+                                    },
+                    "signature":  "absente",
+                    "zip":  "bon",
+                    "prete_avant":  "3.2.0",
+                    "prete":  {
+                                  "version":  "3.2.0",
+                                  "notes":  "ancienne",
+                                  "zip":  "mindset.zip",
+                                  "sig":  "mindset.zip.sig"
+                              },
+                    "en_cours":  false,
+                    "fichiers":  {
+                                     "mindset.zip":  "emlwIDMuMi4w",
+                                     "mindset.zip.sig":  "c2lnIDMuMi4w"
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "abc",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "https://github.com/s",
+                                        "notes":  ""
+                                    },
+                    "signature":  "absente",
+                    "zip":  "erreur",
+                    "prete_avant":  null,
+                    "prete":  null,
+                    "en_cours":  false,
+                    "fichiers":  {
+
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "abc",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "https://github.com/s",
+                                        "notes":  ""
+                                    },
+                    "signature":  "absente",
+                    "zip":  "erreur",
+                    "prete_avant":  "3.0.5",
+                    "prete":  {
+                                  "version":  "3.0.5",
+                                  "notes":  "ancienne",
+                                  "zip":  "mindset.zip",
+                                  "sig":  "mindset.zip.sig"
+                              },
+                    "en_cours":  false,
+                    "fichiers":  {
+                                     "mindset.zip":  "emlwIDMuMC41",
+                                     "mindset.zip.sig":  "c2lnIDMuMC41"
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "publication":  {
+                                        "version":  "abc",
+                                        "url_zip":  "https://github.com/z",
+                                        "url_sig":  "https://github.com/s",
+                                        "notes":  ""
+                                    },
+                    "signature":  "absente",
+                    "zip":  "erreur",
+                    "prete_avant":  "3.2.0",
+                    "prete":  {
+                                  "version":  "3.2.0",
+                                  "notes":  "ancienne",
+                                  "zip":  "mindset.zip",
+                                  "sig":  "mindset.zip.sig"
+                              },
+                    "en_cours":  false,
+                    "fichiers":  {
+                                     "mindset.zip":  "emlwIDMuMi4w",
+                                     "mindset.zip.sig":  "c2lnIDMuMi4w"
+                                 },
+                    "bandeau":  {
+                                    "visible":  false,
+                                    "titre":  "",
+                                    "texte":  "",
+                                    "bouton_maj":  true,
+                                    "bouton_fermer":  "OK"
+                                },
+                    "journal":  [
+
+                                ]
+                }
+            ]
+}

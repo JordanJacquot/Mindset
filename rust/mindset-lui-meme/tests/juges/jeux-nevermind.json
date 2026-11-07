@@ -1,0 +1,58 @@
+[
+    {
+        "contenu":  "{\"CustomGames\":[{\"Name\":\"A\",\"Exe\":\"C:\\\\Jeux\\\\a.exe\"},{\"Exe\":\"a.exe\"},{\"Exe\":\"D:\\\\x\\\\Jeu.EXE\"},{\"Exe\":5},null,{\"Exe\":\"C:\\\\Jeux\\\\b.exe\\n\"},{\"Exe\":\"C:\\\\.exe\"},{\"Exe\":\"C:\\\\a.exe.bak\"}]}",
+        "attendu":  [
+                        "C:\\Jeux\\a.exe",
+                        "D:\\x\\Jeu.EXE",
+                        "C:\\Jeux\\b.exe\n"
+                    ]
+    },
+    {
+        "contenu":  "{\"CustomGames\":{\"Exe\":\"C:\\\\Seul\\\\seul.exe\"}}",
+        "attendu":  [
+                        "C:\\Seul\\seul.exe"
+                    ]
+    },
+    {
+        "contenu":  "{\"Autre\":1}",
+        "attendu":  [
+
+                    ]
+    },
+    {
+        "contenu":  "{\"CustomGames\":[]}",
+        "attendu":  [
+
+                    ]
+    },
+    {
+        "contenu":  "{\"CustomGames\":null}",
+        "attendu":  [
+
+                    ]
+    },
+    {
+        "contenu":  "pas du json",
+        "attendu":  [
+
+                    ]
+    },
+    {
+        "contenu":  "{\"CustomGames\":[\"C:\\\\Jeux\\\\a.exe\",{\"exe\":\"C:\\\\Jeux\\\\c.exe\"}]}",
+        "attendu":  [
+                        "C:\\Jeux\\c.exe"
+                    ]
+    },
+    {
+        "contenu":  "{\"CustomGames\":[{\"Exe\":\"\\\\\\\\serveur\\\\j.exe\"},{\"Exe\":\"c:/Jeux/d.exe\"},{\"Exe\":\"Z:\\\\é\\\\jeu.exe\"}]}",
+        "attendu":  [
+                        "Z:\\é\\jeu.exe"
+                    ]
+    },
+    {
+        "contenu":  "[]",
+        "attendu":  [
+
+                    ]
+    }
+]
