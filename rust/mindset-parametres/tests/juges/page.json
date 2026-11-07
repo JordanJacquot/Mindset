@@ -1,0 +1,175 @@
+{
+    "cas":  [
+                {
+                    "texte":  "parametres",
+                    "evenements":  [
+                                       {
+                                           "fenetre":  "montrer"
+                                       },
+                                       {
+                                           "onglet":  "general"
+                                       },
+                                       {
+                                           "page":  "parametres"
+                                       }
+                                   ],
+                    "retire":  true
+                },
+                {
+                    "texte":  "parametres:son",
+                    "evenements":  [
+                                       {
+                                           "fenetre":  "montrer"
+                                       },
+                                       {
+                                           "onglet":  "son"
+                                       },
+                                       {
+                                           "page":  "parametres"
+                                       }
+                                   ],
+                    "retire":  true
+                },
+                {
+                    "texte":  "  parametres:apparence\r\n",
+                    "evenements":  [
+                                       {
+                                           "fenetre":  "montrer"
+                                       },
+                                       {
+                                           "onglet":  "apparence"
+                                       },
+                                       {
+                                           "page":  "parametres"
+                                       }
+                                   ],
+                    "retire":  true
+                },
+                {
+                    "texte":  "PARAMETRES:MAJ",
+                    "evenements":  [
+                                       {
+                                           "fenetre":  "montrer"
+                                       },
+                                       {
+                                           "onglet":  "MAJ"
+                                       },
+                                       {
+                                           "page":  "parametres"
+                                       }
+                                   ],
+                    "retire":  true
+                },
+                {
+                    "texte":  "parametres:",
+                    "evenements":  [
+
+                                   ],
+                    "retire":  true
+                },
+                {
+                    "texte":  "parametres:inconnu",
+                    "evenements":  [
+
+                                   ],
+                    "retire":  true
+                },
+                {
+                    "texte":  "parametres:conso:x",
+                    "evenements":  [
+
+                                   ],
+                    "retire":  true
+                },
+                {
+                    "texte":  "menu",
+                    "evenements":  [
+                                       {
+                                           "fenetre":  "montrer"
+                                       },
+                                       {
+                                           "page":  "accueil"
+                                       }
+                                   ],
+                    "retire":  true
+                },
+                {
+                    "texte":  "Menu",
+                    "evenements":  [
+                                       {
+                                           "fenetre":  "montrer"
+                                       },
+                                       {
+                                           "page":  "accueil"
+                                       }
+                                   ],
+                    "retire":  true
+                },
+                {
+                    "texte":  "appli:evermind",
+                    "evenements":  [
+                                       {
+                                           "fenetre":  "montrer"
+                                       },
+                                       {
+                                           "ouvrir_appli":  "evermind"
+                                       }
+                                   ],
+                    "retire":  true
+                },
+                {
+                    "texte":  "appli:Evermind",
+                    "evenements":  [
+                                       {
+                                           "fenetre":  "montrer"
+                                       },
+                                       {
+                                           "ouvrir_appli":  "Evermind"
+                                       }
+                                   ],
+                    "retire":  true
+                },
+                {
+                    "texte":  "appli:absente",
+                    "evenements":  [
+
+                                   ],
+                    "retire":  true
+                },
+                {
+                    "texte":  "appli:",
+                    "evenements":  [
+
+                                   ],
+                    "retire":  true
+                },
+                {
+                    "texte":  "appli:a b",
+                    "evenements":  [
+
+                                   ],
+                    "retire":  true
+                },
+                {
+                    "texte":  "rien",
+                    "evenements":  [
+
+                                   ],
+                    "retire":  true
+                },
+                {
+                    "texte":  "",
+                    "evenements":  [
+
+                                   ],
+                    "retire":  true
+                },
+                {
+                    "texte":  null,
+                    "evenements":  [
+
+                                   ],
+                    "retire":  true
+                }
+            ]
+}

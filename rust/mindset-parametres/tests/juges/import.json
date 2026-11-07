@@ -1,0 +1,1369 @@
+{
+    "cas":  [
+                {
+                    "nom":  "zip Thème-Forêt.zip",
+                    "zip":  "zips/Thème-Forêt.zip",
+                    "applis":  [
+                                   [
+                                       "Nevermind",
+                                       "nevermind"
+                                   ],
+                                   [
+                                       "Evermind",
+                                       "evermind"
+                                   ],
+                                   [
+                                       "Mindcare",
+                                       "mindcare"
+                                   ]
+                               ],
+                    "avant":  [
+
+                              ],
+                    "pris":  [
+
+                             ],
+                    "a_retirer_avant":  null,
+                    "resultat":  {
+                                     "id":  "foret",
+                                     "remplace":  false,
+                                     "attente":  [
+
+                                                 ]
+                                 },
+                    "apres":  [
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\foret\\logo.png",
+                                      "taille":  246
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\foret\\mascotte.png",
+                                      "taille":  214
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\foret\\pack.json",
+                                      "taille":  434
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Nevermind\\packs\\foret\\logo.png",
+                                      "taille":  246
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Nevermind\\packs\\foret\\mascotte.png",
+                                      "taille":  214
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Nevermind\\packs\\foret\\pack.json",
+                                      "taille":  40
+                                  }
+                              ],
+                    "journal":  [
+                                    "Thème de la suite importé : foret (Mindset, Nevermind)"
+                                ]
+                },
+                {
+                    "nom":  "zip Café crème.zip",
+                    "zip":  "zips/Café crème.zip",
+                    "applis":  [
+                                   [
+                                       "Nevermind",
+                                       "nevermind"
+                                   ],
+                                   [
+                                       "Evermind",
+                                       "evermind"
+                                   ],
+                                   [
+                                       "Mindcare",
+                                       "mindcare"
+                                   ]
+                               ],
+                    "avant":  [
+
+                              ],
+                    "pris":  [
+
+                             ],
+                    "a_retirer_avant":  null,
+                    "resultat":  {
+                                     "id":  "cafe-creme",
+                                     "remplace":  false,
+                                     "attente":  [
+
+                                                 ]
+                                 },
+                    "apres":  [
+                                  {
+                                      "chemin":  "Donnees\\Evermind\\packs\\cafe-creme\\bande.png",
+                                      "taille":  270
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Evermind\\packs\\cafe-creme\\logo.png",
+                                      "taille":  246
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Evermind\\packs\\cafe-creme\\pack.json",
+                                      "taille":  304
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Evermind\\packs\\cafe-creme\\police.ttf",
+                                      "taille":  64
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\cafe-creme\\bande.png",
+                                      "taille":  270
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\cafe-creme\\logo.png",
+                                      "taille":  246
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\cafe-creme\\pack.json",
+                                      "taille":  304
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\cafe-creme\\police.ttf",
+                                      "taille":  64
+                                  }
+                              ],
+                    "journal":  [
+                                    "Thème de la suite importé : cafe-creme (Mindset, Evermind)"
+                                ]
+                },
+                {
+                    "nom":  "zip theme-neige.zip",
+                    "zip":  "zips/theme-neige.zip",
+                    "applis":  [
+                                   [
+                                       "Nevermind",
+                                       "nevermind"
+                                   ],
+                                   [
+                                       "Evermind",
+                                       "evermind"
+                                   ],
+                                   [
+                                       "Mindcare",
+                                       "mindcare"
+                                   ]
+                               ],
+                    "avant":  [
+
+                              ],
+                    "pris":  [
+
+                             ],
+                    "a_retirer_avant":  null,
+                    "resultat":  {
+                                     "id":  "neige",
+                                     "remplace":  false,
+                                     "attente":  [
+
+                                                 ]
+                                 },
+                    "apres":  [
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\neige\\pack.json",
+                                      "taille":  59
+                                  }
+                              ],
+                    "journal":  [
+                                    "Thème de la suite importé : neige (Mindset)"
+                                ]
+                },
+                {
+                    "nom":  "zip Thème-seul.zip",
+                    "zip":  "zips/Thème-seul.zip",
+                    "applis":  [
+                                   [
+                                       "Nevermind",
+                                       "nevermind"
+                                   ],
+                                   [
+                                       "Evermind",
+                                       "evermind"
+                                   ],
+                                   [
+                                       "Mindcare",
+                                       "mindcare"
+                                   ]
+                               ],
+                    "avant":  [
+
+                              ],
+                    "pris":  [
+
+                             ],
+                    "a_retirer_avant":  null,
+                    "resultat":  {
+                                     "erreur":  "Ce zip est un thème pour une seule appli. Un thème de la suite contient pack-mindset.json, puis un réglage par appli (pack-nevermind.json...)."
+                                 },
+                    "apres":  [
+
+                              ],
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "nom":  "zip Thème-rien.zip",
+                    "zip":  "zips/Thème-rien.zip",
+                    "applis":  [
+                                   [
+                                       "Nevermind",
+                                       "nevermind"
+                                   ],
+                                   [
+                                       "Evermind",
+                                       "evermind"
+                                   ],
+                                   [
+                                       "Mindcare",
+                                       "mindcare"
+                                   ]
+                               ],
+                    "avant":  [
+
+                              ],
+                    "pris":  [
+
+                             ],
+                    "a_retirer_avant":  null,
+                    "resultat":  {
+                                     "erreur":  "Ce zip ne contient pas de thème de la suite (pack-mindset.json)."
+                                 },
+                    "apres":  [
+
+                              ],
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "nom":  "zip Thème-dossier.zip",
+                    "zip":  "zips/Thème-dossier.zip",
+                    "applis":  [
+                                   [
+                                       "Nevermind",
+                                       "nevermind"
+                                   ],
+                                   [
+                                       "Evermind",
+                                       "evermind"
+                                   ],
+                                   [
+                                       "Mindcare",
+                                       "mindcare"
+                                   ]
+                               ],
+                    "avant":  [
+
+                              ],
+                    "pris":  [
+
+                             ],
+                    "a_retirer_avant":  null,
+                    "resultat":  {
+                                     "erreur":  "Fichier inattendu dans le thème : images/logo.png"
+                                 },
+                    "apres":  [
+
+                              ],
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "nom":  "zip Thème-dossier-vide.zip",
+                    "zip":  "zips/Thème-dossier-vide.zip",
+                    "applis":  [
+                                   [
+                                       "Nevermind",
+                                       "nevermind"
+                                   ],
+                                   [
+                                       "Evermind",
+                                       "evermind"
+                                   ],
+                                   [
+                                       "Mindcare",
+                                       "mindcare"
+                                   ]
+                               ],
+                    "avant":  [
+
+                              ],
+                    "pris":  [
+
+                             ],
+                    "a_retirer_avant":  null,
+                    "resultat":  {
+                                     "id":  "dossier-vide",
+                                     "remplace":  false,
+                                     "attente":  [
+
+                                                 ]
+                                 },
+                    "apres":  [
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\dossier-vide\\pack.json",
+                                      "taille":  59
+                                  }
+                              ],
+                    "journal":  [
+                                    "Thème de la suite importé : dossier-vide (Mindset)"
+                                ]
+                },
+                {
+                    "nom":  "zip Thème-texte.zip",
+                    "zip":  "zips/Thème-texte.zip",
+                    "applis":  [
+                                   [
+                                       "Nevermind",
+                                       "nevermind"
+                                   ],
+                                   [
+                                       "Evermind",
+                                       "evermind"
+                                   ],
+                                   [
+                                       "Mindcare",
+                                       "mindcare"
+                                   ]
+                               ],
+                    "avant":  [
+
+                              ],
+                    "pris":  [
+
+                             ],
+                    "a_retirer_avant":  null,
+                    "resultat":  {
+                                     "erreur":  "Fichier inattendu dans le thème : notes.txt"
+                                 },
+                    "apres":  [
+
+                              ],
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "nom":  "zip Thème-fausse-image.zip",
+                    "zip":  "zips/Thème-fausse-image.zip",
+                    "applis":  [
+                                   [
+                                       "Nevermind",
+                                       "nevermind"
+                                   ],
+                                   [
+                                       "Evermind",
+                                       "evermind"
+                                   ],
+                                   [
+                                       "Mindcare",
+                                       "mindcare"
+                                   ]
+                               ],
+                    "avant":  [
+
+                              ],
+                    "pris":  [
+
+                             ],
+                    "a_retirer_avant":  null,
+                    "resultat":  {
+                                     "erreur":  "Ce fichier du thème n\u0027est pas une image : logo.png"
+                                 },
+                    "apres":  [
+
+                              ],
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "nom":  "zip Thème-courte.zip",
+                    "zip":  "zips/Thème-courte.zip",
+                    "applis":  [
+                                   [
+                                       "Nevermind",
+                                       "nevermind"
+                                   ],
+                                   [
+                                       "Evermind",
+                                       "evermind"
+                                   ],
+                                   [
+                                       "Mindcare",
+                                       "mindcare"
+                                   ]
+                               ],
+                    "avant":  [
+
+                              ],
+                    "pris":  [
+
+                             ],
+                    "a_retirer_avant":  null,
+                    "resultat":  {
+                                     "erreur":  "Ce fichier du thème n\u0027est pas une image : logo.gif"
+                                 },
+                    "apres":  [
+
+                              ],
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "nom":  "zip Thème-couleurs.zip",
+                    "zip":  "zips/Thème-couleurs.zip",
+                    "applis":  [
+                                   [
+                                       "Nevermind",
+                                       "nevermind"
+                                   ],
+                                   [
+                                       "Evermind",
+                                       "evermind"
+                                   ],
+                                   [
+                                       "Mindcare",
+                                       "mindcare"
+                                   ]
+                               ],
+                    "avant":  [
+
+                              ],
+                    "pris":  [
+
+                             ],
+                    "a_retirer_avant":  null,
+                    "resultat":  {
+                                     "erreur":  "Ce thème contient une couleur ou une police mal écrite (pack-evermind.json) : il n\u0027a pas été importé."
+                                 },
+                    "apres":  [
+
+                              ],
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "nom":  "zip Thème-police.zip",
+                    "zip":  "zips/Thème-police.zip",
+                    "applis":  [
+                                   [
+                                       "Nevermind",
+                                       "nevermind"
+                                   ],
+                                   [
+                                       "Evermind",
+                                       "evermind"
+                                   ],
+                                   [
+                                       "Mindcare",
+                                       "mindcare"
+                                   ]
+                               ],
+                    "avant":  [
+
+                              ],
+                    "pris":  [
+
+                             ],
+                    "a_retirer_avant":  null,
+                    "resultat":  {
+                                     "erreur":  "Ce thème contient une couleur ou une police mal écrite (pack-mindset.json) : il n\u0027a pas été importé."
+                                 },
+                    "apres":  [
+
+                              ],
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "nom":  "zip Thème-police-nombre.zip",
+                    "zip":  "zips/Thème-police-nombre.zip",
+                    "applis":  [
+                                   [
+                                       "Nevermind",
+                                       "nevermind"
+                                   ],
+                                   [
+                                       "Evermind",
+                                       "evermind"
+                                   ],
+                                   [
+                                       "Mindcare",
+                                       "mindcare"
+                                   ]
+                               ],
+                    "avant":  [
+
+                              ],
+                    "pris":  [
+
+                             ],
+                    "a_retirer_avant":  null,
+                    "resultat":  {
+                                     "erreur":  "Ce thème contient une couleur ou une police mal écrite (pack-mindset.json) : il n\u0027a pas été importé."
+                                 },
+                    "apres":  [
+
+                              ],
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "nom":  "zip Thème-police-nulle.zip",
+                    "zip":  "zips/Thème-police-nulle.zip",
+                    "applis":  [
+                                   [
+                                       "Nevermind",
+                                       "nevermind"
+                                   ],
+                                   [
+                                       "Evermind",
+                                       "evermind"
+                                   ],
+                                   [
+                                       "Mindcare",
+                                       "mindcare"
+                                   ]
+                               ],
+                    "avant":  [
+
+                              ],
+                    "pris":  [
+
+                             ],
+                    "a_retirer_avant":  null,
+                    "resultat":  {
+                                     "id":  "police-nulle",
+                                     "remplace":  false,
+                                     "attente":  [
+
+                                                 ]
+                                 },
+                    "apres":  [
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\police-nulle\\pack.json",
+                                      "taille":  45
+                                  }
+                              ],
+                    "journal":  [
+                                    "Thème de la suite importé : police-nulle (Mindset)"
+                                ]
+                },
+                {
+                    "nom":  "zip Thème-illisible.zip",
+                    "zip":  "zips/Thème-illisible.zip",
+                    "applis":  [
+                                   [
+                                       "Nevermind",
+                                       "nevermind"
+                                   ],
+                                   [
+                                       "Evermind",
+                                       "evermind"
+                                   ],
+                                   [
+                                       "Mindcare",
+                                       "mindcare"
+                                   ]
+                               ],
+                    "avant":  [
+
+                              ],
+                    "pris":  [
+
+                             ],
+                    "a_retirer_avant":  null,
+                    "resultat":  {
+                                     "erreur":  "Ce thème contient une couleur ou une police mal écrite (pack-evermind.json) : il n\u0027a pas été importé."
+                                 },
+                    "apres":  [
+
+                              ],
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "nom":  "zip Thème-evermind-illisible.zip",
+                    "zip":  "zips/Thème-evermind-illisible.zip",
+                    "applis":  [
+                                   [
+                                       "Nevermind",
+                                       "nevermind"
+                                   ],
+                                   [
+                                       "Evermind",
+                                       "evermind"
+                                   ],
+                                   [
+                                       "Mindcare",
+                                       "mindcare"
+                                   ]
+                               ],
+                    "avant":  [
+
+                              ],
+                    "pris":  [
+
+                             ],
+                    "a_retirer_avant":  null,
+                    "resultat":  {
+                                     "id":  "evermind-illisible",
+                                     "remplace":  false,
+                                     "attente":  [
+
+                                                 ]
+                                 },
+                    "apres":  [
+                                  {
+                                      "chemin":  "Donnees\\Evermind\\packs\\evermind-illisible\\pack.json",
+                                      "taille":  9
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\evermind-illisible\\pack.json",
+                                      "taille":  59
+                                  }
+                              ],
+                    "journal":  [
+                                    "Thème de la suite importé : evermind-illisible (Mindset, Evermind)"
+                                ]
+                },
+                {
+                    "nom":  "zip Thème-doublon.zip",
+                    "zip":  "zips/Thème-doublon.zip",
+                    "applis":  [
+                                   [
+                                       "Nevermind",
+                                       "nevermind"
+                                   ],
+                                   [
+                                       "Evermind",
+                                       "evermind"
+                                   ],
+                                   [
+                                       "Mindcare",
+                                       "mindcare"
+                                   ]
+                               ],
+                    "avant":  [
+
+                              ],
+                    "pris":  [
+
+                             ],
+                    "a_retirer_avant":  null,
+                    "resultat":  {
+                                     "erreur":  "Le réglage de ce thème pour Mindset (pack-mindset.json) est illisible."
+                                 },
+                    "apres":  [
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\doublon\\pack.json",
+                                      "taille":  28
+                                  }
+                              ],
+                    "journal":  [
+                                    "Pack doublon illisible : Impossible de convertir la chaîne JSON, car un dictionnaire converti à partir de cette chaîne contient les clés en double « Name » et « name »."
+                                ]
+                },
+                {
+                    "nom":  "zip Thème-lourd.zip",
+                    "zip":  "zips/Thème-lourd.zip",
+                    "applis":  [
+                                   [
+                                       "Nevermind",
+                                       "nevermind"
+                                   ],
+                                   [
+                                       "Evermind",
+                                       "evermind"
+                                   ],
+                                   [
+                                       "Mindcare",
+                                       "mindcare"
+                                   ]
+                               ],
+                    "avant":  [
+
+                              ],
+                    "pris":  [
+
+                             ],
+                    "a_retirer_avant":  null,
+                    "resultat":  {
+                                     "erreur":  "Ce fichier du thème est trop lourd : gros.json (plus de 1 Mo)."
+                                 },
+                    "apres":  [
+
+                              ],
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "nom":  "zip Thème-très-lourd.zip",
+                    "zip":  "zips/Thème-très-lourd.zip",
+                    "applis":  [
+                                   [
+                                       "Nevermind",
+                                       "nevermind"
+                                   ],
+                                   [
+                                       "Evermind",
+                                       "evermind"
+                                   ],
+                                   [
+                                       "Mindcare",
+                                       "mindcare"
+                                   ]
+                               ],
+                    "avant":  [
+
+                              ],
+                    "pris":  [
+
+                             ],
+                    "a_retirer_avant":  null,
+                    "resultat":  {
+                                     "erreur":  "Ce thème est trop lourd (plus de 60 Mo)."
+                                 },
+                    "apres":  [
+
+                              ],
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "nom":  "zip Thème-tableau.zip",
+                    "zip":  "zips/Thème-tableau.zip",
+                    "applis":  [
+                                   [
+                                       "Nevermind",
+                                       "nevermind"
+                                   ],
+                                   [
+                                       "Evermind",
+                                       "evermind"
+                                   ],
+                                   [
+                                       "Mindcare",
+                                       "mindcare"
+                                   ]
+                               ],
+                    "avant":  [
+
+                              ],
+                    "pris":  [
+
+                             ],
+                    "a_retirer_avant":  null,
+                    "resultat":  {
+                                     "id":  "tableau",
+                                     "remplace":  false,
+                                     "attente":  [
+
+                                                 ]
+                                 },
+                    "apres":  [
+                                  {
+                                      "chemin":  "Donnees\\Evermind\\packs\\tableau\\pack.json",
+                                      "taille":  6
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\tableau\\pack.json",
+                                      "taille":  59
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Nevermind\\packs\\tableau\\pack.json",
+                                      "taille":  1
+                                  }
+                              ],
+                    "journal":  [
+                                    "Thème de la suite importé : tableau (Mindset, Nevermind, Evermind)"
+                                ]
+                },
+                {
+                    "nom":  "zip Thème-Map.zip",
+                    "zip":  "zips/Thème-Map.zip",
+                    "applis":  [
+                                   [
+                                       "Nevermind",
+                                       "nevermind"
+                                   ],
+                                   [
+                                       "Evermind",
+                                       "evermind"
+                                   ],
+                                   [
+                                       "Mindcare",
+                                       "mindcare"
+                                   ]
+                               ],
+                    "avant":  [
+
+                              ],
+                    "pris":  [
+
+                             ],
+                    "a_retirer_avant":  null,
+                    "resultat":  {
+                                     "erreur":  "Ce thème contient une couleur ou une police mal écrite (pack-mindset.json) : il n\u0027a pas été importé."
+                                 },
+                    "apres":  [
+
+                              ],
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "nom":  "zip Thème_bas.zip",
+                    "zip":  "zips/Thème_bas.zip",
+                    "applis":  [
+                                   [
+                                       "Nevermind",
+                                       "nevermind"
+                                   ],
+                                   [
+                                       "Evermind",
+                                       "evermind"
+                                   ],
+                                   [
+                                       "Mindcare",
+                                       "mindcare"
+                                   ]
+                               ],
+                    "avant":  [
+
+                              ],
+                    "pris":  [
+
+                             ],
+                    "a_retirer_avant":  null,
+                    "resultat":  {
+                                     "erreur":  "Le nom de ce fichier ne convient pas pour un thème (lettres, chiffres et tirets)."
+                                 },
+                    "apres":  [
+
+                              ],
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "nom":  "zip Thème-.zip",
+                    "zip":  "zips/Thème-.zip",
+                    "applis":  [
+                                   [
+                                       "Nevermind",
+                                       "nevermind"
+                                   ],
+                                   [
+                                       "Evermind",
+                                       "evermind"
+                                   ],
+                                   [
+                                       "Mindcare",
+                                       "mindcare"
+                                   ]
+                               ],
+                    "avant":  [
+
+                              ],
+                    "pris":  [
+
+                             ],
+                    "a_retirer_avant":  null,
+                    "resultat":  {
+                                     "erreur":  "Le nom de ce fichier ne convient pas pour un thème (lettres, chiffres et tirets)."
+                                 },
+                    "apres":  [
+
+                              ],
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "nom":  "zip Été 2026 !.zip",
+                    "zip":  "zips/Été 2026 !.zip",
+                    "applis":  [
+                                   [
+                                       "Nevermind",
+                                       "nevermind"
+                                   ],
+                                   [
+                                       "Evermind",
+                                       "evermind"
+                                   ],
+                                   [
+                                       "Mindcare",
+                                       "mindcare"
+                                   ]
+                               ],
+                    "avant":  [
+
+                              ],
+                    "pris":  [
+
+                             ],
+                    "a_retirer_avant":  null,
+                    "resultat":  {
+                                     "id":  "ete-2026",
+                                     "remplace":  false,
+                                     "attente":  [
+
+                                                 ]
+                                 },
+                    "apres":  [
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\ete-2026\\logo (1).png",
+                                      "taille":  246
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\ete-2026\\pack.json",
+                                      "taille":  59
+                                  }
+                              ],
+                    "journal":  [
+                                    "Thème de la suite importé : ete-2026 (Mindset)"
+                                ]
+                },
+                {
+                    "nom":  "zip Thème-nom..double.zip",
+                    "zip":  "zips/Thème-nom..double.zip",
+                    "applis":  [
+                                   [
+                                       "Nevermind",
+                                       "nevermind"
+                                   ],
+                                   [
+                                       "Evermind",
+                                       "evermind"
+                                   ],
+                                   [
+                                       "Mindcare",
+                                       "mindcare"
+                                   ]
+                               ],
+                    "avant":  [
+
+                              ],
+                    "pris":  [
+
+                             ],
+                    "a_retirer_avant":  null,
+                    "resultat":  {
+                                     "erreur":  "Fichier inattendu dans le thème : a..b.png"
+                                 },
+                    "apres":  [
+
+                              ],
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "nom":  "remplace une version déjà là",
+                    "zip":  "zips/Thème-Forêt.zip",
+                    "applis":  [
+                                   [
+                                       "Nevermind",
+                                       "nevermind"
+                                   ],
+                                   [
+                                       "Evermind",
+                                       "evermind"
+                                   ],
+                                   [
+                                       "Mindcare",
+                                       "mindcare"
+                                   ]
+                               ],
+                    "avant":  [
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\foret\\pack.json",
+                                      "b64":  "eyAiTmFtZSI6ICJBbmNpZW5uZSBmb3LDqnQiIH0="
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\foret\\vieux.png",
+                                      "b64":  "eA=="
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Nevermind\\packs\\foret\\pack.json",
+                                      "b64":  "eyAiTmFtZSI6ICJBbmNpZW5uZSIgfQ=="
+                                  }
+                              ],
+                    "pris":  [
+
+                             ],
+                    "a_retirer_avant":  null,
+                    "resultat":  {
+                                     "id":  "foret",
+                                     "remplace":  true,
+                                     "attente":  [
+
+                                                 ]
+                                 },
+                    "apres":  [
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\foret\\logo.png",
+                                      "taille":  246
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\foret\\mascotte.png",
+                                      "taille":  214
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\foret\\pack.json",
+                                      "taille":  434
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Nevermind\\packs\\foret\\logo.png",
+                                      "taille":  246
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Nevermind\\packs\\foret\\mascotte.png",
+                                      "taille":  214
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Nevermind\\packs\\foret\\pack.json",
+                                      "taille":  40
+                                  }
+                              ],
+                    "journal":  [
+                                    "Thème de la suite mis à jour : foret (Mindset, Nevermind)"
+                                ]
+                },
+                {
+                    "nom":  "ancienne version prise par une appli",
+                    "zip":  "zips/Thème-Forêt.zip",
+                    "applis":  [
+                                   [
+                                       "Nevermind",
+                                       "nevermind"
+                                   ],
+                                   [
+                                       "Evermind",
+                                       "evermind"
+                                   ],
+                                   [
+                                       "Mindcare",
+                                       "mindcare"
+                                   ]
+                               ],
+                    "avant":  [
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\foret\\pack.json",
+                                      "b64":  "eyAiTmFtZSI6ICJBbmNpZW5uZSBmb3LDqnQiIH0="
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\foret\\vieux.png",
+                                      "b64":  "eA=="
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Nevermind\\packs\\foret\\pack.json",
+                                      "b64":  "eyAiTmFtZSI6ICJBbmNpZW5uZSIgfQ=="
+                                  }
+                              ],
+                    "pris":  [
+                                 "Donnees\\Nevermind\\packs\\foret\\pack.json"
+                             ],
+                    "a_retirer_avant":  null,
+                    "resultat":  {
+                                     "id":  "foret",
+                                     "remplace":  true,
+                                     "attente":  [
+                                                     "Nevermind"
+                                                 ]
+                                 },
+                    "apres":  [
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\foret\\logo.png",
+                                      "taille":  246
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\foret\\mascotte.png",
+                                      "taille":  214
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\foret\\pack.json",
+                                      "taille":  434
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs-en-attente\\Nevermind\\foret\\logo.png",
+                                      "taille":  246
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs-en-attente\\Nevermind\\foret\\mascotte.png",
+                                      "taille":  214
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs-en-attente\\Nevermind\\foret\\pack.json",
+                                      "taille":  40
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Nevermind\\packs\\foret\\pack.json",
+                                      "taille":  22
+                                  }
+                              ],
+                    "journal":  [
+                                    "Thème de la suite mis à jour : foret (Mindset) ; nouvelle version mise en place au prochain démarrage de Mindset pour Nevermind (thème utilisé)"
+                                ]
+                },
+                {
+                    "nom":  "import interrompu avant (.nouveau)",
+                    "zip":  "zips/Thème-Forêt.zip",
+                    "applis":  [
+                                   [
+                                       "Nevermind",
+                                       "nevermind"
+                                   ],
+                                   [
+                                       "Evermind",
+                                       "evermind"
+                                   ],
+                                   [
+                                       "Mindcare",
+                                       "mindcare"
+                                   ]
+                               ],
+                    "avant":  [
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\foret.nouveau\\reste.png",
+                                      "b64":  "eA=="
+                                  }
+                              ],
+                    "pris":  [
+
+                             ],
+                    "a_retirer_avant":  null,
+                    "resultat":  {
+                                     "id":  "foret",
+                                     "remplace":  false,
+                                     "attente":  [
+
+                                                 ]
+                                 },
+                    "apres":  [
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\foret\\logo.png",
+                                      "taille":  246
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\foret\\mascotte.png",
+                                      "taille":  214
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\foret\\pack.json",
+                                      "taille":  434
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Nevermind\\packs\\foret\\logo.png",
+                                      "taille":  246
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Nevermind\\packs\\foret\\mascotte.png",
+                                      "taille":  214
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Nevermind\\packs\\foret\\pack.json",
+                                      "taille":  40
+                                  }
+                              ],
+                    "journal":  [
+                                    "Thème de la suite importé : foret (Mindset, Nevermind)"
+                                ]
+                },
+                {
+                    "nom":  "une version attendait déjà",
+                    "zip":  "zips/Thème-Forêt.zip",
+                    "applis":  [
+                                   [
+                                       "Nevermind",
+                                       "nevermind"
+                                   ],
+                                   [
+                                       "Evermind",
+                                       "evermind"
+                                   ],
+                                   [
+                                       "Mindcare",
+                                       "mindcare"
+                                   ]
+                               ],
+                    "avant":  [
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs-en-attente\\Nevermind\\foret\\pack.json",
+                                      "b64":  "e30="
+                                  }
+                              ],
+                    "pris":  [
+
+                             ],
+                    "a_retirer_avant":  null,
+                    "resultat":  {
+                                     "id":  "foret",
+                                     "remplace":  false,
+                                     "attente":  [
+
+                                                 ]
+                                 },
+                    "apres":  [
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\foret\\logo.png",
+                                      "taille":  246
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\foret\\mascotte.png",
+                                      "taille":  214
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\foret\\pack.json",
+                                      "taille":  434
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Nevermind\\packs\\foret\\logo.png",
+                                      "taille":  246
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Nevermind\\packs\\foret\\mascotte.png",
+                                      "taille":  214
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Nevermind\\packs\\foret\\pack.json",
+                                      "taille":  40
+                                  }
+                              ],
+                    "journal":  [
+                                    "Thème de la suite importé : foret (Mindset, Nevermind)"
+                                ]
+                },
+                {
+                    "nom":  "réimporté après une suppression pas finie",
+                    "zip":  "zips/Thème-Forêt.zip",
+                    "applis":  [
+                                   [
+                                       "Nevermind",
+                                       "nevermind"
+                                   ],
+                                   [
+                                       "Evermind",
+                                       "evermind"
+                                   ],
+                                   [
+                                       "Mindcare",
+                                       "mindcare"
+                                   ]
+                               ],
+                    "avant":  [
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\foret\\pack.json",
+                                      "b64":  "eyAiTmFtZSI6ICJBbmNpZW5uZSBmb3LDqnQiIH0="
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\foret\\vieux.png",
+                                      "b64":  "eA=="
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Nevermind\\packs\\foret\\pack.json",
+                                      "b64":  "eyAiTmFtZSI6ICJBbmNpZW5uZSIgfQ=="
+                                  }
+                              ],
+                    "pris":  [
+
+                             ],
+                    "a_retirer_avant":  "foret\r\n",
+                    "resultat":  {
+                                     "id":  "foret",
+                                     "remplace":  false,
+                                     "attente":  [
+
+                                                 ]
+                                 },
+                    "apres":  [
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\foret\\logo.png",
+                                      "taille":  246
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\foret\\mascotte.png",
+                                      "taille":  214
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\foret\\pack.json",
+                                      "taille":  434
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Nevermind\\packs\\foret\\logo.png",
+                                      "taille":  246
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Nevermind\\packs\\foret\\mascotte.png",
+                                      "taille":  214
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Nevermind\\packs\\foret\\pack.json",
+                                      "taille":  40
+                                  }
+                              ],
+                    "journal":  [
+                                    "Thème foret retiré : \u003cracine\u003e\\Donnees\\Mindset\\packs\\foret",
+                                    "Thème foret retiré : \u003cracine\u003e\\Donnees\\Nevermind\\packs\\foret",
+                                    "Thème de la suite importé : foret (Mindset, Nevermind)"
+                                ]
+                },
+                {
+                    "nom":  "sans applis",
+                    "zip":  "zips/Café crème.zip",
+                    "applis":  [
+
+                               ],
+                    "avant":  [
+
+                              ],
+                    "pris":  [
+
+                             ],
+                    "a_retirer_avant":  null,
+                    "resultat":  {
+                                     "id":  "cafe-creme",
+                                     "remplace":  false,
+                                     "attente":  [
+
+                                                 ]
+                                 },
+                    "apres":  [
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\cafe-creme\\bande.png",
+                                      "taille":  270
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\cafe-creme\\logo.png",
+                                      "taille":  246
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\cafe-creme\\pack.json",
+                                      "taille":  304
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\cafe-creme\\police.ttf",
+                                      "taille":  64
+                                  }
+                              ],
+                    "journal":  [
+                                    "Thème de la suite importé : cafe-creme (Mindset)"
+                                ]
+                }
+            ]
+}

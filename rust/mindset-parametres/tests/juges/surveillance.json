@@ -1,0 +1,143 @@
+{
+    "cas":  [
+                {
+                    "nom":  "le même",
+                    "suite":  "neon",
+                    "actuel":  "neon",
+                    "occupe":  false,
+                    "derniere":  null,
+                    "evenements":  [
+
+                                   ],
+                    "derniere_apres":  null,
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "nom":  "changé",
+                    "suite":  "arcade",
+                    "actuel":  "neon",
+                    "occupe":  false,
+                    "derniere":  null,
+                    "evenements":  [
+                                       {
+                                           "relancer":  true
+                                       }
+                                   ],
+                    "derniere_apres":  {
+                                           "Theme":  "arcade",
+                                           "Quand":  "2026-11-07T20:00:00"
+                                       },
+                    "journal":  [
+                                    "Thème de la suite changé ailleurs : arcade"
+                                ]
+                },
+                {
+                    "nom":  "changé, casse différente",
+                    "suite":  "NEON",
+                    "actuel":  "neon",
+                    "occupe":  false,
+                    "derniere":  null,
+                    "evenements":  [
+
+                                   ],
+                    "derniere_apres":  null,
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "nom":  "pendant une installation",
+                    "suite":  "arcade",
+                    "actuel":  "neon",
+                    "occupe":  true,
+                    "derniere":  null,
+                    "evenements":  [
+
+                                   ],
+                    "derniere_apres":  null,
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "nom":  "déjà relancé il y a 30 s",
+                    "suite":  "arcade",
+                    "actuel":  "neon",
+                    "occupe":  false,
+                    "derniere":  {
+                                     "Theme":  "arcade",
+                                     "Quand":  "2026-11-07T19:59:30"
+                                 },
+                    "evenements":  [
+
+                                   ],
+                    "derniere_apres":  {
+                                           "Theme":  "arcade",
+                                           "Quand":  "2026-11-07T19:59:30"
+                                       },
+                    "journal":  [
+                                    "Thème de la suite arcade : déjà relancé il y a moins d\u0027une minute, pas de nouvelle relance"
+                                ]
+                },
+                {
+                    "nom":  "déjà relancé il y a 2 min",
+                    "suite":  "arcade",
+                    "actuel":  "neon",
+                    "occupe":  false,
+                    "derniere":  {
+                                     "Theme":  "arcade",
+                                     "Quand":  "2026-11-07T19:58:00"
+                                 },
+                    "evenements":  [
+                                       {
+                                           "relancer":  true
+                                       }
+                                   ],
+                    "derniere_apres":  {
+                                           "Theme":  "arcade",
+                                           "Quand":  "2026-11-07T20:00:00"
+                                       },
+                    "journal":  [
+                                    "Thème de la suite changé ailleurs : arcade"
+                                ]
+                },
+                {
+                    "nom":  "relancé pour un autre",
+                    "suite":  "arcade",
+                    "actuel":  "neon",
+                    "occupe":  false,
+                    "derniere":  {
+                                     "Theme":  "rubis",
+                                     "Quand":  "2026-11-07T19:59:59"
+                                 },
+                    "evenements":  [
+                                       {
+                                           "relancer":  true
+                                       }
+                                   ],
+                    "derniere_apres":  {
+                                           "Theme":  "arcade",
+                                           "Quand":  "2026-11-07T20:00:00"
+                                       },
+                    "journal":  [
+                                    "Thème de la suite changé ailleurs : arcade"
+                                ]
+                },
+                {
+                    "nom":  "rien dans suite.json",
+                    "suite":  null,
+                    "actuel":  "neon",
+                    "occupe":  false,
+                    "derniere":  null,
+                    "evenements":  [
+
+                                   ],
+                    "derniere_apres":  null,
+                    "journal":  [
+
+                                ]
+                }
+            ]
+}

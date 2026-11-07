@@ -1,0 +1,1045 @@
+{
+    "cas":  [
+                {
+                    "nom":  "supprimer partout",
+                    "action":  "supprimer",
+                    "id":  "foret",
+                    "applis":  [
+                                   [
+                                       "Nevermind",
+                                       "nevermind"
+                                   ],
+                                   [
+                                       "Evermind",
+                                       "evermind"
+                                   ],
+                                   [
+                                       "Mindcare",
+                                       "mindcare"
+                                   ]
+                               ],
+                    "avant":  [
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\foret\\pack.json",
+                                      "b64":  "eyAiTmFtZSI6ICJGb3LDqnQiLCAiRGVzYyI6ICJWZXJ0IHRlbmRyZSBldCBib2lzLiIsICJCYXNlIjogInRlcm1pbmFsIiwgIkhlbGxvIjogInswfSwgcHJvbWVuZXVyICEiLCAiTWFzY290dGUiOiB7ICJGaWxlIjogIm1hc2NvdHRlLnBuZyIsICJGcmFtZXMiOiA0LCAiRGVsYXkiOiAxMjAgfSwgIkxvZ28iOiAibG9nby5wbmciLCAiQ29sb3JzIjogeyAiUCI6ICIjNENEOTY0IiwgIlMiOiAiI0I2RkYzQiIsICJUIjogIiNGRkM4M0QiLCAiTkgiOiAxNDAsICJOUyI6IDAuNSwgIk1hcCI6IHsgIjBDMDkyMCI6ICIwQTFBMEUiLCAiIzA2MDUwRiI6ICIwNDBDMDYiIH0gfSwgIlRhYkljb25zIjogeyAiYWNjdWVpbCI6IHsgIkZpbGUiOiAibG9nby5wbmciLCAiRnJhbWVzIjogMSwgIkRlbGF5IjogMTAgfSwgIk1hbCI6IHsgIkZpbGUiOiAiYWJzZW50LnBuZyIgfSB9IH0="
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\foret\\logo.png",
+                                      "b64":  "eA=="
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Nevermind\\packs\\foret\\pack.json",
+                                      "b64":  "e30="
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Evermind\\packs\\foret.nouveau\\pack.json",
+                                      "b64":  "e30="
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs-en-attente\\Evermind\\foret\\pack.json",
+                                      "b64":  "e30="
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\neige\\pack.json",
+                                      "b64":  "eyAiTmFtZSI6ICJOZWlnZSIsICJEZXNjIjogIlRvdXQgYmxhbmMuIiwgIkJhc2UiOiAicnViaXMiIH0="
+                                  }
+                              ],
+                    "pris":  [
+
+                             ],
+                    "a_retirer_avant":  null,
+                    "resultat":  true,
+                    "apres":  [
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\neige\\pack.json",
+                                      "taille":  59
+                                  }
+                              ],
+                    "a_retirer":  null,
+                    "journal":  [
+                                    "Thème foret retiré : \u003cracine\u003e\\Donnees\\Mindset\\packs\\foret",
+                                    "Thème foret retiré : \u003cracine\u003e\\Donnees\\Nevermind\\packs\\foret",
+                                    "Thème foret retiré : \u003cracine\u003e\\Donnees\\Evermind\\packs\\foret.nouveau",
+                                    "Thème de la suite supprimé : foret"
+                                ]
+                },
+                {
+                    "nom":  "supprimer : un dossier pris",
+                    "action":  "supprimer",
+                    "id":  "foret",
+                    "applis":  [
+                                   [
+                                       "Nevermind",
+                                       "nevermind"
+                                   ],
+                                   [
+                                       "Evermind",
+                                       "evermind"
+                                   ],
+                                   [
+                                       "Mindcare",
+                                       "mindcare"
+                                   ]
+                               ],
+                    "avant":  [
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\foret\\pack.json",
+                                      "b64":  "eyAiTmFtZSI6ICJGb3LDqnQiLCAiRGVzYyI6ICJWZXJ0IHRlbmRyZSBldCBib2lzLiIsICJCYXNlIjogInRlcm1pbmFsIiwgIkhlbGxvIjogInswfSwgcHJvbWVuZXVyICEiLCAiTWFzY290dGUiOiB7ICJGaWxlIjogIm1hc2NvdHRlLnBuZyIsICJGcmFtZXMiOiA0LCAiRGVsYXkiOiAxMjAgfSwgIkxvZ28iOiAibG9nby5wbmciLCAiQ29sb3JzIjogeyAiUCI6ICIjNENEOTY0IiwgIlMiOiAiI0I2RkYzQiIsICJUIjogIiNGRkM4M0QiLCAiTkgiOiAxNDAsICJOUyI6IDAuNSwgIk1hcCI6IHsgIjBDMDkyMCI6ICIwQTFBMEUiLCAiIzA2MDUwRiI6ICIwNDBDMDYiIH0gfSwgIlRhYkljb25zIjogeyAiYWNjdWVpbCI6IHsgIkZpbGUiOiAibG9nby5wbmciLCAiRnJhbWVzIjogMSwgIkRlbGF5IjogMTAgfSwgIk1hbCI6IHsgIkZpbGUiOiAiYWJzZW50LnBuZyIgfSB9IH0="
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\foret\\logo.png",
+                                      "b64":  "eA=="
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Nevermind\\packs\\foret\\pack.json",
+                                      "b64":  "e30="
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Evermind\\packs\\foret.nouveau\\pack.json",
+                                      "b64":  "e30="
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs-en-attente\\Evermind\\foret\\pack.json",
+                                      "b64":  "e30="
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\neige\\pack.json",
+                                      "b64":  "eyAiTmFtZSI6ICJOZWlnZSIsICJEZXNjIjogIlRvdXQgYmxhbmMuIiwgIkJhc2UiOiAicnViaXMiIH0="
+                                  }
+                              ],
+                    "pris":  [
+                                 "Donnees\\Nevermind\\packs\\foret\\pack.json"
+                             ],
+                    "a_retirer_avant":  null,
+                    "resultat":  false,
+                    "apres":  [
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\neige\\pack.json",
+                                      "taille":  59
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs-a-retirer.txt",
+                                      "taille":  7
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Nevermind\\packs\\foret\\pack.json",
+                                      "taille":  2
+                                  }
+                              ],
+                    "a_retirer":  "foret\r\n",
+                    "journal":  [
+                                    "Thème foret retiré : \u003cracine\u003e\\Donnees\\Mindset\\packs\\foret",
+                                    "Thème foret : \u003cracine\u003e\\Donnees\\Nevermind\\packs\\foret pas encore retiré (Le processus ne peut pas accéder au fichier \u0027pack.json\u0027, car il est en cours d\u0027utilisation par un autre processus.)",
+                                    "Thème foret retiré : \u003cracine\u003e\\Donnees\\Evermind\\packs\\foret.nouveau",
+                                    "Thème de la suite supprimé : foret (des dossiers encore pris, retirés plus tard)"
+                                ]
+                },
+                {
+                    "nom":  "supprimer : déjà dans la liste",
+                    "action":  "supprimer",
+                    "id":  "foret",
+                    "applis":  [
+                                   [
+                                       "Nevermind",
+                                       "nevermind"
+                                   ],
+                                   [
+                                       "Evermind",
+                                       "evermind"
+                                   ],
+                                   [
+                                       "Mindcare",
+                                       "mindcare"
+                                   ]
+                               ],
+                    "avant":  [
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\foret\\pack.json",
+                                      "b64":  "eyAiTmFtZSI6ICJGb3LDqnQiLCAiRGVzYyI6ICJWZXJ0IHRlbmRyZSBldCBib2lzLiIsICJCYXNlIjogInRlcm1pbmFsIiwgIkhlbGxvIjogInswfSwgcHJvbWVuZXVyICEiLCAiTWFzY290dGUiOiB7ICJGaWxlIjogIm1hc2NvdHRlLnBuZyIsICJGcmFtZXMiOiA0LCAiRGVsYXkiOiAxMjAgfSwgIkxvZ28iOiAibG9nby5wbmciLCAiQ29sb3JzIjogeyAiUCI6ICIjNENEOTY0IiwgIlMiOiAiI0I2RkYzQiIsICJUIjogIiNGRkM4M0QiLCAiTkgiOiAxNDAsICJOUyI6IDAuNSwgIk1hcCI6IHsgIjBDMDkyMCI6ICIwQTFBMEUiLCAiIzA2MDUwRiI6ICIwNDBDMDYiIH0gfSwgIlRhYkljb25zIjogeyAiYWNjdWVpbCI6IHsgIkZpbGUiOiAibG9nby5wbmciLCAiRnJhbWVzIjogMSwgIkRlbGF5IjogMTAgfSwgIk1hbCI6IHsgIkZpbGUiOiAiYWJzZW50LnBuZyIgfSB9IH0="
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\foret\\logo.png",
+                                      "b64":  "eA=="
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Nevermind\\packs\\foret\\pack.json",
+                                      "b64":  "e30="
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Evermind\\packs\\foret.nouveau\\pack.json",
+                                      "b64":  "e30="
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs-en-attente\\Evermind\\foret\\pack.json",
+                                      "b64":  "e30="
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\neige\\pack.json",
+                                      "b64":  "eyAiTmFtZSI6ICJOZWlnZSIsICJEZXNjIjogIlRvdXQgYmxhbmMuIiwgIkJhc2UiOiAicnViaXMiIH0="
+                                  }
+                              ],
+                    "pris":  [
+
+                             ],
+                    "a_retirer_avant":  "neige\r\nforet\r\n",
+                    "resultat":  true,
+                    "apres":  [
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\neige\\pack.json",
+                                      "taille":  59
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs-a-retirer.txt",
+                                      "taille":  7
+                                  }
+                              ],
+                    "a_retirer":  "neige\r\n",
+                    "journal":  [
+                                    "Thème foret retiré : \u003cracine\u003e\\Donnees\\Mindset\\packs\\foret",
+                                    "Thème foret retiré : \u003cracine\u003e\\Donnees\\Nevermind\\packs\\foret",
+                                    "Thème foret retiré : \u003cracine\u003e\\Donnees\\Evermind\\packs\\foret.nouveau",
+                                    "Thème de la suite supprimé : foret"
+                                ]
+                },
+                {
+                    "nom":  "supprimer : id refusé",
+                    "action":  "supprimer",
+                    "id":  "Foret",
+                    "applis":  [
+                                   [
+                                       "Nevermind",
+                                       "nevermind"
+                                   ],
+                                   [
+                                       "Evermind",
+                                       "evermind"
+                                   ],
+                                   [
+                                       "Mindcare",
+                                       "mindcare"
+                                   ]
+                               ],
+                    "avant":  [
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\foret\\pack.json",
+                                      "b64":  "eyAiTmFtZSI6ICJGb3LDqnQiLCAiRGVzYyI6ICJWZXJ0IHRlbmRyZSBldCBib2lzLiIsICJCYXNlIjogInRlcm1pbmFsIiwgIkhlbGxvIjogInswfSwgcHJvbWVuZXVyICEiLCAiTWFzY290dGUiOiB7ICJGaWxlIjogIm1hc2NvdHRlLnBuZyIsICJGcmFtZXMiOiA0LCAiRGVsYXkiOiAxMjAgfSwgIkxvZ28iOiAibG9nby5wbmciLCAiQ29sb3JzIjogeyAiUCI6ICIjNENEOTY0IiwgIlMiOiAiI0I2RkYzQiIsICJUIjogIiNGRkM4M0QiLCAiTkgiOiAxNDAsICJOUyI6IDAuNSwgIk1hcCI6IHsgIjBDMDkyMCI6ICIwQTFBMEUiLCAiIzA2MDUwRiI6ICIwNDBDMDYiIH0gfSwgIlRhYkljb25zIjogeyAiYWNjdWVpbCI6IHsgIkZpbGUiOiAibG9nby5wbmciLCAiRnJhbWVzIjogMSwgIkRlbGF5IjogMTAgfSwgIk1hbCI6IHsgIkZpbGUiOiAiYWJzZW50LnBuZyIgfSB9IH0="
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\foret\\logo.png",
+                                      "b64":  "eA=="
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Nevermind\\packs\\foret\\pack.json",
+                                      "b64":  "e30="
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Evermind\\packs\\foret.nouveau\\pack.json",
+                                      "b64":  "e30="
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs-en-attente\\Evermind\\foret\\pack.json",
+                                      "b64":  "e30="
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\neige\\pack.json",
+                                      "b64":  "eyAiTmFtZSI6ICJOZWlnZSIsICJEZXNjIjogIlRvdXQgYmxhbmMuIiwgIkJhc2UiOiAicnViaXMiIH0="
+                                  }
+                              ],
+                    "pris":  [
+
+                             ],
+                    "a_retirer_avant":  null,
+                    "resultat":  false,
+                    "apres":  [
+                                  {
+                                      "chemin":  "Donnees\\Evermind\\packs\\foret.nouveau\\pack.json",
+                                      "taille":  2
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\foret\\logo.png",
+                                      "taille":  1
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\foret\\pack.json",
+                                      "taille":  434
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\neige\\pack.json",
+                                      "taille":  59
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs-en-attente\\Evermind\\foret\\pack.json",
+                                      "taille":  2
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Nevermind\\packs\\foret\\pack.json",
+                                      "taille":  2
+                                  }
+                              ],
+                    "a_retirer":  null,
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "nom":  "supprimer : id avec ..",
+                    "action":  "supprimer",
+                    "id":  "..",
+                    "applis":  [
+                                   [
+                                       "Nevermind",
+                                       "nevermind"
+                                   ],
+                                   [
+                                       "Evermind",
+                                       "evermind"
+                                   ],
+                                   [
+                                       "Mindcare",
+                                       "mindcare"
+                                   ]
+                               ],
+                    "avant":  [
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\foret\\pack.json",
+                                      "b64":  "eyAiTmFtZSI6ICJGb3LDqnQiLCAiRGVzYyI6ICJWZXJ0IHRlbmRyZSBldCBib2lzLiIsICJCYXNlIjogInRlcm1pbmFsIiwgIkhlbGxvIjogInswfSwgcHJvbWVuZXVyICEiLCAiTWFzY290dGUiOiB7ICJGaWxlIjogIm1hc2NvdHRlLnBuZyIsICJGcmFtZXMiOiA0LCAiRGVsYXkiOiAxMjAgfSwgIkxvZ28iOiAibG9nby5wbmciLCAiQ29sb3JzIjogeyAiUCI6ICIjNENEOTY0IiwgIlMiOiAiI0I2RkYzQiIsICJUIjogIiNGRkM4M0QiLCAiTkgiOiAxNDAsICJOUyI6IDAuNSwgIk1hcCI6IHsgIjBDMDkyMCI6ICIwQTFBMEUiLCAiIzA2MDUwRiI6ICIwNDBDMDYiIH0gfSwgIlRhYkljb25zIjogeyAiYWNjdWVpbCI6IHsgIkZpbGUiOiAibG9nby5wbmciLCAiRnJhbWVzIjogMSwgIkRlbGF5IjogMTAgfSwgIk1hbCI6IHsgIkZpbGUiOiAiYWJzZW50LnBuZyIgfSB9IH0="
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\foret\\logo.png",
+                                      "b64":  "eA=="
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Nevermind\\packs\\foret\\pack.json",
+                                      "b64":  "e30="
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Evermind\\packs\\foret.nouveau\\pack.json",
+                                      "b64":  "e30="
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs-en-attente\\Evermind\\foret\\pack.json",
+                                      "b64":  "e30="
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\neige\\pack.json",
+                                      "b64":  "eyAiTmFtZSI6ICJOZWlnZSIsICJEZXNjIjogIlRvdXQgYmxhbmMuIiwgIkJhc2UiOiAicnViaXMiIH0="
+                                  }
+                              ],
+                    "pris":  [
+
+                             ],
+                    "a_retirer_avant":  null,
+                    "resultat":  false,
+                    "apres":  [
+                                  {
+                                      "chemin":  "Donnees\\Evermind\\packs\\foret.nouveau\\pack.json",
+                                      "taille":  2
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\foret\\logo.png",
+                                      "taille":  1
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\foret\\pack.json",
+                                      "taille":  434
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\neige\\pack.json",
+                                      "taille":  59
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs-en-attente\\Evermind\\foret\\pack.json",
+                                      "taille":  2
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Nevermind\\packs\\foret\\pack.json",
+                                      "taille":  2
+                                  }
+                              ],
+                    "a_retirer":  null,
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "nom":  "supprimer : absent",
+                    "action":  "supprimer",
+                    "id":  "absent",
+                    "applis":  [
+                                   [
+                                       "Nevermind",
+                                       "nevermind"
+                                   ],
+                                   [
+                                       "Evermind",
+                                       "evermind"
+                                   ],
+                                   [
+                                       "Mindcare",
+                                       "mindcare"
+                                   ]
+                               ],
+                    "avant":  [
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\foret\\pack.json",
+                                      "b64":  "eyAiTmFtZSI6ICJGb3LDqnQiLCAiRGVzYyI6ICJWZXJ0IHRlbmRyZSBldCBib2lzLiIsICJCYXNlIjogInRlcm1pbmFsIiwgIkhlbGxvIjogInswfSwgcHJvbWVuZXVyICEiLCAiTWFzY290dGUiOiB7ICJGaWxlIjogIm1hc2NvdHRlLnBuZyIsICJGcmFtZXMiOiA0LCAiRGVsYXkiOiAxMjAgfSwgIkxvZ28iOiAibG9nby5wbmciLCAiQ29sb3JzIjogeyAiUCI6ICIjNENEOTY0IiwgIlMiOiAiI0I2RkYzQiIsICJUIjogIiNGRkM4M0QiLCAiTkgiOiAxNDAsICJOUyI6IDAuNSwgIk1hcCI6IHsgIjBDMDkyMCI6ICIwQTFBMEUiLCAiIzA2MDUwRiI6ICIwNDBDMDYiIH0gfSwgIlRhYkljb25zIjogeyAiYWNjdWVpbCI6IHsgIkZpbGUiOiAibG9nby5wbmciLCAiRnJhbWVzIjogMSwgIkRlbGF5IjogMTAgfSwgIk1hbCI6IHsgIkZpbGUiOiAiYWJzZW50LnBuZyIgfSB9IH0="
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\foret\\logo.png",
+                                      "b64":  "eA=="
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Nevermind\\packs\\foret\\pack.json",
+                                      "b64":  "e30="
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Evermind\\packs\\foret.nouveau\\pack.json",
+                                      "b64":  "e30="
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs-en-attente\\Evermind\\foret\\pack.json",
+                                      "b64":  "e30="
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\neige\\pack.json",
+                                      "b64":  "eyAiTmFtZSI6ICJOZWlnZSIsICJEZXNjIjogIlRvdXQgYmxhbmMuIiwgIkJhc2UiOiAicnViaXMiIH0="
+                                  }
+                              ],
+                    "pris":  [
+
+                             ],
+                    "a_retirer_avant":  null,
+                    "resultat":  true,
+                    "apres":  [
+                                  {
+                                      "chemin":  "Donnees\\Evermind\\packs\\foret.nouveau\\pack.json",
+                                      "taille":  2
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\foret\\logo.png",
+                                      "taille":  1
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\foret\\pack.json",
+                                      "taille":  434
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\neige\\pack.json",
+                                      "taille":  59
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs-en-attente\\Evermind\\foret\\pack.json",
+                                      "taille":  2
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Nevermind\\packs\\foret\\pack.json",
+                                      "taille":  2
+                                  }
+                              ],
+                    "a_retirer":  null,
+                    "journal":  [
+                                    "Thème de la suite supprimé : absent"
+                                ]
+                },
+                {
+                    "nom":  "nettoyer : rien",
+                    "action":  "nettoyer",
+                    "id":  "",
+                    "applis":  [
+                                   [
+                                       "Nevermind",
+                                       "nevermind"
+                                   ],
+                                   [
+                                       "Evermind",
+                                       "evermind"
+                                   ],
+                                   [
+                                       "Mindcare",
+                                       "mindcare"
+                                   ]
+                               ],
+                    "avant":  [
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\foret\\pack.json",
+                                      "b64":  "eyAiTmFtZSI6ICJGb3LDqnQiLCAiRGVzYyI6ICJWZXJ0IHRlbmRyZSBldCBib2lzLiIsICJCYXNlIjogInRlcm1pbmFsIiwgIkhlbGxvIjogInswfSwgcHJvbWVuZXVyICEiLCAiTWFzY290dGUiOiB7ICJGaWxlIjogIm1hc2NvdHRlLnBuZyIsICJGcmFtZXMiOiA0LCAiRGVsYXkiOiAxMjAgfSwgIkxvZ28iOiAibG9nby5wbmciLCAiQ29sb3JzIjogeyAiUCI6ICIjNENEOTY0IiwgIlMiOiAiI0I2RkYzQiIsICJUIjogIiNGRkM4M0QiLCAiTkgiOiAxNDAsICJOUyI6IDAuNSwgIk1hcCI6IHsgIjBDMDkyMCI6ICIwQTFBMEUiLCAiIzA2MDUwRiI6ICIwNDBDMDYiIH0gfSwgIlRhYkljb25zIjogeyAiYWNjdWVpbCI6IHsgIkZpbGUiOiAibG9nby5wbmciLCAiRnJhbWVzIjogMSwgIkRlbGF5IjogMTAgfSwgIk1hbCI6IHsgIkZpbGUiOiAiYWJzZW50LnBuZyIgfSB9IH0="
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\foret\\logo.png",
+                                      "b64":  "eA=="
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Nevermind\\packs\\foret\\pack.json",
+                                      "b64":  "e30="
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Evermind\\packs\\foret.nouveau\\pack.json",
+                                      "b64":  "e30="
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs-en-attente\\Evermind\\foret\\pack.json",
+                                      "b64":  "e30="
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\neige\\pack.json",
+                                      "b64":  "eyAiTmFtZSI6ICJOZWlnZSIsICJEZXNjIjogIlRvdXQgYmxhbmMuIiwgIkJhc2UiOiAicnViaXMiIH0="
+                                  }
+                              ],
+                    "pris":  [
+
+                             ],
+                    "a_retirer_avant":  null,
+                    "resultat":  null,
+                    "apres":  [
+                                  {
+                                      "chemin":  "Donnees\\Evermind\\packs\\foret.nouveau\\pack.json",
+                                      "taille":  2
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Evermind\\packs\\foret\\pack.json",
+                                      "taille":  2
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\foret\\logo.png",
+                                      "taille":  1
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\foret\\pack.json",
+                                      "taille":  434
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\neige\\pack.json",
+                                      "taille":  59
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Nevermind\\packs\\foret\\pack.json",
+                                      "taille":  2
+                                  }
+                              ],
+                    "a_retirer":  null,
+                    "journal":  [
+                                    "Thème foret : nouvelle version mise en place pour Evermind"
+                                ]
+                },
+                {
+                    "nom":  "nettoyer : un thème à retirer",
+                    "action":  "nettoyer",
+                    "id":  "",
+                    "applis":  [
+                                   [
+                                       "Nevermind",
+                                       "nevermind"
+                                   ],
+                                   [
+                                       "Evermind",
+                                       "evermind"
+                                   ],
+                                   [
+                                       "Mindcare",
+                                       "mindcare"
+                                   ]
+                               ],
+                    "avant":  [
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\foret\\pack.json",
+                                      "b64":  "eyAiTmFtZSI6ICJGb3LDqnQiLCAiRGVzYyI6ICJWZXJ0IHRlbmRyZSBldCBib2lzLiIsICJCYXNlIjogInRlcm1pbmFsIiwgIkhlbGxvIjogInswfSwgcHJvbWVuZXVyICEiLCAiTWFzY290dGUiOiB7ICJGaWxlIjogIm1hc2NvdHRlLnBuZyIsICJGcmFtZXMiOiA0LCAiRGVsYXkiOiAxMjAgfSwgIkxvZ28iOiAibG9nby5wbmciLCAiQ29sb3JzIjogeyAiUCI6ICIjNENEOTY0IiwgIlMiOiAiI0I2RkYzQiIsICJUIjogIiNGRkM4M0QiLCAiTkgiOiAxNDAsICJOUyI6IDAuNSwgIk1hcCI6IHsgIjBDMDkyMCI6ICIwQTFBMEUiLCAiIzA2MDUwRiI6ICIwNDBDMDYiIH0gfSwgIlRhYkljb25zIjogeyAiYWNjdWVpbCI6IHsgIkZpbGUiOiAibG9nby5wbmciLCAiRnJhbWVzIjogMSwgIkRlbGF5IjogMTAgfSwgIk1hbCI6IHsgIkZpbGUiOiAiYWJzZW50LnBuZyIgfSB9IH0="
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\foret\\logo.png",
+                                      "b64":  "eA=="
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Nevermind\\packs\\foret\\pack.json",
+                                      "b64":  "e30="
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Evermind\\packs\\foret.nouveau\\pack.json",
+                                      "b64":  "e30="
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs-en-attente\\Evermind\\foret\\pack.json",
+                                      "b64":  "e30="
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\neige\\pack.json",
+                                      "b64":  "eyAiTmFtZSI6ICJOZWlnZSIsICJEZXNjIjogIlRvdXQgYmxhbmMuIiwgIkJhc2UiOiAicnViaXMiIH0="
+                                  }
+                              ],
+                    "pris":  [
+
+                             ],
+                    "a_retirer_avant":  "foret\r\n  neige  \r\nMAL\r\n../x\r\nforet",
+                    "resultat":  null,
+                    "apres":  [
+
+                              ],
+                    "a_retirer":  null,
+                    "journal":  [
+                                    "Thème foret retiré : \u003cracine\u003e\\Donnees\\Mindset\\packs\\foret",
+                                    "Thème foret retiré : \u003cracine\u003e\\Donnees\\Nevermind\\packs\\foret",
+                                    "Thème foret retiré : \u003cracine\u003e\\Donnees\\Evermind\\packs\\foret.nouveau",
+                                    "Thème neige retiré : \u003cracine\u003e\\Donnees\\Mindset\\packs\\neige"
+                                ]
+                },
+                {
+                    "nom":  "nettoyer : encore pris",
+                    "action":  "nettoyer",
+                    "id":  "",
+                    "applis":  [
+                                   [
+                                       "Nevermind",
+                                       "nevermind"
+                                   ],
+                                   [
+                                       "Evermind",
+                                       "evermind"
+                                   ],
+                                   [
+                                       "Mindcare",
+                                       "mindcare"
+                                   ]
+                               ],
+                    "avant":  [
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\foret\\pack.json",
+                                      "b64":  "eyAiTmFtZSI6ICJGb3LDqnQiLCAiRGVzYyI6ICJWZXJ0IHRlbmRyZSBldCBib2lzLiIsICJCYXNlIjogInRlcm1pbmFsIiwgIkhlbGxvIjogInswfSwgcHJvbWVuZXVyICEiLCAiTWFzY290dGUiOiB7ICJGaWxlIjogIm1hc2NvdHRlLnBuZyIsICJGcmFtZXMiOiA0LCAiRGVsYXkiOiAxMjAgfSwgIkxvZ28iOiAibG9nby5wbmciLCAiQ29sb3JzIjogeyAiUCI6ICIjNENEOTY0IiwgIlMiOiAiI0I2RkYzQiIsICJUIjogIiNGRkM4M0QiLCAiTkgiOiAxNDAsICJOUyI6IDAuNSwgIk1hcCI6IHsgIjBDMDkyMCI6ICIwQTFBMEUiLCAiIzA2MDUwRiI6ICIwNDBDMDYiIH0gfSwgIlRhYkljb25zIjogeyAiYWNjdWVpbCI6IHsgIkZpbGUiOiAibG9nby5wbmciLCAiRnJhbWVzIjogMSwgIkRlbGF5IjogMTAgfSwgIk1hbCI6IHsgIkZpbGUiOiAiYWJzZW50LnBuZyIgfSB9IH0="
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\foret\\logo.png",
+                                      "b64":  "eA=="
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Nevermind\\packs\\foret\\pack.json",
+                                      "b64":  "e30="
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Evermind\\packs\\foret.nouveau\\pack.json",
+                                      "b64":  "e30="
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs-en-attente\\Evermind\\foret\\pack.json",
+                                      "b64":  "e30="
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\neige\\pack.json",
+                                      "b64":  "eyAiTmFtZSI6ICJOZWlnZSIsICJEZXNjIjogIlRvdXQgYmxhbmMuIiwgIkJhc2UiOiAicnViaXMiIH0="
+                                  }
+                              ],
+                    "pris":  [
+                                 "Donnees\\Mindset\\packs\\foret\\logo.png"
+                             ],
+                    "a_retirer_avant":  "foret\r\n",
+                    "resultat":  null,
+                    "apres":  [
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\foret\\logo.png",
+                                      "taille":  1
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\foret\\pack.json",
+                                      "taille":  434
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\neige\\pack.json",
+                                      "taille":  59
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs-a-retirer.txt",
+                                      "taille":  7
+                                  }
+                              ],
+                    "a_retirer":  "foret\r\n",
+                    "journal":  [
+                                    "Thème foret : \u003cracine\u003e\\Donnees\\Mindset\\packs\\foret pas encore retiré (Le processus ne peut pas accéder au fichier \u0027logo.png\u0027, car il est en cours d\u0027utilisation par un autre processus.)",
+                                    "Thème foret retiré : \u003cracine\u003e\\Donnees\\Nevermind\\packs\\foret",
+                                    "Thème foret retiré : \u003cracine\u003e\\Donnees\\Evermind\\packs\\foret.nouveau"
+                                ]
+                },
+                {
+                    "nom":  "nettoyer : versions en attente",
+                    "action":  "nettoyer",
+                    "id":  "",
+                    "applis":  [
+                                   [
+                                       "Nevermind",
+                                       "nevermind"
+                                   ],
+                                   [
+                                       "Evermind",
+                                       "evermind"
+                                   ],
+                                   [
+                                       "Mindcare",
+                                       "mindcare"
+                                   ]
+                               ],
+                    "avant":  [
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\neige\\pack.json",
+                                      "b64":  "eyAiTmFtZSI6ICJWaWVpbGxlIG5laWdlIiB9"
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs-en-attente\\Mindset\\neige\\pack.json",
+                                      "b64":  "eyAiTmFtZSI6ICJOZWlnZSIsICJEZXNjIjogIlRvdXQgYmxhbmMuIiwgIkJhc2UiOiAicnViaXMiIH0="
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs-en-attente\\Nevermind\\foret\\pack.json",
+                                      "b64":  "e30="
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs-en-attente\\Inconnue\\foret\\pack.json",
+                                      "b64":  "e30="
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs-en-attente\\Evermind\\MAL\\pack.json",
+                                      "b64":  "e30="
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs-en-attente\\Evermind\\retire\\pack.json",
+                                      "b64":  "e30="
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs-anciens\\0a1b2c3d\\pack.json",
+                                      "b64":  "e30="
+                                  }
+                              ],
+                    "pris":  [
+
+                             ],
+                    "a_retirer_avant":  "retire\r\n",
+                    "resultat":  null,
+                    "apres":  [
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\neige\\pack.json",
+                                      "taille":  59
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs-en-attente\\Nevermind\\foret\\pack.json",
+                                      "taille":  2
+                                  }
+                              ],
+                    "a_retirer":  null,
+                    "journal":  [
+                                    "Thème neige : nouvelle version mise en place pour Mindset",
+                                    "Thème foret : nouvelle version pour Nevermind pas mise en place (Exception lors de l\u0027appel de « Move » avec « 2 » argument(s) : « Impossible de trouver une partie du chemin d\u0027accès. »)"
+                                ]
+                },
+                {
+                    "nom":  "nettoyer : version en attente encore prise",
+                    "action":  "nettoyer",
+                    "id":  "",
+                    "applis":  [
+                                   [
+                                       "Nevermind",
+                                       "nevermind"
+                                   ],
+                                   [
+                                       "Evermind",
+                                       "evermind"
+                                   ],
+                                   [
+                                       "Mindcare",
+                                       "mindcare"
+                                   ]
+                               ],
+                    "avant":  [
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\neige\\pack.json",
+                                      "b64":  "eyAiTmFtZSI6ICJWaWVpbGxlIG5laWdlIiB9"
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs-en-attente\\Mindset\\neige\\pack.json",
+                                      "b64":  "eyAiTmFtZSI6ICJOZWlnZSIsICJEZXNjIjogIlRvdXQgYmxhbmMuIiwgIkJhc2UiOiAicnViaXMiIH0="
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs-en-attente\\Nevermind\\foret\\pack.json",
+                                      "b64":  "e30="
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs-en-attente\\Inconnue\\foret\\pack.json",
+                                      "b64":  "e30="
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs-en-attente\\Evermind\\MAL\\pack.json",
+                                      "b64":  "e30="
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs-en-attente\\Evermind\\retire\\pack.json",
+                                      "b64":  "e30="
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs-anciens\\0a1b2c3d\\pack.json",
+                                      "b64":  "e30="
+                                  }
+                              ],
+                    "pris":  [
+                                 "Donnees\\Mindset\\packs\\neige\\pack.json"
+                             ],
+                    "a_retirer_avant":  null,
+                    "resultat":  null,
+                    "apres":  [
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\neige\\pack.json",
+                                      "taille":  27
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs-en-attente\\Evermind\\retire\\pack.json",
+                                      "taille":  2
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs-en-attente\\Mindset\\neige\\pack.json",
+                                      "taille":  59
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs-en-attente\\Nevermind\\foret\\pack.json",
+                                      "taille":  2
+                                  }
+                              ],
+                    "a_retirer":  null,
+                    "journal":  [
+                                    "Thème retire : nouvelle version pour Evermind pas mise en place (Exception lors de l\u0027appel de « Move » avec « 2 » argument(s) : « Impossible de trouver une partie du chemin d\u0027accès. »)",
+                                    "Thème foret : nouvelle version pour Nevermind pas mise en place (Exception lors de l\u0027appel de « Move » avec « 2 » argument(s) : « Impossible de trouver une partie du chemin d\u0027accès. »)"
+                                ]
+                },
+                {
+                    "nom":  "liste à retirer",
+                    "action":  "liste",
+                    "id":  "",
+                    "applis":  [
+                                   [
+                                       "Nevermind",
+                                       "nevermind"
+                                   ],
+                                   [
+                                       "Evermind",
+                                       "evermind"
+                                   ],
+                                   [
+                                       "Mindcare",
+                                       "mindcare"
+                                   ]
+                               ],
+                    "avant":  [
+
+                              ],
+                    "pris":  [
+
+                             ],
+                    "a_retirer_avant":  "b\r\na\r\n\r\nb\r\n  c  \r\nX\r\n",
+                    "resultat":  [
+                                     "b",
+                                     "a",
+                                     "c"
+                                 ],
+                    "apres":  [
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs-a-retirer.txt",
+                                      "taille":  21
+                                  }
+                              ],
+                    "a_retirer":  "b\r\na\r\n\r\nb\r\n  c  \r\nX\r\n",
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "nom":  "liste absente",
+                    "action":  "liste",
+                    "id":  "",
+                    "applis":  [
+                                   [
+                                       "Nevermind",
+                                       "nevermind"
+                                   ],
+                                   [
+                                       "Evermind",
+                                       "evermind"
+                                   ],
+                                   [
+                                       "Mindcare",
+                                       "mindcare"
+                                   ]
+                               ],
+                    "avant":  [
+
+                              ],
+                    "pris":  [
+
+                             ],
+                    "a_retirer_avant":  null,
+                    "resultat":  [
+
+                                 ],
+                    "apres":  [
+
+                              ],
+                    "a_retirer":  null,
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "nom":  "dossiers du pack",
+                    "action":  "dossiers",
+                    "id":  "foret",
+                    "applis":  [
+                                   [
+                                       "Nevermind",
+                                       "nevermind"
+                                   ],
+                                   [
+                                       "Evermind",
+                                       "evermind"
+                                   ],
+                                   [
+                                       "Mindcare",
+                                       "mindcare"
+                                   ]
+                               ],
+                    "avant":  [
+
+                              ],
+                    "pris":  [
+
+                             ],
+                    "a_retirer_avant":  null,
+                    "resultat":  [
+                                     "\u003cracine\u003e\\Donnees\\Mindset\\packs\\foret",
+                                     "\u003cracine\u003e\\Donnees\\Nevermind\\packs\\foret",
+                                     "\u003cracine\u003e\\Donnees\\Evermind\\packs\\foret",
+                                     "\u003cracine\u003e\\Donnees\\Mindcare\\packs\\foret"
+                                 ],
+                    "apres":  [
+
+                              ],
+                    "a_retirer":  null,
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "nom":  "dossiers : id refusé",
+                    "action":  "dossiers",
+                    "id":  "a b",
+                    "applis":  [
+                                   [
+                                       "Nevermind",
+                                       "nevermind"
+                                   ],
+                                   [
+                                       "Evermind",
+                                       "evermind"
+                                   ],
+                                   [
+                                       "Mindcare",
+                                       "mindcare"
+                                   ]
+                               ],
+                    "avant":  [
+
+                              ],
+                    "pris":  [
+
+                             ],
+                    "a_retirer_avant":  null,
+                    "resultat":  [
+
+                                 ],
+                    "apres":  [
+
+                              ],
+                    "a_retirer":  null,
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "nom":  "thèmes installés",
+                    "action":  "themes",
+                    "id":  "",
+                    "applis":  [
+                                   [
+                                       "Nevermind",
+                                       "nevermind"
+                                   ],
+                                   [
+                                       "Evermind",
+                                       "evermind"
+                                   ],
+                                   [
+                                       "Mindcare",
+                                       "mindcare"
+                                   ]
+                               ],
+                    "avant":  [
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\zeta\\pack.json",
+                                      "b64":  "eyAiTmFtZSI6ICJOZWlnZSIsICJEZXNjIjogIlRvdXQgYmxhbmMuIiwgIkJhc2UiOiAicnViaXMiIH0="
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\alpha\\pack.json",
+                                      "b64":  "eyAiTmFtZSI6ICJBbHBoYSIgfQ=="
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\abime\\pack.json",
+                                      "b64":  "eyBhYsOubcOp"
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\vide\\rien.txt",
+                                      "b64":  "eA=="
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\retire\\pack.json",
+                                      "b64":  "e30="
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\Beta\\pack.json",
+                                      "b64":  "e30="
+                                  }
+                              ],
+                    "pris":  [
+
+                             ],
+                    "a_retirer_avant":  "retire\r\n",
+                    "resultat":  [
+                                     "alpha",
+                                     "Beta",
+                                     "zeta"
+                                 ],
+                    "apres":  [
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\abime\\pack.json",
+                                      "taille":  9
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\alpha\\pack.json",
+                                      "taille":  19
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\Beta\\pack.json",
+                                      "taille":  2
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\retire\\pack.json",
+                                      "taille":  2
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\vide\\rien.txt",
+                                      "taille":  1
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs\\zeta\\pack.json",
+                                      "taille":  59
+                                  },
+                                  {
+                                      "chemin":  "Donnees\\Mindset\\packs-a-retirer.txt",
+                                      "taille":  8
+                                  }
+                              ],
+                    "a_retirer":  "retire\r\n",
+                    "journal":  [
+                                    "Pack abime illisible : Objet non valide passé, \u0027:\u0027 ou \u0027}\u0027 attendu. (7): { abîmé"
+                                ]
+                }
+            ]
+}
