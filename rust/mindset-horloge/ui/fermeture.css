@@ -1,0 +1,83 @@
+/* La question de la croix rouge, au rendu de la fenêtre WPF (interface.xaml, la grille « Fermeture ») :
+   voile #C006050F sur toute la fenêtre, panneau #141030 bordé de #2A2450 (1 px, coins de 22), marges 28 et 24,
+   500 de large au plus (resserré sur sa ligne la plus longue, fermeture.js), centré ; titre 19 ; texte #A9A3C9 ;
+   case à cocher de Windows (thème Aero2) ;
+   boutons BtnSecondary et BtnPrimary (13, marges 18 et 9, coins de 19, reflet et halo au survol, 0,96
+   à l'appui). Les couleurs passent par des variables : le thème de la suite les remplace (fermeture.js). */
+#voile-fermeture {
+  --hf-voile: rgba(6, 5, 15, 0.7529);
+  --hf-panneau2: #141030;
+  --hf-trait: #2A2450;
+  --hf-texte: #ECEAF7;
+  --hf-texte2: #A9A3C9;
+  --hf-cyan: #00E5FF;
+  --hf-violet: #B04BFF;
+  --hf-sur-accent: #08060F;
+  --hf-bouton2: #F2EFFA;
+  --hf-cyan-50: rgba(0, 229, 255, 0.502);
+  --hf-cyan-60: rgba(0, 229, 255, 0.6);
+  --hf-cyan-30: rgba(0, 229, 255, 0.3);
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--hf-voile);
+}
+#voile-fermeture[hidden] { display: none; }
+#voile-fermeture .hf-panneau {
+  box-sizing: border-box;
+  width: 500px;
+  max-width: 100%;
+  padding: 24px 28px;
+  background: var(--hf-panneau2);
+  border: 1px solid var(--hf-trait);
+  border-radius: 22px;
+  color: var(--hf-texte);
+  font-family: "Segoe UI Variable Text", "Segoe UI", sans-serif;
+  font-size: 14px;
+  line-height: normal;
+  cursor: default;
+}
+/* (« SemiBold » en WPF : avec la police variable « Segoe UI Variable Text », WPF ne sait pas prendre l'épaisseur
+   demandée et dessine l'épaisseur normale ; mesuré sur la vraie grille, outils/capture-question.ps1. Même chose ici.) */
+#voile-fermeture .hf-titre { margin: 0; font-size: 19px; font-weight: 400; }
+#voile-fermeture .hf-texte { margin: 10px 0 0; color: var(--hf-texte2); overflow-wrap: break-word; }
+
+/* La case à cocher de Windows (CheckBox du thème Aero2) */
+#voile-fermeture .hf-case { display: flex; align-items: flex-start; margin-top: 16px; color: var(--hf-texte); width: max-content; max-width: 100%; }
+#voile-fermeture .hf-case input { position: absolute; opacity: 0; width: 1px; height: 1px; margin: 0; pointer-events: none; }
+#voile-fermeture .hf-boite {
+  box-sizing: border-box; flex: none; width: 14px; height: 14px; margin: 1px; display: flex; align-items: center;
+  justify-content: center; background: #FFFFFF; border: 1px solid #707070;
+}
+#voile-fermeture .hf-boite svg { width: 10px; height: 10px; opacity: 0; }
+#voile-fermeture .hf-case input:checked + .hf-boite svg { opacity: 1; }
+#voile-fermeture .hf-case:hover .hf-boite { background: #F3F9FF; border-color: #5593FF; }
+#voile-fermeture .hf-case:active .hf-boite { background: #D9ECFF; border-color: #3C77DD; }
+#voile-fermeture .hf-case input:focus-visible + .hf-boite { outline: 1px dotted var(--hf-texte); outline-offset: 1px; }
+#voile-fermeture .hf-case span.hf-etiquette { padding: 0 0 0 4px; margin-top: -1px; }
+
+/* Les boutons (BtnSecondary, BtnPrimary) */
+#voile-fermeture .hf-boutons { display: flex; justify-content: flex-end; align-items: stretch; margin-top: 20px; gap: 10px; }
+#voile-fermeture .hf-bouton {
+  position: relative; box-sizing: border-box; padding: 9px 18px; border-radius: 19px; border: 0;
+  font: 400 13px/normal "Segoe UI Variable Text", "Segoe UI", sans-serif; cursor: pointer; overflow: hidden;
+  transform: scale(1); transition: transform 0.15s, box-shadow 0.2s, border-color 0.2s;
+  background: linear-gradient(90deg, var(--hf-cyan), var(--hf-violet)); color: var(--hf-sur-accent);
+}
+#voile-fermeture .hf-bouton::after {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; opacity: 0;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.2196) 0%, rgba(255, 255, 255, 0) 65%);
+  transition: opacity 0.25s;
+}
+#voile-fermeture .hf-bouton:hover::after { opacity: 1; transition: opacity 0.18s; }
+#voile-fermeture .hf-bouton:hover { box-shadow: 0 0 22px var(--hf-cyan-60); }
+#voile-fermeture .hf-bouton:active { transform: scale(0.96); transition: transform 0.08s; }
+#voile-fermeture .hf-bouton.hf-second {
+  background: rgba(255, 255, 255, 0.0863); color: var(--hf-bouton2); border: 1px solid rgba(255, 255, 255, 0.149);
+}
+#voile-fermeture .hf-bouton.hf-second:hover { border-color: var(--hf-cyan-50); box-shadow: 0 0 16px var(--hf-cyan-30); }
+#voile-fermeture .hf-bouton:focus { outline: none; }
+#voile-fermeture .hf-bouton:focus-visible { outline: 1px dotted var(--hf-texte); outline-offset: 2px; }
