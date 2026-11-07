@@ -14,3 +14,5 @@ Theme-*.zip
 packs/
 pack.json
 pack-*.json
+# (exception : les zips de test du bloc Paramètres, inventés pour les juges, sans aucun thème perso)
+!rust/mindset-parametres/tests/juges/zips/*.zip
