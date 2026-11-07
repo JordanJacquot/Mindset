@@ -8,11 +8,34 @@ publish.workspace = true
 
 [dependencies]
 mindset-noyau = { path = "../mindset-noyau" }
+# Test-VersionPlusRecente (le lancement caché selon cache_depuis)
+suite-commun = { path = "../suite-commun" }
 # Versions figées (« = ») : les mêmes que Nevermind (D:\Projets\Nevermind\rust\Cargo.lock).
 serde_json = { version = "=1.0.154", features = ["preserve_order"] }
 
-# Pas `workspace = true` : si ce bloc a un module Windows (src\windows), ce module autorise lui-même le code
-# « unsafe » (#![allow(unsafe_code)]) ; ailleurs il est refusé (deny).
+# Le seul module qui parle à Windows (src\windows) : trouver la fenêtre d'une appli, l'accrocher dans un panneau de
+# la fenêtre de Mindset, la redimensionner, la rendre, le focus. La même version que le noyau et l'hôte.
+[target.'cfg(windows)'.dependencies.windows]
+version = "=0.62.2"
+features = [
+    "Win32_Foundation",
+    "Win32_Graphics_Gdi",
+    "Win32_System_LibraryLoader",
+    "Win32_System_StationsAndDesktops",
+    "Win32_System_SystemInformation",
+    "Win32_System_Threading",
+    "Win32_UI_Input_KeyboardAndMouse",
+    "Win32_UI_WindowsAndMessaging",
+]
+
+# L'essai réel seulement (examples\essai_reel.rs, sur un bureau Windows à part) : l'image de la fenêtre de Mindset
+# (PrintWindow), l'échelle de Windows.
+[target.'cfg(windows)'.dev-dependencies.windows]
+version = "=0.62.2"
+features = ["Win32_Foundation", "Win32_Graphics_Gdi", "Win32_Storage_Xps", "Win32_UI_HiDpi", "Win32_UI_WindowsAndMessaging"]
+
+# Pas `workspace = true` : le module Windows (src\windows) autorise lui-même le code « unsafe » ; ailleurs il est
+# refusé (deny).
 [lints.rust]
 unsafe_code = "deny"
 unsafe_op_in_unsafe_fn = "deny"
