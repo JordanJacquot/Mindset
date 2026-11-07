@@ -1833,6 +1833,7 @@ version = "0.1.0"
 dependencies = [
  "mindset-noyau",
  "serde_json",
+ "suite-commun",
 ]
 
 [[package]]

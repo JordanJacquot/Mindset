@@ -8,6 +8,7 @@ publish.workspace = true
 
 [dependencies]
 mindset-noyau = { path = "../mindset-noyau" }
+suite-commun = { path = "../suite-commun" }
 # Versions figées (« = ») : les mêmes que Nevermind (D:\Projets\Nevermind\rust\Cargo.lock).
 serde_json = { version = "=1.0.154", features = ["preserve_order"] }
 
