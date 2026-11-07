@@ -705,8 +705,9 @@ try {
     # =============================================================================================================
     Write-Partie 'Le corpus de cas (cas\installateur)'
     # (les fichiers cote-mindset-*.json, le côté Mindset du protocole, sont lus par tester-mini-installateur.ps1, et
-    # dossier-protege.json, une fonction seule, par tester-securite.ps1)
-    $lus = @(Get-ChildItem -LiteralPath $dossierCas -Filter '*.json' -File | Where-Object { $_.Name -notlike 'cote-mindset-*' -and $_.Name -ne 'dossier-protege.json' } | ForEach-Object { $_.Name })
+    # dossier-protege.json, une fonction seule, par tester-securite.ps1 ; rust-*.json : Mindset en Rust, que cette version
+    # PowerShell de l'installateur ne connaît pas, seulement par cargo test)
+    $lus = @(Get-ChildItem -LiteralPath $dossierCas -Filter '*.json' -File | Where-Object { $_.Name -notlike 'cote-mindset-*' -and $_.Name -notlike 'rust-*' -and $_.Name -ne 'dossier-protege.json' } | ForEach-Object { $_.Name })
     Test-Cas "chaque fichier de cas\installateur est lu par ce test ($($lus.Count) fichiers)" { -not @($lus | Where-Object { -not $minimumCas.Contains($_) }).Count -and $lus.Count -eq $minimumCas.Count }
     foreach ($nomFichier in $minimumCas.Keys) {
         $corpus = [IO.File]::ReadAllText((Join-Path $dossierCas $nomFichier), [Text.Encoding]::UTF8) | ConvertFrom-Json

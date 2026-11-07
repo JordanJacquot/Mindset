@@ -95,8 +95,16 @@ jobs:
     env:
       CARGO_TERM_COLOR: never
     steps:
+      # Les fichiers tels qu'ils sont dans git (les fichiers copiés dans le zip de Mindset en Rust sont comparés à ceux du
+      # commit : leçon de Mindcare, publication du 04/11)
+      - name: "Garder les fins de ligne de git"
+        working-directory: .
+        run: git config --global core.autocrlf false
+
       - name: Récupérer le dépôt
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0   # (les tags : tester-zip-anciens.ps1 relit l'installateur de chaque version publiée)
 
       - name: "Rust 1.99.1, la version figée par rust/rust-toolchain.toml (avec clippy et rustfmt)"
         run: |
@@ -116,6 +124,113 @@ jobs:
 
       - name: "Clippy strict (aucun avertissement permis)"
         run: cargo clippy --locked --workspace --all-targets -- -D warnings
+
+      # La construction d'essai de Mindset (option cargo « essai » de mindset-appli, jamais livrée) : ses tests et clippy
+      - name: "Tests et clippy de la construction d'essai de Mindset (cargo test et clippy -p mindset-appli --features essai)"
+        run: |
+          cargo test --locked -p mindset-appli --features essai
+          if ($LASTEXITCODE) { exit 1 }
+          cargo clippy --locked -p mindset-appli --all-targets --features essai -- -D warnings
+          if ($LASTEXITCODE) { exit 1 }
+
+      - name: "Règles Tauri de la suite sur Mindset (outils\\verifier-tauri.ps1 -Projet rust\\mindset-appli : configuration, capabilities, CSP, plugins, outils de développement, WebView2)"
+        working-directory: .
+        run: |
+          & .\outils\verifier-tauri.ps1 -Projet rust\mindset-appli
+          exit $LASTEXITCODE
+
+      - name: "Aucun plugin de Tauri interdit (shell, fs, updater, single-instance, global-shortcut)"
+        run: |
+          # (le shell powershell de GitHub arrête tout à la première erreur : cargo écrit ses messages sur stderr)
+          $ErrorActionPreference = 'Continue'
+          $interdits = 'tauri-plugin-shell', 'tauri-plugin-fs', 'tauri-plugin-updater', 'tauri-plugin-single-instance', 'tauri-plugin-global-shortcut'
+          $lock = [IO.File]::ReadAllText((Join-Path (Get-Location) 'Cargo.lock'))
+          $trouves = @()
+          foreach ($p in $interdits) {
+            if ($lock -match ('(?m)^name = "' + [regex]::Escape($p) + '"\r?$')) { $trouves += "$p (Cargo.lock)" }
+            $sortie = (cmd /c "cargo tree --locked -i $p --target all -e all 2>&1") | Out-String
+            if ($LASTEXITCODE -eq 0) { $trouves += "$p (cargo tree)" }
+            elseif ($sortie -notmatch 'did not match any packages') { Write-Host $sortie; Write-Host "cargo tree n'a pas pu répondre pour $p."; exit 1 }
+          }
+          if ($trouves.Count) { Write-Host "Plugins interdits trouvés : $($trouves -join ', ')"; exit 1 }
+          Write-Host 'Aucun plugin interdit.'
+          exit 0
+
+      # ------------------------------------------------------------------------------------------------------------
+      # Mindset en Rust livré (outils\contenu-rust.ps1) : construit comme pour une publication, vérifié, puis passé au
+      # job « Mise à jour depuis la version PowerShell » (2.18 -> 3.0 -> 3.0.1 sans rien perdre)
+      # ------------------------------------------------------------------------------------------------------------
+      - name: "Construction de publication et dossier de Mindset en Rust (outils\\construire-rust.ps1 : cargo build --release --locked, jamais l'option essai)"
+        working-directory: .
+        run: |
+          & .\outils\construire-rust.ps1 -Sortie (Join-Path $env:RUNNER_TEMP 'mindset-rust')
+          if (-not $?) { exit 1 }
+
+      # (-Ci : entre deux publications, MindsetInstallateur.exe et le désinstalleur peuvent encore avoir la version de
+      # Mindset.ps1 ; release.yml et outils\publier.ps1 -Rust, eux, exigent la même version partout)
+      - name: "Mindset.zip en Rust et ses contrôles (outils\\zip-rust.ps1 : fichiers exacts, version.json, version.ps1, fiches de version, aucune construction d'essai, aucun runtime C à part)"
+        working-directory: .
+        run: |
+          & .\outils\zip-rust.ps1 -Dossier (Join-Path $env:RUNNER_TEMP 'mindset-rust\Mindset') -Zip (Join-Path $env:RUNNER_TEMP 'mindset-rust-zip\Mindset.zip') -Ci
+          exit $LASTEXITCODE
+
+      - name: "Contre-épreuve : un zip avec Mindset.ps1 en trop, un version.json faux, un version.ps1 faux, ou la construction d'essai, est refusé"
+        working-directory: .
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $d = Join-Path $env:RUNNER_TEMP 'contre-epreuve'
+          $ok = $true
+          # La construction d'essai de Mindset.exe (option « essai ») : verifier-sans-essai.ps1 doit la reconnaître
+          Push-Location rust; cargo build --locked -p mindset-appli --features essai; $code = $LASTEXITCODE; Pop-Location
+          if ($code) { exit 1 }
+          foreach ($cas in 'en-trop', 'version', 'version-ps1', 'essai') {
+            if (Test-Path -LiteralPath $d) { Remove-Item -LiteralPath $d -Recurse -Force }
+            Copy-Item -LiteralPath (Join-Path $env:RUNNER_TEMP 'mindset-rust\Mindset') -Destination (Join-Path $d 'Mindset') -Recurse
+            switch ($cas) {
+              'en-trop' { [IO.File]::WriteAllText((Join-Path $d 'Mindset\fichiers\Mindset.ps1'), "`$AppVersion = '3.0.0'") }
+              'version' { [IO.File]::WriteAllText((Join-Path $d 'Mindset\version.json'), '{"appli":"mindset","version":"0.0.1"}') }
+              'version-ps1' { [IO.File]::WriteAllText((Join-Path $d 'Mindset\fichiers\version.ps1'), "`$AppVersion = '0.0.1'") }
+              'essai' { Copy-Item -LiteralPath 'rust\target\debug\Mindset.exe' -Destination (Join-Path $d 'Mindset\Mindset.exe') -Force }
+            }
+            Compress-Archive -LiteralPath (Join-Path $d 'Mindset') -DestinationPath (Join-Path $d 'Mindset.zip') -Force
+            & .\outils\verifier-zip-rust.ps1 -Zip (Join-Path $d 'Mindset.zip') -Ci | Out-Host
+            if ($LASTEXITCODE -ne 1) { Write-Host "Contre-épreuve « $cas » : le zip abîmé n'a pas été refusé."; $ok = $false }
+          }
+          & .\outils\verifier-sans-essai.ps1 -Exe 'rust\target\debug\Mindset.exe' | Out-Host
+          if ($LASTEXITCODE -ne 1) { Write-Host 'Contre-épreuve : la construction d''essai de Mindset.exe n''est pas reconnue.'; $ok = $false }
+          if (-not $ok) { exit 1 }
+          Write-Host 'Les quatre zips abîmés sont refusés, la construction d''essai est reconnue.'
+          exit 0
+
+      - name: "Le zip 3.0 accepté par l'installateur de chaque Mindset publié en PowerShell (0.1.0 à 2.18.0 : Install-Paquet relu dans git) ; sans fichiers\\version.ps1, refusé de 2.11 à 2.14"
+        working-directory: .
+        run: |
+          & .\outils\tester-zip-anciens.ps1 -Zip (Join-Path $env:RUNNER_TEMP 'mindset-rust-zip\Mindset.zip')
+          exit $LASTEXITCODE
+
+      # (la mise à jour 3.0 -> 3.0.1 se fait vers une vraie construction 3.0.1 : son Mindset.exe dit sa version dans son
+      # journal et l'historique ; le numéro est écrit le temps de construire, puis remis comme dans git)
+      - name: "La version suivante (numéro + 1), construite pareil, pour la mise à jour 3.0 -> 3.0.1"
+        working-directory: .
+        run: |
+          . .\outils\contenu-rust.ps1
+          $p = (Get-VersionMindsetRust (Get-Location).Path).Split('.')
+          & .\outils\version-rust.ps1 -Version "$($p[0]).$($p[1]).$([int]$p[2] + 1)"
+          & .\outils\construire-rust.ps1 -Sortie (Join-Path $env:RUNNER_TEMP 'mindset-rust-suivant')
+          $ok = $?
+          git checkout -- Mindset/fichiers/Mindset.ps1 rust/mindset-appli/Cargo.toml rust/Cargo.lock
+          if (-not $ok) { exit 1 }
+          exit 0
+
+      - name: "Déposer les dossiers construits pour le job « Mise à jour depuis la version PowerShell »"
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: Mindset-rust-construit
+          path: |
+            ${{ runner.temp }}/mindset-rust/
+            ${{ runner.temp }}/mindset-rust-suivant/
+          if-no-files-found: error
+          retention-days: 3
 
       - name: "Mise en forme (cargo fmt)"
         run: cargo fmt --all --check
@@ -147,3 +262,41 @@ jobs:
           gh release download --repo JordanJacquot/Mindset --pattern 'Mindset.zip' --pattern 'Mindset.zip.sig' --dir $d
           if ($LASTEXITCODE) { exit 1 }
           .\outils\banc-suite-commun.ps1 -Banc rust\target\debug\banc-essai.exe -ZipReel "$d\Mindset.zip" -SigReel "$d\Mindset.zip.sig"
+
+  # LE test obligatoire avant de publier Mindset 3.0 (pas de version d'essai : 3.0 part chez tout le monde) : la mise à
+  # jour depuis la version PowerShell publiée (2.18.0), faite par son propre installateur, puis 3.0 -> 3.0.1 par celui de
+  # 3.0, sans rien perdre (outils\tester-maj-rust.ps1). Sur GitHub seulement : il installe Mindset pour de vrai dans la
+  # machine jetable. outils\zip-rust-github.ps1 (publier.ps1 -Rust) exige que ce job ait réussi pour le commit publié.
+  maj:
+    name: "Mise à jour depuis la version PowerShell (2.18.0 -> 3.0 -> 3.0.1, rien de perdu)"
+    needs: rust
+    runs-on: windows-latest
+    timeout-minutes: 60
+    defaults:
+      run:
+        shell: powershell
+    steps:
+      - name: "Garder les fins de ligne de git"
+        run: git config --global core.autocrlf false
+
+      - name: Récupérer le dépôt
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: "Récupérer Mindset en Rust construit (job rust)"
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: Mindset-rust-construit
+          path: ${{ runner.temp }}
+
+      - name: "Mise à jour 2.18.0 (zip publié) -> 3.0 -> 3.0.1 : réglages, installations, applis, suite.json, historique, WebView2 commun, raccourcis, démarrage avec Windows (outils\\tester-maj-rust.ps1)"
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $d = Join-Path $env:RUNNER_TEMP 'mindset-2.18.0'
+          gh release download v2.18.0 --repo JordanJacquot/Mindset --pattern 'Mindset.zip' --pattern 'Mindset.zip.sig' --dir $d
+          if ($LASTEXITCODE) { exit 1 }
+          Write-Host "Mindset.zip de 2.18.0 : SHA-256 $((Get-FileHash -LiteralPath (Join-Path $d 'Mindset.zip') -Algorithm SHA256).Hash)"
+          & .\outils\tester-maj-rust.ps1 -Ancienne (Join-Path $d 'Mindset.zip') -Nouveau (Join-Path $env:RUNNER_TEMP 'mindset-rust\Mindset') -Suivant (Join-Path $env:RUNNER_TEMP 'mindset-rust-suivant\Mindset')
+          # (le code du test, jamais un code hérité d'une commande d'avant)
+          if ($LASTEXITCODE -eq 0) { exit 0 }
+          exit 1

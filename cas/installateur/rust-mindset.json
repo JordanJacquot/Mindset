@@ -1,0 +1,42 @@
+{
+  "format": 1,
+  "sujet": "Mindset en Rust (3.0 et après) : installation (Action mindset) d'un dossier sans Mindset.ps1, et mise à jour (Action mindset-maj) vers un zip au format Rust (outils\\contenu-rust.ps1). Lu seulement par cargo test (tests\\corpus.rs) : l'ancienne version PowerShell de l'installateur ne connaît pas ce format.",
+  "regle": "MindsetInstallateur.exe -Action mindset -Source <dossier> (source_mindset : version.json « mindset », sinon fichiers\\Mindset.ps1) ; -Action mindset-maj (paquet::installer, dossier_zip Mindset, exe Mindset.exe, appli mindset)",
+  "attendu": "voir cas\\LISEZMOI.md",
+  "valeurs": {
+    "{tmp}": "le dossier du faux PC",
+    "{pm}": "Program Files\\Mindset du faux PC",
+    "{x}": "la lettre du faux disque fixe NTFS",
+    "{sid}": "l'utilisateur du test",
+    "{src-rust}": "un dossier source de Mindset en Rust (Mindset.exe, MindsetInstallateur.exe, le désinstalleur, version.json « mindset » 3.0.0, fichiers\\version.ps1, fichiers\\installer-admin.ps1, pas de Mindset.ps1)",
+    "{src-rust-autre}": "le même, avec un version.json qui dit l'appli « nevermind »",
+    "{src-rust-abime}": "le même, avec un version.json illisible (et un fichiers\\Mindset.ps1 à côté)",
+    "{src-rust-sans-json}": "le même, sans version.json ni Mindset.ps1",
+    "{zip-mindset-rust}": "le zip signé de Mindset 3.0.0 en Rust (version.json et fichiers\\version.ps1 en 3.0.0)",
+    "{zip-mindset-rust-ecart}": "le même, version.json en 3.0.1 mais version.ps1 en 3.0.0",
+    "{zip-mindset-rust-autre}": "le même, version.json de l'appli « nevermind »",
+    "{zip-mindset-rust-sans-ps1}": "le même, sans fichiers\\version.ps1",
+    "{zip-mindset-rust-301}": "le zip signé de Mindset 3.0.1 en Rust",
+    "{zip-mindset-rust-ancien}": "le zip signé de Mindset 0.9.0 en Rust (plus ancien que le 1.0.0 installé)"
+  },
+  "base": {
+    "demande": {"Action":"mindset-maj","Zip":"{zip-mindset-rust}","Signature":"{zip-mindset-rust}.sig","Destination":"{pm}\\Mindset","Version":"3.0.0"}
+  },
+  "fusion": "la demande de chaque cas part de base.demande ; ses propres champs remplacent ceux de la base, un champ à null est retiré",
+  "cas": [
+    {"nom":"installation de Mindset en Rust dans Program Files : copié avec version.json, le relais et version.ps1, inscrit, tâches créées","entree":{"lancement":"direct","demande":{"Action":"mindset","Source":"{src-rust}","Version":"3.0.0","Sid":"{sid}","Zip":null,"Signature":null,"Destination":null}},"attendu":{"reponse":"ok","message_exact":"{pm}\\Mindset","versions":{"{pm}\\Mindset":"3.0.0"},"existe":["{pm}\\Mindset\\version.json","{pm}\\Mindset\\MindsetInstallateur.exe","{pm}\\Mindset\\Desinstaller Mindset.exe","{pm}\\Mindset\\fichiers\\installer-admin.ps1","{pm}\\Mindset\\fichiers\\version.ps1"],"absent":["{pm}\\Mindset\\fichiers\\Mindset.ps1"],"actions":["Uninstall\\Mindset\\DisplayVersion = 3.0.0"],"taches_creees":["Mindset (installation)","Mindset (démarrage)"]}},
+    {"nom":"installation de Mindset en Rust sur un autre disque (X:\\Mindset\\Programmes\\Mindset)","entree":{"lancement":"direct","demande":{"Action":"mindset","Source":"{src-rust}","Version":"3.0.0","Disque":"{x}","Sid":"{sid}","Zip":null,"Signature":null,"Destination":null}},"attendu":{"reponse":"ok","message_exact":"{x}:\\Mindset\\Programmes\\Mindset","versions":{"{tmp}\\disque\\Mindset\\Programmes\\Mindset":"3.0.0"},"taches_creees":["Mindset (installation)"]}},
+    {"nom":"source dont version.json dit une autre appli : « ne contient pas Mindset », rien fait","entree":{"lancement":"direct","demande":{"Action":"mindset","Source":"{src-rust-autre}","Version":"3.0.0","Sid":"{sid}","Zip":null,"Signature":null,"Destination":null}},"attendu":{"reponse":"refus","message":"ne contient pas Mindset","rien_fait":true}},
+    {"nom":"source au version.json illisible : refusée, même avec un Mindset.ps1 à côté","entree":{"lancement":"direct","demande":{"Action":"mindset","Source":"{src-rust-abime}","Version":"3.0.0","Sid":"{sid}","Zip":null,"Signature":null,"Destination":null}},"attendu":{"reponse":"refus","message":"ne contient pas Mindset","rien_fait":true}},
+    {"nom":"source sans version.json ni Mindset.ps1 : « ne contient pas Mindset », rien fait","entree":{"lancement":"direct","demande":{"Action":"mindset","Source":"{src-rust-sans-json}","Version":"3.0.0","Sid":"{sid}","Zip":null,"Signature":null,"Destination":null}},"attendu":{"reponse":"refus","message":"ne contient pas Mindset","rien_fait":true}},
+    {"nom":"mise à jour 1.0.0 (PowerShell) -> 3.0.0 (Rust) par la tâche : installée, Mindset.ps1 parti, version.json et le relais là, tâches à jour, relancé","entree":{"lancement":"tache","demande":{}},"attendu":{"reponse":"ok","message_exact":"3.0.0","versions":{"{pm}\\Mindset":"3.0.0"},"existe":["{pm}\\Mindset\\version.json","{pm}\\Mindset\\MindsetInstallateur.exe","{pm}\\Mindset\\fichiers\\installer-admin.ps1","{pm}\\Mindset\\fichiers\\version.ps1"],"absent":["{pm}\\Mindset\\fichiers\\Mindset.ps1"],"actions":["Uninstall\\Mindset\\DisplayVersion = 3.0.0","ACTION lancement schtasks /Run /TN \\Mindset\\Mindset (démarrage)"],"taches_creees":["Mindset (installation)"],"actions_absentes":["explorer.exe"]}},
+    {"nom":"mise à jour vers le zip en Rust en lancement direct (demande de Windows) : installée, relancé par l'Explorateur","entree":{"lancement":"direct","demande":{}},"attendu":{"reponse":"ok","versions":{"{pm}\\Mindset":"3.0.0"},"actions":["explorer.exe \"{pm}\\Mindset\\Mindset.exe\""],"actions_absentes":["schtasks"]}},
+    {"nom":"mise à jour automatique (Mindset caché) vers le zip en Rust : relancé par sa tâche de démarrage","entree":{"lancement":"tache","demande":{"Cache":"1"}},"attendu":{"reponse":"ok","versions":{"{pm}\\Mindset":"3.0.0"},"actions":["ACTION lancement schtasks /Run /TN \\Mindset\\Mindset (démarrage)"],"actions_absentes":["explorer.exe"]}},
+    {"nom":"zip en Rust sans fichiers\\version.ps1 : accepté aussi (seuls les Mindset 2.14 et avant en ont besoin)","entree":{"lancement":"tache","demande":{"Zip":"{zip-mindset-rust-sans-ps1}","Signature":"{zip-mindset-rust-sans-ps1}.sig"}},"attendu":{"reponse":"ok","versions":{"{pm}\\Mindset":"3.0.0"},"absent":["{pm}\\Mindset\\fichiers\\Mindset.ps1"]}},
+    {"nom":"zip en Rust dont version.ps1 ne dit pas la même version que version.json : refusé, rien installé","entree":{"lancement":"tache","demande":{"Zip":"{zip-mindset-rust-ecart}","Signature":"{zip-mindset-rust-ecart}.sig","Version":"3.0.1"}},"attendu":{"reponse":"refus","message":"ne dit pas quelle version","versions":{"{pm}\\Mindset":"1.0.0"},"existe":["{pm}\\Mindset\\fichiers\\Mindset.ps1"],"actions_permises":["ACTION lancement schtasks /Run /TN \\Mindset\\Mindset (démarrage)"]}},
+    {"nom":"zip en Rust dont version.json dit l'appli nevermind : refusé, rien installé","entree":{"lancement":"tache","demande":{"Zip":"{zip-mindset-rust-autre}","Signature":"{zip-mindset-rust-autre}.sig"}},"attendu":{"reponse":"refus","message":"nevermind","versions":{"{pm}\\Mindset":"1.0.0"},"actions_permises":["ACTION lancement schtasks /Run /TN \\Mindset\\Mindset (démarrage)"]}},
+    {"nom":"zip en Rust plus ancien que la version installée (0.9.0 contre 1.0.0) : refusé, rien installé","entree":{"lancement":"tache","demande":{"Zip":"{zip-mindset-rust-ancien}","Signature":"{zip-mindset-rust-ancien}.sig","Version":"0.9.0"}},"attendu":{"reponse":"refus","message":"refusée","versions":{"{pm}\\Mindset":"1.0.0"},"actions_permises":["ACTION lancement schtasks /Run /TN \\Mindset\\Mindset (démarrage)"]}},
+    {"nom":"zip en Rust à la signature fausse : refusé, rien installé","entree":{"lancement":"tache","demande":{"Signature":"{sig-fausse}"}},"attendu":{"reponse":"refus","message":"signature","rien_fait":true,"actions_permises":["ACTION lancement schtasks /Run /TN \\Mindset\\Mindset (démarrage)"]}},
+    {"nom":"mise à jour 3.0.1 (Rust) par la tâche : installée (version lue dans son version.json)","entree":{"lancement":"tache","demande":{"Zip":"{zip-mindset-rust-301}","Signature":"{zip-mindset-rust-301}.sig","Version":"3.0.1"}},"attendu":{"reponse":"ok","message_exact":"3.0.1","versions":{"{pm}\\Mindset":"3.0.1"},"existe":["{pm}\\Mindset\\version.json"]}}
+  ]
+}

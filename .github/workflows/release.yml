@@ -21,6 +21,19 @@
 #          --signer-workflow JordanJacquot/Mindset/.github/workflows/release.yml --source-digest <commit publié>
 #      Sans dossier rust, ce job ne fait rien et le reste est inchangé.
 #
+# Mindset en Rust (3.0 et après : rust\mindset-appli ; contenu du zip : outils\contenu-rust.ps1). Deux sortes de versions
+# (« genre », décidé par le job « genre ») :
+#   - powershell (jusqu'à 2.18) : tag v<version de Mindset.ps1>, ou lancement à la main avec genre = powershell (par
+#     défaut). Tout ce qui est décrit plus haut, inchangé ;
+#   - rust : lancement à la main avec genre = rust (c'est ce que fait outils\publier.ps1 -Rust avant de publier), ou tag
+#     v<version> quand Mindset.ps1 et rust\mindset-appli\Cargo.toml ont tous deux cette version (seul
+#     outils\version-rust.ps1 les aligne). Le job « Mindset en Rust » vérifie les règles Tauri (outils\verifier-tauri.ps1),
+#     passe cargo deny, construit (outils\construire-rust.ps1 : cargo build --release --locked, jamais l'option « essai »),
+#     fait Mindset.zip (outils\zip-rust.ps1, vérifié par outils\verifier-zip-rust.ps1 SANS -Ci : tout à la même version),
+#     l'atteste (ce dépôt, ce fichier, ce commit) et le dépose comme artefact « Mindset-rust-zip ». outils\publier.ps1
+#     -Rust le récupère et vérifie son attestation avant de le signer (outils\zip-rust-github.ps1). « construire » prend
+#     alors le dossier de ce zip tel quel comme dossier à signer, sans rien construire en PowerShell.
+#
 # Rien ici n'utilise la clé RSA de la suite : elle ne doit jamais aller sur GitHub.
 name: Release
 
@@ -29,14 +42,143 @@ on:
     tags:
       - 'v*'
   workflow_dispatch:
+    inputs:
+      genre:
+        description: "Quel Mindset construire : powershell (jusqu'à 2.18) ou rust (Mindset en Rust, 3.0 et après)"
+        type: choice
+        options:
+          - powershell
+          - rust
+        default: powershell
 
 permissions:
   contents: read
   actions: read
 
 jobs:
+  genre:
+    name: "Genre de la version (PowerShell ou Rust)"
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: powershell
+    env:
+      GENRE_DEMANDE: ${{ inputs.genre }}
+    outputs:
+      genre: ${{ steps.genre.outputs.genre }}
+      version: ${{ steps.genre.outputs.version }}
+    steps:
+      - name: "Récupérer le dépôt"
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: "PowerShell ou Rust ? (genre demandé, ou tag : v<version> de Mindset.ps1 et de rust/mindset-appli/Cargo.toml)"
+        id: genre
+        run: |
+          $ErrorActionPreference = 'Stop'
+          . .\outils\contenu-rust.ps1
+          $racine = (Get-Location).Path
+          $vrust = Get-VersionMindsetRust $racine
+          $vps = Get-VersionMindsetPs $racine
+          if ($env:GITHUB_REF_TYPE -eq 'tag') {
+            $genre = if ($vrust -and $vps -ceq $vrust -and $env:GITHUB_REF_NAME -ceq "v$vrust") { 'rust' } else { 'powershell' }
+          } else { $genre = if ($env:GENRE_DEMANDE -eq 'rust') { 'rust' } else { 'powershell' } }
+          if ($genre -eq 'rust' -and $vrust -notmatch '^\d+\.\d+\.\d+$') { throw "Mindset en Rust demandé, mais la version de rust\mindset-appli\Cargo.toml est introuvable ou mal écrite ($vrust)." }
+          $version = if ($genre -eq 'rust') { $vrust } else { $vps }
+          [IO.File]::AppendAllText($env:GITHUB_OUTPUT, "genre=$genre`nversion=$version`n")
+          Write-Host "Genre : $genre (Mindset.ps1 : $vps ; mindset-appli : $vrust)"
+
+  mindset-rust:
+    name: "Mindset en Rust (seulement pour une version en Rust)"
+    needs: genre
+    if: ${{ needs.genre.outputs.genre == 'rust' }}
+    runs-on: windows-latest
+    # (le jeton OIDC et l'écriture d'attestations : seulement pour ce job)
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+    defaults:
+      run:
+        shell: powershell
+    env:
+      CARGO_TERM_COLOR: never
+    steps:
+      # Les fichiers tels qu'ils sont dans git : sans ça, git pour Windows change les fins de ligne en CRLF, et les
+      # fichiers copiés dans le zip (LISEZMOI, apps.json, installer-admin.ps1...) ne sont plus ceux du commit
+      - name: "Garder les fins de ligne de git"
+        run: git config --global core.autocrlf false
+
+      - name: "Récupérer le dépôt"
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: "Rust 1.99.1, la version figée par rust/rust-toolchain.toml"
+        working-directory: rust
+        run: |
+          rustup toolchain install
+          if ($LASTEXITCODE) { rustup show; if ($LASTEXITCODE) { exit 1 } }
+          rustc --version
+          if ((rustc --version) -notmatch '^rustc 1\.99\.1 ') { Write-Host 'Mauvaise version de Rust.'; exit 1 }
+
+      - name: "Règles Tauri de la suite (outils\\verifier-tauri.ps1 sur rust\\mindset-appli)"
+        run: |
+          & .\outils\verifier-tauri.ps1 -Projet rust\mindset-appli
+          exit $LASTEXITCODE
+
+      - name: "cargo deny : licences compatibles MIT, failles connues, liste blanche des bibliothèques (Tauri compris)"
+        working-directory: rust
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # cargo-deny 0.20.2 tout prêt, vérifié par son empreinte (la même que dans tests.yml)
+          $d = Join-Path $env:RUNNER_TEMP 'cargo-deny'
+          gh release download 0.20.2 --repo EmbarkStudios/cargo-deny --pattern 'cargo-deny-0.20.2-x86_64-pc-windows-msvc.tar.gz' --dir $d
+          if ($LASTEXITCODE) { exit 1 }
+          $archive = Join-Path $d 'cargo-deny-0.20.2-x86_64-pc-windows-msvc.tar.gz'
+          $h = (Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash
+          if ($h -ne '975A22143262FD27476D19EE00C7AF67978426E40E1DEE94EED6BBADE1CF87DC') { Write-Host "Empreinte inattendue : $h"; exit 1 }
+          tar -xzf $archive -C $d
+          $exe = Get-ChildItem -LiteralPath $d -Recurse -Filter 'cargo-deny.exe' | Select-Object -First 1
+          & $exe.FullName --version
+          & $exe.FullName --locked check
+          if ($LASTEXITCODE) { exit 1 }
+
+      - name: "Construire Mindset en Rust (outils\\construire-rust.ps1 : Mindset.exe, MindsetInstallateur.exe, le désinstalleur, version.json, fichiers\\)"
+        run: |
+          & .\outils\construire-rust.ps1 -Sortie '_ci\rust'
+          if (-not $?) { exit 1 }
+
+      # Sans -Ci : tout doit être à la version de version.json, MindsetInstallateur.exe et le désinstalleur compris
+      - name: "Mindset.zip (outils\\zip-rust.ps1) et ses contrôles : fichiers exacts, version.json, version.ps1, fiches de version, aucune construction d'essai, aucun runtime C à part"
+        run: |
+          & .\outils\zip-rust.ps1 -Dossier '_ci\rust\Mindset' -Zip '_ci\rust-zip\Mindset.zip'
+          if ($LASTEXITCODE) { exit 1 }
+          $h = (Get-FileHash -LiteralPath '_ci\rust-zip\Mindset.zip' -Algorithm SHA256).Hash
+          [IO.File]::AppendAllText($env:GITHUB_STEP_SUMMARY, "Mindset.zip (Rust ${{ needs.genre.outputs.version }}, non signé, commit $env:GITHUB_SHA) : SHA-256 ``$h``" + "`n")
+          foreach ($e in Get-ChildItem -LiteralPath '_ci\rust\Mindset' -Filter '*.exe' -File) {
+            [IO.File]::AppendAllText($env:GITHUB_STEP_SUMMARY, "$($e.Name) (Rust) : SHA-256 ``$((Get-FileHash -LiteralPath $e.FullName -Algorithm SHA256).Hash)``" + "`n")
+          }
+
+      # L'attestation que outils\publier.ps1 -Rust vérifie (outils\zip-rust-github.ps1 : gh attestation verify
+      # --repo JordanJacquot/Mindset --signer-workflow JordanJacquot/Mindset/.github/workflows/release.yml
+      # --source-digest <commit>)
+      - name: "Attester Mindset.zip (ce dépôt, ce fichier de construction, ce commit)"
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: _ci/rust-zip/Mindset.zip
+
+      - name: "Déposer Mindset.zip (Rust)"
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: Mindset-rust-zip
+          path: _ci/rust-zip/
+          if-no-files-found: error
+          retention-days: 30
+
   rust:
     name: "Programmes en Rust (MindsetInstallateur.exe, Desinstaller Mindset.exe ; seulement si leur dossier rust existe)"
+    needs: genre
+    # (version PowerShell seulement ; Mindset en Rust : le job « Mindset en Rust » plus haut)
+    if: ${{ needs.genre.outputs.genre == 'powershell' }}
     runs-on: windows-latest
     # (le jeton OIDC et l'écriture d'attestations : seulement pour ce job)
     permissions:
@@ -129,7 +271,9 @@ jobs:
 
   construire:
     name: "Construire Mindset"
-    needs: rust
+    needs: [genre, rust, mindset-rust]
+    # (un des deux jobs de programmes est sauté selon le genre : celui qui a tourné doit avoir réussi)
+    if: ${{ !cancelled() && needs.genre.result == 'success' && !contains(needs.*.result, 'failure') }}
     runs-on: windows-latest
     defaults:
       run:
@@ -137,6 +281,7 @@ jobs:
     outputs:
       version: ${{ steps.version.outputs.version }}
       version4: ${{ steps.version.outputs.version4 }}
+      genre: ${{ needs.genre.outputs.genre }}
       artifact-id: ${{ steps.depot.outputs.artifact-id }}
     steps:
       - name: "Récupérer le dépôt"
@@ -144,11 +289,16 @@ jobs:
 
       - name: "Numéro de version"
         id: version
+        env:
+          GENRE: ${{ needs.genre.outputs.genre }}
+          VERSION_RUST: ${{ needs.genre.outputs.version }}
         run: |
           $ErrorActionPreference = 'Stop'
           $ps1 = [IO.File]::ReadAllText('Mindset\fichiers\Mindset.ps1', [Text.Encoding]::UTF8)
           if ($ps1 -notmatch "(?m)^\`$AppVersion = '(\d+(\.\d+){1,3})'") { throw 'Numéro de version introuvable dans Mindset.ps1' }
           $v = $Matches[1]
+          # (Mindset en Rust : la version de rust\mindset-appli\Cargo.toml, donnée par le job « genre »)
+          if ($env:GENRE -eq 'rust') { $v = $env:VERSION_RUST }
           if ($env:GITHUB_REF_TYPE -eq 'tag' -and $env:GITHUB_REF_NAME -ne "v$v") {
             throw "Le tag $env:GITHUB_REF_NAME ne correspond pas à la version de Mindset.ps1 ($v)."
           }
@@ -159,19 +309,20 @@ jobs:
           Write-Host "Version $v ($v4)"
 
       - name: "Construire (outils\\construire.ps1)"
+        if: ${{ needs.genre.outputs.genre == 'powershell' }}
         run: |
           $ErrorActionPreference = 'Stop'
           .\outils\construire.ps1
 
       - name: "Récupérer les programmes en Rust (job rust de ce run)"
-        if: ${{ needs.rust.outputs.present == 'true' }}
+        if: ${{ needs.genre.outputs.genre == 'powershell' && needs.rust.outputs.present == 'true' }}
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: Mindset-rust
           path: _ci/rust
 
       - name: "Les programmes en Rust dans le dossier (MindsetInstallateur.exe, le désinstalleur à la place de celui en C#)"
-        if: ${{ needs.rust.outputs.present == 'true' }}
+        if: ${{ needs.genre.outputs.genre == 'powershell' && needs.rust.outputs.present == 'true' }}
         run: |
           $ErrorActionPreference = 'Stop'
           foreach ($f in Get-ChildItem -LiteralPath '_ci\rust' -File) {
@@ -180,6 +331,7 @@ jobs:
           }
 
       - name: "Vérifier Mindset.exe"
+        if: ${{ needs.genre.outputs.genre == 'powershell' }}
         run: |
           $ErrorActionPreference = 'Stop'
           $exe = Get-Item -LiteralPath 'Mindset\Mindset.exe'
@@ -202,11 +354,30 @@ jobs:
           if ($LASTEXITCODE) { exit 1 }
 
       - name: "Préparer le dossier à signer"
+        if: ${{ needs.genre.outputs.genre == 'powershell' }}
         run: |
           $ErrorActionPreference = 'Stop'
           $dest = '_ci\a-signer'
           New-Item -ItemType Directory -Force -Path $dest | Out-Null
           Copy-Item -LiteralPath 'Mindset' -Destination $dest -Recurse
+          Get-ChildItem -LiteralPath $dest -Recurse -File | Measure-Object | ForEach-Object { Write-Host "$($_.Count) fichiers" }
+
+      - name: "Récupérer Mindset.zip en Rust (job « Mindset en Rust » de ce run)"
+        if: ${{ needs.genre.outputs.genre == 'rust' }}
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: Mindset-rust-zip
+          path: _ci/rust-zip
+
+      # Mindset en Rust : le dossier Mindset du zip attesté, tel quel (rien n'est construit en PowerShell)
+      - name: "Préparer le dossier à signer (Mindset en Rust)"
+        if: ${{ needs.genre.outputs.genre == 'rust' }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $dest = '_ci\a-signer'
+          New-Item -ItemType Directory -Force -Path $dest | Out-Null
+          Expand-Archive -LiteralPath '_ci\rust-zip\Mindset.zip' -DestinationPath $dest
+          if (-not (Test-Path -LiteralPath "$dest\Mindset\Mindset.exe") -or (Test-Path -LiteralPath "$dest\Mindset\fichiers\Mindset.ps1")) { throw "Dossier à signer inattendu : $dest\Mindset" }
           Get-ChildItem -LiteralPath $dest -Recurse -File | Measure-Object | ForEach-Object { Write-Host "$($_.Count) fichiers" }
 
       # L'artefact contient un seul dossier « Mindset » (Mindset.exe, LISEZMOI.txt, fichiers\...).
@@ -223,7 +394,8 @@ jobs:
   signer:
     name: "Signer avec SignPath"
     needs: construire
-    if: ${{ vars.SIGNPATH_ACTIVE == 'true' }}
+    # (!cancelled() : le job de programmes sauté selon le genre ne doit pas sauter celui-ci)
+    if: ${{ !cancelled() && needs.construire.result == 'success' && vars.SIGNPATH_ACTIVE == 'true' }}
     runs-on: windows-latest
     defaults:
       run:
@@ -266,8 +438,9 @@ jobs:
             $s = Get-AuthenticodeSignature -LiteralPath $f.FullName
             if ($s.Status -ne 'Valid' -or $s.SignerCertificate.Subject -notmatch 'SignPath Foundation') { $problemes += "$($f.FullName) : $($s.Status) $($s.SignerCertificate.Subject)" }
           }
-          # Les DLL de Microsoft gardent leur propre signature (jamais signées par nous)
-          foreach ($f in @(Get-ChildItem -LiteralPath "$racine\fichiers\lib\webview2" -Filter '*.dll')) {
+          # Les DLL de Microsoft gardent leur propre signature (jamais signées par nous) ; Mindset en Rust n'en a plus
+          $dlls = if ('${{ needs.construire.outputs.genre }}' -eq 'rust') { @() } else { @(Get-ChildItem -LiteralPath "$racine\fichiers\lib\webview2" -Filter '*.dll') }
+          foreach ($f in $dlls) {
             $s = Get-AuthenticodeSignature -LiteralPath $f.FullName
             if ($s.Status -ne 'Valid' -or $s.SignerCertificate.Subject -notmatch 'CN=Microsoft Corporation(,|$)') { $problemes += "$($f.Name) : $($s.Status) $($s.SignerCertificate.Subject)" }
           }
