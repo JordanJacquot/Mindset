@@ -1,0 +1,13 @@
+# mindset-appli : différences voulues avec la version PowerShell
+
+Chaque différence est voulue et dite ici, avec sa raison (règle du brief du 07/11/2026).
+
+| Version PowerShell | Version Rust | Pourquoi |
+|---|---|---|
+| Mindset.exe est un lanceur C# (`outils/lanceur.cs`) qui exécute `fichiers\Mindset.ps1` | Mindset.exe est le programme lui-même (Tauri) ; `fichiers\` ne garde que ce qui est lu (apps.json, apps-liste.txt, cles-publiques, Mindset.ico) | plus de PowerShell ni de WPF ; la page est rangée dans l'exe |
+| Console 3D : un contrôle WebView2 à part, sur `https://mindset.local/` (console.ps1:65-147) | la scène est un cadre (`<iframe>`) de la page, sur `http://tauri.localhost/console/scene.html` ; d'où `frame-src 'self'` et `frame-ancestors 'self'` dans la CSP (la CSP de départ de regles-tauri.md, règle 3, avait `'none'` pour les deux : outils/verifier-tauri.ps1 ne les contrôle pas, et la page ne peut toujours encadrer que ses propres pages) | une seule WebView2 pour toute la fenêtre (la règle 7 interdit d'en créer une autre sans ses fonctions communes), et le cadre retiré libère la 3D comme `Remove-VueConsole` |
+| Dossier WebView2 : `<données de la suite>\WebView2`, profil « Mindset », partagé avec Nevermind PowerShell (console.ps1:19, :83) | `<données de la suite>\WebView2-Tauri\Mindset` (repli `<données de Mindset>\ecran-webview`) | règle 7 : WebView2 refuse de partager un dossier entre Tauri et les applis PowerShell. L'ancien dossier `WebView2` reste pour Nevermind PowerShell et Evermind ; son nettoyage quand plus aucune appli PowerShell ne s'en sert reste à décider (architecture, points ouverts). |
+| `[System.Windows.MessageBox]` quand des fichiers manquent, avec la liste (Mindset.ps1:106-113) | même message, mais seulement `apps.json` et `cles-publiques` sont vérifiés | les modules, natif.cs et interface.xaml n'existent plus : ils sont dans l'exe |
+| Taille de la fenêtre : `SystemParameters.WorkArea` en unités WPF (interface.ps1:32-39) | la zone utile de l'écran principal (Tauri : `work_area` divisé par l'échelle) | même calcul (`taille_fenetre`, mêmes cas que `Get-TailleFenetre`), autre source |
+| Le filet des erreurs imprévues (interface.ps1:127-170) : une exception dans un clic ou une minuterie | une panique d'un bloc (rattrapée par l'hôte), notée 3 fois au plus, signal `erreur-imprevue` une fois ; le message et la bulle sont faits par les blocs console et horloge | même règle, le texte vient des blocs |
+| `Restart-Minuteries` après une erreur | un tic qui a paniqué est rappelé 10 s plus tard | en Rust, une minuterie ne s'arrête pas d'elle-même après une erreur |

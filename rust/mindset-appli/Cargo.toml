@@ -1,0 +1,82 @@
+[package]
+name = "mindset-appli"
+# La version de Mindset ($AppVersion de Mindset.ps1 aujourd'hui) : 3.0.0 pour la version en Rust (proposé, à confirmer
+# par Jordan). La même que version.json et la fiche de l'exe.
+version = "3.0.0"
+description = "Mindset en Rust : l'appli (fenêtre Tauri, page de la coquille, pont avec la page, fil des blocs, effets, travaux de fond)"
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+build = "build.rs"
+
+# La bibliothèque : la liste des blocs, l'hôte (sans Tauri : testé à part), la fenêtre, les protocoles. Le programme
+# et les tests s'en servent.
+[lib]
+name = "mindset_appli"
+path = "src/lib.rs"
+
+# Le programme Mindset.exe (comme aujourd'hui : raccourcis, tâche de démarrage, « Applications installées » et le
+# mini-installateur le lancent sous ce nom).
+[[bin]]
+name = "Mindset"
+path = "src/main.rs"
+test = false
+
+# La construction d'essai (`cargo build --features essai`), jamais livrée : seule à lire un dossier d'essai
+# (MINDSET_ESSAI_DONNEES), avec des verrous d'essai ; elle ne lit pas HKLM, ne lève aucun signal, ne lance aucun
+# programme (faux Windows pour les lancements), et fait la capture de sa fenêtre sur demande.
+[features]
+essai = []
+
+[dependencies]
+mindset-noyau = { path = "../mindset-noyau" }
+mindset-donnees = { path = "../mindset-donnees" }
+mindset-liste = { path = "../mindset-liste" }
+mindset-publications = { path = "../mindset-publications" }
+mindset-installations = { path = "../mindset-installations" }
+mindset-lui-meme = { path = "../mindset-lui-meme" }
+mindset-accrochage = { path = "../mindset-accrochage" }
+mindset-console = { path = "../mindset-console" }
+mindset-ecrans = { path = "../mindset-ecrans" }
+mindset-parametres = { path = "../mindset-parametres" }
+mindset-horloge = { path = "../mindset-horloge" }
+# Le dossier WebView2 des applis Tauri et les options du navigateur (règle 7), la lecture des fichiers de pack (règle 6)
+suite-commun = { path = "../suite-commun" }
+# Versions figées (« = ») : une nouvelle version n'entre que par un changement relu. Les mêmes que Nevermind et Mindcare.
+serde_json = { version = "=1.0.154", features = ["preserve_order"] }
+# Tauri sans ses options par défaut ; jamais « devtools » (règle 5 de regles-tauri.md). « custom-protocol » en dur :
+# sans lui, l'exe chercherait un serveur de développement.
+tauri = { version = "=2.12.5", default-features = false, features = ["wry", "compression", "common-controls-v6", "custom-protocol"] }
+
+# Ce qui parle à Windows (verrous, fenêtre, identité, capture d'essai). La même version que wry, tao et webview2-com.
+[target.'cfg(windows)'.dependencies.windows]
+version = "=0.62.2"
+features = [
+    "Win32_Foundation",
+    "Win32_Graphics_Dwm",
+    "Win32_Graphics_Gdi",
+    "Win32_Security",
+    "Win32_Storage_Xps",
+    "Win32_System_Threading",
+    "Win32_UI_Shell",
+    "Win32_UI_WindowsAndMessaging",
+]
+# Les réglages de WebView2 que Tauri ne transmet pas, sa veille (SetIsVisible) : la version de wry
+[target.'cfg(windows)'.dependencies.webview2-com]
+version = "=0.39.1"
+
+[build-dependencies]
+tauri-build = { version = "=2.7.4", default-features = false }
+
+[dev-dependencies]
+# Les tests des permissions : l'option « test » de Tauri (son faux Windows : aucune vraie fenêtre)
+tauri = { version = "=2.12.5", default-features = false, features = ["wry", "compression", "common-controls-v6", "custom-protocol", "test"] }
+
+# Pas `workspace = true` : le module Windows (src\windows) autorise lui-même le code « unsafe » ; ailleurs il est
+# refusé (deny).
+[lints.rust]
+unsafe_code = "deny"
+unsafe_op_in_unsafe_fn = "deny"
+
+[lints.clippy]
+all = { level = "warn", priority = -1 }

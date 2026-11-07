@@ -1,0 +1,36 @@
+[package]
+name = "mindset-noyau"
+version = "0.1.0"
+description = "Le noyau de Mindset en Rust : le contrat commun des blocs (Bloc, Effet, Contexte), les ports vers le disque, GitHub, le mini-installateur et Windows (avec leurs faux pour les tests), le tableau commun et les signaux"
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[dependencies]
+# Versions figées (« = ») : une nouvelle version n'entre que par un changement relu. Les mêmes que Nevermind.
+serde_json = { version = "=1.0.154", features = ["preserve_order"] }
+# La bibliothèque commune de la suite (ce dépôt) : versions, chemins comme .NET, heure locale, lecture « à la
+# PowerShell » des valeurs (protocole_installateur::vrai_ps)
+suite-commun = { path = "../suite-commun" }
+
+# Le seul module qui parle à Windows (src\windows) : les processus et leur chemin, les verrous et signaux nommés, le
+# lancement d'un programme (avec ou sans les droits), l'ouverture par l'Explorateur. La même version que la suite.
+[target.'cfg(windows)'.dependencies.windows]
+version = "=0.62.2"
+features = [
+    "Win32_Foundation",
+    "Win32_Security",
+    "Win32_System_Diagnostics_ToolHelp",
+    "Win32_System_Threading",
+    "Win32_UI_Shell",
+    "Win32_UI_WindowsAndMessaging",
+]
+
+# Pas `workspace = true` : le module Windows (src\windows) autorise lui-même le code « unsafe » ; ailleurs il est
+# refusé (deny).
+[lints.rust]
+unsafe_code = "deny"
+unsafe_op_in_unsafe_fn = "deny"
+
+[lints.clippy]
+all = { level = "warn", priority = -1 }

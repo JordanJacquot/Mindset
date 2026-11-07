@@ -1,0 +1,21 @@
+[package]
+name = "mindset-horloge"
+version = "0.1.0"
+description = "Mindset en Rust, bloc « près de l'horloge » : l'icône près de l'horloge, son menu, ses bulles, la croix rouge (zone.ps1)"
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[dependencies]
+mindset-noyau = { path = "../mindset-noyau" }
+# Versions figées (« = ») : les mêmes que Nevermind (D:\Projets\Nevermind\rust\Cargo.lock).
+serde_json = { version = "=1.0.154", features = ["preserve_order"] }
+
+# Pas `workspace = true` : si ce bloc a un module Windows (src\windows), ce module autorise lui-même le code
+# « unsafe » (#![allow(unsafe_code)]) ; ailleurs il est refusé (deny).
+[lints.rust]
+unsafe_code = "deny"
+unsafe_op_in_unsafe_fn = "deny"
+
+[lints.clippy]
+all = { level = "warn", priority = -1 }

@@ -1,14 +1,38 @@
 # Le Rust de la suite (passage en Rust, issue #9). Rien ici n'est livré aux utilisateurs pour l'instant :
 # les applis publiées restent celles en PowerShell.
+#
+# Mindset 3.0 en Rust (branche rust-complet, nuit du 07/11/2026) : le noyau (mindset-noyau, le contrat commun des
+# blocs), l'appli Tauri (mindset-appli, le programme Mindset.exe) et un bloc par partie de Mindset (mindset-donnees ...
+# mindset-horloge). Architecture : D:\Projets\_plans\architecture-mindset-rust.md.
 [workspace]
 resolver = "3"
-members = ["suite-commun", "banc-essai", "mindset-installateur", "desinstalleur"]
+members = [
+    "suite-commun",
+    "banc-essai",
+    "mindset-installateur",
+    "desinstalleur",
+    "mindset-noyau",
+    "mindset-appli",
+    "mindset-donnees",
+    "mindset-liste",
+    "mindset-publications",
+    "mindset-installations",
+    "mindset-lui-meme",
+    "mindset-accrochage",
+    "mindset-console",
+    "mindset-ecrans",
+    "mindset-parametres",
+    "mindset-horloge",
+]
 
 [workspace.package]
 edition = "2024"
 license = "MIT"
 publish = false
 
+# Le code « unsafe » est interdit tout à fait (forbid) dans les crates qui prennent ces lints. Celles qui ont un module
+# Windows (installateur, désinstalleur, noyau, appli, blocs) ont leurs propres lints : refusé partout (deny), sauf dans
+# leur module `windows`, qui l'autorise lui-même.
 [workspace.lints.rust]
 unsafe_code = "forbid"
 unsafe_op_in_unsafe_fn = "deny"
