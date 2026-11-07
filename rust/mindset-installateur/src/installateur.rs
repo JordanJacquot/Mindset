@@ -955,7 +955,7 @@ impl Installateur<'_> {
         };
         let dest = self.dossier_mindset(&joindre(&programmes, chemins::DOSSIER_MINDSET))?;
         let src = chemin_complet(self.p.source.trim_end_matches('\\'))?;
-        if !self.existe(&joindre(&src, "Mindset.exe")) || !self.existe(&joindre(&src, r"fichiers\Mindset.ps1")) {
+        if !self.existe(&joindre(&src, "Mindset.exe")) || !self.source_mindset(&src) {
             return Err(format!("Ce dossier ne contient pas Mindset : {}", self.p.source));
         }
         // Préparé à côté puis échangé, comme une appli
@@ -963,7 +963,8 @@ impl Installateur<'_> {
         self.creer_dossier(&tmp)?;
         self.copier_fichier(&joindre(&src, "Mindset.exe"), &tmp)?;
         self.copier_dossier(&joindre(&src, "fichiers"), &tmp)?;
-        for f in ["LISEZMOI.txt", NOM_DESINSTALLEUR, NOM_EXE] {
+        // (version.json : Mindset en Rust, 3.0 et après ; les mises à jour suivantes y lisent la version installée)
+        for f in ["LISEZMOI.txt", NOM_DESINSTALLEUR, NOM_EXE, "version.json"] {
             let x = joindre(&src, f);
             if self.existe(&x) {
                 self.copier_fichier(&x, &tmp)?;
@@ -1003,6 +1004,23 @@ impl Installateur<'_> {
         }
         self.ecrire_resultat(true, &dest);
         Ok(())
+    }
+
+    /// Le dossier `src` (celui de Mindset.exe) est-il celui de Mindset ? Mindset en Rust (3.0 et après) : son
+    /// `version.json` dit l'appli « mindset » (le même contrôle que pour une mise à jour, `paquet::installer` avec
+    /// `appli: Some("mindset")`) ; la version PowerShell : `fichiers\Mindset.ps1`. Un `version.json` illisible ou
+    /// d'une autre appli : refusé, même avec Mindset.ps1.
+    fn source_mindset(&self, src: &str) -> bool {
+        let vj = joindre(src, "version.json");
+        if self.existe(&vj) {
+            return self
+                .lire_octets(&vj)
+                .ok()
+                .and_then(|o| paquet::lire_version_json(&o))
+                .and_then(|i| i.appli)
+                .is_some_and(|a| a.eq_ignore_ascii_case("mindset"));
+        }
+        self.existe(&joindre(src, r"fichiers\Mindset.ps1"))
     }
 
     /// Action mindset-maj : on attend que Mindset soit fermé, on installe le zip signé (vérifié ici), puis on le

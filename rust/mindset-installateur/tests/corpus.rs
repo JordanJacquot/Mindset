@@ -484,6 +484,64 @@ impl Banc {
         ecrire(&format!(r"{src_sans_exe}\fichiers\Mindset.ps1"), b"$AppVersion = '3.0.0'");
         let src_sans_script = format!(r"{tmp}\sources\SansScript");
         ecrire(&format!(r"{src_sans_script}\Mindset.exe"), b"mindset nouveau");
+        // Mindset en Rust (3.0 et après, outils\contenu-rust.ps1) : plus de Mindset.ps1, un version.json « mindset »,
+        // et fichiers\version.ps1 (la ligne $AppVersion des Mindset 2.14 et avant). Pour cas\installateur\rust-*.json.
+        let version_json = |appli: &str, v: &str| format!(r#"{{"appli":"{appli}","version":"{v}"}}"#);
+        let version_ps1 =
+            |v: &str| format!("\u{feff}# Mindset en Rust : personne ne lance ce fichier.\r\n$AppVersion = '{v}'\r\n");
+        let rust_source = |nom: &str, vj: Option<&str>| -> String {
+            let d = format!(r"{tmp}\sources\{nom}");
+            for (f, t) in [
+                ("Mindset.exe", "mindset rust 3.0.0"),
+                ("MindsetInstallateur.exe", "installateur rust 3.0.0"),
+                ("Desinstaller Mindset.exe", "desinstalleur rust 3.0.0"),
+                ("LISEZMOI.txt", "lisez-moi"),
+                (r"fichiers\apps.json", "[]"),
+                (r"fichiers\installer-admin.ps1", "# le relais\r\nparam()\r\n"),
+            ] {
+                ecrire(&format!(r"{d}\{f}"), t.as_bytes());
+            }
+            ecrire(&format!(r"{d}\fichiers\version.ps1"), version_ps1("3.0.0").as_bytes());
+            if let Some(vj) = vj {
+                ecrire(&format!(r"{d}\version.json"), vj.as_bytes());
+            }
+            d
+        };
+        let src_rust = rust_source("Rust", Some(&version_json("mindset", "3.0.0")));
+        let src_rust_autre = rust_source("RustAutre", Some(&version_json("nevermind", "3.0.0")));
+        let src_rust_abime = rust_source("RustAbime", Some("{ pas du json"));
+        let src_rust_sans_json = rust_source("RustSansJson", None);
+        // (un version.json illisible n'est jamais rattrapé par un Mindset.ps1 à côté)
+        ecrire(&format!(r"{src_rust_abime}\fichiers\Mindset.ps1"), b"$AppVersion = '3.0.0'");
+        let zip_rust = |nom: &str, vj: Option<String>, ps1: Option<String>| -> String {
+            let mut e: Vec<(&str, String)> = vec![
+                ("Mindset/Mindset.exe", "mindset rust".into()),
+                ("Mindset/MindsetInstallateur.exe", "installateur rust".into()),
+                ("Mindset/Desinstaller Mindset.exe", "desinstalleur rust".into()),
+                ("Mindset/LISEZMOI.txt", "lisez-moi".into()),
+                ("Mindset/fichiers/apps.json", "[]".into()),
+                ("Mindset/fichiers/installer-admin.ps1", "# le relais\r\nparam()\r\n".into()),
+            ];
+            if let Some(vj) = vj {
+                e.push(("Mindset/version.json", vj));
+            }
+            if let Some(p) = ps1 {
+                e.push(("Mindset/fichiers/version.ps1", p));
+            }
+            let entrees: Vec<(&str, &str)> = e.iter().map(|(n, t)| (*n, t.as_str())).collect();
+            paquet(nom, &entrees)
+        };
+        let zip_mindset_rust =
+            zip_rust("MindsetRust", Some(version_json("mindset", "3.0.0")), Some(version_ps1("3.0.0")));
+        let zip_mindset_rust_ecart =
+            zip_rust("MindsetRustEcart", Some(version_json("mindset", "3.0.1")), Some(version_ps1("3.0.0")));
+        let zip_mindset_rust_autre =
+            zip_rust("MindsetRustAutre", Some(version_json("nevermind", "3.0.0")), Some(version_ps1("3.0.0")));
+        let zip_mindset_rust_sans_ps1 = zip_rust("MindsetRustSansPs1", Some(version_json("mindset", "3.0.0")), None);
+        let zip_mindset_rust_301 =
+            zip_rust("MindsetRust301", Some(version_json("mindset", "3.0.1")), Some(version_ps1("3.0.1")));
+        let zip_mindset_rust_ancien =
+            zip_rust("MindsetRustAncien", Some(version_json("mindset", "0.9.0")), Some(version_ps1("0.9.0")));
         // Ce qui est copié dans le dossier de Mindset de test à chaque cas : apps.json et la clé publique de TEST
         let publique =
             std::fs::read(Path::new(env!("CARGO_MANIFEST_DIR")).join(r"tests\cle-de-test\publique-de-test.xml"))
@@ -506,6 +564,16 @@ impl Banc {
             ("{src-ok}", src_ok),
             ("{src-sans-exe}", src_sans_exe),
             ("{src-sans-script}", src_sans_script),
+            ("{src-rust}", src_rust),
+            ("{src-rust-autre}", src_rust_autre),
+            ("{src-rust-abime}", src_rust_abime),
+            ("{src-rust-sans-json}", src_rust_sans_json),
+            ("{zip-mindset-rust}", zip_mindset_rust),
+            ("{zip-mindset-rust-ecart}", zip_mindset_rust_ecart),
+            ("{zip-mindset-rust-autre}", zip_mindset_rust_autre),
+            ("{zip-mindset-rust-sans-ps1}", zip_mindset_rust_sans_ps1),
+            ("{zip-mindset-rust-301}", zip_mindset_rust_301),
+            ("{zip-mindset-rust-ancien}", zip_mindset_rust_ancien),
             ("{sid}", SID.into()),
             ("{sid-autre}", SID_AUTRE.into()),
             ("{powershell}", format!(r"{windows}\System32\WindowsPowerShell\v1.0\powershell.exe")),
@@ -1056,6 +1124,13 @@ fn liste(v: Option<&Value>) -> Vec<String> {
 
 /// La version installée dans un dossier (lue dans fichiers\<Nom>.ps1)
 fn version_installee(dossier: &str) -> String {
+    // Mindset en Rust : version.json (comme paquet::installer, qui le lit avant les scripts)
+    if let Ok(t) = std::fs::read_to_string(format!(r"{dossier}\version.json")) {
+        return serde_json::from_str::<Value>(t.trim_start_matches('\u{FEFF}'))
+            .ok()
+            .and_then(|v| v.get("version").and_then(Value::as_str).map(str::to_string))
+            .unwrap_or_default();
+    }
     let nom = dossier.rsplit('\\').next().unwrap_or("");
     let f = format!(r"{dossier}\fichiers\{nom}.ps1");
     let Ok(t) = std::fs::read_to_string(f) else { return String::new() };
@@ -1254,7 +1329,7 @@ fn verifier(r: &Resultat, a: &Map<String, Value>) -> Vec<String> {
 // =============================================================================================================
 
 /// Le nombre de cas attendu au moins dans chaque fichier (un cas retiré ou un fichier vidé fait échouer le test)
-const MINIMUM_CAS: [(&str, usize); 10] = [
+const MINIMUM_CAS: [(&str, usize); 11] = [
     ("demande.json", 31),
     ("appli.json", 66),
     ("mindset.json", 16),
@@ -1265,6 +1340,9 @@ const MINIMUM_CAS: [(&str, usize); 10] = [
     ("ancienne-tache.json", 5),
     ("prise-en-charge.json", 9),
     ("programmes.json", 6),
+    // (Mindset en Rust : lu seulement ici, pas par tester-installer.ps1, l'ancienne version PowerShell de l'installateur
+    // ne connaissant pas ce dossier)
+    ("rust-mindset.json", 14),
 ];
 
 fn lire_corpus(nom: &str) -> Value {
