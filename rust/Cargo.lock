@@ -1822,7 +1822,12 @@ name = "mindset-installations"
 version = "0.1.0"
 dependencies = [
  "mindset-noyau",
+ "ring",
  "serde_json",
+ "suite-commun",
+ "windows",
+ "windows-registry",
+ "zip",
 ]
 
 [[package]]

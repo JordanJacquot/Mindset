@@ -1,0 +1,222 @@
+{
+    "famille":  "run",
+    "origine":  "outils\\exporter-juges-installations.ps1",
+    "cas":  [
+                {
+                    "nom":  "aucune",
+                    "exe":  "Evermind.exe",
+                    "entrees":  [
+
+                                ],
+                    "trouvees":  [
+
+                                 ]
+                },
+                {
+                    "nom":  "entre guillemets avec argument",
+                    "exe":  "Evermind.exe",
+                    "entrees":  [
+                                    {
+                                        "valeur":  "\"C:\\Users\\x\\Evermind\\Evermind.exe\" -Demarrage",
+                                        "nom":  "Evermind"
+                                    }
+                                ],
+                    "trouvees":  [
+                                     {
+                                         "nom":  "Evermind",
+                                         "cible":  "C:\\Users\\x\\Evermind\\Evermind.exe"
+                                     }
+                                 ]
+                },
+                {
+                    "nom":  "sans guillemets",
+                    "exe":  "Evermind.exe",
+                    "entrees":  [
+                                    {
+                                        "valeur":  "C:\\Evermind\\Evermind.exe",
+                                        "nom":  "Evermind"
+                                    }
+                                ],
+                    "trouvees":  [
+                                     {
+                                         "nom":  "Evermind",
+                                         "cible":  "C:\\Evermind\\Evermind.exe"
+                                     }
+                                 ]
+                },
+                {
+                    "nom":  "majuscules",
+                    "exe":  "Evermind.exe",
+                    "entrees":  [
+                                    {
+                                        "valeur":  "c:\\evermind\\EVERMIND.EXE",
+                                        "nom":  "E"
+                                    }
+                                ],
+                    "trouvees":  [
+                                     {
+                                         "nom":  "E",
+                                         "cible":  "c:\\evermind\\EVERMIND.EXE"
+                                     }
+                                 ]
+                },
+                {
+                    "nom":  "sans dossier",
+                    "exe":  "Evermind.exe",
+                    "entrees":  [
+                                    {
+                                        "valeur":  "Evermind.exe",
+                                        "nom":  "E"
+                                    }
+                                ],
+                    "trouvees":  [
+
+                                 ]
+                },
+                {
+                    "nom":  "autre appli",
+                    "exe":  "Evermind.exe",
+                    "entrees":  [
+                                    {
+                                        "valeur":  "C:\\N\\Nevermind.exe",
+                                        "nom":  "N"
+                                    }
+                                ],
+                    "trouvees":  [
+
+                                 ]
+                },
+                {
+                    "nom":  "nom qui commence par PS",
+                    "exe":  "Evermind.exe",
+                    "entrees":  [
+                                    {
+                                        "valeur":  "C:\\E\\Evermind.exe",
+                                        "nom":  "PSEvermind"
+                                    },
+                                    {
+                                        "valeur":  "C:\\F\\Evermind.exe",
+                                        "nom":  "Evermind"
+                                    }
+                                ],
+                    "trouvees":  [
+                                     {
+                                         "nom":  "Evermind",
+                                         "cible":  "C:\\F\\Evermind.exe"
+                                     }
+                                 ]
+                },
+                {
+                    "nom":  "valeur pas texte",
+                    "exe":  "Evermind.exe",
+                    "entrees":  [
+                                    {
+                                        "nombre":  5,
+                                        "nom":  "E"
+                                    }
+                                ],
+                    "trouvees":  [
+
+                                 ]
+                },
+                {
+                    "nom":  "nom proche",
+                    "exe":  "Evermind.exe",
+                    "entrees":  [
+                                    {
+                                        "valeur":  "C:\\E\\MonEvermind.exe",
+                                        "nom":  "E"
+                                    }
+                                ],
+                    "trouvees":  [
+
+                                 ]
+                },
+                {
+                    "nom":  "exe deux fois",
+                    "exe":  "Evermind.exe",
+                    "entrees":  [
+                                    {
+                                        "valeur":  "C:\\Evermind.exe\\Evermind.exe -x",
+                                        "nom":  "E"
+                                    }
+                                ],
+                    "trouvees":  [
+                                     {
+                                         "nom":  "E",
+                                         "cible":  "C:\\Evermind.exe\\Evermind.exe"
+                                     }
+                                 ]
+                },
+                {
+                    "nom":  "guillemet au milieu",
+                    "exe":  "Evermind.exe",
+                    "entrees":  [
+                                    {
+                                        "valeur":  "C:\\a\"b\\Evermind.exe",
+                                        "nom":  "E"
+                                    }
+                                ],
+                    "trouvees":  [
+
+                                 ]
+                },
+                {
+                    "nom":  "cmd devant",
+                    "exe":  "Evermind.exe",
+                    "entrees":  [
+                                    {
+                                        "valeur":  "cmd /c \"C:\\E\\Evermind.exe\"",
+                                        "nom":  "E"
+                                    }
+                                ],
+                    "trouvees":  [
+
+                                 ]
+                },
+                {
+                    "nom":  "plusieurs",
+                    "exe":  "Nevermind.exe",
+                    "entrees":  [
+                                    {
+                                        "valeur":  "\"D:\\Jeux\\Nevermind\\Nevermind.exe\"",
+                                        "nom":  "Nevermind"
+                                    },
+                                    {
+                                        "valeur":  "D:\\OptiGame\\Nevermind.exe /min",
+                                        "nom":  "OptiGame"
+                                    },
+                                    {
+                                        "valeur":  "C:\\x.exe",
+                                        "nom":  "Autre"
+                                    }
+                                ],
+                    "trouvees":  [
+                                     {
+                                         "nom":  "Nevermind",
+                                         "cible":  "D:\\Jeux\\Nevermind\\Nevermind.exe"
+                                     },
+                                     {
+                                         "nom":  "OptiGame",
+                                         "cible":  "D:\\OptiGame\\Nevermind.exe"
+                                     }
+                                 ]
+                },
+                {
+                    "nom":  "accents",
+                    "exe":  "CafeCreme.exe",
+                    "entrees":  [
+                                    {
+                                        "valeur":  "\"C:\\Forêt\\Café crème\\CafeCreme.exe\"",
+                                        "nom":  "Café"
+                                    }
+                                ],
+                    "trouvees":  [
+                                     {
+                                         "nom":  "Café",
+                                         "cible":  "C:\\Forêt\\Café crème\\CafeCreme.exe"
+                                     }
+                                 ]
+                }
+            ]
+}

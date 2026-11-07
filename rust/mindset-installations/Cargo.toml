@@ -8,11 +8,43 @@ publish.workspace = true
 
 [dependencies]
 mindset-noyau = { path = "../mindset-noyau" }
+# La bibliothèque commune (signature des zips, version.json, chemins comme .NET, valeurs « à la PowerShell »)
+suite-commun = { path = "../suite-commun" }
 # Versions figées (« = ») : les mêmes que Nevermind (D:\Projets\Nevermind\rust\Cargo.lock).
 serde_json = { version = "=1.0.154", features = ["preserve_order"] }
+# Lire un zip téléchargé (son dossier principal, son version.json, ses fichiers livrés) : la version de suite-commun
+zip = { version = "=9.1.2", default-features = false, features = ["deflate"] }
 
-# Pas `workspace = true` : si ce bloc a un module Windows (src\windows), ce module autorise lui-même le code
-# « unsafe » (#![allow(unsafe_code)]) ; ailleurs il est refusé (deny).
+# Le seul module qui parle à Windows (src\windows) : raccourcis (.lnk et leur identité), registre (Run de
+# l'utilisateur en lecture et retrait, HKLM en lecture), tâches planifiées (schtasks.exe sans fenêtre), la demande de
+# Windows (MindsetInstallateur.exe en « runas »). Les mêmes versions que le mini-installateur.
+[target.'cfg(windows)'.dependencies]
+windows-registry = "=0.6.1"
+
+[target.'cfg(windows)'.dependencies.windows]
+version = "=0.62.2"
+features = [
+    "Win32_Foundation",
+    "Win32_Security",
+    "Win32_Security_Authorization",
+    "Win32_Storage_FileSystem",
+    "Win32_System_Com",
+    "Win32_System_Com_StructuredStorage",
+    "Win32_System_Registry",
+    "Win32_System_SystemInformation",
+    "Win32_System_Threading",
+    "Win32_System_Variant",
+    "Win32_UI_Shell",
+    "Win32_UI_Shell_PropertiesSystem",
+    "Win32_UI_WindowsAndMessaging",
+]
+
+[dev-dependencies]
+# Les tests signent leurs zips avec une clé de test faite à la volée (jamais la clé de la suite)
+ring = "=0.17.14"
+
+# Pas `workspace = true` : le module Windows (src\windows) autorise lui-même le code « unsafe » ; ailleurs il est
+# refusé (deny).
 [lints.rust]
 unsafe_code = "deny"
 unsafe_op_in_unsafe_fn = "deny"

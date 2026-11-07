@@ -1,0 +1,471 @@
+{
+    "famille":  "demarrage",
+    "origine":  "outils\\exporter-juges-installations.ps1",
+    "cas":  [
+                {
+                    "nom":  "rien",
+                    "appli":  {
+                                  "id":  "evermind",
+                                  "script":  "fichiers\\Evermind.ps1",
+                                  "exe":  "Evermind.exe",
+                                  "rappels":  true,
+                                  "dossier_zip":  "Evermind",
+                                  "donnees":  "\u003cR\u003e\\Anciennes\\Evermind",
+                                  "nom":  "Evermind"
+                              },
+                    "run":  [
+                                null
+                            ],
+                    "fichiers":  [
+                                     null
+                                 ],
+                    "installations":  null,
+                    "admin":  false,
+                    "taches":  [
+                                   null
+                               ],
+                    "resultat":  null
+                },
+                {
+                    "nom":  "entree run",
+                    "appli":  {
+                                  "id":  "evermind",
+                                  "script":  "fichiers\\Evermind.ps1",
+                                  "exe":  "Evermind.exe",
+                                  "rappels":  true,
+                                  "dossier_zip":  "Evermind",
+                                  "donnees":  "\u003cR\u003e\\Anciennes\\Evermind",
+                                  "nom":  "Evermind"
+                              },
+                    "run":  [
+                                {
+                                    "valeur":  "C:\\E\\Evermind.exe",
+                                    "nom":  "Evermind"
+                                }
+                            ],
+                    "fichiers":  [
+                                     null
+                                 ],
+                    "installations":  null,
+                    "admin":  false,
+                    "taches":  [
+                                   null
+                               ],
+                    "resultat":  true
+                },
+                {
+                    "nom":  "reglage vrai",
+                    "appli":  {
+                                  "id":  "evermind",
+                                  "script":  "fichiers\\Evermind.ps1",
+                                  "exe":  "Evermind.exe",
+                                  "rappels":  true,
+                                  "dossier_zip":  "Evermind",
+                                  "donnees":  "\u003cR\u003e\\Anciennes\\Evermind",
+                                  "nom":  "Evermind"
+                              },
+                    "run":  [
+                                null
+                            ],
+                    "fichiers":  [
+                                     {
+                                         "chemin":  "Anciennes\\Evermind\\reglages.json",
+                                         "texte":  "{\"DemarrageWindows\":true}"
+                                     }
+                                 ],
+                    "installations":  null,
+                    "admin":  false,
+                    "taches":  [
+                                   null
+                               ],
+                    "resultat":  true
+                },
+                {
+                    "nom":  "reglage faux",
+                    "appli":  {
+                                  "id":  "evermind",
+                                  "script":  "fichiers\\Evermind.ps1",
+                                  "exe":  "Evermind.exe",
+                                  "rappels":  true,
+                                  "dossier_zip":  "Evermind",
+                                  "donnees":  "\u003cR\u003e\\Anciennes\\Evermind",
+                                  "nom":  "Evermind"
+                              },
+                    "run":  [
+                                null
+                            ],
+                    "fichiers":  [
+                                     {
+                                         "chemin":  "Anciennes\\Evermind\\reglages.json",
+                                         "texte":  "{\"DemarrageWindows\":false}"
+                                     }
+                                 ],
+                    "installations":  null,
+                    "admin":  false,
+                    "taches":  [
+                                   null
+                               ],
+                    "resultat":  false
+                },
+                {
+                    "nom":  "reglage texte",
+                    "appli":  {
+                                  "id":  "evermind",
+                                  "script":  "fichiers\\Evermind.ps1",
+                                  "exe":  "Evermind.exe",
+                                  "rappels":  true,
+                                  "dossier_zip":  "Evermind",
+                                  "donnees":  "\u003cR\u003e\\Anciennes\\Evermind",
+                                  "nom":  "Evermind"
+                              },
+                    "run":  [
+                                null
+                            ],
+                    "fichiers":  [
+                                     {
+                                         "chemin":  "Anciennes\\Evermind\\reglages.json",
+                                         "texte":  "{\"DemarrageWindows\":\"true\"}"
+                                     }
+                                 ],
+                    "installations":  null,
+                    "admin":  false,
+                    "taches":  [
+                                   null
+                               ],
+                    "resultat":  null
+                },
+                {
+                    "nom":  "reglage nombre",
+                    "appli":  {
+                                  "id":  "evermind",
+                                  "script":  "fichiers\\Evermind.ps1",
+                                  "exe":  "Evermind.exe",
+                                  "rappels":  true,
+                                  "dossier_zip":  "Evermind",
+                                  "donnees":  "\u003cR\u003e\\Anciennes\\Evermind",
+                                  "nom":  "Evermind"
+                              },
+                    "run":  [
+                                null
+                            ],
+                    "fichiers":  [
+                                     {
+                                         "chemin":  "Anciennes\\Evermind\\reglages.json",
+                                         "texte":  "{\"DemarrageWindows\":1}"
+                                     }
+                                 ],
+                    "installations":  null,
+                    "admin":  false,
+                    "taches":  [
+                                   null
+                               ],
+                    "resultat":  null
+                },
+                {
+                    "nom":  "parametres.json",
+                    "appli":  {
+                                  "id":  "evermind",
+                                  "script":  "fichiers\\Evermind.ps1",
+                                  "exe":  "Evermind.exe",
+                                  "rappels":  true,
+                                  "dossier_zip":  "Evermind",
+                                  "donnees":  "\u003cR\u003e\\Anciennes\\Evermind",
+                                  "nom":  "Evermind"
+                              },
+                    "run":  [
+                                null
+                            ],
+                    "fichiers":  [
+                                     {
+                                         "chemin":  "Anciennes\\Evermind\\parametres.json",
+                                         "texte":  "{\"DemarrageWindows\":true}"
+                                     }
+                                 ],
+                    "installations":  null,
+                    "admin":  false,
+                    "taches":  [
+                                   null
+                               ],
+                    "resultat":  true
+                },
+                {
+                    "nom":  "reglages avant parametres",
+                    "appli":  {
+                                  "id":  "evermind",
+                                  "script":  "fichiers\\Evermind.ps1",
+                                  "exe":  "Evermind.exe",
+                                  "rappels":  true,
+                                  "dossier_zip":  "Evermind",
+                                  "donnees":  "\u003cR\u003e\\Anciennes\\Evermind",
+                                  "nom":  "Evermind"
+                              },
+                    "run":  [
+                                null
+                            ],
+                    "fichiers":  [
+                                     {
+                                         "chemin":  "Anciennes\\Evermind\\reglages.json",
+                                         "texte":  "{\"DemarrageWindows\":false}"
+                                     },
+                                     {
+                                         "chemin":  "Anciennes\\Evermind\\parametres.json",
+                                         "texte":  "{\"DemarrageWindows\":true}"
+                                     }
+                                 ],
+                    "installations":  null,
+                    "admin":  false,
+                    "taches":  [
+                                   null
+                               ],
+                    "resultat":  false
+                },
+                {
+                    "nom":  "reglages abime",
+                    "appli":  {
+                                  "id":  "evermind",
+                                  "script":  "fichiers\\Evermind.ps1",
+                                  "exe":  "Evermind.exe",
+                                  "rappels":  true,
+                                  "dossier_zip":  "Evermind",
+                                  "donnees":  "\u003cR\u003e\\Anciennes\\Evermind",
+                                  "nom":  "Evermind"
+                              },
+                    "run":  [
+                                null
+                            ],
+                    "fichiers":  [
+                                     {
+                                         "chemin":  "Anciennes\\Evermind\\reglages.json",
+                                         "texte":  "{\"DemarrageWindows\":"
+                                     },
+                                     {
+                                         "chemin":  "Anciennes\\Evermind\\parametres.json",
+                                         "texte":  "{\"DemarrageWindows\":true}"
+                                     }
+                                 ],
+                    "installations":  null,
+                    "admin":  false,
+                    "taches":  [
+                                   null
+                               ],
+                    "resultat":  true
+                },
+                {
+                    "nom":  "suite d abord",
+                    "appli":  {
+                                  "id":  "evermind",
+                                  "script":  "fichiers\\Evermind.ps1",
+                                  "exe":  "Evermind.exe",
+                                  "rappels":  true,
+                                  "dossier_zip":  "Evermind",
+                                  "donnees":  "\u003cR\u003e\\Anciennes\\Evermind",
+                                  "nom":  "Evermind"
+                              },
+                    "run":  [
+                                null
+                            ],
+                    "fichiers":  [
+                                     {
+                                         "chemin":  "Donnees\\Evermind\\reglages.json",
+                                         "texte":  "{\"DemarrageWindows\":false}"
+                                     },
+                                     {
+                                         "chemin":  "Anciennes\\Evermind\\reglages.json",
+                                         "texte":  "{\"DemarrageWindows\":true}"
+                                     }
+                                 ],
+                    "installations":  "{\"evermind\":{\"dossier\":\"\u003cR\u003e\\\\Programmes\\\\Evermind\",\"gere\":true}}",
+                    "admin":  false,
+                    "taches":  [
+                                   null
+                               ],
+                    "resultat":  false
+                },
+                {
+                    "nom":  "suite pas geree",
+                    "appli":  {
+                                  "id":  "evermind",
+                                  "script":  "fichiers\\Evermind.ps1",
+                                  "exe":  "Evermind.exe",
+                                  "rappels":  true,
+                                  "dossier_zip":  "Evermind",
+                                  "donnees":  "\u003cR\u003e\\Anciennes\\Evermind",
+                                  "nom":  "Evermind"
+                              },
+                    "run":  [
+                                null
+                            ],
+                    "fichiers":  [
+                                     {
+                                         "chemin":  "Donnees\\Evermind\\reglages.json",
+                                         "texte":  "{\"DemarrageWindows\":false}"
+                                     },
+                                     {
+                                         "chemin":  "Anciennes\\Evermind\\reglages.json",
+                                         "texte":  "{\"DemarrageWindows\":true}"
+                                     }
+                                 ],
+                    "installations":  "{\"evermind\":{\"dossier\":\"\u003cR\u003e\\\\Programmes\\\\Evermind\",\"gere\":false}}",
+                    "admin":  false,
+                    "taches":  [
+                                   null
+                               ],
+                    "resultat":  true
+                },
+                {
+                    "nom":  "tache sans admin",
+                    "appli":  {
+                                  "id":  "nevermind",
+                                  "nom":  "Nevermind",
+                                  "ancien_dossier_zip":  "OptiGame",
+                                  "ancien_script":  "fichiers\\OptiGame.ps1",
+                                  "exe":  "Nevermind.exe",
+                                  "donnees":  "\u003cR\u003e\\Anciennes\\Nevermind",
+                                  "script":  "fichiers\\Nevermind.ps1",
+                                  "dossier_zip":  "Nevermind",
+                                  "aide":  "NevermindAide"
+                              },
+                    "run":  [
+                                null
+                            ],
+                    "fichiers":  [
+                                     null
+                                 ],
+                    "installations":  null,
+                    "admin":  false,
+                    "taches":  [
+                                   "\\Nevermind (démarrage)"
+                               ],
+                    "resultat":  null
+                },
+                {
+                    "nom":  "tache avec admin",
+                    "appli":  {
+                                  "id":  "nevermind",
+                                  "nom":  "Nevermind",
+                                  "ancien_dossier_zip":  "OptiGame",
+                                  "ancien_script":  "fichiers\\OptiGame.ps1",
+                                  "exe":  "Nevermind.exe",
+                                  "donnees":  "\u003cR\u003e\\Anciennes\\Nevermind",
+                                  "script":  "fichiers\\Nevermind.ps1",
+                                  "dossier_zip":  "Nevermind",
+                                  "aide":  "NevermindAide"
+                              },
+                    "run":  [
+                                null
+                            ],
+                    "fichiers":  [
+                                     null
+                                 ],
+                    "installations":  null,
+                    "admin":  true,
+                    "taches":  [
+                                   "\\OptiGame (démarrage)"
+                               ],
+                    "resultat":  true
+                },
+                {
+                    "nom":  "admin sans tache",
+                    "appli":  {
+                                  "id":  "nevermind",
+                                  "nom":  "Nevermind",
+                                  "ancien_dossier_zip":  "OptiGame",
+                                  "ancien_script":  "fichiers\\OptiGame.ps1",
+                                  "exe":  "Nevermind.exe",
+                                  "donnees":  "\u003cR\u003e\\Anciennes\\Nevermind",
+                                  "script":  "fichiers\\Nevermind.ps1",
+                                  "dossier_zip":  "Nevermind",
+                                  "aide":  "NevermindAide"
+                              },
+                    "run":  [
+                                null
+                            ],
+                    "fichiers":  [
+                                     null
+                                 ],
+                    "installations":  null,
+                    "admin":  true,
+                    "taches":  [
+
+                               ],
+                    "resultat":  null
+                },
+                {
+                    "nom":  "reglage absent",
+                    "appli":  {
+                                  "id":  "evermind",
+                                  "script":  "fichiers\\Evermind.ps1",
+                                  "exe":  "Evermind.exe",
+                                  "rappels":  true,
+                                  "dossier_zip":  "Evermind",
+                                  "donnees":  "\u003cR\u003e\\Anciennes\\Evermind",
+                                  "nom":  "Evermind"
+                              },
+                    "run":  [
+                                null
+                            ],
+                    "fichiers":  [
+                                     {
+                                         "chemin":  "Anciennes\\Evermind\\reglages.json",
+                                         "texte":  "{\"Theme\":\"neon\"}"
+                                     }
+                                 ],
+                    "installations":  null,
+                    "admin":  false,
+                    "taches":  [
+                                   null
+                               ],
+                    "resultat":  null
+                },
+                {
+                    "nom":  "reglages tableau",
+                    "appli":  {
+                                  "id":  "evermind",
+                                  "script":  "fichiers\\Evermind.ps1",
+                                  "exe":  "Evermind.exe",
+                                  "rappels":  true,
+                                  "dossier_zip":  "Evermind",
+                                  "donnees":  "\u003cR\u003e\\Anciennes\\Evermind",
+                                  "nom":  "Evermind"
+                              },
+                    "run":  [
+                                null
+                            ],
+                    "fichiers":  [
+                                     {
+                                         "chemin":  "Anciennes\\Evermind\\reglages.json",
+                                         "texte":  "[true]"
+                                     }
+                                 ],
+                    "installations":  null,
+                    "admin":  false,
+                    "taches":  [
+                                   null
+                               ],
+                    "resultat":  null
+                },
+                {
+                    "nom":  "sans dossier de donnees",
+                    "appli":  {
+                                  "id":  "cafe-creme",
+                                  "script":  "fichiers\\CafeCreme.ps1",
+                                  "exe":  "CafeCreme.exe",
+                                  "dossier_zip":  "CafeCreme",
+                                  "donnees":  "",
+                                  "nom":  "CafeCreme"
+                              },
+                    "run":  [
+
+                            ],
+                    "fichiers":  [
+                                     null
+                                 ],
+                    "installations":  null,
+                    "admin":  false,
+                    "taches":  [
+                                   null
+                               ],
+                    "resultat":  null
+                }
+            ]
+}

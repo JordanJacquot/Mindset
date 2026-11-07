@@ -1,0 +1,352 @@
+{
+    "famille":  "desinstallation",
+    "origine":  "outils\\exporter-juges-installations.ps1",
+    "cas":  [
+                {
+                    "nom":  "donnees gardees",
+                    "appli":  {
+                                  "id":  "evermind",
+                                  "script":  "fichiers\\Evermind.ps1",
+                                  "exe":  "Evermind.exe",
+                                  "rappels":  true,
+                                  "dossier_zip":  "Evermind",
+                                  "donnees":  "\u003cR\u003e\\Anciennes\\Evermind",
+                                  "nom":  "Evermind"
+                              },
+                    "nom_force":  null,
+                    "suite":  [
+                                  {
+                                      "chemin":  "Evermind\\reglages.json",
+                                      "texte":  "{}"
+                                  }
+                              ],
+                    "message":  "Evermind est désinstallé. Ses données sont gardées dans \u003cR\u003e\\Donnees\\Evermind : une réinstallation les retrouve.",
+                    "journal":  [
+                                    "Evermind désinstallé (données gardées)"
+                                ],
+                    "restants":  [
+                                     "Evermind\\",
+                                     "Evermind\\reglages.json"
+                                 ]
+                },
+                {
+                    "nom":  "donnees supprimees",
+                    "appli":  {
+                                  "id":  "evermind",
+                                  "script":  "fichiers\\Evermind.ps1",
+                                  "exe":  "Evermind.exe",
+                                  "rappels":  true,
+                                  "dossier_zip":  "Evermind",
+                                  "donnees":  "\u003cR\u003e\\Anciennes\\Evermind",
+                                  "nom":  "Evermind"
+                              },
+                    "nom_force":  null,
+                    "suite":  [
+
+                              ],
+                    "message":  "Evermind est désinstallé, avec ses données (réglages, journal, sauvegarde).",
+                    "journal":  [
+                                    "Evermind désinstallé (données supprimées)"
+                                ],
+                    "restants":  [
+
+                                 ]
+                },
+                {
+                    "nom":  "dossier vide",
+                    "appli":  {
+                                  "id":  "evermind",
+                                  "script":  "fichiers\\Evermind.ps1",
+                                  "exe":  "Evermind.exe",
+                                  "rappels":  true,
+                                  "dossier_zip":  "Evermind",
+                                  "donnees":  "\u003cR\u003e\\Anciennes\\Evermind",
+                                  "nom":  "Evermind"
+                              },
+                    "nom_force":  null,
+                    "suite":  [
+                                  {
+                                      "chemin":  "Evermind",
+                                      "dossier":  true
+                                  }
+                              ],
+                    "message":  "Evermind est désinstallé, avec ses données (réglages, journal, sauvegarde).",
+                    "journal":  [
+                                    "Evermind désinstallé (données supprimées)"
+                                ],
+                    "restants":  [
+                                     "Evermind\\"
+                                 ]
+                },
+                {
+                    "nom":  "sous-dossier vide seul",
+                    "appli":  {
+                                  "id":  "evermind",
+                                  "script":  "fichiers\\Evermind.ps1",
+                                  "exe":  "Evermind.exe",
+                                  "rappels":  true,
+                                  "dossier_zip":  "Evermind",
+                                  "donnees":  "\u003cR\u003e\\Anciennes\\Evermind",
+                                  "nom":  "Evermind"
+                              },
+                    "nom_force":  null,
+                    "suite":  [
+                                  {
+                                      "chemin":  "Evermind\\vide",
+                                      "dossier":  true
+                                  }
+                              ],
+                    "message":  "Evermind est désinstallé. Ses données sont gardées dans \u003cR\u003e\\Donnees\\Evermind : une réinstallation les retrouve.",
+                    "journal":  [
+                                    "Evermind désinstallé (données gardées)"
+                                ],
+                    "restants":  [
+                                     "Evermind\\",
+                                     "Evermind\\vide\\"
+                                 ]
+                },
+                {
+                    "nom":  "profil webview2",
+                    "appli":  {
+                                  "id":  "nevermind",
+                                  "nom":  "Nevermind",
+                                  "ancien_dossier_zip":  "OptiGame",
+                                  "ancien_script":  "fichiers\\OptiGame.ps1",
+                                  "exe":  "Nevermind.exe",
+                                  "donnees":  "\u003cR\u003e\\Anciennes\\Nevermind",
+                                  "script":  "fichiers\\Nevermind.ps1",
+                                  "dossier_zip":  "Nevermind",
+                                  "aide":  "NevermindAide"
+                              },
+                    "nom_force":  null,
+                    "suite":  [
+                                  {
+                                      "chemin":  "WebView2\\EBWebView\\WV2Profile_nevermind\\Cookies",
+                                      "texte":  "c"
+                                  },
+                                  {
+                                      "chemin":  "WebView2\\EBWebView\\WV2Profile_mindset\\Cookies",
+                                      "texte":  "c"
+                                  }
+                              ],
+                    "message":  "Nevermind est désinstallé, avec ses données (réglages, journal, sauvegarde).",
+                    "journal":  [
+                                    "Nevermind désinstallé (données supprimées)",
+                                    "Profil WebView2 de Nevermind retiré"
+                                ],
+                    "restants":  [
+                                     "WebView2\\",
+                                     "WebView2\\EBWebView\\",
+                                     "WebView2\\EBWebView\\WV2Profile_mindset\\",
+                                     "WebView2\\EBWebView\\WV2Profile_mindset\\Cookies"
+                                 ]
+                },
+                {
+                    "nom":  "profil webview2 donnees gardees",
+                    "appli":  {
+                                  "id":  "nevermind",
+                                  "nom":  "Nevermind",
+                                  "ancien_dossier_zip":  "OptiGame",
+                                  "ancien_script":  "fichiers\\OptiGame.ps1",
+                                  "exe":  "Nevermind.exe",
+                                  "donnees":  "\u003cR\u003e\\Anciennes\\Nevermind",
+                                  "script":  "fichiers\\Nevermind.ps1",
+                                  "dossier_zip":  "Nevermind",
+                                  "aide":  "NevermindAide"
+                              },
+                    "nom_force":  null,
+                    "suite":  [
+                                  {
+                                      "chemin":  "Nevermind\\a.txt",
+                                      "texte":  "a"
+                                  },
+                                  {
+                                      "chemin":  "WebView2\\EBWebView\\WV2Profile_nevermind\\Cookies",
+                                      "texte":  "c"
+                                  }
+                              ],
+                    "message":  "Nevermind est désinstallé. Ses données sont gardées dans \u003cR\u003e\\Donnees\\Nevermind : une réinstallation les retrouve.",
+                    "journal":  [
+                                    "Nevermind désinstallé (données gardées)"
+                                ],
+                    "restants":  [
+                                     "Nevermind\\",
+                                     "Nevermind\\a.txt",
+                                     "WebView2\\",
+                                     "WebView2\\EBWebView\\",
+                                     "WebView2\\EBWebView\\WV2Profile_nevermind\\",
+                                     "WebView2\\EBWebView\\WV2Profile_nevermind\\Cookies"
+                                 ]
+                },
+                {
+                    "nom":  "webview2-tauri seul",
+                    "appli":  {
+                                  "id":  "mindcare",
+                                  "script":  "",
+                                  "exe":  "Mindcare.exe",
+                                  "dossier_zip":  "Mindcare",
+                                  "donnees":  "\u003cR\u003e\\Anciennes\\Mindcare",
+                                  "nom":  "Mindcare"
+                              },
+                    "nom_force":  null,
+                    "suite":  [
+                                  {
+                                      "chemin":  "WebView2-Tauri\\Mindcare\\EBWebView\\x",
+                                      "texte":  "x"
+                                  }
+                              ],
+                    "message":  "Mindcare est désinstallé, avec ses données (réglages, journal, sauvegarde).",
+                    "journal":  [
+                                    "Mindcare désinstallé (données supprimées)",
+                                    "Dossier WebView2 de Mindcare (WebView2-Tauri) retiré"
+                                ],
+                    "restants":  [
+
+                                 ]
+                },
+                {
+                    "nom":  "webview2-tauri avec un autre",
+                    "appli":  {
+                                  "id":  "mindcare",
+                                  "script":  "",
+                                  "exe":  "Mindcare.exe",
+                                  "dossier_zip":  "Mindcare",
+                                  "donnees":  "\u003cR\u003e\\Anciennes\\Mindcare",
+                                  "nom":  "Mindcare"
+                              },
+                    "nom_force":  null,
+                    "suite":  [
+                                  {
+                                      "chemin":  "WebView2-Tauri\\Mindcare\\EBWebView\\x",
+                                      "texte":  "x"
+                                  },
+                                  {
+                                      "chemin":  "WebView2-Tauri\\Mindset\\y",
+                                      "texte":  "y"
+                                  }
+                              ],
+                    "message":  "Mindcare est désinstallé, avec ses données (réglages, journal, sauvegarde).",
+                    "journal":  [
+                                    "Mindcare désinstallé (données supprimées)",
+                                    "Dossier WebView2 de Mindcare (WebView2-Tauri) retiré"
+                                ],
+                    "restants":  [
+                                     "WebView2-Tauri\\",
+                                     "WebView2-Tauri\\Mindset\\",
+                                     "WebView2-Tauri\\Mindset\\y"
+                                 ]
+                },
+                {
+                    "nom":  "webview2-tauri en lecture seule",
+                    "appli":  {
+                                  "id":  "mindcare",
+                                  "script":  "",
+                                  "exe":  "Mindcare.exe",
+                                  "dossier_zip":  "Mindcare",
+                                  "donnees":  "\u003cR\u003e\\Anciennes\\Mindcare",
+                                  "nom":  "Mindcare"
+                              },
+                    "nom_force":  null,
+                    "suite":  [
+                                  {
+                                      "texte":  "x",
+                                      "chemin":  "WebView2-Tauri\\Mindcare\\lecture.txt",
+                                      "lecture":  true
+                                  }
+                              ],
+                    "message":  "Mindcare est désinstallé, avec ses données (réglages, journal, sauvegarde).",
+                    "journal":  [
+                                    "Mindcare désinstallé (données supprimées)",
+                                    "Dossier WebView2 de Mindcare (WebView2-Tauri) retiré"
+                                ],
+                    "restants":  [
+
+                                 ]
+                },
+                {
+                    "nom":  "webview2-tauri gardees",
+                    "appli":  {
+                                  "id":  "mindcare",
+                                  "script":  "",
+                                  "exe":  "Mindcare.exe",
+                                  "dossier_zip":  "Mindcare",
+                                  "donnees":  "\u003cR\u003e\\Anciennes\\Mindcare",
+                                  "nom":  "Mindcare"
+                              },
+                    "nom_force":  null,
+                    "suite":  [
+                                  {
+                                      "chemin":  "Mindcare\\journal.txt",
+                                      "texte":  "j"
+                                  },
+                                  {
+                                      "chemin":  "WebView2-Tauri\\Mindcare\\x",
+                                      "texte":  "x"
+                                  }
+                              ],
+                    "message":  "Mindcare est désinstallé. Ses données sont gardées dans \u003cR\u003e\\Donnees\\Mindcare : une réinstallation les retrouve.",
+                    "journal":  [
+                                    "Mindcare désinstallé (données gardées)"
+                                ],
+                    "restants":  [
+                                     "Mindcare\\",
+                                     "Mindcare\\journal.txt",
+                                     "WebView2-Tauri\\",
+                                     "WebView2-Tauri\\Mindcare\\",
+                                     "WebView2-Tauri\\Mindcare\\x"
+                                 ]
+                },
+                {
+                    "nom":  "webview2-tauri vide",
+                    "appli":  {
+                                  "id":  "mindcare",
+                                  "script":  "",
+                                  "exe":  "Mindcare.exe",
+                                  "dossier_zip":  "Mindcare",
+                                  "donnees":  "\u003cR\u003e\\Anciennes\\Mindcare",
+                                  "nom":  "Mindcare"
+                              },
+                    "nom_force":  null,
+                    "suite":  [
+                                  {
+                                      "chemin":  "WebView2-Tauri",
+                                      "dossier":  true
+                                  }
+                              ],
+                    "message":  "Mindcare est désinstallé, avec ses données (réglages, journal, sauvegarde).",
+                    "journal":  [
+                                    "Mindcare désinstallé (données supprimées)"
+                                ],
+                    "restants":  [
+
+                                 ]
+                },
+                {
+                    "nom":  "nom refuse pour tauri",
+                    "appli":  {
+                                  "id":  "cafe-creme",
+                                  "script":  "fichiers\\CafeCreme.ps1",
+                                  "exe":  "CafeCreme.exe",
+                                  "dossier_zip":  "CafeCreme",
+                                  "donnees":  "",
+                                  "nom":  "CafeCreme"
+                              },
+                    "nom_force":  "Café",
+                    "suite":  [
+                                  {
+                                      "chemin":  "WebView2-Tauri\\Café\\x",
+                                      "texte":  "x"
+                                  }
+                              ],
+                    "message":  "Café est désinstallé, avec ses données (réglages, journal, sauvegarde).",
+                    "journal":  [
+                                    "Café désinstallé (données supprimées)"
+                                ],
+                    "restants":  [
+                                     "WebView2-Tauri\\",
+                                     "WebView2-Tauri\\Café\\",
+                                     "WebView2-Tauri\\Café\\x"
+                                 ]
+                }
+            ]
+}
