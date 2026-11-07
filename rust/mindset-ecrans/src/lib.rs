@@ -81,8 +81,8 @@ struct Disque {
     travail: bool,
 }
 
-/// Le bloc « écrans ». Tous ses champs se construisent à la compilation : l'hôte le crée par
-/// `mindset_ecrans::BlocEcrans` ([`BlocEcrans`], la constante), comme les autres blocs.
+/// Le bloc « écrans ». L'hôte le crée par `BlocEcrans::default()` ([`BlocEcrans`] est son autre nom), comme les autres
+/// blocs.
 pub struct Ecrans {
     choix_theme: Option<String>,
     trad: Option<Traducteur>,
@@ -97,10 +97,8 @@ pub struct Ecrans {
     messages: BTreeMap<String, String>,
 }
 
-/// Le nom du bloc pour l'hôte (`Box::new(mindset_ecrans::BlocEcrans)`).
+/// Le nom du bloc pour l'hôte (`BlocEcrans::default()` dans `blocs()`).
 pub type BlocEcrans = Ecrans;
-#[allow(non_upper_case_globals)]
-pub const BlocEcrans: Ecrans = Ecrans::VIDE;
 
 impl Default for Ecrans {
     fn default() -> Self {
@@ -646,6 +644,6 @@ mod tests {
     #[test]
     fn nom_du_bloc() {
         // (le nom est celui du tableau commun : mindset_noyau::partage::PROPRIETAIRES)
-        assert_eq!(BlocEcrans.nom(), "ecrans");
+        assert_eq!(BlocEcrans::default().nom(), "ecrans");
     }
 }

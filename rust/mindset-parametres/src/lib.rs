@@ -855,9 +855,8 @@ fn vraie_plateforme() -> Arc<dyn Plateforme> {
     Arc::new(Fausse::default())
 }
 
-/// Le bloc tel que l'hôte le crée (`Box::new(mindset_parametres::BlocParametres)`, mindset-appli/src/lib.rs).
-#[allow(non_upper_case_globals)]
-pub const BlocParametres: Parametres = Parametres::NEUF;
+/// Le bloc sous le nom que l'hôte prend (`BlocParametres::default()`, mindset-appli/src/lib.rs).
+pub type BlocParametres = Parametres;
 
 impl Default for Parametres {
     fn default() -> Parametres {

@@ -1,13 +1,16 @@
 // Mindset : la page des Paramètres (bloc « paramètres »), à l'identique de PageParametres d'interface.xaml et de ce
 // que parametres.ps1 y ajoutait (onglets, interrupteurs, cartes des thèmes, appareils, versions, consommation).
-// Elle dessine #page-parametres à partir de l'état « parametres » (Get-EtatParametres, plus « onglet » et
-// « couleurs ») et envoie les gestes : « parametres:onglet » et « parametres:reglage » { quoi, valeur, id } (les mêmes
-// « quoi » qu'Invoke-ReglageConsole). Elle ne parle à Rust que par window.coquille (règle 1 de regles-tauri.md).
+// Elle dessine le panneau de l'onglet actif dans #parametres-panneaux (le titre, les onglets et le bouton Menu
+// sont au bloc « écrans ») à partir de l'état « parametres » (Get-EtatParametres, plus « onglet » et « couleurs »)
+// et envoie les gestes « parametres:reglage » { quoi, valeur, id } (les mêmes « quoi » que ReglageConsole de
+// parametres.ps1).
+// Elle ne parle à Rust que par window.coquille (règle 1 de regles-tauri.md).
 (() => {
   'use strict';
   const co = window.coquille;
   const page = document.getElementById('page-parametres');
-  if (!co || !page) return;
+  const panneaux = document.getElementById('parametres-panneaux');
+  if (!co || !page || !panneaux) return;
   page.classList.add('pm-page');
 
   // ---------------------------------------------------------------------------------------------------------------
@@ -173,7 +176,6 @@
   }
 
   const PANNEAUX = { general, apparence, son, maj, conso, dossiers };
-  const ONGLETS = [['general', 'Général'], ['apparence', 'Apparence'], ['son', 'Son'], ['maj', 'Mises à jour'], ['conso', 'Consommation'], ['dossiers', 'Dossiers']];
 
   // ---------------------------------------------------------------------------------------------------------------
   // Le dessin (refait seulement si l'état a changé ; le défilement est gardé)
@@ -188,14 +190,13 @@
     table = p.couleurs || {};
     poserCouleurs();
     const onglet = PANNEAUX[p.onglet] ? p.onglet : 'general';
-    const defile = page.querySelector('.pm-defile');
-    const haut = defile && page.dataset.onglet === onglet ? defile.scrollTop : 0;
+    // (le titre, la phrase, les onglets et le bouton Menu sont dessinés par le bloc « écrans » ; ici, le panneau seul,
+    // dans la zone qui défile, qui garde sa position tant que l'onglet ne change pas)
+    const defile = panneaux.closest('.parametres-defile') || panneaux;
+    const haut = page.dataset.onglet === onglet ? defile.scrollTop : 0;
     page.dataset.onglet = onglet;
-    page.innerHTML = `<div class="pm-haut"><div class="pm-titre">Paramètres</div>
-      <div class="pm-sous">Ces réglages valent pour Mindset et toutes ses applis.</div>
-      <div class="pm-onglets">${ONGLETS.map(([k, n]) => bouton(n, k === onglet, { onglet: k, type: 'onglet' })).join('')}</div></div>
-      <div class="pm-defile"><div class="pm-panneau">${PANNEAUX[onglet](p)}</div></div>`;
-    page.querySelector('.pm-defile').scrollTop = haut;
+    panneaux.innerHTML = `<div class="pm-panneau">${PANNEAUX[onglet](p)}</div>`;
+    defile.scrollTop = haut;
   }
 
   // ---------------------------------------------------------------------------------------------------------------
@@ -205,7 +206,6 @@
     const x = ev.target.closest('[data-type]');
     if (!x || !page.contains(x)) return;
     const d = x.dataset;
-    if (d.type === 'onglet') { co.action('parametres:onglet', d.onglet); return; }
     const m = { quoi: d.quoi };
     if (d.type === 'case' || d.type === 'inter') {
       const oui = !x.classList.contains('pm-oui');

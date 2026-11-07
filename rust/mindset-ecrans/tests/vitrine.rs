@@ -122,7 +122,7 @@ fn scene(nom: &str, maintenant: &moment::HeureLocale) -> Value {
         _ => "accueil",
     };
     ctx.definir_vue(mindset_noyau::Vue { visible: true, reduite: false, page: page.into() });
-    let mut b = BlocEcrans;
+    let mut b = BlocEcrans::default();
     let mut fx = Effets::default();
     ctx.au_nom_de("ecrans", || b.demarrer(&ctx, &mut fx));
     if nom == "confirmation" {

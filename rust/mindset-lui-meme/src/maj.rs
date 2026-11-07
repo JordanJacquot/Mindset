@@ -102,8 +102,13 @@ impl LuiMeme {
         let _ = std::fs::create_dir_all(ctx.dossiers.telechargements());
         self.progres = Some(Arc::new(ProgresMindset::default()));
         self.attente_publication = Some(Self::ms(ctx));
-        // (la publication est peut-être déjà là : le bloc « publications » l'a donnée avant ce signal)
-        if partage::publication(ctx, "mindset").is_some() {
+        // (la publication est peut-être déjà là : seulement si sa question à GitHub n'est plus en route ; sinon celle
+        // qui est là est celle de la recherche d'avant, et c'est `publications-changees { id: "mindset" }` qui suivra)
+        let en_route = ctx
+            .lu(partage::RECHERCHE)
+            .and_then(|r| r.get("mindset_en_cours").and_then(Value::as_bool))
+            .unwrap_or(false);
+        if !en_route && partage::publication(ctx, "mindset").is_some() {
             self.publication_recue(ctx, effets);
         }
     }

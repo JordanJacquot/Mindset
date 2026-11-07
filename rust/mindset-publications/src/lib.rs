@@ -32,11 +32,6 @@ mod juges;
 pub use bloc::{BlocPublications, versions_essai_appli};
 pub use github::{Publication, Reponse};
 
-/// Le bloc neuf, sous le nom que l'hôte utilise (`Box::new(mindset_publications::BlocPublications)` dans `blocs()`,
-/// mindset-appli, gelé) : le bloc a maintenant un état, et cette constante garde cette écriture valable.
-#[allow(non_upper_case_globals)]
-pub const BlocPublications: BlocPublications = BlocPublications::nouveau();
-
 /// Le vrai réseau, branché par l'hôte (jamais dans un test) : WinHTTP, seulement vers GitHub
 /// (`api.github.com`, `github.com`, et ses serveurs de fichiers), en https.
 pub fn reseau_windows() -> Arc<dyn Reseau> {
@@ -57,8 +52,8 @@ mod tests {
 
     #[test]
     fn nom_du_bloc() {
-        assert_eq!(BlocPublications.nom(), "publications");
-        let b: Box<dyn Bloc> = Box::new(BlocPublications);
+        assert_eq!(BlocPublications::default().nom(), "publications");
+        let b: Box<dyn Bloc> = Box::new(BlocPublications::default());
         assert_eq!(b.nom(), "publications");
     }
 }

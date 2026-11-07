@@ -138,7 +138,10 @@ fn signaux_de(effets: &[Effet]) -> Vec<(String, Value)> {
 fn le_cadre_suit_l_accueil_et_la_fenetre() {
     let mut e = essai();
     assert!(e.bloc.possible());
-    assert_eq!(e.ctx.lu(partage::CONSOLE), Some(json!({ "possible": true, "parametres": false, "en_fente": null })));
+    assert_eq!(
+        e.ctx.lu(partage::CONSOLE),
+        Some(json!({ "possible": true, "parametres": false, "en_fente": null, "raison": null }))
+    );
     e.fenetre(false, false);
     assert!(e.etat()["cadre"].is_null(), "caché : pas de cadre");
     e.fenetre(true, false);

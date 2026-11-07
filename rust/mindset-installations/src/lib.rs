@@ -123,10 +123,13 @@ pub struct BlocInstallations {
     deplacements: BTreeMap<String, (String, String, String)>,
 }
 
-/// Le bloc tel que l'hôte le crée (`Box::new(mindset_installations::BlocInstallations)`, dans `blocs()`) : son poste
-/// Windows est branché à `demarrer` (le vrai, ou aucun dans la construction d'essai de Mindset).
-#[allow(non_upper_case_globals)]
-pub const BlocInstallations: BlocInstallations = BlocInstallations::NEUF;
+/// Le bloc tel que l'hôte le crée (`BlocInstallations::default()`, dans `blocs()`) : son poste Windows est branché à
+/// `demarrer` (le vrai, ou aucun dans la construction d'essai de Mindset).
+impl Default for BlocInstallations {
+    fn default() -> BlocInstallations {
+        BlocInstallations::NEUF
+    }
+}
 
 impl BlocInstallations {
     const NEUF: BlocInstallations = BlocInstallations {
@@ -1247,7 +1250,7 @@ mod tests {
 
     #[test]
     fn nom_du_bloc() {
-        assert_eq!(BlocInstallations.nom(), "installations");
+        assert_eq!(BlocInstallations::default().nom(), "installations");
     }
 
     #[test]

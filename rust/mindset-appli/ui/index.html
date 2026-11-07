@@ -6,13 +6,16 @@
 <title>Mindset</title>
 <link rel="stylesheet" href="coquille.css">
 <link rel="stylesheet" href="ecrans/ecrans.css">
+<link rel="stylesheet" href="blocs/parametres.css">
+<link rel="stylesheet" href="blocs/fermeture.css">
 </head>
 <body>
 <!--
   La coquille de Mindset : les zones de la fenêtre WPF (interface.xaml), remplies à l'identique par le bloc « écrans »
   (ecrans/ecrans.js, à partir de l'état envoyé par l'appli). Les id des zones et les quatre scripts ci-dessous font
   partie du contrat (architecture-mindset-rust.md, rust/mindset-appli/tests/coquille.rs) : on peut tout changer dans
-  les zones, pas les retirer ni les renommer.
+  les zones, pas les retirer ni les renommer. Les pages des blocs « paramètres » (panneaux des Paramètres) et « horloge »
+  (la question de la croix) sont copiées dans blocs/ à la construction, depuis leur bloc (build.rs).
 -->
 <div id="fenetre">
   <!-- Fond : nuit violette et trois lueurs ; le fond d'un thème personnalisé par-dessus (BackdropDeco) -->
@@ -94,6 +97,8 @@
 </div>
 <script src="ipc.js"></script>
 <script src="coquille.js"></script>
+<script src="blocs/fermeture.js"></script>
+<script src="blocs/parametres.js"></script>
 <script src="ecrans/ecrans.js"></script>
 <script src="console/console.js"></script>
 </body>

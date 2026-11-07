@@ -23,7 +23,7 @@ use windows::Win32::Security::Authorization::ConvertSidToStringSidW;
 use windows::Win32::Security::{GetTokenInformation, TOKEN_QUERY, TOKEN_USER, TokenUser};
 use windows::Win32::Storage::FileSystem::{
     GetDiskFreeSpaceExW, GetDriveTypeW, GetFileVersionInfoSizeW, GetFileVersionInfoW, GetLogicalDrives,
-    GetVolumeInformationW, VerQueryValueW,
+    GetLongPathNameW, GetVolumeInformationW, VerQueryValueW,
 };
 use windows::Win32::System::Com::StructuredStorage::{PROPVARIANT, PropVariantClear};
 use windows::Win32::System::Com::{
@@ -73,6 +73,19 @@ fn dossier_connu(id: &GUID) -> PathBuf {
 fn texte(b: &[u16]) -> String {
     let n = b.iter().position(|&c| c == 0).unwrap_or(b.len());
     String::from_utf16_lossy(&b[..n])
+}
+
+/// La forme longue d'un chemin (`GetLongPathNameW`), ou le chemin tel quel s'il n'existe pas : un raccourci peut
+/// garder un nom court (`C:\Users\RUNNER~1\...`), Mindset peut être lancé par un nom court.
+pub fn chemin_long(chemin: &str) -> String {
+    if chemin.is_empty() || !chemin.contains('~') {
+        return chemin.to_string();
+    }
+    let h = HSTRING::from(chemin);
+    let mut b = vec![0u16; 32768];
+    // SAFETY : tampon local de taille connue, chaîne terminée par zéro (HSTRING)
+    let n = unsafe { GetLongPathNameW(&h, Some(&mut b)) } as usize;
+    if n == 0 || n >= b.len() { chemin.to_string() } else { String::from_utf16_lossy(&b[..n]) }
 }
 
 /// COM ouvert pour ce fil le temps de `f`.
@@ -242,8 +255,8 @@ impl PcLuiMeme for PcWindows {
                 };
                 let _ = PropVariantClear(&mut v);
                 Ok(Raccourci {
-                    cible: texte(&cible),
-                    icone: format!("{},{index}", texte(&icone)),
+                    cible: chemin_long(&texte(&cible)),
+                    icone: format!("{},{index}", chemin_long(&texte(&icone))),
                     app_id,
                     ..Default::default()
                 })
@@ -343,6 +356,10 @@ impl PcLuiMeme for PcWindows {
             let _ = EnumWindows(Some(chaque_fenetre), LPARAM(&mut trouve as *mut bool as isize));
         }
         trouve
+    }
+
+    fn forme_longue(&self, chemin: &str) -> String {
+        chemin_long(chemin)
     }
 
     fn relever_manette(&self) {
@@ -508,6 +525,39 @@ mod tests {
         assert_eq!(lu.app_id, "JordanJacquot.MindsetEssai");
         assert!(lu.icone.ends_with(",0"));
         pc.retirer_fichier(&lien).unwrap();
+        let _ = std::fs::remove_dir_all(&dossier);
+    }
+
+    /// Un raccourci écrit avec le nom court (8.3) de son programme, comme %TEMP% sur les machines de GitHub : relu, la
+    /// cible et l'icône sont sous la forme longue.
+    #[test]
+    fn raccourci_au_nom_court_relu_en_long() {
+        let pc = PcWindows;
+        let dossier = mindset_noyau::dossier_essai("lui-meme-raccourci-court");
+        let _ = std::fs::remove_dir_all(&dossier);
+        let sous = dossier.join("Dossier long Forêt");
+        std::fs::create_dir_all(&sous).unwrap();
+        let exe = sous.join("Mindset.exe");
+        std::fs::write(&exe, "x").unwrap();
+        let long = chemin_long(&exe.to_string_lossy());
+        let h = HSTRING::from(long.as_str());
+        let mut b = vec![0u16; 32768];
+        // SAFETY : tampon local de taille connue
+        let n = unsafe { windows::Win32::Storage::FileSystem::GetShortPathNameW(&h, Some(&mut b)) } as usize;
+        let court = if n == 0 || n >= b.len() { long.clone() } else { String::from_utf16_lossy(&b[..n]) };
+        let lien = dossier.join("Essai.lnk");
+        let r = Raccourci {
+            cible: court.clone(),
+            icone: court.clone(),
+            app_id: "JordanJacquot.MindsetEssai".into(),
+            dossier: dossier.to_string_lossy().into(),
+            description: "Essai".into(),
+        };
+        pc.ecrire_raccourci(&lien, &r).unwrap();
+        let lu = pc.lire_raccourci(&lien).unwrap();
+        assert!(suite_commun::chemins::egal(&lu.cible, &long), "{lu:?} / {court}");
+        assert!(suite_commun::chemins::egal(&lu.icone, &format!("{long},0")), "{lu:?}");
+        assert!(suite_commun::chemins::egal(&pc.forme_longue(&court), &long));
         let _ = std::fs::remove_dir_all(&dossier);
     }
 }

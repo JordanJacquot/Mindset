@@ -91,7 +91,7 @@ fn nettoyer(f: &Faux) {
 #[test]
 fn au_demarrage_la_liste_livree_et_d_ou_elle_vient() {
     let (ctx, faux, _) = mindset("livree");
-    let mut bloc = BlocListe;
+    let mut bloc = BlocListe::default();
     assert!(demarrer(&ctx, &mut bloc).est_vide());
     let ids: Vec<String> = ctx.applis().iter().map(|a| a.id.clone()).collect();
     assert_eq!(ids, ["nevermind", "evermind", "mindcare"]);
@@ -111,7 +111,7 @@ fn au_demarrage_la_liste_gardee_si_elle_est_bonne() {
     std::fs::create_dir_all(&ctx.dossiers.donnees).unwrap();
     std::fs::write(ctx.dossiers.donnees.join("apps-en-ligne.json"), octets(&c["gardee"])).unwrap();
     std::fs::write(ctx.dossiers.donnees.join("apps-en-ligne.json.sig"), octets(&c["gardee_sig"])).unwrap();
-    let mut bloc = BlocListe;
+    let mut bloc = BlocListe::default();
     demarrer(&ctx, &mut bloc);
     assert_eq!(ctx.applis().len(), 4);
     assert!(ctx.appli("nouvelle").is_some_and(|a| a.genre == "rust" && a.nom == "Nouvelle"));
@@ -126,7 +126,7 @@ fn au_demarrage_la_liste_gardee_si_elle_est_bonne() {
     j[10] ^= 1;
     std::fs::write(ctx.dossiers.donnees.join("apps-en-ligne.json"), j).unwrap();
     std::fs::write(ctx.dossiers.donnees.join("apps-en-ligne.json.sig"), octets(&c["gardee_sig"])).unwrap();
-    let mut bloc = BlocListe;
+    let mut bloc = BlocListe::default();
     demarrer(&ctx, &mut bloc);
     assert_eq!(ctx.applis().len(), 3);
     assert_eq!(ctx.lu(partage::LISTE), Some(json!({ "source": "apps.json", "numero": 3 })));
@@ -141,7 +141,7 @@ fn au_demarrage_la_liste_gardee_si_elle_est_bonne() {
 fn apps_json_illisible_aucune_appli() {
     let (ctx, faux, _) = mindset("illisible");
     std::fs::write(ctx.dossiers.fichiers.join("apps.json"), "[ { \"id\": ").unwrap();
-    let mut bloc = BlocListe;
+    let mut bloc = BlocListe::default();
     demarrer(&ctx, &mut bloc);
     assert!(ctx.applis().is_empty());
     assert_eq!(ctx.lu(partage::LISTE), Some(json!({ "source": "apps.json", "numero": null })));
@@ -152,7 +152,7 @@ fn apps_json_illisible_aucune_appli() {
 #[test]
 fn releve_des_applis_ouvertes() {
     let (ctx, faux, _) = mindset("ouvertes");
-    let mut bloc = BlocListe;
+    let mut bloc = BlocListe::default();
     demarrer(&ctx, &mut bloc);
     faux.systeme.poser_verrou(r"Local\Evermind-Instance", true);
     let mut e = Effets::default();
@@ -179,7 +179,7 @@ fn liste_en_ligne_cherchee_au_plus_toutes_les_six_heures() {
     let (json6, sig6) = (octets(&c["json"]), octets(&c["sig"]));
     faux.reseau.repondre(URL_LISTE_EN_LIGNE, Ok(ReponseHttp::ok(json6.clone())));
     faux.reseau.repondre(&format!("{URL_LISTE_EN_LIGNE}.sig"), Ok(ReponseHttp::ok(sig6.clone())));
-    let mut bloc = BlocListe;
+    let mut bloc = BlocListe::default();
     demarrer(&ctx, &mut bloc);
     // un autre signal ne fait rien
     assert!(signal(&ctx, &mut bloc, signaux::ACTUALISER).est_vide());
@@ -214,7 +214,7 @@ fn liste_en_ligne_cherchee_au_plus_toutes_les_six_heures() {
     finir(&ctx, &mut bloc, t);
     assert_eq!(faux.donnees.lignes().len(), 1);
     // au démarrage suivant : la nouvelle liste
-    let mut neuf = BlocListe;
+    let mut neuf = BlocListe::default();
     demarrer(&ctx, &mut neuf);
     assert_eq!(ctx.lu(partage::LISTE), Some(json!({ "source": "en-ligne", "numero": 6 })));
     assert_eq!(ctx.applis().len(), 4);
@@ -224,7 +224,7 @@ fn liste_en_ligne_cherchee_au_plus_toutes_les_six_heures() {
 #[test]
 fn pas_telechargee_reessai_dans_une_heure() {
     let (ctx, faux, _) = mindset("reessai");
-    let mut bloc = BlocListe;
+    let mut bloc = BlocListe::default();
     demarrer(&ctx, &mut bloc);
     // (aucune réponse prévue : le faux GitHub répond par une erreur)
     let t = tache(signal(&ctx, &mut bloc, signaux::VERIFIER_LISTE)).unwrap();
@@ -254,7 +254,7 @@ fn liste_telechargee_refusee_rien_ne_change() {
     let (_, c) = cas("recevoir : mal signée");
     faux.reseau.repondre(URL_LISTE_EN_LIGNE, Ok(ReponseHttp::ok(octets(&c["json"]))));
     faux.reseau.repondre(&format!("{URL_LISTE_EN_LIGNE}.sig"), Ok(ReponseHttp::ok(octets(&c["sig"]))));
-    let mut bloc = BlocListe;
+    let mut bloc = BlocListe::default();
     demarrer(&ctx, &mut bloc);
     let t = tache(signal(&ctx, &mut bloc, signaux::VERIFIER_LISTE)).unwrap();
     finir(&ctx, &mut bloc, t);
@@ -278,7 +278,7 @@ fn une_liste_plus_recente_remplace_la_gardee() {
     let (_, c) = cas("recevoir : bonne liste");
     faux.reseau.repondre(URL_LISTE_EN_LIGNE, Ok(ReponseHttp::ok(octets(&c["json"]))));
     faux.reseau.repondre(&format!("{URL_LISTE_EN_LIGNE}.sig"), Ok(ReponseHttp::ok(octets(&c["sig"]))));
-    let mut bloc = BlocListe;
+    let mut bloc = BlocListe::default();
     demarrer(&ctx, &mut bloc);
     let t = tache(signal(&ctx, &mut bloc, signaux::VERIFIER_LISTE)).unwrap();
     finir(&ctx, &mut bloc, t);
@@ -297,7 +297,7 @@ fn une_liste_plus_recente_remplace_la_gardee() {
 #[test]
 fn programmes_lances_depuis_le_dossier_de_donnees() {
     let (ctx, faux, _) = mindset("donnees");
-    let mut bloc = BlocListe;
+    let mut bloc = BlocListe::default();
     demarrer(&ctx, &mut bloc);
     let evermind = ctx.appli("evermind").unwrap();
     let ancien = evermind.donnees.clone();

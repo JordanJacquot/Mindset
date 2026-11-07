@@ -173,7 +173,9 @@ impl LuiMeme {
                     continue;
                 }
             };
-            if !suite_commun::chemins::egal(&r.cible, &exe) || r.app_id == ID_APPLI {
+            let meme = suite_commun::chemins::egal(&r.cible, &exe)
+                || suite_commun::chemins::egal(&pc.forme_longue(&r.cible), &pc.forme_longue(&exe));
+            if !meme || r.app_id == ID_APPLI {
                 continue;
             }
             let n = Raccourci {

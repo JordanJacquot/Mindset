@@ -6,8 +6,8 @@
 //! [`avant_tout`] est appelé par l'hôte au lancement, après les dossiers et AVANT le verrou d'instance unique (comme
 //! Mindset.ps1:52-75) : SA SIGNATURE NE CHANGE PAS.
 //!
-//! Le bloc lui-même est [`LuiMeme`] ; l'hôte le prend sous le nom [`BlocLuiMeme`] (une constante : `blocs()` écrit
-//! `Box::new(mindset_lui_meme::BlocLuiMeme)`). Ce qui touche à Windows passe par [`pc::PcLuiMeme`] (le vrai :
+//! Le bloc lui-même est [`LuiMeme`] ; l'hôte le prend sous le nom [`BlocLuiMeme`] (`blocs()` écrit
+//! `BlocLuiMeme::default()`). Ce qui touche à Windows passe par [`pc::PcLuiMeme`] (le vrai :
 //! `windows::PcWindows`, choisi au démarrage ; en essai et dans les tests : [`pc::FauxPc`]).
 //!
 //! Correspondance avec la version PowerShell (mindset.ps1, sauf mention) :
@@ -86,9 +86,8 @@ pub fn demarrage_force() -> bool {
     DEMARRAGE_FORCE.load(Ordering::Relaxed)
 }
 
-/// Le bloc tel que l'hôte le prend dans `blocs()`.
-#[allow(non_upper_case_globals)]
-pub const BlocLuiMeme: LuiMeme = LuiMeme::neuf();
+/// Le bloc sous le nom que l'hôte prend dans `blocs()` (`BlocLuiMeme::default()`).
+pub type BlocLuiMeme = LuiMeme;
 
 /// Le bandeau de la mise à jour de Mindset (MajBandeau, MajTitre, MajTexte, BtnMajMindset, BtnMajFermer).
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -170,6 +169,9 @@ pub struct LuiMeme {
     // Les mises à jour automatiques
     maj_auto: BTreeMap<String, String>,
     essais: BTreeMap<String, Essai>,
+    /// Le moment de chaque essai, à l'heure du PC (format s) : publié dans `maj-auto.essais[id].quand`, la console en
+    /// tire « nouvel essai dans X min » à chaque passage (`Get-MajAutoReessai`)
+    essais_quand: BTreeMap<String, String>,
     echecs: BTreeMap<String, Echec>,
     derniere_maj_auto: Option<u64>,
     jeu: String,
@@ -226,6 +228,7 @@ impl LuiMeme {
             demandes: BTreeMap::new(),
             maj_auto: BTreeMap::new(),
             essais: BTreeMap::new(),
+            essais_quand: BTreeMap::new(),
             echecs: BTreeMap::new(),
             derniere_maj_auto: None,
             jeu: String::new(),
@@ -454,7 +457,12 @@ impl LuiMeme {
             .iter()
             .map(|(id, e)| {
                 let r = regles::reessai(Some(e), &e.version, maintenant);
-                (id.clone(), json!({ "version": e.version, "nombre": e.nombre, "reessai": r }))
+                // (un essai posé sans son heure, par un test : calculée depuis le temps écoulé)
+                let quand = self.essais_quand.get(id).cloned().unwrap_or_else(|| {
+                    let il_y_a = (maintenant.saturating_sub(e.quand_ms) / 1000) as i64;
+                    mindset_noyau::moment::iso(&mindset_noyau::moment::ajouter(&ctx.heure(), -il_y_a))
+                });
+                (id.clone(), json!({ "version": e.version, "quand": quand, "nombre": e.nombre, "reessai": r }))
             })
             .collect();
         json!({ "en_cours": self.maj_auto, "echecs": echecs, "jeu": self.jeu, "jeu_nom": regles::nom_raison_jeu(&self.jeu),
@@ -602,7 +610,13 @@ impl Bloc for LuiMeme {
         let texte = |k: &str| donnees.get(k).map(suite_commun::protocole_installateur::texte_ps).unwrap_or_default();
         match nom {
             signaux::VERIFIER_MINDSET => self.verifier_maj(ctx, effets),
-            signaux::PUBLICATIONS_CHANGEES => self.publication_recue(ctx, effets),
+            // (seulement la réponse pour Mindset lui-même : celle d'une appli ne dit rien de la sienne)
+            signaux::PUBLICATIONS_CHANGEES
+                if matches!(donnees.get("id").and_then(Value::as_str), None | Some("mindset")) =>
+            {
+                self.publication_recue(ctx, effets)
+            }
+            signaux::PUBLICATIONS_CHANGEES => {}
             signaux::MAJ_MINDSET => {
                 if donnees.get("confirmer").is_some_and(suite_commun::protocole_installateur::vrai_ps) {
                     self.confirmer_maj(effets);
@@ -650,7 +664,7 @@ mod tests {
 
     #[test]
     fn nom_du_bloc() {
-        assert_eq!(BlocLuiMeme.nom(), "lui-meme");
+        assert_eq!(BlocLuiMeme::default().nom(), "lui-meme");
         assert_eq!(LuiMeme::nouvel_id().len(), 32);
         assert_ne!(LuiMeme::nouvel_id(), LuiMeme::nouvel_id());
     }

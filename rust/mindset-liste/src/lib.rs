@@ -55,11 +55,6 @@ pub struct BlocListe {
     prochaine_recherche: Duration,
 }
 
-/// Le bloc tout neuf, sous le nom que l'hôte emploie déjà (`Box::new(mindset_liste::BlocListe)` dans `blocs()` de
-/// mindset-appli, écrit quand le bloc n'avait pas d'état) : une constante du même nom que le type.
-#[allow(non_upper_case_globals)]
-pub const BlocListe: BlocListe = BlocListe { prochaine_recherche: Duration::ZERO };
-
 /// La liste en ligne gardée : `<données de Mindset>\apps-en-ligne.json` (`$ListeGardee`).
 pub fn chemin_liste_gardee(ctx: &Contexte) -> PathBuf {
     ctx.dossiers.donnees.join(liste::NOM_LISTE_EN_LIGNE)

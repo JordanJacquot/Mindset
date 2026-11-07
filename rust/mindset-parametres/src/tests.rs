@@ -16,7 +16,7 @@ fn bloc() -> (Parametres, Arc<Fausse>) {
 #[test]
 fn nom_du_bloc() {
     // (le nom est celui du tableau commun : mindset_noyau::partage::PROPRIETAIRES)
-    assert_eq!(BlocParametres.nom(), "parametres");
+    assert_eq!(BlocParametres::default().nom(), "parametres");
 }
 
 #[test]

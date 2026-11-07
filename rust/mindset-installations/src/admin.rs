@@ -78,6 +78,8 @@ pub struct FileAdmin {
     etat: Option<EtatTache>,
     serie: u64,
     remplacement: Option<&'static str>,
+    /// La fin qui vient : la tâche n'a pas répondu (sans accusé de réception), dit dans `admin-fini.sans_tache`
+    sans_tache: bool,
 }
 
 impl FileAdmin {
@@ -88,6 +90,7 @@ impl FileAdmin {
         etat: None,
         serie: 0,
         remplacement: None,
+        sans_tache: false,
     };
 
     /// `Test-TacheInstallation` : la tâche SYSTEM inscrite pour cet utilisateur est-elle là (lu une fois) ?
@@ -208,6 +211,7 @@ impl BlocInstallations {
         if d.repli {
             self.admin_direct(ctx, effets, &d.action, &d.parametres, d.fin, d.resultat);
         } else {
+            self.admin.sans_tache = true;
             self.finir_admin(ctx, effets, d.fin, false, format!("la tâche d'installation ne répond pas ({raison})."));
         }
     }
@@ -267,6 +271,7 @@ impl BlocInstallations {
         } else if s.repli {
             self.admin_direct(ctx, effets, &s.action, &s.parametres, s.fin, s.resultat);
         } else {
+            self.admin.sans_tache = true;
             self.finir_admin(ctx, effets, s.fin, false, "la tâche d'installation ne répond pas.".into());
         }
     }
@@ -378,6 +383,7 @@ impl BlocInstallations {
 
     /// La fin d'une demande (`& $w.Fin $ok $message`).
     fn finir_admin(&mut self, ctx: &Contexte, effets: &mut Effets, fin: Fin, ok: bool, message: String) {
+        let sans_tache = std::mem::take(&mut self.admin.sans_tache);
         match fin {
             Fin::Installation(id) => {
                 if ok {
@@ -424,7 +430,8 @@ impl BlocInstallations {
                     self.admin.etat = Some(EtatTache::Systeme);
                 }
                 let tache = self.admin.etat_publie()["tache"].clone();
-                effets.signal(signaux::ADMIN_FINI, json!({ "id": id, "ok": ok, "message": message, "tache": tache }));
+                let v = json!({ "id": id, "ok": ok, "message": message, "tache": tache, "sans_tache": sans_tache });
+                effets.signal(signaux::ADMIN_FINI, v);
             }
         }
     }

@@ -377,6 +377,19 @@ impl Hote {
         self.traiter(effets, &mut SansEcran)
     }
 
+    /// La ligne « Démarrage Mindset X (Rust)[, lancé avec Windows] » (Mindset.ps1:135), écrite APRÈS le démarrage des
+    /// blocs (comme dans Mindset.ps1, après le chargement des modules) : aucune si un bloc a demandé de quitter (lancé
+    /// avec Windows alors que c'est coupé, Mindset.ps1:123 s'arrêtait avant), et sans « lancé avec Windows » si un bloc
+    /// a demandé de montrer la fenêtre (relancé après une mise à jour demandée à l'écran, Mindset.ps1:122).
+    pub fn ligne_demarrage(version: &str, demarrage: bool, au_depart: &[Demande]) -> Option<String> {
+        if au_depart.iter().any(|d| matches!(d, Demande::Fin { .. })) {
+            return None;
+        }
+        let montree = au_depart.iter().any(|d| matches!(d, Demande::Fenetre(Fenetre::Montrer)));
+        let avec = if demarrage && !montree { ", lancé avec Windows" } else { "" };
+        Some(format!("Démarrage Mindset {version} (Rust){avec}"))
+    }
+
     /// La fenêtre existe : chaque bloc aura son premier tic tout de suite.
     pub fn fenetre_prete(&mut self) {
         let t = self.ctx.ecoule();

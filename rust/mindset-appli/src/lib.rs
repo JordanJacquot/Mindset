@@ -44,15 +44,15 @@ pub const ID_APPLI: &str = "JordanJacquot.Mindset";
 pub fn blocs() -> Vec<Box<dyn Bloc>> {
     vec![
         Box::new(mindset_donnees::BlocDonnees),
-        Box::new(mindset_liste::BlocListe),
-        Box::new(mindset_parametres::BlocParametres),
-        Box::new(mindset_publications::BlocPublications),
-        Box::new(mindset_installations::BlocInstallations),
-        Box::new(mindset_lui_meme::BlocLuiMeme),
-        Box::new(mindset_ecrans::BlocEcrans),
-        Box::new(mindset_accrochage::BlocAccrochage),
-        Box::new(mindset_horloge::BlocHorloge),
-        Box::new(mindset_console::BlocConsole),
+        Box::new(mindset_liste::BlocListe::default()),
+        Box::new(mindset_parametres::BlocParametres::default()),
+        Box::new(mindset_publications::BlocPublications::default()),
+        Box::new(mindset_installations::BlocInstallations::default()),
+        Box::new(mindset_lui_meme::BlocLuiMeme::default()),
+        Box::new(mindset_ecrans::BlocEcrans::default()),
+        Box::new(mindset_accrochage::BlocAccrochage::default()),
+        Box::new(mindset_horloge::BlocHorloge::default()),
+        Box::new(mindset_console::BlocConsole::default()),
     ]
 }
 

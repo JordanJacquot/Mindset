@@ -223,7 +223,7 @@ Retélécharge Mindset et remplace tout le dossier.",
         installateur: p2.installateur.unwrap_or_else(|| mindset_installations::installateur_windows(&dossiers)),
         systeme: p2.systeme.clone(),
     };
-    let lancement = Lancement {
+    let mut lancement = Lancement {
         demarrage: arguments.demarrage,
         desinstaller: arguments.desinstaller,
         admin: ports.systeme.est_admin(),
@@ -231,8 +231,12 @@ Retélécharge Mindset et remplace tout le dossier.",
     if let Some(code) = mindset_lui_meme::avant_tout(&dossiers, &lancement, &ports) {
         std::process::exit(code);
     }
+    // Rouvert par l'Explorateur juste après la bascule administrateur d'un Mindset lancé avec Windows
+    // (Mindset.ps1:47-51) : comme `-Demarrage` pour tous les blocs, et la fenêtre n'est jamais montrée
+    lancement.demarrage |= mindset_lui_meme::demarrage_force();
+    let demarrage = lancement.demarrage;
     let (verrou, signal) = noms_essai.unwrap_or_else(|| (VERROU_MINDSET.to_string(), SIGNAL_MINDSET.to_string()));
-    let instance = match synchro::prendre(&verrou, &signal, arguments.demarrage) {
+    let instance = match synchro::prendre(&verrou, &signal, demarrage) {
         Prise::Premier(i) => Some(i),
         Prise::DejaOuvert => std::process::exit(0),
         Prise::Refuse => {
@@ -244,17 +248,14 @@ Retélécharge Mindset et remplace tout le dossier.",
     for n in &ouverture.notes {
         ctx.journal(n);
     }
-    ctx.journal(&format!(
-        "Démarrage Mindset {VERSION} (Rust){}",
-        if arguments.demarrage { ", lancé avec Windows" } else { "" }
-    ));
     let mut hote = Hote::nouveau(blocs(), ctx);
     let au_depart = hote.demarrer();
-    if au_depart.iter().any(|d| matches!(d, Demande::Fin { .. })) {
+    let Some(ligne) = Hote::ligne_demarrage(VERSION, demarrage, &au_depart) else {
         // (un bloc a demandé de quitter avant la fenêtre : rien n'est ouvert)
         drop(instance);
         std::process::exit(0);
-    }
+    };
+    hote.ctx.journal(&ligne);
     let pack: DossierPack = hote.pack.clone();
     let fichiers: Fichiers = hote.fichiers.clone();
     let page = {
@@ -271,7 +272,7 @@ Retélécharge Mindset et remplace tout le dossier.",
             systeme: ports.systeme.clone(),
             donnees: dossiers.donnees.clone(),
             exe: exe.clone(),
-            montree: !arguments.demarrage,
+            montree: !demarrage,
             dernier_signal: Instant::now(),
             vu: None,
             fin: None,
@@ -359,6 +360,18 @@ fn ouvrir_fenetre(app: &App, suite: &Path, donnees: &Path) {
     let pour_reglages = journal.clone();
     if let Err(e) = webview2::couper_reglages(&f, move |t| pour_reglages(t)) {
         journal(&format!("Écran : réglages de WebView2 non posés ({e})"));
+    }
+    // Un incident de WebView2 (un de ses processus s'est arrêté) : la page est rouverte si c'est celui qui la dessine
+    // (webview2.rs), et la console en tient le compte (Receive-IncidentConsole : action `console:incident`)
+    let pour_incident = journal.clone();
+    let suivi = webview2::surveiller_incidents(&f, move |nom| {
+        let rouverte = if webview2::page_a_rouvrir(nom) { ", page rouverte" } else { "" };
+        pour_incident(&format!("Écran : incident de WebView2 ({nom}){rouverte}"));
+        let valeur = Value::String(nom.to_string());
+        ordonner(Ordre::Message(MessagePage::Action { id: "console:incident".into(), valeur, ecran: String::new() }));
+    });
+    if let Err(e) = suivi {
+        journal(&format!("Écran : incidents de WebView2 non suivis ({e})"));
     }
     ETAT.with(|e| {
         let mut e = e.borrow_mut();

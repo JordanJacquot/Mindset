@@ -105,7 +105,7 @@ struct Jauge {
 
 /// Le bloc « accrochage ».
 ///
-/// `mindset-appli` (`blocs()`) écrit `Box::new(mindset_accrochage::BlocAccrochage)` : la constante du même nom donne un
+/// `mindset-appli` (`blocs()`) écrit `BlocAccrochage::default()` : un
 /// bloc neuf, qui prend le vrai Windows à son démarrage. Les tests prennent [`BlocAccrochage::avec`].
 pub struct BlocAccrochage {
     fenetres: Option<Box<dyn Fenetres>>,
@@ -134,9 +134,6 @@ pub struct BlocAccrochage {
 }
 
 /// Un bloc neuf (voir [`BlocAccrochage`]).
-#[allow(non_upper_case_globals)]
-pub const BlocAccrochage: BlocAccrochage = BlocAccrochage::VIDE;
-
 impl Default for BlocAccrochage {
     fn default() -> BlocAccrochage {
         BlocAccrochage::VIDE

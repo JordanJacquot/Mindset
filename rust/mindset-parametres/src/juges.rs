@@ -830,9 +830,9 @@ fn contre_epreuve() {
 
 #[test]
 fn bloc_complet_avec_l_hote_du_noyau() {
-    // Le bloc tel que l'hôte le crée (une constante), démarré puis interrogé
+    // Le bloc tel que l'hôte le crée (`BlocParametres::default()`), démarré puis interrogé
     let (ctx, f) = essai::contexte("juge-bloc");
-    let mut b = crate::BlocParametres;
+    let mut b = crate::BlocParametres::default();
     let mut e = Effets::default();
     ctx.au_nom_de("parametres", || b.demarrer(&ctx, &mut e));
     assert!(b.etat(&ctx).contains_key("parametres"));

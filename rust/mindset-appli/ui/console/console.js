@@ -4,7 +4,8 @@
 //   - « Allumage de la console... » tant que la scène n'est pas prête (ConsoleAttente) ;
 //   - l'accueil classique caché quand la console est à sa place (Update-PageConsole) ;
 //   - l'état des applis, des mises à jour et des Paramètres donné à la scène quand il change (Send-EtatConsole,
-//     Send-MajConsole, Send-ParametresConsole), et les ordres { kit: 'console', appel, args } (Invoke-ScriptConsole) ;
+//     Send-MajConsole, Send-ParametresConsole), et les ordres { kit: 'console', appel, args }
+//     (l'appel d'une fonction de la scène, console.ps1 : ScriptConsole) ;
 //   - les messages de la scène rendus en actions « console:<type> » (Receive-MessageConsole vérifie tout côté Rust) ;
 //   - Échap hors de l'accueil : retour au menu en grand (action « menu »).
 // Rien ici ne parle à Rust directement : tout passe par la coquille.
@@ -34,7 +35,7 @@
     justifyContent: 'center', color: 'var(--texte3, #6F6894)', fontSize: '14px', pointerEvents: 'none', zIndex: '1' });   // (au-dessus du cadre qui se charge)
   zone.appendChild(attente);
 
-  // Une fonction de la scène, seulement quand elle est prête (Invoke-ScriptConsole)
+  // Une fonction de la scène, seulement quand elle est prête (console.ps1 : ScriptConsole)
   function appeler(nom, args) {
     if (!pret || !cadre) return;
     let m = null;
@@ -68,9 +69,42 @@
     delete e.onglet; delete e.images_themes;
     return e;
   }
+  // (le bloc « paramètres » sert l'image du pack telle quelle, `vignette` { adresse, images, largeur, hauteur } de chaque
+  // thème : la première image de la planche est redessinée ici en PNG, 96 de haut au plus, comme
+  // Get-ImageThemeConsole ; la scène n'accepte que « data:image/png;base64, », une fois faite elle lui est renvoyée)
+  const vignettes = {};
+  function vignette(cle, v) {
+    const k = `${cle}|${v.adresse}`;
+    if (k in vignettes) return vignettes[k];
+    vignettes[k] = null;
+    if (!/^http:\/\/fichier\.localhost\//.test(String(v.adresse))) return null;
+    const im = new Image();
+    im.crossOrigin = 'anonymous';
+    im.onload = () => {
+      try {
+        const n = Math.max(1, v.images || 1);
+        const l = Math.max(1, Math.floor(im.naturalWidth / n)), h = Math.max(1, im.naturalHeight);
+        const r = Math.min(1, 96 / h);
+        const cv = document.createElement('canvas');
+        cv.width = Math.max(1, Math.round(l * r)); cv.height = Math.max(1, Math.round(h * r));
+        cv.getContext('2d').drawImage(im, 0, 0, l, h, 0, 0, cv.width, cv.height);
+        vignettes[k] = cv.toDataURL('image/png');
+        envoyer(false);
+      } catch (e) { /* (image illisible : le thème reste sans vignette, comme le catch de Get-ImageThemeConsole) */ }
+    };
+    im.src = v.adresse;
+    return null;
+  }
   function imagesThemes() {
     const p = coq.etat && coq.etat.parametres;
-    return p && p.images_themes && typeof p.images_themes === 'object' ? p.images_themes : {};
+    if (!p || typeof p !== 'object') return {};
+    const m = p.images_themes && typeof p.images_themes === 'object' ? Object.assign({}, p.images_themes) : {};
+    for (const t of (p.apparence && p.apparence.themes) || []) {
+      if (!t || !t.image || !t.vignette || typeof t.cle !== 'string' || m[t.cle]) continue;
+      const u = vignette(t.cle, t.vignette);
+      if (u) m[t.cle] = u;
+    }
+    return m;
   }
 
   // Ce que la scène doit savoir, seulement ce qui a changé (tout, si « force »)

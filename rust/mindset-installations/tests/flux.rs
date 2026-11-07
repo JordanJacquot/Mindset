@@ -665,6 +665,24 @@ fn raccourci_du_menu_demarrer() {
     m.poste.poser_raccourci(&lien, &hote, &format!("{hote},0"), "");
     m.bloc.maj_raccourcis(&m.ctx);
     assert_eq!(m.poste.ecrits().len(), 2, "sans identité : remplacé");
+    // Le même programme écrit sous son nom court de Windows (8.3), pour la cible comme pour l'icône : déjà juste
+    let long = g.to_string_lossy().into_owned();
+    let court = format!(r"{}\NEVERM~1", suite_commun::chemins::parent(&long));
+    m.poste.poser_nom_court(&court, &long);
+    let hote_court = format!(r"{court}\Mindset.exe");
+    m.poste.poser_raccourci(&lien, &hote_court, &format!("{},0", hote.to_uppercase()), "JordanJacquot.Nevermind");
+    m.bloc.maj_raccourcis(&m.ctx);
+    assert_eq!(m.poste.ecrits().len(), 2, "cible courte, icône longue : le même programme, pas réécrit");
+    m.poste.poser_raccourci(&lien, &hote, &format!("{hote_court},0"), "JordanJacquot.Nevermind");
+    m.bloc.maj_raccourcis(&m.ctx);
+    assert_eq!(m.poste.ecrits().len(), 2, "icône courte : pas réécrit");
+    // (contre-épreuve : un autre dossier, ou une autre icône, est bien remplacé)
+    m.poste.poser_raccourci(&lien, &format!(r"{court}X\Mindset.exe"), &format!("{hote},0"), "JordanJacquot.Nevermind");
+    m.bloc.maj_raccourcis(&m.ctx);
+    assert_eq!(m.poste.ecrits().len(), 3, "une autre cible : remplacé");
+    m.poste.poser_raccourci(&lien, &hote, &format!("{hote_court},1"), "JordanJacquot.Nevermind");
+    m.bloc.maj_raccourcis(&m.ctx);
+    assert_eq!(m.poste.ecrits().len(), 4, "une autre image de l'icône : remplacé");
     // (ce raccourci n'est jamais pris pour un raccourci direct à retirer)
     let a = m.ctx.appli("nevermind").unwrap();
     assert_eq!(mindset_installations::copies::retirer_doublons(&m.ctx, &*m.poste, &a), None);
@@ -778,8 +796,29 @@ fn demande_d_un_autre_bloc() {
     let fini = m.signaux.iter().find(|(n, _)| n == "admin-fini").unwrap();
     assert_eq!(fini.1["ok"], true);
     assert_eq!(fini.1["message"], "fait");
+    assert_eq!(fini.1["sans_tache"], false);
     assert_eq!(m.signaux.iter().filter(|(n, _)| n == "admin-recu").count(), 1, "un seul accusé de réception");
     assert_eq!(m.ctx.lu("admin").unwrap()["tache"], "systeme");
+}
+
+#[test]
+fn demande_d_un_autre_bloc_sans_tache() {
+    // (intégration : le bloc « lui-même » lit `admin-fini.sans_tache` pour le repli d'une mise à jour automatique)
+    let mut m = Monde::nouveau("flux-admin-sans-tache");
+    m.signal(
+        "admin-demande",
+        json!({ "id": "0123456789abcdef0123456789abcdef", "action": "mindset-maj", "parametres": { "Zip": "x.zip" }, "repli": false, "auto": true }),
+    );
+    assert_eq!(m.faux.installateur.deposees().len(), 1);
+    // (la tâche ne donne pas son accusé de réception en 30 s : pas de demande de Windows pour une mise à jour
+    // automatique, la fin dit « sans tâche »)
+    m.ctx.avancer(Duration::from_secs(31));
+    m.tic();
+    assert!(m.faux.installateur.directs().is_empty());
+    let fini = m.signaux.iter().find(|(n, _)| n == "admin-fini").unwrap();
+    assert_eq!(fini.1["ok"], false);
+    assert_eq!(fini.1["sans_tache"], true, "{}", fini.1);
+    assert!(fini.1["message"].as_str().unwrap().starts_with("la tâche d'installation ne répond pas"));
 }
 
 #[test]
@@ -848,7 +887,7 @@ fn le_bloc_de_l_hote_n_a_pas_de_poste_en_essai() {
     // (la construction d'essai de Mindset : aucun raccourci, aucune entrée Run, rien n'est écrit)
     let (ctx, faux) = mindset_noyau::essai::contexte("flux-hote");
     ctx.definir_applis(vec![evermind(&faux.racine)]);
-    let mut b = mindset_installations::BlocInstallations;
+    let mut b = mindset_installations::BlocInstallations::default();
     let mut e = Effets::default();
     ctx.au_nom_de("installations", || b.demarrer(&ctx, &mut e));
     ctx.au_nom_de("installations", || b.tic(&ctx, &mut e));

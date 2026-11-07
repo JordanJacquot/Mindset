@@ -186,7 +186,6 @@
 .voile { background: rgb(var(--c-06050F) / 0.753); }
 .question { box-sizing: border-box; max-width: 480px; padding: 22px 26px; border-radius: 12px;
   background: rgb(var(--c-141030)); border: 1px solid rgb(var(--c-2A2450)); }
-.question.fermeture { max-width: 500px; padding: 24px 28px; border-radius: 22px; }
 .question .titre { font-size: 19px; font-weight: 600; overflow-wrap: break-word; }
 .question .texte { color: rgb(var(--c-A9A3C9)); margin-top: 10px; white-space: pre-wrap; overflow-wrap: break-word; }
 .question .case { margin-top: 16px; }

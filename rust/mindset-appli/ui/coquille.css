@@ -24,6 +24,13 @@ body { line-height: normal; font-family: var(--police-texte), sans-serif; font-s
 #corps { position: relative; display: grid; grid-template-columns: 210px minmax(0, 1fr); min-height: 0; margin-top: 6px; }
 #corps.sans-onglets { grid-template-columns: 0 minmax(0, 1fr); }
 #corps.sans-onglets > #colonne-onglets { display: none; }
+/* (chaque zone à sa place dans la grille, même quand l'en-tête et la colonne d'onglets sont cachés pour la console :
+   sans cela, le corps tombait dans la ligne « auto » et le centre dans la colonne de 0, la console à 0 x 0) */
+#en-tete { grid-row: 1; }
+#corps { grid-row: 2; }
+#pied { grid-row: 3; }
+#colonne-onglets { grid-column: 1; }
+#centre { grid-column: 2; }
 #colonne-onglets { min-height: 0; overflow: hidden; }
 #centre { display: grid; grid-template-rows: auto minmax(0, 1fr); min-height: 0; min-width: 0; }
 #bandeaux { margin: 0 32px; }

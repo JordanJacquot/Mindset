@@ -13,15 +13,15 @@
 //! | `messages` | installations | `{ <id>: texte }` : le dernier message de la carte (`$script:Messages`) |
 //! | `trouvees` | installations | `{ <id>: dossier }` : une copie déjà sur le PC (`$script:Trouvees`, `Find-InstallationExistante`) |
 //! | `demarrages` | installations | `{ <id>: bool }` : « S'ouvre avec Mindset » (`Get-DemarrageAppli`) |
-//! | `admin` | installations | `{ "tache": "systeme" \| "ancienne" \| "absente", "en_cours": nombre de demandes en attente }` |
+//! | `admin` | installations | `{ "tache": "systeme" | "ancienne" | "absente" | "inconnue", "en_cours": nombre de demandes en attente, "remplacement": null | "en_cours" | "ok" | "echec" }` (le remplacement de l'ancienne tâche au démarrage) || "ancienne" \| "absente", "en_cours": nombre de demandes en attente }` |
 //! | `publications` | publications | `{ <id ou "mindset">: { "version", "url_zip", "url_sig", "notes", "essai": bool } ou { "erreur": texte } }` : `$script:Publications` |
-//! | `recherche` | publications | `{ "verifie_a": "HH:mm" ou null, "en_cours": [ids], "depuis": moment au format s, "derniere": moment ou null }` : `$script:Recherches`, `$script:RechercheDepuis`, `$script:DernieresPublications`, `$script:VerifieA` |
+//! | `recherche` | publications | `{ "verifie_a": "HH:mm" ou null, "texte", "auto": bool, "en_cours": [ids], "en_attente": { <id>: moment }, "mindset_en_cours": bool (la question pour Mindset lui-même est partie, pas encore de réponse), "depuis": moment au format s ou null, "derniere": moment ou null }` : `$script:Recherches`, `$script:RechercheDepuis`, `$script:DernieresPublications`, `$script:VerifieA` |
 //! | `ouvertes` | liste | `{ <id>: bool }` : `Test-AppliOuverte` de chaque appli, relu toutes les 1,5 s (30 s Mindset caché) |
 //! | `liste` | liste | `{ "source": "apps.json" \| "en-ligne", "numero": nombre ou null }` : d'où vient la liste des applis |
-//! | `mindset` | lui-meme | `{ "installe": bool, "developpement": bool, "bienvenue": bool, "maj": { "version", "notes", "prete": bool, "progres": 0..1 ou null, "en_cours": bool } ou null, "derniere_maj": { "id", "nom", "version", "quand", "auto", "notes" } ou null }` |
-//! | `maj-auto` | lui-meme | `{ "en_cours": { <id>: version }, "echecs": { <id>: { "version", "raison", "reessai": minutes ou -1 } }, "jeu": nom ou "", "attentes": { <id>: "utilise" \| "page" \| "veille" } }` |
-//! | `accrochees` | accrochage | `{ <id>: { "etat": "vide" \| "lancement" \| "relance" \| "affiche" \| "cachee" \| "refus", "pid": nombre ou null } }` : `$script:Integrees` |
-//! | `console` | console | `{ "possible": bool, "parametres": bool, "en_fente": id ou null }` : `$script:Console` |
+//! | `mindset` | lui-meme | `{ "installe": bool, "developpement": bool, "bienvenue": bool, "maj": { "version", "notes", "prete": bool, "progres": 0..1 ou null, "en_cours": bool } ou null, "derniere_maj": { "id", "nom", "version", "quand", "auto", "notes" } ou null, "historique": [...], "verif": bool, "auto": bool }` |
+//! | `maj-auto` | lui-meme | `{ "en_cours": { <id>: version }, "echecs": { <id>: { "version", "raison", "reessai": minutes ou -1 } }, "jeu": nom ou "", "jeu_nom", "attentes": { <id>: "utilise" | "page" | "veille" }, "essais": { <id>: { "version", "quand": moment au format s, "nombre", "reessai" } } }` || "page" \| "veille" } }` |
+//! | `accrochees` | accrochage | `{ <id>: { "etat": "vide" \| "lancement" \| "relance" \| "affiche" \| "cachee" \| "refus", "pid": nombre ou null, "fenetre": nombre ou null } }` : `$script:Integrees` |
+//! | `console` | console | `{ "possible": bool, "parametres": bool, "en_fente": id ou null, "raison": texte ou null (ce qui empêche la 3D sur ce PC : toujours null en Rust) }` : `$script:Console` |
 //! | `voile` | ecrans | `bool` : une question de Mindset (confirmation, croix) est par-dessus : l'appli accrochée et la console s'effacent |
 //! | `theme` | parametres | `{ "id": "neon" \| ... \| "pack:<id>", "couleurs": { "#00E5FF": "#FF8A3D", ... }, "police": nom ou null, "pack": objet ou null }` : `ConvertTo-ThemeHex` pour chaque couleur Néon |
 //! | `onglet-parametres` | parametres | `"general" \| "apparence" \| "son" \| "maj" \| "conso" \| "dossiers"` : `$script:OngletParametres` |

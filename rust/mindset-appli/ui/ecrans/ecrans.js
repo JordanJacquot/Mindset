@@ -429,10 +429,14 @@
       let disque = '';
       const disques = h('div', { class: 'disques' });
       const radios = [];
+      // (coché au départ : le disque marqué « coche » par le bloc « lui-même », là où sont déjà les données ; sinon
+      // celui à lettre vide, le disque de Windows)
+      const marque = (b.disques || []).some((x) => x.coche);
+      const coche = (d) => (marque ? !!d.coche : (d.lettre || '') === (b.coche || ''));
       for (const d of b.disques || []) {
         const r = caseACocher(`${d.texte}   ·   ${d.libre}`, false, (c) => { disque = d.lettre || ''; radios.forEach((x) => { x.classList.toggle('oui', x === c); x.setAttribute('aria-checked', String(x === c)); }); }, true);
         radios.push(r);
-        if ((d.lettre || '') === (b.coche !== undefined ? (b.coche || '') : '') && !disques.querySelector('.oui')) { r.classList.add('oui'); disque = d.lettre || ''; }
+        if (coche(d) && !disques.querySelector('.oui')) { r.classList.add('oui'); disque = d.lettre || ''; }
         disques.append(r);
       }
       const verif = caseACocher('Chercher les nouvelles versions', b.verif !== false, (c) => { const oui = !c.classList.contains('oui'); c.classList.toggle('oui', oui); act('lui-meme:verif', { oui }); });
@@ -703,7 +707,7 @@
   // ---------------------------------------------------------------------------------------------------------------
   // Les questions : « Êtes-vous sûr ? » (Show-Confirmation) et la croix rouge (bloc « horloge »)
   // ---------------------------------------------------------------------------------------------------------------
-  let fermetureVue = null;
+  let fermetureVue = null, fermeture = null;
   function dessinerQuestions() {
     const q = E.confirmation;
     if (change('confirmation', q)) {
@@ -718,22 +722,20 @@
         setTimeout(() => non.focus(), 0);   // (Entrée par erreur = Annuler)
       }
     }
+    // La croix : la question est dessinée par fermeture.js du bloc « horloge » (window.horlogeFermeture), branchée
+    // ici une fois le thème connu (ses couleurs), et nourrie par ce dessin-ci (aussi pendant une capture figée). La
+    // page dit au bloc qu'elle est montrée : l'appli accrochée s'efface dessous (voile, Update-HotesVisibles).
+    if (!fermeture && window.horlogeFermeture && E.theme) {
+      const traduire = (hex) => {
+        const b = String(hex).replace('#', '').toUpperCase();
+        return `#${String(palette[b] || b).replace('#', '').slice(-6)}`;
+      };
+      window.horlogeFermeture.installer({ surEtat: (f) => { fermeture = f; }, action: act }, traduire);
+    }
+    if (fermeture) fermeture(etatComplet);
     const f = !!(etatComplet.fermeture && etatComplet.fermeture.visible);
     if (f !== fermetureVue) {
       fermetureVue = f;
-      const v = $('voile-fermeture');
-      v.replaceChildren();
-      v.hidden = !f;
-      if (f) {
-        let souvenir = false;
-        const c = caseACocher('Ne plus me demander (modifiable dans Paramètres)', false, (x) => { souvenir = !souvenir; x.classList.toggle('oui', souvenir); });
-        const choix = (quoi) => () => act('horloge:fermeture', { choix: quoi, souvenir });
-        v.append(h('div', { class: 'question fermeture', role: 'dialog', 'aria-modal': 'true' },
-          h('div', { class: 'titre' }, 'Fermer Mindset ?'),
-          h('div', { class: 'texte' }, "Réduit près de l'horloge, Mindset et tes applis restent prêts : un clic sur son icône le rouvre. Quitter ferme aussi toutes tes applis (les rappels d'Evermind, par exemple, ne sonneront plus jusqu'à la réouverture)."),
-          c,
-          h('div', { class: 'boutons' }, bouton('Annuler', 'secondaire', choix('annuler')), bouton('Tout quitter', 'secondaire', choix('quitter')), bouton("Réduire près de l'horloge", 'primaire', choix('reduire')))));
-      }
       act('ecrans:voile-fermeture', { visible: f });
     }
   }

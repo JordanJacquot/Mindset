@@ -8,13 +8,9 @@
 #page-parametres.pm-page { display: flex; flex-direction: column; overflow: hidden; color: var(--pm-texte); }
 #page-parametres.pm-page[hidden] { display: none; }
 
-.pm-haut { flex: none; margin: 22px 32px 0 32px; }
-.pm-titre { font-size: 26px; font-weight: 400; }
-.pm-sous { color: var(--pm-texte2); margin: 4px 0 14px 0; }
-.pm-onglets { display: flex; flex-wrap: wrap; }
-.pm-onglets .pm-bouton { margin: 0 8px 8px 0; }
-.pm-defile { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; }
-.pm-panneau { margin: 18px 32px 28px 32px; width: fit-content; max-width: 780px; }
+/* (le titre et les onglets : bloc « écrans », .parametres-haut ; la zone qui défile : .parametres-defile ; le
+   panneau prend la largeur de ce qu'il contient, 780 au plus, avec les marges de #parametres-panneaux) */
+#parametres-panneaux .pm-panneau { width: fit-content; max-width: 780px; }
 
 .pm-h { font-size: 17px; font-weight: 400; margin: 0 0 4px 0; }
 .pm-h.pm-loin { margin-top: 28px; }

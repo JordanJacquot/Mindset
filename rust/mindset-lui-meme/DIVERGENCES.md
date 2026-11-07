@@ -73,17 +73,17 @@ qui n'est pas listé ici se comporte pareil, prouvé par les juges (`tests/juges
 
 ## Ce dont ce bloc a besoin des autres (à l'intégration)
 
-- **Hôte** (`mindset-appli`, gelé) :
+- **Hôte** (`mindset-appli`) :
   - la marque « rouvert caché » (Mindset.ps1:47-51) rend Mindset « lancé avec Windows » : `avant_tout` la lit et
-    `mindset_lui_meme::demarrage_force()` le dit. L'hôte montre la fenêtre si `!arguments.demarrage` : il devrait
-    aussi tenir compte de `demarrage_force()`. En attendant, le bloc demande `Effet::Fenetre(Cacher)` dans
-    `demarrer` (la fenêtre peut se montrer un instant ; cas rare : Mindset administrateur lancé avec Windows) ;
+    `mindset_lui_meme::demarrage_force()` le dit. Fait à l'intégration (07/11) : l'hôte met alors
+    `Lancement::demarrage` à vrai pour tous les blocs et ne montre jamais la fenêtre (programme.rs) ;
   - relancé avec `-Demarrage` après une mise à jour demandée à l'écran (`MajMindsetVisible`), le bloc demande
     `Effet::Fenetre(Montrer)` : la fenêtre est créée cachée puis montrée. Même résultat, sans changer l'hôte ;
   - le journal : l'hôte écrit « Démarrage Mindset 3.0.0 (Rust), lancé avec Windows » AVANT `demarrer`. Quand
     « Mindset se lance avec Windows » est coupé, la version PowerShell s'arrêtait avant cette ligne
-    (`tester-maj-demarrage.ps1` vérifie qu'elle n'y est pas). À corriger dans l'hôte (écrire la ligne après les
-    `demarrer`, ou pas du tout si un bloc a demandé de quitter).
+    (`tester-maj-demarrage.ps1` vérifie qu'elle n'y est pas). Fait à l'intégration (07/11) : la ligne est
+    écrite après les `demarrer`, pas du tout si un bloc a demandé de quitter, sans « lancé avec Windows » si un
+    bloc montre la fenêtre (`Hote::ligne_demarrage`, tests/integration.rs de mindset-appli).
 - **Bloc « installations »** (branche rust-complet-installations, relue en lecture seule) : il fait déjà
   `admin { tache, en_cours }`, `operation-finie` avec `historique { id, nom, version, auto, notes }`, `admin-recu`
   (aussi `{ direct: true }` quand la demande de Windows est lancée), le repli selon `repli`, `resultat`, et le

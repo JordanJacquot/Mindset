@@ -55,6 +55,7 @@ impl LuiMeme {
     fn ajouter_essai(&mut self, ctx: &Contexte, id: &str, version: &str) {
         let e: Essai = regles::essai_suivant(self.essais.get(id), version, Self::ms(ctx));
         self.essais.insert(id.to_string(), e);
+        self.essais_quand.insert(id.to_string(), ctx.heure_iso());
     }
 
     /// `Invoke-MajAuto`, rappelé toutes les 2 secondes (30 caché) ; il ne passe pas plus d'une fois toutes les

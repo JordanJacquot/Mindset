@@ -51,19 +51,14 @@ const RYTHME_NOTIFICATIONS: Duration = Duration::from_secs(2);
 
 /// Le bloc « près de l'horloge ».
 ///
-/// `mindset_horloge::BlocHorloge` est aussi une constante (le bloc tel que `blocs()` le crée : la vraie icône est
-/// faite au démarrage, sauf en essai) ; les tests prennent [`BlocHorloge::avec_icone`] ou
-/// [`BlocHorloge::sans_icone`].
+/// `BlocHorloge::default()` est le bloc tel que `blocs()` le crée (la vraie icône est faite au démarrage, sauf en
+/// essai) ; les tests prennent [`BlocHorloge::avec_icone`] ou [`BlocHorloge::sans_icone`].
 #[derive(Default)]
 pub struct BlocHorloge {
     /// L'icône donnée par un test : `Some(None)` = aucune, `None` = la vraie (si permise)
     donnee: Option<Option<Box<dyn Icone>>>,
     e: Option<Etat>,
 }
-
-/// Le bloc tel que `mindset_appli::blocs()` le crée.
-#[allow(non_upper_case_globals)]
-pub const BlocHorloge: BlocHorloge = BlocHorloge { donnee: None, e: None };
 
 impl std::fmt::Debug for BlocHorloge {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -494,7 +489,7 @@ mod tests {
     #[test]
     fn nom_du_bloc() {
         // (le nom est celui du tableau commun : mindset_noyau::partage::PROPRIETAIRES)
-        assert_eq!(BlocHorloge.nom(), "horloge");
+        assert_eq!(BlocHorloge::default().nom(), "horloge");
     }
 
     #[test]

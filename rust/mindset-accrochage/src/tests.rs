@@ -87,8 +87,8 @@ impl Drop for Banc {
 
 #[test]
 fn le_bloc_de_l_hote_et_son_nom() {
-    // (mindset-appli écrit `Box::new(mindset_accrochage::BlocAccrochage)`)
-    let b: Box<dyn Bloc> = Box::new(BlocAccrochage);
+    // (mindset-appli écrit `Box::new(mindset_accrochage::BlocAccrochage::default())`)
+    let b: Box<dyn Bloc> = Box::new(BlocAccrochage::default());
     assert_eq!(b.nom(), "accrochage");
     assert!(!BlocAccrochage::default().minuterie());
 }
@@ -103,7 +103,7 @@ fn en_essai_jamais_les_vraies_applis() {
             json!({ "evermind": { "dossier": r"C:\x", "gere": true, "version": "1.3.0" } }),
         )
     });
-    let mut b = BlocAccrochage;
+    let mut b = BlocAccrochage::default();
     let mut e = Effets::default();
     b.demarrer(&ctx, &mut e);
     assert!(b.fenetres.is_none(), "en essai, sans MINDSET_INTEGRATION_TEST : aucun vrai Windows");

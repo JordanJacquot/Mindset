@@ -4,8 +4,8 @@
 //! - cachée et sans prendre la main au départ ; montrée ensuite par l'hôte, sauf lancé avec Windows (`-Demarrage`) ;
 //! - titre « Mindset », icône du M (build.rs), fond `#06050F` dès l'allumage (pas d'éclair blanc), barre de titre
 //!   sombre (interface.ps1:70-78) ;
-//! - la taille d'interface.xaml:3 (1340 x 930, au moins 1000 x 640), ramenée à la zone utile de l'écran
-//!   (`Get-TailleFenetre`, interface.ps1:24-40) et centrée ;
+//! - la taille d'interface.xaml:3 (1340 x 930 cadre compris, comme WPF : 1324 x 891 à l'intérieur ; au moins
+//!   1000 x 640), ramenée à la zone utile de l'écran (`Get-TailleFenetre`, interface.ps1:24-40) et centrée ;
 //! - dossier WebView2 `<données de la suite>\WebView2-Tauri\Mindset` s'il s'écrit, sinon
 //!   `<données de Mindset>\ecran-webview`, et options fixes du navigateur : tout par suite-commun ;
 //! - outils de développement, zoom, saisie automatique et téléchargements coupés ; navigation fermée aux pages de
@@ -51,6 +51,19 @@ pub fn taille_fenetre(zone_largeur: f64, zone_hauteur: f64) -> (f64, f64, f64, f
     (l, h, TAILLE_MIN.0.min(l), TAILLE_MIN.1.min(h))
 }
 
+/// La taille de l'intérieur de la fenêtre pour une taille donnée cadre compris (les `Width`, `Height`, `MinWidth`,
+/// `MinHeight` de WPF comptent le cadre et la barre de titre ; Tauri pose la taille de l'intérieur). `cadre` : ce que
+/// le cadre ajoute (largeur, hauteur), en pixels logiques, mesuré sur la fenêtre créée. Un cadre impossible (négatif ou
+/// plus de 200) : la taille telle quelle.
+pub fn taille_interieure(t: (f64, f64, f64, f64), cadre: (f64, f64)) -> (f64, f64, f64, f64) {
+    let ok = |c: f64| (0.0..=200.0).contains(&c);
+    if !ok(cadre.0) || !ok(cadre.1) {
+        return t;
+    }
+    let moins = |v: f64, c: f64| (v - c).max(1.0).round();
+    (moins(t.0, cadre.0), moins(t.1, cadre.1), moins(t.2, cadre.0), moins(t.3, cadre.1))
+}
+
 /// Le journal de l'appli, vu de la fenêtre
 pub type Journal = Arc<dyn Fn(&str) + Send + Sync>;
 
@@ -72,6 +85,7 @@ pub fn creer_principale<R: Runtime, M: Manager<R>>(
     let (l, h, ml, mh) =
         zone.map_or((TAILLE.0, TAILLE.1, TAILLE_MIN.0, TAILLE_MIN.1), |(zl, zh)| taille_fenetre(zl, zh));
     let pour_navigation = Arc::clone(&journal);
+    let pour_taille = Arc::clone(&journal);
     // (le label écrit en clair, égal à LABEL : verifier-tauri.ps1 le lit ici pour le relier à sa capability)
     let fenetre = WebviewWindowBuilder::new(app, "principale", WebviewUrl::App("index.html".into()))
         .title(crate::NOM_APPLI)
@@ -102,6 +116,18 @@ pub fn creer_principale<R: Runtime, M: Manager<R>>(
         .on_new_window(|_, _| NewWindowResponse::Deny)
         .on_download(|_, _| false)
         .build()?;
+    // La taille voulue est celle de WPF, cadre compris : l'intérieur est réduit de ce que le cadre ajoute (mesuré)
+    if let (Ok(ext), Ok(int), Ok(e)) = (fenetre.outer_size(), fenetre.inner_size(), fenetre.scale_factor())
+        && e > 0.0
+    {
+        let cadre =
+            ((f64::from(ext.width) - f64::from(int.width)) / e, (f64::from(ext.height) - f64::from(int.height)) / e);
+        let (il, ih, iml, imh) = taille_interieure((l, h, ml, mh), cadre);
+        let _ = fenetre.set_min_size(Some(tauri::LogicalSize::new(iml, imh)));
+        let _ = fenetre.set_size(tauri::LogicalSize::new(il, ih));
+        let _ = fenetre.center();
+        pour_taille(&format!("Écran : {il} x {ih} à l'intérieur (cadre {:.0} x {:.0})", cadre.0, cadre.1));
+    }
     Ok((fenetre, choix))
 }
 
@@ -139,5 +165,17 @@ mod tests {
         assert_eq!(taille_fenetre(1366.0, 728.0), (1340.0, 728.0, 1000.0, 640.0));
         assert_eq!(taille_fenetre(1280.0 / 1.5, 680.0 / 1.25), (853.0, 544.0, 853.0, 544.0));
         assert_eq!(taille_fenetre(50.0, 900.0), (1340.0, 930.0, 1000.0, 640.0));
+    }
+
+    #[test]
+    fn taille_comptee_cadre_compris_comme_wpf() {
+        // WPF : 1340 x 930 cadre compris, soit 1324 x 891 à l'intérieur (cadre de Windows 11 à 100 % : 16 x 39)
+        let t = taille_fenetre(1920.0, 1040.0);
+        assert_eq!(taille_interieure(t, (16.0, 39.0)), (1324.0, 891.0, 984.0, 601.0));
+        // (à 150 % le cadre mesuré en pixels logiques peut tomber entre deux : arrondi)
+        assert_eq!(taille_interieure(t, (15.333, 38.667)), (1325.0, 891.0, 985.0, 601.0));
+        // un cadre impossible : rien n'est retiré
+        assert_eq!(taille_interieure(t, (-4.0, 39.0)), t);
+        assert_eq!(taille_interieure(t, (16.0, 900.0)), t);
     }
 }

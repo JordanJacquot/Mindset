@@ -27,7 +27,9 @@ captures avant / après dans `D:\Outils\Rust\essais\ecrans\captures\` (outils `o
 
 1. **Taille de la fenêtre** : la fenêtre Tauri fait 1340 x 930 À L'INTÉRIEUR (fenetre.rs, hôte), la fenêtre WPF
    1340 x 930 cadre compris (intérieur 1324 x 891). Tout est à la même place depuis le coin haut gauche, mais la
-   page Rust a 16 px de plus en largeur et 39 px en hauteur. À corriger dans l'hôte (taille extérieure), pas ici.
+   page Rust avait 16 px de plus en largeur et 39 px en hauteur. Corrigé à l'intégration (07/11) : l'hôte compte la
+   taille cadre compris comme WPF (fenetre.rs, `taille_interieure`) ; mesuré : 1340 x 930 cadre compris, 1324 x 891
+   à l'intérieur, comme la 2.18.
 2. **Le texte paraît un peu plus gras** dans les captures : même police et mêmes instances (Segoe UI Variable Text
    Semibold, vérifié par `GlyphTypeface`), mais la capture WPF (`RenderTargetBitmap`) est en niveaux de gris et
    celle de WebView2 en ClearType. À l'écran, les deux sont en ClearType.

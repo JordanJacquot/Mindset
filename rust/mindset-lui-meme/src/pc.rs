@@ -66,6 +66,11 @@ pub trait PcLuiMeme: Send + Sync {
     fn infos_programme(&self, chemin: &str) -> (Option<String>, Option<String>);
     /// Retire la marque « téléchargé depuis Internet » des fichiers de ce dossier (`Unblock-File`).
     fn debloquer(&self, dossier: &Path);
+    /// La forme longue d'un chemin (`GetLongPathNameW`) : un Mindset lancé par son nom court (`MINDSE~1`) doit
+    /// reconnaître ses raccourcis écrits avec le nom long, et inversement.
+    fn forme_longue(&self, chemin: &str) -> String {
+        chemin.to_string()
+    }
 }
 
 /// Le faux Windows du bloc : des raccourcis, une valeur Run et des disques posés à la main, l'activité réglée par le
@@ -85,6 +90,8 @@ pub struct FauxPc {
     pub debloques: Mutex<Vec<PathBuf>>,
     pub releves: Mutex<u32>,
     pub lieux: Mutex<Vec<PathBuf>>,
+    /// Les noms courts de Windows (8.3) : `forme_longue` remplace le début court par le long.
+    pub courts: Mutex<BTreeMap<String, String>>,
 }
 
 fn v<T>(m: &Mutex<T>) -> std::sync::MutexGuard<'_, T> {
@@ -194,5 +201,13 @@ impl PcLuiMeme for FauxPc {
     }
     fn debloquer(&self, dossier: &Path) {
         v(&self.debloques).push(dossier.to_path_buf());
+    }
+    fn forme_longue(&self, chemin: &str) -> String {
+        for (court, long) in v(&self.courts).iter() {
+            if let Some(reste) = suite_commun::chemins::apres_debut(chemin, court) {
+                return format!("{long}{reste}");
+            }
+        }
+        chemin.to_string()
     }
 }

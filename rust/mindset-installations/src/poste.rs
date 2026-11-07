@@ -75,6 +75,10 @@ pub trait Poste: Send + Sync {
     fn copier_dossier(&self, de: &Path, vers: &Path) -> Result<(), String>;
     /// Permet à l'appli réveillée de passer devant (`AllowSetForegroundWindow(-1)`).
     fn autoriser_premier_plan(&self) {}
+    /// La forme longue d'un chemin (`GetLongPathNameW`), pour comparer un chemin court (`RUNNER~1`) à un long.
+    fn forme_longue(&self, chemin: &str) -> String {
+        chemin.to_string()
+    }
 }
 
 /// Aucun poste (la construction d'essai de Mindset) : rien n'est trouvé, rien n'est écrit ni retiré.
@@ -153,6 +157,7 @@ pub struct FauxPoste {
     pub interdits: Mutex<Vec<String>>,
     pub sans_menu: Mutex<bool>,
     copie_refusee: Mutex<bool>,
+    courts: Mutex<BTreeMap<String, String>>,
     ecrits: Mutex<Vec<PathBuf>>,
 }
 
@@ -222,6 +227,10 @@ impl FauxPoste {
     pub fn poser_variables(&self, processus: &[&str], compte: &[&str]) {
         *verrou(&self.variables) =
             (processus.iter().map(|s| s.to_string()).collect(), compte.iter().map(|s| s.to_string()).collect());
+    }
+    /// Un nom court de Windows (8.3) pour un dossier du faux PC : `forme_longue` le remplace par le long.
+    pub fn poser_nom_court(&self, court: &str, long: &str) {
+        verrou(&self.courts).insert(court.into(), long.into());
     }
     /// La prochaine copie de dossier échoue.
     pub fn refuser_copie(&self) {
@@ -336,5 +345,13 @@ impl Poste for FauxPoste {
             return Err("copie refusée (essai)".into());
         }
         copier_en_rust(de, vers).map_err(|e| e.to_string())
+    }
+    fn forme_longue(&self, chemin: &str) -> String {
+        for (court, long) in verrou(&self.courts).iter() {
+            if let Some(reste) = suite_commun::chemins::apres_debut(chemin, court) {
+                return format!("{long}{reste}");
+            }
+        }
+        chemin.to_string()
     }
 }

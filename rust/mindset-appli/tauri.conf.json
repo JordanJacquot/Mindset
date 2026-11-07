@@ -8,8 +8,8 @@
     "windows": [],
     "withGlobalTauri": false,
     "security": {
-      "csp": "default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' http://pack.localhost http://fichier.localhost data:; font-src 'self' http://pack.localhost http://fichier.localhost; connect-src ipc: http://ipc.localhost; object-src 'none'; frame-src 'self'; frame-ancestors 'self'; base-uri 'none'; form-action 'none'",
-      "devCsp": "default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' http://pack.localhost http://fichier.localhost data:; font-src 'self' http://pack.localhost http://fichier.localhost; connect-src ipc: http://ipc.localhost; object-src 'none'; frame-src 'self'; frame-ancestors 'self'; base-uri 'none'; form-action 'none'"
+      "csp": "default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; style-src-attr 'unsafe-inline'; img-src 'self' http://pack.localhost http://fichier.localhost data:; font-src 'self' http://pack.localhost http://fichier.localhost; connect-src ipc: http://ipc.localhost http://pack.localhost; object-src 'none'; frame-src 'self'; frame-ancestors 'self'; base-uri 'none'; form-action 'none'",
+      "devCsp": "default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; style-src-attr 'unsafe-inline'; img-src 'self' http://pack.localhost http://fichier.localhost data:; font-src 'self' http://pack.localhost http://fichier.localhost; connect-src ipc: http://ipc.localhost http://pack.localhost; object-src 'none'; frame-src 'self'; frame-ancestors 'self'; base-uri 'none'; form-action 'none'"
     }
   },
   "bundle": {

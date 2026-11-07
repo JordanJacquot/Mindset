@@ -145,7 +145,7 @@ fn preparer(nom: &str, theme: &str, e: &Value) -> (mindset_noyau::Contexte, mind
         ctx.publier("demarrages", json!({ id.clone(): e.get("demarrage").and_then(Value::as_bool).unwrap_or(false) }));
     });
     ctx.au_nom_de("parametres", || ctx.publier("theme", json!({ "id": theme })));
-    let mut b = BlocEcrans;
+    let mut b = BlocEcrans::default();
     let mut fx = Effets::default();
     ctx.au_nom_de("ecrans", || b.demarrer(&ctx, &mut fx));
     (ctx, faux, b, a)

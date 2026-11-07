@@ -12,10 +12,11 @@
 //!   page passe à `document.visibilityState = "hidden"` et se met en pause.
 
 use tauri::WebviewWindow;
+use webview2_com::Microsoft::Web::WebView2::Win32::COREWEBVIEW2_PROCESS_FAILED_KIND;
 use webview2_com::Microsoft::Web::WebView2::Win32::{
     ICoreWebView2_3, ICoreWebView2Controller, ICoreWebView2Settings3, ICoreWebView2Settings4,
 };
-use webview2_com::TrySuspendCompletedHandler;
+use webview2_com::{ProcessFailedEventHandler, TrySuspendCompletedHandler};
 use windows::core::{BOOL, HSTRING, Interface};
 
 /// Ce que WebView2 dit de ses réglages, relus après les avoir coupés.
@@ -123,6 +124,56 @@ pub fn page_en_veille(f: &WebviewWindow, veille: bool) -> tauri::Result<()> {
     })
 }
 
+/// Le nom d'un incident de WebView2 (un de ses processus s'est arrêté), écrit comme
+/// `CoreWebView2ProcessFailedKind.ToString()` de .NET, que lisait `Receive-IncidentConsole` (console.ps1:248).
+pub fn nom_incident(genre: i32) -> &'static str {
+    match genre {
+        0 => "BrowserProcessExited",
+        1 => "RenderProcessExited",
+        2 => "RenderProcessUnresponsive",
+        3 => "FrameRenderProcessExited",
+        4 => "UtilityProcessExited",
+        5 => "SandboxHelperProcessExited",
+        6 => "GpuProcessExited",
+        7 => "PpapiPluginProcessExited",
+        8 => "PpapiBrokerProcessExited",
+        _ => "UnknownProcessExited",
+    }
+}
+
+/// Le processus qui dessine la page s'est arrêté ou ne répond plus : en 3.0 il dessine TOUTE la page (la console 3D
+/// est un cadre de la page, architecture 7.5), elle est rouverte (`Navigate`, comme après les réglages). Les autres
+/// (carte graphique, utilitaires) sont relancés par WebView2 lui-même, la page continue.
+pub fn page_a_rouvrir(nom: &str) -> bool {
+    matches!(nom, "RenderProcessExited" | "RenderProcessUnresponsive")
+}
+
+/// Surveille les incidents de WebView2 (`ProcessFailed`) : la page est rouverte si besoin, puis `rappel` reçoit le
+/// nom de l'incident (sur le fil de la fenêtre).
+pub fn surveiller_incidents(f: &WebviewWindow, rappel: impl Fn(&'static str) + Send + 'static) -> tauri::Result<()> {
+    f.with_webview(move |pw| {
+        let h = ProcessFailedEventHandler::create(Box::new(move |vue, args| {
+            let mut k = COREWEBVIEW2_PROCESS_FAILED_KIND::default();
+            if let Some(a) = args {
+                // SAFETY : appel COM ordinaire sur les arguments que WebView2 nous passe ; k vit pendant l'appel
+                let _ = unsafe { a.ProcessFailedKind(&mut k) };
+            }
+            let nom = nom_incident(k.0);
+            if page_a_rouvrir(nom)
+                && let Some(v) = vue
+            {
+                // SAFETY : appel COM ordinaire sur la WebView2 qui a levé l'événement, sur son fil
+                let _ = unsafe { v.Navigate(&HSTRING::from(crate::fenetre::ADRESSE_PAGE)) };
+            }
+            rappel(nom);
+            Ok(())
+        }));
+        let mut jeton = 0i64;
+        // SAFETY : appels COM ordinaires sur la WebView2 que Tauri nous prête, sur le fil de la fenêtre ; le jeton est
+        // une variable locale (le gestionnaire reste branché tant que la page vit)
+        let _ = unsafe { pw.controller().CoreWebView2().and_then(|w| w.add_ProcessFailed(&h, &mut jeton)) };
+    })
+}
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -140,5 +191,16 @@ mod tests {
         assert!(tout_coupe.texte().ends_with("coupés"));
         let r = Reglages { menu_clic_droit: true, mots_de_passe: true, ..tout_coupe };
         assert_eq!(r.texte(), "Écran : encore allumés malgré les réglages : menu du clic droit, mots de passe gardés");
+    }
+
+    #[test]
+    fn incidents_nommes_comme_dotnet_et_page_rouverte() {
+        assert_eq!(nom_incident(0), "BrowserProcessExited");
+        assert_eq!(nom_incident(1), "RenderProcessExited");
+        assert_eq!(nom_incident(2), "RenderProcessUnresponsive");
+        assert_eq!(nom_incident(6), "GpuProcessExited");
+        assert_eq!(nom_incident(42), "UnknownProcessExited");
+        let rouvertes: Vec<i32> = (0..12).filter(|k| page_a_rouvrir(nom_incident(*k))).collect();
+        assert_eq!(rouvertes, [1, 2]);
     }
 }

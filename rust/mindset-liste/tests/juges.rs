@@ -398,7 +398,7 @@ fn obtenu_recevoir(cas: &Value, cle: &str, nom: &str) -> Value {
         (_, None, None) => Ok(Value::Null),
         (_, j, s) => Ok(resultat_telechargement(&j.unwrap_or_default(), &s.unwrap_or_default())),
     };
-    let mut bloc = BlocListe;
+    let mut bloc = BlocListe::default();
     let mut effets = Effets::default();
     let avant = faux.donnees.lignes().len();
     ctx.au_nom_de("liste", || bloc.tache_finie(&ctx, mindset_liste::TACHE, resultat, &mut effets));

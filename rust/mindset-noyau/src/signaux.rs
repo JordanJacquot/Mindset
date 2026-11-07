@@ -25,24 +25,24 @@
 //! | `actualiser` | `{ "clic": bool }` | ecrans, console, horloge, parametres | publications (`Invoke-Actualiser`) |
 //! | `verifier-mindset` | `{}` | publications | lui-meme (`Start-VerifMajMindset`) |
 //! | `verifier-liste` | `{}` | publications | liste (`Update-ListeEnLigne`) |
-//! | `publications-changees` | `{}` | publications | ecrans, console, parametres, lui-meme |
+//! | `publications-changees` | `{ "id" }` (l'appli ou « mindset » dont la réponse vient d'arriver) | publications | ecrans, console, parametres, lui-meme |
 //! | `installer` | `{ "id", "ancien": dossier ou null, "auto": bool }` | ecrans, console, lui-meme | installations (`Start-InstallAppli`) |
 //! | `desinstaller` | `{ "id" }` | ecrans | installations (`Start-DesinstallAppli`) |
 //! | `utiliser-trouvee` | `{ "id", "dossier" }` | ecrans | installations (`Use-InstallationTrouvee`) |
-//! | `operation-finie` | `{ "id", "quoi": "installation" \| "desinstallation", "ok": bool, "message", "auto": bool }` | installations | lui-meme, console, ecrans |
+//! | `operation-finie` | `{ "id", "quoi": "installation" \| "desinstallation" \| "utilisation", "ok": bool, "message", "auto": bool, "version", "avant", "historique": { "id", "nom", "version", "auto", "notes" } ou null }` | installations | lui-meme, console, ecrans |
 //! | `installations-changees` | `{}` | installations | tous ceux qui montrent les applis |
 //! | `lancer-appli` | `{ "id", "demarrage": bool }` | accrochage, lui-meme | installations (`Open-Appli`) |
 //! | `demande-quitter` | `{ "id" }` | accrochage, console | installations (`Write-DemandeQuitter`) |
 //! | `ouvrir-appli` | `{ "id", "lancer": bool }` | console, horloge, parametres, ecrans | accrochage (`Open-AppliIci`, `Show-AppliIntegree -Lancer`) |
 //! | `fermer-appli` | `{ "id" }` | console, ecrans | accrochage (`WM_CLOSE` si accrochée, sinon `demande-quitter`) |
-//! | `admin-demande` | `{ "id", "action", "parametres": {..}, "repli": bool, "auto": bool }` | lui-meme, parametres | installations (`Invoke-Admin`, `Send-DemandeInstallation`) |
-//! | `admin-recu` | `{ "id" }` | installations | celui qui a demandé (accusé de réception de la tâche) |
-//! | `admin-fini` | `{ "id", "ok": bool, "message" }` | installations | celui qui a demandé |
+//! | `admin-demande` | `{ "id", "action", "parametres": {..}, "repli": bool, "auto": bool, "resultat": fichier de la réponse (facultatif) }` | lui-meme, parametres | installations (`Invoke-Admin`, `Send-DemandeInstallation`) |
+//! | `admin-recu` | `{ "id", "direct": bool (la demande de Windows est lancée) }` | installations | celui qui a demandé (accusé de réception de la tâche) |
+//! | `admin-fini` | `{ "id", "ok": bool, "message", "tache", "sans_tache": bool (la tâche n'a pas répondu) }` | installations | celui qui a demandé |
 //! | `confirmation` | `{ "titre", "texte", "bouton", "action", "valeur" }` | tous | ecrans (`Show-Confirmation`) : « Oui » rend `Effet::Action { action, valeur }` |
 //! | `bulle` | `{ "titre", "texte", "icone": "info" \| "attention" \| "aucune", "duree_ms" }` | tous | horloge (`Show-BulleMindset`) |
 //! | `message-console` | `{ "texte" }` | tous | console (`window.mindset.message`) |
-//! | `voile` | `{ "visible": bool }` | ecrans | accrochage, console (`Update-HotesVisibles`, `Update-ConsoleMasquee`) |
-//! | `reglage-change` | `{ "nom", "valeur" }` | parametres, console, horloge | tous (un réglage commun vient de changer) |
+//! | `voile` | `{ "visible": bool }` | ecrans | accrochage (`Update-HotesVisibles`) ; la console lit la clé `voile` du tableau (`Update-ConsoleMasquee`) |
+//! | `reglage-change` | `{ "nom", "valeur" }` | parametres, console, horloge, lui-meme | console (Animations) ; les autres blocs relisent le réglage à chaque fois |
 //! | `ouvrir-parametres` | `{ "onglet" }` | console, horloge, ecrans | parametres (`Show-OngletParametres` puis la page) |
 //! | `demarrage-appli` | `{ "id", "oui": bool }` | ecrans, parametres | installations (`Set-DemarrageAppli` : « S'ouvre avec Mindset ») |
 //! | `versions-essai` | `{ "id", "oui": bool }` | parametres | publications (`Set-VersionsEssaiAppli`) |

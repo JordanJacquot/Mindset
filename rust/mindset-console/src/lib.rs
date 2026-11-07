@@ -112,10 +112,6 @@ pub struct BlocConsole {
     premier_tic_fait: bool,
 }
 
-/// Le bloc, prêt à être donné à l'hôte (`Box::new(mindset_console::BlocConsole)` dans `blocs()`).
-#[allow(non_upper_case_globals)]
-pub const BlocConsole: BlocConsole = BlocConsole::NEUF;
-
 impl Default for BlocConsole {
     fn default() -> Self {
         BlocConsole::NEUF
@@ -808,9 +804,13 @@ impl BlocConsole {
         self.mettre_a_jour_page(ctx, effets);
     }
 
-    /// Le tableau commun `console` (`{ possible, parametres, en_fente }`), écrit quand il change.
+    /// Le tableau commun `console` (`{ possible, parametres, en_fente, raison }`), écrit quand il change. `raison` : ce qui
+    /// empêche la 3D SUR CE PC (le texte AnimationsInfo des Paramètres, Set-ReglageAnimations) ; toujours vide en Rust
+    /// (la page est déjà une WebView2, la scène est dans l'exe : DIVERGENCES.md), « aucune » et un arrêt après des
+    /// incidents ne sont pas des raisons du PC (la version PowerShell ne les montrait pas non plus).
     fn publier(&mut self, ctx: &Contexte) {
-        let v = json!({ "possible": self.possible, "parametres": self.parametres, "en_fente": self.en_fente });
+        let v = json!({ "possible": self.possible, "parametres": self.parametres, "en_fente": self.en_fente,
+            "raison": Value::Null });
         if self.publie.as_ref() != Some(&v) {
             ctx.publier(partage::CONSOLE, v.clone());
             self.publie = Some(v);
@@ -1003,7 +1003,7 @@ mod tests {
     #[test]
     fn nom_du_bloc() {
         // (le nom est celui du tableau commun : mindset_noyau::partage::PROPRIETAIRES)
-        assert_eq!(BlocConsole.nom(), "console");
+        assert_eq!(BlocConsole::default().nom(), "console");
     }
 
     #[test]

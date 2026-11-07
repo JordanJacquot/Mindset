@@ -102,7 +102,75 @@ fn configuration_tauri() {
     assert!(csp.starts_with("default-src 'none'"));
     assert!(!csp.contains("unsafe-eval"));
     assert!(csp.contains("frame-src 'self'"), "la console 3D est un cadre de la page");
+    // (la scène et les écrans écrivent des attributs style= : permis, alors que Tauri ajoute les empreintes des
+    // styles, qui font ignorer 'unsafe-inline' de style-src ; le logo animé d'un thème est lu par fetch)
+    assert!(csp.contains("style-src-attr 'unsafe-inline'"), "{csp}");
+    assert!(csp.contains("connect-src ipc: http://ipc.localhost http://pack.localhost;"), "{csp}");
     for autre in ["tauri.conf.json5", "Tauri.toml", "tauri.windows.conf.json"] {
         assert!(!racine().join(autre).exists(), "{autre} : un seul fichier de configuration");
+    }
+}
+
+/// Les pages des blocs « paramètres » et « horloge » : copiées dans ui/blocs/ par build.rs, pareilles à leur source,
+/// et chargées par la coquille (styles avant les scripts des écrans, scripts après coquille.js et avant ecrans.js).
+#[test]
+fn les_pages_des_blocs_sont_copiees_et_chargees() {
+    let html = lire(&racine().join("ui").join("index.html"));
+    for (source, copie) in [
+        ("../mindset-parametres/page/parametres.js", "blocs/parametres.js"),
+        ("../mindset-parametres/page/parametres.css", "blocs/parametres.css"),
+        ("../mindset-horloge/ui/fermeture.js", "blocs/fermeture.js"),
+        ("../mindset-horloge/ui/fermeture.css", "blocs/fermeture.css"),
+    ] {
+        let a = std::fs::read(racine().join(source)).unwrap();
+        let b = std::fs::read(racine().join("ui").join(copie)).unwrap_or_else(|e| panic!("{copie} : {e}"));
+        assert!(a == b, "{copie} n'est pas pareil à {source} (build.rs le recopie)");
+        let balise = if copie.ends_with(".js") {
+            format!("<script src=\"{copie}\"></script>")
+        } else {
+            format!("<link rel=\"stylesheet\" href=\"{copie}\">")
+        };
+        let i = html.find(&balise).unwrap_or_else(|| panic!("{copie} n'est pas chargé"));
+        if copie.ends_with(".js") {
+            assert!(i > html.find("<script src=\"coquille.js\">").unwrap(), "{copie} avant coquille.js");
+            assert!(i < html.find("<script src=\"ecrans/ecrans.js\">").unwrap(), "{copie} après ecrans.js");
+        }
+    }
+}
+
+/// Les scripts de la page se lisent (`node --check`, si node est sur ce PC ; sinon le test le dit et passe) : une
+/// erreur de syntaxe laisse la page vide (vu à l'essai d'intégration du 07/11/2026 : « Unexpected end of input »).
+#[test]
+fn les_scripts_de_la_page_se_lisent() {
+    use std::os::windows::process::CommandExt;
+    let mut scripts = Vec::new();
+    fichiers(&racine().join("ui"), &mut scripts);
+    scripts.retain(|p| p.extension().is_some_and(|x| x == "js") && !p.to_string_lossy().contains("three"));
+    assert!(scripts.len() >= 6, "{scripts:?}");
+    for s in &scripts {
+        let r = std::process::Command::new("node").arg("--check").arg(s).creation_flags(0x0800_0000).output();
+        match r {
+            Ok(o) => assert!(o.status.success(), "{} : {}", s.display(), String::from_utf8_lossy(&o.stderr)),
+            Err(_) => {
+                eprintln!("node absent : syntaxe des scripts non vérifiée");
+                return;
+            }
+        }
+    }
+}
+
+/// Chaque zone a sa place fixe dans la grille de la coquille : l'en-tête et la colonne d'onglets cachés (la console),
+/// le corps et le centre gardent la leur (vu à l'essai d'intégration : sans cela, la console était à 0 x 0).
+#[test]
+fn les_zones_gardent_leur_place_dans_la_grille() {
+    let css = lire(&racine().join("ui").join("coquille.css"));
+    for r in [
+        "#en-tete { grid-row: 1; }",
+        "#corps { grid-row: 2; }",
+        "#pied { grid-row: 3; }",
+        "#colonne-onglets { grid-column: 1; }",
+        "#centre { grid-column: 2; }",
+    ] {
+        assert!(css.contains(r), "coquille.css : {r} manque");
     }
 }

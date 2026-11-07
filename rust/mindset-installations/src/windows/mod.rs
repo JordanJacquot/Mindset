@@ -20,6 +20,7 @@ use windows::Win32::Security::Authorization::ConvertSidToStringSidW;
 use windows::Win32::Security::{
     GetTokenInformation, LookupAccountNameW, PSID, SID_NAME_USE, TOKEN_QUERY, TOKEN_USER, TokenUser,
 };
+use windows::Win32::Storage::FileSystem::GetLongPathNameW;
 use windows::Win32::System::Com::StructuredStorage::{PROPVARIANT, PropVariantClear, PropVariantToString};
 use windows::Win32::System::Com::{
     CLSCTX_INPROC_SERVER, COINIT_APARTMENTTHREADED, CoCreateInstance, CoInitializeEx, CoTaskMemFree, CoUninitialize,
@@ -198,6 +199,25 @@ pub fn compte_en_sid(compte: &str) -> String {
     }
 }
 
+/// La forme longue d'un chemin (`GetLongPathNameW` : `C:\Users\RUNNER~1\x` devient `C:\Users\runneradmin\x`) ; le
+/// chemin tel quel s'il n'existe pas ou ne se lit pas. Un raccourci peut garder un chemin court, et %TEMP% est parfois
+/// court : comparer deux chemins sans les mettre sous cette forme ferait croire à un raccourci faux.
+pub fn chemin_long(chemin: &str) -> String {
+    if chemin.is_empty() || !chemin.contains('~') {
+        return chemin.to_string();
+    }
+    let h = HSTRING::from(chemin);
+    let mut b = vec![0u16; 32768];
+    // SAFETY : tampon local de taille connue, chaîne terminée par zéro (HSTRING)
+    let n = unsafe { GetLongPathNameW(&h, Some(&mut b)) } as usize;
+    if n == 0 || n >= b.len() { chemin.to_string() } else { String::from_utf16_lossy(&b[..n]) }
+}
+
+/// L'icône d'un raccourci (« chemin,index ») avec son chemin sous la forme longue.
+fn icone_longue(chemin: &str, index: i32) -> String {
+    format!("{},{index}", chemin_long(chemin))
+}
+
 /// Lit un raccourci : sa cible, son icône (« chemin,index ») et son identité.
 fn lire_lnk(lnk: &Path) -> Option<Raccourci> {
     let _com = Com::pret();
@@ -208,11 +228,11 @@ fn lire_lnk(lnk: &Path) -> Option<Raccourci> {
         f.Load(&HSTRING::from(lnk.as_os_str()), STGM_READ).ok()?;
         let mut b = vec![0u16; 32768];
         l.GetPath(&mut b, std::ptr::null_mut(), 0).ok()?;
-        let cible = texte16(&b);
+        let cible = chemin_long(&texte16(&b));
         let mut ib = vec![0u16; 32768];
         let mut index = 0i32;
         let icone = match l.GetIconLocation(&mut ib, &mut index) {
-            Ok(()) => format!("{},{index}", texte16(&ib)),
+            Ok(()) => icone_longue(&texte16(&ib), index),
             Err(_) => String::new(),
         };
         let mut identite = String::new();
@@ -356,6 +376,9 @@ impl Poste for PosteWindows {
             let _ = AllowSetForegroundWindow(ASFW_ANY);
         }
     }
+    fn forme_longue(&self, chemin: &str) -> String {
+        chemin_long(chemin)
+    }
 }
 
 /// La valeur d'une clé de HKLM, en texte (« » si absente) ; seulement lue.
@@ -374,29 +397,43 @@ pub fn valeur_hklm(cle: &str, nom: &str) -> String {
 mod tests {
     use super::*;
 
+    /// Le nom court (8.3) d'un chemin qui existe (comme %TEMP% sur les machines de GitHub), ou le chemin tel quel.
+    fn chemin_court(chemin: &str) -> String {
+        let h = HSTRING::from(chemin);
+        let mut b = vec![0u16; 32768];
+        // SAFETY : tampon local de taille connue
+        let n = unsafe { windows::Win32::Storage::FileSystem::GetShortPathNameW(&h, Some(&mut b)) } as usize;
+        if n == 0 || n >= b.len() { chemin.to_string() } else { String::from_utf16_lossy(&b[..n]) }
+    }
+
     /// Un vrai raccourci, écrit puis relu, dans un dossier d'essai (jamais le vrai Bureau ni le vrai menu Démarrer).
+    /// Il est écrit avec le nom court du programme (cas de GitHub, où %TEMP% est court) : relu, cible et icône sont
+    /// sous la forme longue, comparables au chemin long.
     #[test]
     fn raccourci_ecrit_puis_relu() {
         let d = mindset_noyau::dossier_essai("installations-lnk");
         let _ = std::fs::remove_dir_all(&d);
-        std::fs::create_dir_all(&d).unwrap();
-        let hote = d.join("Mindset.exe");
+        std::fs::create_dir_all(d.join("Dossier long Forêt")).unwrap();
+        let hote = d.join("Dossier long Forêt").join("Mindset.exe");
         std::fs::write(&hote, "x").unwrap();
         let lnk = d.join("Café crème.lnk");
-        let h = hote.to_string_lossy().into_owned();
+        let long = chemin_long(&hote.to_string_lossy());
+        let court = chemin_court(&long);
         let r = NouveauRaccourci {
-            cible: h.clone(),
+            cible: court.clone(),
             dossier: d.to_string_lossy().into_owned(),
-            icone: h.clone(),
+            icone: court.clone(),
             description: "Essai".into(),
             identite: "JordanJacquot.EssaiForet".into(),
         };
         PosteWindows.ecrire_raccourci(&lnk, &r).unwrap();
         let l = PosteWindows.lire_raccourci(&lnk).unwrap();
-        assert!(l.cible.eq_ignore_ascii_case(&h), "{l:?}");
-        assert!(l.icone.eq_ignore_ascii_case(&format!("{h},0")), "{l:?}");
+        assert!(l.cible.eq_ignore_ascii_case(&long), "{l:?} / {long}");
+        assert!(l.icone.eq_ignore_ascii_case(&format!("{long},0")), "{l:?} / {long}");
         assert_eq!(l.identite, "JordanJacquot.EssaiForet");
-        assert_eq!(PosteWindows.cible_raccourci(&lnk).map(|c| c.to_lowercase()), Some(h.to_lowercase()));
+        assert_eq!(PosteWindows.cible_raccourci(&lnk).map(|c| c.to_lowercase()), Some(long.to_lowercase()));
+        assert_eq!(PosteWindows.forme_longue(&court).to_lowercase(), long.to_lowercase(), "{court}");
+        assert_eq!(chemin_long(r"C:\Dossier~Qui\N'existe~pas"), r"C:\Dossier~Qui\N'existe~pas");
         assert!(PosteWindows.lire_raccourci(&d.join("absent.lnk")).is_none());
         let _ = std::fs::remove_dir_all(&d);
     }

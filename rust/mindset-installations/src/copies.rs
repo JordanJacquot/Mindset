@@ -163,6 +163,12 @@ pub fn raccourci_menu(poste: &dyn Poste, appli: &Appli) -> Option<String> {
     if m.is_empty() { None } else { Some(joindre(&m, &format!("{}.lnk", appli.nom))) }
 }
 
+/// Deux chemins du même fichier, l'un court (`RUNNER~1`) et l'autre long, sont égaux (`-ieq` après les avoir mis sous
+/// la forme longue).
+fn meme_chemin(poste: &dyn Poste, a: &str, b: &str) -> bool {
+    chemins::egal(a, b) || chemins::egal(&poste.forme_longue(a), &poste.forme_longue(b))
+}
+
 /// `Update-RaccourciAppli` : le raccourci du menu Démarrer d'une appli gérée qui a son hôte Mindset.exe (son nom dans
 /// la barre des tâches) ; retiré sinon. `occupee` : une opération est en cours (voir `Get-Installation`).
 pub fn maj_raccourci_appli(ctx: &Contexte, poste: &dyn Poste, appli: &Appli, occupee: bool) {
@@ -180,8 +186,8 @@ pub fn maj_raccourci_appli(ctx: &Contexte, poste: &dyn Poste, appli: &Appli, occ
     // Déjà juste (même programme, même icône, même identité) : il n'est pas réécrit
     if existe(&lien)
         && let Some(l) = poste.lire_raccourci(Path::new(&lien))
-        && chemins::egal(&l.cible, &hote)
-        && chemins::egal(&l.icone, &format!("{hote},0"))
+        && meme_chemin(poste, &l.cible, &hote)
+        && l.icone.rsplit_once(',').is_some_and(|(c, i)| i == "0" && meme_chemin(poste, c, &hote))
         && l.identite == appli.app_id
     {
         return;

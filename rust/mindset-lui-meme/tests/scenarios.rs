@@ -125,6 +125,36 @@ fn bloc(f: &Faux) -> (LuiMeme, Arc<FauxPc>) {
 // ---------------------------------------------------------------------------------------------------------------
 
 #[test]
+fn la_recherche_attend_la_reponse_fraiche_pour_mindset() {
+    // Intégration : le bloc « publications » envoie `verifier-mindset` juste après avoir posé ses questions à GitHub ;
+    // la publication encore là est celle de la recherche d'avant (recherche.mindset_en_cours vrai), et
+    // `publications-changees` part pour chaque appli. Seule la réponse pour Mindset est prise.
+    let (ctx, f) = essai::contexte("scenario-maj-fraiche");
+    let _m = Menage(f.racine.clone());
+    let (mut b, _pc) = bloc(&f);
+    demarrer(&ctx, &mut b);
+    let pub_mindset = |v: &str| {
+        json!({ "mindset": { "version": v,
+            "url_zip": format!("https://github.com/JordanJacquot/Mindset/releases/download/v{v}/Mindset.zip"),
+            "url_sig": format!("https://github.com/JordanJacquot/Mindset/releases/download/v{v}/Mindset.zip.sig"),
+            "notes": "", "essai": false } })
+    };
+    publier(&ctx, "publications", partage::PUBLICATIONS, pub_mindset("3.1.0"));
+    publier(&ctx, "publications", partage::RECHERCHE, json!({ "mindset_en_cours": true }));
+    signal(&ctx, &mut b, "verifier-mindset", json!({}));
+    assert!(f.reseau.demandes().is_empty(), "l'ancienne réponse n'est pas téléchargée : {:?}", f.reseau.demandes());
+    signal(&ctx, &mut b, "publications-changees", json!({ "id": "evermind" }));
+    assert!(f.reseau.demandes().is_empty(), "la réponse pour une appli ne compte pas");
+    // La réponse pour Mindset arrive
+    publier(&ctx, "publications", partage::PUBLICATIONS, pub_mindset("3.2.0"));
+    publier(&ctx, "publications", partage::RECHERCHE, json!({ "mindset_en_cours": false }));
+    signal(&ctx, &mut b, "publications-changees", json!({ "id": "mindset" }));
+    let d: Vec<String> = f.reseau.demandes().iter().map(|x| x.adresse.clone()).collect();
+    assert!(d.iter().any(|a| a.contains("v3.2.0/Mindset.zip")), "{d:?}");
+    assert!(!d.iter().any(|a| a.contains("v3.1.0")), "{d:?}");
+}
+
+#[test]
 fn mise_a_jour_de_mindset_de_bout_en_bout() {
     let (cle, zip, sig) = cle_d_essai();
     let (ctx, f) = essai::contexte("scenario-maj");
@@ -531,6 +561,27 @@ fn raccourcis_d_avant_reecrits_avec_l_identite() {
     let mut e = Effets::default();
     ctx.au_nom_de("lui-meme", || b.lancer_demarrage(&ctx, &mut e));
     assert!(pc.raccourci(&l[0]).is_none());
+}
+
+#[test]
+fn raccourci_au_nom_court_reconnu() {
+    // Le raccourci garde le nom court de Windows (8.3) du dossier de Mindset : c'est bien ce Mindset
+    let (ctx, f) = essai::contexte("scenario-raccourci-court");
+    let _m = Menage(f.racine.clone());
+    let (mut b, pc) = bloc(&f);
+    let l = pc.raccourcis_mindset();
+    let exe = ctx.dossiers.exe.to_string_lossy().into_owned();
+    let dossier = suite_commun::chemins::parent(&exe).to_string();
+    let court = format!(r"{}\MINDSE~1", suite_commun::chemins::parent(&dossier));
+    pc.courts.lock().unwrap().insert(court.clone(), dossier.clone());
+    let exe_court = format!(r"{court}\{}", suite_commun::chemins::feuille(&exe));
+    pc.poser_raccourci(&l[0], Raccourci { cible: exe_court, app_id: String::new(), ..Default::default() });
+    // (contre-épreuve : un autre dossier au nom court n'est pas ce Mindset)
+    pc.poser_raccourci(&l[1], Raccourci { cible: format!(r"{court}X\Mindset.exe"), ..Default::default() });
+    let mut e = Effets::default();
+    ctx.au_nom_de("lui-meme", || b.lancer_demarrage(&ctx, &mut e));
+    assert_eq!(pc.raccourci(&l[0]).unwrap().app_id, ID_APPLI, "nom court : reconnu, identité ajoutée");
+    assert_eq!(pc.raccourci(&l[1]).unwrap().app_id, "", "un autre dossier : pas touché");
 }
 
 // ---------------------------------------------------------------------------------------------------------------
