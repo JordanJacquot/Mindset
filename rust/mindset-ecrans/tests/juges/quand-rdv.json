@@ -1,0 +1,578 @@
+[
+    {
+        "maintenant":  "2026-11-07T20:00:00",
+        "quand":  "2026-11-07T07:00:00",
+        "journee":  false,
+        "texte":  "Aujourd\u0027hui 07:00"
+    },
+    {
+        "maintenant":  "2026-11-07T20:00:00",
+        "quand":  "2026-11-07T07:00:00",
+        "journee":  true,
+        "texte":  "Aujourd\u0027hui"
+    },
+    {
+        "maintenant":  "2026-11-07T20:00:00",
+        "quand":  "2026-11-08T07:05:00",
+        "journee":  false,
+        "texte":  "Demain 07:05"
+    },
+    {
+        "maintenant":  "2026-11-07T20:00:00",
+        "quand":  "2026-11-08T07:05:00",
+        "journee":  true,
+        "texte":  "Demain"
+    },
+    {
+        "maintenant":  "2026-11-07T20:00:00",
+        "quand":  "2026-11-09T07:10:00",
+        "journee":  false,
+        "texte":  "Lundi 07:10"
+    },
+    {
+        "maintenant":  "2026-11-07T20:00:00",
+        "quand":  "2026-11-09T07:10:00",
+        "journee":  true,
+        "texte":  "Lundi"
+    },
+    {
+        "maintenant":  "2026-11-07T20:00:00",
+        "quand":  "2026-11-10T07:15:00",
+        "journee":  false,
+        "texte":  "Mardi 07:15"
+    },
+    {
+        "maintenant":  "2026-11-07T20:00:00",
+        "quand":  "2026-11-10T07:15:00",
+        "journee":  true,
+        "texte":  "Mardi"
+    },
+    {
+        "maintenant":  "2026-11-07T20:00:00",
+        "quand":  "2026-11-11T07:20:00",
+        "journee":  false,
+        "texte":  "Mercredi 07:20"
+    },
+    {
+        "maintenant":  "2026-11-07T20:00:00",
+        "quand":  "2026-11-11T07:20:00",
+        "journee":  true,
+        "texte":  "Mercredi"
+    },
+    {
+        "maintenant":  "2026-11-07T20:00:00",
+        "quand":  "2026-11-12T07:25:00",
+        "journee":  false,
+        "texte":  "Jeudi 07:25"
+    },
+    {
+        "maintenant":  "2026-11-07T20:00:00",
+        "quand":  "2026-11-12T07:25:00",
+        "journee":  true,
+        "texte":  "Jeudi"
+    },
+    {
+        "maintenant":  "2026-11-07T20:00:00",
+        "quand":  "2026-11-13T07:30:00",
+        "journee":  false,
+        "texte":  "Vendredi 07:30"
+    },
+    {
+        "maintenant":  "2026-11-07T20:00:00",
+        "quand":  "2026-11-13T07:30:00",
+        "journee":  true,
+        "texte":  "Vendredi"
+    },
+    {
+        "maintenant":  "2026-11-07T20:00:00",
+        "quand":  "2026-11-14T07:35:00",
+        "journee":  false,
+        "texte":  "14 nov. 07:35"
+    },
+    {
+        "maintenant":  "2026-11-07T20:00:00",
+        "quand":  "2026-11-14T07:35:00",
+        "journee":  true,
+        "texte":  "14 nov."
+    },
+    {
+        "maintenant":  "2026-11-07T20:00:00",
+        "quand":  "2026-11-15T07:40:00",
+        "journee":  false,
+        "texte":  "15 nov. 07:40"
+    },
+    {
+        "maintenant":  "2026-11-07T20:00:00",
+        "quand":  "2026-11-15T07:40:00",
+        "journee":  true,
+        "texte":  "15 nov."
+    },
+    {
+        "maintenant":  "2026-11-07T20:00:00",
+        "quand":  "2026-11-16T07:45:00",
+        "journee":  false,
+        "texte":  "16 nov. 07:45"
+    },
+    {
+        "maintenant":  "2026-11-07T20:00:00",
+        "quand":  "2026-11-16T07:45:00",
+        "journee":  true,
+        "texte":  "16 nov."
+    },
+    {
+        "maintenant":  "2026-11-07T20:00:00",
+        "quand":  "2027-01-03T09:00:00",
+        "journee":  false,
+        "texte":  "3 janv. 09:00"
+    },
+    {
+        "maintenant":  "2026-11-07T20:00:00",
+        "quand":  "2027-02-03T09:00:00",
+        "journee":  false,
+        "texte":  "3 févr. 09:00"
+    },
+    {
+        "maintenant":  "2026-11-07T20:00:00",
+        "quand":  "2027-03-03T09:00:00",
+        "journee":  false,
+        "texte":  "3 mars 09:00"
+    },
+    {
+        "maintenant":  "2026-11-07T20:00:00",
+        "quand":  "2027-04-03T09:00:00",
+        "journee":  false,
+        "texte":  "3 avr. 09:00"
+    },
+    {
+        "maintenant":  "2026-11-07T20:00:00",
+        "quand":  "2027-05-03T09:00:00",
+        "journee":  false,
+        "texte":  "3 mai 09:00"
+    },
+    {
+        "maintenant":  "2026-11-07T20:00:00",
+        "quand":  "2027-06-03T09:00:00",
+        "journee":  false,
+        "texte":  "3 juin 09:00"
+    },
+    {
+        "maintenant":  "2026-11-07T20:00:00",
+        "quand":  "2027-07-03T09:00:00",
+        "journee":  false,
+        "texte":  "3 juil. 09:00"
+    },
+    {
+        "maintenant":  "2026-11-07T20:00:00",
+        "quand":  "2027-08-03T09:00:00",
+        "journee":  false,
+        "texte":  "3 août 09:00"
+    },
+    {
+        "maintenant":  "2026-11-07T20:00:00",
+        "quand":  "2027-09-03T09:00:00",
+        "journee":  false,
+        "texte":  "3 sept. 09:00"
+    },
+    {
+        "maintenant":  "2026-11-07T20:00:00",
+        "quand":  "2027-10-03T09:00:00",
+        "journee":  false,
+        "texte":  "3 oct. 09:00"
+    },
+    {
+        "maintenant":  "2026-11-07T20:00:00",
+        "quand":  "2027-11-03T09:00:00",
+        "journee":  false,
+        "texte":  "3 nov. 09:00"
+    },
+    {
+        "maintenant":  "2026-11-07T20:00:00",
+        "quand":  "2027-12-03T09:00:00",
+        "journee":  false,
+        "texte":  "3 déc. 09:00"
+    },
+    {
+        "maintenant":  "2026-12-30T08:00:00",
+        "quand":  "2026-12-30T07:00:00",
+        "journee":  false,
+        "texte":  "Aujourd\u0027hui 07:00"
+    },
+    {
+        "maintenant":  "2026-12-30T08:00:00",
+        "quand":  "2026-12-30T07:00:00",
+        "journee":  true,
+        "texte":  "Aujourd\u0027hui"
+    },
+    {
+        "maintenant":  "2026-12-30T08:00:00",
+        "quand":  "2026-12-31T07:05:00",
+        "journee":  false,
+        "texte":  "Demain 07:05"
+    },
+    {
+        "maintenant":  "2026-12-30T08:00:00",
+        "quand":  "2026-12-31T07:05:00",
+        "journee":  true,
+        "texte":  "Demain"
+    },
+    {
+        "maintenant":  "2026-12-30T08:00:00",
+        "quand":  "2027-01-01T07:10:00",
+        "journee":  false,
+        "texte":  "Vendredi 07:10"
+    },
+    {
+        "maintenant":  "2026-12-30T08:00:00",
+        "quand":  "2027-01-01T07:10:00",
+        "journee":  true,
+        "texte":  "Vendredi"
+    },
+    {
+        "maintenant":  "2026-12-30T08:00:00",
+        "quand":  "2027-01-02T07:15:00",
+        "journee":  false,
+        "texte":  "Samedi 07:15"
+    },
+    {
+        "maintenant":  "2026-12-30T08:00:00",
+        "quand":  "2027-01-02T07:15:00",
+        "journee":  true,
+        "texte":  "Samedi"
+    },
+    {
+        "maintenant":  "2026-12-30T08:00:00",
+        "quand":  "2027-01-03T07:20:00",
+        "journee":  false,
+        "texte":  "Dimanche 07:20"
+    },
+    {
+        "maintenant":  "2026-12-30T08:00:00",
+        "quand":  "2027-01-03T07:20:00",
+        "journee":  true,
+        "texte":  "Dimanche"
+    },
+    {
+        "maintenant":  "2026-12-30T08:00:00",
+        "quand":  "2027-01-04T07:25:00",
+        "journee":  false,
+        "texte":  "Lundi 07:25"
+    },
+    {
+        "maintenant":  "2026-12-30T08:00:00",
+        "quand":  "2027-01-04T07:25:00",
+        "journee":  true,
+        "texte":  "Lundi"
+    },
+    {
+        "maintenant":  "2026-12-30T08:00:00",
+        "quand":  "2027-01-05T07:30:00",
+        "journee":  false,
+        "texte":  "Mardi 07:30"
+    },
+    {
+        "maintenant":  "2026-12-30T08:00:00",
+        "quand":  "2027-01-05T07:30:00",
+        "journee":  true,
+        "texte":  "Mardi"
+    },
+    {
+        "maintenant":  "2026-12-30T08:00:00",
+        "quand":  "2027-01-06T07:35:00",
+        "journee":  false,
+        "texte":  "6 janv. 07:35"
+    },
+    {
+        "maintenant":  "2026-12-30T08:00:00",
+        "quand":  "2027-01-06T07:35:00",
+        "journee":  true,
+        "texte":  "6 janv."
+    },
+    {
+        "maintenant":  "2026-12-30T08:00:00",
+        "quand":  "2027-01-07T07:40:00",
+        "journee":  false,
+        "texte":  "7 janv. 07:40"
+    },
+    {
+        "maintenant":  "2026-12-30T08:00:00",
+        "quand":  "2027-01-07T07:40:00",
+        "journee":  true,
+        "texte":  "7 janv."
+    },
+    {
+        "maintenant":  "2026-12-30T08:00:00",
+        "quand":  "2027-01-08T07:45:00",
+        "journee":  false,
+        "texte":  "8 janv. 07:45"
+    },
+    {
+        "maintenant":  "2026-12-30T08:00:00",
+        "quand":  "2027-01-08T07:45:00",
+        "journee":  true,
+        "texte":  "8 janv."
+    },
+    {
+        "maintenant":  "2026-12-30T08:00:00",
+        "quand":  "2027-01-03T09:00:00",
+        "journee":  false,
+        "texte":  "Dimanche 09:00"
+    },
+    {
+        "maintenant":  "2026-12-30T08:00:00",
+        "quand":  "2027-02-03T09:00:00",
+        "journee":  false,
+        "texte":  "3 févr. 09:00"
+    },
+    {
+        "maintenant":  "2026-12-30T08:00:00",
+        "quand":  "2027-03-03T09:00:00",
+        "journee":  false,
+        "texte":  "3 mars 09:00"
+    },
+    {
+        "maintenant":  "2026-12-30T08:00:00",
+        "quand":  "2027-04-03T09:00:00",
+        "journee":  false,
+        "texte":  "3 avr. 09:00"
+    },
+    {
+        "maintenant":  "2026-12-30T08:00:00",
+        "quand":  "2027-05-03T09:00:00",
+        "journee":  false,
+        "texte":  "3 mai 09:00"
+    },
+    {
+        "maintenant":  "2026-12-30T08:00:00",
+        "quand":  "2027-06-03T09:00:00",
+        "journee":  false,
+        "texte":  "3 juin 09:00"
+    },
+    {
+        "maintenant":  "2026-12-30T08:00:00",
+        "quand":  "2027-07-03T09:00:00",
+        "journee":  false,
+        "texte":  "3 juil. 09:00"
+    },
+    {
+        "maintenant":  "2026-12-30T08:00:00",
+        "quand":  "2027-08-03T09:00:00",
+        "journee":  false,
+        "texte":  "3 août 09:00"
+    },
+    {
+        "maintenant":  "2026-12-30T08:00:00",
+        "quand":  "2027-09-03T09:00:00",
+        "journee":  false,
+        "texte":  "3 sept. 09:00"
+    },
+    {
+        "maintenant":  "2026-12-30T08:00:00",
+        "quand":  "2027-10-03T09:00:00",
+        "journee":  false,
+        "texte":  "3 oct. 09:00"
+    },
+    {
+        "maintenant":  "2026-12-30T08:00:00",
+        "quand":  "2027-11-03T09:00:00",
+        "journee":  false,
+        "texte":  "3 nov. 09:00"
+    },
+    {
+        "maintenant":  "2026-12-30T08:00:00",
+        "quand":  "2027-12-03T09:00:00",
+        "journee":  false,
+        "texte":  "3 déc. 09:00"
+    },
+    {
+        "maintenant":  "2027-02-27T23:59:00",
+        "quand":  "2027-02-27T07:00:00",
+        "journee":  false,
+        "texte":  "Aujourd\u0027hui 07:00"
+    },
+    {
+        "maintenant":  "2027-02-27T23:59:00",
+        "quand":  "2027-02-27T07:00:00",
+        "journee":  true,
+        "texte":  "Aujourd\u0027hui"
+    },
+    {
+        "maintenant":  "2027-02-27T23:59:00",
+        "quand":  "2027-02-28T07:05:00",
+        "journee":  false,
+        "texte":  "Demain 07:05"
+    },
+    {
+        "maintenant":  "2027-02-27T23:59:00",
+        "quand":  "2027-02-28T07:05:00",
+        "journee":  true,
+        "texte":  "Demain"
+    },
+    {
+        "maintenant":  "2027-02-27T23:59:00",
+        "quand":  "2027-03-01T07:10:00",
+        "journee":  false,
+        "texte":  "Lundi 07:10"
+    },
+    {
+        "maintenant":  "2027-02-27T23:59:00",
+        "quand":  "2027-03-01T07:10:00",
+        "journee":  true,
+        "texte":  "Lundi"
+    },
+    {
+        "maintenant":  "2027-02-27T23:59:00",
+        "quand":  "2027-03-02T07:15:00",
+        "journee":  false,
+        "texte":  "Mardi 07:15"
+    },
+    {
+        "maintenant":  "2027-02-27T23:59:00",
+        "quand":  "2027-03-02T07:15:00",
+        "journee":  true,
+        "texte":  "Mardi"
+    },
+    {
+        "maintenant":  "2027-02-27T23:59:00",
+        "quand":  "2027-03-03T07:20:00",
+        "journee":  false,
+        "texte":  "Mercredi 07:20"
+    },
+    {
+        "maintenant":  "2027-02-27T23:59:00",
+        "quand":  "2027-03-03T07:20:00",
+        "journee":  true,
+        "texte":  "Mercredi"
+    },
+    {
+        "maintenant":  "2027-02-27T23:59:00",
+        "quand":  "2027-03-04T07:25:00",
+        "journee":  false,
+        "texte":  "Jeudi 07:25"
+    },
+    {
+        "maintenant":  "2027-02-27T23:59:00",
+        "quand":  "2027-03-04T07:25:00",
+        "journee":  true,
+        "texte":  "Jeudi"
+    },
+    {
+        "maintenant":  "2027-02-27T23:59:00",
+        "quand":  "2027-03-05T07:30:00",
+        "journee":  false,
+        "texte":  "Vendredi 07:30"
+    },
+    {
+        "maintenant":  "2027-02-27T23:59:00",
+        "quand":  "2027-03-05T07:30:00",
+        "journee":  true,
+        "texte":  "Vendredi"
+    },
+    {
+        "maintenant":  "2027-02-27T23:59:00",
+        "quand":  "2027-03-06T07:35:00",
+        "journee":  false,
+        "texte":  "6 mars 07:35"
+    },
+    {
+        "maintenant":  "2027-02-27T23:59:00",
+        "quand":  "2027-03-06T07:35:00",
+        "journee":  true,
+        "texte":  "6 mars"
+    },
+    {
+        "maintenant":  "2027-02-27T23:59:00",
+        "quand":  "2027-03-07T07:40:00",
+        "journee":  false,
+        "texte":  "7 mars 07:40"
+    },
+    {
+        "maintenant":  "2027-02-27T23:59:00",
+        "quand":  "2027-03-07T07:40:00",
+        "journee":  true,
+        "texte":  "7 mars"
+    },
+    {
+        "maintenant":  "2027-02-27T23:59:00",
+        "quand":  "2027-03-08T07:45:00",
+        "journee":  false,
+        "texte":  "8 mars 07:45"
+    },
+    {
+        "maintenant":  "2027-02-27T23:59:00",
+        "quand":  "2027-03-08T07:45:00",
+        "journee":  true,
+        "texte":  "8 mars"
+    },
+    {
+        "maintenant":  "2027-02-27T23:59:00",
+        "quand":  "2027-01-03T09:00:00",
+        "journee":  false,
+        "texte":  "Dimanche 09:00"
+    },
+    {
+        "maintenant":  "2027-02-27T23:59:00",
+        "quand":  "2027-02-03T09:00:00",
+        "journee":  false,
+        "texte":  "Mercredi 09:00"
+    },
+    {
+        "maintenant":  "2027-02-27T23:59:00",
+        "quand":  "2027-03-03T09:00:00",
+        "journee":  false,
+        "texte":  "Mercredi 09:00"
+    },
+    {
+        "maintenant":  "2027-02-27T23:59:00",
+        "quand":  "2027-04-03T09:00:00",
+        "journee":  false,
+        "texte":  "3 avr. 09:00"
+    },
+    {
+        "maintenant":  "2027-02-27T23:59:00",
+        "quand":  "2027-05-03T09:00:00",
+        "journee":  false,
+        "texte":  "3 mai 09:00"
+    },
+    {
+        "maintenant":  "2027-02-27T23:59:00",
+        "quand":  "2027-06-03T09:00:00",
+        "journee":  false,
+        "texte":  "3 juin 09:00"
+    },
+    {
+        "maintenant":  "2027-02-27T23:59:00",
+        "quand":  "2027-07-03T09:00:00",
+        "journee":  false,
+        "texte":  "3 juil. 09:00"
+    },
+    {
+        "maintenant":  "2027-02-27T23:59:00",
+        "quand":  "2027-08-03T09:00:00",
+        "journee":  false,
+        "texte":  "3 août 09:00"
+    },
+    {
+        "maintenant":  "2027-02-27T23:59:00",
+        "quand":  "2027-09-03T09:00:00",
+        "journee":  false,
+        "texte":  "3 sept. 09:00"
+    },
+    {
+        "maintenant":  "2027-02-27T23:59:00",
+        "quand":  "2027-10-03T09:00:00",
+        "journee":  false,
+        "texte":  "3 oct. 09:00"
+    },
+    {
+        "maintenant":  "2027-02-27T23:59:00",
+        "quand":  "2027-11-03T09:00:00",
+        "journee":  false,
+        "texte":  "3 nov. 09:00"
+    },
+    {
+        "maintenant":  "2027-02-27T23:59:00",
+        "quand":  "2027-12-03T09:00:00",
+        "journee":  false,
+        "texte":  "3 déc. 09:00"
+    }
+]

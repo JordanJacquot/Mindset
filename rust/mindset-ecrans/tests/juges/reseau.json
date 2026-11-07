@@ -1,0 +1,22 @@
+[
+    {
+        "id":  "nevermind",
+        "phrase":  "Nevermind se télécharge depuis GitHub. Ensuite, Mindset vérifie sur GitHub s\u0027il en existe une nouvelle version. Rien d\u0027autre n\u0027est envoyé par Mindset, et tu peux couper cette vérification dans les Paramètres. Ce que Nevermind envoie lui-même sur Internet est expliqué sur sa page.",
+        "lien":  "La page de Nevermind"
+    },
+    {
+        "id":  "evermind",
+        "phrase":  "Evermind se télécharge depuis GitHub. Ensuite, Mindset vérifie sur GitHub s\u0027il en existe une nouvelle version. Rien d\u0027autre n\u0027est envoyé par Mindset, et tu peux couper cette vérification dans les Paramètres. Ce que Evermind envoie lui-même sur Internet est expliqué sur sa page.",
+        "lien":  "La page de Evermind"
+    },
+    {
+        "id":  "mindcare",
+        "phrase":  "Mindcare se télécharge depuis GitHub. Ensuite, Mindset vérifie sur GitHub s\u0027il en existe une nouvelle version. Rien d\u0027autre n\u0027est envoyé par Mindset, et tu peux couper cette vérification dans les Paramètres. Ce que Mindcare envoie lui-même sur Internet est expliqué sur sa page.",
+        "lien":  "La page de Mindcare"
+    },
+    {
+        "id":  "zephyr",
+        "phrase":  "Zéphyr se télécharge depuis GitHub. Ensuite, Mindset vérifie sur GitHub s\u0027il en existe une nouvelle version. Rien d\u0027autre n\u0027est envoyé par Mindset, et tu peux couper cette vérification dans les Paramètres.",
+        "lien":  "Ce qui part sur Internet"
+    }
+]

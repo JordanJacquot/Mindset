@@ -1,0 +1,2288 @@
+[
+    {
+        "nom":  "pas installé",
+        "theme":  "crepuscule",
+        "entree":  {
+                       "nom":  "pas installé",
+                       "appli":  "nevermind"
+                   },
+        "carte":  [
+                      {
+                          "t":  "texte",
+                          "texte":  "Nevermind",
+                          "taille":  20,
+                          "couleur":  "#FF8A3D",
+                          "poids":  "SemiBold"
+                      },
+                      {
+                          "t":  "texte",
+                          "texte":  "Analyse et optimisation gaming",
+                          "taille":  13,
+                          "couleur":  "#C4A8AF",
+                          "poids":  "Normal",
+                          "marge":  "0,4,0,12"
+                      },
+                      {
+                          "t":  "pastilles",
+                          "marge":  "0,0,0,12",
+                          "liste":  [
+                                        {
+                                            "texte":  "Pas installé",
+                                            "couleur":  "#8E6E76"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "boutons",
+                          "marge":  "0,10,0,0",
+                          "liste":  [
+                                        {
+                                            "texte":  "Installer",
+                                            "style":  "primaire",
+                                            "quoi":  "installer"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "reseau",
+                          "texte":  "Nevermind se télécharge depuis GitHub. Ensuite, Mindset vérifie sur GitHub s\u0027il en existe une nouvelle version. Rien d\u0027autre n\u0027est envoyé par Mindset, et tu peux couper cette vérification dans les Paramètres. Ce que Nevermind envoie lui-même sur Internet est expliqué sur sa page. ",
+                          "lien":  "La page de Nevermind",
+                          "taille":  11.5,
+                          "couleur":  "#8E6E76",
+                          "lien_couleur":  "#C4A8AF",
+                          "marge":  "0,12,0,0"
+                      }
+                  ],
+        "questions":  {
+
+                      }
+    },
+    {
+        "nom":  "pas installé, evermind",
+        "theme":  "crepuscule",
+        "entree":  {
+                       "nom":  "pas installé, evermind",
+                       "appli":  "evermind"
+                   },
+        "carte":  [
+                      {
+                          "t":  "texte",
+                          "texte":  "Evermind",
+                          "taille":  20,
+                          "couleur":  "#FF3D7F",
+                          "poids":  "SemiBold"
+                      },
+                      {
+                          "t":  "texte",
+                          "texte":  "L\u0027agenda qui se souvient de tout pour toi",
+                          "taille":  13,
+                          "couleur":  "#C4A8AF",
+                          "poids":  "Normal",
+                          "marge":  "0,4,0,12"
+                      },
+                      {
+                          "t":  "pastilles",
+                          "marge":  "0,0,0,12",
+                          "liste":  [
+                                        {
+                                            "texte":  "Pas installé",
+                                            "couleur":  "#8E6E76"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "boutons",
+                          "marge":  "0,10,0,0",
+                          "liste":  [
+                                        {
+                                            "texte":  "Installer",
+                                            "style":  "primaire",
+                                            "quoi":  "installer"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "reseau",
+                          "texte":  "Evermind se télécharge depuis GitHub. Ensuite, Mindset vérifie sur GitHub s\u0027il en existe une nouvelle version. Rien d\u0027autre n\u0027est envoyé par Mindset, et tu peux couper cette vérification dans les Paramètres. Ce que Evermind envoie lui-même sur Internet est expliqué sur sa page. ",
+                          "lien":  "La page de Evermind",
+                          "taille":  11.5,
+                          "couleur":  "#8E6E76",
+                          "lien_couleur":  "#C4A8AF",
+                          "marge":  "0,12,0,0"
+                      }
+                  ],
+        "questions":  {
+
+                      }
+    },
+    {
+        "nom":  "pas installé, mindcare",
+        "theme":  "crepuscule",
+        "entree":  {
+                       "nom":  "pas installé, mindcare",
+                       "appli":  "mindcare"
+                   },
+        "carte":  [
+                      {
+                          "t":  "texte",
+                          "texte":  "Mindcare",
+                          "taille":  20,
+                          "couleur":  "#FF8A00",
+                          "poids":  "SemiBold"
+                      },
+                      {
+                          "t":  "texte",
+                          "texte":  "Trouve pourquoi ton PC est en panne, en répondant à quelques questions simples.",
+                          "taille":  13,
+                          "couleur":  "#C4A8AF",
+                          "poids":  "Normal",
+                          "marge":  "0,4,0,12"
+                      },
+                      {
+                          "t":  "pastilles",
+                          "marge":  "0,0,0,12",
+                          "liste":  [
+                                        {
+                                            "texte":  "Pas installé",
+                                            "couleur":  "#8E6E76"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "boutons",
+                          "marge":  "0,10,0,0",
+                          "liste":  [
+                                        {
+                                            "texte":  "Installer",
+                                            "style":  "primaire",
+                                            "quoi":  "installer"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "reseau",
+                          "texte":  "Mindcare se télécharge depuis GitHub. Ensuite, Mindset vérifie sur GitHub s\u0027il en existe une nouvelle version. Rien d\u0027autre n\u0027est envoyé par Mindset, et tu peux couper cette vérification dans les Paramètres. Ce que Mindcare envoie lui-même sur Internet est expliqué sur sa page. ",
+                          "lien":  "La page de Mindcare",
+                          "taille":  11.5,
+                          "couleur":  "#8E6E76",
+                          "lien_couleur":  "#C4A8AF",
+                          "marge":  "0,12,0,0"
+                      }
+                  ],
+        "questions":  {
+
+                      }
+    },
+    {
+        "nom":  "pas installé, appli sans page de confidentialité",
+        "theme":  "crepuscule",
+        "entree":  {
+                       "nom":  "pas installé, appli sans page de confidentialité",
+                       "appli":  "zephyr"
+                   },
+        "carte":  [
+                      {
+                          "t":  "texte",
+                          "texte":  "Zéphyr",
+                          "taille":  20,
+                          "couleur":  "#3DDC84",
+                          "poids":  "SemiBold"
+                      },
+                      {
+                          "t":  "texte",
+                          "texte":  "Une appli inventée pour les essais",
+                          "taille":  13,
+                          "couleur":  "#C4A8AF",
+                          "poids":  "Normal",
+                          "marge":  "0,4,0,12"
+                      },
+                      {
+                          "t":  "pastilles",
+                          "marge":  "0,0,0,12",
+                          "liste":  [
+                                        {
+                                            "texte":  "Pas installé",
+                                            "couleur":  "#8E6E76"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "boutons",
+                          "marge":  "0,10,0,0",
+                          "liste":  [
+                                        {
+                                            "texte":  "Installer",
+                                            "style":  "primaire",
+                                            "quoi":  "installer"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "reseau",
+                          "texte":  "Zéphyr se télécharge depuis GitHub. Ensuite, Mindset vérifie sur GitHub s\u0027il en existe une nouvelle version. Rien d\u0027autre n\u0027est envoyé par Mindset, et tu peux couper cette vérification dans les Paramètres. ",
+                          "lien":  "Ce qui part sur Internet",
+                          "taille":  11.5,
+                          "couleur":  "#8E6E76",
+                          "lien_couleur":  "#C4A8AF",
+                          "marge":  "0,12,0,0"
+                      }
+                  ],
+        "questions":  {
+
+                      }
+    },
+    {
+        "nom":  "pas installé, ses anciennes données existent",
+        "theme":  "crepuscule",
+        "entree":  {
+                       "nom":  "pas installé, ses anciennes données existent",
+                       "donnees_existe":  true,
+                       "appli":  "evermind"
+                   },
+        "carte":  [
+                      {
+                          "t":  "texte",
+                          "texte":  "Evermind",
+                          "taille":  20,
+                          "couleur":  "#FF3D7F",
+                          "poids":  "SemiBold"
+                      },
+                      {
+                          "t":  "texte",
+                          "texte":  "L\u0027agenda qui se souvient de tout pour toi",
+                          "taille":  13,
+                          "couleur":  "#C4A8AF",
+                          "poids":  "Normal",
+                          "marge":  "0,4,0,12"
+                      },
+                      {
+                          "t":  "pastilles",
+                          "marge":  "0,0,0,12",
+                          "liste":  [
+                                        {
+                                            "texte":  "Pas installé",
+                                            "couleur":  "#8E6E76"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "texte",
+                          "texte":  "Tu avais déjà Evermind ? Montre son dossier pour qu\u0027il soit pris en charge (sinon il resterait en double).",
+                          "taille":  12,
+                          "couleur":  "#C4A8AF",
+                          "poids":  "Normal"
+                      },
+                      {
+                          "t":  "boutons",
+                          "marge":  "0,10,0,0",
+                          "liste":  [
+                                        {
+                                            "texte":  "Installer",
+                                            "style":  "primaire",
+                                            "quoi":  "installer"
+                                        },
+                                        {
+                                            "texte":  "Choisir son dossier",
+                                            "style":  "secondaire",
+                                            "quoi":  "choisir"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "reseau",
+                          "texte":  "Evermind se télécharge depuis GitHub. Ensuite, Mindset vérifie sur GitHub s\u0027il en existe une nouvelle version. Rien d\u0027autre n\u0027est envoyé par Mindset, et tu peux couper cette vérification dans les Paramètres. Ce que Evermind envoie lui-même sur Internet est expliqué sur sa page. ",
+                          "lien":  "La page de Evermind",
+                          "taille":  11.5,
+                          "couleur":  "#8E6E76",
+                          "lien_couleur":  "#C4A8AF",
+                          "marge":  "0,12,0,0"
+                      }
+                  ],
+        "questions":  {
+
+                      }
+    },
+    {
+        "nom":  "pas installé, erreur de publication",
+        "theme":  "crepuscule",
+        "entree":  {
+                       "nom":  "pas installé, erreur de publication",
+                       "pub":  {
+                                   "erreur":  "GitHub ne répond pas : réessaie plus tard."
+                               },
+                       "appli":  "mindcare"
+                   },
+        "carte":  [
+                      {
+                          "t":  "texte",
+                          "texte":  "Mindcare",
+                          "taille":  20,
+                          "couleur":  "#FF8A00",
+                          "poids":  "SemiBold"
+                      },
+                      {
+                          "t":  "texte",
+                          "texte":  "Trouve pourquoi ton PC est en panne, en répondant à quelques questions simples.",
+                          "taille":  13,
+                          "couleur":  "#C4A8AF",
+                          "poids":  "Normal",
+                          "marge":  "0,4,0,12"
+                      },
+                      {
+                          "t":  "pastilles",
+                          "marge":  "0,0,0,12",
+                          "liste":  [
+                                        {
+                                            "texte":  "Pas installé",
+                                            "couleur":  "#8E6E76"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "boutons",
+                          "marge":  "0,10,0,0",
+                          "liste":  [
+                                        {
+                                            "texte":  "Installer",
+                                            "style":  "primaire",
+                                            "quoi":  "installer"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "reseau",
+                          "texte":  "Mindcare se télécharge depuis GitHub. Ensuite, Mindset vérifie sur GitHub s\u0027il en existe une nouvelle version. Rien d\u0027autre n\u0027est envoyé par Mindset, et tu peux couper cette vérification dans les Paramètres. Ce que Mindcare envoie lui-même sur Internet est expliqué sur sa page. ",
+                          "lien":  "La page de Mindcare",
+                          "taille":  11.5,
+                          "couleur":  "#8E6E76",
+                          "lien_couleur":  "#C4A8AF",
+                          "marge":  "0,12,0,0"
+                      },
+                      {
+                          "t":  "texte",
+                          "texte":  "GitHub ne répond pas : réessaie plus tard.",
+                          "taille":  12,
+                          "couleur":  "#8E6E76",
+                          "poids":  "Normal",
+                          "marge":  "0,12,0,0"
+                      }
+                  ],
+        "questions":  {
+
+                      }
+    },
+    {
+        "nom":  "pas installé, message après une opération",
+        "theme":  "crepuscule",
+        "entree":  {
+                       "message":  "Installation impossible : le téléchargement a échoué.",
+                       "nom":  "pas installé, message après une opération",
+                       "pub":  {
+                                   "erreur":  "cachée par le message"
+                               },
+                       "appli":  "mindcare"
+                   },
+        "carte":  [
+                      {
+                          "t":  "texte",
+                          "texte":  "Mindcare",
+                          "taille":  20,
+                          "couleur":  "#FF8A00",
+                          "poids":  "SemiBold"
+                      },
+                      {
+                          "t":  "texte",
+                          "texte":  "Trouve pourquoi ton PC est en panne, en répondant à quelques questions simples.",
+                          "taille":  13,
+                          "couleur":  "#C4A8AF",
+                          "poids":  "Normal",
+                          "marge":  "0,4,0,12"
+                      },
+                      {
+                          "t":  "pastilles",
+                          "marge":  "0,0,0,12",
+                          "liste":  [
+                                        {
+                                            "texte":  "Pas installé",
+                                            "couleur":  "#8E6E76"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "boutons",
+                          "marge":  "0,10,0,0",
+                          "liste":  [
+                                        {
+                                            "texte":  "Installer",
+                                            "style":  "primaire",
+                                            "quoi":  "installer"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "reseau",
+                          "texte":  "Mindcare se télécharge depuis GitHub. Ensuite, Mindset vérifie sur GitHub s\u0027il en existe une nouvelle version. Rien d\u0027autre n\u0027est envoyé par Mindset, et tu peux couper cette vérification dans les Paramètres. Ce que Mindcare envoie lui-même sur Internet est expliqué sur sa page. ",
+                          "lien":  "La page de Mindcare",
+                          "taille":  11.5,
+                          "couleur":  "#8E6E76",
+                          "lien_couleur":  "#C4A8AF",
+                          "marge":  "0,12,0,0"
+                      },
+                      {
+                          "t":  "texte",
+                          "texte":  "Installation impossible : le téléchargement a échoué.",
+                          "taille":  12,
+                          "couleur":  "#C4A8AF",
+                          "poids":  "Normal",
+                          "marge":  "0,12,0,0"
+                      }
+                  ],
+        "questions":  {
+
+                      }
+    },
+    {
+        "nom":  "trouvé sur le PC",
+        "theme":  "crepuscule",
+        "entree":  {
+                       "nom":  "trouvé sur le PC",
+                       "appli":  "nevermind",
+                       "trouvee":  "D:\\Jeux\\Nevermind"
+                   },
+        "carte":  [
+                      {
+                          "t":  "texte",
+                          "texte":  "Nevermind",
+                          "taille":  20,
+                          "couleur":  "#FF8A3D",
+                          "poids":  "SemiBold"
+                      },
+                      {
+                          "t":  "texte",
+                          "texte":  "Analyse et optimisation gaming",
+                          "taille":  13,
+                          "couleur":  "#C4A8AF",
+                          "poids":  "Normal",
+                          "marge":  "0,4,0,12"
+                      },
+                      {
+                          "t":  "pastilles",
+                          "marge":  "0,0,0,12",
+                          "liste":  [
+                                        {
+                                            "texte":  "Trouvé sur ce PC",
+                                            "couleur":  "#FFB020"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "texte",
+                          "texte":  "Une copie existe déjà dans D:\\Jeux\\Nevermind. Prends-la en charge pour continuer à l\u0027utiliser : tes réglages et tes données sont gardés.",
+                          "taille":  12,
+                          "couleur":  "#C4A8AF",
+                          "poids":  "Normal"
+                      },
+                      {
+                          "t":  "boutons",
+                          "marge":  "0,10,0,0",
+                          "liste":  [
+                                        {
+                                            "texte":  "Prendre en charge",
+                                            "style":  "primaire",
+                                            "quoi":  "prendre"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "reseau",
+                          "texte":  "Nevermind se télécharge depuis GitHub. Ensuite, Mindset vérifie sur GitHub s\u0027il en existe une nouvelle version. Rien d\u0027autre n\u0027est envoyé par Mindset, et tu peux couper cette vérification dans les Paramètres. Ce que Nevermind envoie lui-même sur Internet est expliqué sur sa page. ",
+                          "lien":  "La page de Nevermind",
+                          "taille":  11.5,
+                          "couleur":  "#8E6E76",
+                          "lien_couleur":  "#C4A8AF",
+                          "marge":  "0,12,0,0"
+                      }
+                  ],
+        "questions":  {
+                          "prendre":  {
+                                          "titre":  "Prendre en charge Nevermind ?",
+                                          "texte":  "Mindset installe la dernière version signée de Nevermind dans {RACINE}\\Programmes\\Nevermind. Ses raccourcis directs sont retirés : il s\u0027ouvrira depuis Mindset. S\u0027il se lançait avec Windows, c\u0027est Mindset qui le lancera. Ses réglages et ses données sont gardés (ils rejoignent {RACINE}\\Donnees\\Nevermind).\n\nL\u0027ancienne copie (D:\\Jeux\\Nevermind) est ensuite supprimée (seulement les fichiers de Nevermind).\n\nNevermind se télécharge depuis GitHub. Ensuite, Mindset vérifie sur GitHub s\u0027il en existe une nouvelle version. Rien d\u0027autre n\u0027est envoyé par Mindset, et tu peux couper cette vérification dans les Paramètres. Ce que Nevermind envoie lui-même sur Internet est expliqué sur sa page.",
+                                          "bouton":  "Prendre en charge",
+                                          "valeur":  {
+                                                         "Id":  "nevermind",
+                                                         "Dossier":  "D:\\Jeux\\Nevermind"
+                                                     }
+                                      }
+                      }
+    },
+    {
+        "nom":  "trouvé sur le PC, dossier de travail",
+        "theme":  "crepuscule",
+        "entree":  {
+                       "travail":  true,
+                       "nom":  "trouvé sur le PC, dossier de travail",
+                       "appli":  "evermind",
+                       "trouvee":  "{RACINE}\\travail\\Evermind"
+                   },
+        "carte":  [
+                      {
+                          "t":  "texte",
+                          "texte":  "Evermind",
+                          "taille":  20,
+                          "couleur":  "#FF3D7F",
+                          "poids":  "SemiBold"
+                      },
+                      {
+                          "t":  "texte",
+                          "texte":  "L\u0027agenda qui se souvient de tout pour toi",
+                          "taille":  13,
+                          "couleur":  "#C4A8AF",
+                          "poids":  "Normal",
+                          "marge":  "0,4,0,12"
+                      },
+                      {
+                          "t":  "pastilles",
+                          "marge":  "0,0,0,12",
+                          "liste":  [
+                                        {
+                                            "texte":  "Trouvé sur ce PC",
+                                            "couleur":  "#FFB020"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "texte",
+                          "texte":  "Une copie existe déjà dans {RACINE}\\travail\\Evermind. Prends-la en charge pour continuer à l\u0027utiliser : tes réglages et tes données sont gardés.",
+                          "taille":  12,
+                          "couleur":  "#C4A8AF",
+                          "poids":  "Normal"
+                      },
+                      {
+                          "t":  "boutons",
+                          "marge":  "0,10,0,0",
+                          "liste":  [
+                                        {
+                                            "texte":  "Prendre en charge",
+                                            "style":  "primaire",
+                                            "quoi":  "prendre"
+                                        },
+                                        {
+                                            "texte":  "Utiliser telle quelle",
+                                            "style":  "secondaire",
+                                            "quoi":  "utiliser"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "reseau",
+                          "texte":  "Evermind se télécharge depuis GitHub. Ensuite, Mindset vérifie sur GitHub s\u0027il en existe une nouvelle version. Rien d\u0027autre n\u0027est envoyé par Mindset, et tu peux couper cette vérification dans les Paramètres. Ce que Evermind envoie lui-même sur Internet est expliqué sur sa page. ",
+                          "lien":  "La page de Evermind",
+                          "taille":  11.5,
+                          "couleur":  "#8E6E76",
+                          "lien_couleur":  "#C4A8AF",
+                          "marge":  "0,12,0,0"
+                      }
+                  ],
+        "questions":  {
+                          "prendre":  {
+                                          "titre":  "Prendre en charge Evermind ?",
+                                          "texte":  "Mindset installe la dernière version signée de Evermind dans {RACINE}\\Programmes\\Evermind. Ses raccourcis directs sont retirés : il s\u0027ouvrira depuis Mindset. S\u0027il se lançait avec Windows, c\u0027est Mindset qui le lancera. Ses réglages et ses données sont gardés (ils rejoignent {RACINE}\\Donnees\\Evermind).\n\n{RACINE}\\travail\\Evermind est un dossier de travail : il est gardé tel quel.\n\nEvermind se télécharge depuis GitHub. Ensuite, Mindset vérifie sur GitHub s\u0027il en existe une nouvelle version. Rien d\u0027autre n\u0027est envoyé par Mindset, et tu peux couper cette vérification dans les Paramètres. Ce que Evermind envoie lui-même sur Internet est expliqué sur sa page.",
+                                          "bouton":  "Prendre en charge",
+                                          "valeur":  {
+                                                         "Id":  "evermind",
+                                                         "Dossier":  "{RACINE}\\travail\\Evermind"
+                                                     }
+                                      }
+                      }
+    },
+    {
+        "nom":  "trouvé sur le PC, données existantes aussi",
+        "theme":  "crepuscule",
+        "entree":  {
+                       "nom":  "trouvé sur le PC, données existantes aussi",
+                       "donnees_existe":  true,
+                       "appli":  "mindcare",
+                       "trouvee":  "D:\\Outils\\Mindcare-copie"
+                   },
+        "carte":  [
+                      {
+                          "t":  "texte",
+                          "texte":  "Mindcare",
+                          "taille":  20,
+                          "couleur":  "#FF8A00",
+                          "poids":  "SemiBold"
+                      },
+                      {
+                          "t":  "texte",
+                          "texte":  "Trouve pourquoi ton PC est en panne, en répondant à quelques questions simples.",
+                          "taille":  13,
+                          "couleur":  "#C4A8AF",
+                          "poids":  "Normal",
+                          "marge":  "0,4,0,12"
+                      },
+                      {
+                          "t":  "pastilles",
+                          "marge":  "0,0,0,12",
+                          "liste":  [
+                                        {
+                                            "texte":  "Trouvé sur ce PC",
+                                            "couleur":  "#FFB020"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "texte",
+                          "texte":  "Une copie existe déjà dans D:\\Outils\\Mindcare-copie. Prends-la en charge pour continuer à l\u0027utiliser : tes réglages et tes données sont gardés.",
+                          "taille":  12,
+                          "couleur":  "#C4A8AF",
+                          "poids":  "Normal"
+                      },
+                      {
+                          "t":  "boutons",
+                          "marge":  "0,10,0,0",
+                          "liste":  [
+                                        {
+                                            "texte":  "Prendre en charge",
+                                            "style":  "primaire",
+                                            "quoi":  "prendre"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "reseau",
+                          "texte":  "Mindcare se télécharge depuis GitHub. Ensuite, Mindset vérifie sur GitHub s\u0027il en existe une nouvelle version. Rien d\u0027autre n\u0027est envoyé par Mindset, et tu peux couper cette vérification dans les Paramètres. Ce que Mindcare envoie lui-même sur Internet est expliqué sur sa page. ",
+                          "lien":  "La page de Mindcare",
+                          "taille":  11.5,
+                          "couleur":  "#8E6E76",
+                          "lien_couleur":  "#C4A8AF",
+                          "marge":  "0,12,0,0"
+                      }
+                  ],
+        "questions":  {
+                          "prendre":  {
+                                          "titre":  "Prendre en charge Mindcare ?",
+                                          "texte":  "Mindset installe la dernière version signée de Mindcare dans {RACINE}\\Programmes\\Mindcare. Ses raccourcis directs sont retirés : il s\u0027ouvrira depuis Mindset. S\u0027il se lançait avec Windows, c\u0027est Mindset qui le lancera. Ses réglages et ses données sont gardés (ils rejoignent {RACINE}\\Donnees\\Mindcare).\n\nL\u0027ancienne copie (D:\\Outils\\Mindcare-copie) est ensuite supprimée (seulement les fichiers de Mindcare).\n\nMindcare se télécharge depuis GitHub. Ensuite, Mindset vérifie sur GitHub s\u0027il en existe une nouvelle version. Rien d\u0027autre n\u0027est envoyé par Mindset, et tu peux couper cette vérification dans les Paramètres. Ce que Mindcare envoie lui-même sur Internet est expliqué sur sa page.",
+                                          "bouton":  "Prendre en charge",
+                                          "valeur":  {
+                                                         "Id":  "mindcare",
+                                                         "Dossier":  "D:\\Outils\\Mindcare-copie"
+                                                     }
+                                      }
+                      }
+    },
+    {
+        "nom":  "occupé, pas installé",
+        "theme":  "crepuscule",
+        "entree":  {
+                       "occupe":  "Téléchargement... 40 %",
+                       "nom":  "occupé, pas installé",
+                       "appli":  "mindcare"
+                   },
+        "carte":  [
+                      {
+                          "t":  "texte",
+                          "texte":  "Mindcare",
+                          "taille":  20,
+                          "couleur":  "#FF8A00",
+                          "poids":  "SemiBold"
+                      },
+                      {
+                          "t":  "texte",
+                          "texte":  "Trouve pourquoi ton PC est en panne, en répondant à quelques questions simples.",
+                          "taille":  13,
+                          "couleur":  "#C4A8AF",
+                          "poids":  "Normal",
+                          "marge":  "0,4,0,12"
+                      },
+                      {
+                          "t":  "pastilles",
+                          "marge":  "0,0,0,12",
+                          "liste":  [
+                                        {
+                                            "texte":  "Pas installé",
+                                            "couleur":  "#8E6E76"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "texte",
+                          "texte":  "Téléchargement... 40 %",
+                          "taille":  13,
+                          "couleur":  "#FF8A3D",
+                          "poids":  "Normal"
+                      }
+                  ],
+        "questions":  {
+
+                      }
+    },
+    {
+        "nom":  "occupé, installé",
+        "theme":  "crepuscule",
+        "entree":  {
+                       "occupe":  "Mise à jour...",
+                       "nom":  "occupé, installé",
+                       "message":  "caché pendant une opération",
+                       "appli":  "evermind",
+                       "inst":  {
+                                    "version":  "1.4.0",
+                                    "gere":  true
+                                }
+                   },
+        "carte":  [
+                      {
+                          "t":  "texte",
+                          "texte":  "Evermind",
+                          "taille":  20,
+                          "couleur":  "#FF3D7F",
+                          "poids":  "SemiBold"
+                      },
+                      {
+                          "t":  "texte",
+                          "texte":  "L\u0027agenda qui se souvient de tout pour toi",
+                          "taille":  13,
+                          "couleur":  "#C4A8AF",
+                          "poids":  "Normal",
+                          "marge":  "0,4,0,12"
+                      },
+                      {
+                          "t":  "pastilles",
+                          "marge":  "0,0,0,12",
+                          "liste":  [
+                                        {
+                                            "texte":  "Version 1.4.0",
+                                            "couleur":  "#C4A8AF"
+                                        },
+                                        {
+                                            "texte":  "Fermé",
+                                            "couleur":  "#8E6E76"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "texte",
+                          "texte":  "Mise à jour...",
+                          "taille":  13,
+                          "couleur":  "#FF8A3D",
+                          "poids":  "Normal"
+                      }
+                  ],
+        "questions":  {
+                          "desinstaller":  {
+                                               "titre":  "Désinstaller Evermind ?",
+                                               "texte":  "Evermind va être fermé et ses fichiers supprimés (une demande de Windows). Ses données (réglages, rendez-vous) sont gardées : une réinstallation les retrouve.",
+                                               "bouton":  "Désinstaller",
+                                               "valeur":  {
+                                                              "Id":  "evermind"
+                                                          }
+                                           }
+                      }
+    },
+    {
+        "nom":  "installé, fermé",
+        "theme":  "crepuscule",
+        "entree":  {
+                       "nom":  "installé, fermé",
+                       "appli":  "evermind",
+                       "inst":  {
+                                    "version":  "1.4.0",
+                                    "gere":  true
+                                }
+                   },
+        "carte":  [
+                      {
+                          "t":  "texte",
+                          "texte":  "Evermind",
+                          "taille":  20,
+                          "couleur":  "#FF3D7F",
+                          "poids":  "SemiBold"
+                      },
+                      {
+                          "t":  "texte",
+                          "texte":  "L\u0027agenda qui se souvient de tout pour toi",
+                          "taille":  13,
+                          "couleur":  "#C4A8AF",
+                          "poids":  "Normal",
+                          "marge":  "0,4,0,12"
+                      },
+                      {
+                          "t":  "pastilles",
+                          "marge":  "0,0,0,12",
+                          "liste":  [
+                                        {
+                                            "texte":  "Version 1.4.0",
+                                            "couleur":  "#C4A8AF"
+                                        },
+                                        {
+                                            "texte":  "Fermé",
+                                            "couleur":  "#8E6E76"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "boutons",
+                          "marge":  "0,10,0,0",
+                          "liste":  [
+                                        {
+                                            "texte":  "Ouvrir",
+                                            "style":  "primaire",
+                                            "quoi":  "ouvrir"
+                                        },
+                                        {
+                                            "texte":  "Désinstaller",
+                                            "style":  "secondaire",
+                                            "quoi":  "desinstaller"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "interrupteur",
+                          "oui":  false,
+                          "texte":  "S\u0027ouvre avec Mindset (sinon tes rappels ne sonnent pas)",
+                          "aide":  "En arrière-plan : ses rappels sonnent même avant que tu ouvres son onglet.",
+                          "marge":  "0,16,0,0"
+                      }
+                  ],
+        "questions":  {
+                          "desinstaller":  {
+                                               "titre":  "Désinstaller Evermind ?",
+                                               "texte":  "Evermind va être fermé et ses fichiers supprimés (une demande de Windows). Ses données (réglages, rendez-vous) sont gardées : une réinstallation les retrouve.",
+                                               "bouton":  "Désinstaller",
+                                               "valeur":  {
+                                                              "Id":  "evermind"
+                                                          }
+                                           }
+                      }
+    },
+    {
+        "nom":  "installé, ouvert, démarre avec Mindset",
+        "theme":  "crepuscule",
+        "entree":  {
+                       "ouverte":  true,
+                       "nom":  "installé, ouvert, démarre avec Mindset",
+                       "demarrage":  true,
+                       "appli":  "evermind",
+                       "inst":  {
+                                    "version":  "1.4.0",
+                                    "gere":  true
+                                }
+                   },
+        "carte":  [
+                      {
+                          "t":  "texte",
+                          "texte":  "Evermind",
+                          "taille":  20,
+                          "couleur":  "#FF3D7F",
+                          "poids":  "SemiBold"
+                      },
+                      {
+                          "t":  "texte",
+                          "texte":  "L\u0027agenda qui se souvient de tout pour toi",
+                          "taille":  13,
+                          "couleur":  "#C4A8AF",
+                          "poids":  "Normal",
+                          "marge":  "0,4,0,12"
+                      },
+                      {
+                          "t":  "pastilles",
+                          "marge":  "0,0,0,12",
+                          "liste":  [
+                                        {
+                                            "texte":  "Version 1.4.0",
+                                            "couleur":  "#C4A8AF"
+                                        },
+                                        {
+                                            "texte":  "Ouvert",
+                                            "couleur":  "#3DDC84"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "boutons",
+                          "marge":  "0,10,0,0",
+                          "liste":  [
+                                        {
+                                            "texte":  "Ouvrir",
+                                            "style":  "primaire",
+                                            "quoi":  "ouvrir"
+                                        },
+                                        {
+                                            "texte":  "Désinstaller",
+                                            "style":  "secondaire",
+                                            "quoi":  "desinstaller"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "interrupteur",
+                          "oui":  true,
+                          "texte":  "S\u0027ouvre avec Mindset (sinon tes rappels ne sonnent pas)",
+                          "aide":  "En arrière-plan : ses rappels sonnent même avant que tu ouvres son onglet.",
+                          "marge":  "0,16,0,0"
+                      }
+                  ],
+        "questions":  {
+                          "desinstaller":  {
+                                               "titre":  "Désinstaller Evermind ?",
+                                               "texte":  "Evermind va être fermé et ses fichiers supprimés (une demande de Windows). Ses données (réglages, rendez-vous) sont gardées : une réinstallation les retrouve.",
+                                               "bouton":  "Désinstaller",
+                                               "valeur":  {
+                                                              "Id":  "evermind"
+                                                          }
+                                           }
+                      }
+    },
+    {
+        "nom":  "installé, version inconnue",
+        "theme":  "crepuscule",
+        "entree":  {
+                       "nom":  "installé, version inconnue",
+                       "appli":  "mindcare",
+                       "inst":  {
+                                    "version":  null,
+                                    "gere":  true
+                                }
+                   },
+        "carte":  [
+                      {
+                          "t":  "texte",
+                          "texte":  "Mindcare",
+                          "taille":  20,
+                          "couleur":  "#FF8A00",
+                          "poids":  "SemiBold"
+                      },
+                      {
+                          "t":  "texte",
+                          "texte":  "Trouve pourquoi ton PC est en panne, en répondant à quelques questions simples.",
+                          "taille":  13,
+                          "couleur":  "#C4A8AF",
+                          "poids":  "Normal",
+                          "marge":  "0,4,0,12"
+                      },
+                      {
+                          "t":  "pastilles",
+                          "marge":  "0,0,0,12",
+                          "liste":  [
+                                        {
+                                            "texte":  "Version ?",
+                                            "couleur":  "#C4A8AF"
+                                        },
+                                        {
+                                            "texte":  "Fermé",
+                                            "couleur":  "#8E6E76"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "boutons",
+                          "marge":  "0,10,0,0",
+                          "liste":  [
+                                        {
+                                            "texte":  "Ouvrir",
+                                            "style":  "primaire",
+                                            "quoi":  "ouvrir"
+                                        },
+                                        {
+                                            "texte":  "Désinstaller",
+                                            "style":  "secondaire",
+                                            "quoi":  "desinstaller"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "interrupteur",
+                          "oui":  false,
+                          "texte":  "S\u0027ouvre avec Mindset",
+                          "aide":  "En arrière-plan, prêt dans son onglet.",
+                          "marge":  "0,16,0,0"
+                      }
+                  ],
+        "questions":  {
+                          "desinstaller":  {
+                                               "titre":  "Désinstaller Mindcare ?",
+                                               "texte":  "Mindcare va être fermé et ses fichiers supprimés (une demande de Windows). Ses données (réglages, rendez-vous) sont gardées : une réinstallation les retrouve.",
+                                               "bouton":  "Désinstaller",
+                                               "valeur":  {
+                                                              "Id":  "mindcare"
+                                                          }
+                                           }
+                      }
+    },
+    {
+        "nom":  "installé, nouvelle version",
+        "theme":  "crepuscule",
+        "entree":  {
+                       "nom":  "installé, nouvelle version",
+                       "pub":  {
+                                   "version":  "0.4.1"
+                               },
+                       "appli":  "mindcare",
+                       "inst":  {
+                                    "version":  "0.3.0",
+                                    "gere":  true
+                                }
+                   },
+        "carte":  [
+                      {
+                          "t":  "texte",
+                          "texte":  "Mindcare",
+                          "taille":  20,
+                          "couleur":  "#FF8A00",
+                          "poids":  "SemiBold"
+                      },
+                      {
+                          "t":  "texte",
+                          "texte":  "Trouve pourquoi ton PC est en panne, en répondant à quelques questions simples.",
+                          "taille":  13,
+                          "couleur":  "#C4A8AF",
+                          "poids":  "Normal",
+                          "marge":  "0,4,0,12"
+                      },
+                      {
+                          "t":  "pastilles",
+                          "marge":  "0,0,0,12",
+                          "liste":  [
+                                        {
+                                            "texte":  "Version 0.3.0",
+                                            "couleur":  "#C4A8AF"
+                                        },
+                                        {
+                                            "texte":  "Fermé",
+                                            "couleur":  "#8E6E76"
+                                        },
+                                        {
+                                            "texte":  "Nouvelle version 0.4.1",
+                                            "couleur":  "#FFB020"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "boutons",
+                          "marge":  "0,10,0,0",
+                          "liste":  [
+                                        {
+                                            "texte":  "Mettre à jour",
+                                            "style":  "primaire",
+                                            "quoi":  "maj"
+                                        },
+                                        {
+                                            "texte":  "Ouvrir",
+                                            "style":  "secondaire",
+                                            "quoi":  "ouvrir"
+                                        },
+                                        {
+                                            "texte":  "Désinstaller",
+                                            "style":  "secondaire",
+                                            "quoi":  "desinstaller"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "interrupteur",
+                          "oui":  false,
+                          "texte":  "S\u0027ouvre avec Mindset",
+                          "aide":  "En arrière-plan, prêt dans son onglet.",
+                          "marge":  "0,16,0,0"
+                      }
+                  ],
+        "questions":  {
+                          "maj":  null,
+                          "desinstaller":  {
+                                               "titre":  "Désinstaller Mindcare ?",
+                                               "texte":  "Mindcare va être fermé et ses fichiers supprimés (une demande de Windows). Ses données (réglages, rendez-vous) sont gardées : une réinstallation les retrouve.",
+                                               "bouton":  "Désinstaller",
+                                               "valeur":  {
+                                                              "Id":  "mindcare"
+                                                          }
+                                           }
+                      }
+    },
+    {
+        "nom":  "installé ouvert, nouvelle version",
+        "theme":  "crepuscule",
+        "entree":  {
+                       "ouverte":  true,
+                       "nom":  "installé ouvert, nouvelle version",
+                       "pub":  {
+                                   "version":  "1.10.0"
+                               },
+                       "appli":  "evermind",
+                       "inst":  {
+                                    "version":  "1.4.0",
+                                    "gere":  true
+                                }
+                   },
+        "carte":  [
+                      {
+                          "t":  "texte",
+                          "texte":  "Evermind",
+                          "taille":  20,
+                          "couleur":  "#FF3D7F",
+                          "poids":  "SemiBold"
+                      },
+                      {
+                          "t":  "texte",
+                          "texte":  "L\u0027agenda qui se souvient de tout pour toi",
+                          "taille":  13,
+                          "couleur":  "#C4A8AF",
+                          "poids":  "Normal",
+                          "marge":  "0,4,0,12"
+                      },
+                      {
+                          "t":  "pastilles",
+                          "marge":  "0,0,0,12",
+                          "liste":  [
+                                        {
+                                            "texte":  "Version 1.4.0",
+                                            "couleur":  "#C4A8AF"
+                                        },
+                                        {
+                                            "texte":  "Ouvert",
+                                            "couleur":  "#3DDC84"
+                                        },
+                                        {
+                                            "texte":  "Nouvelle version 1.10.0",
+                                            "couleur":  "#FFB020"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "boutons",
+                          "marge":  "0,10,0,0",
+                          "liste":  [
+                                        {
+                                            "texte":  "Mettre à jour",
+                                            "style":  "primaire",
+                                            "quoi":  "maj"
+                                        },
+                                        {
+                                            "texte":  "Ouvrir",
+                                            "style":  "secondaire",
+                                            "quoi":  "ouvrir"
+                                        },
+                                        {
+                                            "texte":  "Désinstaller",
+                                            "style":  "secondaire",
+                                            "quoi":  "desinstaller"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "interrupteur",
+                          "oui":  false,
+                          "texte":  "S\u0027ouvre avec Mindset (sinon tes rappels ne sonnent pas)",
+                          "aide":  "En arrière-plan : ses rappels sonnent même avant que tu ouvres son onglet.",
+                          "marge":  "0,16,0,0"
+                      }
+                  ],
+        "questions":  {
+                          "maj":  {
+                                      "titre":  "Mettre à jour Evermind ?",
+                                      "texte":  "Evermind va être fermé le temps de la mise à jour (version 1.10.0). Ses réglages et ses données sont gardés.",
+                                      "bouton":  "Fermer et mettre à jour",
+                                      "valeur":  {
+                                                     "Id":  "evermind"
+                                                 }
+                                  },
+                          "desinstaller":  {
+                                               "titre":  "Désinstaller Evermind ?",
+                                               "texte":  "Evermind va être fermé et ses fichiers supprimés (une demande de Windows). Ses données (réglages, rendez-vous) sont gardées : une réinstallation les retrouve.",
+                                               "bouton":  "Désinstaller",
+                                               "valeur":  {
+                                                              "Id":  "evermind"
+                                                          }
+                                           }
+                      }
+    },
+    {
+        "nom":  "installé, même version publiée",
+        "theme":  "crepuscule",
+        "entree":  {
+                       "nom":  "installé, même version publiée",
+                       "pub":  {
+                                   "version":  "1.4.0"
+                               },
+                       "appli":  "evermind",
+                       "inst":  {
+                                    "version":  "1.4.0",
+                                    "gere":  true
+                                }
+                   },
+        "carte":  [
+                      {
+                          "t":  "texte",
+                          "texte":  "Evermind",
+                          "taille":  20,
+                          "couleur":  "#FF3D7F",
+                          "poids":  "SemiBold"
+                      },
+                      {
+                          "t":  "texte",
+                          "texte":  "L\u0027agenda qui se souvient de tout pour toi",
+                          "taille":  13,
+                          "couleur":  "#C4A8AF",
+                          "poids":  "Normal",
+                          "marge":  "0,4,0,12"
+                      },
+                      {
+                          "t":  "pastilles",
+                          "marge":  "0,0,0,12",
+                          "liste":  [
+                                        {
+                                            "texte":  "Version 1.4.0",
+                                            "couleur":  "#C4A8AF"
+                                        },
+                                        {
+                                            "texte":  "Fermé",
+                                            "couleur":  "#8E6E76"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "boutons",
+                          "marge":  "0,10,0,0",
+                          "liste":  [
+                                        {
+                                            "texte":  "Ouvrir",
+                                            "style":  "primaire",
+                                            "quoi":  "ouvrir"
+                                        },
+                                        {
+                                            "texte":  "Désinstaller",
+                                            "style":  "secondaire",
+                                            "quoi":  "desinstaller"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "interrupteur",
+                          "oui":  false,
+                          "texte":  "S\u0027ouvre avec Mindset (sinon tes rappels ne sonnent pas)",
+                          "aide":  "En arrière-plan : ses rappels sonnent même avant que tu ouvres son onglet.",
+                          "marge":  "0,16,0,0"
+                      }
+                  ],
+        "questions":  {
+                          "maj":  null,
+                          "desinstaller":  {
+                                               "titre":  "Désinstaller Evermind ?",
+                                               "texte":  "Evermind va être fermé et ses fichiers supprimés (une demande de Windows). Ses données (réglages, rendez-vous) sont gardées : une réinstallation les retrouve.",
+                                               "bouton":  "Désinstaller",
+                                               "valeur":  {
+                                                              "Id":  "evermind"
+                                                          }
+                                           }
+                      }
+    },
+    {
+        "nom":  "installé, publication plus ancienne",
+        "theme":  "crepuscule",
+        "entree":  {
+                       "nom":  "installé, publication plus ancienne",
+                       "pub":  {
+                                   "version":  "1.3.9"
+                               },
+                       "appli":  "evermind",
+                       "inst":  {
+                                    "version":  "1.4.0",
+                                    "gere":  true
+                                }
+                   },
+        "carte":  [
+                      {
+                          "t":  "texte",
+                          "texte":  "Evermind",
+                          "taille":  20,
+                          "couleur":  "#FF3D7F",
+                          "poids":  "SemiBold"
+                      },
+                      {
+                          "t":  "texte",
+                          "texte":  "L\u0027agenda qui se souvient de tout pour toi",
+                          "taille":  13,
+                          "couleur":  "#C4A8AF",
+                          "poids":  "Normal",
+                          "marge":  "0,4,0,12"
+                      },
+                      {
+                          "t":  "pastilles",
+                          "marge":  "0,0,0,12",
+                          "liste":  [
+                                        {
+                                            "texte":  "Version 1.4.0",
+                                            "couleur":  "#C4A8AF"
+                                        },
+                                        {
+                                            "texte":  "Fermé",
+                                            "couleur":  "#8E6E76"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "boutons",
+                          "marge":  "0,10,0,0",
+                          "liste":  [
+                                        {
+                                            "texte":  "Ouvrir",
+                                            "style":  "primaire",
+                                            "quoi":  "ouvrir"
+                                        },
+                                        {
+                                            "texte":  "Désinstaller",
+                                            "style":  "secondaire",
+                                            "quoi":  "desinstaller"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "interrupteur",
+                          "oui":  false,
+                          "texte":  "S\u0027ouvre avec Mindset (sinon tes rappels ne sonnent pas)",
+                          "aide":  "En arrière-plan : ses rappels sonnent même avant que tu ouvres son onglet.",
+                          "marge":  "0,16,0,0"
+                      }
+                  ],
+        "questions":  {
+                          "maj":  null,
+                          "desinstaller":  {
+                                               "titre":  "Désinstaller Evermind ?",
+                                               "texte":  "Evermind va être fermé et ses fichiers supprimés (une demande de Windows). Ses données (réglages, rendez-vous) sont gardées : une réinstallation les retrouve.",
+                                               "bouton":  "Désinstaller",
+                                               "valeur":  {
+                                                              "Id":  "evermind"
+                                                          }
+                                           }
+                      }
+    },
+    {
+        "nom":  "installé, erreur de publication (pas montrée)",
+        "theme":  "crepuscule",
+        "entree":  {
+                       "nom":  "installé, erreur de publication (pas montrée)",
+                       "pub":  {
+                                   "erreur":  "GitHub ne répond pas."
+                               },
+                       "appli":  "mindcare",
+                       "inst":  {
+                                    "version":  "0.3.0",
+                                    "gere":  true
+                                }
+                   },
+        "carte":  [
+                      {
+                          "t":  "texte",
+                          "texte":  "Mindcare",
+                          "taille":  20,
+                          "couleur":  "#FF8A00",
+                          "poids":  "SemiBold"
+                      },
+                      {
+                          "t":  "texte",
+                          "texte":  "Trouve pourquoi ton PC est en panne, en répondant à quelques questions simples.",
+                          "taille":  13,
+                          "couleur":  "#C4A8AF",
+                          "poids":  "Normal",
+                          "marge":  "0,4,0,12"
+                      },
+                      {
+                          "t":  "pastilles",
+                          "marge":  "0,0,0,12",
+                          "liste":  [
+                                        {
+                                            "texte":  "Version 0.3.0",
+                                            "couleur":  "#C4A8AF"
+                                        },
+                                        {
+                                            "texte":  "Fermé",
+                                            "couleur":  "#8E6E76"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "boutons",
+                          "marge":  "0,10,0,0",
+                          "liste":  [
+                                        {
+                                            "texte":  "Ouvrir",
+                                            "style":  "primaire",
+                                            "quoi":  "ouvrir"
+                                        },
+                                        {
+                                            "texte":  "Désinstaller",
+                                            "style":  "secondaire",
+                                            "quoi":  "desinstaller"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "interrupteur",
+                          "oui":  false,
+                          "texte":  "S\u0027ouvre avec Mindset",
+                          "aide":  "En arrière-plan, prêt dans son onglet.",
+                          "marge":  "0,16,0,0"
+                      }
+                  ],
+        "questions":  {
+                          "maj":  null,
+                          "desinstaller":  {
+                                               "titre":  "Désinstaller Mindcare ?",
+                                               "texte":  "Mindcare va être fermé et ses fichiers supprimés (une demande de Windows). Ses données (réglages, rendez-vous) sont gardées : une réinstallation les retrouve.",
+                                               "bouton":  "Désinstaller",
+                                               "valeur":  {
+                                                              "Id":  "mindcare"
+                                                          }
+                                           }
+                      }
+    },
+    {
+        "nom":  "installé, message",
+        "theme":  "crepuscule",
+        "entree":  {
+                       "message":  "Mindcare est à jour (version 0.3.0).",
+                       "nom":  "installé, message",
+                       "appli":  "mindcare",
+                       "inst":  {
+                                    "version":  "0.3.0",
+                                    "gere":  true
+                                }
+                   },
+        "carte":  [
+                      {
+                          "t":  "texte",
+                          "texte":  "Mindcare",
+                          "taille":  20,
+                          "couleur":  "#FF8A00",
+                          "poids":  "SemiBold"
+                      },
+                      {
+                          "t":  "texte",
+                          "texte":  "Trouve pourquoi ton PC est en panne, en répondant à quelques questions simples.",
+                          "taille":  13,
+                          "couleur":  "#C4A8AF",
+                          "poids":  "Normal",
+                          "marge":  "0,4,0,12"
+                      },
+                      {
+                          "t":  "pastilles",
+                          "marge":  "0,0,0,12",
+                          "liste":  [
+                                        {
+                                            "texte":  "Version 0.3.0",
+                                            "couleur":  "#C4A8AF"
+                                        },
+                                        {
+                                            "texte":  "Fermé",
+                                            "couleur":  "#8E6E76"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "boutons",
+                          "marge":  "0,10,0,0",
+                          "liste":  [
+                                        {
+                                            "texte":  "Ouvrir",
+                                            "style":  "primaire",
+                                            "quoi":  "ouvrir"
+                                        },
+                                        {
+                                            "texte":  "Désinstaller",
+                                            "style":  "secondaire",
+                                            "quoi":  "desinstaller"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "interrupteur",
+                          "oui":  false,
+                          "texte":  "S\u0027ouvre avec Mindset",
+                          "aide":  "En arrière-plan, prêt dans son onglet.",
+                          "marge":  "0,16,0,0"
+                      },
+                      {
+                          "t":  "texte",
+                          "texte":  "Mindcare est à jour (version 0.3.0).",
+                          "taille":  12,
+                          "couleur":  "#C4A8AF",
+                          "poids":  "Normal",
+                          "marge":  "0,12,0,0"
+                      }
+                  ],
+        "questions":  {
+                          "desinstaller":  {
+                                               "titre":  "Désinstaller Mindcare ?",
+                                               "texte":  "Mindcare va être fermé et ses fichiers supprimés (une demande de Windows). Ses données (réglages, rendez-vous) sont gardées : une réinstallation les retrouve.",
+                                               "bouton":  "Désinstaller",
+                                               "valeur":  {
+                                                              "Id":  "mindcare"
+                                                          }
+                                           }
+                      }
+    },
+    {
+        "nom":  "copie non gérée",
+        "theme":  "crepuscule",
+        "entree":  {
+                       "nom":  "copie non gérée",
+                       "appli":  "evermind",
+                       "inst":  {
+                                    "gere":  false,
+                                    "version":  "1.2.0",
+                                    "dossier":  "D:\\Applis\\Evermind"
+                                }
+                   },
+        "carte":  [
+                      {
+                          "t":  "texte",
+                          "texte":  "Evermind",
+                          "taille":  20,
+                          "couleur":  "#FF3D7F",
+                          "poids":  "SemiBold"
+                      },
+                      {
+                          "t":  "texte",
+                          "texte":  "L\u0027agenda qui se souvient de tout pour toi",
+                          "taille":  13,
+                          "couleur":  "#C4A8AF",
+                          "poids":  "Normal",
+                          "marge":  "0,4,0,12"
+                      },
+                      {
+                          "t":  "pastilles",
+                          "marge":  "0,0,0,12",
+                          "liste":  [
+                                        {
+                                            "texte":  "Version 1.2.0",
+                                            "couleur":  "#C4A8AF"
+                                        },
+                                        {
+                                            "texte":  "Fermé",
+                                            "couleur":  "#8E6E76"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "texte",
+                          "texte":  "Copie de D:\\Applis\\Evermind, non gérée par Mindset.",
+                          "taille":  12,
+                          "couleur":  "#8E6E76",
+                          "poids":  "Normal"
+                      },
+                      {
+                          "t":  "boutons",
+                          "marge":  "0,10,0,0",
+                          "liste":  [
+                                        {
+                                            "texte":  "Ouvrir",
+                                            "style":  "primaire",
+                                            "quoi":  "ouvrir"
+                                        },
+                                        {
+                                            "texte":  "Prendre en charge",
+                                            "style":  "secondaire",
+                                            "quoi":  "prendre"
+                                        }
+                                    ]
+                      }
+                  ],
+        "questions":  {
+                          "prendre":  {
+                                          "titre":  "Prendre en charge Evermind ?",
+                                          "texte":  "Mindset installe la dernière version signée de Evermind dans {RACINE}\\Programmes\\Evermind. Ses raccourcis directs sont retirés : il s\u0027ouvrira depuis Mindset. S\u0027il se lançait avec Windows, c\u0027est Mindset qui le lancera. Ses réglages et ses données sont gardés (ils rejoignent {RACINE}\\Donnees\\Evermind).\n\nL\u0027ancienne copie (D:\\Applis\\Evermind) est ensuite supprimée (seulement les fichiers de Evermind).\n\nEvermind se télécharge depuis GitHub. Ensuite, Mindset vérifie sur GitHub s\u0027il en existe une nouvelle version. Rien d\u0027autre n\u0027est envoyé par Mindset, et tu peux couper cette vérification dans les Paramètres. Ce que Evermind envoie lui-même sur Internet est expliqué sur sa page.",
+                                          "bouton":  "Prendre en charge",
+                                          "valeur":  {
+                                                         "Id":  "evermind",
+                                                         "Dossier":  "D:\\Applis\\Evermind"
+                                                     }
+                                      },
+                          "desinstaller":  {
+                                               "titre":  "Désinstaller Evermind ?",
+                                               "texte":  "Evermind va être fermé et ses fichiers supprimés (une demande de Windows). Ses données (réglages, rendez-vous) sont gardées : une réinstallation les retrouve.",
+                                               "bouton":  "Désinstaller",
+                                               "valeur":  {
+                                                              "Id":  "evermind"
+                                                          }
+                                           }
+                      }
+    },
+    {
+        "nom":  "copie non gérée, nouvelle version",
+        "theme":  "crepuscule",
+        "entree":  {
+                       "nom":  "copie non gérée, nouvelle version",
+                       "pub":  {
+                                   "version":  "0.2.0"
+                               },
+                       "appli":  "mindcare",
+                       "inst":  {
+                                    "gere":  false,
+                                    "version":  "0.1.0",
+                                    "dossier":  "D:\\Applis\\Mindcare"
+                                }
+                   },
+        "carte":  [
+                      {
+                          "t":  "texte",
+                          "texte":  "Mindcare",
+                          "taille":  20,
+                          "couleur":  "#FF8A00",
+                          "poids":  "SemiBold"
+                      },
+                      {
+                          "t":  "texte",
+                          "texte":  "Trouve pourquoi ton PC est en panne, en répondant à quelques questions simples.",
+                          "taille":  13,
+                          "couleur":  "#C4A8AF",
+                          "poids":  "Normal",
+                          "marge":  "0,4,0,12"
+                      },
+                      {
+                          "t":  "pastilles",
+                          "marge":  "0,0,0,12",
+                          "liste":  [
+                                        {
+                                            "texte":  "Version 0.1.0",
+                                            "couleur":  "#C4A8AF"
+                                        },
+                                        {
+                                            "texte":  "Fermé",
+                                            "couleur":  "#8E6E76"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "texte",
+                          "texte":  "Copie de D:\\Applis\\Mindcare, non gérée par Mindset.",
+                          "taille":  12,
+                          "couleur":  "#8E6E76",
+                          "poids":  "Normal"
+                      },
+                      {
+                          "t":  "boutons",
+                          "marge":  "0,10,0,0",
+                          "liste":  [
+                                        {
+                                            "texte":  "Ouvrir",
+                                            "style":  "primaire",
+                                            "quoi":  "ouvrir"
+                                        },
+                                        {
+                                            "texte":  "Prendre en charge",
+                                            "style":  "secondaire",
+                                            "quoi":  "prendre"
+                                        }
+                                    ]
+                      }
+                  ],
+        "questions":  {
+                          "maj":  null,
+                          "prendre":  {
+                                          "titre":  "Prendre en charge Mindcare ?",
+                                          "texte":  "Mindset installe la dernière version signée de Mindcare dans {RACINE}\\Programmes\\Mindcare. Ses raccourcis directs sont retirés : il s\u0027ouvrira depuis Mindset. S\u0027il se lançait avec Windows, c\u0027est Mindset qui le lancera. Ses réglages et ses données sont gardés (ils rejoignent {RACINE}\\Donnees\\Mindcare).\n\nL\u0027ancienne copie (D:\\Applis\\Mindcare) est ensuite supprimée (seulement les fichiers de Mindcare).\n\nMindcare se télécharge depuis GitHub. Ensuite, Mindset vérifie sur GitHub s\u0027il en existe une nouvelle version. Rien d\u0027autre n\u0027est envoyé par Mindset, et tu peux couper cette vérification dans les Paramètres. Ce que Mindcare envoie lui-même sur Internet est expliqué sur sa page.",
+                                          "bouton":  "Prendre en charge",
+                                          "valeur":  {
+                                                         "Id":  "mindcare",
+                                                         "Dossier":  "D:\\Applis\\Mindcare"
+                                                     }
+                                      },
+                          "desinstaller":  {
+                                               "titre":  "Désinstaller Mindcare ?",
+                                               "texte":  "Mindcare va être fermé et ses fichiers supprimés (une demande de Windows). Ses données (réglages, rendez-vous) sont gardées : une réinstallation les retrouve.",
+                                               "bouton":  "Désinstaller",
+                                               "valeur":  {
+                                                              "Id":  "mindcare"
+                                                          }
+                                           }
+                      }
+    },
+    {
+        "nom":  "nevermind en administrateur, Mindset sans les droits",
+        "theme":  "crepuscule",
+        "entree":  {
+                       "nom":  "nevermind en administrateur, Mindset sans les droits",
+                       "appli":  "nevermind",
+                       "inst":  {
+                                    "version":  "1.0.100",
+                                    "gere":  true
+                                }
+                   },
+        "carte":  [
+                      {
+                          "t":  "texte",
+                          "texte":  "Nevermind",
+                          "taille":  20,
+                          "couleur":  "#FF8A3D",
+                          "poids":  "SemiBold"
+                      },
+                      {
+                          "t":  "texte",
+                          "texte":  "Analyse et optimisation gaming",
+                          "taille":  13,
+                          "couleur":  "#C4A8AF",
+                          "poids":  "Normal",
+                          "marge":  "0,4,0,12"
+                      },
+                      {
+                          "t":  "pastilles",
+                          "marge":  "0,0,0,12",
+                          "liste":  [
+                                        {
+                                            "texte":  "Version 1.0.100",
+                                            "couleur":  "#C4A8AF"
+                                        },
+                                        {
+                                            "texte":  "Fermé",
+                                            "couleur":  "#8E6E76"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "boutons",
+                          "marge":  "0,10,0,0",
+                          "liste":  [
+                                        {
+                                            "texte":  "Ouvrir",
+                                            "style":  "primaire",
+                                            "quoi":  "ouvrir"
+                                        },
+                                        {
+                                            "texte":  "Désinstaller",
+                                            "style":  "secondaire",
+                                            "quoi":  "desinstaller"
+                                        }
+                                    ]
+                      }
+                  ],
+        "questions":  {
+                          "desinstaller":  {
+                                               "titre":  "Désinstaller Nevermind ?",
+                                               "texte":  "Le désinstalleur de Nevermind va s\u0027ouvrir : il remet comme avant les réglages de Windows qu\u0027il a modifiés, puis supprime ses fichiers. Il te demande aussi si tu gardes tes données : elles sont gardées si tu ne coches rien.",
+                                               "bouton":  "Désinstaller",
+                                               "valeur":  {
+                                                              "Id":  "nevermind"
+                                                          }
+                                           }
+                      }
+    },
+    {
+        "nom":  "nevermind en administrateur, Mindset avec les droits",
+        "theme":  "crepuscule",
+        "entree":  {
+                       "admin":  true,
+                       "nom":  "nevermind en administrateur, Mindset avec les droits",
+                       "appli":  "nevermind",
+                       "inst":  {
+                                    "version":  "1.0.100",
+                                    "gere":  true
+                                }
+                   },
+        "carte":  [
+                      {
+                          "t":  "texte",
+                          "texte":  "Nevermind",
+                          "taille":  20,
+                          "couleur":  "#FF8A3D",
+                          "poids":  "SemiBold"
+                      },
+                      {
+                          "t":  "texte",
+                          "texte":  "Analyse et optimisation gaming",
+                          "taille":  13,
+                          "couleur":  "#C4A8AF",
+                          "poids":  "Normal",
+                          "marge":  "0,4,0,12"
+                      },
+                      {
+                          "t":  "pastilles",
+                          "marge":  "0,0,0,12",
+                          "liste":  [
+                                        {
+                                            "texte":  "Version 1.0.100",
+                                            "couleur":  "#C4A8AF"
+                                        },
+                                        {
+                                            "texte":  "Fermé",
+                                            "couleur":  "#8E6E76"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "boutons",
+                          "marge":  "0,10,0,0",
+                          "liste":  [
+                                        {
+                                            "texte":  "Ouvrir",
+                                            "style":  "primaire",
+                                            "quoi":  "ouvrir"
+                                        },
+                                        {
+                                            "texte":  "Désinstaller",
+                                            "style":  "secondaire",
+                                            "quoi":  "desinstaller"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "interrupteur",
+                          "oui":  false,
+                          "texte":  "S\u0027ouvre avec Mindset",
+                          "aide":  "En arrière-plan, prêt dans son onglet.",
+                          "marge":  "0,16,0,0"
+                      }
+                  ],
+        "questions":  {
+                          "desinstaller":  {
+                                               "titre":  "Désinstaller Nevermind ?",
+                                               "texte":  "Le désinstalleur de Nevermind va s\u0027ouvrir : il remet comme avant les réglages de Windows qu\u0027il a modifiés, puis supprime ses fichiers. Il te demande aussi si tu gardes tes données : elles sont gardées si tu ne coches rien.",
+                                               "bouton":  "Désinstaller",
+                                               "valeur":  {
+                                                              "Id":  "nevermind"
+                                                          }
+                                           }
+                      }
+    },
+    {
+        "nom":  "nevermind sans droits depuis 1.0.115",
+        "theme":  "crepuscule",
+        "entree":  {
+                       "nom":  "nevermind sans droits depuis 1.0.115",
+                       "demarrage":  true,
+                       "appli":  "nevermind",
+                       "inst":  {
+                                    "version":  "1.0.115",
+                                    "gere":  true
+                                }
+                   },
+        "carte":  [
+                      {
+                          "t":  "texte",
+                          "texte":  "Nevermind",
+                          "taille":  20,
+                          "couleur":  "#FF8A3D",
+                          "poids":  "SemiBold"
+                      },
+                      {
+                          "t":  "texte",
+                          "texte":  "Analyse et optimisation gaming",
+                          "taille":  13,
+                          "couleur":  "#C4A8AF",
+                          "poids":  "Normal",
+                          "marge":  "0,4,0,12"
+                      },
+                      {
+                          "t":  "pastilles",
+                          "marge":  "0,0,0,12",
+                          "liste":  [
+                                        {
+                                            "texte":  "Version 1.0.115",
+                                            "couleur":  "#C4A8AF"
+                                        },
+                                        {
+                                            "texte":  "Fermé",
+                                            "couleur":  "#8E6E76"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "boutons",
+                          "marge":  "0,10,0,0",
+                          "liste":  [
+                                        {
+                                            "texte":  "Ouvrir",
+                                            "style":  "primaire",
+                                            "quoi":  "ouvrir"
+                                        },
+                                        {
+                                            "texte":  "Désinstaller",
+                                            "style":  "secondaire",
+                                            "quoi":  "desinstaller"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "interrupteur",
+                          "oui":  true,
+                          "texte":  "S\u0027ouvre avec Mindset",
+                          "aide":  "En arrière-plan, prêt dans son onglet.",
+                          "marge":  "0,16,0,0"
+                      }
+                  ],
+        "questions":  {
+                          "desinstaller":  {
+                                               "titre":  "Désinstaller Nevermind ?",
+                                               "texte":  "Le désinstalleur de Nevermind va s\u0027ouvrir : il remet comme avant les réglages de Windows qu\u0027il a modifiés, puis supprime ses fichiers. Il te demande aussi si tu gardes tes données : elles sont gardées si tu ne coches rien.",
+                                               "bouton":  "Désinstaller",
+                                               "valeur":  {
+                                                              "Id":  "nevermind"
+                                                          }
+                                           }
+                      }
+    },
+    {
+        "nom":  "nevermind, version inconnue : droits supposés",
+        "theme":  "crepuscule",
+        "entree":  {
+                       "nom":  "nevermind, version inconnue : droits supposés",
+                       "appli":  "nevermind",
+                       "inst":  {
+                                    "version":  null,
+                                    "gere":  true
+                                }
+                   },
+        "carte":  [
+                      {
+                          "t":  "texte",
+                          "texte":  "Nevermind",
+                          "taille":  20,
+                          "couleur":  "#FF8A3D",
+                          "poids":  "SemiBold"
+                      },
+                      {
+                          "t":  "texte",
+                          "texte":  "Analyse et optimisation gaming",
+                          "taille":  13,
+                          "couleur":  "#C4A8AF",
+                          "poids":  "Normal",
+                          "marge":  "0,4,0,12"
+                      },
+                      {
+                          "t":  "pastilles",
+                          "marge":  "0,0,0,12",
+                          "liste":  [
+                                        {
+                                            "texte":  "Version ?",
+                                            "couleur":  "#C4A8AF"
+                                        },
+                                        {
+                                            "texte":  "Fermé",
+                                            "couleur":  "#8E6E76"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "boutons",
+                          "marge":  "0,10,0,0",
+                          "liste":  [
+                                        {
+                                            "texte":  "Ouvrir",
+                                            "style":  "primaire",
+                                            "quoi":  "ouvrir"
+                                        },
+                                        {
+                                            "texte":  "Désinstaller",
+                                            "style":  "secondaire",
+                                            "quoi":  "desinstaller"
+                                        }
+                                    ]
+                      }
+                  ],
+        "questions":  {
+                          "desinstaller":  {
+                                               "titre":  "Désinstaller Nevermind ?",
+                                               "texte":  "Le désinstalleur de Nevermind va s\u0027ouvrir : il remet comme avant les réglages de Windows qu\u0027il a modifiés, puis supprime ses fichiers. Il te demande aussi si tu gardes tes données : elles sont gardées si tu ne coches rien.",
+                                               "bouton":  "Désinstaller",
+                                               "valeur":  {
+                                                              "Id":  "nevermind"
+                                                          }
+                                           }
+                      }
+    },
+    {
+        "nom":  "nevermind, scores et à faire",
+        "theme":  "crepuscule",
+        "entree":  {
+                       "nom":  "nevermind, scores et à faire",
+                       "etat":  "{\"Score\":82,\"Protection\":64,\"AFaire\":\"Mettre à jour le pilote graphique\",\"Urgent\":false,\"NbAFaire\":1}",
+                       "appli":  "nevermind",
+                       "inst":  {
+                                    "version":  "2.0.1",
+                                    "gere":  true
+                                }
+                   },
+        "carte":  [
+                      {
+                          "t":  "texte",
+                          "texte":  "Nevermind",
+                          "taille":  20,
+                          "couleur":  "#FF8A3D",
+                          "poids":  "SemiBold"
+                      },
+                      {
+                          "t":  "texte",
+                          "texte":  "Analyse et optimisation gaming",
+                          "taille":  13,
+                          "couleur":  "#C4A8AF",
+                          "poids":  "Normal",
+                          "marge":  "0,4,0,12"
+                      },
+                      {
+                          "t":  "pastilles",
+                          "marge":  "0,0,0,12",
+                          "liste":  [
+                                        {
+                                            "texte":  "Version 2.0.1",
+                                            "couleur":  "#C4A8AF"
+                                        },
+                                        {
+                                            "texte":  "Fermé",
+                                            "couleur":  "#8E6E76"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "resume",
+                          "genre":  "nevermind",
+                          "scores":  [
+                                         {
+                                             "nom":  "Optimisation",
+                                             "valeur":  82,
+                                             "c1":  "#FF8A3D",
+                                             "c2":  "#FFB7CF"
+                                         },
+                                         {
+                                             "nom":  "Protection",
+                                             "valeur":  64,
+                                             "c1":  "#FFC83D",
+                                             "c2":  "#FF3D7F"
+                                         }
+                                     ],
+                          "ligne":  {
+                                        "texte":  "À faire : Mettre à jour le pilote graphique",
+                                        "couleur":  "#ECEAF7"
+                                    }
+                      },
+                      {
+                          "t":  "boutons",
+                          "marge":  "0,10,0,0",
+                          "liste":  [
+                                        {
+                                            "texte":  "Ouvrir",
+                                            "style":  "primaire",
+                                            "quoi":  "ouvrir"
+                                        },
+                                        {
+                                            "texte":  "Désinstaller",
+                                            "style":  "secondaire",
+                                            "quoi":  "desinstaller"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "interrupteur",
+                          "oui":  false,
+                          "texte":  "S\u0027ouvre avec Mindset",
+                          "aide":  "En arrière-plan, prêt dans son onglet.",
+                          "marge":  "0,16,0,0"
+                      }
+                  ],
+        "questions":  {
+                          "desinstaller":  {
+                                               "titre":  "Désinstaller Nevermind ?",
+                                               "texte":  "Le désinstalleur de Nevermind va s\u0027ouvrir : il remet comme avant les réglages de Windows qu\u0027il a modifiés, puis supprime ses fichiers. Il te demande aussi si tu gardes tes données : elles sont gardées si tu ne coches rien.",
+                                               "bouton":  "Désinstaller",
+                                               "valeur":  {
+                                                              "Id":  "nevermind"
+                                                          }
+                                           }
+                      }
+    },
+    {
+        "nom":  "nevermind, urgent",
+        "theme":  "crepuscule",
+        "entree":  {
+                       "ouverte":  true,
+                       "nom":  "nevermind, urgent",
+                       "etat":  "{\"Score\":\"45\",\"Protection\":12,\"AFaire\":\"Antivirus coupé\",\"Urgent\":true}",
+                       "appli":  "nevermind",
+                       "inst":  {
+                                    "version":  "2.0.1",
+                                    "gere":  true
+                                }
+                   },
+        "carte":  [
+                      {
+                          "t":  "texte",
+                          "texte":  "Nevermind",
+                          "taille":  20,
+                          "couleur":  "#FF8A3D",
+                          "poids":  "SemiBold"
+                      },
+                      {
+                          "t":  "texte",
+                          "texte":  "Analyse et optimisation gaming",
+                          "taille":  13,
+                          "couleur":  "#C4A8AF",
+                          "poids":  "Normal",
+                          "marge":  "0,4,0,12"
+                      },
+                      {
+                          "t":  "pastilles",
+                          "marge":  "0,0,0,12",
+                          "liste":  [
+                                        {
+                                            "texte":  "Version 2.0.1",
+                                            "couleur":  "#C4A8AF"
+                                        },
+                                        {
+                                            "texte":  "Ouvert",
+                                            "couleur":  "#3DDC84"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "resume",
+                          "genre":  "nevermind",
+                          "scores":  [
+                                         {
+                                             "nom":  "Optimisation",
+                                             "valeur":  45,
+                                             "c1":  "#FF8A3D",
+                                             "c2":  "#FFB7CF"
+                                         },
+                                         {
+                                             "nom":  "Protection",
+                                             "valeur":  12,
+                                             "c1":  "#FFC83D",
+                                             "c2":  "#FF3D7F"
+                                         }
+                                     ],
+                          "ligne":  {
+                                        "texte":  "À faire : Antivirus coupé",
+                                        "couleur":  "#FFB020"
+                                    }
+                      },
+                      {
+                          "t":  "boutons",
+                          "marge":  "0,10,0,0",
+                          "liste":  [
+                                        {
+                                            "texte":  "Ouvrir",
+                                            "style":  "primaire",
+                                            "quoi":  "ouvrir"
+                                        },
+                                        {
+                                            "texte":  "Désinstaller",
+                                            "style":  "secondaire",
+                                            "quoi":  "desinstaller"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "interrupteur",
+                          "oui":  false,
+                          "texte":  "S\u0027ouvre avec Mindset",
+                          "aide":  "En arrière-plan, prêt dans son onglet.",
+                          "marge":  "0,16,0,0"
+                      }
+                  ],
+        "questions":  {
+                          "desinstaller":  {
+                                               "titre":  "Désinstaller Nevermind ?",
+                                               "texte":  "Le désinstalleur de Nevermind va s\u0027ouvrir : il remet comme avant les réglages de Windows qu\u0027il a modifiés, puis supprime ses fichiers. Il te demande aussi si tu gardes tes données : elles sont gardées si tu ne coches rien.",
+                                               "bouton":  "Désinstaller",
+                                               "valeur":  {
+                                                              "Id":  "nevermind"
+                                                          }
+                                           }
+                      }
+    },
+    {
+        "nom":  "nevermind, rien à corriger",
+        "theme":  "crepuscule",
+        "entree":  {
+                       "nom":  "nevermind, rien à corriger",
+                       "etat":  "{\"Score\":100,\"Protection\":100,\"AFaire\":\"\",\"Urgent\":false}",
+                       "appli":  "nevermind",
+                       "inst":  {
+                                    "version":  "2.0.1",
+                                    "gere":  true
+                                }
+                   },
+        "carte":  [
+                      {
+                          "t":  "texte",
+                          "texte":  "Nevermind",
+                          "taille":  20,
+                          "couleur":  "#FF8A3D",
+                          "poids":  "SemiBold"
+                      },
+                      {
+                          "t":  "texte",
+                          "texte":  "Analyse et optimisation gaming",
+                          "taille":  13,
+                          "couleur":  "#C4A8AF",
+                          "poids":  "Normal",
+                          "marge":  "0,4,0,12"
+                      },
+                      {
+                          "t":  "pastilles",
+                          "marge":  "0,0,0,12",
+                          "liste":  [
+                                        {
+                                            "texte":  "Version 2.0.1",
+                                            "couleur":  "#C4A8AF"
+                                        },
+                                        {
+                                            "texte":  "Fermé",
+                                            "couleur":  "#8E6E76"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "resume",
+                          "genre":  "nevermind",
+                          "scores":  [
+                                         {
+                                             "nom":  "Optimisation",
+                                             "valeur":  100,
+                                             "c1":  "#FF8A3D",
+                                             "c2":  "#FFB7CF"
+                                         },
+                                         {
+                                             "nom":  "Protection",
+                                             "valeur":  100,
+                                             "c1":  "#FFC83D",
+                                             "c2":  "#FF3D7F"
+                                         }
+                                     ],
+                          "ligne":  {
+                                        "texte":  "Rien à corriger : ton PC est prêt pour jouer.",
+                                        "couleur":  "#3DDC84"
+                                    }
+                      },
+                      {
+                          "t":  "boutons",
+                          "marge":  "0,10,0,0",
+                          "liste":  [
+                                        {
+                                            "texte":  "Ouvrir",
+                                            "style":  "primaire",
+                                            "quoi":  "ouvrir"
+                                        },
+                                        {
+                                            "texte":  "Désinstaller",
+                                            "style":  "secondaire",
+                                            "quoi":  "desinstaller"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "interrupteur",
+                          "oui":  false,
+                          "texte":  "S\u0027ouvre avec Mindset",
+                          "aide":  "En arrière-plan, prêt dans son onglet.",
+                          "marge":  "0,16,0,0"
+                      }
+                  ],
+        "questions":  {
+                          "desinstaller":  {
+                                               "titre":  "Désinstaller Nevermind ?",
+                                               "texte":  "Le désinstalleur de Nevermind va s\u0027ouvrir : il remet comme avant les réglages de Windows qu\u0027il a modifiés, puis supprime ses fichiers. Il te demande aussi si tu gardes tes données : elles sont gardées si tu ne coches rien.",
+                                               "bouton":  "Désinstaller",
+                                               "valeur":  {
+                                                              "Id":  "nevermind"
+                                                          }
+                                           }
+                      }
+    }
+]

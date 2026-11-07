@@ -9,27 +9,87 @@
 </head>
 <body>
 <!--
-  La coquille de Mindset : les zones de la fenêtre WPF (interface.xaml), que le bloc « écrans » remplit à l'identique.
-  Les id des zones et les quatre scripts ci-dessous font partie du contrat (architecture-mindset-rust.md) : le bloc
-  « écrans » peut tout changer dans les zones, pas les retirer ni les renommer.
+  La coquille de Mindset : les zones de la fenêtre WPF (interface.xaml), remplies à l'identique par le bloc « écrans »
+  (ecrans/ecrans.js, à partir de l'état envoyé par l'appli). Les id des zones et les quatre scripts ci-dessous font
+  partie du contrat (architecture-mindset-rust.md, rust/mindset-appli/tests/coquille.rs) : on peut tout changer dans
+  les zones, pas les retirer ni les renommer.
 -->
 <div id="fenetre">
-  <div id="fond" aria-hidden="true"></div>
-  <header id="en-tete"></header>
+  <!-- Fond : nuit violette et trois lueurs ; le fond d'un thème personnalisé par-dessus (BackdropDeco) -->
+  <div id="fond" aria-hidden="true"><div class="lueurs"></div><div id="fond-pack"></div></div>
+  <!-- En-tête : logo animé, nom et phrase, mascotte du thème, version (EnTete) -->
+  <header id="en-tete">
+    <div id="logo" aria-hidden="true"></div>
+    <div class="nom">
+      <div class="titre-mindset">Mindset</div>
+      <div class="phrase-mindset">Toutes tes applis au même endroit.</div>
+    </div>
+    <div class="vide"></div>
+    <div id="mascotte" aria-hidden="true" hidden></div>
+    <div id="version"></div>
+  </header>
   <div id="corps">
-    <nav id="colonne-onglets" aria-label="Applis"></nav>
+    <!-- Onglets : Accueil, une ligne par appli, Paramètres en bas (BarreOnglets) -->
+    <nav id="colonne-onglets" aria-label="Applis"><div id="onglets"></div><div id="onglets-bas"></div></nav>
     <div id="centre">
+      <!-- Bandeaux : installer Mindset, mini-installateur, mise à jour de Mindset -->
       <div id="bandeaux"></div>
       <main id="page-centrale">
         <section id="page-console" class="page" hidden></section>
-        <section id="page-accueil" class="page"></section>
-        <section id="page-appli" class="page" hidden><div id="zone-appli"></div></section>
-        <section id="page-parametres" class="page" hidden></section>
+        <section id="page-accueil" class="page">
+          <div class="accueil">
+            <div class="accueil-haut">
+              <div class="accueil-titres">
+                <div id="bonjour"></div>
+                <div class="accueil-phrase">Tes applis de la suite, au même endroit.</div>
+              </div>
+              <div class="accueil-actualiser">
+                <span id="actualiser-info"></span>
+                <button id="btn-actualiser" class="bouton secondaire" type="button" title="Chercher les nouvelles versions de Mindset et de tes applis">Actualiser</button>
+              </div>
+            </div>
+            <div id="cartes"></div>
+          </div>
+        </section>
+        <!-- Page d'une appli : sa vraie fenêtre accrochée dans #zone-appli, ou un message en attendant -->
+        <section id="page-appli" class="page" hidden>
+          <div id="appli-message">
+            <div id="appli-jauge" hidden></div>
+            <div id="appli-titre"></div>
+            <div id="appli-texte"></div>
+            <div class="appli-boutons">
+              <button id="btn-appli-ici" class="bouton primaire" type="button" hidden>Afficher ici</button>
+              <button id="btn-appli-menu" class="bouton secondaire menu" type="button" title="Revenir au menu" hidden></button>
+            </div>
+            <div id="appli-etat"></div>
+          </div>
+          <div id="appli-cadre" hidden>
+            <div id="barre-appli">
+              <button id="btn-barre-menu" class="bouton secondaire menu" type="button" title="Revenir au menu (l'appli reste ouverte)" hidden></button>
+              <span class="vide"></span>
+              <button id="btn-appli-fermer" class="bouton secondaire" type="button">Fermer</button>
+            </div>
+            <div class="hotes"><div id="zone-appli"></div></div>
+          </div>
+        </section>
+        <!-- Paramètres : la zone des réglages (les panneaux sont au bloc « paramètres ») -->
+        <section id="page-parametres" class="page" hidden>
+          <div class="parametres-haut">
+            <button id="btn-parametres-menu" class="bouton secondaire menu" type="button" title="Revenir au menu" hidden></button>
+            <div class="parametres-titre">Paramètres</div>
+            <div class="parametres-phrase">Ces réglages valent pour Mindset et toutes ses applis.</div>
+            <div id="onglets-parametres"></div>
+          </div>
+          <div class="parametres-defile"><div id="parametres-panneaux"></div></div>
+        </section>
       </main>
     </div>
   </div>
+  <!-- Dessin animé d'un thème personnalisé, en bas de la fenêtre (FooterArt) -->
   <footer id="pied" aria-hidden="true"></footer>
+  <!-- La croix rouge : réduire près de l'horloge ou quitter (Fermeture) -->
   <div id="voile-fermeture" class="voile" hidden></div>
+  <!-- « Êtes-vous sûr ? » : par-dessus tout (Confirmation) -->
   <div id="voile-confirmation" class="voile" hidden></div>
 </div>
 <script src="ipc.js"></script>
