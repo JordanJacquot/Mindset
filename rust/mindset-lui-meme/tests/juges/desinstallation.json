@@ -1,0 +1,1982 @@
+[
+    {
+        "installe":  true,
+        "desinstalleur":  true,
+        "applis":  [
+
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstaller Mindset ?",
+                                  "texte":  "Mindset va se fermer et ouvrir son désinstalleur (accepte la demande de Windows). Tu pourras choisir de garder tes données.",
+                                  "bouton":  "Continuer"
+                              }
+                          ]
+    },
+    {
+        "installe":  true,
+        "desinstalleur":  true,
+        "applis":  [
+
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstaller Mindset ?",
+                                  "texte":  "Mindset va se fermer et ouvrir son désinstalleur (accepte la demande de Windows). Tu pourras choisir de garder tes données.",
+                                  "bouton":  "Continuer"
+                              }
+                          ]
+    },
+    {
+        "installe":  true,
+        "desinstalleur":  true,
+        "applis":  [
+
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstaller Mindset ?",
+                                  "texte":  "Mindset va se fermer et ouvrir son désinstalleur (accepte la demande de Windows). Tu pourras choisir de garder tes données.",
+                                  "bouton":  "Continuer"
+                              }
+                          ]
+    },
+    {
+        "installe":  true,
+        "desinstalleur":  true,
+        "applis":  [
+                       {
+                           "id":  "nevermind",
+                           "nom":  "Nevermind",
+                           "gere":  false
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstaller Mindset ?",
+                                  "texte":  "Mindset va se fermer et ouvrir son désinstalleur (accepte la demande de Windows). Tu pourras choisir de garder tes données.",
+                                  "bouton":  "Continuer"
+                              }
+                          ]
+    },
+    {
+        "installe":  true,
+        "desinstalleur":  true,
+        "applis":  [
+                       {
+                           "id":  "nevermind",
+                           "nom":  "Nevermind",
+                           "gere":  true
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstaller Mindset ?",
+                                  "texte":  "Mindset va se fermer et ouvrir son désinstalleur (accepte la demande de Windows). Les applis qu\u0027il a installées (Nevermind) seront retirées aussi. Tu pourras choisir de garder tes données.",
+                                  "bouton":  "Continuer"
+                              }
+                          ]
+    },
+    {
+        "installe":  true,
+        "desinstalleur":  true,
+        "applis":  [
+                       {
+                           "id":  "nevermind",
+                           "nom":  "Nevermind",
+                           "gere":  true
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstaller Mindset ?",
+                                  "texte":  "Mindset va se fermer et ouvrir son désinstalleur (accepte la demande de Windows). Les applis qu\u0027il a installées (Nevermind) seront retirées aussi. Tu pourras choisir de garder tes données.",
+                                  "bouton":  "Continuer"
+                              }
+                          ]
+    },
+    {
+        "installe":  true,
+        "desinstalleur":  true,
+        "applis":  [
+                       {
+                           "id":  "evermind",
+                           "nom":  "Evermind",
+                           "gere":  false
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstaller Mindset ?",
+                                  "texte":  "Mindset va se fermer et ouvrir son désinstalleur (accepte la demande de Windows). Tu pourras choisir de garder tes données.",
+                                  "bouton":  "Continuer"
+                              }
+                          ]
+    },
+    {
+        "installe":  true,
+        "desinstalleur":  true,
+        "applis":  [
+                       {
+                           "id":  "evermind",
+                           "nom":  "Evermind",
+                           "gere":  true
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstaller Mindset ?",
+                                  "texte":  "Mindset va se fermer et ouvrir son désinstalleur (accepte la demande de Windows). Les applis qu\u0027il a installées (Evermind) seront retirées aussi. Tu pourras choisir de garder tes données.",
+                                  "bouton":  "Continuer"
+                              }
+                          ]
+    },
+    {
+        "installe":  true,
+        "desinstalleur":  true,
+        "applis":  [
+                       {
+                           "id":  "evermind",
+                           "nom":  "Evermind",
+                           "gere":  false
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstaller Mindset ?",
+                                  "texte":  "Mindset va se fermer et ouvrir son désinstalleur (accepte la demande de Windows). Tu pourras choisir de garder tes données.",
+                                  "bouton":  "Continuer"
+                              }
+                          ]
+    },
+    {
+        "installe":  true,
+        "desinstalleur":  true,
+        "applis":  [
+                       {
+                           "id":  "nevermind",
+                           "nom":  "Nevermind",
+                           "gere":  false
+                       },
+                       {
+                           "id":  "evermind",
+                           "nom":  "Evermind",
+                           "gere":  false
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstaller Mindset ?",
+                                  "texte":  "Mindset va se fermer et ouvrir son désinstalleur (accepte la demande de Windows). Tu pourras choisir de garder tes données.",
+                                  "bouton":  "Continuer"
+                              }
+                          ]
+    },
+    {
+        "installe":  true,
+        "desinstalleur":  true,
+        "applis":  [
+                       {
+                           "id":  "nevermind",
+                           "nom":  "Nevermind",
+                           "gere":  true
+                       },
+                       {
+                           "id":  "evermind",
+                           "nom":  "Evermind",
+                           "gere":  true
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstaller Mindset ?",
+                                  "texte":  "Mindset va se fermer et ouvrir son désinstalleur (accepte la demande de Windows). Les applis qu\u0027il a installées (Nevermind, Evermind) seront retirées aussi. Tu pourras choisir de garder tes données.",
+                                  "bouton":  "Continuer"
+                              }
+                          ]
+    },
+    {
+        "installe":  true,
+        "desinstalleur":  true,
+        "applis":  [
+                       {
+                           "id":  "nevermind",
+                           "nom":  "Nevermind",
+                           "gere":  true
+                       },
+                       {
+                           "id":  "evermind",
+                           "nom":  "Evermind",
+                           "gere":  false
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstaller Mindset ?",
+                                  "texte":  "Mindset va se fermer et ouvrir son désinstalleur (accepte la demande de Windows). Les applis qu\u0027il a installées (Nevermind) seront retirées aussi. Tu pourras choisir de garder tes données.",
+                                  "bouton":  "Continuer"
+                              }
+                          ]
+    },
+    {
+        "installe":  true,
+        "desinstalleur":  true,
+        "applis":  [
+                       {
+                           "id":  "mindcare",
+                           "nom":  "Mindcare",
+                           "gere":  false
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstaller Mindset ?",
+                                  "texte":  "Mindset va se fermer et ouvrir son désinstalleur (accepte la demande de Windows). Tu pourras choisir de garder tes données.",
+                                  "bouton":  "Continuer"
+                              }
+                          ]
+    },
+    {
+        "installe":  true,
+        "desinstalleur":  true,
+        "applis":  [
+                       {
+                           "id":  "mindcare",
+                           "nom":  "Mindcare",
+                           "gere":  true
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstaller Mindset ?",
+                                  "texte":  "Mindset va se fermer et ouvrir son désinstalleur (accepte la demande de Windows). Les applis qu\u0027il a installées (Mindcare) seront retirées aussi. Tu pourras choisir de garder tes données.",
+                                  "bouton":  "Continuer"
+                              }
+                          ]
+    },
+    {
+        "installe":  true,
+        "desinstalleur":  true,
+        "applis":  [
+                       {
+                           "id":  "mindcare",
+                           "nom":  "Mindcare",
+                           "gere":  true
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstaller Mindset ?",
+                                  "texte":  "Mindset va se fermer et ouvrir son désinstalleur (accepte la demande de Windows). Les applis qu\u0027il a installées (Mindcare) seront retirées aussi. Tu pourras choisir de garder tes données.",
+                                  "bouton":  "Continuer"
+                              }
+                          ]
+    },
+    {
+        "installe":  true,
+        "desinstalleur":  true,
+        "applis":  [
+                       {
+                           "id":  "nevermind",
+                           "nom":  "Nevermind",
+                           "gere":  false
+                       },
+                       {
+                           "id":  "mindcare",
+                           "nom":  "Mindcare",
+                           "gere":  false
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstaller Mindset ?",
+                                  "texte":  "Mindset va se fermer et ouvrir son désinstalleur (accepte la demande de Windows). Tu pourras choisir de garder tes données.",
+                                  "bouton":  "Continuer"
+                              }
+                          ]
+    },
+    {
+        "installe":  true,
+        "desinstalleur":  true,
+        "applis":  [
+                       {
+                           "id":  "nevermind",
+                           "nom":  "Nevermind",
+                           "gere":  true
+                       },
+                       {
+                           "id":  "mindcare",
+                           "nom":  "Mindcare",
+                           "gere":  true
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstaller Mindset ?",
+                                  "texte":  "Mindset va se fermer et ouvrir son désinstalleur (accepte la demande de Windows). Les applis qu\u0027il a installées (Nevermind, Mindcare) seront retirées aussi. Tu pourras choisir de garder tes données.",
+                                  "bouton":  "Continuer"
+                              }
+                          ]
+    },
+    {
+        "installe":  true,
+        "desinstalleur":  true,
+        "applis":  [
+                       {
+                           "id":  "nevermind",
+                           "nom":  "Nevermind",
+                           "gere":  true
+                       },
+                       {
+                           "id":  "mindcare",
+                           "nom":  "Mindcare",
+                           "gere":  true
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstaller Mindset ?",
+                                  "texte":  "Mindset va se fermer et ouvrir son désinstalleur (accepte la demande de Windows). Les applis qu\u0027il a installées (Nevermind, Mindcare) seront retirées aussi. Tu pourras choisir de garder tes données.",
+                                  "bouton":  "Continuer"
+                              }
+                          ]
+    },
+    {
+        "installe":  true,
+        "desinstalleur":  true,
+        "applis":  [
+                       {
+                           "id":  "evermind",
+                           "nom":  "Evermind",
+                           "gere":  false
+                       },
+                       {
+                           "id":  "mindcare",
+                           "nom":  "Mindcare",
+                           "gere":  false
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstaller Mindset ?",
+                                  "texte":  "Mindset va se fermer et ouvrir son désinstalleur (accepte la demande de Windows). Tu pourras choisir de garder tes données.",
+                                  "bouton":  "Continuer"
+                              }
+                          ]
+    },
+    {
+        "installe":  true,
+        "desinstalleur":  true,
+        "applis":  [
+                       {
+                           "id":  "evermind",
+                           "nom":  "Evermind",
+                           "gere":  true
+                       },
+                       {
+                           "id":  "mindcare",
+                           "nom":  "Mindcare",
+                           "gere":  true
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstaller Mindset ?",
+                                  "texte":  "Mindset va se fermer et ouvrir son désinstalleur (accepte la demande de Windows). Les applis qu\u0027il a installées (Evermind, Mindcare) seront retirées aussi. Tu pourras choisir de garder tes données.",
+                                  "bouton":  "Continuer"
+                              }
+                          ]
+    },
+    {
+        "installe":  true,
+        "desinstalleur":  true,
+        "applis":  [
+                       {
+                           "id":  "evermind",
+                           "nom":  "Evermind",
+                           "gere":  false
+                       },
+                       {
+                           "id":  "mindcare",
+                           "nom":  "Mindcare",
+                           "gere":  true
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstaller Mindset ?",
+                                  "texte":  "Mindset va se fermer et ouvrir son désinstalleur (accepte la demande de Windows). Les applis qu\u0027il a installées (Mindcare) seront retirées aussi. Tu pourras choisir de garder tes données.",
+                                  "bouton":  "Continuer"
+                              }
+                          ]
+    },
+    {
+        "installe":  true,
+        "desinstalleur":  true,
+        "applis":  [
+                       {
+                           "id":  "nevermind",
+                           "nom":  "Nevermind",
+                           "gere":  false
+                       },
+                       {
+                           "id":  "evermind",
+                           "nom":  "Evermind",
+                           "gere":  false
+                       },
+                       {
+                           "id":  "mindcare",
+                           "nom":  "Mindcare",
+                           "gere":  false
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstaller Mindset ?",
+                                  "texte":  "Mindset va se fermer et ouvrir son désinstalleur (accepte la demande de Windows). Tu pourras choisir de garder tes données.",
+                                  "bouton":  "Continuer"
+                              }
+                          ]
+    },
+    {
+        "installe":  true,
+        "desinstalleur":  true,
+        "applis":  [
+                       {
+                           "id":  "nevermind",
+                           "nom":  "Nevermind",
+                           "gere":  true
+                       },
+                       {
+                           "id":  "evermind",
+                           "nom":  "Evermind",
+                           "gere":  true
+                       },
+                       {
+                           "id":  "mindcare",
+                           "nom":  "Mindcare",
+                           "gere":  true
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstaller Mindset ?",
+                                  "texte":  "Mindset va se fermer et ouvrir son désinstalleur (accepte la demande de Windows). Les applis qu\u0027il a installées (Nevermind, Evermind, Mindcare) seront retirées aussi. Tu pourras choisir de garder tes données.",
+                                  "bouton":  "Continuer"
+                              }
+                          ]
+    },
+    {
+        "installe":  true,
+        "desinstalleur":  true,
+        "applis":  [
+                       {
+                           "id":  "nevermind",
+                           "nom":  "Nevermind",
+                           "gere":  true
+                       },
+                       {
+                           "id":  "evermind",
+                           "nom":  "Evermind",
+                           "gere":  false
+                       },
+                       {
+                           "id":  "mindcare",
+                           "nom":  "Mindcare",
+                           "gere":  true
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstaller Mindset ?",
+                                  "texte":  "Mindset va se fermer et ouvrir son désinstalleur (accepte la demande de Windows). Les applis qu\u0027il a installées (Nevermind, Mindcare) seront retirées aussi. Tu pourras choisir de garder tes données.",
+                                  "bouton":  "Continuer"
+                              }
+                          ]
+    },
+    {
+        "installe":  true,
+        "desinstalleur":  false,
+        "applis":  [
+
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstaller Mindset ?",
+                                  "texte":  "Mindset, son raccourci et son lancement au démarrage vont être retirés. Ses données (et celles des applis) restent dans SUITE : une réinstallation les retrouve.",
+                                  "bouton":  "Désinstaller"
+                              }
+                          ]
+    },
+    {
+        "installe":  true,
+        "desinstalleur":  false,
+        "applis":  [
+
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstaller Mindset ?",
+                                  "texte":  "Mindset, son raccourci et son lancement au démarrage vont être retirés. Ses données (et celles des applis) restent dans SUITE : une réinstallation les retrouve.",
+                                  "bouton":  "Désinstaller"
+                              }
+                          ]
+    },
+    {
+        "installe":  true,
+        "desinstalleur":  false,
+        "applis":  [
+
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstaller Mindset ?",
+                                  "texte":  "Mindset, son raccourci et son lancement au démarrage vont être retirés. Ses données (et celles des applis) restent dans SUITE : une réinstallation les retrouve.",
+                                  "bouton":  "Désinstaller"
+                              }
+                          ]
+    },
+    {
+        "installe":  true,
+        "desinstalleur":  false,
+        "applis":  [
+                       {
+                           "id":  "nevermind",
+                           "nom":  "Nevermind",
+                           "gere":  false
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstaller Mindset ?",
+                                  "texte":  "Mindset, son raccourci et son lancement au démarrage vont être retirés. Ses données (et celles des applis) restent dans SUITE : une réinstallation les retrouve.",
+                                  "bouton":  "Désinstaller"
+                              }
+                          ]
+    },
+    {
+        "installe":  true,
+        "desinstalleur":  false,
+        "applis":  [
+                       {
+                           "id":  "nevermind",
+                           "nom":  "Nevermind",
+                           "gere":  true
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstalle d\u0027abord les applis",
+                                  "texte":  "Mindset gère encore Nevermind : désinstalle-les depuis l\u0027accueil, puis reviens ici. Leurs données sont gardées.",
+                                  "bouton":  "Aller à l\u0027accueil"
+                              }
+                          ]
+    },
+    {
+        "installe":  true,
+        "desinstalleur":  false,
+        "applis":  [
+                       {
+                           "id":  "nevermind",
+                           "nom":  "Nevermind",
+                           "gere":  true
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstalle d\u0027abord les applis",
+                                  "texte":  "Mindset gère encore Nevermind : désinstalle-les depuis l\u0027accueil, puis reviens ici. Leurs données sont gardées.",
+                                  "bouton":  "Aller à l\u0027accueil"
+                              }
+                          ]
+    },
+    {
+        "installe":  true,
+        "desinstalleur":  false,
+        "applis":  [
+                       {
+                           "id":  "evermind",
+                           "nom":  "Evermind",
+                           "gere":  false
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstaller Mindset ?",
+                                  "texte":  "Mindset, son raccourci et son lancement au démarrage vont être retirés. Ses données (et celles des applis) restent dans SUITE : une réinstallation les retrouve.",
+                                  "bouton":  "Désinstaller"
+                              }
+                          ]
+    },
+    {
+        "installe":  true,
+        "desinstalleur":  false,
+        "applis":  [
+                       {
+                           "id":  "evermind",
+                           "nom":  "Evermind",
+                           "gere":  true
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstalle d\u0027abord les applis",
+                                  "texte":  "Mindset gère encore Evermind : désinstalle-les depuis l\u0027accueil, puis reviens ici. Leurs données sont gardées.",
+                                  "bouton":  "Aller à l\u0027accueil"
+                              }
+                          ]
+    },
+    {
+        "installe":  true,
+        "desinstalleur":  false,
+        "applis":  [
+                       {
+                           "id":  "evermind",
+                           "nom":  "Evermind",
+                           "gere":  false
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstaller Mindset ?",
+                                  "texte":  "Mindset, son raccourci et son lancement au démarrage vont être retirés. Ses données (et celles des applis) restent dans SUITE : une réinstallation les retrouve.",
+                                  "bouton":  "Désinstaller"
+                              }
+                          ]
+    },
+    {
+        "installe":  true,
+        "desinstalleur":  false,
+        "applis":  [
+                       {
+                           "id":  "nevermind",
+                           "nom":  "Nevermind",
+                           "gere":  false
+                       },
+                       {
+                           "id":  "evermind",
+                           "nom":  "Evermind",
+                           "gere":  false
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstaller Mindset ?",
+                                  "texte":  "Mindset, son raccourci et son lancement au démarrage vont être retirés. Ses données (et celles des applis) restent dans SUITE : une réinstallation les retrouve.",
+                                  "bouton":  "Désinstaller"
+                              }
+                          ]
+    },
+    {
+        "installe":  true,
+        "desinstalleur":  false,
+        "applis":  [
+                       {
+                           "id":  "nevermind",
+                           "nom":  "Nevermind",
+                           "gere":  true
+                       },
+                       {
+                           "id":  "evermind",
+                           "nom":  "Evermind",
+                           "gere":  true
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstalle d\u0027abord les applis",
+                                  "texte":  "Mindset gère encore Nevermind et Evermind : désinstalle-les depuis l\u0027accueil, puis reviens ici. Leurs données sont gardées.",
+                                  "bouton":  "Aller à l\u0027accueil"
+                              }
+                          ]
+    },
+    {
+        "installe":  true,
+        "desinstalleur":  false,
+        "applis":  [
+                       {
+                           "id":  "nevermind",
+                           "nom":  "Nevermind",
+                           "gere":  true
+                       },
+                       {
+                           "id":  "evermind",
+                           "nom":  "Evermind",
+                           "gere":  false
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstalle d\u0027abord les applis",
+                                  "texte":  "Mindset gère encore Nevermind : désinstalle-les depuis l\u0027accueil, puis reviens ici. Leurs données sont gardées.",
+                                  "bouton":  "Aller à l\u0027accueil"
+                              }
+                          ]
+    },
+    {
+        "installe":  true,
+        "desinstalleur":  false,
+        "applis":  [
+                       {
+                           "id":  "mindcare",
+                           "nom":  "Mindcare",
+                           "gere":  false
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstaller Mindset ?",
+                                  "texte":  "Mindset, son raccourci et son lancement au démarrage vont être retirés. Ses données (et celles des applis) restent dans SUITE : une réinstallation les retrouve.",
+                                  "bouton":  "Désinstaller"
+                              }
+                          ]
+    },
+    {
+        "installe":  true,
+        "desinstalleur":  false,
+        "applis":  [
+                       {
+                           "id":  "mindcare",
+                           "nom":  "Mindcare",
+                           "gere":  true
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstalle d\u0027abord les applis",
+                                  "texte":  "Mindset gère encore Mindcare : désinstalle-les depuis l\u0027accueil, puis reviens ici. Leurs données sont gardées.",
+                                  "bouton":  "Aller à l\u0027accueil"
+                              }
+                          ]
+    },
+    {
+        "installe":  true,
+        "desinstalleur":  false,
+        "applis":  [
+                       {
+                           "id":  "mindcare",
+                           "nom":  "Mindcare",
+                           "gere":  true
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstalle d\u0027abord les applis",
+                                  "texte":  "Mindset gère encore Mindcare : désinstalle-les depuis l\u0027accueil, puis reviens ici. Leurs données sont gardées.",
+                                  "bouton":  "Aller à l\u0027accueil"
+                              }
+                          ]
+    },
+    {
+        "installe":  true,
+        "desinstalleur":  false,
+        "applis":  [
+                       {
+                           "id":  "nevermind",
+                           "nom":  "Nevermind",
+                           "gere":  false
+                       },
+                       {
+                           "id":  "mindcare",
+                           "nom":  "Mindcare",
+                           "gere":  false
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstaller Mindset ?",
+                                  "texte":  "Mindset, son raccourci et son lancement au démarrage vont être retirés. Ses données (et celles des applis) restent dans SUITE : une réinstallation les retrouve.",
+                                  "bouton":  "Désinstaller"
+                              }
+                          ]
+    },
+    {
+        "installe":  true,
+        "desinstalleur":  false,
+        "applis":  [
+                       {
+                           "id":  "nevermind",
+                           "nom":  "Nevermind",
+                           "gere":  true
+                       },
+                       {
+                           "id":  "mindcare",
+                           "nom":  "Mindcare",
+                           "gere":  true
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstalle d\u0027abord les applis",
+                                  "texte":  "Mindset gère encore Nevermind et Mindcare : désinstalle-les depuis l\u0027accueil, puis reviens ici. Leurs données sont gardées.",
+                                  "bouton":  "Aller à l\u0027accueil"
+                              }
+                          ]
+    },
+    {
+        "installe":  true,
+        "desinstalleur":  false,
+        "applis":  [
+                       {
+                           "id":  "nevermind",
+                           "nom":  "Nevermind",
+                           "gere":  true
+                       },
+                       {
+                           "id":  "mindcare",
+                           "nom":  "Mindcare",
+                           "gere":  true
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstalle d\u0027abord les applis",
+                                  "texte":  "Mindset gère encore Nevermind et Mindcare : désinstalle-les depuis l\u0027accueil, puis reviens ici. Leurs données sont gardées.",
+                                  "bouton":  "Aller à l\u0027accueil"
+                              }
+                          ]
+    },
+    {
+        "installe":  true,
+        "desinstalleur":  false,
+        "applis":  [
+                       {
+                           "id":  "evermind",
+                           "nom":  "Evermind",
+                           "gere":  false
+                       },
+                       {
+                           "id":  "mindcare",
+                           "nom":  "Mindcare",
+                           "gere":  false
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstaller Mindset ?",
+                                  "texte":  "Mindset, son raccourci et son lancement au démarrage vont être retirés. Ses données (et celles des applis) restent dans SUITE : une réinstallation les retrouve.",
+                                  "bouton":  "Désinstaller"
+                              }
+                          ]
+    },
+    {
+        "installe":  true,
+        "desinstalleur":  false,
+        "applis":  [
+                       {
+                           "id":  "evermind",
+                           "nom":  "Evermind",
+                           "gere":  true
+                       },
+                       {
+                           "id":  "mindcare",
+                           "nom":  "Mindcare",
+                           "gere":  true
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstalle d\u0027abord les applis",
+                                  "texte":  "Mindset gère encore Evermind et Mindcare : désinstalle-les depuis l\u0027accueil, puis reviens ici. Leurs données sont gardées.",
+                                  "bouton":  "Aller à l\u0027accueil"
+                              }
+                          ]
+    },
+    {
+        "installe":  true,
+        "desinstalleur":  false,
+        "applis":  [
+                       {
+                           "id":  "evermind",
+                           "nom":  "Evermind",
+                           "gere":  false
+                       },
+                       {
+                           "id":  "mindcare",
+                           "nom":  "Mindcare",
+                           "gere":  true
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstalle d\u0027abord les applis",
+                                  "texte":  "Mindset gère encore Mindcare : désinstalle-les depuis l\u0027accueil, puis reviens ici. Leurs données sont gardées.",
+                                  "bouton":  "Aller à l\u0027accueil"
+                              }
+                          ]
+    },
+    {
+        "installe":  true,
+        "desinstalleur":  false,
+        "applis":  [
+                       {
+                           "id":  "nevermind",
+                           "nom":  "Nevermind",
+                           "gere":  false
+                       },
+                       {
+                           "id":  "evermind",
+                           "nom":  "Evermind",
+                           "gere":  false
+                       },
+                       {
+                           "id":  "mindcare",
+                           "nom":  "Mindcare",
+                           "gere":  false
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstaller Mindset ?",
+                                  "texte":  "Mindset, son raccourci et son lancement au démarrage vont être retirés. Ses données (et celles des applis) restent dans SUITE : une réinstallation les retrouve.",
+                                  "bouton":  "Désinstaller"
+                              }
+                          ]
+    },
+    {
+        "installe":  true,
+        "desinstalleur":  false,
+        "applis":  [
+                       {
+                           "id":  "nevermind",
+                           "nom":  "Nevermind",
+                           "gere":  true
+                       },
+                       {
+                           "id":  "evermind",
+                           "nom":  "Evermind",
+                           "gere":  true
+                       },
+                       {
+                           "id":  "mindcare",
+                           "nom":  "Mindcare",
+                           "gere":  true
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstalle d\u0027abord les applis",
+                                  "texte":  "Mindset gère encore Nevermind et Evermind et Mindcare : désinstalle-les depuis l\u0027accueil, puis reviens ici. Leurs données sont gardées.",
+                                  "bouton":  "Aller à l\u0027accueil"
+                              }
+                          ]
+    },
+    {
+        "installe":  true,
+        "desinstalleur":  false,
+        "applis":  [
+                       {
+                           "id":  "nevermind",
+                           "nom":  "Nevermind",
+                           "gere":  true
+                       },
+                       {
+                           "id":  "evermind",
+                           "nom":  "Evermind",
+                           "gere":  false
+                       },
+                       {
+                           "id":  "mindcare",
+                           "nom":  "Mindcare",
+                           "gere":  true
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstalle d\u0027abord les applis",
+                                  "texte":  "Mindset gère encore Nevermind et Mindcare : désinstalle-les depuis l\u0027accueil, puis reviens ici. Leurs données sont gardées.",
+                                  "bouton":  "Aller à l\u0027accueil"
+                              }
+                          ]
+    },
+    {
+        "installe":  false,
+        "desinstalleur":  true,
+        "applis":  [
+
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstaller Mindset ?",
+                                  "texte":  "Mindset, son raccourci et son lancement au démarrage vont être retirés. Ses données (et celles des applis) restent dans SUITE : une réinstallation les retrouve.",
+                                  "bouton":  "Désinstaller"
+                              }
+                          ]
+    },
+    {
+        "installe":  false,
+        "desinstalleur":  true,
+        "applis":  [
+
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstaller Mindset ?",
+                                  "texte":  "Mindset, son raccourci et son lancement au démarrage vont être retirés. Ses données (et celles des applis) restent dans SUITE : une réinstallation les retrouve.",
+                                  "bouton":  "Désinstaller"
+                              }
+                          ]
+    },
+    {
+        "installe":  false,
+        "desinstalleur":  true,
+        "applis":  [
+
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstaller Mindset ?",
+                                  "texte":  "Mindset, son raccourci et son lancement au démarrage vont être retirés. Ses données (et celles des applis) restent dans SUITE : une réinstallation les retrouve.",
+                                  "bouton":  "Désinstaller"
+                              }
+                          ]
+    },
+    {
+        "installe":  false,
+        "desinstalleur":  true,
+        "applis":  [
+                       {
+                           "id":  "nevermind",
+                           "nom":  "Nevermind",
+                           "gere":  false
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstaller Mindset ?",
+                                  "texte":  "Mindset, son raccourci et son lancement au démarrage vont être retirés. Ses données (et celles des applis) restent dans SUITE : une réinstallation les retrouve.",
+                                  "bouton":  "Désinstaller"
+                              }
+                          ]
+    },
+    {
+        "installe":  false,
+        "desinstalleur":  true,
+        "applis":  [
+                       {
+                           "id":  "nevermind",
+                           "nom":  "Nevermind",
+                           "gere":  true
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstalle d\u0027abord les applis",
+                                  "texte":  "Mindset gère encore Nevermind : désinstalle-les depuis l\u0027accueil, puis reviens ici. Leurs données sont gardées.",
+                                  "bouton":  "Aller à l\u0027accueil"
+                              }
+                          ]
+    },
+    {
+        "installe":  false,
+        "desinstalleur":  true,
+        "applis":  [
+                       {
+                           "id":  "nevermind",
+                           "nom":  "Nevermind",
+                           "gere":  true
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstalle d\u0027abord les applis",
+                                  "texte":  "Mindset gère encore Nevermind : désinstalle-les depuis l\u0027accueil, puis reviens ici. Leurs données sont gardées.",
+                                  "bouton":  "Aller à l\u0027accueil"
+                              }
+                          ]
+    },
+    {
+        "installe":  false,
+        "desinstalleur":  true,
+        "applis":  [
+                       {
+                           "id":  "evermind",
+                           "nom":  "Evermind",
+                           "gere":  false
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstaller Mindset ?",
+                                  "texte":  "Mindset, son raccourci et son lancement au démarrage vont être retirés. Ses données (et celles des applis) restent dans SUITE : une réinstallation les retrouve.",
+                                  "bouton":  "Désinstaller"
+                              }
+                          ]
+    },
+    {
+        "installe":  false,
+        "desinstalleur":  true,
+        "applis":  [
+                       {
+                           "id":  "evermind",
+                           "nom":  "Evermind",
+                           "gere":  true
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstalle d\u0027abord les applis",
+                                  "texte":  "Mindset gère encore Evermind : désinstalle-les depuis l\u0027accueil, puis reviens ici. Leurs données sont gardées.",
+                                  "bouton":  "Aller à l\u0027accueil"
+                              }
+                          ]
+    },
+    {
+        "installe":  false,
+        "desinstalleur":  true,
+        "applis":  [
+                       {
+                           "id":  "evermind",
+                           "nom":  "Evermind",
+                           "gere":  false
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstaller Mindset ?",
+                                  "texte":  "Mindset, son raccourci et son lancement au démarrage vont être retirés. Ses données (et celles des applis) restent dans SUITE : une réinstallation les retrouve.",
+                                  "bouton":  "Désinstaller"
+                              }
+                          ]
+    },
+    {
+        "installe":  false,
+        "desinstalleur":  true,
+        "applis":  [
+                       {
+                           "id":  "nevermind",
+                           "nom":  "Nevermind",
+                           "gere":  false
+                       },
+                       {
+                           "id":  "evermind",
+                           "nom":  "Evermind",
+                           "gere":  false
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstaller Mindset ?",
+                                  "texte":  "Mindset, son raccourci et son lancement au démarrage vont être retirés. Ses données (et celles des applis) restent dans SUITE : une réinstallation les retrouve.",
+                                  "bouton":  "Désinstaller"
+                              }
+                          ]
+    },
+    {
+        "installe":  false,
+        "desinstalleur":  true,
+        "applis":  [
+                       {
+                           "id":  "nevermind",
+                           "nom":  "Nevermind",
+                           "gere":  true
+                       },
+                       {
+                           "id":  "evermind",
+                           "nom":  "Evermind",
+                           "gere":  true
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstalle d\u0027abord les applis",
+                                  "texte":  "Mindset gère encore Nevermind et Evermind : désinstalle-les depuis l\u0027accueil, puis reviens ici. Leurs données sont gardées.",
+                                  "bouton":  "Aller à l\u0027accueil"
+                              }
+                          ]
+    },
+    {
+        "installe":  false,
+        "desinstalleur":  true,
+        "applis":  [
+                       {
+                           "id":  "nevermind",
+                           "nom":  "Nevermind",
+                           "gere":  true
+                       },
+                       {
+                           "id":  "evermind",
+                           "nom":  "Evermind",
+                           "gere":  false
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstalle d\u0027abord les applis",
+                                  "texte":  "Mindset gère encore Nevermind : désinstalle-les depuis l\u0027accueil, puis reviens ici. Leurs données sont gardées.",
+                                  "bouton":  "Aller à l\u0027accueil"
+                              }
+                          ]
+    },
+    {
+        "installe":  false,
+        "desinstalleur":  true,
+        "applis":  [
+                       {
+                           "id":  "mindcare",
+                           "nom":  "Mindcare",
+                           "gere":  false
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstaller Mindset ?",
+                                  "texte":  "Mindset, son raccourci et son lancement au démarrage vont être retirés. Ses données (et celles des applis) restent dans SUITE : une réinstallation les retrouve.",
+                                  "bouton":  "Désinstaller"
+                              }
+                          ]
+    },
+    {
+        "installe":  false,
+        "desinstalleur":  true,
+        "applis":  [
+                       {
+                           "id":  "mindcare",
+                           "nom":  "Mindcare",
+                           "gere":  true
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstalle d\u0027abord les applis",
+                                  "texte":  "Mindset gère encore Mindcare : désinstalle-les depuis l\u0027accueil, puis reviens ici. Leurs données sont gardées.",
+                                  "bouton":  "Aller à l\u0027accueil"
+                              }
+                          ]
+    },
+    {
+        "installe":  false,
+        "desinstalleur":  true,
+        "applis":  [
+                       {
+                           "id":  "mindcare",
+                           "nom":  "Mindcare",
+                           "gere":  true
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstalle d\u0027abord les applis",
+                                  "texte":  "Mindset gère encore Mindcare : désinstalle-les depuis l\u0027accueil, puis reviens ici. Leurs données sont gardées.",
+                                  "bouton":  "Aller à l\u0027accueil"
+                              }
+                          ]
+    },
+    {
+        "installe":  false,
+        "desinstalleur":  true,
+        "applis":  [
+                       {
+                           "id":  "nevermind",
+                           "nom":  "Nevermind",
+                           "gere":  false
+                       },
+                       {
+                           "id":  "mindcare",
+                           "nom":  "Mindcare",
+                           "gere":  false
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstaller Mindset ?",
+                                  "texte":  "Mindset, son raccourci et son lancement au démarrage vont être retirés. Ses données (et celles des applis) restent dans SUITE : une réinstallation les retrouve.",
+                                  "bouton":  "Désinstaller"
+                              }
+                          ]
+    },
+    {
+        "installe":  false,
+        "desinstalleur":  true,
+        "applis":  [
+                       {
+                           "id":  "nevermind",
+                           "nom":  "Nevermind",
+                           "gere":  true
+                       },
+                       {
+                           "id":  "mindcare",
+                           "nom":  "Mindcare",
+                           "gere":  true
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstalle d\u0027abord les applis",
+                                  "texte":  "Mindset gère encore Nevermind et Mindcare : désinstalle-les depuis l\u0027accueil, puis reviens ici. Leurs données sont gardées.",
+                                  "bouton":  "Aller à l\u0027accueil"
+                              }
+                          ]
+    },
+    {
+        "installe":  false,
+        "desinstalleur":  true,
+        "applis":  [
+                       {
+                           "id":  "nevermind",
+                           "nom":  "Nevermind",
+                           "gere":  true
+                       },
+                       {
+                           "id":  "mindcare",
+                           "nom":  "Mindcare",
+                           "gere":  true
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstalle d\u0027abord les applis",
+                                  "texte":  "Mindset gère encore Nevermind et Mindcare : désinstalle-les depuis l\u0027accueil, puis reviens ici. Leurs données sont gardées.",
+                                  "bouton":  "Aller à l\u0027accueil"
+                              }
+                          ]
+    },
+    {
+        "installe":  false,
+        "desinstalleur":  true,
+        "applis":  [
+                       {
+                           "id":  "evermind",
+                           "nom":  "Evermind",
+                           "gere":  false
+                       },
+                       {
+                           "id":  "mindcare",
+                           "nom":  "Mindcare",
+                           "gere":  false
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstaller Mindset ?",
+                                  "texte":  "Mindset, son raccourci et son lancement au démarrage vont être retirés. Ses données (et celles des applis) restent dans SUITE : une réinstallation les retrouve.",
+                                  "bouton":  "Désinstaller"
+                              }
+                          ]
+    },
+    {
+        "installe":  false,
+        "desinstalleur":  true,
+        "applis":  [
+                       {
+                           "id":  "evermind",
+                           "nom":  "Evermind",
+                           "gere":  true
+                       },
+                       {
+                           "id":  "mindcare",
+                           "nom":  "Mindcare",
+                           "gere":  true
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstalle d\u0027abord les applis",
+                                  "texte":  "Mindset gère encore Evermind et Mindcare : désinstalle-les depuis l\u0027accueil, puis reviens ici. Leurs données sont gardées.",
+                                  "bouton":  "Aller à l\u0027accueil"
+                              }
+                          ]
+    },
+    {
+        "installe":  false,
+        "desinstalleur":  true,
+        "applis":  [
+                       {
+                           "id":  "evermind",
+                           "nom":  "Evermind",
+                           "gere":  false
+                       },
+                       {
+                           "id":  "mindcare",
+                           "nom":  "Mindcare",
+                           "gere":  true
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstalle d\u0027abord les applis",
+                                  "texte":  "Mindset gère encore Mindcare : désinstalle-les depuis l\u0027accueil, puis reviens ici. Leurs données sont gardées.",
+                                  "bouton":  "Aller à l\u0027accueil"
+                              }
+                          ]
+    },
+    {
+        "installe":  false,
+        "desinstalleur":  true,
+        "applis":  [
+                       {
+                           "id":  "nevermind",
+                           "nom":  "Nevermind",
+                           "gere":  false
+                       },
+                       {
+                           "id":  "evermind",
+                           "nom":  "Evermind",
+                           "gere":  false
+                       },
+                       {
+                           "id":  "mindcare",
+                           "nom":  "Mindcare",
+                           "gere":  false
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstaller Mindset ?",
+                                  "texte":  "Mindset, son raccourci et son lancement au démarrage vont être retirés. Ses données (et celles des applis) restent dans SUITE : une réinstallation les retrouve.",
+                                  "bouton":  "Désinstaller"
+                              }
+                          ]
+    },
+    {
+        "installe":  false,
+        "desinstalleur":  true,
+        "applis":  [
+                       {
+                           "id":  "nevermind",
+                           "nom":  "Nevermind",
+                           "gere":  true
+                       },
+                       {
+                           "id":  "evermind",
+                           "nom":  "Evermind",
+                           "gere":  true
+                       },
+                       {
+                           "id":  "mindcare",
+                           "nom":  "Mindcare",
+                           "gere":  true
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstalle d\u0027abord les applis",
+                                  "texte":  "Mindset gère encore Nevermind et Evermind et Mindcare : désinstalle-les depuis l\u0027accueil, puis reviens ici. Leurs données sont gardées.",
+                                  "bouton":  "Aller à l\u0027accueil"
+                              }
+                          ]
+    },
+    {
+        "installe":  false,
+        "desinstalleur":  true,
+        "applis":  [
+                       {
+                           "id":  "nevermind",
+                           "nom":  "Nevermind",
+                           "gere":  true
+                       },
+                       {
+                           "id":  "evermind",
+                           "nom":  "Evermind",
+                           "gere":  false
+                       },
+                       {
+                           "id":  "mindcare",
+                           "nom":  "Mindcare",
+                           "gere":  true
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstalle d\u0027abord les applis",
+                                  "texte":  "Mindset gère encore Nevermind et Mindcare : désinstalle-les depuis l\u0027accueil, puis reviens ici. Leurs données sont gardées.",
+                                  "bouton":  "Aller à l\u0027accueil"
+                              }
+                          ]
+    },
+    {
+        "installe":  false,
+        "desinstalleur":  false,
+        "applis":  [
+
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstaller Mindset ?",
+                                  "texte":  "Mindset, son raccourci et son lancement au démarrage vont être retirés. Ses données (et celles des applis) restent dans SUITE : une réinstallation les retrouve.",
+                                  "bouton":  "Désinstaller"
+                              }
+                          ]
+    },
+    {
+        "installe":  false,
+        "desinstalleur":  false,
+        "applis":  [
+
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstaller Mindset ?",
+                                  "texte":  "Mindset, son raccourci et son lancement au démarrage vont être retirés. Ses données (et celles des applis) restent dans SUITE : une réinstallation les retrouve.",
+                                  "bouton":  "Désinstaller"
+                              }
+                          ]
+    },
+    {
+        "installe":  false,
+        "desinstalleur":  false,
+        "applis":  [
+
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstaller Mindset ?",
+                                  "texte":  "Mindset, son raccourci et son lancement au démarrage vont être retirés. Ses données (et celles des applis) restent dans SUITE : une réinstallation les retrouve.",
+                                  "bouton":  "Désinstaller"
+                              }
+                          ]
+    },
+    {
+        "installe":  false,
+        "desinstalleur":  false,
+        "applis":  [
+                       {
+                           "id":  "nevermind",
+                           "nom":  "Nevermind",
+                           "gere":  false
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstaller Mindset ?",
+                                  "texte":  "Mindset, son raccourci et son lancement au démarrage vont être retirés. Ses données (et celles des applis) restent dans SUITE : une réinstallation les retrouve.",
+                                  "bouton":  "Désinstaller"
+                              }
+                          ]
+    },
+    {
+        "installe":  false,
+        "desinstalleur":  false,
+        "applis":  [
+                       {
+                           "id":  "nevermind",
+                           "nom":  "Nevermind",
+                           "gere":  true
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstalle d\u0027abord les applis",
+                                  "texte":  "Mindset gère encore Nevermind : désinstalle-les depuis l\u0027accueil, puis reviens ici. Leurs données sont gardées.",
+                                  "bouton":  "Aller à l\u0027accueil"
+                              }
+                          ]
+    },
+    {
+        "installe":  false,
+        "desinstalleur":  false,
+        "applis":  [
+                       {
+                           "id":  "nevermind",
+                           "nom":  "Nevermind",
+                           "gere":  true
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstalle d\u0027abord les applis",
+                                  "texte":  "Mindset gère encore Nevermind : désinstalle-les depuis l\u0027accueil, puis reviens ici. Leurs données sont gardées.",
+                                  "bouton":  "Aller à l\u0027accueil"
+                              }
+                          ]
+    },
+    {
+        "installe":  false,
+        "desinstalleur":  false,
+        "applis":  [
+                       {
+                           "id":  "evermind",
+                           "nom":  "Evermind",
+                           "gere":  false
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstaller Mindset ?",
+                                  "texte":  "Mindset, son raccourci et son lancement au démarrage vont être retirés. Ses données (et celles des applis) restent dans SUITE : une réinstallation les retrouve.",
+                                  "bouton":  "Désinstaller"
+                              }
+                          ]
+    },
+    {
+        "installe":  false,
+        "desinstalleur":  false,
+        "applis":  [
+                       {
+                           "id":  "evermind",
+                           "nom":  "Evermind",
+                           "gere":  true
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstalle d\u0027abord les applis",
+                                  "texte":  "Mindset gère encore Evermind : désinstalle-les depuis l\u0027accueil, puis reviens ici. Leurs données sont gardées.",
+                                  "bouton":  "Aller à l\u0027accueil"
+                              }
+                          ]
+    },
+    {
+        "installe":  false,
+        "desinstalleur":  false,
+        "applis":  [
+                       {
+                           "id":  "evermind",
+                           "nom":  "Evermind",
+                           "gere":  false
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstaller Mindset ?",
+                                  "texte":  "Mindset, son raccourci et son lancement au démarrage vont être retirés. Ses données (et celles des applis) restent dans SUITE : une réinstallation les retrouve.",
+                                  "bouton":  "Désinstaller"
+                              }
+                          ]
+    },
+    {
+        "installe":  false,
+        "desinstalleur":  false,
+        "applis":  [
+                       {
+                           "id":  "nevermind",
+                           "nom":  "Nevermind",
+                           "gere":  false
+                       },
+                       {
+                           "id":  "evermind",
+                           "nom":  "Evermind",
+                           "gere":  false
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstaller Mindset ?",
+                                  "texte":  "Mindset, son raccourci et son lancement au démarrage vont être retirés. Ses données (et celles des applis) restent dans SUITE : une réinstallation les retrouve.",
+                                  "bouton":  "Désinstaller"
+                              }
+                          ]
+    },
+    {
+        "installe":  false,
+        "desinstalleur":  false,
+        "applis":  [
+                       {
+                           "id":  "nevermind",
+                           "nom":  "Nevermind",
+                           "gere":  true
+                       },
+                       {
+                           "id":  "evermind",
+                           "nom":  "Evermind",
+                           "gere":  true
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstalle d\u0027abord les applis",
+                                  "texte":  "Mindset gère encore Nevermind et Evermind : désinstalle-les depuis l\u0027accueil, puis reviens ici. Leurs données sont gardées.",
+                                  "bouton":  "Aller à l\u0027accueil"
+                              }
+                          ]
+    },
+    {
+        "installe":  false,
+        "desinstalleur":  false,
+        "applis":  [
+                       {
+                           "id":  "nevermind",
+                           "nom":  "Nevermind",
+                           "gere":  true
+                       },
+                       {
+                           "id":  "evermind",
+                           "nom":  "Evermind",
+                           "gere":  false
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstalle d\u0027abord les applis",
+                                  "texte":  "Mindset gère encore Nevermind : désinstalle-les depuis l\u0027accueil, puis reviens ici. Leurs données sont gardées.",
+                                  "bouton":  "Aller à l\u0027accueil"
+                              }
+                          ]
+    },
+    {
+        "installe":  false,
+        "desinstalleur":  false,
+        "applis":  [
+                       {
+                           "id":  "mindcare",
+                           "nom":  "Mindcare",
+                           "gere":  false
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstaller Mindset ?",
+                                  "texte":  "Mindset, son raccourci et son lancement au démarrage vont être retirés. Ses données (et celles des applis) restent dans SUITE : une réinstallation les retrouve.",
+                                  "bouton":  "Désinstaller"
+                              }
+                          ]
+    },
+    {
+        "installe":  false,
+        "desinstalleur":  false,
+        "applis":  [
+                       {
+                           "id":  "mindcare",
+                           "nom":  "Mindcare",
+                           "gere":  true
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstalle d\u0027abord les applis",
+                                  "texte":  "Mindset gère encore Mindcare : désinstalle-les depuis l\u0027accueil, puis reviens ici. Leurs données sont gardées.",
+                                  "bouton":  "Aller à l\u0027accueil"
+                              }
+                          ]
+    },
+    {
+        "installe":  false,
+        "desinstalleur":  false,
+        "applis":  [
+                       {
+                           "id":  "mindcare",
+                           "nom":  "Mindcare",
+                           "gere":  true
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstalle d\u0027abord les applis",
+                                  "texte":  "Mindset gère encore Mindcare : désinstalle-les depuis l\u0027accueil, puis reviens ici. Leurs données sont gardées.",
+                                  "bouton":  "Aller à l\u0027accueil"
+                              }
+                          ]
+    },
+    {
+        "installe":  false,
+        "desinstalleur":  false,
+        "applis":  [
+                       {
+                           "id":  "nevermind",
+                           "nom":  "Nevermind",
+                           "gere":  false
+                       },
+                       {
+                           "id":  "mindcare",
+                           "nom":  "Mindcare",
+                           "gere":  false
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstaller Mindset ?",
+                                  "texte":  "Mindset, son raccourci et son lancement au démarrage vont être retirés. Ses données (et celles des applis) restent dans SUITE : une réinstallation les retrouve.",
+                                  "bouton":  "Désinstaller"
+                              }
+                          ]
+    },
+    {
+        "installe":  false,
+        "desinstalleur":  false,
+        "applis":  [
+                       {
+                           "id":  "nevermind",
+                           "nom":  "Nevermind",
+                           "gere":  true
+                       },
+                       {
+                           "id":  "mindcare",
+                           "nom":  "Mindcare",
+                           "gere":  true
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstalle d\u0027abord les applis",
+                                  "texte":  "Mindset gère encore Nevermind et Mindcare : désinstalle-les depuis l\u0027accueil, puis reviens ici. Leurs données sont gardées.",
+                                  "bouton":  "Aller à l\u0027accueil"
+                              }
+                          ]
+    },
+    {
+        "installe":  false,
+        "desinstalleur":  false,
+        "applis":  [
+                       {
+                           "id":  "nevermind",
+                           "nom":  "Nevermind",
+                           "gere":  true
+                       },
+                       {
+                           "id":  "mindcare",
+                           "nom":  "Mindcare",
+                           "gere":  true
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstalle d\u0027abord les applis",
+                                  "texte":  "Mindset gère encore Nevermind et Mindcare : désinstalle-les depuis l\u0027accueil, puis reviens ici. Leurs données sont gardées.",
+                                  "bouton":  "Aller à l\u0027accueil"
+                              }
+                          ]
+    },
+    {
+        "installe":  false,
+        "desinstalleur":  false,
+        "applis":  [
+                       {
+                           "id":  "evermind",
+                           "nom":  "Evermind",
+                           "gere":  false
+                       },
+                       {
+                           "id":  "mindcare",
+                           "nom":  "Mindcare",
+                           "gere":  false
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstaller Mindset ?",
+                                  "texte":  "Mindset, son raccourci et son lancement au démarrage vont être retirés. Ses données (et celles des applis) restent dans SUITE : une réinstallation les retrouve.",
+                                  "bouton":  "Désinstaller"
+                              }
+                          ]
+    },
+    {
+        "installe":  false,
+        "desinstalleur":  false,
+        "applis":  [
+                       {
+                           "id":  "evermind",
+                           "nom":  "Evermind",
+                           "gere":  true
+                       },
+                       {
+                           "id":  "mindcare",
+                           "nom":  "Mindcare",
+                           "gere":  true
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstalle d\u0027abord les applis",
+                                  "texte":  "Mindset gère encore Evermind et Mindcare : désinstalle-les depuis l\u0027accueil, puis reviens ici. Leurs données sont gardées.",
+                                  "bouton":  "Aller à l\u0027accueil"
+                              }
+                          ]
+    },
+    {
+        "installe":  false,
+        "desinstalleur":  false,
+        "applis":  [
+                       {
+                           "id":  "evermind",
+                           "nom":  "Evermind",
+                           "gere":  false
+                       },
+                       {
+                           "id":  "mindcare",
+                           "nom":  "Mindcare",
+                           "gere":  true
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstalle d\u0027abord les applis",
+                                  "texte":  "Mindset gère encore Mindcare : désinstalle-les depuis l\u0027accueil, puis reviens ici. Leurs données sont gardées.",
+                                  "bouton":  "Aller à l\u0027accueil"
+                              }
+                          ]
+    },
+    {
+        "installe":  false,
+        "desinstalleur":  false,
+        "applis":  [
+                       {
+                           "id":  "nevermind",
+                           "nom":  "Nevermind",
+                           "gere":  false
+                       },
+                       {
+                           "id":  "evermind",
+                           "nom":  "Evermind",
+                           "gere":  false
+                       },
+                       {
+                           "id":  "mindcare",
+                           "nom":  "Mindcare",
+                           "gere":  false
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstaller Mindset ?",
+                                  "texte":  "Mindset, son raccourci et son lancement au démarrage vont être retirés. Ses données (et celles des applis) restent dans SUITE : une réinstallation les retrouve.",
+                                  "bouton":  "Désinstaller"
+                              }
+                          ]
+    },
+    {
+        "installe":  false,
+        "desinstalleur":  false,
+        "applis":  [
+                       {
+                           "id":  "nevermind",
+                           "nom":  "Nevermind",
+                           "gere":  true
+                       },
+                       {
+                           "id":  "evermind",
+                           "nom":  "Evermind",
+                           "gere":  true
+                       },
+                       {
+                           "id":  "mindcare",
+                           "nom":  "Mindcare",
+                           "gere":  true
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstalle d\u0027abord les applis",
+                                  "texte":  "Mindset gère encore Nevermind et Evermind et Mindcare : désinstalle-les depuis l\u0027accueil, puis reviens ici. Leurs données sont gardées.",
+                                  "bouton":  "Aller à l\u0027accueil"
+                              }
+                          ]
+    },
+    {
+        "installe":  false,
+        "desinstalleur":  false,
+        "applis":  [
+                       {
+                           "id":  "nevermind",
+                           "nom":  "Nevermind",
+                           "gere":  true
+                       },
+                       {
+                           "id":  "evermind",
+                           "nom":  "Evermind",
+                           "gere":  false
+                       },
+                       {
+                           "id":  "mindcare",
+                           "nom":  "Mindcare",
+                           "gere":  true
+                       }
+                   ],
+        "confirmations":  [
+                              {
+                                  "titre":  "Désinstalle d\u0027abord les applis",
+                                  "texte":  "Mindset gère encore Nevermind et Mindcare : désinstalle-les depuis l\u0027accueil, puis reviens ici. Leurs données sont gardées.",
+                                  "bouton":  "Aller à l\u0027accueil"
+                              }
+                          ]
+    }
+]

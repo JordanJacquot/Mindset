@@ -1,0 +1,418 @@
+[
+    {
+        "verif":  "-",
+        "dossier":  "Mindset\\Programmes\\Mindset",
+        "avant":  null,
+        "fichier":  "Mindset\\Donnees\\Mindset\\reglages.json",
+        "apres":  null
+    },
+    {
+        "verif":  "-",
+        "dossier":  "Mindset\\Programmes\\Mindset",
+        "avant":  "{\"MajAuto\":false,\"Theme\":\"rubis\"}",
+        "fichier":  "Mindset\\Donnees\\Mindset\\reglages.json",
+        "apres":  {
+                      "MajAuto":  false,
+                      "Theme":  "rubis"
+                  }
+    },
+    {
+        "verif":  "-",
+        "dossier":  "Mindset\\Programmes\\Mindset",
+        "avant":  "abîmé",
+        "fichier":  "Mindset\\Donnees\\Mindset\\reglages.json",
+        "apres":  "abîmé"
+    },
+    {
+        "verif":  "-",
+        "dossier":  "Mindset\\Programmes\\Mindset",
+        "avant":  "{\"VerifVersions\":true}",
+        "fichier":  "Mindset\\Donnees\\Mindset\\reglages.json",
+        "apres":  {
+                      "VerifVersions":  true
+                  }
+    },
+    {
+        "verif":  "-",
+        "dossier":  "Ailleurs\\Mindset",
+        "avant":  null,
+        "fichier":  "Local\\Mindset\\Mindset\\reglages.json",
+        "apres":  null
+    },
+    {
+        "verif":  "-",
+        "dossier":  "Ailleurs\\Mindset",
+        "avant":  "{\"MajAuto\":false,\"Theme\":\"rubis\"}",
+        "fichier":  "Local\\Mindset\\Mindset\\reglages.json",
+        "apres":  {
+                      "MajAuto":  false,
+                      "Theme":  "rubis"
+                  }
+    },
+    {
+        "verif":  "-",
+        "dossier":  "Ailleurs\\Mindset",
+        "avant":  "abîmé",
+        "fichier":  "Local\\Mindset\\Mindset\\reglages.json",
+        "apres":  "abîmé"
+    },
+    {
+        "verif":  "-",
+        "dossier":  "Ailleurs\\Mindset",
+        "avant":  "{\"VerifVersions\":true}",
+        "fichier":  "Local\\Mindset\\Mindset\\reglages.json",
+        "apres":  {
+                      "VerifVersions":  true
+                  }
+    },
+    {
+        "verif":  "-",
+        "dossier":  "mindset\\programmes\\Mindset",
+        "avant":  null,
+        "fichier":  "mindset\\Donnees\\Mindset\\reglages.json",
+        "apres":  null
+    },
+    {
+        "verif":  "-",
+        "dossier":  "mindset\\programmes\\Mindset",
+        "avant":  "{\"MajAuto\":false,\"Theme\":\"rubis\"}",
+        "fichier":  "mindset\\Donnees\\Mindset\\reglages.json",
+        "apres":  {
+                      "MajAuto":  false,
+                      "Theme":  "rubis"
+                  }
+    },
+    {
+        "verif":  "-",
+        "dossier":  "mindset\\programmes\\Mindset",
+        "avant":  "abîmé",
+        "fichier":  "mindset\\Donnees\\Mindset\\reglages.json",
+        "apres":  "abîmé"
+    },
+    {
+        "verif":  "-",
+        "dossier":  "mindset\\programmes\\Mindset",
+        "avant":  "{\"VerifVersions\":true}",
+        "fichier":  "mindset\\Donnees\\Mindset\\reglages.json",
+        "apres":  {
+                      "VerifVersions":  true
+                  }
+    },
+    {
+        "verif":  "-",
+        "dossier":  "Programmes\\Mindset",
+        "avant":  null,
+        "fichier":  "Local\\Mindset\\Mindset\\reglages.json",
+        "apres":  null
+    },
+    {
+        "verif":  "-",
+        "dossier":  "Programmes\\Mindset",
+        "avant":  "{\"MajAuto\":false,\"Theme\":\"rubis\"}",
+        "fichier":  "Local\\Mindset\\Mindset\\reglages.json",
+        "apres":  {
+                      "MajAuto":  false,
+                      "Theme":  "rubis"
+                  }
+    },
+    {
+        "verif":  "-",
+        "dossier":  "Programmes\\Mindset",
+        "avant":  "abîmé",
+        "fichier":  "Local\\Mindset\\Mindset\\reglages.json",
+        "apres":  "abîmé"
+    },
+    {
+        "verif":  "-",
+        "dossier":  "Programmes\\Mindset",
+        "avant":  "{\"VerifVersions\":true}",
+        "fichier":  "Local\\Mindset\\Mindset\\reglages.json",
+        "apres":  {
+                      "VerifVersions":  true
+                  }
+    },
+    {
+        "verif":  true,
+        "dossier":  "Mindset\\Programmes\\Mindset",
+        "avant":  null,
+        "fichier":  "Mindset\\Donnees\\Mindset\\reglages.json",
+        "apres":  null
+    },
+    {
+        "verif":  true,
+        "dossier":  "Mindset\\Programmes\\Mindset",
+        "avant":  "{\"MajAuto\":false,\"Theme\":\"rubis\"}",
+        "fichier":  "Mindset\\Donnees\\Mindset\\reglages.json",
+        "apres":  {
+                      "MajAuto":  false,
+                      "Theme":  "rubis"
+                  }
+    },
+    {
+        "verif":  true,
+        "dossier":  "Mindset\\Programmes\\Mindset",
+        "avant":  "abîmé",
+        "fichier":  "Mindset\\Donnees\\Mindset\\reglages.json",
+        "apres":  "abîmé"
+    },
+    {
+        "verif":  true,
+        "dossier":  "Mindset\\Programmes\\Mindset",
+        "avant":  "{\"VerifVersions\":true}",
+        "fichier":  "Mindset\\Donnees\\Mindset\\reglages.json",
+        "apres":  {
+                      "VerifVersions":  true
+                  }
+    },
+    {
+        "verif":  true,
+        "dossier":  "Ailleurs\\Mindset",
+        "avant":  null,
+        "fichier":  "Local\\Mindset\\Mindset\\reglages.json",
+        "apres":  null
+    },
+    {
+        "verif":  true,
+        "dossier":  "Ailleurs\\Mindset",
+        "avant":  "{\"MajAuto\":false,\"Theme\":\"rubis\"}",
+        "fichier":  "Local\\Mindset\\Mindset\\reglages.json",
+        "apres":  {
+                      "MajAuto":  false,
+                      "Theme":  "rubis"
+                  }
+    },
+    {
+        "verif":  true,
+        "dossier":  "Ailleurs\\Mindset",
+        "avant":  "abîmé",
+        "fichier":  "Local\\Mindset\\Mindset\\reglages.json",
+        "apres":  "abîmé"
+    },
+    {
+        "verif":  true,
+        "dossier":  "Ailleurs\\Mindset",
+        "avant":  "{\"VerifVersions\":true}",
+        "fichier":  "Local\\Mindset\\Mindset\\reglages.json",
+        "apres":  {
+                      "VerifVersions":  true
+                  }
+    },
+    {
+        "verif":  true,
+        "dossier":  "mindset\\programmes\\Mindset",
+        "avant":  null,
+        "fichier":  "mindset\\Donnees\\Mindset\\reglages.json",
+        "apres":  null
+    },
+    {
+        "verif":  true,
+        "dossier":  "mindset\\programmes\\Mindset",
+        "avant":  "{\"MajAuto\":false,\"Theme\":\"rubis\"}",
+        "fichier":  "mindset\\Donnees\\Mindset\\reglages.json",
+        "apres":  {
+                      "MajAuto":  false,
+                      "Theme":  "rubis"
+                  }
+    },
+    {
+        "verif":  true,
+        "dossier":  "mindset\\programmes\\Mindset",
+        "avant":  "abîmé",
+        "fichier":  "mindset\\Donnees\\Mindset\\reglages.json",
+        "apres":  "abîmé"
+    },
+    {
+        "verif":  true,
+        "dossier":  "mindset\\programmes\\Mindset",
+        "avant":  "{\"VerifVersions\":true}",
+        "fichier":  "mindset\\Donnees\\Mindset\\reglages.json",
+        "apres":  {
+                      "VerifVersions":  true
+                  }
+    },
+    {
+        "verif":  true,
+        "dossier":  "Programmes\\Mindset",
+        "avant":  null,
+        "fichier":  "Local\\Mindset\\Mindset\\reglages.json",
+        "apres":  null
+    },
+    {
+        "verif":  true,
+        "dossier":  "Programmes\\Mindset",
+        "avant":  "{\"MajAuto\":false,\"Theme\":\"rubis\"}",
+        "fichier":  "Local\\Mindset\\Mindset\\reglages.json",
+        "apres":  {
+                      "MajAuto":  false,
+                      "Theme":  "rubis"
+                  }
+    },
+    {
+        "verif":  true,
+        "dossier":  "Programmes\\Mindset",
+        "avant":  "abîmé",
+        "fichier":  "Local\\Mindset\\Mindset\\reglages.json",
+        "apres":  "abîmé"
+    },
+    {
+        "verif":  true,
+        "dossier":  "Programmes\\Mindset",
+        "avant":  "{\"VerifVersions\":true}",
+        "fichier":  "Local\\Mindset\\Mindset\\reglages.json",
+        "apres":  {
+                      "VerifVersions":  true
+                  }
+    },
+    {
+        "verif":  false,
+        "dossier":  "Mindset\\Programmes\\Mindset",
+        "avant":  null,
+        "fichier":  "Mindset\\Donnees\\Mindset\\reglages.json",
+        "apres":  {
+                      "VerifVersions":  false
+                  }
+    },
+    {
+        "verif":  false,
+        "dossier":  "Mindset\\Programmes\\Mindset",
+        "avant":  "{\"MajAuto\":false,\"Theme\":\"rubis\"}",
+        "fichier":  "Mindset\\Donnees\\Mindset\\reglages.json",
+        "apres":  {
+                      "MajAuto":  false,
+                      "Theme":  "rubis",
+                      "VerifVersions":  false
+                  }
+    },
+    {
+        "verif":  false,
+        "dossier":  "Mindset\\Programmes\\Mindset",
+        "avant":  "abîmé",
+        "fichier":  "Mindset\\Donnees\\Mindset\\reglages.json",
+        "apres":  {
+                      "VerifVersions":  false
+                  }
+    },
+    {
+        "verif":  false,
+        "dossier":  "Mindset\\Programmes\\Mindset",
+        "avant":  "{\"VerifVersions\":true}",
+        "fichier":  "Mindset\\Donnees\\Mindset\\reglages.json",
+        "apres":  {
+                      "VerifVersions":  false
+                  }
+    },
+    {
+        "verif":  false,
+        "dossier":  "Ailleurs\\Mindset",
+        "avant":  null,
+        "fichier":  "Local\\Mindset\\Mindset\\reglages.json",
+        "apres":  {
+                      "VerifVersions":  false
+                  }
+    },
+    {
+        "verif":  false,
+        "dossier":  "Ailleurs\\Mindset",
+        "avant":  "{\"MajAuto\":false,\"Theme\":\"rubis\"}",
+        "fichier":  "Local\\Mindset\\Mindset\\reglages.json",
+        "apres":  {
+                      "MajAuto":  false,
+                      "Theme":  "rubis",
+                      "VerifVersions":  false
+                  }
+    },
+    {
+        "verif":  false,
+        "dossier":  "Ailleurs\\Mindset",
+        "avant":  "abîmé",
+        "fichier":  "Local\\Mindset\\Mindset\\reglages.json",
+        "apres":  {
+                      "VerifVersions":  false
+                  }
+    },
+    {
+        "verif":  false,
+        "dossier":  "Ailleurs\\Mindset",
+        "avant":  "{\"VerifVersions\":true}",
+        "fichier":  "Local\\Mindset\\Mindset\\reglages.json",
+        "apres":  {
+                      "VerifVersions":  false
+                  }
+    },
+    {
+        "verif":  false,
+        "dossier":  "mindset\\programmes\\Mindset",
+        "avant":  null,
+        "fichier":  "mindset\\Donnees\\Mindset\\reglages.json",
+        "apres":  {
+                      "VerifVersions":  false
+                  }
+    },
+    {
+        "verif":  false,
+        "dossier":  "mindset\\programmes\\Mindset",
+        "avant":  "{\"MajAuto\":false,\"Theme\":\"rubis\"}",
+        "fichier":  "mindset\\Donnees\\Mindset\\reglages.json",
+        "apres":  {
+                      "MajAuto":  false,
+                      "Theme":  "rubis",
+                      "VerifVersions":  false
+                  }
+    },
+    {
+        "verif":  false,
+        "dossier":  "mindset\\programmes\\Mindset",
+        "avant":  "abîmé",
+        "fichier":  "mindset\\Donnees\\Mindset\\reglages.json",
+        "apres":  {
+                      "VerifVersions":  false
+                  }
+    },
+    {
+        "verif":  false,
+        "dossier":  "mindset\\programmes\\Mindset",
+        "avant":  "{\"VerifVersions\":true}",
+        "fichier":  "mindset\\Donnees\\Mindset\\reglages.json",
+        "apres":  {
+                      "VerifVersions":  false
+                  }
+    },
+    {
+        "verif":  false,
+        "dossier":  "Programmes\\Mindset",
+        "avant":  null,
+        "fichier":  "Local\\Mindset\\Mindset\\reglages.json",
+        "apres":  {
+                      "VerifVersions":  false
+                  }
+    },
+    {
+        "verif":  false,
+        "dossier":  "Programmes\\Mindset",
+        "avant":  "{\"MajAuto\":false,\"Theme\":\"rubis\"}",
+        "fichier":  "Local\\Mindset\\Mindset\\reglages.json",
+        "apres":  {
+                      "MajAuto":  false,
+                      "Theme":  "rubis",
+                      "VerifVersions":  false
+                  }
+    },
+    {
+        "verif":  false,
+        "dossier":  "Programmes\\Mindset",
+        "avant":  "abîmé",
+        "fichier":  "Local\\Mindset\\Mindset\\reglages.json",
+        "apres":  {
+                      "VerifVersions":  false
+                  }
+    },
+    {
+        "verif":  false,
+        "dossier":  "Programmes\\Mindset",
+        "avant":  "{\"VerifVersions\":true}",
+        "fichier":  "Local\\Mindset\\Mindset\\reglages.json",
+        "apres":  {
+                      "VerifVersions":  false
+                  }
+    }
+]

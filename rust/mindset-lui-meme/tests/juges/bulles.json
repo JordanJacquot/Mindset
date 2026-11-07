@@ -1,0 +1,3043 @@
+[
+    {
+        "id":  "evermind",
+        "nom":  "Evermind",
+        "version":  "0.12.0",
+        "notes":  "- Corrige l\u0027ouverture\r\n- Autre",
+        "essai":  null,
+        "echec_avant":  true,
+        "message":  "Mindcare 0.12.0 est installé.",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "Evermind est passé en 0.12.0",
+                           "texte":  "Corrige l\u0027ouverture"
+                       }
+                   ],
+        "echec":  null,
+        "journal":  [
+                        "Mise à jour automatique : Evermind est passé en 0.12.0"
+                    ]
+    },
+    {
+        "id":  "nevermind",
+        "nom":  "Nevermind",
+        "version":  "0.12.0",
+        "notes":  "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz",
+        "essai":  {
+                      "version":  "0.12.0",
+                      "minutes":  3,
+                      "nombre":  2
+                  },
+        "echec_avant":  true,
+        "message":  "quelque chose de bizarre",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour de Nevermind n\u0027a pas pu se faire",
+                           "texte":  "quelque chose de bizarre. Mindset réessaiera tout seul dans 12 minutes, ou clique sur Réessayer."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "0.12.0",
+                      "raison":  "quelque chose de bizarre."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Nevermind 0.12.0 ratée : quelque chose de bizarre",
+                        "Mise à jour automatique : La mise à jour de Nevermind n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "mindcare",
+        "nom":  "Mindcare",
+        "version":  "0.12.0",
+        "notes":  "* ",
+        "essai":  {
+                      "version":  "9.9.9",
+                      "minutes":  0,
+                      "nombre":  2
+                  },
+        "echec_avant":  true,
+        "message":  "Mindcare 0.12.0 EST INSTALLÉ. Ancien raccourci retiré.",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "Mindcare est passé en 0.12.0",
+                           "texte":  ""
+                       }
+                   ],
+        "echec":  null,
+        "journal":  [
+                        "Mise à jour automatique : Mindcare est passé en 0.12.0"
+                    ]
+    },
+    {
+        "id":  "evermind",
+        "nom":  "Evermind",
+        "version":  "1.0.0",
+        "notes":  "",
+        "essai":  null,
+        "echec_avant":  false,
+        "message":  "Échec : Mindcare est encore ouvert",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour d\u0027Evermind n\u0027a pas pu se faire",
+                           "texte":  "Evermind était encore ouvert et n\u0027a pas pu être fermé. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "1.0.0",
+                      "raison":  "Evermind était encore ouvert et n\u0027a pas pu être fermé."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Evermind 1.0.0 ratée : Échec : Mindcare est encore ouvert",
+                        "Mise à jour automatique : La mise à jour d\u0027Evermind n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "evermind",
+        "nom":  "Evermind",
+        "version":  "1.0.0",
+        "notes":  "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz",
+        "essai":  null,
+        "echec_avant":  true,
+        "message":  "Mindcare 0.12.0 est installé.",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "Evermind est passé en 1.0.0",
+                           "texte":  "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz..."
+                       }
+                   ],
+        "echec":  null,
+        "journal":  [
+                        "Mise à jour automatique : Evermind est passé en 1.0.0"
+                    ]
+    },
+    {
+        "id":  "mindcare",
+        "nom":  "Mindcare",
+        "version":  "0.12.0",
+        "notes":  "#-*  Titre  \nsuite",
+        "essai":  {
+                      "version":  "9.9.9",
+                      "minutes":  14.5,
+                      "nombre":  4
+                  },
+        "echec_avant":  false,
+        "message":  "la signature de la version 0.12.0 est invalide",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour de Mindcare n\u0027a pas pu se faire",
+                           "texte":  "Le fichier téléchargé n\u0027a pas passé la vérification de sécurité : rien n\u0027a été changé. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "0.12.0",
+                      "raison":  "Le fichier téléchargé n\u0027a pas passé la vérification de sécurité : rien n\u0027a été changé."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Mindcare 0.12.0 ratée : la signature de la version 0.12.0 est invalide",
+                        "Mise à jour automatique : La mise à jour de Mindcare n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "mindcare",
+        "nom":  "Mindcare",
+        "version":  "0.12.0",
+        "notes":  "- Corrige l\u0027ouverture\r\n- Autre",
+        "essai":  {
+                      "version":  "0.12.0",
+                      "minutes":  3,
+                      "nombre":  4
+                  },
+        "echec_avant":  true,
+        "message":  "la tâche d\u0027installation ne répond pas",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour de Mindcare n\u0027a pas pu se faire",
+                           "texte":  "L\u0027outil d\u0027installation de Mindset n\u0027a pas répondu. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "0.12.0",
+                      "raison":  "L\u0027outil d\u0027installation de Mindset n\u0027a pas répondu."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Mindcare 0.12.0 ratée : la tâche d\u0027installation ne répond pas",
+                        "Mise à jour automatique : La mise à jour de Mindcare n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "mindcare",
+        "nom":  "Mindcare",
+        "version":  "0.12.0",
+        "notes":  "* ",
+        "essai":  null,
+        "echec_avant":  false,
+        "message":  "erreur 404",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour de Mindcare n\u0027a pas pu se faire",
+                           "texte":  "Internet a coupé pendant le téléchargement. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "0.12.0",
+                      "raison":  "Internet a coupé pendant le téléchargement."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Mindcare 0.12.0 ratée : erreur 404",
+                        "Mise à jour automatique : La mise à jour de Mindcare n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "nevermind",
+        "nom":  "Nevermind",
+        "version":  "0.12.0",
+        "notes":  "   ",
+        "essai":  null,
+        "echec_avant":  true,
+        "message":  "erreur 404",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour de Nevermind n\u0027a pas pu se faire",
+                           "texte":  "Internet a coupé pendant le téléchargement. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "0.12.0",
+                      "raison":  "Internet a coupé pendant le téléchargement."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Nevermind 0.12.0 ratée : erreur 404",
+                        "Mise à jour automatique : La mise à jour de Nevermind n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "nevermind",
+        "nom":  "Nevermind",
+        "version":  "0.12.0",
+        "notes":  "- Corrige l\u0027ouverture\r\n- Autre",
+        "essai":  {
+                      "version":  "9.9.9",
+                      "minutes":  3,
+                      "nombre":  3
+                  },
+        "echec_avant":  false,
+        "message":  "Échec : Mindcare est encore ouvert",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour de Nevermind n\u0027a pas pu se faire",
+                           "texte":  "Nevermind était encore ouvert et n\u0027a pas pu être fermé. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "0.12.0",
+                      "raison":  "Nevermind était encore ouvert et n\u0027a pas pu être fermé."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Nevermind 0.12.0 ratée : Échec : Mindcare est encore ouvert",
+                        "Mise à jour automatique : La mise à jour de Nevermind n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "evermind",
+        "nom":  "Evermind",
+        "version":  "0.12.0",
+        "notes":  null,
+        "essai":  {
+                      "version":  "9.9.9",
+                      "minutes":  3,
+                      "nombre":  4
+                  },
+        "echec_avant":  false,
+        "message":  "Mindcare 0.12.0 EST INSTALLÉ. Ancien raccourci retiré.",
+        "erreur":  "Échec lors de l’appel de la méthode, car [System.Object[]] ne contient pas de méthode nommée « Trim ».",
+        "bulles":  [
+
+                   ],
+        "echec":  null,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "id":  "mindcare",
+        "nom":  "Mindcare",
+        "version":  "1.0.0",
+        "notes":  "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz",
+        "essai":  {
+                      "version":  "1.0.0",
+                      "minutes":  3,
+                      "nombre":  3
+                  },
+        "echec_avant":  false,
+        "message":  "",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour de Mindcare n\u0027a pas pu se faire",
+                           "texte":  "Une erreur inconnue l\u0027a arrêtée. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "1.0.0",
+                      "raison":  "Une erreur inconnue l\u0027a arrêtée."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Mindcare 1.0.0 ratée : ",
+                        "Mise à jour automatique : La mise à jour de Mindcare n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "nevermind",
+        "nom":  "Nevermind",
+        "version":  "0.12.0",
+        "notes":  "",
+        "essai":  {
+                      "version":  "9.9.9",
+                      "minutes":  3,
+                      "nombre":  3
+                  },
+        "echec_avant":  false,
+        "message":  "Échec : Mindcare est encore ouvert",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour de Nevermind n\u0027a pas pu se faire",
+                           "texte":  "Nevermind était encore ouvert et n\u0027a pas pu être fermé. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "0.12.0",
+                      "raison":  "Nevermind était encore ouvert et n\u0027a pas pu être fermé."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Nevermind 0.12.0 ratée : Échec : Mindcare est encore ouvert",
+                        "Mise à jour automatique : La mise à jour de Nevermind n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "mindcare",
+        "nom":  "Mindcare",
+        "version":  "0.12.0",
+        "notes":  "\n\n   \n## Nouveautés",
+        "essai":  null,
+        "echec_avant":  false,
+        "message":  "la signature de la version 0.12.0 est invalide",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour de Mindcare n\u0027a pas pu se faire",
+                           "texte":  "Le fichier téléchargé n\u0027a pas passé la vérification de sécurité : rien n\u0027a été changé. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "0.12.0",
+                      "raison":  "Le fichier téléchargé n\u0027a pas passé la vérification de sécurité : rien n\u0027a été changé."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Mindcare 0.12.0 ratée : la signature de la version 0.12.0 est invalide",
+                        "Mise à jour automatique : La mise à jour de Mindcare n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "mindcare",
+        "nom":  "Mindcare",
+        "version":  "1.0.0",
+        "notes":  null,
+        "essai":  {
+                      "version":  "1.0.0",
+                      "minutes":  20,
+                      "nombre":  2
+                  },
+        "echec_avant":  false,
+        "message":  "Mindcare 0.12.0 est installé.",
+        "erreur":  "Échec lors de l’appel de la méthode, car [System.Object[]] ne contient pas de méthode nommée « Trim ».",
+        "bulles":  [
+
+                   ],
+        "echec":  null,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "id":  "nevermind",
+        "nom":  "Nevermind",
+        "version":  "0.12.0",
+        "notes":  "",
+        "essai":  null,
+        "echec_avant":  true,
+        "message":  "Mindcare 0.12.0 est installé.",
+        "erreur":  "Échec lors de l’appel de la méthode, car [System.Object[]] ne contient pas de méthode nommée « Trim ».",
+        "bulles":  [
+
+                   ],
+        "echec":  null,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "id":  "nevermind",
+        "nom":  "Nevermind",
+        "version":  "0.12.0",
+        "notes":  null,
+        "essai":  {
+                      "version":  "9.9.9",
+                      "minutes":  0,
+                      "nombre":  1
+                  },
+        "echec_avant":  true,
+        "message":  "erreur 404",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour de Nevermind n\u0027a pas pu se faire",
+                           "texte":  "Internet a coupé pendant le téléchargement. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "0.12.0",
+                      "raison":  "Internet a coupé pendant le téléchargement."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Nevermind 0.12.0 ratée : erreur 404",
+                        "Mise à jour automatique : La mise à jour de Nevermind n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "evermind",
+        "nom":  "Evermind",
+        "version":  "0.12.0",
+        "notes":  "\n\n   \n## Nouveautés",
+        "essai":  {
+                      "version":  "9.9.9",
+                      "minutes":  0,
+                      "nombre":  4
+                  },
+        "echec_avant":  true,
+        "message":  "la signature de la version 0.12.0 est invalide",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour d\u0027Evermind n\u0027a pas pu se faire",
+                           "texte":  "Le fichier téléchargé n\u0027a pas passé la vérification de sécurité : rien n\u0027a été changé. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "0.12.0",
+                      "raison":  "Le fichier téléchargé n\u0027a pas passé la vérification de sécurité : rien n\u0027a été changé."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Evermind 0.12.0 ratée : la signature de la version 0.12.0 est invalide",
+                        "Mise à jour automatique : La mise à jour d\u0027Evermind n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "mindcare",
+        "nom":  "Mindcare",
+        "version":  "1.0.0",
+        "notes":  "* ",
+        "essai":  {
+                      "version":  "1.0.0",
+                      "minutes":  20,
+                      "nombre":  4
+                  },
+        "echec_avant":  false,
+        "message":  "la signature de la version 0.12.0 est invalide",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour de Mindcare n\u0027a pas pu se faire",
+                           "texte":  "Le fichier téléchargé n\u0027a pas passé la vérification de sécurité : rien n\u0027a été changé. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "1.0.0",
+                      "raison":  "Le fichier téléchargé n\u0027a pas passé la vérification de sécurité : rien n\u0027a été changé."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Mindcare 1.0.0 ratée : la signature de la version 0.12.0 est invalide",
+                        "Mise à jour automatique : La mise à jour de Mindcare n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "mindcare",
+        "nom":  "Mindcare",
+        "version":  "1.0.0",
+        "notes":  "* ",
+        "essai":  null,
+        "echec_avant":  false,
+        "message":  "Échec : Mindcare est encore ouvert",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour de Mindcare n\u0027a pas pu se faire",
+                           "texte":  "Mindcare était encore ouvert et n\u0027a pas pu être fermé. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "1.0.0",
+                      "raison":  "Mindcare était encore ouvert et n\u0027a pas pu être fermé."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Mindcare 1.0.0 ratée : Échec : Mindcare est encore ouvert",
+                        "Mise à jour automatique : La mise à jour de Mindcare n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "mindcare",
+        "nom":  "Mindcare",
+        "version":  "0.12.0",
+        "notes":  "",
+        "essai":  {
+                      "version":  "0.12.0",
+                      "minutes":  3,
+                      "nombre":  2
+                  },
+        "echec_avant":  false,
+        "message":  "",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour de Mindcare n\u0027a pas pu se faire",
+                           "texte":  "Une erreur inconnue l\u0027a arrêtée. Mindset réessaiera tout seul dans 12 minutes, ou clique sur Réessayer."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "0.12.0",
+                      "raison":  "Une erreur inconnue l\u0027a arrêtée."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Mindcare 0.12.0 ratée : ",
+                        "Mise à jour automatique : La mise à jour de Mindcare n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "mindcare",
+        "nom":  "Mindcare",
+        "version":  "0.12.0",
+        "notes":  null,
+        "essai":  {
+                      "version":  "0.12.0",
+                      "minutes":  0,
+                      "nombre":  4
+                  },
+        "echec_avant":  true,
+        "message":  "Mindcare 0.12.0 EST INSTALLÉ. Ancien raccourci retiré.",
+        "erreur":  "Échec lors de l’appel de la méthode, car [System.Object[]] ne contient pas de méthode nommée « Trim ».",
+        "bulles":  [
+
+                   ],
+        "echec":  null,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "id":  "evermind",
+        "nom":  "Evermind",
+        "version":  "0.12.0",
+        "notes":  "- Corrige l\u0027ouverture\r\n- Autre",
+        "essai":  {
+                      "version":  "0.12.0",
+                      "minutes":  0,
+                      "nombre":  4
+                  },
+        "echec_avant":  true,
+        "message":  "Échec : Mindcare est encore ouvert",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour d\u0027Evermind n\u0027a pas pu se faire",
+                           "texte":  "Evermind était encore ouvert et n\u0027a pas pu être fermé. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "0.12.0",
+                      "raison":  "Evermind était encore ouvert et n\u0027a pas pu être fermé."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Evermind 0.12.0 ratée : Échec : Mindcare est encore ouvert",
+                        "Mise à jour automatique : La mise à jour d\u0027Evermind n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "evermind",
+        "nom":  "Evermind",
+        "version":  "0.12.0",
+        "notes":  "   ",
+        "essai":  {
+                      "version":  "0.12.0",
+                      "minutes":  15,
+                      "nombre":  4
+                  },
+        "echec_avant":  true,
+        "message":  "",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour d\u0027Evermind n\u0027a pas pu se faire",
+                           "texte":  "Une erreur inconnue l\u0027a arrêtée. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "0.12.0",
+                      "raison":  "Une erreur inconnue l\u0027a arrêtée."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Evermind 0.12.0 ratée : ",
+                        "Mise à jour automatique : La mise à jour d\u0027Evermind n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "mindcare",
+        "nom":  "Mindcare",
+        "version":  "0.12.0",
+        "notes":  "* ",
+        "essai":  null,
+        "echec_avant":  true,
+        "message":  "",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour de Mindcare n\u0027a pas pu se faire",
+                           "texte":  "Une erreur inconnue l\u0027a arrêtée. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "0.12.0",
+                      "raison":  "Une erreur inconnue l\u0027a arrêtée."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Mindcare 0.12.0 ratée : ",
+                        "Mise à jour automatique : La mise à jour de Mindcare n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "nevermind",
+        "nom":  "Nevermind",
+        "version":  "0.12.0",
+        "notes":  "",
+        "essai":  {
+                      "version":  "0.12.0",
+                      "minutes":  20,
+                      "nombre":  2
+                  },
+        "echec_avant":  false,
+        "message":  "Mindcare 0.12.0 EST INSTALLÉ. Ancien raccourci retiré.",
+        "erreur":  "Échec lors de l’appel de la méthode, car [System.Object[]] ne contient pas de méthode nommée « Trim ».",
+        "bulles":  [
+
+                   ],
+        "echec":  null,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "id":  "mindcare",
+        "nom":  "Mindcare",
+        "version":  "1.0.0",
+        "notes":  "\n\n   \n## Nouveautés",
+        "essai":  null,
+        "echec_avant":  true,
+        "message":  "erreur 404",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour de Mindcare n\u0027a pas pu se faire",
+                           "texte":  "Internet a coupé pendant le téléchargement. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "1.0.0",
+                      "raison":  "Internet a coupé pendant le téléchargement."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Mindcare 1.0.0 ratée : erreur 404",
+                        "Mise à jour automatique : La mise à jour de Mindcare n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "nevermind",
+        "nom":  "Nevermind",
+        "version":  "0.12.0",
+        "notes":  "#-*  Titre  \nsuite",
+        "essai":  null,
+        "echec_avant":  true,
+        "message":  "erreur 404",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour de Nevermind n\u0027a pas pu se faire",
+                           "texte":  "Internet a coupé pendant le téléchargement. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "0.12.0",
+                      "raison":  "Internet a coupé pendant le téléchargement."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Nevermind 0.12.0 ratée : erreur 404",
+                        "Mise à jour automatique : La mise à jour de Nevermind n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "nevermind",
+        "nom":  "Nevermind",
+        "version":  "1.0.0",
+        "notes":  "   ",
+        "essai":  null,
+        "echec_avant":  true,
+        "message":  "erreur 404",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour de Nevermind n\u0027a pas pu se faire",
+                           "texte":  "Internet a coupé pendant le téléchargement. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "1.0.0",
+                      "raison":  "Internet a coupé pendant le téléchargement."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Nevermind 1.0.0 ratée : erreur 404",
+                        "Mise à jour automatique : La mise à jour de Nevermind n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "evermind",
+        "nom":  "Evermind",
+        "version":  "1.0.0",
+        "notes":  "\n\n   \n## Nouveautés",
+        "essai":  {
+                      "version":  "1.0.0",
+                      "minutes":  3,
+                      "nombre":  3
+                  },
+        "echec_avant":  true,
+        "message":  "quelque chose de bizarre",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour d\u0027Evermind n\u0027a pas pu se faire",
+                           "texte":  "quelque chose de bizarre. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "1.0.0",
+                      "raison":  "quelque chose de bizarre."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Evermind 1.0.0 ratée : quelque chose de bizarre",
+                        "Mise à jour automatique : La mise à jour d\u0027Evermind n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "mindcare",
+        "nom":  "Mindcare",
+        "version":  "1.0.0",
+        "notes":  "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz",
+        "essai":  null,
+        "echec_avant":  false,
+        "message":  "Mindcare 0.12.0 est installé.",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "Mindcare est passé en 1.0.0",
+                           "texte":  "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz..."
+                       }
+                   ],
+        "echec":  null,
+        "journal":  [
+                        "Mise à jour automatique : Mindcare est passé en 1.0.0"
+                    ]
+    },
+    {
+        "id":  "evermind",
+        "nom":  "Evermind",
+        "version":  "0.12.0",
+        "notes":  "#-*  Titre  \nsuite",
+        "essai":  {
+                      "version":  "9.9.9",
+                      "minutes":  20,
+                      "nombre":  4
+                  },
+        "echec_avant":  false,
+        "message":  "Mindcare 0.12.0 est installé.",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "Evermind est passé en 0.12.0",
+                           "texte":  "Titre"
+                       }
+                   ],
+        "echec":  null,
+        "journal":  [
+                        "Mise à jour automatique : Evermind est passé en 0.12.0"
+                    ]
+    },
+    {
+        "id":  "nevermind",
+        "nom":  "Nevermind",
+        "version":  "0.12.0",
+        "notes":  "   ",
+        "essai":  {
+                      "version":  "9.9.9",
+                      "minutes":  15,
+                      "nombre":  2
+                  },
+        "echec_avant":  true,
+        "message":  "la tâche d\u0027installation ne répond pas",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour de Nevermind n\u0027a pas pu se faire",
+                           "texte":  "L\u0027outil d\u0027installation de Mindset n\u0027a pas répondu. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "0.12.0",
+                      "raison":  "L\u0027outil d\u0027installation de Mindset n\u0027a pas répondu."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Nevermind 0.12.0 ratée : la tâche d\u0027installation ne répond pas",
+                        "Mise à jour automatique : La mise à jour de Nevermind n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "mindcare",
+        "nom":  "Mindcare",
+        "version":  "1.0.0",
+        "notes":  "\n\n   \n## Nouveautés",
+        "essai":  {
+                      "version":  "9.9.9",
+                      "minutes":  0,
+                      "nombre":  4
+                  },
+        "echec_avant":  true,
+        "message":  "quelque chose de bizarre",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour de Mindcare n\u0027a pas pu se faire",
+                           "texte":  "quelque chose de bizarre. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "1.0.0",
+                      "raison":  "quelque chose de bizarre."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Mindcare 1.0.0 ratée : quelque chose de bizarre",
+                        "Mise à jour automatique : La mise à jour de Mindcare n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "nevermind",
+        "nom":  "Nevermind",
+        "version":  "1.0.0",
+        "notes":  "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz",
+        "essai":  null,
+        "echec_avant":  true,
+        "message":  "",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour de Nevermind n\u0027a pas pu se faire",
+                           "texte":  "Une erreur inconnue l\u0027a arrêtée. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "1.0.0",
+                      "raison":  "Une erreur inconnue l\u0027a arrêtée."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Nevermind 1.0.0 ratée : ",
+                        "Mise à jour automatique : La mise à jour de Nevermind n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "nevermind",
+        "nom":  "Nevermind",
+        "version":  "0.12.0",
+        "notes":  "* ",
+        "essai":  null,
+        "echec_avant":  true,
+        "message":  "erreur 404",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour de Nevermind n\u0027a pas pu se faire",
+                           "texte":  "Internet a coupé pendant le téléchargement. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "0.12.0",
+                      "raison":  "Internet a coupé pendant le téléchargement."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Nevermind 0.12.0 ratée : erreur 404",
+                        "Mise à jour automatique : La mise à jour de Nevermind n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "nevermind",
+        "nom":  "Nevermind",
+        "version":  "1.0.0",
+        "notes":  "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz",
+        "essai":  null,
+        "echec_avant":  true,
+        "message":  "la signature de la version 0.12.0 est invalide",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour de Nevermind n\u0027a pas pu se faire",
+                           "texte":  "Le fichier téléchargé n\u0027a pas passé la vérification de sécurité : rien n\u0027a été changé. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "1.0.0",
+                      "raison":  "Le fichier téléchargé n\u0027a pas passé la vérification de sécurité : rien n\u0027a été changé."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Nevermind 1.0.0 ratée : la signature de la version 0.12.0 est invalide",
+                        "Mise à jour automatique : La mise à jour de Nevermind n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "evermind",
+        "nom":  "Evermind",
+        "version":  "1.0.0",
+        "notes":  "   ",
+        "essai":  null,
+        "echec_avant":  true,
+        "message":  "Mindcare 0.12.0 EST INSTALLÉ. Ancien raccourci retiré.",
+        "erreur":  "Échec lors de l’appel de la méthode, car [System.Object[]] ne contient pas de méthode nommée « Trim ».",
+        "bulles":  [
+
+                   ],
+        "echec":  null,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "id":  "mindcare",
+        "nom":  "Mindcare",
+        "version":  "0.12.0",
+        "notes":  "* ",
+        "essai":  {
+                      "version":  "9.9.9",
+                      "minutes":  15,
+                      "nombre":  2
+                  },
+        "echec_avant":  false,
+        "message":  "Mindcare 0.12.0 EST INSTALLÉ. Ancien raccourci retiré.",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "Mindcare est passé en 0.12.0",
+                           "texte":  ""
+                       }
+                   ],
+        "echec":  null,
+        "journal":  [
+                        "Mise à jour automatique : Mindcare est passé en 0.12.0"
+                    ]
+    },
+    {
+        "id":  "mindcare",
+        "nom":  "Mindcare",
+        "version":  "1.0.0",
+        "notes":  "\n\n   \n## Nouveautés",
+        "essai":  {
+                      "version":  "9.9.9",
+                      "minutes":  3,
+                      "nombre":  1
+                  },
+        "echec_avant":  false,
+        "message":  "",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour de Mindcare n\u0027a pas pu se faire",
+                           "texte":  "Une erreur inconnue l\u0027a arrêtée. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "1.0.0",
+                      "raison":  "Une erreur inconnue l\u0027a arrêtée."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Mindcare 1.0.0 ratée : ",
+                        "Mise à jour automatique : La mise à jour de Mindcare n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "mindcare",
+        "nom":  "Mindcare",
+        "version":  "0.12.0",
+        "notes":  "",
+        "essai":  {
+                      "version":  "0.12.0",
+                      "minutes":  0,
+                      "nombre":  4
+                  },
+        "echec_avant":  true,
+        "message":  "la tâche d\u0027installation ne répond pas",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour de Mindcare n\u0027a pas pu se faire",
+                           "texte":  "L\u0027outil d\u0027installation de Mindset n\u0027a pas répondu. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "0.12.0",
+                      "raison":  "L\u0027outil d\u0027installation de Mindset n\u0027a pas répondu."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Mindcare 0.12.0 ratée : la tâche d\u0027installation ne répond pas",
+                        "Mise à jour automatique : La mise à jour de Mindcare n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "nevermind",
+        "nom":  "Nevermind",
+        "version":  "0.12.0",
+        "notes":  "",
+        "essai":  null,
+        "echec_avant":  true,
+        "message":  "Mindcare 0.12.0 est installé.",
+        "erreur":  "Échec lors de l’appel de la méthode, car [System.Object[]] ne contient pas de méthode nommée « Trim ».",
+        "bulles":  [
+
+                   ],
+        "echec":  null,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "id":  "evermind",
+        "nom":  "Evermind",
+        "version":  "0.12.0",
+        "notes":  "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz",
+        "essai":  null,
+        "echec_avant":  true,
+        "message":  "la signature de la version 0.12.0 est invalide",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour d\u0027Evermind n\u0027a pas pu se faire",
+                           "texte":  "Le fichier téléchargé n\u0027a pas passé la vérification de sécurité : rien n\u0027a été changé. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "0.12.0",
+                      "raison":  "Le fichier téléchargé n\u0027a pas passé la vérification de sécurité : rien n\u0027a été changé."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Evermind 0.12.0 ratée : la signature de la version 0.12.0 est invalide",
+                        "Mise à jour automatique : La mise à jour d\u0027Evermind n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "nevermind",
+        "nom":  "Nevermind",
+        "version":  "1.0.0",
+        "notes":  "\n\n   \n## Nouveautés",
+        "essai":  {
+                      "version":  "9.9.9",
+                      "minutes":  20,
+                      "nombre":  1
+                  },
+        "echec_avant":  true,
+        "message":  "Échec : Mindcare est encore ouvert",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour de Nevermind n\u0027a pas pu se faire",
+                           "texte":  "Nevermind était encore ouvert et n\u0027a pas pu être fermé. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "1.0.0",
+                      "raison":  "Nevermind était encore ouvert et n\u0027a pas pu être fermé."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Nevermind 1.0.0 ratée : Échec : Mindcare est encore ouvert",
+                        "Mise à jour automatique : La mise à jour de Nevermind n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "mindcare",
+        "nom":  "Mindcare",
+        "version":  "0.12.0",
+        "notes":  "\n\n   \n## Nouveautés",
+        "essai":  null,
+        "echec_avant":  true,
+        "message":  "",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour de Mindcare n\u0027a pas pu se faire",
+                           "texte":  "Une erreur inconnue l\u0027a arrêtée. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "0.12.0",
+                      "raison":  "Une erreur inconnue l\u0027a arrêtée."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Mindcare 0.12.0 ratée : ",
+                        "Mise à jour automatique : La mise à jour de Mindcare n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "mindcare",
+        "nom":  "Mindcare",
+        "version":  "0.12.0",
+        "notes":  "   ",
+        "essai":  null,
+        "echec_avant":  true,
+        "message":  "Mindcare 0.12.0 EST INSTALLÉ. Ancien raccourci retiré.",
+        "erreur":  "Échec lors de l’appel de la méthode, car [System.Object[]] ne contient pas de méthode nommée « Trim ».",
+        "bulles":  [
+
+                   ],
+        "echec":  null,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "id":  "mindcare",
+        "nom":  "Mindcare",
+        "version":  "1.0.0",
+        "notes":  null,
+        "essai":  null,
+        "echec_avant":  true,
+        "message":  "Mindcare 0.12.0 EST INSTALLÉ. Ancien raccourci retiré.",
+        "erreur":  "Échec lors de l’appel de la méthode, car [System.Object[]] ne contient pas de méthode nommée « Trim ».",
+        "bulles":  [
+
+                   ],
+        "echec":  null,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "id":  "mindcare",
+        "nom":  "Mindcare",
+        "version":  "0.12.0",
+        "notes":  "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz",
+        "essai":  {
+                      "version":  "9.9.9",
+                      "minutes":  3,
+                      "nombre":  2
+                  },
+        "echec_avant":  true,
+        "message":  "la signature de la version 0.12.0 est invalide",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour de Mindcare n\u0027a pas pu se faire",
+                           "texte":  "Le fichier téléchargé n\u0027a pas passé la vérification de sécurité : rien n\u0027a été changé. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "0.12.0",
+                      "raison":  "Le fichier téléchargé n\u0027a pas passé la vérification de sécurité : rien n\u0027a été changé."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Mindcare 0.12.0 ratée : la signature de la version 0.12.0 est invalide",
+                        "Mise à jour automatique : La mise à jour de Mindcare n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "nevermind",
+        "nom":  "Nevermind",
+        "version":  "0.12.0",
+        "notes":  "* ",
+        "essai":  null,
+        "echec_avant":  true,
+        "message":  "erreur 404",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour de Nevermind n\u0027a pas pu se faire",
+                           "texte":  "Internet a coupé pendant le téléchargement. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "0.12.0",
+                      "raison":  "Internet a coupé pendant le téléchargement."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Nevermind 0.12.0 ratée : erreur 404",
+                        "Mise à jour automatique : La mise à jour de Nevermind n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "mindcare",
+        "nom":  "Mindcare",
+        "version":  "1.0.0",
+        "notes":  "",
+        "essai":  {
+                      "version":  "9.9.9",
+                      "minutes":  20,
+                      "nombre":  2
+                  },
+        "echec_avant":  false,
+        "message":  "la tâche d\u0027installation ne répond pas",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour de Mindcare n\u0027a pas pu se faire",
+                           "texte":  "L\u0027outil d\u0027installation de Mindset n\u0027a pas répondu. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "1.0.0",
+                      "raison":  "L\u0027outil d\u0027installation de Mindset n\u0027a pas répondu."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Mindcare 1.0.0 ratée : la tâche d\u0027installation ne répond pas",
+                        "Mise à jour automatique : La mise à jour de Mindcare n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "nevermind",
+        "nom":  "Nevermind",
+        "version":  "1.0.0",
+        "notes":  null,
+        "essai":  null,
+        "echec_avant":  true,
+        "message":  "quelque chose de bizarre",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour de Nevermind n\u0027a pas pu se faire",
+                           "texte":  "quelque chose de bizarre. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "1.0.0",
+                      "raison":  "quelque chose de bizarre."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Nevermind 1.0.0 ratée : quelque chose de bizarre",
+                        "Mise à jour automatique : La mise à jour de Nevermind n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "evermind",
+        "nom":  "Evermind",
+        "version":  "0.12.0",
+        "notes":  null,
+        "essai":  {
+                      "version":  "9.9.9",
+                      "minutes":  15,
+                      "nombre":  3
+                  },
+        "echec_avant":  false,
+        "message":  "la signature de la version 0.12.0 est invalide",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour d\u0027Evermind n\u0027a pas pu se faire",
+                           "texte":  "Le fichier téléchargé n\u0027a pas passé la vérification de sécurité : rien n\u0027a été changé. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "0.12.0",
+                      "raison":  "Le fichier téléchargé n\u0027a pas passé la vérification de sécurité : rien n\u0027a été changé."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Evermind 0.12.0 ratée : la signature de la version 0.12.0 est invalide",
+                        "Mise à jour automatique : La mise à jour d\u0027Evermind n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "mindcare",
+        "nom":  "Mindcare",
+        "version":  "1.0.0",
+        "notes":  "\n\n   \n## Nouveautés",
+        "essai":  null,
+        "echec_avant":  false,
+        "message":  "Échec : Mindcare est encore ouvert",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour de Mindcare n\u0027a pas pu se faire",
+                           "texte":  "Mindcare était encore ouvert et n\u0027a pas pu être fermé. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "1.0.0",
+                      "raison":  "Mindcare était encore ouvert et n\u0027a pas pu être fermé."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Mindcare 1.0.0 ratée : Échec : Mindcare est encore ouvert",
+                        "Mise à jour automatique : La mise à jour de Mindcare n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "evermind",
+        "nom":  "Evermind",
+        "version":  "0.12.0",
+        "notes":  "\n\n   \n## Nouveautés",
+        "essai":  {
+                      "version":  "9.9.9",
+                      "minutes":  0,
+                      "nombre":  4
+                  },
+        "echec_avant":  true,
+        "message":  "quelque chose de bizarre",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour d\u0027Evermind n\u0027a pas pu se faire",
+                           "texte":  "quelque chose de bizarre. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "0.12.0",
+                      "raison":  "quelque chose de bizarre."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Evermind 0.12.0 ratée : quelque chose de bizarre",
+                        "Mise à jour automatique : La mise à jour d\u0027Evermind n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "evermind",
+        "nom":  "Evermind",
+        "version":  "1.0.0",
+        "notes":  "   ",
+        "essai":  null,
+        "echec_avant":  true,
+        "message":  "Mindcare 0.12.0 est installé.",
+        "erreur":  "Échec lors de l’appel de la méthode, car [System.Object[]] ne contient pas de méthode nommée « Trim ».",
+        "bulles":  [
+
+                   ],
+        "echec":  null,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "id":  "evermind",
+        "nom":  "Evermind",
+        "version":  "0.12.0",
+        "notes":  null,
+        "essai":  {
+                      "version":  "0.12.0",
+                      "minutes":  15,
+                      "nombre":  3
+                  },
+        "echec_avant":  true,
+        "message":  "erreur 404",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour d\u0027Evermind n\u0027a pas pu se faire",
+                           "texte":  "Internet a coupé pendant le téléchargement. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "0.12.0",
+                      "raison":  "Internet a coupé pendant le téléchargement."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Evermind 0.12.0 ratée : erreur 404",
+                        "Mise à jour automatique : La mise à jour d\u0027Evermind n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "mindcare",
+        "nom":  "Mindcare",
+        "version":  "1.0.0",
+        "notes":  "- Corrige l\u0027ouverture\r\n- Autre",
+        "essai":  {
+                      "version":  "9.9.9",
+                      "minutes":  0,
+                      "nombre":  2
+                  },
+        "echec_avant":  false,
+        "message":  "quelque chose de bizarre",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour de Mindcare n\u0027a pas pu se faire",
+                           "texte":  "quelque chose de bizarre. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "1.0.0",
+                      "raison":  "quelque chose de bizarre."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Mindcare 1.0.0 ratée : quelque chose de bizarre",
+                        "Mise à jour automatique : La mise à jour de Mindcare n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "mindcare",
+        "nom":  "Mindcare",
+        "version":  "0.12.0",
+        "notes":  "   ",
+        "essai":  {
+                      "version":  "9.9.9",
+                      "minutes":  15,
+                      "nombre":  3
+                  },
+        "echec_avant":  false,
+        "message":  "quelque chose de bizarre",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour de Mindcare n\u0027a pas pu se faire",
+                           "texte":  "quelque chose de bizarre. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "0.12.0",
+                      "raison":  "quelque chose de bizarre."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Mindcare 0.12.0 ratée : quelque chose de bizarre",
+                        "Mise à jour automatique : La mise à jour de Mindcare n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "nevermind",
+        "nom":  "Nevermind",
+        "version":  "0.12.0",
+        "notes":  null,
+        "essai":  {
+                      "version":  "9.9.9",
+                      "minutes":  14.5,
+                      "nombre":  2
+                  },
+        "echec_avant":  true,
+        "message":  "",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour de Nevermind n\u0027a pas pu se faire",
+                           "texte":  "Une erreur inconnue l\u0027a arrêtée. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "0.12.0",
+                      "raison":  "Une erreur inconnue l\u0027a arrêtée."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Nevermind 0.12.0 ratée : ",
+                        "Mise à jour automatique : La mise à jour de Nevermind n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "evermind",
+        "nom":  "Evermind",
+        "version":  "1.0.0",
+        "notes":  "",
+        "essai":  {
+                      "version":  "9.9.9",
+                      "minutes":  14.5,
+                      "nombre":  2
+                  },
+        "echec_avant":  false,
+        "message":  "la signature de la version 0.12.0 est invalide",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour d\u0027Evermind n\u0027a pas pu se faire",
+                           "texte":  "Le fichier téléchargé n\u0027a pas passé la vérification de sécurité : rien n\u0027a été changé. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "1.0.0",
+                      "raison":  "Le fichier téléchargé n\u0027a pas passé la vérification de sécurité : rien n\u0027a été changé."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Evermind 1.0.0 ratée : la signature de la version 0.12.0 est invalide",
+                        "Mise à jour automatique : La mise à jour d\u0027Evermind n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "mindcare",
+        "nom":  "Mindcare",
+        "version":  "0.12.0",
+        "notes":  null,
+        "essai":  {
+                      "version":  "9.9.9",
+                      "minutes":  14.5,
+                      "nombre":  4
+                  },
+        "echec_avant":  true,
+        "message":  "la tâche d\u0027installation ne répond pas",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour de Mindcare n\u0027a pas pu se faire",
+                           "texte":  "L\u0027outil d\u0027installation de Mindset n\u0027a pas répondu. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "0.12.0",
+                      "raison":  "L\u0027outil d\u0027installation de Mindset n\u0027a pas répondu."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Mindcare 0.12.0 ratée : la tâche d\u0027installation ne répond pas",
+                        "Mise à jour automatique : La mise à jour de Mindcare n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "mindcare",
+        "nom":  "Mindcare",
+        "version":  "1.0.0",
+        "notes":  "- Corrige l\u0027ouverture\r\n- Autre",
+        "essai":  null,
+        "echec_avant":  true,
+        "message":  "quelque chose de bizarre",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour de Mindcare n\u0027a pas pu se faire",
+                           "texte":  "quelque chose de bizarre. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "1.0.0",
+                      "raison":  "quelque chose de bizarre."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Mindcare 1.0.0 ratée : quelque chose de bizarre",
+                        "Mise à jour automatique : La mise à jour de Mindcare n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "nevermind",
+        "nom":  "Nevermind",
+        "version":  "1.0.0",
+        "notes":  "\n\n   \n## Nouveautés",
+        "essai":  {
+                      "version":  "1.0.0",
+                      "minutes":  20,
+                      "nombre":  3
+                  },
+        "echec_avant":  false,
+        "message":  "Mindcare 0.12.0 est installé.",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "Nevermind est passé en 1.0.0",
+                           "texte":  "Nouveautés"
+                       }
+                   ],
+        "echec":  null,
+        "journal":  [
+                        "Mise à jour automatique : Nevermind est passé en 1.0.0"
+                    ]
+    },
+    {
+        "id":  "evermind",
+        "nom":  "Evermind",
+        "version":  "1.0.0",
+        "notes":  "#-*  Titre  \nsuite",
+        "essai":  {
+                      "version":  "9.9.9",
+                      "minutes":  14.5,
+                      "nombre":  2
+                  },
+        "echec_avant":  false,
+        "message":  "",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour d\u0027Evermind n\u0027a pas pu se faire",
+                           "texte":  "Une erreur inconnue l\u0027a arrêtée. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "1.0.0",
+                      "raison":  "Une erreur inconnue l\u0027a arrêtée."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Evermind 1.0.0 ratée : ",
+                        "Mise à jour automatique : La mise à jour d\u0027Evermind n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "mindcare",
+        "nom":  "Mindcare",
+        "version":  "1.0.0",
+        "notes":  "",
+        "essai":  null,
+        "echec_avant":  false,
+        "message":  "Échec : Mindcare est encore ouvert",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour de Mindcare n\u0027a pas pu se faire",
+                           "texte":  "Mindcare était encore ouvert et n\u0027a pas pu être fermé. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "1.0.0",
+                      "raison":  "Mindcare était encore ouvert et n\u0027a pas pu être fermé."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Mindcare 1.0.0 ratée : Échec : Mindcare est encore ouvert",
+                        "Mise à jour automatique : La mise à jour de Mindcare n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "evermind",
+        "nom":  "Evermind",
+        "version":  "1.0.0",
+        "notes":  null,
+        "essai":  {
+                      "version":  "1.0.0",
+                      "minutes":  20,
+                      "nombre":  2
+                  },
+        "echec_avant":  false,
+        "message":  "la tâche d\u0027installation ne répond pas",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour d\u0027Evermind n\u0027a pas pu se faire",
+                           "texte":  "L\u0027outil d\u0027installation de Mindset n\u0027a pas répondu. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "1.0.0",
+                      "raison":  "L\u0027outil d\u0027installation de Mindset n\u0027a pas répondu."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Evermind 1.0.0 ratée : la tâche d\u0027installation ne répond pas",
+                        "Mise à jour automatique : La mise à jour d\u0027Evermind n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "mindcare",
+        "nom":  "Mindcare",
+        "version":  "0.12.0",
+        "notes":  "- Corrige l\u0027ouverture\r\n- Autre",
+        "essai":  null,
+        "echec_avant":  true,
+        "message":  "",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour de Mindcare n\u0027a pas pu se faire",
+                           "texte":  "Une erreur inconnue l\u0027a arrêtée. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "0.12.0",
+                      "raison":  "Une erreur inconnue l\u0027a arrêtée."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Mindcare 0.12.0 ratée : ",
+                        "Mise à jour automatique : La mise à jour de Mindcare n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "evermind",
+        "nom":  "Evermind",
+        "version":  "0.12.0",
+        "notes":  "- Corrige l\u0027ouverture\r\n- Autre",
+        "essai":  {
+                      "version":  "9.9.9",
+                      "minutes":  20,
+                      "nombre":  4
+                  },
+        "echec_avant":  false,
+        "message":  "Mindcare 0.12.0 EST INSTALLÉ. Ancien raccourci retiré.",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "Evermind est passé en 0.12.0",
+                           "texte":  "Corrige l\u0027ouverture"
+                       }
+                   ],
+        "echec":  null,
+        "journal":  [
+                        "Mise à jour automatique : Evermind est passé en 0.12.0"
+                    ]
+    },
+    {
+        "id":  "mindcare",
+        "nom":  "Mindcare",
+        "version":  "1.0.0",
+        "notes":  "#-*  Titre  \nsuite",
+        "essai":  {
+                      "version":  "9.9.9",
+                      "minutes":  3,
+                      "nombre":  4
+                  },
+        "echec_avant":  true,
+        "message":  "la tâche d\u0027installation ne répond pas",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour de Mindcare n\u0027a pas pu se faire",
+                           "texte":  "L\u0027outil d\u0027installation de Mindset n\u0027a pas répondu. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "1.0.0",
+                      "raison":  "L\u0027outil d\u0027installation de Mindset n\u0027a pas répondu."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Mindcare 1.0.0 ratée : la tâche d\u0027installation ne répond pas",
+                        "Mise à jour automatique : La mise à jour de Mindcare n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "mindcare",
+        "nom":  "Mindcare",
+        "version":  "0.12.0",
+        "notes":  "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz",
+        "essai":  {
+                      "version":  "9.9.9",
+                      "minutes":  20,
+                      "nombre":  1
+                  },
+        "echec_avant":  true,
+        "message":  "erreur 404",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour de Mindcare n\u0027a pas pu se faire",
+                           "texte":  "Internet a coupé pendant le téléchargement. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "0.12.0",
+                      "raison":  "Internet a coupé pendant le téléchargement."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Mindcare 0.12.0 ratée : erreur 404",
+                        "Mise à jour automatique : La mise à jour de Mindcare n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "mindcare",
+        "nom":  "Mindcare",
+        "version":  "1.0.0",
+        "notes":  "* ",
+        "essai":  {
+                      "version":  "1.0.0",
+                      "minutes":  14.5,
+                      "nombre":  1
+                  },
+        "echec_avant":  true,
+        "message":  "Échec : Mindcare est encore ouvert",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour de Mindcare n\u0027a pas pu se faire",
+                           "texte":  "Mindcare était encore ouvert et n\u0027a pas pu être fermé. Mindset réessaiera tout seul dans 1 minutes, ou clique sur Réessayer."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "1.0.0",
+                      "raison":  "Mindcare était encore ouvert et n\u0027a pas pu être fermé."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Mindcare 1.0.0 ratée : Échec : Mindcare est encore ouvert",
+                        "Mise à jour automatique : La mise à jour de Mindcare n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "nevermind",
+        "nom":  "Nevermind",
+        "version":  "0.12.0",
+        "notes":  "* ",
+        "essai":  {
+                      "version":  "9.9.9",
+                      "minutes":  20,
+                      "nombre":  3
+                  },
+        "echec_avant":  true,
+        "message":  "la tâche d\u0027installation ne répond pas",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour de Nevermind n\u0027a pas pu se faire",
+                           "texte":  "L\u0027outil d\u0027installation de Mindset n\u0027a pas répondu. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "0.12.0",
+                      "raison":  "L\u0027outil d\u0027installation de Mindset n\u0027a pas répondu."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Nevermind 0.12.0 ratée : la tâche d\u0027installation ne répond pas",
+                        "Mise à jour automatique : La mise à jour de Nevermind n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "mindcare",
+        "nom":  "Mindcare",
+        "version":  "1.0.0",
+        "notes":  "- Corrige l\u0027ouverture\r\n- Autre",
+        "essai":  null,
+        "echec_avant":  false,
+        "message":  "la signature de la version 0.12.0 est invalide",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour de Mindcare n\u0027a pas pu se faire",
+                           "texte":  "Le fichier téléchargé n\u0027a pas passé la vérification de sécurité : rien n\u0027a été changé. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "1.0.0",
+                      "raison":  "Le fichier téléchargé n\u0027a pas passé la vérification de sécurité : rien n\u0027a été changé."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Mindcare 1.0.0 ratée : la signature de la version 0.12.0 est invalide",
+                        "Mise à jour automatique : La mise à jour de Mindcare n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "evermind",
+        "nom":  "Evermind",
+        "version":  "0.12.0",
+        "notes":  "- Corrige l\u0027ouverture\r\n- Autre",
+        "essai":  null,
+        "echec_avant":  true,
+        "message":  "la tâche d\u0027installation ne répond pas",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour d\u0027Evermind n\u0027a pas pu se faire",
+                           "texte":  "L\u0027outil d\u0027installation de Mindset n\u0027a pas répondu. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "0.12.0",
+                      "raison":  "L\u0027outil d\u0027installation de Mindset n\u0027a pas répondu."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Evermind 0.12.0 ratée : la tâche d\u0027installation ne répond pas",
+                        "Mise à jour automatique : La mise à jour d\u0027Evermind n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "mindcare",
+        "nom":  "Mindcare",
+        "version":  "1.0.0",
+        "notes":  "#-*  Titre  \nsuite",
+        "essai":  null,
+        "echec_avant":  true,
+        "message":  "Échec : Mindcare est encore ouvert",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour de Mindcare n\u0027a pas pu se faire",
+                           "texte":  "Mindcare était encore ouvert et n\u0027a pas pu être fermé. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "1.0.0",
+                      "raison":  "Mindcare était encore ouvert et n\u0027a pas pu être fermé."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Mindcare 1.0.0 ratée : Échec : Mindcare est encore ouvert",
+                        "Mise à jour automatique : La mise à jour de Mindcare n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "nevermind",
+        "nom":  "Nevermind",
+        "version":  "1.0.0",
+        "notes":  "\n\n   \n## Nouveautés",
+        "essai":  null,
+        "echec_avant":  false,
+        "message":  "la signature de la version 0.12.0 est invalide",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour de Nevermind n\u0027a pas pu se faire",
+                           "texte":  "Le fichier téléchargé n\u0027a pas passé la vérification de sécurité : rien n\u0027a été changé. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "1.0.0",
+                      "raison":  "Le fichier téléchargé n\u0027a pas passé la vérification de sécurité : rien n\u0027a été changé."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Nevermind 1.0.0 ratée : la signature de la version 0.12.0 est invalide",
+                        "Mise à jour automatique : La mise à jour de Nevermind n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "nevermind",
+        "nom":  "Nevermind",
+        "version":  "1.0.0",
+        "notes":  "* ",
+        "essai":  null,
+        "echec_avant":  true,
+        "message":  "quelque chose de bizarre",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour de Nevermind n\u0027a pas pu se faire",
+                           "texte":  "quelque chose de bizarre. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "1.0.0",
+                      "raison":  "quelque chose de bizarre."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Nevermind 1.0.0 ratée : quelque chose de bizarre",
+                        "Mise à jour automatique : La mise à jour de Nevermind n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "nevermind",
+        "nom":  "Nevermind",
+        "version":  "0.12.0",
+        "notes":  null,
+        "essai":  {
+                      "version":  "0.12.0",
+                      "minutes":  20,
+                      "nombre":  3
+                  },
+        "echec_avant":  true,
+        "message":  "Échec : Mindcare est encore ouvert",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour de Nevermind n\u0027a pas pu se faire",
+                           "texte":  "Nevermind était encore ouvert et n\u0027a pas pu être fermé. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "0.12.0",
+                      "raison":  "Nevermind était encore ouvert et n\u0027a pas pu être fermé."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Nevermind 0.12.0 ratée : Échec : Mindcare est encore ouvert",
+                        "Mise à jour automatique : La mise à jour de Nevermind n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "mindcare",
+        "nom":  "Mindcare",
+        "version":  "1.0.0",
+        "notes":  "\n\n   \n## Nouveautés",
+        "essai":  null,
+        "echec_avant":  true,
+        "message":  "erreur 404",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour de Mindcare n\u0027a pas pu se faire",
+                           "texte":  "Internet a coupé pendant le téléchargement. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "1.0.0",
+                      "raison":  "Internet a coupé pendant le téléchargement."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Mindcare 1.0.0 ratée : erreur 404",
+                        "Mise à jour automatique : La mise à jour de Mindcare n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "nevermind",
+        "nom":  "Nevermind",
+        "version":  "1.0.0",
+        "notes":  "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz",
+        "essai":  {
+                      "version":  "1.0.0",
+                      "minutes":  15,
+                      "nombre":  2
+                  },
+        "echec_avant":  true,
+        "message":  "Mindcare 0.12.0 EST INSTALLÉ. Ancien raccourci retiré.",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "Nevermind est passé en 1.0.0",
+                           "texte":  "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz..."
+                       }
+                   ],
+        "echec":  null,
+        "journal":  [
+                        "Mise à jour automatique : Nevermind est passé en 1.0.0"
+                    ]
+    },
+    {
+        "id":  "mindcare",
+        "nom":  "Mindcare",
+        "version":  "1.0.0",
+        "notes":  "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz",
+        "essai":  {
+                      "version":  "1.0.0",
+                      "minutes":  14.5,
+                      "nombre":  4
+                  },
+        "echec_avant":  true,
+        "message":  "la signature de la version 0.12.0 est invalide",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour de Mindcare n\u0027a pas pu se faire",
+                           "texte":  "Le fichier téléchargé n\u0027a pas passé la vérification de sécurité : rien n\u0027a été changé. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "1.0.0",
+                      "raison":  "Le fichier téléchargé n\u0027a pas passé la vérification de sécurité : rien n\u0027a été changé."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Mindcare 1.0.0 ratée : la signature de la version 0.12.0 est invalide",
+                        "Mise à jour automatique : La mise à jour de Mindcare n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "mindcare",
+        "nom":  "Mindcare",
+        "version":  "0.12.0",
+        "notes":  "#-*  Titre  \nsuite",
+        "essai":  {
+                      "version":  "9.9.9",
+                      "minutes":  14.5,
+                      "nombre":  4
+                  },
+        "echec_avant":  true,
+        "message":  "quelque chose de bizarre",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour de Mindcare n\u0027a pas pu se faire",
+                           "texte":  "quelque chose de bizarre. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "0.12.0",
+                      "raison":  "quelque chose de bizarre."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Mindcare 0.12.0 ratée : quelque chose de bizarre",
+                        "Mise à jour automatique : La mise à jour de Mindcare n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "mindcare",
+        "nom":  "Mindcare",
+        "version":  "1.0.0",
+        "notes":  null,
+        "essai":  {
+                      "version":  "9.9.9",
+                      "minutes":  14.5,
+                      "nombre":  3
+                  },
+        "echec_avant":  false,
+        "message":  "Mindcare 0.12.0 EST INSTALLÉ. Ancien raccourci retiré.",
+        "erreur":  "Échec lors de l’appel de la méthode, car [System.Object[]] ne contient pas de méthode nommée « Trim ».",
+        "bulles":  [
+
+                   ],
+        "echec":  null,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "id":  "nevermind",
+        "nom":  "Nevermind",
+        "version":  "0.12.0",
+        "notes":  "\n\n   \n## Nouveautés",
+        "essai":  null,
+        "echec_avant":  false,
+        "message":  "Mindcare 0.12.0 EST INSTALLÉ. Ancien raccourci retiré.",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "Nevermind est passé en 0.12.0",
+                           "texte":  "Nouveautés"
+                       }
+                   ],
+        "echec":  null,
+        "journal":  [
+                        "Mise à jour automatique : Nevermind est passé en 0.12.0"
+                    ]
+    },
+    {
+        "id":  "nevermind",
+        "nom":  "Nevermind",
+        "version":  "0.12.0",
+        "notes":  "- Corrige l\u0027ouverture\r\n- Autre",
+        "essai":  {
+                      "version":  "9.9.9",
+                      "minutes":  14.5,
+                      "nombre":  4
+                  },
+        "echec_avant":  false,
+        "message":  "Mindcare 0.12.0 EST INSTALLÉ. Ancien raccourci retiré.",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "Nevermind est passé en 0.12.0",
+                           "texte":  "Corrige l\u0027ouverture"
+                       }
+                   ],
+        "echec":  null,
+        "journal":  [
+                        "Mise à jour automatique : Nevermind est passé en 0.12.0"
+                    ]
+    },
+    {
+        "id":  "nevermind",
+        "nom":  "Nevermind",
+        "version":  "1.0.0",
+        "notes":  "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz",
+        "essai":  null,
+        "echec_avant":  false,
+        "message":  "quelque chose de bizarre",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour de Nevermind n\u0027a pas pu se faire",
+                           "texte":  "quelque chose de bizarre. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "1.0.0",
+                      "raison":  "quelque chose de bizarre."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Nevermind 1.0.0 ratée : quelque chose de bizarre",
+                        "Mise à jour automatique : La mise à jour de Nevermind n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "mindcare",
+        "nom":  "Mindcare",
+        "version":  "0.12.0",
+        "notes":  "#-*  Titre  \nsuite",
+        "essai":  {
+                      "version":  "0.12.0",
+                      "minutes":  3,
+                      "nombre":  1
+                  },
+        "echec_avant":  false,
+        "message":  "quelque chose de bizarre",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour de Mindcare n\u0027a pas pu se faire",
+                           "texte":  "quelque chose de bizarre. Mindset réessaiera tout seul dans 12 minutes, ou clique sur Réessayer."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "0.12.0",
+                      "raison":  "quelque chose de bizarre."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Mindcare 0.12.0 ratée : quelque chose de bizarre",
+                        "Mise à jour automatique : La mise à jour de Mindcare n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "nevermind",
+        "nom":  "Nevermind",
+        "version":  "0.12.0",
+        "notes":  "",
+        "essai":  {
+                      "version":  "0.12.0",
+                      "minutes":  3,
+                      "nombre":  1
+                  },
+        "echec_avant":  false,
+        "message":  "Mindcare 0.12.0 est installé.",
+        "erreur":  "Échec lors de l’appel de la méthode, car [System.Object[]] ne contient pas de méthode nommée « Trim ».",
+        "bulles":  [
+
+                   ],
+        "echec":  null,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "id":  "evermind",
+        "nom":  "Evermind",
+        "version":  "1.0.0",
+        "notes":  "#-*  Titre  \nsuite",
+        "essai":  null,
+        "echec_avant":  false,
+        "message":  "quelque chose de bizarre",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour d\u0027Evermind n\u0027a pas pu se faire",
+                           "texte":  "quelque chose de bizarre. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "1.0.0",
+                      "raison":  "quelque chose de bizarre."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Evermind 1.0.0 ratée : quelque chose de bizarre",
+                        "Mise à jour automatique : La mise à jour d\u0027Evermind n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "evermind",
+        "nom":  "Evermind",
+        "version":  "0.12.0",
+        "notes":  "#-*  Titre  \nsuite",
+        "essai":  {
+                      "version":  "0.12.0",
+                      "minutes":  0,
+                      "nombre":  4
+                  },
+        "echec_avant":  false,
+        "message":  "quelque chose de bizarre",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour d\u0027Evermind n\u0027a pas pu se faire",
+                           "texte":  "quelque chose de bizarre. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "0.12.0",
+                      "raison":  "quelque chose de bizarre."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Evermind 0.12.0 ratée : quelque chose de bizarre",
+                        "Mise à jour automatique : La mise à jour d\u0027Evermind n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "mindcare",
+        "nom":  "Mindcare",
+        "version":  "1.0.0",
+        "notes":  "- Corrige l\u0027ouverture\r\n- Autre",
+        "essai":  {
+                      "version":  "1.0.0",
+                      "minutes":  20,
+                      "nombre":  4
+                  },
+        "echec_avant":  true,
+        "message":  "erreur 404",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour de Mindcare n\u0027a pas pu se faire",
+                           "texte":  "Internet a coupé pendant le téléchargement. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "1.0.0",
+                      "raison":  "Internet a coupé pendant le téléchargement."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Mindcare 1.0.0 ratée : erreur 404",
+                        "Mise à jour automatique : La mise à jour de Mindcare n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "mindcare",
+        "nom":  "Mindcare",
+        "version":  "0.12.0",
+        "notes":  "\n\n   \n## Nouveautés",
+        "essai":  {
+                      "version":  "0.12.0",
+                      "minutes":  20,
+                      "nombre":  4
+                  },
+        "echec_avant":  true,
+        "message":  "erreur 404",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour de Mindcare n\u0027a pas pu se faire",
+                           "texte":  "Internet a coupé pendant le téléchargement. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "0.12.0",
+                      "raison":  "Internet a coupé pendant le téléchargement."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Mindcare 0.12.0 ratée : erreur 404",
+                        "Mise à jour automatique : La mise à jour de Mindcare n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "evermind",
+        "nom":  "Evermind",
+        "version":  "1.0.0",
+        "notes":  "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz",
+        "essai":  null,
+        "echec_avant":  true,
+        "message":  "",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour d\u0027Evermind n\u0027a pas pu se faire",
+                           "texte":  "Une erreur inconnue l\u0027a arrêtée. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "1.0.0",
+                      "raison":  "Une erreur inconnue l\u0027a arrêtée."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Evermind 1.0.0 ratée : ",
+                        "Mise à jour automatique : La mise à jour d\u0027Evermind n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "evermind",
+        "nom":  "Evermind",
+        "version":  "0.12.0",
+        "notes":  "- Corrige l\u0027ouverture\r\n- Autre",
+        "essai":  {
+                      "version":  "0.12.0",
+                      "minutes":  3,
+                      "nombre":  4
+                  },
+        "echec_avant":  false,
+        "message":  "quelque chose de bizarre",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour d\u0027Evermind n\u0027a pas pu se faire",
+                           "texte":  "quelque chose de bizarre. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "0.12.0",
+                      "raison":  "quelque chose de bizarre."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Evermind 0.12.0 ratée : quelque chose de bizarre",
+                        "Mise à jour automatique : La mise à jour d\u0027Evermind n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "mindcare",
+        "nom":  "Mindcare",
+        "version":  "0.12.0",
+        "notes":  "\n\n   \n## Nouveautés",
+        "essai":  null,
+        "echec_avant":  true,
+        "message":  "erreur 404",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour de Mindcare n\u0027a pas pu se faire",
+                           "texte":  "Internet a coupé pendant le téléchargement. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "0.12.0",
+                      "raison":  "Internet a coupé pendant le téléchargement."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Mindcare 0.12.0 ratée : erreur 404",
+                        "Mise à jour automatique : La mise à jour de Mindcare n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "mindcare",
+        "nom":  "Mindcare",
+        "version":  "1.0.0",
+        "notes":  null,
+        "essai":  {
+                      "version":  "9.9.9",
+                      "minutes":  20,
+                      "nombre":  3
+                  },
+        "echec_avant":  false,
+        "message":  "erreur 404",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour de Mindcare n\u0027a pas pu se faire",
+                           "texte":  "Internet a coupé pendant le téléchargement. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "1.0.0",
+                      "raison":  "Internet a coupé pendant le téléchargement."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Mindcare 1.0.0 ratée : erreur 404",
+                        "Mise à jour automatique : La mise à jour de Mindcare n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "nevermind",
+        "nom":  "Nevermind",
+        "version":  "1.0.0",
+        "notes":  "\n\n   \n## Nouveautés",
+        "essai":  null,
+        "echec_avant":  false,
+        "message":  "",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour de Nevermind n\u0027a pas pu se faire",
+                           "texte":  "Une erreur inconnue l\u0027a arrêtée. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "1.0.0",
+                      "raison":  "Une erreur inconnue l\u0027a arrêtée."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Nevermind 1.0.0 ratée : ",
+                        "Mise à jour automatique : La mise à jour de Nevermind n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "evermind",
+        "nom":  "Evermind",
+        "version":  "0.12.0",
+        "notes":  "",
+        "essai":  {
+                      "version":  "9.9.9",
+                      "minutes":  20,
+                      "nombre":  3
+                  },
+        "echec_avant":  false,
+        "message":  "la signature de la version 0.12.0 est invalide",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour d\u0027Evermind n\u0027a pas pu se faire",
+                           "texte":  "Le fichier téléchargé n\u0027a pas passé la vérification de sécurité : rien n\u0027a été changé. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "0.12.0",
+                      "raison":  "Le fichier téléchargé n\u0027a pas passé la vérification de sécurité : rien n\u0027a été changé."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Evermind 0.12.0 ratée : la signature de la version 0.12.0 est invalide",
+                        "Mise à jour automatique : La mise à jour d\u0027Evermind n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "evermind",
+        "nom":  "Evermind",
+        "version":  "0.12.0",
+        "notes":  "* ",
+        "essai":  {
+                      "version":  "0.12.0",
+                      "minutes":  3,
+                      "nombre":  3
+                  },
+        "echec_avant":  true,
+        "message":  "Mindcare 0.12.0 est installé.",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "Evermind est passé en 0.12.0",
+                           "texte":  ""
+                       }
+                   ],
+        "echec":  null,
+        "journal":  [
+                        "Mise à jour automatique : Evermind est passé en 0.12.0"
+                    ]
+    },
+    {
+        "id":  "nevermind",
+        "nom":  "Nevermind",
+        "version":  "0.12.0",
+        "notes":  "",
+        "essai":  {
+                      "version":  "0.12.0",
+                      "minutes":  15,
+                      "nombre":  4
+                  },
+        "echec_avant":  true,
+        "message":  "Échec : Mindcare est encore ouvert",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour de Nevermind n\u0027a pas pu se faire",
+                           "texte":  "Nevermind était encore ouvert et n\u0027a pas pu être fermé. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "0.12.0",
+                      "raison":  "Nevermind était encore ouvert et n\u0027a pas pu être fermé."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Nevermind 0.12.0 ratée : Échec : Mindcare est encore ouvert",
+                        "Mise à jour automatique : La mise à jour de Nevermind n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "evermind",
+        "nom":  "Evermind",
+        "version":  "1.0.0",
+        "notes":  "* ",
+        "essai":  {
+                      "version":  "9.9.9",
+                      "minutes":  14.5,
+                      "nombre":  1
+                  },
+        "echec_avant":  true,
+        "message":  "Mindcare 0.12.0 est installé.",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "Evermind est passé en 1.0.0",
+                           "texte":  ""
+                       }
+                   ],
+        "echec":  null,
+        "journal":  [
+                        "Mise à jour automatique : Evermind est passé en 1.0.0"
+                    ]
+    },
+    {
+        "id":  "mindcare",
+        "nom":  "Mindcare",
+        "version":  "1.0.0",
+        "notes":  "#-*  Titre  \nsuite",
+        "essai":  {
+                      "version":  "9.9.9",
+                      "minutes":  3,
+                      "nombre":  3
+                  },
+        "echec_avant":  false,
+        "message":  "la tâche d\u0027installation ne répond pas",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour de Mindcare n\u0027a pas pu se faire",
+                           "texte":  "L\u0027outil d\u0027installation de Mindset n\u0027a pas répondu. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "1.0.0",
+                      "raison":  "L\u0027outil d\u0027installation de Mindset n\u0027a pas répondu."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Mindcare 1.0.0 ratée : la tâche d\u0027installation ne répond pas",
+                        "Mise à jour automatique : La mise à jour de Mindcare n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "evermind",
+        "nom":  "Evermind",
+        "version":  "0.12.0",
+        "notes":  "   ",
+        "essai":  {
+                      "version":  "0.12.0",
+                      "minutes":  0,
+                      "nombre":  2
+                  },
+        "echec_avant":  false,
+        "message":  "Mindcare 0.12.0 EST INSTALLÉ. Ancien raccourci retiré.",
+        "erreur":  "Échec lors de l’appel de la méthode, car [System.Object[]] ne contient pas de méthode nommée « Trim ».",
+        "bulles":  [
+
+                   ],
+        "echec":  null,
+        "journal":  [
+
+                    ]
+    },
+    {
+        "id":  "evermind",
+        "nom":  "Evermind",
+        "version":  "1.0.0",
+        "notes":  "#-*  Titre  \nsuite",
+        "essai":  null,
+        "echec_avant":  true,
+        "message":  "quelque chose de bizarre",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour d\u0027Evermind n\u0027a pas pu se faire",
+                           "texte":  "quelque chose de bizarre. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "1.0.0",
+                      "raison":  "quelque chose de bizarre."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Evermind 1.0.0 ratée : quelque chose de bizarre",
+                        "Mise à jour automatique : La mise à jour d\u0027Evermind n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "evermind",
+        "nom":  "Evermind",
+        "version":  "0.12.0",
+        "notes":  "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz",
+        "essai":  {
+                      "version":  "9.9.9",
+                      "minutes":  15,
+                      "nombre":  4
+                  },
+        "echec_avant":  false,
+        "message":  "la tâche d\u0027installation ne répond pas",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour d\u0027Evermind n\u0027a pas pu se faire",
+                           "texte":  "L\u0027outil d\u0027installation de Mindset n\u0027a pas répondu. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "0.12.0",
+                      "raison":  "L\u0027outil d\u0027installation de Mindset n\u0027a pas répondu."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Evermind 0.12.0 ratée : la tâche d\u0027installation ne répond pas",
+                        "Mise à jour automatique : La mise à jour d\u0027Evermind n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "mindcare",
+        "nom":  "Mindcare",
+        "version":  "0.12.0",
+        "notes":  "\n\n   \n## Nouveautés",
+        "essai":  {
+                      "version":  "0.12.0",
+                      "minutes":  15,
+                      "nombre":  4
+                  },
+        "echec_avant":  false,
+        "message":  "quelque chose de bizarre",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour de Mindcare n\u0027a pas pu se faire",
+                           "texte":  "quelque chose de bizarre. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "0.12.0",
+                      "raison":  "quelque chose de bizarre."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Mindcare 0.12.0 ratée : quelque chose de bizarre",
+                        "Mise à jour automatique : La mise à jour de Mindcare n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "mindcare",
+        "nom":  "Mindcare",
+        "version":  "0.12.0",
+        "notes":  "#-*  Titre  \nsuite",
+        "essai":  {
+                      "version":  "9.9.9",
+                      "minutes":  15,
+                      "nombre":  2
+                  },
+        "echec_avant":  true,
+        "message":  "la signature de la version 0.12.0 est invalide",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour de Mindcare n\u0027a pas pu se faire",
+                           "texte":  "Le fichier téléchargé n\u0027a pas passé la vérification de sécurité : rien n\u0027a été changé. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "0.12.0",
+                      "raison":  "Le fichier téléchargé n\u0027a pas passé la vérification de sécurité : rien n\u0027a été changé."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Mindcare 0.12.0 ratée : la signature de la version 0.12.0 est invalide",
+                        "Mise à jour automatique : La mise à jour de Mindcare n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "evermind",
+        "nom":  "Evermind",
+        "version":  "1.0.0",
+        "notes":  null,
+        "essai":  {
+                      "version":  "9.9.9",
+                      "minutes":  15,
+                      "nombre":  3
+                  },
+        "echec_avant":  false,
+        "message":  "la signature de la version 0.12.0 est invalide",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour d\u0027Evermind n\u0027a pas pu se faire",
+                           "texte":  "Le fichier téléchargé n\u0027a pas passé la vérification de sécurité : rien n\u0027a été changé. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "1.0.0",
+                      "raison":  "Le fichier téléchargé n\u0027a pas passé la vérification de sécurité : rien n\u0027a été changé."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Evermind 1.0.0 ratée : la signature de la version 0.12.0 est invalide",
+                        "Mise à jour automatique : La mise à jour d\u0027Evermind n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "nevermind",
+        "nom":  "Nevermind",
+        "version":  "1.0.0",
+        "notes":  "#-*  Titre  \nsuite",
+        "essai":  {
+                      "version":  "9.9.9",
+                      "minutes":  0,
+                      "nombre":  2
+                  },
+        "echec_avant":  true,
+        "message":  "",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour de Nevermind n\u0027a pas pu se faire",
+                           "texte":  "Une erreur inconnue l\u0027a arrêtée. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "1.0.0",
+                      "raison":  "Une erreur inconnue l\u0027a arrêtée."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Nevermind 1.0.0 ratée : ",
+                        "Mise à jour automatique : La mise à jour de Nevermind n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "nevermind",
+        "nom":  "Nevermind",
+        "version":  "1.0.0",
+        "notes":  "- Corrige l\u0027ouverture\r\n- Autre",
+        "essai":  {
+                      "version":  "9.9.9",
+                      "minutes":  15,
+                      "nombre":  4
+                  },
+        "echec_avant":  false,
+        "message":  "la tâche d\u0027installation ne répond pas",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour de Nevermind n\u0027a pas pu se faire",
+                           "texte":  "L\u0027outil d\u0027installation de Mindset n\u0027a pas répondu. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "1.0.0",
+                      "raison":  "L\u0027outil d\u0027installation de Mindset n\u0027a pas répondu."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Nevermind 1.0.0 ratée : la tâche d\u0027installation ne répond pas",
+                        "Mise à jour automatique : La mise à jour de Nevermind n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "mindcare",
+        "nom":  "Mindcare",
+        "version":  "0.12.0",
+        "notes":  "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz",
+        "essai":  {
+                      "version":  "9.9.9",
+                      "minutes":  20,
+                      "nombre":  2
+                  },
+        "echec_avant":  false,
+        "message":  "",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour de Mindcare n\u0027a pas pu se faire",
+                           "texte":  "Une erreur inconnue l\u0027a arrêtée. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "0.12.0",
+                      "raison":  "Une erreur inconnue l\u0027a arrêtée."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Mindcare 0.12.0 ratée : ",
+                        "Mise à jour automatique : La mise à jour de Mindcare n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "evermind",
+        "nom":  "Evermind",
+        "version":  "1.0.0",
+        "notes":  "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz",
+        "essai":  {
+                      "version":  "9.9.9",
+                      "minutes":  15,
+                      "nombre":  2
+                  },
+        "echec_avant":  false,
+        "message":  "la tâche d\u0027installation ne répond pas",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour d\u0027Evermind n\u0027a pas pu se faire",
+                           "texte":  "L\u0027outil d\u0027installation de Mindset n\u0027a pas répondu. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "1.0.0",
+                      "raison":  "L\u0027outil d\u0027installation de Mindset n\u0027a pas répondu."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Evermind 1.0.0 ratée : la tâche d\u0027installation ne répond pas",
+                        "Mise à jour automatique : La mise à jour d\u0027Evermind n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "mindcare",
+        "nom":  "Mindcare",
+        "version":  "0.12.0",
+        "notes":  "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz",
+        "essai":  {
+                      "version":  "0.12.0",
+                      "minutes":  3,
+                      "nombre":  1
+                  },
+        "echec_avant":  true,
+        "message":  "",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour de Mindcare n\u0027a pas pu se faire",
+                           "texte":  "Une erreur inconnue l\u0027a arrêtée. Mindset réessaiera tout seul dans 12 minutes, ou clique sur Réessayer."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "0.12.0",
+                      "raison":  "Une erreur inconnue l\u0027a arrêtée."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Mindcare 0.12.0 ratée : ",
+                        "Mise à jour automatique : La mise à jour de Mindcare n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "mindcare",
+        "nom":  "Mindcare",
+        "version":  "1.0.0",
+        "notes":  "#-*  Titre  \nsuite",
+        "essai":  {
+                      "version":  "9.9.9",
+                      "minutes":  15,
+                      "nombre":  2
+                  },
+        "echec_avant":  false,
+        "message":  "Échec : Mindcare est encore ouvert",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour de Mindcare n\u0027a pas pu se faire",
+                           "texte":  "Mindcare était encore ouvert et n\u0027a pas pu être fermé. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "1.0.0",
+                      "raison":  "Mindcare était encore ouvert et n\u0027a pas pu être fermé."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Mindcare 1.0.0 ratée : Échec : Mindcare est encore ouvert",
+                        "Mise à jour automatique : La mise à jour de Mindcare n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "nevermind",
+        "nom":  "Nevermind",
+        "version":  "1.0.0",
+        "notes":  "",
+        "essai":  {
+                      "version":  "1.0.0",
+                      "minutes":  3,
+                      "nombre":  2
+                  },
+        "echec_avant":  true,
+        "message":  "",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour de Nevermind n\u0027a pas pu se faire",
+                           "texte":  "Une erreur inconnue l\u0027a arrêtée. Mindset réessaiera tout seul dans 12 minutes, ou clique sur Réessayer."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "1.0.0",
+                      "raison":  "Une erreur inconnue l\u0027a arrêtée."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Nevermind 1.0.0 ratée : ",
+                        "Mise à jour automatique : La mise à jour de Nevermind n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "mindcare",
+        "nom":  "Mindcare",
+        "version":  "0.12.0",
+        "notes":  "- Corrige l\u0027ouverture\r\n- Autre",
+        "essai":  {
+                      "version":  "0.12.0",
+                      "minutes":  15,
+                      "nombre":  1
+                  },
+        "echec_avant":  false,
+        "message":  "",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour de Mindcare n\u0027a pas pu se faire",
+                           "texte":  "Une erreur inconnue l\u0027a arrêtée. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "0.12.0",
+                      "raison":  "Une erreur inconnue l\u0027a arrêtée."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Mindcare 0.12.0 ratée : ",
+                        "Mise à jour automatique : La mise à jour de Mindcare n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "nevermind",
+        "nom":  "Nevermind",
+        "version":  "1.0.0",
+        "notes":  "   ",
+        "essai":  null,
+        "echec_avant":  true,
+        "message":  "quelque chose de bizarre",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour de Nevermind n\u0027a pas pu se faire",
+                           "texte":  "quelque chose de bizarre. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "1.0.0",
+                      "raison":  "quelque chose de bizarre."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Nevermind 1.0.0 ratée : quelque chose de bizarre",
+                        "Mise à jour automatique : La mise à jour de Nevermind n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "mindcare",
+        "nom":  "Mindcare",
+        "version":  "0.12.0",
+        "notes":  "* ",
+        "essai":  {
+                      "version":  "0.12.0",
+                      "minutes":  0,
+                      "nombre":  4
+                  },
+        "echec_avant":  false,
+        "message":  "Échec : Mindcare est encore ouvert",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour de Mindcare n\u0027a pas pu se faire",
+                           "texte":  "Mindcare était encore ouvert et n\u0027a pas pu être fermé. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "0.12.0",
+                      "raison":  "Mindcare était encore ouvert et n\u0027a pas pu être fermé."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Mindcare 0.12.0 ratée : Échec : Mindcare est encore ouvert",
+                        "Mise à jour automatique : La mise à jour de Mindcare n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "evermind",
+        "nom":  "Evermind",
+        "version":  "0.12.0",
+        "notes":  "- Corrige l\u0027ouverture\r\n- Autre",
+        "essai":  {
+                      "version":  "9.9.9",
+                      "minutes":  20,
+                      "nombre":  2
+                  },
+        "echec_avant":  false,
+        "message":  "la tâche d\u0027installation ne répond pas",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "La mise à jour d\u0027Evermind n\u0027a pas pu se faire",
+                           "texte":  "L\u0027outil d\u0027installation de Mindset n\u0027a pas répondu. Clique sur Réessayer dans Mindset."
+                       }
+                   ],
+        "echec":  {
+                      "version":  "0.12.0",
+                      "raison":  "L\u0027outil d\u0027installation de Mindset n\u0027a pas répondu."
+                  },
+        "journal":  [
+                        "Mise à jour automatique de Evermind 0.12.0 ratée : la tâche d\u0027installation ne répond pas",
+                        "Mise à jour automatique : La mise à jour d\u0027Evermind n\u0027a pas pu se faire"
+                    ]
+    },
+    {
+        "id":  "evermind",
+        "nom":  "Evermind",
+        "version":  "0.12.0",
+        "notes":  "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz",
+        "essai":  {
+                      "version":  "9.9.9",
+                      "minutes":  15,
+                      "nombre":  4
+                  },
+        "echec_avant":  false,
+        "message":  "Mindcare 0.12.0 est installé.",
+        "erreur":  null,
+        "bulles":  [
+                       {
+                           "titre":  "Evermind est passé en 0.12.0",
+                           "texte":  "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz..."
+                       }
+                   ],
+        "echec":  null,
+        "journal":  [
+                        "Mise à jour automatique : Evermind est passé en 0.12.0"
+                    ]
+    }
+]

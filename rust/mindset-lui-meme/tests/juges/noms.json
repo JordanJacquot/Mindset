@@ -1,0 +1,172 @@
+[
+    {
+        "quoi":  "de",
+        "entree":  "Evermind",
+        "attendu":  "d\u0027Evermind"
+    },
+    {
+        "quoi":  "de",
+        "entree":  "Mindcare",
+        "attendu":  "de Mindcare"
+    },
+    {
+        "quoi":  "de",
+        "entree":  "Nevermind",
+        "attendu":  "de Nevermind"
+    },
+    {
+        "quoi":  "de",
+        "entree":  "Hélène",
+        "attendu":  "d\u0027Hélène"
+    },
+    {
+        "quoi":  "de",
+        "entree":  "Écran",
+        "attendu":  "d\u0027Écran"
+    },
+    {
+        "quoi":  "de",
+        "entree":  "Hôte",
+        "attendu":  "d\u0027Hôte"
+    },
+    {
+        "quoi":  "de",
+        "entree":  "ombre",
+        "attendu":  "d\u0027ombre"
+    },
+    {
+        "quoi":  "de",
+        "entree":  "Zèbre",
+        "attendu":  "de Zèbre"
+    },
+    {
+        "quoi":  "de",
+        "entree":  "",
+        "attendu":  "de "
+    },
+    {
+        "quoi":  "de",
+        "entree":  "yoga",
+        "attendu":  "d\u0027yoga"
+    },
+    {
+        "quoi":  "de",
+        "entree":  "Ïle",
+        "attendu":  "de Ïle"
+    },
+    {
+        "quoi":  "de",
+        "entree":  "Èlan",
+        "attendu":  "d\u0027Èlan"
+    },
+    {
+        "quoi":  "de",
+        "entree":  "Êtes",
+        "attendu":  "d\u0027Êtes"
+    },
+    {
+        "quoi":  "de",
+        "entree":  "Ulysse",
+        "attendu":  "d\u0027Ulysse"
+    },
+    {
+        "quoi":  "de",
+        "entree":  "Arc",
+        "attendu":  "d\u0027Arc"
+    },
+    {
+        "quoi":  "de",
+        "entree":  "hello",
+        "attendu":  "d\u0027hello"
+    },
+    {
+        "quoi":  "de",
+        "entree":  "HELLO",
+        "attendu":  "d\u0027HELLO"
+    },
+    {
+        "quoi":  "de",
+        "entree":  "42",
+        "attendu":  "de 42"
+    },
+    {
+        "quoi":  "de",
+        "entree":  "Œuvre",
+        "attendu":  "de Œuvre"
+    },
+    {
+        "quoi":  "de",
+        "entree":  "à",
+        "attendu":  "de à"
+    },
+    {
+        "quoi":  "de",
+        "entree":  " Evermind",
+        "attendu":  "de  Evermind"
+    },
+    {
+        "quoi":  "de",
+        "entree":  "Mindset",
+        "attendu":  "de Mindset"
+    },
+    {
+        "quoi":  "jeu",
+        "entree":  "une fenêtre en plein écran (jeu ou vidéo)",
+        "attendu":  "une fenêtre en plein écran"
+    },
+    {
+        "quoi":  "jeu",
+        "entree":  "une manette utilisée il y a moins de 5 minutes",
+        "attendu":  "manette utilisée"
+    },
+    {
+        "quoi":  "jeu",
+        "entree":  "un jeu ouvert (Battlefield 6)",
+        "attendu":  "Battlefield 6"
+    },
+    {
+        "quoi":  "jeu",
+        "entree":  "Un Jeu Ouvert (X (deux))",
+        "attendu":  "X (deux)"
+    },
+    {
+        "quoi":  "jeu",
+        "entree":  "un jeu ouvert ()",
+        "attendu":  "un jeu ouvert ()"
+    },
+    {
+        "quoi":  "jeu",
+        "entree":  "un jeu ouvert (Forêt)x",
+        "attendu":  "un jeu ouvert (Forêt)x"
+    },
+    {
+        "quoi":  "jeu",
+        "entree":  "un jeu ouvert (Café crème)\n",
+        "attendu":  "Café crème"
+    },
+    {
+        "quoi":  "jeu",
+        "entree":  "PLEIN ÉCRAN",
+        "attendu":  "une fenêtre en plein écran"
+    },
+    {
+        "quoi":  "jeu",
+        "entree":  "Manette",
+        "attendu":  "manette utilisée"
+    },
+    {
+        "quoi":  "jeu",
+        "entree":  "",
+        "attendu":  ""
+    },
+    {
+        "quoi":  "jeu",
+        "entree":  "autre chose",
+        "attendu":  "autre chose"
+    },
+    {
+        "quoi":  "jeu",
+        "entree":  "un jeu ouvert (a) plein écran",
+        "attendu":  "une fenêtre en plein écran"
+    }
+]
