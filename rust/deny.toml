@@ -11,8 +11,11 @@ all-features = false
 ignore = []
 
 [licenses]
-# Licences compatibles avec la licence MIT de la suite
-allow = ["MIT", "Apache-2.0", "ISC", "Zlib", "Unicode-3.0"]
+# Licences compatibles avec la licence MIT de la suite. MPL-2.0 et BSD-3-Clause : décision de Jordan du 02/11/2026
+# (Mindcare en Rust), pour les bibliothèques de Tauri, la même liste que Mindcare et Nevermind : MPL-2.0 pour la lecture
+# des pages et de leur CSS (cssparser, selectors, dtoa-short) et option-ext (dirs), BSD-3-Clause pour la compression
+# des pages rangées dans l'exe (brotli). Licences ouvertes, compatibles tant que leur code n'est pas modifié.
+allow = ["MIT", "Apache-2.0", "ISC", "Zlib", "Unicode-3.0", "MPL-2.0", "BSD-3-Clause"]
 confidence-threshold = 0.9
 
 [licenses.private]
@@ -23,6 +26,14 @@ ignore = true
 multiple-versions = "warn"
 wildcards = "deny"
 allow-wildcard-paths = true
+# Refusés en toutes circonstances (docs/regles-tauri.md, règle 4), comme dans Nevermind et Mindcare
+deny = [
+    { crate = "tauri-plugin-shell", reason = "règle 4 : jamais de lancement de programme par la page" },
+    { crate = "tauri-plugin-fs", reason = "règle 4 : jamais d'accès général au disque par la page" },
+    { crate = "tauri-plugin-updater", reason = "les mises à jour passent par Mindset lui-même" },
+    { crate = "tauri-plugin-single-instance", reason = "notre propre verrou (contrat-appli, partie 3)" },
+    { crate = "tauri-plugin-global-shortcut", reason = "aucun raccourci global" },
+]
 # Liste blanche : seules ces bibliothèques peuvent entrer (directes ou indirectes). En ajouter une se fait ici,
 # après relecture.
 allow = [
@@ -77,6 +88,41 @@ allow = [
     "quote",
     "syn",
     "unicode-ident",
+    # Mindset en Rust (07/11/2026) : le contrat des blocs, l'appli et ses blocs
+    "mindset-noyau", "mindset-appli", "mindset-donnees", "mindset-liste", "mindset-publications",
+    "mindset-installations", "mindset-lui-meme", "mindset-accrochage", "mindset-console", "mindset-ecrans",
+    "mindset-parametres", "mindset-horloge",
+    # Tauri 2 et ses bibliothèques (les mêmes que Nevermind et Mindcare en Rust, figées par Cargo.lock)
+    "tauri", "tauri-build", "tauri-codegen", "tauri-macros", "tauri-runtime", "tauri-runtime-wry", "tauri-utils",
+    "tauri-winres", "tao", "wry", "muda", "webview2-com", "webview2-com-macros", "webview2-com-sys", "window-vibrancy",
+    "softbuffer", "raw-window-handle", "dpi", "keyboard-types", "windows-version", "embed-resource", "vswhom",
+    "vswhom-sys", "winreg", "static_vcruntime", "serialize-to-javascript", "serialize-to-javascript-impl",
+    # pages, CSS et HTML embarqués (Tauri)
+    "cssparser", "cssparser-macros", "selectors", "html5ever", "markup5ever", "dom_query", "web_atoms", "tendril",
+    "string_cache", "string_cache_codegen", "precomputed-hash", "servo_arc", "new_debug_unreachable", "dtoa",
+    "dtoa-short", "phf", "phf_codegen", "phf_generator", "phf_macros", "phf_shared", "siphasher", "utf8_iter",
+    "brotli", "brotli-decompressor", "alloc-no-stdlib", "alloc-stdlib", "infer", "cfb", "mime", "glob", "walkdir",
+    "same-file", "winapi-util", "urlpattern", "ico", "png", "fdeflate", "miniz_oxide", "adler2", "byteorder",
+    # sérialisation et configuration de Tauri
+    "serde", "serde_derive", "serde_derive_internals", "serde_repr", "serde_spanned", "serde_with",
+    "serde_with_macros", "serde-untagged", "erased-serde", "typeid", "schemars", "schemars_derive", "dyn-clone",
+    "json-patch", "jsonptr", "toml", "toml_datetime", "toml_parser", "toml_writer", "winnow", "plist", "quick-xml",
+    "cargo_toml", "cargo_metadata", "cargo-platform", "camino", "semver", "rustc_version", "version_check",
+    "uuid", "time", "time-core", "time-macros", "deranged", "num-conv", "powerfmt", "base64", "foldhash",
+    # adresses et texte (url, idna)
+    "url", "idna", "idna_adapter", "form_urlencoded", "percent-encoding", "http", "bytes", "fnv", "cookie",
+    "icu_collections", "icu_locale_core", "icu_normalizer", "icu_normalizer_data", "icu_properties",
+    "icu_properties_data", "icu_provider", "litemap", "potential_utf", "tinystr", "writeable", "yoke", "yoke-derive",
+    "zerofrom", "zerofrom-derive", "zerotrie", "zerovec", "zerovec-derive", "stable_deref_trait", "synstructure",
+    "displaydoc", "unicode-segmentation", "utf_types",
+    # outils courants (fils, erreurs, macros)
+    "tokio", "pin-project-lite", "crossbeam-channel", "crossbeam-utils", "parking_lot", "parking_lot_core",
+    "lock_api", "scopeguard", "smallvec", "once_cell", "thiserror", "thiserror-impl", "anyhow", "tracing",
+    "tracing-core", "libc", "bitflags", "bit-set", "bit-vec", "rustc-hash", "heck", "strsim", "ident_case", "darling",
+    "darling_core", "darling_macro", "derive_more", "derive_more-impl", "ctor", "dunce", "dirs", "dirs-sys",
+    "option-ext", "fastrand", "web-time", "autocfg", "regex", "regex-automata", "regex-syntax", "aho-corasick",
+    # sha2 (empreintes)
+    "sha2", "digest", "block-buffer", "crypto-common", "generic-array", "typenum", "cpufeatures",
 ]
 
 [sources]
