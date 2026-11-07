@@ -1,0 +1,142 @@
+[
+    {
+        "heure":  0,
+        "hello":  null,
+        "texte":  "Bonsoir !"
+    },
+    {
+        "heure":  4,
+        "hello":  null,
+        "texte":  "Bonsoir !"
+    },
+    {
+        "heure":  5,
+        "hello":  null,
+        "texte":  "Bonjour !"
+    },
+    {
+        "heure":  12,
+        "hello":  null,
+        "texte":  "Bonjour !"
+    },
+    {
+        "heure":  17,
+        "hello":  null,
+        "texte":  "Bonjour !"
+    },
+    {
+        "heure":  18,
+        "hello":  null,
+        "texte":  "Bonsoir !"
+    },
+    {
+        "heure":  23,
+        "hello":  null,
+        "texte":  "Bonsoir !"
+    },
+    {
+        "heure":  0,
+        "hello":  "{0}, prêt à jouer ?",
+        "texte":  "Bonsoir, prêt à jouer ?"
+    },
+    {
+        "heure":  4,
+        "hello":  "{0}, prêt à jouer ?",
+        "texte":  "Bonsoir, prêt à jouer ?"
+    },
+    {
+        "heure":  5,
+        "hello":  "{0}, prêt à jouer ?",
+        "texte":  "Bonjour, prêt à jouer ?"
+    },
+    {
+        "heure":  12,
+        "hello":  "{0}, prêt à jouer ?",
+        "texte":  "Bonjour, prêt à jouer ?"
+    },
+    {
+        "heure":  17,
+        "hello":  "{0}, prêt à jouer ?",
+        "texte":  "Bonjour, prêt à jouer ?"
+    },
+    {
+        "heure":  18,
+        "hello":  "{0}, prêt à jouer ?",
+        "texte":  "Bonsoir, prêt à jouer ?"
+    },
+    {
+        "heure":  23,
+        "hello":  "{0}, prêt à jouer ?",
+        "texte":  "Bonsoir, prêt à jouer ?"
+    },
+    {
+        "heure":  0,
+        "hello":  "Coucou",
+        "texte":  "Bonsoir !"
+    },
+    {
+        "heure":  4,
+        "hello":  "Coucou",
+        "texte":  "Bonsoir !"
+    },
+    {
+        "heure":  5,
+        "hello":  "Coucou",
+        "texte":  "Bonjour !"
+    },
+    {
+        "heure":  12,
+        "hello":  "Coucou",
+        "texte":  "Bonjour !"
+    },
+    {
+        "heure":  17,
+        "hello":  "Coucou",
+        "texte":  "Bonjour !"
+    },
+    {
+        "heure":  18,
+        "hello":  "Coucou",
+        "texte":  "Bonsoir !"
+    },
+    {
+        "heure":  23,
+        "hello":  "Coucou",
+        "texte":  "Bonsoir !"
+    },
+    {
+        "heure":  0,
+        "hello":  "{0} {0} !",
+        "texte":  "Bonsoir Bonsoir !"
+    },
+    {
+        "heure":  4,
+        "hello":  "{0} {0} !",
+        "texte":  "Bonsoir Bonsoir !"
+    },
+    {
+        "heure":  5,
+        "hello":  "{0} {0} !",
+        "texte":  "Bonjour Bonjour !"
+    },
+    {
+        "heure":  12,
+        "hello":  "{0} {0} !",
+        "texte":  "Bonjour Bonjour !"
+    },
+    {
+        "heure":  17,
+        "hello":  "{0} {0} !",
+        "texte":  "Bonjour Bonjour !"
+    },
+    {
+        "heure":  18,
+        "hello":  "{0} {0} !",
+        "texte":  "Bonsoir Bonsoir !"
+    },
+    {
+        "heure":  23,
+        "hello":  "{0} {0} !",
+        "texte":  "Bonsoir Bonsoir !"
+    }
+]

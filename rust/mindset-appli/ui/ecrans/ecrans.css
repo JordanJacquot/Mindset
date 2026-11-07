@@ -1,1 +1,211 @@
-/* Les écrans de Mindset (bloc « écrans ») : le rendu d'interface.xaml, à l'identique. Posé vide par les fondations. */
+/* Les écrans de Mindset (bloc « écrans ») : le rendu d'interface.xaml et de ce que dessinent accueil.ps1,
+   chargement.ps1, logo.ps1 et packs.ps1, à l'identique (mêmes tailles en unités WPF = px CSS à 100 %, mêmes marges,
+   mêmes couleurs Néon traduites par le thème : rgb(var(--c-RRGGBB)), mêmes animations).
+   Les animations sans fin vont par images (steps, 30 images par seconde comme WPF, jamais plus de 60) et s'arrêtent
+   Mindset caché (la page est mise en veille par l'appli) ou quand Windows coupe les animations. */
+
+/* ---------------------------------------------------------------------------------------------------------------
+   Le fond : nuit violette et trois lueurs (cyan en haut à gauche, violet au centre, magenta en bas à droite)
+   --------------------------------------------------------------------------------------------------------------- */
+#fond .lueurs { position: absolute; inset: 0;
+  background:
+    radial-gradient(50% 55% at 92% 90%, rgb(var(--c-FF2EB5) / 0.267), rgb(var(--c-FF2EB5) / 0)),
+    radial-gradient(45% 45% at 60% 35%, rgb(var(--c-7A3CFF) / 0.149), rgb(var(--c-7A3CFF) / 0)),
+    radial-gradient(50% 55% at 12% 5%, rgb(var(--c-00E5FF) / 0.267), rgb(var(--c-00E5FF) / 0)),
+    linear-gradient(to bottom right, rgb(var(--c-0C0920)), rgb(var(--c-06050F))); }
+#fond-pack { position: absolute; inset: 0; }
+#fond-pack .image { position: absolute; inset: 0; background-repeat: no-repeat; background-size: cover; }
+#fond-pack .voile-pack { position: absolute; inset: 0; background: linear-gradient(rgb(0 0 0 / 0.6) 0%, rgb(0 0 0 / 0.2) 50%, rgb(0 0 0 / 0.667) 100%); }
+
+/* ---------------------------------------------------------------------------------------------------------------
+   L'en-tête
+   --------------------------------------------------------------------------------------------------------------- */
+#logo { position: relative; flex: none; width: 60px; height: 60px; margin: -6px 10px -6px 0; }
+#logo svg { position: absolute; left: 0; top: 0; width: 84px; height: 84px; transform: scale(0.714); transform-origin: 0 0; overflow: visible; }
+#logo .pack-logo { position: absolute; left: 0; top: 0; width: 84px; height: 84px; transform: scale(0.714); transform-origin: 0 0; }
+#en-tete .nom { flex: none; }
+.titre-mindset { font-family: var(--police-titres), sans-serif; font-size: 30px; font-weight: 700; color: #FFFFFF; }
+.phrase-mindset { font-size: 15px; color: #A6A1BC; margin-left: 1px; }
+#en-tete .vide { flex: 1; }
+#mascotte { flex: none; height: 64px; margin: -10px 22px -10px 0; }
+#version { flex: none; font-size: 12px; color: rgb(var(--c-6F6894)); }
+
+/* ---------------------------------------------------------------------------------------------------------------
+   Les onglets de gauche (Style « Onglet ») : un trait en haut et à droite, le coin du haut arrondi
+   --------------------------------------------------------------------------------------------------------------- */
+#colonne-onglets { display: flex; flex-direction: column; box-sizing: border-box; padding: 14px 10px; background: rgb(var(--c-060510) / 0.333);
+  border-top: 1px solid rgb(var(--c-2A2450)); border-right: 1px solid rgb(var(--c-2A2450)); border-top-right-radius: 14px; }
+#onglets { flex: 1; min-height: 0; overflow: hidden; }
+.onglet { display: flex; align-items: center; width: 100%; box-sizing: border-box; margin: 0 0 3px 0; padding: 9px 12px; border: 0; border-radius: 7px;
+  background: transparent; color: rgb(var(--c-A9A3C9)); font: inherit; font-size: 14px; text-align: left; cursor: pointer; }
+.onglet.actif { background: rgb(var(--c-141030)); color: rgb(var(--c-ECEAF7)); }
+.onglet:hover { background: rgb(var(--c-100C28)); }
+.onglet .icone { flex: none; width: 20px; height: 20px; margin-right: 10px; overflow: visible; }
+.onglet .icone-pack { flex: none; width: 22px; height: 22px; margin: -4px 8px -4px 0; background-repeat: no-repeat; }
+
+/* ---------------------------------------------------------------------------------------------------------------
+   Les boutons (BtnPrimary, BtnSecondary) : reflet au survol, petit enfoncement au clic, halo cyan
+   --------------------------------------------------------------------------------------------------------------- */
+.bouton { position: relative; display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box; margin: 0; padding: 9px 18px;
+  border-radius: 19px; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; outline: none;
+  transition: transform 0.15s, filter 0.18s; }
+.bouton::after { content: ""; position: absolute; inset: 0; border-radius: 19px; pointer-events: none; opacity: 0; transition: opacity 0.25s;
+  background: linear-gradient(rgb(255 255 255 / 0.22) 0%, rgb(255 255 255 / 0) 65%); }
+.bouton:hover::after { opacity: 1; transition: opacity 0.18s; }
+.bouton:active { transform: scale(0.96); transition: transform 0.08s; }
+.bouton:disabled { opacity: 0.4; cursor: default; }
+.bouton:disabled::after { opacity: 0; }
+.bouton.primaire { border: 0; color: rgb(var(--c-08060F)); background: linear-gradient(90deg, rgb(var(--c-00E5FF)), rgb(var(--c-B04BFF))); }
+.bouton.primaire:hover:not(:disabled) { filter: drop-shadow(0 0 7px rgb(var(--c-00E5FF) / 0.6)) drop-shadow(0 0 3px rgb(var(--c-00E5FF) / 0.6)); }
+.bouton.secondaire { border: 1px solid rgb(255 255 255 / 0.149); color: rgb(var(--c-F2EFFA)); background: rgb(255 255 255 / 0.086); }
+.bouton.secondaire:hover:not(:disabled) { border-color: rgb(var(--c-00E5FF) / 0.5); filter: drop-shadow(0 0 5px rgb(var(--c-00E5FF) / 0.3)); }
+.bouton.menu { padding: 6px 12px; }
+.bouton.menu svg { width: 18px; height: 18px; margin-right: 8px; overflow: visible; filter: drop-shadow(0 0 3px rgb(var(--c-00E5FF) / 0.7)); }
+.bouton.menu .texte { font-weight: 600; }
+
+/* L'interrupteur (Switch) : le bouton glisse et la piste s'allume */
+.interrupteur { position: relative; flex: none; box-sizing: border-box; width: 46px; height: 26px; padding: 0; border-radius: 13px; cursor: pointer;
+  border: 1px solid rgb(var(--c-3A4355)); background: rgb(255 255 255 / 0.18); transition: background-color 0.2s; }
+.interrupteur::before { content: ""; position: absolute; left: 2px; top: 50%; width: 18px; height: 18px; margin-top: -10px; border-radius: 50%;
+  background: rgb(var(--c-EEEBF7)); border: 1px solid rgb(0 0 0 / 0.25); transition: transform 0.2s cubic-bezier(0.33, 1, 0.68, 1); }
+.interrupteur:hover::before { background: #FFFFFF; }
+.interrupteur.oui { border-color: rgb(var(--c-7FF4FF)); background: rgb(var(--c-00D9F5)); }
+.interrupteur.oui::before { transform: translateX(20px); }
+
+/* La case à cocher et le bouton rond de Windows (CheckBox, RadioButton : style de base de WPF) */
+.case { display: flex; align-items: center; cursor: pointer; color: rgb(var(--c-ECEAF7)); white-space: pre-wrap; }
+.case .boite { flex: none; box-sizing: border-box; width: 13px; height: 13px; margin-right: 6px; border: 1px solid #333333; background: #FFFFFF; position: relative; }
+.case:hover .boite { border-color: #0078D4; background: #F0F8FF; }
+.case.oui .boite::after { content: ""; position: absolute; left: 3px; top: 0; width: 4px; height: 8px; border: solid #212121; border-width: 0 2px 2px 0; transform: rotate(45deg); }
+.case.rond .boite { border-radius: 50%; }
+.case.rond.oui .boite::after { left: 3px; top: 3px; width: 5px; height: 5px; border: 0; border-radius: 50%; background: #212121; transform: none; }
+
+/* Un lien (Hyperlink) */
+.lien { text-decoration: underline; cursor: pointer; }
+
+/* ---------------------------------------------------------------------------------------------------------------
+   Les bandeaux : Bienvenue, AdminBandeau, MajBandeau (cartes en verre, trait cyan ou violet)
+   --------------------------------------------------------------------------------------------------------------- */
+.bandeau { position: relative; display: flex; box-sizing: border-box; max-width: 770px; margin-top: 22px; padding: 16px 24px; border-radius: 22px;
+  border: 1px solid rgb(var(--c-00E5FF) / 0.5); background: linear-gradient(to bottom right, rgb(255 255 255 / 0.09), rgb(255 255 255 / 0.031)); }
+.bandeau.bienvenue { padding: 18px 24px; }
+.bandeau.maj { border-color: rgb(var(--c-B04BFF) / 0.5); }
+.bandeau .textes { flex: 1; min-width: 0; align-self: center; }
+.bandeau.bienvenue .textes { align-self: flex-start; }
+.bandeau .actions { flex: none; display: flex; align-items: center; margin-left: 16px; }
+.bandeau .actions .bouton + .bouton { margin-left: 8px; }
+.bandeau .titre { font-size: 16px; font-weight: 600; }
+.bandeau .texte { color: rgb(var(--c-A9A3C9)); margin-top: 4px; }
+.bandeau .sous-titre { font-size: 13px; font-weight: 600; margin: 12px 0 4px 0; }
+.bandeau .reseau { color: rgb(var(--c-A9A3C9)); }
+.bandeau .reseau .lien { color: rgb(var(--c-ECEAF7)); }
+.bandeau .case { margin-top: 6px; }
+.bandeau .disques .case { margin: 2px 0; }
+
+/* ---------------------------------------------------------------------------------------------------------------
+   L'accueil classique et ses cartes
+   --------------------------------------------------------------------------------------------------------------- */
+.accueil { margin: 28px 32px; }
+.accueil-haut { display: flex; align-items: center; margin: 0 18px 24px 0; }
+.accueil-titres { flex: 1; min-width: 0; }
+#bonjour { font-size: 26px; font-weight: 600; }
+.accueil-phrase { color: rgb(var(--c-A9A3C9)); margin-top: 4px; }
+.accueil-actualiser { flex: none; display: flex; align-items: center; }
+#actualiser-info { font-size: 12px; color: rgb(var(--c-6F6894)); margin-right: 12px; }
+#actualiser-info:empty { margin-right: 0; }
+/* (WrapPanel : les cartes d'une même rangée prennent la hauteur de la plus haute) */
+#cartes { display: flex; flex-wrap: wrap; align-items: stretch; }
+/* (comme une StackPanel de WPF : des colonnes où deux marges qui se suivent s'ajoutent, jamais fondues) */
+.carte, .resume, .bandeau .textes, .question, .carte .ligne-interrupteur .textes { display: flex; flex-direction: column; }
+.carte { position: relative; box-sizing: border-box; width: 380px; margin: 0 18px 18px 0; padding: 20px 24px; border-radius: 22px;
+  background: linear-gradient(to bottom right, rgb(255 255 255 / 0.09), rgb(255 255 255 / 0.031)); }
+.carte::before { content: ""; position: absolute; inset: 0; border-radius: 22px; padding: 1px; pointer-events: none;
+  background: linear-gradient(to bottom right, rgb(255 255 255 / 0.251), rgb(255 255 255 / 0.039));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; }
+.carte .t { white-space: pre-wrap; overflow-wrap: break-word; }
+.carte .rangee { display: flex; flex-wrap: wrap; }
+.pastille { box-sizing: border-box; margin-right: 6px; padding: 2px 9px; border: 1px solid; border-radius: 10px; font-size: 11px; }
+.carte .rangee .bouton { margin-right: 8px; }
+.carte .reseau { font-size: 11.5px; }
+.carte .reseau .lien { margin-left: 0; }
+.carte .ligne-interrupteur { display: flex; align-items: center; margin-top: 16px; }
+.carte .ligne-interrupteur .textes { flex: 1; min-width: 0; }
+.carte .ligne-interrupteur .aide { font-size: 11.5px; color: rgb(var(--c-6F6894)); margin: 2px 12px 0 0; }
+.resume { margin-bottom: 6px; }
+.jauges { display: flex; flex-wrap: wrap; }
+.jauge { margin: 0 22px 10px 0; }
+.jauge .rond { position: relative; width: 74px; height: 74px; }
+.jauge svg { position: absolute; inset: 0; overflow: visible; }
+.jauge .valeur { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 19px; font-weight: 600; color: #FFFFFF; }
+.jauge .nom { font-size: 11.5px; color: rgb(var(--c-A9A3C9)); text-align: center; margin-top: 4px; }
+.ligne-vivante { margin-bottom: 4px; padding: 7px 10px; border-radius: 10px; background: rgb(255 255 255 / 0.051); cursor: pointer; font-size: 12.5px; }
+.ligne-vivante:hover { background: rgb(255 255 255 / 0.11); }
+.ligne-vivante.rdv { display: flex; }
+.ligne-vivante.rdv .quand { flex: none; width: 118px; font-size: 12px; font-weight: 600; }
+.ligne-vivante.rdv .quoi { flex: 1; min-width: 0; color: rgb(var(--c-ECEAF7)); }
+.resume .entete { font-size: 11.5px; color: rgb(var(--c-A9A3C9)); }
+
+/* ---------------------------------------------------------------------------------------------------------------
+   La page d'une appli : sa jauge et ses messages, ou sa fenêtre accrochée sous sa barre
+   --------------------------------------------------------------------------------------------------------------- */
+#page-appli { display: grid; }
+#appli-message { align-self: center; justify-self: center; max-width: 480px; display: flex; flex-direction: column; align-items: center; }
+#appli-jauge { margin-bottom: 10px; }
+#appli-titre { font-size: 24px; font-weight: 600; text-align: center; overflow-wrap: break-word; }
+#appli-texte { color: rgb(var(--c-A9A3C9)); text-align: center; margin: 10px 0 18px 0; white-space: pre-wrap; }
+#appli-texte:empty { display: none; }
+#appli-texte:empty + .appli-boutons { margin-top: 0; }
+.appli-boutons { display: flex; justify-content: center; }
+#btn-appli-ici { margin-right: 8px; }
+#appli-etat { font-size: 12px; color: rgb(var(--c-6F6894)); margin-top: 10px; text-align: center; }
+#appli-cadre { position: absolute; inset: 0 10px 10px 0; display: flex; flex-direction: column; }
+#barre-appli { flex: none; display: flex; margin: 0 0 8px 6px; }
+#barre-appli .vide { flex: 1; }
+#btn-appli-fermer { padding: 6px 14px; }
+#appli-cadre .hotes { position: relative; flex: 1; min-height: 0; }
+#zone-appli { position: absolute; inset: 0; background: transparent; }
+.jauge-svg { display: block; overflow: visible; }
+.jauge-pct { font-family: "Cascadia Code", Consolas, monospace; font-weight: 700; color: #FFFFFF; text-align: center; }
+
+/* ---------------------------------------------------------------------------------------------------------------
+   Les Paramètres : le titre, les onglets ; les panneaux sont posés par le bloc « paramètres »
+   --------------------------------------------------------------------------------------------------------------- */
+#page-parametres { display: flex; flex-direction: column; overflow: hidden !important; }
+.parametres-haut { flex: none; margin: 22px 32px 0 32px; }
+#btn-parametres-menu { margin-bottom: 16px; }
+.parametres-titre { font-size: 26px; font-weight: 600; }
+.parametres-phrase { color: rgb(var(--c-A9A3C9)); margin: 4px 0 14px 0; }
+#onglets-parametres { display: flex; flex-wrap: wrap; }
+#onglets-parametres .bouton { margin: 0 8px 8px 0; }
+.parametres-defile { flex: 1; min-height: 0; overflow: auto; }
+#parametres-panneaux { margin: 18px 32px 28px 32px; max-width: 780px; }
+
+/* ---------------------------------------------------------------------------------------------------------------
+   Les questions : la croix rouge (Fermeture) et « Êtes-vous sûr ? » (Confirmation)
+   --------------------------------------------------------------------------------------------------------------- */
+.voile { background: rgb(var(--c-06050F) / 0.753); }
+.question { box-sizing: border-box; max-width: 480px; padding: 22px 26px; border-radius: 12px;
+  background: rgb(var(--c-141030)); border: 1px solid rgb(var(--c-2A2450)); }
+.question.fermeture { max-width: 500px; padding: 24px 28px; border-radius: 22px; }
+.question .titre { font-size: 19px; font-weight: 600; overflow-wrap: break-word; }
+.question .texte { color: rgb(var(--c-A9A3C9)); margin-top: 10px; white-space: pre-wrap; overflow-wrap: break-word; }
+.question .case { margin-top: 16px; }
+.question .boutons { display: flex; justify-content: flex-end; margin-top: 20px; }
+.question .boutons .bouton + .bouton { margin-left: 10px; }
+
+/* ---------------------------------------------------------------------------------------------------------------
+   Les visuels d'un thème personnalisé : mascotte, dessin du bas, planches animées
+   --------------------------------------------------------------------------------------------------------------- */
+.planche { position: relative; overflow: hidden; }
+.planche > img { position: absolute; left: 0; top: 0; height: 100%; image-rendering: auto; }
+.planche.net > img { image-rendering: pixelated; }
+.planche.miroir { scale: -1 1; }
+#pied .planche { margin: 0 0 4px 16px; }
+
+/* Windows a coupé les animations : tout reste immobile (ClientAreaAnimation) */
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+
+/* Thème Terminal (Cascadia Code) : WPF arrondit la largeur de chaque lettre au pixel (TextFormattingMode Display), les
+   mots y sont un peu plus serrés qu'avec le placement fin de WebView2 : la même place qu'en WPF (une pastille ou un
+   bouton ne passe pas à la ligne) */
+:root[data-theme="terminal"] body { letter-spacing: -0.02em; }

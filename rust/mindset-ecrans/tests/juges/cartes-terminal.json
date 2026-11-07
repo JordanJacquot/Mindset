@@ -1,0 +1,2193 @@
+[
+    {
+        "nom":  "nevermind, version inconnue : droits supposés",
+        "theme":  "terminal",
+        "entree":  {
+                       "nom":  "nevermind, version inconnue : droits supposés",
+                       "appli":  "nevermind",
+                       "inst":  {
+                                    "version":  null,
+                                    "gere":  true
+                                }
+                   },
+        "carte":  [
+                      {
+                          "t":  "texte",
+                          "texte":  "Nevermind",
+                          "taille":  20,
+                          "couleur":  "#33FF77",
+                          "poids":  "SemiBold"
+                      },
+                      {
+                          "t":  "texte",
+                          "texte":  "Analyse et optimisation gaming",
+                          "taille":  13,
+                          "couleur":  "#ACC0B3",
+                          "poids":  "Normal",
+                          "marge":  "0,4,0,12"
+                      },
+                      {
+                          "t":  "pastilles",
+                          "marge":  "0,0,0,12",
+                          "liste":  [
+                                        {
+                                            "texte":  "Version ?",
+                                            "couleur":  "#ACC0B3"
+                                        },
+                                        {
+                                            "texte":  "Fermé",
+                                            "couleur":  "#728A7A"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "boutons",
+                          "marge":  "0,10,0,0",
+                          "liste":  [
+                                        {
+                                            "texte":  "Ouvrir",
+                                            "style":  "primaire",
+                                            "quoi":  "ouvrir"
+                                        },
+                                        {
+                                            "texte":  "Désinstaller",
+                                            "style":  "secondaire",
+                                            "quoi":  "desinstaller"
+                                        }
+                                    ]
+                      }
+                  ],
+        "questions":  {
+                          "desinstaller":  {
+                                               "titre":  "Désinstaller Nevermind ?",
+                                               "texte":  "Le désinstalleur de Nevermind va s\u0027ouvrir : il remet comme avant les réglages de Windows qu\u0027il a modifiés, puis supprime ses fichiers. Il te demande aussi si tu gardes tes données : elles sont gardées si tu ne coches rien.",
+                                               "bouton":  "Désinstaller",
+                                               "valeur":  {
+                                                              "Id":  "nevermind"
+                                                          }
+                                           }
+                      }
+    },
+    {
+        "nom":  "nevermind, scores et à faire",
+        "theme":  "terminal",
+        "entree":  {
+                       "nom":  "nevermind, scores et à faire",
+                       "etat":  "{\"Score\":82,\"Protection\":64,\"AFaire\":\"Mettre à jour le pilote graphique\",\"Urgent\":false,\"NbAFaire\":1}",
+                       "appli":  "nevermind",
+                       "inst":  {
+                                    "version":  "2.0.1",
+                                    "gere":  true
+                                }
+                   },
+        "carte":  [
+                      {
+                          "t":  "texte",
+                          "texte":  "Nevermind",
+                          "taille":  20,
+                          "couleur":  "#33FF77",
+                          "poids":  "SemiBold"
+                      },
+                      {
+                          "t":  "texte",
+                          "texte":  "Analyse et optimisation gaming",
+                          "taille":  13,
+                          "couleur":  "#ACC0B3",
+                          "poids":  "Normal",
+                          "marge":  "0,4,0,12"
+                      },
+                      {
+                          "t":  "pastilles",
+                          "marge":  "0,0,0,12",
+                          "liste":  [
+                                        {
+                                            "texte":  "Version 2.0.1",
+                                            "couleur":  "#ACC0B3"
+                                        },
+                                        {
+                                            "texte":  "Fermé",
+                                            "couleur":  "#728A7A"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "resume",
+                          "genre":  "nevermind",
+                          "scores":  [
+                                         {
+                                             "nom":  "Optimisation",
+                                             "valeur":  82,
+                                             "c1":  "#33FF77",
+                                             "c2":  "#E3FFB5"
+                                         },
+                                         {
+                                             "nom":  "Protection",
+                                             "valeur":  64,
+                                             "c1":  "#00E0A0",
+                                             "c2":  "#B6FF3B"
+                                         }
+                                     ],
+                          "ligne":  {
+                                        "texte":  "À faire : Mettre à jour le pilote graphique",
+                                        "couleur":  "#ECEAF7"
+                                    }
+                      },
+                      {
+                          "t":  "boutons",
+                          "marge":  "0,10,0,0",
+                          "liste":  [
+                                        {
+                                            "texte":  "Ouvrir",
+                                            "style":  "primaire",
+                                            "quoi":  "ouvrir"
+                                        },
+                                        {
+                                            "texte":  "Désinstaller",
+                                            "style":  "secondaire",
+                                            "quoi":  "desinstaller"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "interrupteur",
+                          "oui":  false,
+                          "texte":  "S\u0027ouvre avec Mindset",
+                          "aide":  "En arrière-plan, prêt dans son onglet.",
+                          "marge":  "0,16,0,0"
+                      }
+                  ],
+        "questions":  {
+                          "desinstaller":  {
+                                               "titre":  "Désinstaller Nevermind ?",
+                                               "texte":  "Le désinstalleur de Nevermind va s\u0027ouvrir : il remet comme avant les réglages de Windows qu\u0027il a modifiés, puis supprime ses fichiers. Il te demande aussi si tu gardes tes données : elles sont gardées si tu ne coches rien.",
+                                               "bouton":  "Désinstaller",
+                                               "valeur":  {
+                                                              "Id":  "nevermind"
+                                                          }
+                                           }
+                      }
+    },
+    {
+        "nom":  "nevermind, urgent",
+        "theme":  "terminal",
+        "entree":  {
+                       "ouverte":  true,
+                       "nom":  "nevermind, urgent",
+                       "etat":  "{\"Score\":\"45\",\"Protection\":12,\"AFaire\":\"Antivirus coupé\",\"Urgent\":true}",
+                       "appli":  "nevermind",
+                       "inst":  {
+                                    "version":  "2.0.1",
+                                    "gere":  true
+                                }
+                   },
+        "carte":  [
+                      {
+                          "t":  "texte",
+                          "texte":  "Nevermind",
+                          "taille":  20,
+                          "couleur":  "#33FF77",
+                          "poids":  "SemiBold"
+                      },
+                      {
+                          "t":  "texte",
+                          "texte":  "Analyse et optimisation gaming",
+                          "taille":  13,
+                          "couleur":  "#ACC0B3",
+                          "poids":  "Normal",
+                          "marge":  "0,4,0,12"
+                      },
+                      {
+                          "t":  "pastilles",
+                          "marge":  "0,0,0,12",
+                          "liste":  [
+                                        {
+                                            "texte":  "Version 2.0.1",
+                                            "couleur":  "#ACC0B3"
+                                        },
+                                        {
+                                            "texte":  "Ouvert",
+                                            "couleur":  "#3DDC84"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "resume",
+                          "genre":  "nevermind",
+                          "scores":  [
+                                         {
+                                             "nom":  "Optimisation",
+                                             "valeur":  45,
+                                             "c1":  "#33FF77",
+                                             "c2":  "#E3FFB5"
+                                         },
+                                         {
+                                             "nom":  "Protection",
+                                             "valeur":  12,
+                                             "c1":  "#00E0A0",
+                                             "c2":  "#B6FF3B"
+                                         }
+                                     ],
+                          "ligne":  {
+                                        "texte":  "À faire : Antivirus coupé",
+                                        "couleur":  "#FFB020"
+                                    }
+                      },
+                      {
+                          "t":  "boutons",
+                          "marge":  "0,10,0,0",
+                          "liste":  [
+                                        {
+                                            "texte":  "Ouvrir",
+                                            "style":  "primaire",
+                                            "quoi":  "ouvrir"
+                                        },
+                                        {
+                                            "texte":  "Désinstaller",
+                                            "style":  "secondaire",
+                                            "quoi":  "desinstaller"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "interrupteur",
+                          "oui":  false,
+                          "texte":  "S\u0027ouvre avec Mindset",
+                          "aide":  "En arrière-plan, prêt dans son onglet.",
+                          "marge":  "0,16,0,0"
+                      }
+                  ],
+        "questions":  {
+                          "desinstaller":  {
+                                               "titre":  "Désinstaller Nevermind ?",
+                                               "texte":  "Le désinstalleur de Nevermind va s\u0027ouvrir : il remet comme avant les réglages de Windows qu\u0027il a modifiés, puis supprime ses fichiers. Il te demande aussi si tu gardes tes données : elles sont gardées si tu ne coches rien.",
+                                               "bouton":  "Désinstaller",
+                                               "valeur":  {
+                                                              "Id":  "nevermind"
+                                                          }
+                                           }
+                      }
+    },
+    {
+        "nom":  "nevermind, rien à corriger",
+        "theme":  "terminal",
+        "entree":  {
+                       "nom":  "nevermind, rien à corriger",
+                       "etat":  "{\"Score\":100,\"Protection\":100,\"AFaire\":\"\",\"Urgent\":false}",
+                       "appli":  "nevermind",
+                       "inst":  {
+                                    "version":  "2.0.1",
+                                    "gere":  true
+                                }
+                   },
+        "carte":  [
+                      {
+                          "t":  "texte",
+                          "texte":  "Nevermind",
+                          "taille":  20,
+                          "couleur":  "#33FF77",
+                          "poids":  "SemiBold"
+                      },
+                      {
+                          "t":  "texte",
+                          "texte":  "Analyse et optimisation gaming",
+                          "taille":  13,
+                          "couleur":  "#ACC0B3",
+                          "poids":  "Normal",
+                          "marge":  "0,4,0,12"
+                      },
+                      {
+                          "t":  "pastilles",
+                          "marge":  "0,0,0,12",
+                          "liste":  [
+                                        {
+                                            "texte":  "Version 2.0.1",
+                                            "couleur":  "#ACC0B3"
+                                        },
+                                        {
+                                            "texte":  "Fermé",
+                                            "couleur":  "#728A7A"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "resume",
+                          "genre":  "nevermind",
+                          "scores":  [
+                                         {
+                                             "nom":  "Optimisation",
+                                             "valeur":  100,
+                                             "c1":  "#33FF77",
+                                             "c2":  "#E3FFB5"
+                                         },
+                                         {
+                                             "nom":  "Protection",
+                                             "valeur":  100,
+                                             "c1":  "#00E0A0",
+                                             "c2":  "#B6FF3B"
+                                         }
+                                     ],
+                          "ligne":  {
+                                        "texte":  "Rien à corriger : ton PC est prêt pour jouer.",
+                                        "couleur":  "#3DDC84"
+                                    }
+                      },
+                      {
+                          "t":  "boutons",
+                          "marge":  "0,10,0,0",
+                          "liste":  [
+                                        {
+                                            "texte":  "Ouvrir",
+                                            "style":  "primaire",
+                                            "quoi":  "ouvrir"
+                                        },
+                                        {
+                                            "texte":  "Désinstaller",
+                                            "style":  "secondaire",
+                                            "quoi":  "desinstaller"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "interrupteur",
+                          "oui":  false,
+                          "texte":  "S\u0027ouvre avec Mindset",
+                          "aide":  "En arrière-plan, prêt dans son onglet.",
+                          "marge":  "0,16,0,0"
+                      }
+                  ],
+        "questions":  {
+                          "desinstaller":  {
+                                               "titre":  "Désinstaller Nevermind ?",
+                                               "texte":  "Le désinstalleur de Nevermind va s\u0027ouvrir : il remet comme avant les réglages de Windows qu\u0027il a modifiés, puis supprime ses fichiers. Il te demande aussi si tu gardes tes données : elles sont gardées si tu ne coches rien.",
+                                               "bouton":  "Désinstaller",
+                                               "valeur":  {
+                                                              "Id":  "nevermind"
+                                                          }
+                                           }
+                      }
+    },
+    {
+        "nom":  "nevermind, valeurs hors limites",
+        "theme":  "terminal",
+        "entree":  {
+                       "nom":  "nevermind, valeurs hors limites",
+                       "etat":  "{\"Score\":101,\"Protection\":-3,\"AFaire\":null}",
+                       "appli":  "nevermind",
+                       "inst":  {
+                                    "version":  "2.0.1",
+                                    "gere":  true
+                                }
+                   },
+        "carte":  [
+                      {
+                          "t":  "texte",
+                          "texte":  "Nevermind",
+                          "taille":  20,
+                          "couleur":  "#33FF77",
+                          "poids":  "SemiBold"
+                      },
+                      {
+                          "t":  "texte",
+                          "texte":  "Analyse et optimisation gaming",
+                          "taille":  13,
+                          "couleur":  "#ACC0B3",
+                          "poids":  "Normal",
+                          "marge":  "0,4,0,12"
+                      },
+                      {
+                          "t":  "pastilles",
+                          "marge":  "0,0,0,12",
+                          "liste":  [
+                                        {
+                                            "texte":  "Version 2.0.1",
+                                            "couleur":  "#ACC0B3"
+                                        },
+                                        {
+                                            "texte":  "Fermé",
+                                            "couleur":  "#728A7A"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "resume",
+                          "genre":  "nevermind",
+                          "scores":  [
+
+                                     ],
+                          "ligne":  {
+                                        "texte":  "Rien à corriger : ton PC est prêt pour jouer.",
+                                        "couleur":  "#3DDC84"
+                                    }
+                      },
+                      {
+                          "t":  "boutons",
+                          "marge":  "0,10,0,0",
+                          "liste":  [
+                                        {
+                                            "texte":  "Ouvrir",
+                                            "style":  "primaire",
+                                            "quoi":  "ouvrir"
+                                        },
+                                        {
+                                            "texte":  "Désinstaller",
+                                            "style":  "secondaire",
+                                            "quoi":  "desinstaller"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "interrupteur",
+                          "oui":  false,
+                          "texte":  "S\u0027ouvre avec Mindset",
+                          "aide":  "En arrière-plan, prêt dans son onglet.",
+                          "marge":  "0,16,0,0"
+                      }
+                  ],
+        "questions":  {
+                          "desinstaller":  {
+                                               "titre":  "Désinstaller Nevermind ?",
+                                               "texte":  "Le désinstalleur de Nevermind va s\u0027ouvrir : il remet comme avant les réglages de Windows qu\u0027il a modifiés, puis supprime ses fichiers. Il te demande aussi si tu gardes tes données : elles sont gardées si tu ne coches rien.",
+                                               "bouton":  "Désinstaller",
+                                               "valeur":  {
+                                                              "Id":  "nevermind"
+                                                          }
+                                           }
+                      }
+    },
+    {
+        "nom":  "nevermind, valeurs bizarres",
+        "theme":  "terminal",
+        "entree":  {
+                       "nom":  "nevermind, valeurs bizarres",
+                       "etat":  "{\"Score\":75.0,\"Protection\":\"  33 \",\"AFaire\":\"   \",\"Urgent\":\"true\"}",
+                       "appli":  "nevermind",
+                       "inst":  {
+                                    "version":  "2.0.1",
+                                    "gere":  true
+                                }
+                   },
+        "carte":  [
+                      {
+                          "t":  "texte",
+                          "texte":  "Nevermind",
+                          "taille":  20,
+                          "couleur":  "#33FF77",
+                          "poids":  "SemiBold"
+                      },
+                      {
+                          "t":  "texte",
+                          "texte":  "Analyse et optimisation gaming",
+                          "taille":  13,
+                          "couleur":  "#ACC0B3",
+                          "poids":  "Normal",
+                          "marge":  "0,4,0,12"
+                      },
+                      {
+                          "t":  "pastilles",
+                          "marge":  "0,0,0,12",
+                          "liste":  [
+                                        {
+                                            "texte":  "Version 2.0.1",
+                                            "couleur":  "#ACC0B3"
+                                        },
+                                        {
+                                            "texte":  "Fermé",
+                                            "couleur":  "#728A7A"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "resume",
+                          "genre":  "nevermind",
+                          "scores":  [
+                                         {
+                                             "nom":  "Protection",
+                                             "valeur":  33,
+                                             "c1":  "#00E0A0",
+                                             "c2":  "#B6FF3B"
+                                         }
+                                     ],
+                          "ligne":  {
+                                        "texte":  "Rien à corriger : ton PC est prêt pour jouer.",
+                                        "couleur":  "#FFB020"
+                                    }
+                      },
+                      {
+                          "t":  "boutons",
+                          "marge":  "0,10,0,0",
+                          "liste":  [
+                                        {
+                                            "texte":  "Ouvrir",
+                                            "style":  "primaire",
+                                            "quoi":  "ouvrir"
+                                        },
+                                        {
+                                            "texte":  "Désinstaller",
+                                            "style":  "secondaire",
+                                            "quoi":  "desinstaller"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "interrupteur",
+                          "oui":  false,
+                          "texte":  "S\u0027ouvre avec Mindset",
+                          "aide":  "En arrière-plan, prêt dans son onglet.",
+                          "marge":  "0,16,0,0"
+                      }
+                  ],
+        "questions":  {
+                          "desinstaller":  {
+                                               "titre":  "Désinstaller Nevermind ?",
+                                               "texte":  "Le désinstalleur de Nevermind va s\u0027ouvrir : il remet comme avant les réglages de Windows qu\u0027il a modifiés, puis supprime ses fichiers. Il te demande aussi si tu gardes tes données : elles sont gardées si tu ne coches rien.",
+                                               "bouton":  "Désinstaller",
+                                               "valeur":  {
+                                                              "Id":  "nevermind"
+                                                          }
+                                           }
+                      }
+    },
+    {
+        "nom":  "nevermind, décimales et vrai",
+        "theme":  "terminal",
+        "entree":  {
+                       "nom":  "nevermind, décimales et vrai",
+                       "etat":  "{\"Score\":75.5,\"Protection\":true,\"AFaire\":\"Trop long : xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\",\"Urgent\":1}",
+                       "appli":  "nevermind",
+                       "inst":  {
+                                    "version":  "2.0.1",
+                                    "gere":  true
+                                }
+                   },
+        "carte":  [
+                      {
+                          "t":  "texte",
+                          "texte":  "Nevermind",
+                          "taille":  20,
+                          "couleur":  "#33FF77",
+                          "poids":  "SemiBold"
+                      },
+                      {
+                          "t":  "texte",
+                          "texte":  "Analyse et optimisation gaming",
+                          "taille":  13,
+                          "couleur":  "#ACC0B3",
+                          "poids":  "Normal",
+                          "marge":  "0,4,0,12"
+                      },
+                      {
+                          "t":  "pastilles",
+                          "marge":  "0,0,0,12",
+                          "liste":  [
+                                        {
+                                            "texte":  "Version 2.0.1",
+                                            "couleur":  "#ACC0B3"
+                                        },
+                                        {
+                                            "texte":  "Fermé",
+                                            "couleur":  "#728A7A"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "resume",
+                          "genre":  "nevermind",
+                          "scores":  [
+
+                                     ],
+                          "ligne":  {
+                                        "texte":  "À faire : Trop long : xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                                        "couleur":  "#FFB020"
+                                    }
+                      },
+                      {
+                          "t":  "boutons",
+                          "marge":  "0,10,0,0",
+                          "liste":  [
+                                        {
+                                            "texte":  "Ouvrir",
+                                            "style":  "primaire",
+                                            "quoi":  "ouvrir"
+                                        },
+                                        {
+                                            "texte":  "Désinstaller",
+                                            "style":  "secondaire",
+                                            "quoi":  "desinstaller"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "interrupteur",
+                          "oui":  false,
+                          "texte":  "S\u0027ouvre avec Mindset",
+                          "aide":  "En arrière-plan, prêt dans son onglet.",
+                          "marge":  "0,16,0,0"
+                      }
+                  ],
+        "questions":  {
+                          "desinstaller":  {
+                                               "titre":  "Désinstaller Nevermind ?",
+                                               "texte":  "Le désinstalleur de Nevermind va s\u0027ouvrir : il remet comme avant les réglages de Windows qu\u0027il a modifiés, puis supprime ses fichiers. Il te demande aussi si tu gardes tes données : elles sont gardées si tu ne coches rien.",
+                                               "bouton":  "Désinstaller",
+                                               "valeur":  {
+                                                              "Id":  "nevermind"
+                                                          }
+                                           }
+                      }
+    },
+    {
+        "nom":  "nevermind, une seule jauge",
+        "theme":  "terminal",
+        "entree":  {
+                       "nom":  "nevermind, une seule jauge",
+                       "etat":  "{\"Protection\":50,\"AFaire\":\"Ligne\\tavec\\u0001des\\ncontrôles\"}",
+                       "appli":  "nevermind",
+                       "inst":  {
+                                    "version":  "2.0.1",
+                                    "gere":  true
+                                }
+                   },
+        "carte":  [
+                      {
+                          "t":  "texte",
+                          "texte":  "Nevermind",
+                          "taille":  20,
+                          "couleur":  "#33FF77",
+                          "poids":  "SemiBold"
+                      },
+                      {
+                          "t":  "texte",
+                          "texte":  "Analyse et optimisation gaming",
+                          "taille":  13,
+                          "couleur":  "#ACC0B3",
+                          "poids":  "Normal",
+                          "marge":  "0,4,0,12"
+                      },
+                      {
+                          "t":  "pastilles",
+                          "marge":  "0,0,0,12",
+                          "liste":  [
+                                        {
+                                            "texte":  "Version 2.0.1",
+                                            "couleur":  "#ACC0B3"
+                                        },
+                                        {
+                                            "texte":  "Fermé",
+                                            "couleur":  "#728A7A"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "resume",
+                          "genre":  "nevermind",
+                          "scores":  [
+                                         {
+                                             "nom":  "Protection",
+                                             "valeur":  50,
+                                             "c1":  "#00E0A0",
+                                             "c2":  "#B6FF3B"
+                                         }
+                                     ],
+                          "ligne":  {
+                                        "texte":  "À faire : Ligne avec des contrôles",
+                                        "couleur":  "#ECEAF7"
+                                    }
+                      },
+                      {
+                          "t":  "boutons",
+                          "marge":  "0,10,0,0",
+                          "liste":  [
+                                        {
+                                            "texte":  "Ouvrir",
+                                            "style":  "primaire",
+                                            "quoi":  "ouvrir"
+                                        },
+                                        {
+                                            "texte":  "Désinstaller",
+                                            "style":  "secondaire",
+                                            "quoi":  "desinstaller"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "interrupteur",
+                          "oui":  false,
+                          "texte":  "S\u0027ouvre avec Mindset",
+                          "aide":  "En arrière-plan, prêt dans son onglet.",
+                          "marge":  "0,16,0,0"
+                      }
+                  ],
+        "questions":  {
+                          "desinstaller":  {
+                                               "titre":  "Désinstaller Nevermind ?",
+                                               "texte":  "Le désinstalleur de Nevermind va s\u0027ouvrir : il remet comme avant les réglages de Windows qu\u0027il a modifiés, puis supprime ses fichiers. Il te demande aussi si tu gardes tes données : elles sont gardées si tu ne coches rien.",
+                                               "bouton":  "Désinstaller",
+                                               "valeur":  {
+                                                              "Id":  "nevermind"
+                                                          }
+                                           }
+                      }
+    },
+    {
+        "nom":  "nevermind, json abîmé",
+        "theme":  "terminal",
+        "entree":  {
+                       "nom":  "nevermind, json abîmé",
+                       "etat":  "{\"Score\":82,",
+                       "appli":  "nevermind",
+                       "inst":  {
+                                    "version":  "2.0.1",
+                                    "gere":  true
+                                }
+                   },
+        "carte":  [
+                      {
+                          "t":  "texte",
+                          "texte":  "Nevermind",
+                          "taille":  20,
+                          "couleur":  "#33FF77",
+                          "poids":  "SemiBold"
+                      },
+                      {
+                          "t":  "texte",
+                          "texte":  "Analyse et optimisation gaming",
+                          "taille":  13,
+                          "couleur":  "#ACC0B3",
+                          "poids":  "Normal",
+                          "marge":  "0,4,0,12"
+                      },
+                      {
+                          "t":  "pastilles",
+                          "marge":  "0,0,0,12",
+                          "liste":  [
+                                        {
+                                            "texte":  "Version 2.0.1",
+                                            "couleur":  "#ACC0B3"
+                                        },
+                                        {
+                                            "texte":  "Fermé",
+                                            "couleur":  "#728A7A"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "boutons",
+                          "marge":  "0,10,0,0",
+                          "liste":  [
+                                        {
+                                            "texte":  "Ouvrir",
+                                            "style":  "primaire",
+                                            "quoi":  "ouvrir"
+                                        },
+                                        {
+                                            "texte":  "Désinstaller",
+                                            "style":  "secondaire",
+                                            "quoi":  "desinstaller"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "interrupteur",
+                          "oui":  false,
+                          "texte":  "S\u0027ouvre avec Mindset",
+                          "aide":  "En arrière-plan, prêt dans son onglet.",
+                          "marge":  "0,16,0,0"
+                      }
+                  ],
+        "questions":  {
+                          "desinstaller":  {
+                                               "titre":  "Désinstaller Nevermind ?",
+                                               "texte":  "Le désinstalleur de Nevermind va s\u0027ouvrir : il remet comme avant les réglages de Windows qu\u0027il a modifiés, puis supprime ses fichiers. Il te demande aussi si tu gardes tes données : elles sont gardées si tu ne coches rien.",
+                                               "bouton":  "Désinstaller",
+                                               "valeur":  {
+                                                              "Id":  "nevermind"
+                                                          }
+                                           }
+                      }
+    },
+    {
+        "nom":  "nevermind, json vide",
+        "theme":  "terminal",
+        "entree":  {
+                       "nom":  "nevermind, json vide",
+                       "etat":  "",
+                       "appli":  "nevermind",
+                       "inst":  {
+                                    "version":  "2.0.1",
+                                    "gere":  true
+                                }
+                   },
+        "carte":  [
+                      {
+                          "t":  "texte",
+                          "texte":  "Nevermind",
+                          "taille":  20,
+                          "couleur":  "#33FF77",
+                          "poids":  "SemiBold"
+                      },
+                      {
+                          "t":  "texte",
+                          "texte":  "Analyse et optimisation gaming",
+                          "taille":  13,
+                          "couleur":  "#ACC0B3",
+                          "poids":  "Normal",
+                          "marge":  "0,4,0,12"
+                      },
+                      {
+                          "t":  "pastilles",
+                          "marge":  "0,0,0,12",
+                          "liste":  [
+                                        {
+                                            "texte":  "Version 2.0.1",
+                                            "couleur":  "#ACC0B3"
+                                        },
+                                        {
+                                            "texte":  "Fermé",
+                                            "couleur":  "#728A7A"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "resume",
+                          "genre":  "nevermind",
+                          "scores":  [
+
+                                     ],
+                          "ligne":  {
+                                        "texte":  "Rien à corriger : ton PC est prêt pour jouer.",
+                                        "couleur":  "#3DDC84"
+                                    }
+                      },
+                      {
+                          "t":  "boutons",
+                          "marge":  "0,10,0,0",
+                          "liste":  [
+                                        {
+                                            "texte":  "Ouvrir",
+                                            "style":  "primaire",
+                                            "quoi":  "ouvrir"
+                                        },
+                                        {
+                                            "texte":  "Désinstaller",
+                                            "style":  "secondaire",
+                                            "quoi":  "desinstaller"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "interrupteur",
+                          "oui":  false,
+                          "texte":  "S\u0027ouvre avec Mindset",
+                          "aide":  "En arrière-plan, prêt dans son onglet.",
+                          "marge":  "0,16,0,0"
+                      }
+                  ],
+        "questions":  {
+                          "desinstaller":  {
+                                               "titre":  "Désinstaller Nevermind ?",
+                                               "texte":  "Le désinstalleur de Nevermind va s\u0027ouvrir : il remet comme avant les réglages de Windows qu\u0027il a modifiés, puis supprime ses fichiers. Il te demande aussi si tu gardes tes données : elles sont gardées si tu ne coches rien.",
+                                               "bouton":  "Désinstaller",
+                                               "valeur":  {
+                                                              "Id":  "nevermind"
+                                                          }
+                                           }
+                      }
+    },
+    {
+        "nom":  "nevermind, fichier trop gros",
+        "theme":  "terminal",
+        "entree":  {
+                       "nom":  "nevermind, fichier trop gros",
+                       "etat":  "{\"Score\":82,\"AFaire\":\"yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy\"}",
+                       "appli":  "nevermind",
+                       "inst":  {
+                                    "version":  "2.0.1",
+                                    "gere":  true
+                                }
+                   },
+        "carte":  [
+                      {
+                          "t":  "texte",
+                          "texte":  "Nevermind",
+                          "taille":  20,
+                          "couleur":  "#33FF77",
+                          "poids":  "SemiBold"
+                      },
+                      {
+                          "t":  "texte",
+                          "texte":  "Analyse et optimisation gaming",
+                          "taille":  13,
+                          "couleur":  "#ACC0B3",
+                          "poids":  "Normal",
+                          "marge":  "0,4,0,12"
+                      },
+                      {
+                          "t":  "pastilles",
+                          "marge":  "0,0,0,12",
+                          "liste":  [
+                                        {
+                                            "texte":  "Version 2.0.1",
+                                            "couleur":  "#ACC0B3"
+                                        },
+                                        {
+                                            "texte":  "Fermé",
+                                            "couleur":  "#728A7A"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "boutons",
+                          "marge":  "0,10,0,0",
+                          "liste":  [
+                                        {
+                                            "texte":  "Ouvrir",
+                                            "style":  "primaire",
+                                            "quoi":  "ouvrir"
+                                        },
+                                        {
+                                            "texte":  "Désinstaller",
+                                            "style":  "secondaire",
+                                            "quoi":  "desinstaller"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "interrupteur",
+                          "oui":  false,
+                          "texte":  "S\u0027ouvre avec Mindset",
+                          "aide":  "En arrière-plan, prêt dans son onglet.",
+                          "marge":  "0,16,0,0"
+                      }
+                  ],
+        "questions":  {
+                          "desinstaller":  {
+                                               "titre":  "Désinstaller Nevermind ?",
+                                               "texte":  "Le désinstalleur de Nevermind va s\u0027ouvrir : il remet comme avant les réglages de Windows qu\u0027il a modifiés, puis supprime ses fichiers. Il te demande aussi si tu gardes tes données : elles sont gardées si tu ne coches rien.",
+                                               "bouton":  "Désinstaller",
+                                               "valeur":  {
+                                                              "Id":  "nevermind"
+                                                          }
+                                           }
+                      }
+    },
+    {
+        "nom":  "nevermind, copie non gérée : pas de résumé",
+        "theme":  "terminal",
+        "entree":  {
+                       "nom":  "nevermind, copie non gérée : pas de résumé",
+                       "etat":  "{\"Score\":82}",
+                       "appli":  "nevermind",
+                       "inst":  {
+                                    "gere":  false,
+                                    "version":  "2.0.1",
+                                    "dossier":  "D:\\Jeux\\Nevermind"
+                                }
+                   },
+        "carte":  [
+                      {
+                          "t":  "texte",
+                          "texte":  "Nevermind",
+                          "taille":  20,
+                          "couleur":  "#33FF77",
+                          "poids":  "SemiBold"
+                      },
+                      {
+                          "t":  "texte",
+                          "texte":  "Analyse et optimisation gaming",
+                          "taille":  13,
+                          "couleur":  "#ACC0B3",
+                          "poids":  "Normal",
+                          "marge":  "0,4,0,12"
+                      },
+                      {
+                          "t":  "pastilles",
+                          "marge":  "0,0,0,12",
+                          "liste":  [
+                                        {
+                                            "texte":  "Version 2.0.1",
+                                            "couleur":  "#ACC0B3"
+                                        },
+                                        {
+                                            "texte":  "Fermé",
+                                            "couleur":  "#728A7A"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "texte",
+                          "texte":  "Copie de D:\\Jeux\\Nevermind, non gérée par Mindset.",
+                          "taille":  12,
+                          "couleur":  "#728A7A",
+                          "poids":  "Normal"
+                      },
+                      {
+                          "t":  "boutons",
+                          "marge":  "0,10,0,0",
+                          "liste":  [
+                                        {
+                                            "texte":  "Ouvrir",
+                                            "style":  "primaire",
+                                            "quoi":  "ouvrir"
+                                        },
+                                        {
+                                            "texte":  "Prendre en charge",
+                                            "style":  "secondaire",
+                                            "quoi":  "prendre"
+                                        }
+                                    ]
+                      }
+                  ],
+        "questions":  {
+                          "prendre":  {
+                                          "titre":  "Prendre en charge Nevermind ?",
+                                          "texte":  "Mindset installe la dernière version signée de Nevermind dans {RACINE}\\Programmes\\Nevermind. Ses raccourcis directs sont retirés : il s\u0027ouvrira depuis Mindset. S\u0027il se lançait avec Windows, c\u0027est Mindset qui le lancera. Ses réglages et ses données sont gardés (ils rejoignent {RACINE}\\Donnees\\Nevermind).\n\nL\u0027ancienne copie (D:\\Jeux\\Nevermind) est ensuite supprimée (seulement les fichiers de Nevermind).\n\nNevermind se télécharge depuis GitHub. Ensuite, Mindset vérifie sur GitHub s\u0027il en existe une nouvelle version. Rien d\u0027autre n\u0027est envoyé par Mindset, et tu peux couper cette vérification dans les Paramètres. Ce que Nevermind envoie lui-même sur Internet est expliqué sur sa page.",
+                                          "bouton":  "Prendre en charge",
+                                          "valeur":  {
+                                                         "Id":  "nevermind",
+                                                         "Dossier":  "D:\\Jeux\\Nevermind"
+                                                     }
+                                      },
+                          "desinstaller":  {
+                                               "titre":  "Désinstaller Nevermind ?",
+                                               "texte":  "Le désinstalleur de Nevermind va s\u0027ouvrir : il remet comme avant les réglages de Windows qu\u0027il a modifiés, puis supprime ses fichiers. Il te demande aussi si tu gardes tes données : elles sont gardées si tu ne coches rien.",
+                                               "bouton":  "Désinstaller",
+                                               "valeur":  {
+                                                              "Id":  "nevermind"
+                                                          }
+                                           }
+                      }
+    },
+    {
+        "nom":  "evermind, rien de prévu",
+        "theme":  "terminal",
+        "entree":  {
+                       "nom":  "evermind, rien de prévu",
+                       "etat":  "{\"Prochains\":[]}",
+                       "appli":  "evermind",
+                       "inst":  {
+                                    "version":  "1.4.0",
+                                    "gere":  true
+                                }
+                   },
+        "carte":  [
+                      {
+                          "t":  "texte",
+                          "texte":  "Evermind",
+                          "taille":  20,
+                          "couleur":  "#B6FF3B",
+                          "poids":  "SemiBold"
+                      },
+                      {
+                          "t":  "texte",
+                          "texte":  "L\u0027agenda qui se souvient de tout pour toi",
+                          "taille":  13,
+                          "couleur":  "#ACC0B3",
+                          "poids":  "Normal",
+                          "marge":  "0,4,0,12"
+                      },
+                      {
+                          "t":  "pastilles",
+                          "marge":  "0,0,0,12",
+                          "liste":  [
+                                        {
+                                            "texte":  "Version 1.4.0",
+                                            "couleur":  "#ACC0B3"
+                                        },
+                                        {
+                                            "texte":  "Fermé",
+                                            "couleur":  "#728A7A"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "resume",
+                          "genre":  "evermind",
+                          "rdv":  [
+
+                                  ],
+                          "vide":  "Rien de prévu pour le moment."
+                      },
+                      {
+                          "t":  "boutons",
+                          "marge":  "0,10,0,0",
+                          "liste":  [
+                                        {
+                                            "texte":  "Ouvrir",
+                                            "style":  "primaire",
+                                            "quoi":  "ouvrir"
+                                        },
+                                        {
+                                            "texte":  "Désinstaller",
+                                            "style":  "secondaire",
+                                            "quoi":  "desinstaller"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "interrupteur",
+                          "oui":  false,
+                          "texte":  "S\u0027ouvre avec Mindset (sinon tes rappels ne sonnent pas)",
+                          "aide":  "En arrière-plan : ses rappels sonnent même avant que tu ouvres son onglet.",
+                          "marge":  "0,16,0,0"
+                      }
+                  ],
+        "questions":  {
+                          "desinstaller":  {
+                                               "titre":  "Désinstaller Evermind ?",
+                                               "texte":  "Evermind va être fermé et ses fichiers supprimés (une demande de Windows). Ses données (réglages, rendez-vous) sont gardées : une réinstallation les retrouve.",
+                                               "bouton":  "Désinstaller",
+                                               "valeur":  {
+                                                              "Id":  "evermind"
+                                                          }
+                                           }
+                      }
+    },
+    {
+        "nom":  "evermind, sans prochains",
+        "theme":  "terminal",
+        "entree":  {
+                       "nom":  "evermind, sans prochains",
+                       "etat":  "{}",
+                       "appli":  "evermind",
+                       "inst":  {
+                                    "version":  "1.4.0",
+                                    "gere":  true
+                                }
+                   },
+        "carte":  [
+                      {
+                          "t":  "texte",
+                          "texte":  "Evermind",
+                          "taille":  20,
+                          "couleur":  "#B6FF3B",
+                          "poids":  "SemiBold"
+                      },
+                      {
+                          "t":  "texte",
+                          "texte":  "L\u0027agenda qui se souvient de tout pour toi",
+                          "taille":  13,
+                          "couleur":  "#ACC0B3",
+                          "poids":  "Normal",
+                          "marge":  "0,4,0,12"
+                      },
+                      {
+                          "t":  "pastilles",
+                          "marge":  "0,0,0,12",
+                          "liste":  [
+                                        {
+                                            "texte":  "Version 1.4.0",
+                                            "couleur":  "#ACC0B3"
+                                        },
+                                        {
+                                            "texte":  "Fermé",
+                                            "couleur":  "#728A7A"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "resume",
+                          "genre":  "evermind",
+                          "rdv":  [
+
+                                  ],
+                          "vide":  "Rien de prévu pour le moment."
+                      },
+                      {
+                          "t":  "boutons",
+                          "marge":  "0,10,0,0",
+                          "liste":  [
+                                        {
+                                            "texte":  "Ouvrir",
+                                            "style":  "primaire",
+                                            "quoi":  "ouvrir"
+                                        },
+                                        {
+                                            "texte":  "Désinstaller",
+                                            "style":  "secondaire",
+                                            "quoi":  "desinstaller"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "interrupteur",
+                          "oui":  false,
+                          "texte":  "S\u0027ouvre avec Mindset (sinon tes rappels ne sonnent pas)",
+                          "aide":  "En arrière-plan : ses rappels sonnent même avant que tu ouvres son onglet.",
+                          "marge":  "0,16,0,0"
+                      }
+                  ],
+        "questions":  {
+                          "desinstaller":  {
+                                               "titre":  "Désinstaller Evermind ?",
+                                               "texte":  "Evermind va être fermé et ses fichiers supprimés (une demande de Windows). Ses données (réglages, rendez-vous) sont gardées : une réinstallation les retrouve.",
+                                               "bouton":  "Désinstaller",
+                                               "valeur":  {
+                                                              "Id":  "evermind"
+                                                          }
+                                           }
+                      }
+    },
+    {
+        "nom":  "evermind, rendez-vous",
+        "theme":  "terminal",
+        "entree":  {
+                       "nom":  "evermind, rendez-vous",
+                       "etat":  "{\"Prochains\":[{\"Id\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1\",\"Titre\":\"Passé il y a une demi-heure\",\"Quand\":\"2026-11-07T19:30:00\",\"Journee\":false},{\"Id\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa2\",\"Titre\":\"Toute la journée aujourd\\u0027hui\",\"Quand\":\"2026-11-07T00:00:00\",\"Journee\":true},{\"Id\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa3\",\"Titre\":\"Appeler maman\",\"Quand\":\"2026-11-07T21:15:00\",\"Journee\":false},{\"Id\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa4\",\"Titre\":\"Dentiste\",\"Quand\":\"2026-11-08T09:00:00\",\"Journee\":false},{\"Id\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa5\",\"Titre\":\"Férié\",\"Quand\":\"2026-11-11T00:00:00\",\"Journee\":true}]}",
+                       "appli":  "evermind",
+                       "inst":  {
+                                    "version":  "1.4.0",
+                                    "gere":  true
+                                }
+                   },
+        "carte":  [
+                      {
+                          "t":  "texte",
+                          "texte":  "Evermind",
+                          "taille":  20,
+                          "couleur":  "#B6FF3B",
+                          "poids":  "SemiBold"
+                      },
+                      {
+                          "t":  "texte",
+                          "texte":  "L\u0027agenda qui se souvient de tout pour toi",
+                          "taille":  13,
+                          "couleur":  "#ACC0B3",
+                          "poids":  "Normal",
+                          "marge":  "0,4,0,12"
+                      },
+                      {
+                          "t":  "pastilles",
+                          "marge":  "0,0,0,12",
+                          "liste":  [
+                                        {
+                                            "texte":  "Version 1.4.0",
+                                            "couleur":  "#ACC0B3"
+                                        },
+                                        {
+                                            "texte":  "Fermé",
+                                            "couleur":  "#728A7A"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "resume",
+                          "genre":  "evermind",
+                          "rdv":  [
+                                      {
+                                          "quand":  "Aujourd\u0027hui",
+                                          "titre":  "Toute la journée aujourd\u0027hui",
+                                          "id":  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa2",
+                                          "moment":  "2026-11-07T00:00:00"
+                                      },
+                                      {
+                                          "quand":  "Aujourd\u0027hui 21:15",
+                                          "titre":  "Appeler maman",
+                                          "id":  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa3",
+                                          "moment":  "2026-11-07T21:15:00"
+                                      },
+                                      {
+                                          "quand":  "Demain 09:00",
+                                          "titre":  "Dentiste",
+                                          "id":  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa4",
+                                          "moment":  "2026-11-08T09:00:00"
+                                      }
+                                  ]
+                      },
+                      {
+                          "t":  "boutons",
+                          "marge":  "0,10,0,0",
+                          "liste":  [
+                                        {
+                                            "texte":  "Ouvrir",
+                                            "style":  "primaire",
+                                            "quoi":  "ouvrir"
+                                        },
+                                        {
+                                            "texte":  "Désinstaller",
+                                            "style":  "secondaire",
+                                            "quoi":  "desinstaller"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "interrupteur",
+                          "oui":  false,
+                          "texte":  "S\u0027ouvre avec Mindset (sinon tes rappels ne sonnent pas)",
+                          "aide":  "En arrière-plan : ses rappels sonnent même avant que tu ouvres son onglet.",
+                          "marge":  "0,16,0,0"
+                      }
+                  ],
+        "questions":  {
+                          "desinstaller":  {
+                                               "titre":  "Désinstaller Evermind ?",
+                                               "texte":  "Evermind va être fermé et ses fichiers supprimés (une demande de Windows). Ses données (réglages, rendez-vous) sont gardées : une réinstallation les retrouve.",
+                                               "bouton":  "Désinstaller",
+                                               "valeur":  {
+                                                              "Id":  "evermind"
+                                                          }
+                                           }
+                      }
+    },
+    {
+        "nom":  "evermind, jours de la semaine et plus loin",
+        "theme":  "terminal",
+        "entree":  {
+                       "nom":  "evermind, jours de la semaine et plus loin",
+                       "etat":  "{\"Prochains\":[{\"Id\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa6\",\"Titre\":\"Mardi soir\",\"Quand\":\"2026-11-10T18:00:00\",\"Journee\":false},{\"Id\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa7\",\"Titre\":\"Vendredi matin\",\"Quand\":\"2026-11-13T08:05:00\",\"Journee\":false},{\"Id\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa8\",\"Titre\":\"Une semaine plus tard\",\"Quand\":\"2026-11-14T12:00:00\",\"Journee\":false}]}",
+                       "appli":  "evermind",
+                       "inst":  {
+                                    "version":  "1.4.0",
+                                    "gere":  true
+                                }
+                   },
+        "carte":  [
+                      {
+                          "t":  "texte",
+                          "texte":  "Evermind",
+                          "taille":  20,
+                          "couleur":  "#B6FF3B",
+                          "poids":  "SemiBold"
+                      },
+                      {
+                          "t":  "texte",
+                          "texte":  "L\u0027agenda qui se souvient de tout pour toi",
+                          "taille":  13,
+                          "couleur":  "#ACC0B3",
+                          "poids":  "Normal",
+                          "marge":  "0,4,0,12"
+                      },
+                      {
+                          "t":  "pastilles",
+                          "marge":  "0,0,0,12",
+                          "liste":  [
+                                        {
+                                            "texte":  "Version 1.4.0",
+                                            "couleur":  "#ACC0B3"
+                                        },
+                                        {
+                                            "texte":  "Fermé",
+                                            "couleur":  "#728A7A"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "resume",
+                          "genre":  "evermind",
+                          "rdv":  [
+                                      {
+                                          "quand":  "Mardi 18:00",
+                                          "titre":  "Mardi soir",
+                                          "id":  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa6",
+                                          "moment":  "2026-11-10T18:00:00"
+                                      },
+                                      {
+                                          "quand":  "Vendredi 08:05",
+                                          "titre":  "Vendredi matin",
+                                          "id":  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa7",
+                                          "moment":  "2026-11-13T08:05:00"
+                                      },
+                                      {
+                                          "quand":  "14 nov. 12:00",
+                                          "titre":  "Une semaine plus tard",
+                                          "id":  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa8",
+                                          "moment":  "2026-11-14T12:00:00"
+                                      }
+                                  ]
+                      },
+                      {
+                          "t":  "boutons",
+                          "marge":  "0,10,0,0",
+                          "liste":  [
+                                        {
+                                            "texte":  "Ouvrir",
+                                            "style":  "primaire",
+                                            "quoi":  "ouvrir"
+                                        },
+                                        {
+                                            "texte":  "Désinstaller",
+                                            "style":  "secondaire",
+                                            "quoi":  "desinstaller"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "interrupteur",
+                          "oui":  false,
+                          "texte":  "S\u0027ouvre avec Mindset (sinon tes rappels ne sonnent pas)",
+                          "aide":  "En arrière-plan : ses rappels sonnent même avant que tu ouvres son onglet.",
+                          "marge":  "0,16,0,0"
+                      }
+                  ],
+        "questions":  {
+                          "desinstaller":  {
+                                               "titre":  "Désinstaller Evermind ?",
+                                               "texte":  "Evermind va être fermé et ses fichiers supprimés (une demande de Windows). Ses données (réglages, rendez-vous) sont gardées : une réinstallation les retrouve.",
+                                               "bouton":  "Désinstaller",
+                                               "valeur":  {
+                                                              "Id":  "evermind"
+                                                          }
+                                           }
+                      }
+    },
+    {
+        "nom":  "evermind, plus loin encore",
+        "theme":  "terminal",
+        "entree":  {
+                       "nom":  "evermind, plus loin encore",
+                       "etat":  "{\"Prochains\":[{\"Id\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa9\",\"Titre\":\"Noël\",\"Quand\":\"2026-12-25T00:00:00\",\"Journee\":true},{\"Id\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"Titre\":\"Février\",\"Quand\":\"2027-02-03T14:30:00\",\"Journee\":false},{\"Id\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaab\",\"Titre\":\"Août\",\"Quand\":\"2027-08-15T10:00:00\",\"Journee\":false}]}",
+                       "appli":  "evermind",
+                       "inst":  {
+                                    "version":  "1.4.0",
+                                    "gere":  true
+                                }
+                   },
+        "carte":  [
+                      {
+                          "t":  "texte",
+                          "texte":  "Evermind",
+                          "taille":  20,
+                          "couleur":  "#B6FF3B",
+                          "poids":  "SemiBold"
+                      },
+                      {
+                          "t":  "texte",
+                          "texte":  "L\u0027agenda qui se souvient de tout pour toi",
+                          "taille":  13,
+                          "couleur":  "#ACC0B3",
+                          "poids":  "Normal",
+                          "marge":  "0,4,0,12"
+                      },
+                      {
+                          "t":  "pastilles",
+                          "marge":  "0,0,0,12",
+                          "liste":  [
+                                        {
+                                            "texte":  "Version 1.4.0",
+                                            "couleur":  "#ACC0B3"
+                                        },
+                                        {
+                                            "texte":  "Fermé",
+                                            "couleur":  "#728A7A"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "resume",
+                          "genre":  "evermind",
+                          "rdv":  [
+                                      {
+                                          "quand":  "25 déc.",
+                                          "titre":  "Noël",
+                                          "id":  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa9",
+                                          "moment":  "2026-12-25T00:00:00"
+                                      },
+                                      {
+                                          "quand":  "3 févr. 14:30",
+                                          "titre":  "Février",
+                                          "id":  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                                          "moment":  "2027-02-03T14:30:00"
+                                      },
+                                      {
+                                          "quand":  "15 août 10:00",
+                                          "titre":  "Août",
+                                          "id":  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaab",
+                                          "moment":  "2027-08-15T10:00:00"
+                                      }
+                                  ]
+                      },
+                      {
+                          "t":  "boutons",
+                          "marge":  "0,10,0,0",
+                          "liste":  [
+                                        {
+                                            "texte":  "Ouvrir",
+                                            "style":  "primaire",
+                                            "quoi":  "ouvrir"
+                                        },
+                                        {
+                                            "texte":  "Désinstaller",
+                                            "style":  "secondaire",
+                                            "quoi":  "desinstaller"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "interrupteur",
+                          "oui":  false,
+                          "texte":  "S\u0027ouvre avec Mindset (sinon tes rappels ne sonnent pas)",
+                          "aide":  "En arrière-plan : ses rappels sonnent même avant que tu ouvres son onglet.",
+                          "marge":  "0,16,0,0"
+                      }
+                  ],
+        "questions":  {
+                          "desinstaller":  {
+                                               "titre":  "Désinstaller Evermind ?",
+                                               "texte":  "Evermind va être fermé et ses fichiers supprimés (une demande de Windows). Ses données (réglages, rendez-vous) sont gardées : une réinstallation les retrouve.",
+                                               "bouton":  "Désinstaller",
+                                               "valeur":  {
+                                                              "Id":  "evermind"
+                                                          }
+                                           }
+                      }
+    },
+    {
+        "nom":  "evermind, rendez-vous refusés",
+        "theme":  "terminal",
+        "entree":  {
+                       "nom":  "evermind, rendez-vous refusés",
+                       "etat":  "{\"Prochains\":[{\"Id\":\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",\"Titre\":\"Id en majuscules\",\"Quand\":\"2026-11-08T09:00:00\",\"Journee\":false},{\"Id\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"Titre\":\"Id trop court\",\"Quand\":\"2026-11-08T09:00:00\",\"Journee\":false},{\"Id\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1\",\"Titre\":\"Date mal écrite\",\"Quand\":\"08/11/2026 09:00\",\"Journee\":false},{\"Id\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa2\",\"Titre\":\"Date avec Z\",\"Quand\":\"2026-11-08T09:00:00Z\",\"Journee\":false},{\"Id\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa3\",\"Titre\":\"Titre très long Titre très long Titre très long Titre très long Titre très long Titre très long Titre très long Titre très long \",\"Quand\":\"2026-11-09T07:00:00\",\"Journee\":\"true\"},{\"Id\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa4\",\"Quand\":\"2026-11-09T08:00:00\"}]}",
+                       "appli":  "evermind",
+                       "inst":  {
+                                    "version":  "1.4.0",
+                                    "gere":  true
+                                }
+                   },
+        "carte":  [
+                      {
+                          "t":  "texte",
+                          "texte":  "Evermind",
+                          "taille":  20,
+                          "couleur":  "#B6FF3B",
+                          "poids":  "SemiBold"
+                      },
+                      {
+                          "t":  "texte",
+                          "texte":  "L\u0027agenda qui se souvient de tout pour toi",
+                          "taille":  13,
+                          "couleur":  "#ACC0B3",
+                          "poids":  "Normal",
+                          "marge":  "0,4,0,12"
+                      },
+                      {
+                          "t":  "pastilles",
+                          "marge":  "0,0,0,12",
+                          "liste":  [
+                                        {
+                                            "texte":  "Version 1.4.0",
+                                            "couleur":  "#ACC0B3"
+                                        },
+                                        {
+                                            "texte":  "Fermé",
+                                            "couleur":  "#728A7A"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "resume",
+                          "genre":  "evermind",
+                          "rdv":  [
+                                      {
+                                          "quand":  "Lundi",
+                                          "titre":  "Titre très long Titre très long Titre très long Titre très long Titre très long ",
+                                          "id":  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa3",
+                                          "moment":  "2026-11-09T07:00:00"
+                                      },
+                                      {
+                                          "quand":  "Lundi 08:00",
+                                          "titre":  "",
+                                          "id":  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa4",
+                                          "moment":  "2026-11-09T08:00:00"
+                                      }
+                                  ]
+                      },
+                      {
+                          "t":  "boutons",
+                          "marge":  "0,10,0,0",
+                          "liste":  [
+                                        {
+                                            "texte":  "Ouvrir",
+                                            "style":  "primaire",
+                                            "quoi":  "ouvrir"
+                                        },
+                                        {
+                                            "texte":  "Désinstaller",
+                                            "style":  "secondaire",
+                                            "quoi":  "desinstaller"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "interrupteur",
+                          "oui":  false,
+                          "texte":  "S\u0027ouvre avec Mindset (sinon tes rappels ne sonnent pas)",
+                          "aide":  "En arrière-plan : ses rappels sonnent même avant que tu ouvres son onglet.",
+                          "marge":  "0,16,0,0"
+                      }
+                  ],
+        "questions":  {
+                          "desinstaller":  {
+                                               "titre":  "Désinstaller Evermind ?",
+                                               "texte":  "Evermind va être fermé et ses fichiers supprimés (une demande de Windows). Ses données (réglages, rendez-vous) sont gardées : une réinstallation les retrouve.",
+                                               "bouton":  "Désinstaller",
+                                               "valeur":  {
+                                                              "Id":  "evermind"
+                                                          }
+                                           }
+                      }
+    },
+    {
+        "nom":  "evermind, onze rendez-vous : les dix premiers lus",
+        "theme":  "terminal",
+        "entree":  {
+                       "nom":  "evermind, onze rendez-vous : les dix premiers lus",
+                       "etat":  "{\"Prochains\":[{\"Id\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1\",\"Titre\":\"a\",\"Quand\":\"2026-11-01T09:00:00\",\"Journee\":false},{\"Id\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa2\",\"Titre\":\"b\",\"Quand\":\"2026-11-01T09:00:00\",\"Journee\":false},{\"Id\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa3\",\"Titre\":\"c\",\"Quand\":\"2026-11-01T09:00:00\",\"Journee\":false},{\"Id\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa4\",\"Titre\":\"d\",\"Quand\":\"2026-11-01T09:00:00\",\"Journee\":false},{\"Id\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa5\",\"Titre\":\"e\",\"Quand\":\"2026-11-01T09:00:00\",\"Journee\":false},{\"Id\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa6\",\"Titre\":\"f\",\"Quand\":\"2026-11-01T09:00:00\",\"Journee\":false},{\"Id\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa7\",\"Titre\":\"g\",\"Quand\":\"2026-11-01T09:00:00\",\"Journee\":false},{\"Id\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa8\",\"Titre\":\"h\",\"Quand\":\"2026-11-01T09:00:00\",\"Journee\":false},{\"Id\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa9\",\"Titre\":\"i\",\"Quand\":\"2026-11-01T09:00:00\",\"Journee\":false},{\"Id\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"Titre\":\"j\",\"Quand\":\"2026-11-01T09:00:00\",\"Journee\":false},{\"Id\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaab\",\"Titre\":\"Le onzième\",\"Quand\":\"2026-11-20T09:00:00\",\"Journee\":false}]}",
+                       "appli":  "evermind",
+                       "inst":  {
+                                    "version":  "1.4.0",
+                                    "gere":  true
+                                }
+                   },
+        "carte":  [
+                      {
+                          "t":  "texte",
+                          "texte":  "Evermind",
+                          "taille":  20,
+                          "couleur":  "#B6FF3B",
+                          "poids":  "SemiBold"
+                      },
+                      {
+                          "t":  "texte",
+                          "texte":  "L\u0027agenda qui se souvient de tout pour toi",
+                          "taille":  13,
+                          "couleur":  "#ACC0B3",
+                          "poids":  "Normal",
+                          "marge":  "0,4,0,12"
+                      },
+                      {
+                          "t":  "pastilles",
+                          "marge":  "0,0,0,12",
+                          "liste":  [
+                                        {
+                                            "texte":  "Version 1.4.0",
+                                            "couleur":  "#ACC0B3"
+                                        },
+                                        {
+                                            "texte":  "Fermé",
+                                            "couleur":  "#728A7A"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "resume",
+                          "genre":  "evermind",
+                          "rdv":  [
+
+                                  ],
+                          "vide":  "Rien de prévu pour le moment."
+                      },
+                      {
+                          "t":  "boutons",
+                          "marge":  "0,10,0,0",
+                          "liste":  [
+                                        {
+                                            "texte":  "Ouvrir",
+                                            "style":  "primaire",
+                                            "quoi":  "ouvrir"
+                                        },
+                                        {
+                                            "texte":  "Désinstaller",
+                                            "style":  "secondaire",
+                                            "quoi":  "desinstaller"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "interrupteur",
+                          "oui":  false,
+                          "texte":  "S\u0027ouvre avec Mindset (sinon tes rappels ne sonnent pas)",
+                          "aide":  "En arrière-plan : ses rappels sonnent même avant que tu ouvres son onglet.",
+                          "marge":  "0,16,0,0"
+                      }
+                  ],
+        "questions":  {
+                          "desinstaller":  {
+                                               "titre":  "Désinstaller Evermind ?",
+                                               "texte":  "Evermind va être fermé et ses fichiers supprimés (une demande de Windows). Ses données (réglages, rendez-vous) sont gardées : une réinstallation les retrouve.",
+                                               "bouton":  "Désinstaller",
+                                               "valeur":  {
+                                                              "Id":  "evermind"
+                                                          }
+                                           }
+                      }
+    },
+    {
+        "nom":  "commun, complet",
+        "theme":  "terminal",
+        "entree":  {
+                       "nom":  "commun, complet",
+                       "etat":  "{\"Titre\":\"Dernière enquête\",\"Scores\":[{\"Nom\":\"Santé\",\"Valeur\":72},{\"Nom\":\"Disque\",\"Valeur\":\"30\"},{\"Nom\":\"Trop\",\"Valeur\":10}],\"Lignes\":[{\"Texte\":\"Tout va bien\",\"Etat\":\"ok\"},{\"Texte\":\"À surveiller\",\"Etat\":\"ATTENTION\"},{\"Texte\":\"Urgent !\",\"Etat\":\"urgent\"},{\"Texte\":\"Quatrième\",\"Etat\":\"info\"}]}",
+                       "appli":  "mindcare",
+                       "inst":  {
+                                    "version":  "0.3.0",
+                                    "gere":  true
+                                }
+                   },
+        "carte":  [
+                      {
+                          "t":  "texte",
+                          "texte":  "Mindcare",
+                          "taille":  20,
+                          "couleur":  "#FF8A00",
+                          "poids":  "SemiBold"
+                      },
+                      {
+                          "t":  "texte",
+                          "texte":  "Trouve pourquoi ton PC est en panne, en répondant à quelques questions simples.",
+                          "taille":  13,
+                          "couleur":  "#ACC0B3",
+                          "poids":  "Normal",
+                          "marge":  "0,4,0,12"
+                      },
+                      {
+                          "t":  "pastilles",
+                          "marge":  "0,0,0,12",
+                          "liste":  [
+                                        {
+                                            "texte":  "Version 0.3.0",
+                                            "couleur":  "#ACC0B3"
+                                        },
+                                        {
+                                            "texte":  "Fermé",
+                                            "couleur":  "#728A7A"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "resume",
+                          "genre":  "commun",
+                          "titre":  "Dernière enquête",
+                          "scores":  [
+                                         {
+                                             "nom":  "Santé",
+                                             "valeur":  72,
+                                             "c1":  "#33FF77",
+                                             "c2":  "#E3FFB5"
+                                         },
+                                         {
+                                             "nom":  "Disque",
+                                             "valeur":  30,
+                                             "c1":  "#00E0A0",
+                                             "c2":  "#B6FF3B"
+                                         }
+                                     ],
+                          "lignes":  [
+                                         {
+                                             "texte":  "Tout va bien",
+                                             "couleur":  "#3DDC84"
+                                         },
+                                         {
+                                             "texte":  "À surveiller",
+                                             "couleur":  "#FFB020"
+                                         },
+                                         {
+                                             "texte":  "Urgent !",
+                                             "couleur":  "#FF5C7A"
+                                         }
+                                     ]
+                      },
+                      {
+                          "t":  "boutons",
+                          "marge":  "0,10,0,0",
+                          "liste":  [
+                                        {
+                                            "texte":  "Ouvrir",
+                                            "style":  "primaire",
+                                            "quoi":  "ouvrir"
+                                        },
+                                        {
+                                            "texte":  "Désinstaller",
+                                            "style":  "secondaire",
+                                            "quoi":  "desinstaller"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "interrupteur",
+                          "oui":  false,
+                          "texte":  "S\u0027ouvre avec Mindset",
+                          "aide":  "En arrière-plan, prêt dans son onglet.",
+                          "marge":  "0,16,0,0"
+                      }
+                  ],
+        "questions":  {
+                          "desinstaller":  {
+                                               "titre":  "Désinstaller Mindcare ?",
+                                               "texte":  "Mindcare va être fermé et ses fichiers supprimés (une demande de Windows). Ses données (réglages, rendez-vous) sont gardées : une réinstallation les retrouve.",
+                                               "bouton":  "Désinstaller",
+                                               "valeur":  {
+                                                              "Id":  "mindcare"
+                                                          }
+                                           }
+                      }
+    },
+    {
+        "nom":  "commun, valeurs refusées",
+        "theme":  "terminal",
+        "entree":  {
+                       "nom":  "commun, valeurs refusées",
+                       "etat":  "{\"Titre\":\"\",\"Scores\":[{\"Nom\":\"\",\"Valeur\":50},{\"Nom\":\"Sans valeur\"},{\"Nom\":\"Ok\",\"Valeur\":0}],\"Lignes\":[{\"Texte\":\"\",\"Etat\":\"ok\"},{\"Texte\":\"Etat inconnu\",\"Etat\":\"rouge\"},{\"Texte\":\"Sans etat\"}]}",
+                       "appli":  "mindcare",
+                       "inst":  {
+                                    "version":  "0.3.0",
+                                    "gere":  true
+                                }
+                   },
+        "carte":  [
+                      {
+                          "t":  "texte",
+                          "texte":  "Mindcare",
+                          "taille":  20,
+                          "couleur":  "#FF8A00",
+                          "poids":  "SemiBold"
+                      },
+                      {
+                          "t":  "texte",
+                          "texte":  "Trouve pourquoi ton PC est en panne, en répondant à quelques questions simples.",
+                          "taille":  13,
+                          "couleur":  "#ACC0B3",
+                          "poids":  "Normal",
+                          "marge":  "0,4,0,12"
+                      },
+                      {
+                          "t":  "pastilles",
+                          "marge":  "0,0,0,12",
+                          "liste":  [
+                                        {
+                                            "texte":  "Version 0.3.0",
+                                            "couleur":  "#ACC0B3"
+                                        },
+                                        {
+                                            "texte":  "Fermé",
+                                            "couleur":  "#728A7A"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "resume",
+                          "genre":  "commun",
+                          "titre":  null,
+                          "scores":  [
+
+                                     ],
+                          "lignes":  [
+                                         {
+                                             "texte":  "Etat inconnu",
+                                             "couleur":  "#ECEAF7"
+                                         },
+                                         {
+                                             "texte":  "Sans etat",
+                                             "couleur":  "#ECEAF7"
+                                         }
+                                     ]
+                      },
+                      {
+                          "t":  "boutons",
+                          "marge":  "0,10,0,0",
+                          "liste":  [
+                                        {
+                                            "texte":  "Ouvrir",
+                                            "style":  "primaire",
+                                            "quoi":  "ouvrir"
+                                        },
+                                        {
+                                            "texte":  "Désinstaller",
+                                            "style":  "secondaire",
+                                            "quoi":  "desinstaller"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "interrupteur",
+                          "oui":  false,
+                          "texte":  "S\u0027ouvre avec Mindset",
+                          "aide":  "En arrière-plan, prêt dans son onglet.",
+                          "marge":  "0,16,0,0"
+                      }
+                  ],
+        "questions":  {
+                          "desinstaller":  {
+                                               "titre":  "Désinstaller Mindcare ?",
+                                               "texte":  "Mindcare va être fermé et ses fichiers supprimés (une demande de Windows). Ses données (réglages, rendez-vous) sont gardées : une réinstallation les retrouve.",
+                                               "bouton":  "Désinstaller",
+                                               "valeur":  {
+                                                              "Id":  "mindcare"
+                                                          }
+                                           }
+                      }
+    },
+    {
+        "nom":  "commun, objets au lieu de listes",
+        "theme":  "terminal",
+        "entree":  {
+                       "nom":  "commun, objets au lieu de listes",
+                       "etat":  "{\"Titre\":\"Un seul\",\"Scores\":{\"Nom\":\"Seul\",\"Valeur\":\"99\"},\"Lignes\":{\"Texte\":\"Une seule ligne\",\"Etat\":\"info\"}}",
+                       "appli":  "zephyr",
+                       "inst":  {
+                                    "version":  "1.0.0",
+                                    "gere":  true
+                                }
+                   },
+        "carte":  [
+                      {
+                          "t":  "texte",
+                          "texte":  "Zéphyr",
+                          "taille":  20,
+                          "couleur":  "#3DDC84",
+                          "poids":  "SemiBold"
+                      },
+                      {
+                          "t":  "texte",
+                          "texte":  "Une appli inventée pour les essais",
+                          "taille":  13,
+                          "couleur":  "#ACC0B3",
+                          "poids":  "Normal",
+                          "marge":  "0,4,0,12"
+                      },
+                      {
+                          "t":  "pastilles",
+                          "marge":  "0,0,0,12",
+                          "liste":  [
+                                        {
+                                            "texte":  "Version 1.0.0",
+                                            "couleur":  "#ACC0B3"
+                                        },
+                                        {
+                                            "texte":  "Fermé",
+                                            "couleur":  "#728A7A"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "resume",
+                          "genre":  "commun",
+                          "titre":  "Un seul",
+                          "scores":  [
+                                         {
+                                             "nom":  "Seul",
+                                             "valeur":  99,
+                                             "c1":  "#33FF77",
+                                             "c2":  "#E3FFB5"
+                                         }
+                                     ],
+                          "lignes":  [
+                                         {
+                                             "texte":  "Une seule ligne",
+                                             "couleur":  "#ECEAF7"
+                                         }
+                                     ]
+                      },
+                      {
+                          "t":  "boutons",
+                          "marge":  "0,10,0,0",
+                          "liste":  [
+                                        {
+                                            "texte":  "Ouvrir",
+                                            "style":  "primaire",
+                                            "quoi":  "ouvrir"
+                                        },
+                                        {
+                                            "texte":  "Désinstaller",
+                                            "style":  "secondaire",
+                                            "quoi":  "desinstaller"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "interrupteur",
+                          "oui":  false,
+                          "texte":  "S\u0027ouvre avec Mindset",
+                          "aide":  "En arrière-plan, prêt dans son onglet.",
+                          "marge":  "0,16,0,0"
+                      }
+                  ],
+        "questions":  {
+                          "desinstaller":  {
+                                               "titre":  "Désinstaller Zéphyr ?",
+                                               "texte":  "Zéphyr va être fermé et ses fichiers supprimés (une demande de Windows). Ses données (réglages, rendez-vous) sont gardées : une réinstallation les retrouve.",
+                                               "bouton":  "Désinstaller",
+                                               "valeur":  {
+                                                              "Id":  "zephyr"
+                                                          }
+                                           }
+                      }
+    },
+    {
+        "nom":  "commun, rien",
+        "theme":  "terminal",
+        "entree":  {
+                       "nom":  "commun, rien",
+                       "etat":  "{\"Autre\":1}",
+                       "appli":  "zephyr",
+                       "inst":  {
+                                    "version":  "1.0.0",
+                                    "gere":  true
+                                }
+                   },
+        "carte":  [
+                      {
+                          "t":  "texte",
+                          "texte":  "Zéphyr",
+                          "taille":  20,
+                          "couleur":  "#3DDC84",
+                          "poids":  "SemiBold"
+                      },
+                      {
+                          "t":  "texte",
+                          "texte":  "Une appli inventée pour les essais",
+                          "taille":  13,
+                          "couleur":  "#ACC0B3",
+                          "poids":  "Normal",
+                          "marge":  "0,4,0,12"
+                      },
+                      {
+                          "t":  "pastilles",
+                          "marge":  "0,0,0,12",
+                          "liste":  [
+                                        {
+                                            "texte":  "Version 1.0.0",
+                                            "couleur":  "#ACC0B3"
+                                        },
+                                        {
+                                            "texte":  "Fermé",
+                                            "couleur":  "#728A7A"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "resume",
+                          "genre":  "commun",
+                          "titre":  null,
+                          "scores":  [
+
+                                     ],
+                          "lignes":  [
+
+                                     ]
+                      },
+                      {
+                          "t":  "boutons",
+                          "marge":  "0,10,0,0",
+                          "liste":  [
+                                        {
+                                            "texte":  "Ouvrir",
+                                            "style":  "primaire",
+                                            "quoi":  "ouvrir"
+                                        },
+                                        {
+                                            "texte":  "Désinstaller",
+                                            "style":  "secondaire",
+                                            "quoi":  "desinstaller"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "interrupteur",
+                          "oui":  false,
+                          "texte":  "S\u0027ouvre avec Mindset",
+                          "aide":  "En arrière-plan, prêt dans son onglet.",
+                          "marge":  "0,16,0,0"
+                      }
+                  ],
+        "questions":  {
+                          "desinstaller":  {
+                                               "titre":  "Désinstaller Zéphyr ?",
+                                               "texte":  "Zéphyr va être fermé et ses fichiers supprimés (une demande de Windows). Ses données (réglages, rendez-vous) sont gardées : une réinstallation les retrouve.",
+                                               "bouton":  "Désinstaller",
+                                               "valeur":  {
+                                                              "Id":  "zephyr"
+                                                          }
+                                           }
+                      }
+    },
+    {
+        "nom":  "commun, accents et caractères spéciaux",
+        "theme":  "terminal",
+        "entree":  {
+                       "nom":  "commun, accents et caractères spéciaux",
+                       "etat":  "{\"Titre\":\"Été « chaud » \u0026 \u003cbalises\u003e\",\"Lignes\":[{\"Texte\":\"Ça marche : 100 % ✓\",\"Etat\":\"ok\"}]}",
+                       "appli":  "mindcare",
+                       "inst":  {
+                                    "version":  "0.3.0",
+                                    "gere":  true
+                                }
+                   },
+        "carte":  [
+                      {
+                          "t":  "texte",
+                          "texte":  "Mindcare",
+                          "taille":  20,
+                          "couleur":  "#FF8A00",
+                          "poids":  "SemiBold"
+                      },
+                      {
+                          "t":  "texte",
+                          "texte":  "Trouve pourquoi ton PC est en panne, en répondant à quelques questions simples.",
+                          "taille":  13,
+                          "couleur":  "#ACC0B3",
+                          "poids":  "Normal",
+                          "marge":  "0,4,0,12"
+                      },
+                      {
+                          "t":  "pastilles",
+                          "marge":  "0,0,0,12",
+                          "liste":  [
+                                        {
+                                            "texte":  "Version 0.3.0",
+                                            "couleur":  "#ACC0B3"
+                                        },
+                                        {
+                                            "texte":  "Fermé",
+                                            "couleur":  "#728A7A"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "resume",
+                          "genre":  "commun",
+                          "titre":  "Été « chaud » \u0026 \u003cbalises\u003e",
+                          "scores":  [
+
+                                     ],
+                          "lignes":  [
+                                         {
+                                             "texte":  "Ça marche : 100 % ✓",
+                                             "couleur":  "#3DDC84"
+                                         }
+                                     ]
+                      },
+                      {
+                          "t":  "boutons",
+                          "marge":  "0,10,0,0",
+                          "liste":  [
+                                        {
+                                            "texte":  "Ouvrir",
+                                            "style":  "primaire",
+                                            "quoi":  "ouvrir"
+                                        },
+                                        {
+                                            "texte":  "Désinstaller",
+                                            "style":  "secondaire",
+                                            "quoi":  "desinstaller"
+                                        }
+                                    ]
+                      },
+                      {
+                          "t":  "interrupteur",
+                          "oui":  false,
+                          "texte":  "S\u0027ouvre avec Mindset",
+                          "aide":  "En arrière-plan, prêt dans son onglet.",
+                          "marge":  "0,16,0,0"
+                      }
+                  ],
+        "questions":  {
+                          "desinstaller":  {
+                                               "titre":  "Désinstaller Mindcare ?",
+                                               "texte":  "Mindcare va être fermé et ses fichiers supprimés (une demande de Windows). Ses données (réglages, rendez-vous) sont gardées : une réinstallation les retrouve.",
+                                               "bouton":  "Désinstaller",
+                                               "valeur":  {
+                                                              "Id":  "mindcare"
+                                                          }
+                                           }
+                      }
+    }
+]

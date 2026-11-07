@@ -1,29 +1,38 @@
-/* La coquille : la fenêtre de Mindset et ses zones (interface.xaml : fond #06050F, texte #ECEAF7, Segoe UI 14, en-tête,
-   colonne des onglets de 210, bandeaux au-dessus de la page centrale, voiles des questions). Le bloc « écrans » refait
-   le rendu à l'identique dans ecrans/ecrans.css ; ce fichier ne donne que la mise en place. */
+/* La coquille : la fenêtre de Mindset et ses zones, à la place exacte de celles d'interface.xaml (fond #06050F, texte
+   #ECEAF7, Segoe UI Variable Text 14, en-tête, colonne des onglets de 210, bandeaux au-dessus de la page centrale,
+   voiles des questions). Le rendu (couleurs, boutons, cartes, animations) est dans ecrans/ecrans.css.
+   Les couleurs sont celles de Néon : la page pose les variables --c-RRGGBB (« r g b ») du thème de la suite. */
 :root {
-  --fond: #06050F;
-  --panneau: #0C0920;
-  --panneau2: #141030;
-  --trait: #2A2450;
-  --texte: #ECEAF7;
-  --texte2: #A9A3C9;
-  --texte3: #6F6894;
+  --c-06050F: 6 5 15; --c-0C0920: 12 9 32; --c-141030: 20 16 48; --c-2A2450: 42 36 80; --c-ECEAF7: 236 234 247;
+  --c-A9A3C9: 169 163 201; --c-6F6894: 111 104 148; --c-A6A1BC: 166 161 188; --c-100C28: 16 12 40; --c-060510: 6 5 16;
+  --c-08060F: 8 6 15; --c-F2EFFA: 242 239 250; --c-EEEBF7: 238 235 247; --c-FFFFFF: 255 255 255; --c-000000: 0 0 0;
+  --c-00E5FF: 0 229 255; --c-B04BFF: 176 75 255; --c-FF2EB5: 255 46 181; --c-7A3CFF: 122 60 255; --c-7A7BFF: 122 123 255;
+  --c-7FF4FF: 127 244 255; --c-00D9F5: 0 217 245; --c-3A4355: 58 67 85; --c-3DDC84: 61 220 132; --c-FFB020: 255 176 32;
+  --c-FF5C7A: 255 92 122;
+  --police-titres: "Segoe UI Variable Display", "Segoe UI";
+  --police-texte: "Segoe UI Variable Text", "Segoe UI";
 }
-html, body { margin: 0; height: 100%; overflow: hidden; background: var(--fond); color: var(--texte); }
-body { font-family: "Segoe UI Variable Text", "Segoe UI", sans-serif; font-size: 14px; user-select: none; }
-#fenetre { position: relative; display: grid; grid-template-rows: auto 1fr auto; height: 100%; }
+html, body { margin: 0; height: 100%; overflow: hidden; background: rgb(var(--c-06050F)); color: rgb(var(--c-ECEAF7)); }
+/* (l'interligne : celui de la police, comme WPF : 1,33 pour Segoe UI Variable, 1,16 pour Cascadia Code) */
+body { line-height: normal; font-family: var(--police-texte), sans-serif; font-size: 14px; user-select: none; -webkit-user-select: none; cursor: default; }
+#fenetre { position: relative; display: grid; grid-template-rows: auto 1fr auto; height: 100%; overflow: hidden; }
 #fond { position: absolute; inset: 0; pointer-events: none; }
-#en-tete { position: relative; margin: 16px 28px 10px 24px; min-height: 0; }
-#corps { position: relative; display: grid; grid-template-columns: 210px 1fr; min-height: 0; }
-#corps.sans-onglets { grid-template-columns: 0 1fr; }
+/* (DockPanel EnTete : Margin 24,16,28,10) */
+#en-tete { position: relative; margin: 16px 28px 10px 24px; min-height: 0; display: flex; align-items: center; }
+#en-tete[hidden] { display: none; }
+/* (Grid.Row 1 : Margin 0,6,0,0 ; ColonneOnglets 210) */
+#corps { position: relative; display: grid; grid-template-columns: 210px minmax(0, 1fr); min-height: 0; margin-top: 6px; }
+#corps.sans-onglets { grid-template-columns: 0 minmax(0, 1fr); }
+#corps.sans-onglets > #colonne-onglets { display: none; }
 #colonne-onglets { min-height: 0; overflow: hidden; }
-#centre { display: grid; grid-template-rows: auto 1fr; min-height: 0; }
+#centre { display: grid; grid-template-rows: auto minmax(0, 1fr); min-height: 0; min-width: 0; }
 #bandeaux { margin: 0 32px; }
 #page-centrale { position: relative; min-height: 0; }
 #page-centrale > .page { position: absolute; inset: 0; overflow: auto; }
 #page-centrale > .page[hidden] { display: none; }
-#zone-appli { position: absolute; inset: 0; background: #000; }
 #pied { position: relative; pointer-events: none; }
-.voile { position: absolute; inset: 0; background: rgba(6, 5, 15, 0.75); display: flex; align-items: center; justify-content: center; z-index: 10; }
+.voile { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 10; }
 .voile[hidden] { display: none; }
+[hidden] { display: none !important; }
+/* (l'en-tête, le corps et le pied restent toujours sous les voiles des questions, quoi qu'ils contiennent) */
+#en-tete, #corps, #pied { z-index: 0; }
