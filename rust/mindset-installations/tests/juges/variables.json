@@ -1,0 +1,143 @@
+{
+    "famille":  "variables",
+    "origine":  "outils\\exporter-juges-installations.ps1",
+    "cas":  [
+                {
+                    "nom":  "rien",
+                    "processus":  [
+
+                                  ],
+                    "compte":  [
+
+                               ],
+                    "message":  "",
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "nom":  "reglage dotnet sans danger",
+                    "processus":  [
+                                      "DOTNET_TieredCompilation"
+                                  ],
+                    "compte":  [
+                                   "DOTNET_gcServer"
+                               ],
+                    "message":  "",
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "nom":  "cor profiler",
+                    "processus":  [
+                                      "COR_ENABLE_PROFILING",
+                                      "COR_PROFILER"
+                                  ],
+                    "compte":  [
+
+                               ],
+                    "message":  "un réglage inhabituel de Windows (COR_ENABLE_PROFILING, COR_PROFILER) pourrait détourner l\u0027installation, alors Mindset n\u0027a rien lancé. Demande de l\u0027aide à la personne qui s\u0027occupe de ton PC.",
+                    "journal":  [
+                                    "Demande de Windows pas lancée, par prudence : variable d\u0027environnement COR_ENABLE_PROFILING, COR_PROFILER"
+                                ]
+                },
+                {
+                    "nom":  "complus du compte",
+                    "processus":  [
+
+                                  ],
+                    "compte":  [
+                                   "COMPlus_ETWEnabled"
+                               ],
+                    "message":  "un réglage inhabituel de Windows (COMPlus_ETWEnabled) pourrait détourner l\u0027installation, alors Mindset n\u0027a rien lancé. Demande de l\u0027aide à la personne qui s\u0027occupe de ton PC.",
+                    "journal":  [
+                                    "Demande de Windows pas lancée, par prudence : variable d\u0027environnement COMPlus_ETWEnabled"
+                                ]
+                },
+                {
+                    "nom":  "complus en majuscules",
+                    "processus":  [
+                                      "COMPLUS_X"
+                                  ],
+                    "compte":  [
+
+                               ],
+                    "message":  "un réglage inhabituel de Windows (COMPLUS_X) pourrait détourner l\u0027installation, alors Mindset n\u0027a rien lancé. Demande de l\u0027aide à la personne qui s\u0027occupe de ton PC.",
+                    "journal":  [
+                                    "Demande de Windows pas lancée, par prudence : variable d\u0027environnement COMPLUS_X"
+                                ]
+                },
+                {
+                    "nom":  "coreclr et hooks",
+                    "processus":  [
+                                      "CORECLR_PROFILER"
+                                  ],
+                    "compte":  [
+                                   "DOTNET_STARTUP_HOOKS",
+                                   "DOTNET_ADDITIONAL_DEPS"
+                               ],
+                    "message":  "un réglage inhabituel de Windows (CORECLR_PROFILER, DOTNET_ADDITIONAL_DEPS, DOTNET_STARTUP_HOOKS) pourrait détourner l\u0027installation, alors Mindset n\u0027a rien lancé. Demande de l\u0027aide à la personne qui s\u0027occupe de ton PC.",
+                    "journal":  [
+                                    "Demande de Windows pas lancée, par prudence : variable d\u0027environnement CORECLR_PROFILER, DOTNET_ADDITIONAL_DEPS, DOTNET_STARTUP_HOOKS"
+                                ]
+                },
+                {
+                    "nom":  "shared store",
+                    "processus":  [
+
+                                  ],
+                    "compte":  [
+                                   "DOTNET_SHARED_STORE"
+                               ],
+                    "message":  "un réglage inhabituel de Windows (DOTNET_SHARED_STORE) pourrait détourner l\u0027installation, alors Mindset n\u0027a rien lancé. Demande de l\u0027aide à la personne qui s\u0027occupe de ton PC.",
+                    "journal":  [
+                                    "Demande de Windows pas lancée, par prudence : variable d\u0027environnement DOTNET_SHARED_STORE"
+                                ]
+                },
+                {
+                    "nom":  "presque",
+                    "processus":  [
+                                      "DOTNET_STARTUP_HOOKSX",
+                                      "XCOR_",
+                                      "COR"
+                                  ],
+                    "compte":  [
+                                   "DOTNET_SHARED_STORE_2"
+                               ],
+                    "message":  "",
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "nom":  "doublon processus et compte",
+                    "processus":  [
+                                      "COR_PROFILER"
+                                  ],
+                    "compte":  [
+                                   "cor_profiler",
+                                   "COR_PROFILER"
+                               ],
+                    "message":  "un réglage inhabituel de Windows (COR_PROFILER) pourrait détourner l\u0027installation, alors Mindset n\u0027a rien lancé. Demande de l\u0027aide à la personne qui s\u0027occupe de ton PC.",
+                    "journal":  [
+                                    "Demande de Windows pas lancée, par prudence : variable d\u0027environnement COR_PROFILER"
+                                ]
+                },
+                {
+                    "nom":  "ordre",
+                    "processus":  [
+                                      "COR_Z",
+                                      "COMPlus_A"
+                                  ],
+                    "compte":  [
+                                   "CORECLR_M",
+                                   "cor_b"
+                               ],
+                    "message":  "un réglage inhabituel de Windows (COMPlus_A, cor_b, COR_Z, CORECLR_M) pourrait détourner l\u0027installation, alors Mindset n\u0027a rien lancé. Demande de l\u0027aide à la personne qui s\u0027occupe de ton PC.",
+                    "journal":  [
+                                    "Demande de Windows pas lancée, par prudence : variable d\u0027environnement COMPlus_A, cor_b, COR_Z, CORECLR_M"
+                                ]
+                }
+            ]
+}

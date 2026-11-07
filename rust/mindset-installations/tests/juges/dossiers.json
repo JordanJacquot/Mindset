@@ -1,0 +1,867 @@
+{
+    "famille":  "dossiers",
+    "origine":  "outils\\exporter-juges-installations.ps1",
+    "cas":  [
+                {
+                    "nom":  "vide",
+                    "appli":  {
+                                  "id":  "evermind",
+                                  "script":  "fichiers\\Evermind.ps1",
+                                  "exe":  "Evermind.exe",
+                                  "rappels":  true,
+                                  "dossier_zip":  "Evermind",
+                                  "donnees":  "\u003cR\u003e\\Anciennes\\Evermind",
+                                  "nom":  "Evermind"
+                              },
+                    "sous":  "Appli",
+                    "fichiers":  [
+
+                                 ],
+                    "dossier_appli":  false,
+                    "version":  null,
+                    "script":  null
+                },
+                {
+                    "nom":  "exe seul",
+                    "appli":  {
+                                  "id":  "evermind",
+                                  "script":  "fichiers\\Evermind.ps1",
+                                  "exe":  "Evermind.exe",
+                                  "rappels":  true,
+                                  "dossier_zip":  "Evermind",
+                                  "donnees":  "\u003cR\u003e\\Anciennes\\Evermind",
+                                  "nom":  "Evermind"
+                              },
+                    "sous":  "Appli",
+                    "fichiers":  [
+                                     {
+                                         "chemin":  "Evermind.exe",
+                                         "texte":  "x"
+                                     }
+                                 ],
+                    "dossier_appli":  false,
+                    "version":  null,
+                    "script":  null
+                },
+                {
+                    "nom":  "script seul",
+                    "appli":  {
+                                  "id":  "evermind",
+                                  "script":  "fichiers\\Evermind.ps1",
+                                  "exe":  "Evermind.exe",
+                                  "rappels":  true,
+                                  "dossier_zip":  "Evermind",
+                                  "donnees":  "\u003cR\u003e\\Anciennes\\Evermind",
+                                  "nom":  "Evermind"
+                              },
+                    "sous":  "Appli",
+                    "fichiers":  [
+                                     {
+                                         "chemin":  "fichiers\\Evermind.ps1",
+                                         "texte":  "$AppVersion = \u00271.2.3\u0027"
+                                     }
+                                 ],
+                    "dossier_appli":  false,
+                    "version":  "1.2.3",
+                    "script":  "fichiers\\Evermind.ps1"
+                },
+                {
+                    "nom":  "exe et script",
+                    "appli":  {
+                                  "id":  "evermind",
+                                  "script":  "fichiers\\Evermind.ps1",
+                                  "exe":  "Evermind.exe",
+                                  "rappels":  true,
+                                  "dossier_zip":  "Evermind",
+                                  "donnees":  "\u003cR\u003e\\Anciennes\\Evermind",
+                                  "nom":  "Evermind"
+                              },
+                    "sous":  "Appli",
+                    "fichiers":  [
+                                     {
+                                         "chemin":  "Evermind.exe",
+                                         "texte":  "x"
+                                     },
+                                     {
+                                         "chemin":  "fichiers\\Evermind.ps1",
+                                         "texte":  "# Evermind\r\n$AppVersion = \u00272.4.0\u0027\r\n"
+                                     }
+                                 ],
+                    "dossier_appli":  true,
+                    "version":  "2.4.0",
+                    "script":  "fichiers\\Evermind.ps1"
+                },
+                {
+                    "nom":  "script sans version",
+                    "appli":  {
+                                  "id":  "evermind",
+                                  "script":  "fichiers\\Evermind.ps1",
+                                  "exe":  "Evermind.exe",
+                                  "rappels":  true,
+                                  "dossier_zip":  "Evermind",
+                                  "donnees":  "\u003cR\u003e\\Anciennes\\Evermind",
+                                  "nom":  "Evermind"
+                              },
+                    "sous":  "Appli",
+                    "fichiers":  [
+                                     {
+                                         "chemin":  "Evermind.exe",
+                                         "texte":  "x"
+                                     },
+                                     {
+                                         "chemin":  "fichiers\\Evermind.ps1",
+                                         "texte":  "# rien\n"
+                                     }
+                                 ],
+                    "dossier_appli":  true,
+                    "version":  null,
+                    "script":  "fichiers\\Evermind.ps1"
+                },
+                {
+                    "nom":  "version en minuscules",
+                    "appli":  {
+                                  "id":  "evermind",
+                                  "script":  "fichiers\\Evermind.ps1",
+                                  "exe":  "Evermind.exe",
+                                  "rappels":  true,
+                                  "dossier_zip":  "Evermind",
+                                  "donnees":  "\u003cR\u003e\\Anciennes\\Evermind",
+                                  "nom":  "Evermind"
+                              },
+                    "sous":  "Appli",
+                    "fichiers":  [
+                                     {
+                                         "chemin":  "Evermind.exe",
+                                         "texte":  "x"
+                                     },
+                                     {
+                                         "chemin":  "fichiers\\Evermind.ps1",
+                                         "texte":  "$appversion=\u00273.1\u0027"
+                                     }
+                                 ],
+                    "dossier_appli":  true,
+                    "version":  "3.1",
+                    "script":  "fichiers\\Evermind.ps1"
+                },
+                {
+                    "nom":  "version decalee",
+                    "appli":  {
+                                  "id":  "evermind",
+                                  "script":  "fichiers\\Evermind.ps1",
+                                  "exe":  "Evermind.exe",
+                                  "rappels":  true,
+                                  "dossier_zip":  "Evermind",
+                                  "donnees":  "\u003cR\u003e\\Anciennes\\Evermind",
+                                  "nom":  "Evermind"
+                              },
+                    "sous":  "Appli",
+                    "fichiers":  [
+                                     {
+                                         "chemin":  "Evermind.exe",
+                                         "texte":  "x"
+                                     },
+                                     {
+                                         "chemin":  "fichiers\\Evermind.ps1",
+                                         "texte":  "  $AppVersion = \u00273.1.0\u0027"
+                                     }
+                                 ],
+                    "dossier_appli":  true,
+                    "version":  null,
+                    "script":  "fichiers\\Evermind.ps1"
+                },
+                {
+                    "nom":  "version entre guillemets doubles",
+                    "appli":  {
+                                  "id":  "evermind",
+                                  "script":  "fichiers\\Evermind.ps1",
+                                  "exe":  "Evermind.exe",
+                                  "rappels":  true,
+                                  "dossier_zip":  "Evermind",
+                                  "donnees":  "\u003cR\u003e\\Anciennes\\Evermind",
+                                  "nom":  "Evermind"
+                              },
+                    "sous":  "Appli",
+                    "fichiers":  [
+                                     {
+                                         "chemin":  "Evermind.exe",
+                                         "texte":  "x"
+                                     },
+                                     {
+                                         "chemin":  "fichiers\\Evermind.ps1",
+                                         "texte":  "$AppVersion = \"3.1.0\""
+                                     }
+                                 ],
+                    "dossier_appli":  true,
+                    "version":  null,
+                    "script":  "fichiers\\Evermind.ps1"
+                },
+                {
+                    "nom":  "deux versions",
+                    "appli":  {
+                                  "id":  "evermind",
+                                  "script":  "fichiers\\Evermind.ps1",
+                                  "exe":  "Evermind.exe",
+                                  "rappels":  true,
+                                  "dossier_zip":  "Evermind",
+                                  "donnees":  "\u003cR\u003e\\Anciennes\\Evermind",
+                                  "nom":  "Evermind"
+                              },
+                    "sous":  "Appli",
+                    "fichiers":  [
+                                     {
+                                         "chemin":  "Evermind.exe",
+                                         "texte":  "x"
+                                     },
+                                     {
+                                         "chemin":  "fichiers\\Evermind.ps1",
+                                         "texte":  "$AppVersion = \u00271.0.0\u0027\n$AppVersion = \u00272.0.0\u0027"
+                                     }
+                                 ],
+                    "dossier_appli":  true,
+                    "version":  "1.0.0",
+                    "script":  "fichiers\\Evermind.ps1"
+                },
+                {
+                    "nom":  "version avec BOM",
+                    "appli":  {
+                                  "id":  "evermind",
+                                  "script":  "fichiers\\Evermind.ps1",
+                                  "exe":  "Evermind.exe",
+                                  "rappels":  true,
+                                  "dossier_zip":  "Evermind",
+                                  "donnees":  "\u003cR\u003e\\Anciennes\\Evermind",
+                                  "nom":  "Evermind"
+                              },
+                    "sous":  "Appli",
+                    "fichiers":  [
+                                     {
+                                         "chemin":  "Evermind.exe",
+                                         "texte":  "x"
+                                     },
+                                     {
+                                         "chemin":  "fichiers\\Evermind.ps1",
+                                         "b64":  "77u/JEFwcFZlcnNpb24gPSAnMS45Ljkn"
+                                     }
+                                 ],
+                    "dossier_appli":  true,
+                    "version":  "1.9.9",
+                    "script":  "fichiers\\Evermind.ps1"
+                },
+                {
+                    "nom":  "ancien script",
+                    "appli":  {
+                                  "id":  "nevermind",
+                                  "nom":  "Nevermind",
+                                  "ancien_dossier_zip":  "OptiGame",
+                                  "ancien_script":  "fichiers\\OptiGame.ps1",
+                                  "exe":  "Nevermind.exe",
+                                  "donnees":  "\u003cR\u003e\\Anciennes\\Nevermind",
+                                  "script":  "fichiers\\Nevermind.ps1",
+                                  "dossier_zip":  "Nevermind",
+                                  "aide":  "NevermindAide"
+                              },
+                    "sous":  "Appli",
+                    "fichiers":  [
+                                     {
+                                         "chemin":  "Nevermind.exe",
+                                         "texte":  "x"
+                                     },
+                                     {
+                                         "chemin":  "fichiers\\OptiGame.ps1",
+                                         "texte":  "$AppVersion = \u00271.14.0\u0027"
+                                     }
+                                 ],
+                    "dossier_appli":  true,
+                    "version":  "1.14.0",
+                    "script":  "fichiers\\OptiGame.ps1"
+                },
+                {
+                    "nom":  "les deux scripts",
+                    "appli":  {
+                                  "id":  "nevermind",
+                                  "nom":  "Nevermind",
+                                  "ancien_dossier_zip":  "OptiGame",
+                                  "ancien_script":  "fichiers\\OptiGame.ps1",
+                                  "exe":  "Nevermind.exe",
+                                  "donnees":  "\u003cR\u003e\\Anciennes\\Nevermind",
+                                  "script":  "fichiers\\Nevermind.ps1",
+                                  "dossier_zip":  "Nevermind",
+                                  "aide":  "NevermindAide"
+                              },
+                    "sous":  "Appli",
+                    "fichiers":  [
+                                     {
+                                         "chemin":  "Nevermind.exe",
+                                         "texte":  "x"
+                                     },
+                                     {
+                                         "chemin":  "fichiers\\OptiGame.ps1",
+                                         "texte":  "$AppVersion = \u00271.14.0\u0027"
+                                     },
+                                     {
+                                         "chemin":  "fichiers\\Nevermind.ps1",
+                                         "texte":  "$AppVersion = \u00271.20.0\u0027"
+                                     }
+                                 ],
+                    "dossier_appli":  true,
+                    "version":  "1.20.0",
+                    "script":  "fichiers\\Nevermind.ps1"
+                },
+                {
+                    "nom":  "exe est un dossier",
+                    "appli":  {
+                                  "id":  "evermind",
+                                  "script":  "fichiers\\Evermind.ps1",
+                                  "exe":  "Evermind.exe",
+                                  "rappels":  true,
+                                  "dossier_zip":  "Evermind",
+                                  "donnees":  "\u003cR\u003e\\Anciennes\\Evermind",
+                                  "nom":  "Evermind"
+                              },
+                    "sous":  "Appli",
+                    "fichiers":  [
+                                     {
+                                         "chemin":  "Evermind.exe",
+                                         "dossier":  true
+                                     },
+                                     {
+                                         "chemin":  "fichiers\\Evermind.ps1",
+                                         "texte":  "$AppVersion = \u00271.0\u0027"
+                                     }
+                                 ],
+                    "dossier_appli":  true,
+                    "version":  "1.0",
+                    "script":  "fichiers\\Evermind.ps1"
+                },
+                {
+                    "nom":  "script est un dossier",
+                    "appli":  {
+                                  "id":  "evermind",
+                                  "script":  "fichiers\\Evermind.ps1",
+                                  "exe":  "Evermind.exe",
+                                  "rappels":  true,
+                                  "dossier_zip":  "Evermind",
+                                  "donnees":  "\u003cR\u003e\\Anciennes\\Evermind",
+                                  "nom":  "Evermind"
+                              },
+                    "sous":  "Appli",
+                    "fichiers":  [
+                                     {
+                                         "chemin":  "Evermind.exe",
+                                         "texte":  "x"
+                                     },
+                                     {
+                                         "chemin":  "fichiers\\Evermind.ps1",
+                                         "dossier":  true
+                                     }
+                                 ],
+                    "dossier_appli":  false,
+                    "version":  null,
+                    "script":  null
+                },
+                {
+                    "nom":  "rust complet",
+                    "appli":  {
+                                  "id":  "mindcare",
+                                  "script":  "",
+                                  "exe":  "Mindcare.exe",
+                                  "dossier_zip":  "Mindcare",
+                                  "donnees":  "\u003cR\u003e\\Anciennes\\Mindcare",
+                                  "nom":  "Mindcare"
+                              },
+                    "sous":  "Appli",
+                    "fichiers":  [
+                                     {
+                                         "chemin":  "Mindcare.exe",
+                                         "texte":  "x"
+                                     },
+                                     {
+                                         "chemin":  "Mindset.exe",
+                                         "texte":  "x"
+                                     },
+                                     {
+                                         "chemin":  "version.json",
+                                         "texte":  "{\"version\":\"0.91.0\",\"appli\":\"mindcare\"}"
+                                     }
+                                 ],
+                    "dossier_appli":  true,
+                    "version":  "0.91.0",
+                    "script":  null
+                },
+                {
+                    "nom":  "rust appli en majuscules",
+                    "appli":  {
+                                  "id":  "mindcare",
+                                  "script":  "",
+                                  "exe":  "Mindcare.exe",
+                                  "dossier_zip":  "Mindcare",
+                                  "donnees":  "\u003cR\u003e\\Anciennes\\Mindcare",
+                                  "nom":  "Mindcare"
+                              },
+                    "sous":  "Appli",
+                    "fichiers":  [
+                                     {
+                                         "chemin":  "Mindcare.exe",
+                                         "texte":  "x"
+                                     },
+                                     {
+                                         "chemin":  "Mindset.exe",
+                                         "texte":  "x"
+                                     },
+                                     {
+                                         "chemin":  "version.json",
+                                         "texte":  "{\"version\":\"0.91.0\",\"appli\":\"MindCare\"}"
+                                     }
+                                 ],
+                    "dossier_appli":  true,
+                    "version":  "0.91.0",
+                    "script":  null
+                },
+                {
+                    "nom":  "rust sans hote",
+                    "appli":  {
+                                  "id":  "mindcare",
+                                  "script":  "",
+                                  "exe":  "Mindcare.exe",
+                                  "dossier_zip":  "Mindcare",
+                                  "donnees":  "\u003cR\u003e\\Anciennes\\Mindcare",
+                                  "nom":  "Mindcare"
+                              },
+                    "sous":  "Appli",
+                    "fichiers":  [
+                                     {
+                                         "chemin":  "Mindcare.exe",
+                                         "texte":  "x"
+                                     },
+                                     {
+                                         "chemin":  "version.json",
+                                         "texte":  "{\"version\":\"0.91.0\",\"appli\":\"mindcare\"}"
+                                     }
+                                 ],
+                    "dossier_appli":  false,
+                    "version":  "0.91.0",
+                    "script":  null
+                },
+                {
+                    "nom":  "rust autre appli",
+                    "appli":  {
+                                  "id":  "mindcare",
+                                  "script":  "",
+                                  "exe":  "Mindcare.exe",
+                                  "dossier_zip":  "Mindcare",
+                                  "donnees":  "\u003cR\u003e\\Anciennes\\Mindcare",
+                                  "nom":  "Mindcare"
+                              },
+                    "sous":  "Appli",
+                    "fichiers":  [
+                                     {
+                                         "chemin":  "Mindcare.exe",
+                                         "texte":  "x"
+                                     },
+                                     {
+                                         "chemin":  "Mindset.exe",
+                                         "texte":  "x"
+                                     },
+                                     {
+                                         "chemin":  "version.json",
+                                         "texte":  "{\"version\":\"0.91.0\",\"appli\":\"evermind\"}"
+                                     }
+                                 ],
+                    "dossier_appli":  false,
+                    "version":  null,
+                    "script":  null
+                },
+                {
+                    "nom":  "rust sans appli",
+                    "appli":  {
+                                  "id":  "mindcare",
+                                  "script":  "",
+                                  "exe":  "Mindcare.exe",
+                                  "dossier_zip":  "Mindcare",
+                                  "donnees":  "\u003cR\u003e\\Anciennes\\Mindcare",
+                                  "nom":  "Mindcare"
+                              },
+                    "sous":  "Appli",
+                    "fichiers":  [
+                                     {
+                                         "chemin":  "Mindcare.exe",
+                                         "texte":  "x"
+                                     },
+                                     {
+                                         "chemin":  "Mindset.exe",
+                                         "texte":  "x"
+                                     },
+                                     {
+                                         "chemin":  "version.json",
+                                         "texte":  "{\"version\":\"0.91.0\"}"
+                                     }
+                                 ],
+                    "dossier_appli":  false,
+                    "version":  "0.91.0",
+                    "script":  null
+                },
+                {
+                    "nom":  "rust appli vide",
+                    "appli":  {
+                                  "id":  "mindcare",
+                                  "script":  "",
+                                  "exe":  "Mindcare.exe",
+                                  "dossier_zip":  "Mindcare",
+                                  "donnees":  "\u003cR\u003e\\Anciennes\\Mindcare",
+                                  "nom":  "Mindcare"
+                              },
+                    "sous":  "Appli",
+                    "fichiers":  [
+                                     {
+                                         "chemin":  "Mindcare.exe",
+                                         "texte":  "x"
+                                     },
+                                     {
+                                         "chemin":  "Mindset.exe",
+                                         "texte":  "x"
+                                     },
+                                     {
+                                         "chemin":  "version.json",
+                                         "texte":  "{\"version\":\"0.91.0\",\"appli\":\"\"}"
+                                     }
+                                 ],
+                    "dossier_appli":  false,
+                    "version":  "0.91.0",
+                    "script":  null
+                },
+                {
+                    "nom":  "rust version abimee",
+                    "appli":  {
+                                  "id":  "mindcare",
+                                  "script":  "",
+                                  "exe":  "Mindcare.exe",
+                                  "dossier_zip":  "Mindcare",
+                                  "donnees":  "\u003cR\u003e\\Anciennes\\Mindcare",
+                                  "nom":  "Mindcare"
+                              },
+                    "sous":  "Appli",
+                    "fichiers":  [
+                                     {
+                                         "chemin":  "Mindcare.exe",
+                                         "texte":  "x"
+                                     },
+                                     {
+                                         "chemin":  "Mindset.exe",
+                                         "texte":  "x"
+                                     },
+                                     {
+                                         "chemin":  "version.json",
+                                         "texte":  "{\"version\":\"0.91\",\"appli\":\"mindcare\""
+                                     }
+                                 ],
+                    "dossier_appli":  false,
+                    "version":  null,
+                    "script":  null
+                },
+                {
+                    "nom":  "rust version mal formee",
+                    "appli":  {
+                                  "id":  "mindcare",
+                                  "script":  "",
+                                  "exe":  "Mindcare.exe",
+                                  "dossier_zip":  "Mindcare",
+                                  "donnees":  "\u003cR\u003e\\Anciennes\\Mindcare",
+                                  "nom":  "Mindcare"
+                              },
+                    "sous":  "Appli",
+                    "fichiers":  [
+                                     {
+                                         "chemin":  "Mindcare.exe",
+                                         "texte":  "x"
+                                     },
+                                     {
+                                         "chemin":  "Mindset.exe",
+                                         "texte":  "x"
+                                     },
+                                     {
+                                         "chemin":  "version.json",
+                                         "texte":  "{\"version\":\"v1\",\"appli\":\"mindcare\"}"
+                                     }
+                                 ],
+                    "dossier_appli":  false,
+                    "version":  null,
+                    "script":  null
+                },
+                {
+                    "nom":  "rust version.json vide",
+                    "appli":  {
+                                  "id":  "mindcare",
+                                  "script":  "",
+                                  "exe":  "Mindcare.exe",
+                                  "dossier_zip":  "Mindcare",
+                                  "donnees":  "\u003cR\u003e\\Anciennes\\Mindcare",
+                                  "nom":  "Mindcare"
+                              },
+                    "sous":  "Appli",
+                    "fichiers":  [
+                                     {
+                                         "chemin":  "Mindcare.exe",
+                                         "texte":  "x"
+                                     },
+                                     {
+                                         "chemin":  "Mindset.exe",
+                                         "texte":  "x"
+                                     },
+                                     {
+                                         "chemin":  "version.json",
+                                         "texte":  ""
+                                     }
+                                 ],
+                    "dossier_appli":  false,
+                    "version":  null,
+                    "script":  null
+                },
+                {
+                    "nom":  "rust version.json utf16",
+                    "appli":  {
+                                  "id":  "mindcare",
+                                  "script":  "",
+                                  "exe":  "Mindcare.exe",
+                                  "dossier_zip":  "Mindcare",
+                                  "donnees":  "\u003cR\u003e\\Anciennes\\Mindcare",
+                                  "nom":  "Mindcare"
+                              },
+                    "sous":  "Appli",
+                    "fichiers":  [
+                                     {
+                                         "chemin":  "Mindcare.exe",
+                                         "texte":  "x"
+                                     },
+                                     {
+                                         "chemin":  "Mindset.exe",
+                                         "texte":  "x"
+                                     },
+                                     {
+                                         "chemin":  "version.json",
+                                         "b64":  "//57ACIAdgBlAHIAcwBpAG8AbgAiADoAIgAxAC4AMAAuADQAIgAsACIAYQBwAHAAbABpACIAOgAiAG0AaQBuAGQAYwBhAHIAZQAiAH0A"
+                                     }
+                                 ],
+                    "dossier_appli":  true,
+                    "version":  "1.0.4",
+                    "script":  null
+                },
+                {
+                    "nom":  "powershell avec version.json",
+                    "appli":  {
+                                  "id":  "evermind",
+                                  "script":  "fichiers\\Evermind.ps1",
+                                  "exe":  "Evermind.exe",
+                                  "rappels":  true,
+                                  "dossier_zip":  "Evermind",
+                                  "donnees":  "\u003cR\u003e\\Anciennes\\Evermind",
+                                  "nom":  "Evermind"
+                              },
+                    "sous":  "Appli",
+                    "fichiers":  [
+                                     {
+                                         "chemin":  "Evermind.exe",
+                                         "texte":  "x"
+                                     },
+                                     {
+                                         "chemin":  "fichiers\\Evermind.ps1",
+                                         "texte":  "$AppVersion = \u00271.0.0\u0027"
+                                     },
+                                     {
+                                         "chemin":  "version.json",
+                                         "texte":  "{\"version\":\"2.0.0\",\"appli\":\"evermind\"}"
+                                     }
+                                 ],
+                    "dossier_appli":  true,
+                    "version":  "2.0.0",
+                    "script":  "fichiers\\Evermind.ps1"
+                },
+                {
+                    "nom":  "version.json autre appli, script",
+                    "appli":  {
+                                  "id":  "evermind",
+                                  "script":  "fichiers\\Evermind.ps1",
+                                  "exe":  "Evermind.exe",
+                                  "rappels":  true,
+                                  "dossier_zip":  "Evermind",
+                                  "donnees":  "\u003cR\u003e\\Anciennes\\Evermind",
+                                  "nom":  "Evermind"
+                              },
+                    "sous":  "Appli",
+                    "fichiers":  [
+                                     {
+                                         "chemin":  "Evermind.exe",
+                                         "texte":  "x"
+                                     },
+                                     {
+                                         "chemin":  "fichiers\\Evermind.ps1",
+                                         "texte":  "$AppVersion = \u00271.0.0\u0027"
+                                     },
+                                     {
+                                         "chemin":  "version.json",
+                                         "texte":  "{\"version\":\"2.0.0\",\"appli\":\"nevermind\"}"
+                                     }
+                                 ],
+                    "dossier_appli":  true,
+                    "version":  "1.0.0",
+                    "script":  "fichiers\\Evermind.ps1"
+                },
+                {
+                    "nom":  "version.json mindset_min",
+                    "appli":  {
+                                  "id":  "mindcare",
+                                  "script":  "",
+                                  "exe":  "Mindcare.exe",
+                                  "dossier_zip":  "Mindcare",
+                                  "donnees":  "\u003cR\u003e\\Anciennes\\Mindcare",
+                                  "nom":  "Mindcare"
+                              },
+                    "sous":  "Appli",
+                    "fichiers":  [
+                                     {
+                                         "chemin":  "Mindcare.exe",
+                                         "texte":  "x"
+                                     },
+                                     {
+                                         "chemin":  "Mindset.exe",
+                                         "texte":  "x"
+                                     },
+                                     {
+                                         "chemin":  "version.json",
+                                         "texte":  "{\"version\":\"1.0.0\",\"appli\":\"mindcare\",\"mindset_min\":\"3.0.0\"}"
+                                     }
+                                 ],
+                    "dossier_appli":  true,
+                    "version":  "1.0.0",
+                    "script":  null
+                },
+                {
+                    "nom":  "version.json mindset_min mal forme",
+                    "appli":  {
+                                  "id":  "mindcare",
+                                  "script":  "",
+                                  "exe":  "Mindcare.exe",
+                                  "dossier_zip":  "Mindcare",
+                                  "donnees":  "\u003cR\u003e\\Anciennes\\Mindcare",
+                                  "nom":  "Mindcare"
+                              },
+                    "sous":  "Appli",
+                    "fichiers":  [
+                                     {
+                                         "chemin":  "Mindcare.exe",
+                                         "texte":  "x"
+                                     },
+                                     {
+                                         "chemin":  "Mindset.exe",
+                                         "texte":  "x"
+                                     },
+                                     {
+                                         "chemin":  "version.json",
+                                         "texte":  "{\"version\":\"1.0.0\",\"appli\":\"mindcare\",\"mindset_min\":\"trois\"}"
+                                     }
+                                 ],
+                    "dossier_appli":  false,
+                    "version":  null,
+                    "script":  null
+                },
+                {
+                    "nom":  "accents dans le dossier",
+                    "appli":  {
+                                  "id":  "cafe-creme",
+                                  "script":  "fichiers\\CafeCreme.ps1",
+                                  "exe":  "CafeCreme.exe",
+                                  "dossier_zip":  "CafeCreme",
+                                  "donnees":  "",
+                                  "nom":  "CafeCreme"
+                              },
+                    "sous":  "Café crème",
+                    "fichiers":  [
+                                     {
+                                         "chemin":  "CafeCreme.exe",
+                                         "texte":  "x"
+                                     },
+                                     {
+                                         "chemin":  "fichiers\\CafeCreme.ps1",
+                                         "texte":  "$AppVersion = \u00270.1.0\u0027"
+                                     }
+                                 ],
+                    "dossier_appli":  true,
+                    "version":  "0.1.0",
+                    "script":  "fichiers\\CafeCreme.ps1"
+                },
+                {
+                    "nom":  "version 4 nombres",
+                    "appli":  {
+                                  "id":  "cafe-creme",
+                                  "script":  "fichiers\\CafeCreme.ps1",
+                                  "exe":  "CafeCreme.exe",
+                                  "dossier_zip":  "CafeCreme",
+                                  "donnees":  "",
+                                  "nom":  "CafeCreme"
+                              },
+                    "sous":  "Appli",
+                    "fichiers":  [
+                                     {
+                                         "chemin":  "CafeCreme.exe",
+                                         "texte":  "x"
+                                     },
+                                     {
+                                         "chemin":  "fichiers\\CafeCreme.ps1",
+                                         "texte":  "$AppVersion = \u00271.2.3.4\u0027"
+                                     }
+                                 ],
+                    "dossier_appli":  true,
+                    "version":  "1.2.3.4",
+                    "script":  "fichiers\\CafeCreme.ps1"
+                },
+                {
+                    "nom":  "version vide entre apostrophes",
+                    "appli":  {
+                                  "id":  "cafe-creme",
+                                  "script":  "fichiers\\CafeCreme.ps1",
+                                  "exe":  "CafeCreme.exe",
+                                  "dossier_zip":  "CafeCreme",
+                                  "donnees":  "",
+                                  "nom":  "CafeCreme"
+                              },
+                    "sous":  "Appli",
+                    "fichiers":  [
+                                     {
+                                         "chemin":  "CafeCreme.exe",
+                                         "texte":  "x"
+                                     },
+                                     {
+                                         "chemin":  "fichiers\\CafeCreme.ps1",
+                                         "texte":  "$AppVersion = \u0027\u0027\n$AppVersion = \u00275.0\u0027"
+                                     }
+                                 ],
+                    "dossier_appli":  true,
+                    "version":  "5.0",
+                    "script":  "fichiers\\CafeCreme.ps1"
+                },
+                {
+                    "nom":  "egal sur la ligne suivante",
+                    "appli":  {
+                                  "id":  "cafe-creme",
+                                  "script":  "fichiers\\CafeCreme.ps1",
+                                  "exe":  "CafeCreme.exe",
+                                  "dossier_zip":  "CafeCreme",
+                                  "donnees":  "",
+                                  "nom":  "CafeCreme"
+                              },
+                    "sous":  "Appli",
+                    "fichiers":  [
+                                     {
+                                         "chemin":  "CafeCreme.exe",
+                                         "texte":  "x"
+                                     },
+                                     {
+                                         "chemin":  "fichiers\\CafeCreme.ps1",
+                                         "texte":  "$AppVersion\n= \u00276.0\u0027"
+                                     }
+                                 ],
+                    "dossier_appli":  true,
+                    "version":  "6.0",
+                    "script":  "fichiers\\CafeCreme.ps1"
+                }
+            ]
+}

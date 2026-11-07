@@ -1,0 +1,81 @@
+{
+    "famille":  "arguments",
+    "origine":  "outils\\exporter-juges-installations.ps1",
+    "cas":  [
+                {
+                    "valeur":  "C:\\Program Files\\Mindset\\Evermind",
+                    "resultat":  "\"C:\\Program Files\\Mindset\\Evermind\"",
+                    "erreur":  null
+                },
+                {
+                    "valeur":  "E:\\",
+                    "resultat":  "\"E:\\\\\"",
+                    "erreur":  null
+                },
+                {
+                    "valeur":  "E:\\\\",
+                    "resultat":  "\"E:\\\\\\\\\"",
+                    "erreur":  null
+                },
+                {
+                    "valeur":  "C:\\a\\b\\\\\\",
+                    "resultat":  "\"C:\\a\\b\\\\\\\\\\\\\"",
+                    "erreur":  null
+                },
+                {
+                    "valeur":  "",
+                    "resultat":  "\"\"",
+                    "erreur":  null
+                },
+                {
+                    "valeur":  "simple",
+                    "resultat":  "\"simple\"",
+                    "erreur":  null
+                },
+                {
+                    "valeur":  "avec espace",
+                    "resultat":  "\"avec espace\"",
+                    "erreur":  null
+                },
+                {
+                    "valeur":  "Forêt\\Café crème",
+                    "resultat":  "\"Forêt\\Café crème\"",
+                    "erreur":  null
+                },
+                {
+                    "valeur":  "a\"b",
+                    "resultat":  null,
+                    "erreur":  "Valeur refusée (guillemet) : a\"b"
+                },
+                {
+                    "valeur":  "\"",
+                    "resultat":  null,
+                    "erreur":  "Valeur refusée (guillemet) : \""
+                },
+                {
+                    "valeur":  "fin\\\"",
+                    "resultat":  null,
+                    "erreur":  "Valeur refusée (guillemet) : fin\\\""
+                },
+                {
+                    "valeur":  "d’Arthur",
+                    "resultat":  "\"d’Arthur\"",
+                    "erreur":  null
+                },
+                {
+                    "valeur":  "x$y",
+                    "resultat":  "\"x$y\"",
+                    "erreur":  null
+                },
+                {
+                    "valeur":  "C:\\x\\ y\\",
+                    "resultat":  "\"C:\\x\\ y\\\\\"",
+                    "erreur":  null
+                },
+                {
+                    "valeur":  "\\\\serveur\\partage\\",
+                    "resultat":  "\"\\\\serveur\\partage\\\\\"",
+                    "erreur":  null
+                }
+            ]
+}

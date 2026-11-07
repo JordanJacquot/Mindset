@@ -1,0 +1,890 @@
+{
+    "famille":  "installations",
+    "origine":  "outils\\exporter-juges-installations.ps1",
+    "cas":  [
+                {
+                    "nom":  "rien",
+                    "appli":  {
+                                  "id":  "evermind",
+                                  "script":  "fichiers\\Evermind.ps1",
+                                  "exe":  "Evermind.exe",
+                                  "rappels":  true,
+                                  "dossier_zip":  "Evermind",
+                                  "donnees":  "\u003cR\u003e\\Anciennes\\Evermind",
+                                  "nom":  "Evermind"
+                              },
+                    "fichier":  null,
+                    "dossiers":  [
+
+                                 ],
+                    "occupee":  false,
+                    "suite_avant":  null,
+                    "installation":  null,
+                    "fichier_apres":  null,
+                    "suite":  {
+
+                              },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "nom":  "fichier vide",
+                    "appli":  {
+                                  "id":  "evermind",
+                                  "script":  "fichiers\\Evermind.ps1",
+                                  "exe":  "Evermind.exe",
+                                  "rappels":  true,
+                                  "dossier_zip":  "Evermind",
+                                  "donnees":  "\u003cR\u003e\\Anciennes\\Evermind",
+                                  "nom":  "Evermind"
+                              },
+                    "fichier":  "",
+                    "dossiers":  [
+
+                                 ],
+                    "occupee":  false,
+                    "suite_avant":  null,
+                    "installation":  null,
+                    "fichier_apres":  null,
+                    "suite":  {
+
+                              },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "nom":  "fichier abime",
+                    "appli":  {
+                                  "id":  "evermind",
+                                  "script":  "fichiers\\Evermind.ps1",
+                                  "exe":  "Evermind.exe",
+                                  "rappels":  true,
+                                  "dossier_zip":  "Evermind",
+                                  "donnees":  "\u003cR\u003e\\Anciennes\\Evermind",
+                                  "nom":  "Evermind"
+                              },
+                    "fichier":  "{\"evermind\": {",
+                    "dossiers":  [
+
+                                 ],
+                    "occupee":  false,
+                    "suite_avant":  null,
+                    "installation":  null,
+                    "fichier_apres":  "abime",
+                    "suite":  {
+
+                              },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "nom":  "geree presente",
+                    "appli":  {
+                                  "id":  "evermind",
+                                  "script":  "fichiers\\Evermind.ps1",
+                                  "exe":  "Evermind.exe",
+                                  "rappels":  true,
+                                  "dossier_zip":  "Evermind",
+                                  "donnees":  "\u003cR\u003e\\Anciennes\\Evermind",
+                                  "nom":  "Evermind"
+                              },
+                    "fichier":  "{\"evermind\":{\"dossier\":\"\u003cR\u003e\\\\Programmes\\\\Evermind\",\"gere\":true}}",
+                    "dossiers":  [
+                                     {
+                                         "chemin":  "Programmes\\Evermind",
+                                         "fichiers":  [
+                                                          {
+                                                              "chemin":  "Evermind.exe",
+                                                              "texte":  "x"
+                                                          },
+                                                          {
+                                                              "chemin":  "fichiers\\Evermind.ps1",
+                                                              "texte":  "$AppVersion = \u00272.4.1\u0027"
+                                                          }
+                                                      ]
+                                     }
+                                 ],
+                    "occupee":  false,
+                    "suite_avant":  null,
+                    "installation":  {
+                                         "dossier":  "\u003cR\u003e\\Programmes\\Evermind",
+                                         "gere":  true,
+                                         "version":  "2.4.1"
+                                     },
+                    "fichier_apres":  {
+                                          "evermind":  {
+                                                           "dossier":  "\u003cR\u003e\\Programmes\\Evermind",
+                                                           "gere":  true
+                                                       }
+                                      },
+                    "suite":  {
+
+                              },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "nom":  "geree en majuscules",
+                    "appli":  {
+                                  "id":  "evermind",
+                                  "script":  "fichiers\\Evermind.ps1",
+                                  "exe":  "Evermind.exe",
+                                  "rappels":  true,
+                                  "dossier_zip":  "Evermind",
+                                  "donnees":  "\u003cR\u003e\\Anciennes\\Evermind",
+                                  "nom":  "Evermind"
+                              },
+                    "fichier":  "{\"evermind\":{\"dossier\":\"\u003cR\u003e\\\\PROGRAMMES\\\\evermind\",\"gere\":true}}",
+                    "dossiers":  [
+                                     {
+                                         "chemin":  "Programmes\\Evermind",
+                                         "fichiers":  [
+                                                          {
+                                                              "chemin":  "Evermind.exe",
+                                                              "texte":  "x"
+                                                          },
+                                                          {
+                                                              "chemin":  "fichiers\\Evermind.ps1",
+                                                              "texte":  "$AppVersion = \u00272.4.1\u0027"
+                                                          }
+                                                      ]
+                                     }
+                                 ],
+                    "occupee":  false,
+                    "suite_avant":  null,
+                    "installation":  {
+                                         "dossier":  "\u003cR\u003e\\PROGRAMMES\\evermind",
+                                         "gere":  true,
+                                         "version":  "2.4.1"
+                                     },
+                    "fichier_apres":  {
+                                          "evermind":  {
+                                                           "dossier":  "\u003cR\u003e\\PROGRAMMES\\evermind",
+                                                           "gere":  true
+                                                       }
+                                      },
+                    "suite":  {
+
+                              },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "nom":  "geree hors du dossier protege",
+                    "appli":  {
+                                  "id":  "evermind",
+                                  "script":  "fichiers\\Evermind.ps1",
+                                  "exe":  "Evermind.exe",
+                                  "rappels":  true,
+                                  "dossier_zip":  "Evermind",
+                                  "donnees":  "\u003cR\u003e\\Anciennes\\Evermind",
+                                  "nom":  "Evermind"
+                              },
+                    "fichier":  "{\"evermind\":{\"dossier\":\"\u003cR\u003e\\\\Ailleurs\\\\Evermind\",\"gere\":true}}",
+                    "dossiers":  [
+                                     {
+                                         "chemin":  "Ailleurs\\Evermind",
+                                         "fichiers":  [
+                                                          {
+                                                              "chemin":  "Evermind.exe",
+                                                              "texte":  "x"
+                                                          },
+                                                          {
+                                                              "chemin":  "fichiers\\Evermind.ps1",
+                                                              "texte":  "$AppVersion = \u00272.4.1\u0027"
+                                                          }
+                                                      ]
+                                     }
+                                 ],
+                    "occupee":  false,
+                    "suite_avant":  null,
+                    "installation":  null,
+                    "fichier_apres":  {
+                                          "evermind":  {
+                                                           "dossier":  "\u003cR\u003e\\Ailleurs\\Evermind",
+                                                           "gere":  true
+                                                       }
+                                      },
+                    "suite":  {
+
+                              },
+                    "journal":  [
+                                    "installations.json : Evermind « géré » hors de \u003cR\u003e\\Programmes\\Evermind, ignoré"
+                                ]
+                },
+                {
+                    "nom":  "geree hors, copie geree presente",
+                    "appli":  {
+                                  "id":  "evermind",
+                                  "script":  "fichiers\\Evermind.ps1",
+                                  "exe":  "Evermind.exe",
+                                  "rappels":  true,
+                                  "dossier_zip":  "Evermind",
+                                  "donnees":  "\u003cR\u003e\\Anciennes\\Evermind",
+                                  "nom":  "Evermind"
+                              },
+                    "fichier":  "{\"evermind\":{\"dossier\":\"\u003cR\u003e\\\\Ailleurs\\\\Evermind\",\"gere\":true}}",
+                    "dossiers":  [
+                                     {
+                                         "chemin":  "Ailleurs\\Evermind",
+                                         "fichiers":  [
+                                                          {
+                                                              "chemin":  "Evermind.exe",
+                                                              "texte":  "x"
+                                                          },
+                                                          {
+                                                              "chemin":  "fichiers\\Evermind.ps1",
+                                                              "texte":  "$AppVersion = \u00272.4.1\u0027"
+                                                          }
+                                                      ]
+                                     },
+                                     {
+                                         "chemin":  "Programmes\\Evermind",
+                                         "fichiers":  [
+                                                          {
+                                                              "chemin":  "Evermind.exe",
+                                                              "texte":  "x"
+                                                          },
+                                                          {
+                                                              "chemin":  "fichiers\\Evermind.ps1",
+                                                              "texte":  "$AppVersion = \u00272.4.1\u0027"
+                                                          }
+                                                      ]
+                                     }
+                                 ],
+                    "occupee":  false,
+                    "suite_avant":  null,
+                    "installation":  {
+                                         "dossier":  "\u003cR\u003e\\Programmes\\Evermind",
+                                         "gere":  true,
+                                         "version":  "2.4.1"
+                                     },
+                    "fichier_apres":  {
+                                          "evermind":  {
+                                                           "dossier":  "\u003cR\u003e\\Programmes\\Evermind",
+                                                           "gere":  true
+                                                       }
+                                      },
+                    "suite":  {
+                                  "evermind":  "\u003cR\u003e\\Programmes\\Evermind"
+                              },
+                    "journal":  [
+                                    "installations.json : Evermind « géré » hors de \u003cR\u003e\\Programmes\\Evermind, ignoré"
+                                ]
+                },
+                {
+                    "nom":  "non geree presente",
+                    "appli":  {
+                                  "id":  "evermind",
+                                  "script":  "fichiers\\Evermind.ps1",
+                                  "exe":  "Evermind.exe",
+                                  "rappels":  true,
+                                  "dossier_zip":  "Evermind",
+                                  "donnees":  "\u003cR\u003e\\Anciennes\\Evermind",
+                                  "nom":  "Evermind"
+                              },
+                    "fichier":  "{\"evermind\":{\"dossier\":\"\u003cR\u003e\\\\Travail\\\\Evermind\",\"gere\":false}}",
+                    "dossiers":  [
+                                     {
+                                         "chemin":  "Travail\\Evermind",
+                                         "fichiers":  [
+                                                          {
+                                                              "chemin":  "Evermind.exe",
+                                                              "texte":  "x"
+                                                          },
+                                                          {
+                                                              "chemin":  "fichiers\\Evermind.ps1",
+                                                              "texte":  "$AppVersion = \u00272.4.1\u0027"
+                                                          }
+                                                      ]
+                                     }
+                                 ],
+                    "occupee":  false,
+                    "suite_avant":  null,
+                    "installation":  {
+                                         "dossier":  "\u003cR\u003e\\Travail\\Evermind",
+                                         "gere":  false,
+                                         "version":  "2.4.1"
+                                     },
+                    "fichier_apres":  {
+                                          "evermind":  {
+                                                           "dossier":  "\u003cR\u003e\\Travail\\Evermind",
+                                                           "gere":  false
+                                                       }
+                                      },
+                    "suite":  {
+
+                              },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "nom":  "non geree disparue",
+                    "appli":  {
+                                  "id":  "evermind",
+                                  "script":  "fichiers\\Evermind.ps1",
+                                  "exe":  "Evermind.exe",
+                                  "rappels":  true,
+                                  "dossier_zip":  "Evermind",
+                                  "donnees":  "\u003cR\u003e\\Anciennes\\Evermind",
+                                  "nom":  "Evermind"
+                              },
+                    "fichier":  "{\"evermind\":{\"dossier\":\"\u003cR\u003e\\\\Travail\\\\Evermind\",\"gere\":false},\"nevermind\":{\"dossier\":\"\u003cR\u003e\\\\X\",\"gere\":false}}",
+                    "dossiers":  [
+
+                                 ],
+                    "occupee":  false,
+                    "suite_avant":  null,
+                    "installation":  null,
+                    "fichier_apres":  {
+                                          "nevermind":  {
+                                                            "dossier":  "\u003cR\u003e\\X",
+                                                            "gere":  false
+                                                        }
+                                      },
+                    "suite":  {
+
+                              },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "nom":  "geree disparue",
+                    "appli":  {
+                                  "id":  "evermind",
+                                  "script":  "fichiers\\Evermind.ps1",
+                                  "exe":  "Evermind.exe",
+                                  "rappels":  true,
+                                  "dossier_zip":  "Evermind",
+                                  "donnees":  "\u003cR\u003e\\Anciennes\\Evermind",
+                                  "nom":  "Evermind"
+                              },
+                    "fichier":  "{\"evermind\":{\"dossier\":\"\u003cR\u003e\\\\Programmes\\\\Evermind\",\"gere\":true}}",
+                    "dossiers":  [
+
+                                 ],
+                    "occupee":  false,
+                    "suite_avant":  {
+                                        "evermind":  "\u003cR\u003e\\Programmes\\Evermind"
+                                    },
+                    "installation":  null,
+                    "fichier_apres":  {
+
+                                      },
+                    "suite":  {
+
+                              },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "nom":  "geree disparue pendant une operation",
+                    "appli":  {
+                                  "id":  "evermind",
+                                  "script":  "fichiers\\Evermind.ps1",
+                                  "exe":  "Evermind.exe",
+                                  "rappels":  true,
+                                  "dossier_zip":  "Evermind",
+                                  "donnees":  "\u003cR\u003e\\Anciennes\\Evermind",
+                                  "nom":  "Evermind"
+                              },
+                    "fichier":  "{\"evermind\":{\"dossier\":\"\u003cR\u003e\\\\Programmes\\\\Evermind\",\"gere\":true}}",
+                    "dossiers":  [
+
+                                 ],
+                    "occupee":  true,
+                    "suite_avant":  null,
+                    "installation":  {
+                                         "dossier":  "\u003cR\u003e\\Programmes\\Evermind",
+                                         "gere":  true,
+                                         "version":  null
+                                     },
+                    "fichier_apres":  {
+                                          "evermind":  {
+                                                           "dossier":  "\u003cR\u003e\\Programmes\\Evermind",
+                                                           "gere":  true
+                                                       }
+                                      },
+                    "suite":  {
+
+                              },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "nom":  "oubliee mais presente",
+                    "appli":  {
+                                  "id":  "evermind",
+                                  "script":  "fichiers\\Evermind.ps1",
+                                  "exe":  "Evermind.exe",
+                                  "rappels":  true,
+                                  "dossier_zip":  "Evermind",
+                                  "donnees":  "\u003cR\u003e\\Anciennes\\Evermind",
+                                  "nom":  "Evermind"
+                              },
+                    "fichier":  "{}",
+                    "dossiers":  [
+                                     {
+                                         "chemin":  "Programmes\\Evermind",
+                                         "fichiers":  [
+                                                          {
+                                                              "chemin":  "Evermind.exe",
+                                                              "texte":  "x"
+                                                          },
+                                                          {
+                                                              "chemin":  "fichiers\\Evermind.ps1",
+                                                              "texte":  "$AppVersion = \u00272.4.1\u0027"
+                                                          }
+                                                      ]
+                                     }
+                                 ],
+                    "occupee":  false,
+                    "suite_avant":  null,
+                    "installation":  {
+                                         "dossier":  "\u003cR\u003e\\Programmes\\Evermind",
+                                         "gere":  true,
+                                         "version":  "2.4.1"
+                                     },
+                    "fichier_apres":  {
+                                          "evermind":  {
+                                                           "dossier":  "\u003cR\u003e\\Programmes\\Evermind",
+                                                           "gere":  true
+                                                       }
+                                      },
+                    "suite":  {
+                                  "evermind":  "\u003cR\u003e\\Programmes\\Evermind"
+                              },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "nom":  "fichier absent, copie geree",
+                    "appli":  {
+                                  "id":  "evermind",
+                                  "script":  "fichiers\\Evermind.ps1",
+                                  "exe":  "Evermind.exe",
+                                  "rappels":  true,
+                                  "dossier_zip":  "Evermind",
+                                  "donnees":  "\u003cR\u003e\\Anciennes\\Evermind",
+                                  "nom":  "Evermind"
+                              },
+                    "fichier":  null,
+                    "dossiers":  [
+                                     {
+                                         "chemin":  "Programmes\\Evermind",
+                                         "fichiers":  [
+                                                          {
+                                                              "chemin":  "Evermind.exe",
+                                                              "texte":  "x"
+                                                          },
+                                                          {
+                                                              "chemin":  "fichiers\\Evermind.ps1",
+                                                              "texte":  "$AppVersion = \u00272.4.1\u0027"
+                                                          }
+                                                      ]
+                                     }
+                                 ],
+                    "occupee":  false,
+                    "suite_avant":  null,
+                    "installation":  {
+                                         "dossier":  "\u003cR\u003e\\Programmes\\Evermind",
+                                         "gere":  true,
+                                         "version":  "2.4.1"
+                                     },
+                    "fichier_apres":  {
+                                          "evermind":  {
+                                                           "dossier":  "\u003cR\u003e\\Programmes\\Evermind",
+                                                           "gere":  true
+                                                       }
+                                      },
+                    "suite":  {
+                                  "evermind":  "\u003cR\u003e\\Programmes\\Evermind"
+                              },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "nom":  "gere en texte",
+                    "appli":  {
+                                  "id":  "evermind",
+                                  "script":  "fichiers\\Evermind.ps1",
+                                  "exe":  "Evermind.exe",
+                                  "rappels":  true,
+                                  "dossier_zip":  "Evermind",
+                                  "donnees":  "\u003cR\u003e\\Anciennes\\Evermind",
+                                  "nom":  "Evermind"
+                              },
+                    "fichier":  "{\"evermind\":{\"dossier\":\"\u003cR\u003e\\\\Travail\\\\Evermind\",\"gere\":\"false\"}}",
+                    "dossiers":  [
+                                     {
+                                         "chemin":  "Travail\\Evermind",
+                                         "fichiers":  [
+                                                          {
+                                                              "chemin":  "Evermind.exe",
+                                                              "texte":  "x"
+                                                          },
+                                                          {
+                                                              "chemin":  "fichiers\\Evermind.ps1",
+                                                              "texte":  "$AppVersion = \u00272.4.1\u0027"
+                                                          }
+                                                      ]
+                                     }
+                                 ],
+                    "occupee":  false,
+                    "suite_avant":  null,
+                    "installation":  null,
+                    "fichier_apres":  {
+                                          "evermind":  {
+                                                           "dossier":  "\u003cR\u003e\\Travail\\Evermind",
+                                                           "gere":  true
+                                                       }
+                                      },
+                    "suite":  {
+
+                              },
+                    "journal":  [
+                                    "installations.json : Evermind « géré » hors de \u003cR\u003e\\Programmes\\Evermind, ignoré"
+                                ]
+                },
+                {
+                    "nom":  "gere en nombre",
+                    "appli":  {
+                                  "id":  "evermind",
+                                  "script":  "fichiers\\Evermind.ps1",
+                                  "exe":  "Evermind.exe",
+                                  "rappels":  true,
+                                  "dossier_zip":  "Evermind",
+                                  "donnees":  "\u003cR\u003e\\Anciennes\\Evermind",
+                                  "nom":  "Evermind"
+                              },
+                    "fichier":  "{\"evermind\":{\"dossier\":\"\u003cR\u003e\\\\Programmes\\\\Evermind\",\"gere\":0}}",
+                    "dossiers":  [
+                                     {
+                                         "chemin":  "Programmes\\Evermind",
+                                         "fichiers":  [
+                                                          {
+                                                              "chemin":  "Evermind.exe",
+                                                              "texte":  "x"
+                                                          },
+                                                          {
+                                                              "chemin":  "fichiers\\Evermind.ps1",
+                                                              "texte":  "$AppVersion = \u00272.4.1\u0027"
+                                                          }
+                                                      ]
+                                     }
+                                 ],
+                    "occupee":  false,
+                    "suite_avant":  null,
+                    "installation":  {
+                                         "dossier":  "\u003cR\u003e\\Programmes\\Evermind",
+                                         "gere":  false,
+                                         "version":  "2.4.1"
+                                     },
+                    "fichier_apres":  {
+                                          "evermind":  {
+                                                           "dossier":  "\u003cR\u003e\\Programmes\\Evermind",
+                                                           "gere":  false
+                                                       }
+                                      },
+                    "suite":  {
+
+                              },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "nom":  "dossier absent du fichier",
+                    "appli":  {
+                                  "id":  "evermind",
+                                  "script":  "fichiers\\Evermind.ps1",
+                                  "exe":  "Evermind.exe",
+                                  "rappels":  true,
+                                  "dossier_zip":  "Evermind",
+                                  "donnees":  "\u003cR\u003e\\Anciennes\\Evermind",
+                                  "nom":  "Evermind"
+                              },
+                    "fichier":  "{\"evermind\":{\"gere\":false}}",
+                    "dossiers":  [
+
+                                 ],
+                    "occupee":  false,
+                    "suite_avant":  null,
+                    "installation":  null,
+                    "fichier_apres":  {
+
+                                      },
+                    "suite":  {
+
+                              },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "nom":  "entree en texte",
+                    "appli":  {
+                                  "id":  "evermind",
+                                  "script":  "fichiers\\Evermind.ps1",
+                                  "exe":  "Evermind.exe",
+                                  "rappels":  true,
+                                  "dossier_zip":  "Evermind",
+                                  "donnees":  "\u003cR\u003e\\Anciennes\\Evermind",
+                                  "nom":  "Evermind"
+                              },
+                    "fichier":  "{\"evermind\":\"\u003cR\u003e\\\\Travail\"}",
+                    "dossiers":  [
+
+                                 ],
+                    "occupee":  false,
+                    "suite_avant":  null,
+                    "installation":  null,
+                    "fichier_apres":  {
+
+                                      },
+                    "suite":  {
+
+                              },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "nom":  "id en majuscules",
+                    "appli":  {
+                                  "id":  "evermind",
+                                  "script":  "fichiers\\Evermind.ps1",
+                                  "exe":  "Evermind.exe",
+                                  "rappels":  true,
+                                  "dossier_zip":  "Evermind",
+                                  "donnees":  "\u003cR\u003e\\Anciennes\\Evermind",
+                                  "nom":  "Evermind"
+                              },
+                    "fichier":  "{\"Evermind\":{\"dossier\":\"\u003cR\u003e\\\\Travail\\\\Evermind\",\"gere\":false}}",
+                    "dossiers":  [
+                                     {
+                                         "chemin":  "Travail\\Evermind",
+                                         "fichiers":  [
+                                                          {
+                                                              "chemin":  "Evermind.exe",
+                                                              "texte":  "x"
+                                                          },
+                                                          {
+                                                              "chemin":  "fichiers\\Evermind.ps1",
+                                                              "texte":  "$AppVersion = \u00272.4.1\u0027"
+                                                          }
+                                                      ]
+                                     }
+                                 ],
+                    "occupee":  false,
+                    "suite_avant":  null,
+                    "installation":  {
+                                         "dossier":  "\u003cR\u003e\\Travail\\Evermind",
+                                         "gere":  false,
+                                         "version":  "2.4.1"
+                                     },
+                    "fichier_apres":  {
+                                          "Evermind":  {
+                                                           "dossier":  "\u003cR\u003e\\Travail\\Evermind",
+                                                           "gere":  false
+                                                       }
+                                      },
+                    "suite":  {
+
+                              },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "nom":  "autres applis gardees",
+                    "appli":  {
+                                  "id":  "evermind",
+                                  "script":  "fichiers\\Evermind.ps1",
+                                  "exe":  "Evermind.exe",
+                                  "rappels":  true,
+                                  "dossier_zip":  "Evermind",
+                                  "donnees":  "\u003cR\u003e\\Anciennes\\Evermind",
+                                  "nom":  "Evermind"
+                              },
+                    "fichier":  "{\"nevermind\":{\"dossier\":\"\u003cR\u003e\\\\N\",\"gere\":false},\"evermind\":{\"dossier\":\"\u003cR\u003e\\\\Rien\",\"gere\":false},\"mindcare\":{\"dossier\":\"\u003cR\u003e\\\\M\",\"gere\":true}}",
+                    "dossiers":  [
+
+                                 ],
+                    "occupee":  false,
+                    "suite_avant":  null,
+                    "installation":  null,
+                    "fichier_apres":  {
+                                          "mindcare":  {
+                                                           "dossier":  "\u003cR\u003e\\M",
+                                                           "gere":  true
+                                                       },
+                                          "nevermind":  {
+                                                            "dossier":  "\u003cR\u003e\\N",
+                                                            "gere":  false
+                                                        }
+                                      },
+                    "suite":  {
+
+                              },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "nom":  "dossier avec accents",
+                    "appli":  {
+                                  "id":  "evermind",
+                                  "script":  "fichiers\\Evermind.ps1",
+                                  "exe":  "Evermind.exe",
+                                  "rappels":  true,
+                                  "dossier_zip":  "Evermind",
+                                  "donnees":  "\u003cR\u003e\\Anciennes\\Evermind",
+                                  "nom":  "Evermind"
+                              },
+                    "fichier":  "{\"evermind\":{\"dossier\":\"\u003cR\u003e\\\\Forêt\\\\Café crème\",\"gere\":false}}",
+                    "dossiers":  [
+                                     {
+                                         "chemin":  "Forêt\\Café crème",
+                                         "fichiers":  [
+                                                          {
+                                                              "chemin":  "Evermind.exe",
+                                                              "texte":  "x"
+                                                          },
+                                                          {
+                                                              "chemin":  "fichiers\\Evermind.ps1",
+                                                              "texte":  "$AppVersion = \u00272.4.1\u0027"
+                                                          }
+                                                      ]
+                                     }
+                                 ],
+                    "occupee":  false,
+                    "suite_avant":  null,
+                    "installation":  {
+                                         "dossier":  "\u003cR\u003e\\Forêt\\Café crème",
+                                         "gere":  false,
+                                         "version":  "2.4.1"
+                                     },
+                    "fichier_apres":  {
+                                          "evermind":  {
+                                                           "dossier":  "\u003cR\u003e\\Forêt\\Café crème",
+                                                           "gere":  false
+                                                       }
+                                      },
+                    "suite":  {
+
+                              },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "nom":  "rust gere",
+                    "appli":  {
+                                  "id":  "mindcare",
+                                  "script":  "",
+                                  "exe":  "Mindcare.exe",
+                                  "dossier_zip":  "Mindcare",
+                                  "donnees":  "\u003cR\u003e\\Anciennes\\Mindcare",
+                                  "nom":  "Mindcare"
+                              },
+                    "fichier":  "{\"mindcare\":{\"dossier\":\"\u003cR\u003e\\\\Programmes\\\\Mindcare\",\"gere\":true}}",
+                    "dossiers":  [
+                                     {
+                                         "chemin":  "Programmes\\Mindcare",
+                                         "fichiers":  [
+                                                          {
+                                                              "chemin":  "Mindcare.exe",
+                                                              "texte":  "x"
+                                                          },
+                                                          {
+                                                              "chemin":  "Mindset.exe",
+                                                              "texte":  "x"
+                                                          },
+                                                          {
+                                                              "chemin":  "version.json",
+                                                              "texte":  "{\"version\":\"0.92.1\",\"appli\":\"mindcare\"}"
+                                                          }
+                                                      ]
+                                     }
+                                 ],
+                    "occupee":  false,
+                    "suite_avant":  null,
+                    "installation":  {
+                                         "dossier":  "\u003cR\u003e\\Programmes\\Mindcare",
+                                         "gere":  true,
+                                         "version":  "0.92.1"
+                                     },
+                    "fichier_apres":  {
+                                          "mindcare":  {
+                                                           "dossier":  "\u003cR\u003e\\Programmes\\Mindcare",
+                                                           "gere":  true
+                                                       }
+                                      },
+                    "suite":  {
+
+                              },
+                    "journal":  [
+
+                                ]
+                },
+                {
+                    "nom":  "tableau au lieu d objet",
+                    "appli":  {
+                                  "id":  "evermind",
+                                  "script":  "fichiers\\Evermind.ps1",
+                                  "exe":  "Evermind.exe",
+                                  "rappels":  true,
+                                  "dossier_zip":  "Evermind",
+                                  "donnees":  "\u003cR\u003e\\Anciennes\\Evermind",
+                                  "nom":  "Evermind"
+                              },
+                    "fichier":  "[1,2]",
+                    "dossiers":  [
+                                     {
+                                         "chemin":  "Programmes\\Evermind",
+                                         "fichiers":  [
+                                                          {
+                                                              "chemin":  "Evermind.exe",
+                                                              "texte":  "x"
+                                                          },
+                                                          {
+                                                              "chemin":  "fichiers\\Evermind.ps1",
+                                                              "texte":  "$AppVersion = \u00272.4.1\u0027"
+                                                          }
+                                                      ]
+                                     }
+                                 ],
+                    "occupee":  false,
+                    "suite_avant":  null,
+                    "installation":  {
+                                         "dossier":  "\u003cR\u003e\\Programmes\\Evermind",
+                                         "gere":  true,
+                                         "version":  "2.4.1"
+                                     },
+                    "fichier_apres":  {
+                                          "evermind":  {
+                                                           "dossier":  "\u003cR\u003e\\Programmes\\Evermind",
+                                                           "gere":  true
+                                                       }
+                                      },
+                    "suite":  {
+                                  "evermind":  "\u003cR\u003e\\Programmes\\Evermind"
+                              },
+                    "journal":  [
+
+                                ]
+                }
+            ]
+}

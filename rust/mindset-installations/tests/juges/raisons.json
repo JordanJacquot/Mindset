@@ -1,0 +1,201 @@
+{
+    "famille":  "raisons",
+    "origine":  "outils\\exporter-juges-installations.ps1",
+    "cas":  [
+                {
+                    "nom":  "CafeCreme",
+                    "message":  "Échec : CafeCreme est encore ouvert",
+                    "raison":  "CafeCreme était encore ouvert et n\u0027a pas pu être fermé."
+                },
+                {
+                    "nom":  "CafeCreme",
+                    "message":  "Échec : les fichiers sont utilisés par un autre programme",
+                    "raison":  "CafeCreme était encore ouvert et n\u0027a pas pu être fermé."
+                },
+                {
+                    "nom":  "CafeCreme",
+                    "message":  "The process cannot access the file because it is being used by another process.",
+                    "raison":  "CafeCreme était encore ouvert et n\u0027a pas pu être fermé."
+                },
+                {
+                    "nom":  "CafeCreme",
+                    "message":  "Échec : La signature du fichier téléchargé est invalide : rien n\u0027a été installé.",
+                    "raison":  "Le fichier téléchargé n\u0027a pas passé la vérification de sécurité : rien n\u0027a été changé."
+                },
+                {
+                    "nom":  "CafeCreme",
+                    "message":  "la tâche d\u0027installation ne répond pas (pas de réponse de la tâche en 30 secondes).",
+                    "raison":  "L\u0027outil d\u0027installation de Mindset n\u0027a pas répondu."
+                },
+                {
+                    "nom":  "CafeCreme",
+                    "message":  "Échec : Impossible de se connecter au serveur distant",
+                    "raison":  "Internet a coupé pendant le téléchargement."
+                },
+                {
+                    "nom":  "CafeCreme",
+                    "message":  "Échec : Le délai d\u0027attente de l\u0027opération a expiré.",
+                    "raison":  "Internet a coupé pendant le téléchargement."
+                },
+                {
+                    "nom":  "CafeCreme",
+                    "message":  "The operation has timed out.",
+                    "raison":  "Internet a coupé pendant le téléchargement."
+                },
+                {
+                    "nom":  "CafeCreme",
+                    "message":  "Timeout",
+                    "raison":  "Internet a coupé pendant le téléchargement."
+                },
+                {
+                    "nom":  "CafeCreme",
+                    "message":  "Échec : Le serveur distant a retourné une erreur : (404) Introuvable.",
+                    "raison":  "Internet a coupé pendant le téléchargement."
+                },
+                {
+                    "nom":  "CafeCreme",
+                    "message":  "Échec : erreur 4040",
+                    "raison":  "erreur 4040."
+                },
+                {
+                    "nom":  "CafeCreme",
+                    "message":  "Échec : HTTP 503",
+                    "raison":  "Internet a coupé pendant le téléchargement."
+                },
+                {
+                    "nom":  "CafeCreme",
+                    "message":  "Échec : code_403",
+                    "raison":  "code_403."
+                },
+                {
+                    "nom":  "CafeCreme",
+                    "message":  "Échec : Il n\u0027y a pas assez d\u0027espace disque.",
+                    "raison":  "Il n\u0027y a plus assez de place sur le disque."
+                },
+                {
+                    "nom":  "CafeCreme",
+                    "message":  "There is not enough space on the disk.",
+                    "raison":  "Il n\u0027y a plus assez de place sur le disque."
+                },
+                {
+                    "nom":  "CafeCreme",
+                    "message":  "",
+                    "raison":  "Une erreur inconnue l\u0027a arrêtée."
+                },
+                {
+                    "nom":  "CafeCreme",
+                    "message":  "Échec : ",
+                    "raison":  "Une erreur inconnue l\u0027a arrêtée."
+                },
+                {
+                    "nom":  "CafeCreme",
+                    "message":  "   ÉCHEC   :   bizarre",
+                    "raison":  "bizarre."
+                },
+                {
+                    "nom":  "CafeCreme",
+                    "message":  "échec: minuscule",
+                    "raison":  "minuscule."
+                },
+                {
+                    "nom":  "CafeCreme",
+                    "message":  "Échec : Version 1.0.0 refusée : la version 2.0.0, plus récente, est déjà installée.",
+                    "raison":  "Version 1.0.0 refusée : la version 2.0.0, plus récente, est déjà installée."
+                },
+                {
+                    "nom":  "CafeCreme",
+                    "message":  "Une erreur sans point",
+                    "raison":  "Une erreur sans point."
+                },
+                {
+                    "nom":  "CafeCreme",
+                    "message":  "Une erreur avec point d\u0027exclamation !",
+                    "raison":  "Une erreur avec point d\u0027exclamation !"
+                },
+                {
+                    "nom":  "CafeCreme",
+                    "message":  "Question ?",
+                    "raison":  "Question ?"
+                },
+                {
+                    "nom":  "CafeCreme",
+                    "message":  "Échec : xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                    "raison":  "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx..."
+                },
+                {
+                    "nom":  "CafeCreme",
+                    "message":  "yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy.",
+                    "raison":  "yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy."
+                },
+                {
+                    "nom":  "CafeCreme",
+                    "message":  "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz",
+                    "raison":  "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz..."
+                },
+                {
+                    "nom":  "CafeCreme",
+                    "message":  "Échec : INTERNET coupé",
+                    "raison":  "Internet a coupé pendant le téléchargement."
+                },
+                {
+                    "nom":  "CafeCreme",
+                    "message":  "Réseau indisponible",
+                    "raison":  "Internet a coupé pendant le téléchargement."
+                },
+                {
+                    "nom":  "CafeCreme",
+                    "message":  "Échec : impossible de résoudre le nom",
+                    "raison":  "Internet a coupé pendant le téléchargement."
+                },
+                {
+                    "nom":  "CafeCreme",
+                    "message":  "Échec : remote host closed",
+                    "raison":  "Internet a coupé pendant le téléchargement."
+                },
+                {
+                    "nom":  "CafeCreme",
+                    "message":  "Échec : la tâche d\u0027installation ne répond pas.",
+                    "raison":  "L\u0027outil d\u0027installation de Mindset n\u0027a pas répondu."
+                },
+                {
+                    "nom":  "CafeCreme",
+                    "message":  "Échec : ligne\nsuite",
+                    "raison":  "ligne\nsuite."
+                },
+                {
+                    "nom":  "CafeCreme",
+                    "message":  "fin par saut\n",
+                    "raison":  "fin par saut."
+                },
+                {
+                    "nom":  "CafeCreme",
+                    "message":  "Échec : Le zip ne contient pas CafeCreme.exe dans le dossier CafeCreme.",
+                    "raison":  "Le zip ne contient pas CafeCreme.exe dans le dossier CafeCreme."
+                },
+                {
+                    "nom":  "CafeCreme",
+                    "message":  "Échec : pas de réponse du mini-installateur (opération interrompue ?).",
+                    "raison":  "pas de réponse du mini-installateur (opération interrompue ?)."
+                },
+                {
+                    "nom":  "CafeCreme",
+                    "message":  "Signature : rien",
+                    "raison":  "Le fichier téléchargé n\u0027a pas passé la vérification de sécurité : rien n\u0027a été changé."
+                },
+                {
+                    "nom":  "CafeCreme",
+                    "message":  "Échec : place sur le disque insuffisante",
+                    "raison":  "Il n\u0027y a plus assez de place sur le disque."
+                },
+                {
+                    "nom":  "CafeCreme",
+                    "message":  "Échec: disque plein",
+                    "raison":  "Il n\u0027y a plus assez de place sur le disque."
+                },
+                {
+                    "nom":  "Evermind",
+                    "message":  "encore ouvert",
+                    "raison":  "Evermind était encore ouvert et n\u0027a pas pu être fermé."
+                }
+            ]
+}

@@ -1,0 +1,2716 @@
+{
+    "famille":  "admin",
+    "origine":  "outils\\exporter-juges-installations.ps1",
+    "cas":  [
+                {
+                    "nom":  "par la tache, tout va bien",
+                    "debut":  {
+                                  "tache":  "systeme"
+                              },
+                    "etapes":  [
+                                   {
+                                       "admin":  {
+                                                     "nom":  "A",
+                                                     "action":  "appli",
+                                                     "auto":  false,
+                                                     "parametres":  [
+                                                                        [
+                                                                            "Appli",
+                                                                            "evermind"
+                                                                        ],
+                                                                        [
+                                                                            "Zip",
+                                                                            "\u003cR\u003e\\Donnees\\Mindset\\telechargements\\evermind.zip"
+                                                                        ],
+                                                                        [
+                                                                            "Destination",
+                                                                            "\u003cR\u003e\\Programmes\\Evermind"
+                                                                        ],
+                                                                        [
+                                                                            "Exe",
+                                                                            "Evermind.exe"
+                                                                        ]
+                                                                    ]
+                                                 }
+                                   },
+                                   {
+                                       "tic":  true
+                                   },
+                                   {
+                                       "recu":  0
+                                   },
+                                   {
+                                       "tic":  true
+                                   },
+                                   {
+                                       "resultat":  {
+                                                        "de":  0,
+                                                        "ok":  true,
+                                                        "message":  "\u003cR\u003e\\Programmes\\Evermind"
+                                                    }
+                                   },
+                                   {
+                                       "tic":  true
+                                   },
+                                   {
+                                       "tic":  true
+                                   }
+                               ],
+                    "sorties":  [
+                                    {
+                                        "taches":  [
+                                                       "appli"
+                                                   ],
+                                        "retraits":  0,
+                                        "runas":  [
+
+                                                  ],
+                                        "fins":  [
+
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    },
+                                    {
+                                        "taches":  [
+
+                                                   ],
+                                        "retraits":  0,
+                                        "runas":  [
+
+                                                  ],
+                                        "fins":  [
+
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    },
+                                    {
+                                        "taches":  [
+
+                                                   ],
+                                        "retraits":  0,
+                                        "runas":  [
+
+                                                  ],
+                                        "fins":  [
+
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    },
+                                    {
+                                        "taches":  [
+
+                                                   ],
+                                        "retraits":  0,
+                                        "runas":  [
+
+                                                  ],
+                                        "fins":  [
+
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    },
+                                    {
+                                        "taches":  [
+
+                                                   ],
+                                        "retraits":  0,
+                                        "runas":  [
+
+                                                  ],
+                                        "fins":  [
+
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    },
+                                    {
+                                        "taches":  [
+
+                                                   ],
+                                        "retraits":  1,
+                                        "runas":  [
+
+                                                  ],
+                                        "fins":  [
+                                                     [
+                                                         "A",
+                                                         true,
+                                                         "\u003cR\u003e\\Programmes\\Evermind"
+                                                     ]
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    },
+                                    {
+                                        "taches":  [
+
+                                                   ],
+                                        "retraits":  0,
+                                        "runas":  [
+
+                                                  ],
+                                        "fins":  [
+
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    }
+                                ],
+                    "tache_ok":  true
+                },
+                {
+                    "nom":  "tache absente : demande de Windows",
+                    "debut":  {
+                                  "tache":  "absente"
+                              },
+                    "etapes":  [
+                                   {
+                                       "admin":  {
+                                                     "nom":  "A",
+                                                     "action":  "supprimer",
+                                                     "auto":  false,
+                                                     "parametres":  [
+                                                                        [
+                                                                            "Destination",
+                                                                            "\u003cR\u003e\\Programmes\\Evermind"
+                                                                        ],
+                                                                        [
+                                                                            "Exe",
+                                                                            ""
+                                                                        ],
+                                                                        [
+                                                                            "Version",
+                                                                            ""
+                                                                        ]
+                                                                    ]
+                                                 }
+                                   },
+                                   {
+                                       "reponse_directe":  {
+                                                               "ok":  true,
+                                                               "message":  "fait",
+                                                               "de":  0
+                                                           }
+                                   },
+                                   {
+                                       "tic":  true
+                                   }
+                               ],
+                    "sorties":  [
+                                    {
+                                        "taches":  [
+
+                                                   ],
+                                        "retraits":  0,
+                                        "runas":  [
+                                                      {
+                                                          "action":  "supprimer",
+                                                          "parametres":  [
+                                                                             [
+                                                                                 "Destination",
+                                                                                 "\"\u003cR\u003e\\Programmes\\Evermind\""
+                                                                             ]
+                                                                         ]
+                                                      }
+                                                  ],
+                                        "fins":  [
+
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    },
+                                    {
+                                        "taches":  [
+
+                                                   ],
+                                        "retraits":  0,
+                                        "runas":  [
+
+                                                  ],
+                                        "fins":  [
+
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    },
+                                    {
+                                        "taches":  [
+
+                                                   ],
+                                        "retraits":  0,
+                                        "runas":  [
+
+                                                  ],
+                                        "fins":  [
+                                                     [
+                                                         "A",
+                                                         true,
+                                                         "fait"
+                                                     ]
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    }
+                                ],
+                    "tache_ok":  false
+                },
+                {
+                    "nom":  "ancienne tache : jamais pour installer",
+                    "debut":  {
+                                  "tache":  "ancienne"
+                              },
+                    "etapes":  [
+                                   {
+                                       "admin":  {
+                                                     "nom":  "A",
+                                                     "action":  "appli",
+                                                     "auto":  false,
+                                                     "parametres":  [
+                                                                        [
+                                                                            "Appli",
+                                                                            "evermind"
+                                                                        ],
+                                                                        [
+                                                                            "Zip",
+                                                                            "\u003cR\u003e\\Donnees\\Mindset\\telechargements\\evermind.zip"
+                                                                        ],
+                                                                        [
+                                                                            "Destination",
+                                                                            "\u003cR\u003e\\Programmes\\Evermind"
+                                                                        ],
+                                                                        [
+                                                                            "Exe",
+                                                                            "Evermind.exe"
+                                                                        ]
+                                                                    ]
+                                                 }
+                                   },
+                                   {
+                                       "tic":  true
+                                   }
+                               ],
+                    "sorties":  [
+                                    {
+                                        "taches":  [
+
+                                                   ],
+                                        "retraits":  0,
+                                        "runas":  [
+                                                      {
+                                                          "action":  "appli",
+                                                          "parametres":  [
+                                                                             [
+                                                                                 "Appli",
+                                                                                 "\"evermind\""
+                                                                             ],
+                                                                             [
+                                                                                 "Destination",
+                                                                                 "\"\u003cR\u003e\\Programmes\\Evermind\""
+                                                                             ],
+                                                                             [
+                                                                                 "Exe",
+                                                                                 "\"Evermind.exe\""
+                                                                             ],
+                                                                             [
+                                                                                 "Zip",
+                                                                                 "\"\u003cR\u003e\\Donnees\\Mindset\\telechargements\\evermind.zip\""
+                                                                             ]
+                                                                         ]
+                                                      }
+                                                  ],
+                                        "fins":  [
+
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    },
+                                    {
+                                        "taches":  [
+
+                                                   ],
+                                        "retraits":  0,
+                                        "runas":  [
+
+                                                  ],
+                                        "fins":  [
+                                                     [
+                                                         "A",
+                                                         false,
+                                                         "pas de réponse (opération interrompue ?)."
+                                                     ]
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    }
+                                ],
+                    "tache_ok":  false
+                },
+                {
+                    "nom":  "mindset administrateur : demande directe",
+                    "debut":  {
+                                  "admin":  true,
+                                  "tache":  "systeme"
+                              },
+                    "etapes":  [
+                                   {
+                                       "admin":  {
+                                                     "nom":  "A",
+                                                     "action":  "appli",
+                                                     "auto":  false,
+                                                     "parametres":  [
+                                                                        [
+                                                                            "Appli",
+                                                                            "evermind"
+                                                                        ],
+                                                                        [
+                                                                            "Zip",
+                                                                            "\u003cR\u003e\\Donnees\\Mindset\\telechargements\\evermind.zip"
+                                                                        ],
+                                                                        [
+                                                                            "Destination",
+                                                                            "\u003cR\u003e\\Programmes\\Evermind"
+                                                                        ],
+                                                                        [
+                                                                            "Exe",
+                                                                            "Evermind.exe"
+                                                                        ]
+                                                                    ]
+                                                 }
+                                   },
+                                   {
+                                       "reponse_directe":  {
+                                                               "ok":  false,
+                                                               "message":  "refusé par le test",
+                                                               "de":  0
+                                                           }
+                                   },
+                                   {
+                                       "tic":  true
+                                   }
+                               ],
+                    "sorties":  [
+                                    {
+                                        "taches":  [
+
+                                                   ],
+                                        "retraits":  0,
+                                        "runas":  [
+                                                      {
+                                                          "action":  "appli",
+                                                          "parametres":  [
+                                                                             [
+                                                                                 "Appli",
+                                                                                 "\"evermind\""
+                                                                             ],
+                                                                             [
+                                                                                 "Destination",
+                                                                                 "\"\u003cR\u003e\\Programmes\\Evermind\""
+                                                                             ],
+                                                                             [
+                                                                                 "Exe",
+                                                                                 "\"Evermind.exe\""
+                                                                             ],
+                                                                             [
+                                                                                 "Zip",
+                                                                                 "\"\u003cR\u003e\\Donnees\\Mindset\\telechargements\\evermind.zip\""
+                                                                             ]
+                                                                         ]
+                                                      }
+                                                  ],
+                                        "fins":  [
+
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    },
+                                    {
+                                        "taches":  [
+
+                                                   ],
+                                        "retraits":  0,
+                                        "runas":  [
+
+                                                  ],
+                                        "fins":  [
+
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    },
+                                    {
+                                        "taches":  [
+
+                                                   ],
+                                        "retraits":  0,
+                                        "runas":  [
+
+                                                  ],
+                                        "fins":  [
+                                                     [
+                                                         "A",
+                                                         false,
+                                                         "refusé par le test"
+                                                     ]
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    }
+                                ],
+                    "tache_ok":  null
+                },
+                {
+                    "nom":  "action mindset : toujours directe",
+                    "debut":  {
+                                  "tache":  "systeme"
+                              },
+                    "etapes":  [
+                                   {
+                                       "admin":  {
+                                                     "nom":  "A",
+                                                     "action":  "mindset",
+                                                     "auto":  false,
+                                                     "parametres":  [
+                                                                        [
+                                                                            "Source",
+                                                                            "\u003cR\u003e\\Telechargements\\Mindset"
+                                                                        ],
+                                                                        [
+                                                                            "Version",
+                                                                            "3.0.0"
+                                                                        ],
+                                                                        [
+                                                                            "Disque",
+                                                                            "D"
+                                                                        ]
+                                                                    ]
+                                                 }
+                                   },
+                                   {
+                                       "tic":  true
+                                   }
+                               ],
+                    "sorties":  [
+                                    {
+                                        "taches":  [
+
+                                                   ],
+                                        "retraits":  0,
+                                        "runas":  [
+                                                      {
+                                                          "action":  "mindset",
+                                                          "parametres":  [
+                                                                             [
+                                                                                 "Disque",
+                                                                                 "\"D\""
+                                                                             ],
+                                                                             [
+                                                                                 "Source",
+                                                                                 "\"\u003cR\u003e\\Telechargements\\Mindset\""
+                                                                             ],
+                                                                             [
+                                                                                 "Version",
+                                                                                 "\"3.0.0\""
+                                                                             ]
+                                                                         ]
+                                                      }
+                                                  ],
+                                        "fins":  [
+
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    },
+                                    {
+                                        "taches":  [
+
+                                                   ],
+                                        "retraits":  0,
+                                        "runas":  [
+
+                                                  ],
+                                        "fins":  [
+                                                     [
+                                                         "A",
+                                                         false,
+                                                         "pas de réponse (opération interrompue ?)."
+                                                     ]
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    }
+                                ],
+                    "tache_ok":  null
+                },
+                {
+                    "nom":  "pas d accuse en 30 s : repli",
+                    "debut":  {
+                                  "tache":  "systeme"
+                              },
+                    "etapes":  [
+                                   {
+                                       "admin":  {
+                                                     "nom":  "A",
+                                                     "action":  "appli",
+                                                     "auto":  false,
+                                                     "parametres":  [
+                                                                        [
+                                                                            "Appli",
+                                                                            "evermind"
+                                                                        ],
+                                                                        [
+                                                                            "Zip",
+                                                                            "\u003cR\u003e\\Donnees\\Mindset\\telechargements\\evermind.zip"
+                                                                        ],
+                                                                        [
+                                                                            "Destination",
+                                                                            "\u003cR\u003e\\Programmes\\Evermind"
+                                                                        ],
+                                                                        [
+                                                                            "Exe",
+                                                                            "Evermind.exe"
+                                                                        ]
+                                                                    ]
+                                                 }
+                                   },
+                                   {
+                                       "avancer":  29
+                                   },
+                                   {
+                                       "tic":  true
+                                   },
+                                   {
+                                       "avancer":  1
+                                   },
+                                   {
+                                       "tic":  true
+                                   },
+                                   {
+                                       "reponse_directe":  {
+                                                               "ok":  true,
+                                                               "message":  "fait par Windows",
+                                                               "de":  0
+                                                           }
+                                   },
+                                   {
+                                       "tic":  true
+                                   }
+                               ],
+                    "sorties":  [
+                                    {
+                                        "taches":  [
+                                                       "appli"
+                                                   ],
+                                        "retraits":  0,
+                                        "runas":  [
+
+                                                  ],
+                                        "fins":  [
+
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    },
+                                    {
+                                        "taches":  [
+
+                                                   ],
+                                        "retraits":  0,
+                                        "runas":  [
+
+                                                  ],
+                                        "fins":  [
+
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    },
+                                    {
+                                        "taches":  [
+
+                                                   ],
+                                        "retraits":  0,
+                                        "runas":  [
+
+                                                  ],
+                                        "fins":  [
+
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    },
+                                    {
+                                        "taches":  [
+
+                                                   ],
+                                        "retraits":  0,
+                                        "runas":  [
+
+                                                  ],
+                                        "fins":  [
+
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    },
+                                    {
+                                        "taches":  [
+
+                                                   ],
+                                        "retraits":  1,
+                                        "runas":  [
+                                                      {
+                                                          "action":  "appli",
+                                                          "parametres":  [
+                                                                             [
+                                                                                 "Appli",
+                                                                                 "\"evermind\""
+                                                                             ],
+                                                                             [
+                                                                                 "Destination",
+                                                                                 "\"\u003cR\u003e\\Programmes\\Evermind\""
+                                                                             ],
+                                                                             [
+                                                                                 "Exe",
+                                                                                 "\"Evermind.exe\""
+                                                                             ],
+                                                                             [
+                                                                                 "Zip",
+                                                                                 "\"\u003cR\u003e\\Donnees\\Mindset\\telechargements\\evermind.zip\""
+                                                                             ]
+                                                                         ]
+                                                      }
+                                                  ],
+                                        "fins":  [
+
+                                                 ],
+                                        "journal":  [
+                                                        "Mini-installateur : pas de réponse de la tâche en 30 secondes ; demande de Windows à la place"
+                                                    ]
+                                    },
+                                    {
+                                        "taches":  [
+
+                                                   ],
+                                        "retraits":  0,
+                                        "runas":  [
+
+                                                  ],
+                                        "fins":  [
+
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    },
+                                    {
+                                        "taches":  [
+
+                                                   ],
+                                        "retraits":  0,
+                                        "runas":  [
+
+                                                  ],
+                                        "fins":  [
+                                                     [
+                                                         "A",
+                                                         true,
+                                                         "fait par Windows"
+                                                     ]
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    }
+                                ],
+                    "tache_ok":  false
+                },
+                {
+                    "nom":  "pas d accuse, mise a jour automatique : abandon",
+                    "debut":  {
+                                  "tache":  "systeme"
+                              },
+                    "etapes":  [
+                                   {
+                                       "admin":  {
+                                                     "nom":  "A",
+                                                     "action":  "appli",
+                                                     "auto":  true,
+                                                     "parametres":  [
+                                                                        [
+                                                                            "Appli",
+                                                                            "evermind"
+                                                                        ],
+                                                                        [
+                                                                            "Zip",
+                                                                            "\u003cR\u003e\\Donnees\\Mindset\\telechargements\\evermind.zip"
+                                                                        ],
+                                                                        [
+                                                                            "Destination",
+                                                                            "\u003cR\u003e\\Programmes\\Evermind"
+                                                                        ],
+                                                                        [
+                                                                            "Exe",
+                                                                            "Evermind.exe"
+                                                                        ]
+                                                                    ]
+                                                 }
+                                   },
+                                   {
+                                       "avancer":  31
+                                   },
+                                   {
+                                       "tic":  true
+                                   }
+                               ],
+                    "sorties":  [
+                                    {
+                                        "taches":  [
+                                                       "appli"
+                                                   ],
+                                        "retraits":  0,
+                                        "runas":  [
+
+                                                  ],
+                                        "fins":  [
+
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    },
+                                    {
+                                        "taches":  [
+
+                                                   ],
+                                        "retraits":  0,
+                                        "runas":  [
+
+                                                  ],
+                                        "fins":  [
+
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    },
+                                    {
+                                        "taches":  [
+
+                                                   ],
+                                        "retraits":  1,
+                                        "runas":  [
+
+                                                  ],
+                                        "fins":  [
+                                                     [
+                                                         "A",
+                                                         false,
+                                                         "la tâche d\u0027installation ne répond pas (pas de réponse de la tâche en 30 secondes)."
+                                                     ]
+                                                 ],
+                                        "journal":  [
+                                                        "Mini-installateur : pas de réponse de la tâche en 30 secondes ; opération abandonnée"
+                                                    ]
+                                    }
+                                ],
+                    "tache_ok":  false
+                },
+                {
+                    "nom":  "accuse juste avant le retrait",
+                    "debut":  {
+                                  "tache":  "systeme"
+                              },
+                    "etapes":  [
+                                   {
+                                       "admin":  {
+                                                     "nom":  "A",
+                                                     "action":  "appli",
+                                                     "auto":  false,
+                                                     "parametres":  [
+                                                                        [
+                                                                            "Appli",
+                                                                            "evermind"
+                                                                        ],
+                                                                        [
+                                                                            "Zip",
+                                                                            "\u003cR\u003e\\Donnees\\Mindset\\telechargements\\evermind.zip"
+                                                                        ],
+                                                                        [
+                                                                            "Destination",
+                                                                            "\u003cR\u003e\\Programmes\\Evermind"
+                                                                        ],
+                                                                        [
+                                                                            "Exe",
+                                                                            "Evermind.exe"
+                                                                        ]
+                                                                    ]
+                                                 }
+                                   },
+                                   {
+                                       "avancer":  31
+                                   },
+                                   {
+                                       "recu_tardif":  0
+                                   },
+                                   {
+                                       "tic":  true
+                                   },
+                                   {
+                                       "resultat":  {
+                                                        "de":  0,
+                                                        "ok":  true,
+                                                        "message":  "ok"
+                                                    }
+                                   },
+                                   {
+                                       "tic":  true
+                                   }
+                               ],
+                    "sorties":  [
+                                    {
+                                        "taches":  [
+                                                       "appli"
+                                                   ],
+                                        "retraits":  0,
+                                        "runas":  [
+
+                                                  ],
+                                        "fins":  [
+
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    },
+                                    {
+                                        "taches":  [
+
+                                                   ],
+                                        "retraits":  0,
+                                        "runas":  [
+
+                                                  ],
+                                        "fins":  [
+
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    },
+                                    {
+                                        "taches":  [
+
+                                                   ],
+                                        "retraits":  0,
+                                        "runas":  [
+
+                                                  ],
+                                        "fins":  [
+
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    },
+                                    {
+                                        "taches":  [
+
+                                                   ],
+                                        "retraits":  1,
+                                        "runas":  [
+
+                                                  ],
+                                        "fins":  [
+
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    },
+                                    {
+                                        "taches":  [
+
+                                                   ],
+                                        "retraits":  0,
+                                        "runas":  [
+
+                                                  ],
+                                        "fins":  [
+
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    },
+                                    {
+                                        "taches":  [
+
+                                                   ],
+                                        "retraits":  1,
+                                        "runas":  [
+
+                                                  ],
+                                        "fins":  [
+                                                     [
+                                                         "A",
+                                                         true,
+                                                         "ok"
+                                                     ]
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    }
+                                ],
+                    "tache_ok":  true
+                },
+                {
+                    "nom":  "lente mais accusee : pas doublee",
+                    "debut":  {
+                                  "tache":  "systeme"
+                              },
+                    "etapes":  [
+                                   {
+                                       "admin":  {
+                                                     "nom":  "A",
+                                                     "action":  "appli",
+                                                     "auto":  false,
+                                                     "parametres":  [
+                                                                        [
+                                                                            "Appli",
+                                                                            "evermind"
+                                                                        ],
+                                                                        [
+                                                                            "Zip",
+                                                                            "\u003cR\u003e\\Donnees\\Mindset\\telechargements\\evermind.zip"
+                                                                        ],
+                                                                        [
+                                                                            "Destination",
+                                                                            "\u003cR\u003e\\Programmes\\Evermind"
+                                                                        ],
+                                                                        [
+                                                                            "Exe",
+                                                                            "Evermind.exe"
+                                                                        ]
+                                                                    ]
+                                                 }
+                                   },
+                                   {
+                                       "recu":  0
+                                   },
+                                   {
+                                       "tic":  true
+                                   },
+                                   {
+                                       "avancer":  300
+                                   },
+                                   {
+                                       "tic":  true
+                                   },
+                                   {
+                                       "avancer":  299
+                                   },
+                                   {
+                                       "tic":  true
+                                   },
+                                   {
+                                       "avancer":  2
+                                   },
+                                   {
+                                       "tic":  true
+                                   }
+                               ],
+                    "sorties":  [
+                                    {
+                                        "taches":  [
+                                                       "appli"
+                                                   ],
+                                        "retraits":  0,
+                                        "runas":  [
+
+                                                  ],
+                                        "fins":  [
+
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    },
+                                    {
+                                        "taches":  [
+
+                                                   ],
+                                        "retraits":  0,
+                                        "runas":  [
+
+                                                  ],
+                                        "fins":  [
+
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    },
+                                    {
+                                        "taches":  [
+
+                                                   ],
+                                        "retraits":  0,
+                                        "runas":  [
+
+                                                  ],
+                                        "fins":  [
+
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    },
+                                    {
+                                        "taches":  [
+
+                                                   ],
+                                        "retraits":  0,
+                                        "runas":  [
+
+                                                  ],
+                                        "fins":  [
+
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    },
+                                    {
+                                        "taches":  [
+
+                                                   ],
+                                        "retraits":  0,
+                                        "runas":  [
+
+                                                  ],
+                                        "fins":  [
+
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    },
+                                    {
+                                        "taches":  [
+
+                                                   ],
+                                        "retraits":  0,
+                                        "runas":  [
+
+                                                  ],
+                                        "fins":  [
+
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    },
+                                    {
+                                        "taches":  [
+
+                                                   ],
+                                        "retraits":  0,
+                                        "runas":  [
+
+                                                  ],
+                                        "fins":  [
+
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    },
+                                    {
+                                        "taches":  [
+
+                                                   ],
+                                        "retraits":  0,
+                                        "runas":  [
+
+                                                  ],
+                                        "fins":  [
+
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    },
+                                    {
+                                        "taches":  [
+
+                                                   ],
+                                        "retraits":  1,
+                                        "runas":  [
+
+                                                  ],
+                                        "fins":  [
+                                                     [
+                                                         "A",
+                                                         false,
+                                                         "pas de réponse du mini-installateur (opération interrompue ?)."
+                                                     ]
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    }
+                                ],
+                    "tache_ok":  true
+                },
+                {
+                    "nom":  "reponse d une autre demande ignoree",
+                    "debut":  {
+                                  "tache":  "systeme"
+                              },
+                    "etapes":  [
+                                   {
+                                       "admin":  {
+                                                     "nom":  "A",
+                                                     "action":  "appli",
+                                                     "auto":  false,
+                                                     "parametres":  [
+                                                                        [
+                                                                            "Appli",
+                                                                            "evermind"
+                                                                        ],
+                                                                        [
+                                                                            "Zip",
+                                                                            "\u003cR\u003e\\Donnees\\Mindset\\telechargements\\evermind.zip"
+                                                                        ],
+                                                                        [
+                                                                            "Destination",
+                                                                            "\u003cR\u003e\\Programmes\\Evermind"
+                                                                        ],
+                                                                        [
+                                                                            "Exe",
+                                                                            "Evermind.exe"
+                                                                        ]
+                                                                    ]
+                                                 }
+                                   },
+                                   {
+                                       "recu":  0
+                                   },
+                                   {
+                                       "resultat_autre":  true
+                                   },
+                                   {
+                                       "tic":  true
+                                   },
+                                   {
+                                       "resultat":  {
+                                                        "de":  0,
+                                                        "ok":  false,
+                                                        "message":  "Version refusée"
+                                                    }
+                                   },
+                                   {
+                                       "tic":  true
+                                   }
+                               ],
+                    "sorties":  [
+                                    {
+                                        "taches":  [
+                                                       "appli"
+                                                   ],
+                                        "retraits":  0,
+                                        "runas":  [
+
+                                                  ],
+                                        "fins":  [
+
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    },
+                                    {
+                                        "taches":  [
+
+                                                   ],
+                                        "retraits":  0,
+                                        "runas":  [
+
+                                                  ],
+                                        "fins":  [
+
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    },
+                                    {
+                                        "taches":  [
+
+                                                   ],
+                                        "retraits":  0,
+                                        "runas":  [
+
+                                                  ],
+                                        "fins":  [
+
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    },
+                                    {
+                                        "taches":  [
+
+                                                   ],
+                                        "retraits":  0,
+                                        "runas":  [
+
+                                                  ],
+                                        "fins":  [
+
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    },
+                                    {
+                                        "taches":  [
+
+                                                   ],
+                                        "retraits":  0,
+                                        "runas":  [
+
+                                                  ],
+                                        "fins":  [
+
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    },
+                                    {
+                                        "taches":  [
+
+                                                   ],
+                                        "retraits":  1,
+                                        "runas":  [
+
+                                                  ],
+                                        "fins":  [
+                                                     [
+                                                         "A",
+                                                         false,
+                                                         "Version refusée"
+                                                     ]
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    }
+                                ],
+                    "tache_ok":  true
+                },
+                {
+                    "nom":  "deux demandes : une a la fois",
+                    "debut":  {
+                                  "tache":  "systeme"
+                              },
+                    "etapes":  [
+                                   {
+                                       "admin":  {
+                                                     "nom":  "A",
+                                                     "action":  "appli",
+                                                     "auto":  false,
+                                                     "parametres":  [
+                                                                        [
+                                                                            "Appli",
+                                                                            "evermind"
+                                                                        ],
+                                                                        [
+                                                                            "Zip",
+                                                                            "\u003cR\u003e\\Donnees\\Mindset\\telechargements\\evermind.zip"
+                                                                        ],
+                                                                        [
+                                                                            "Destination",
+                                                                            "\u003cR\u003e\\Programmes\\Evermind"
+                                                                        ],
+                                                                        [
+                                                                            "Exe",
+                                                                            "Evermind.exe"
+                                                                        ]
+                                                                    ]
+                                                 }
+                                   },
+                                   {
+                                       "admin":  {
+                                                     "nom":  "B",
+                                                     "action":  "supprimer",
+                                                     "auto":  false,
+                                                     "parametres":  [
+                                                                        [
+                                                                            "Destination",
+                                                                            "\u003cR\u003e\\Programmes\\Evermind"
+                                                                        ],
+                                                                        [
+                                                                            "Exe",
+                                                                            ""
+                                                                        ],
+                                                                        [
+                                                                            "Version",
+                                                                            ""
+                                                                        ]
+                                                                    ]
+                                                 }
+                                   },
+                                   {
+                                       "recu":  0
+                                   },
+                                   {
+                                       "resultat":  {
+                                                        "de":  0,
+                                                        "ok":  true,
+                                                        "message":  "un"
+                                                    }
+                                   },
+                                   {
+                                       "tic":  true
+                                   },
+                                   {
+                                       "recu":  1
+                                   },
+                                   {
+                                       "resultat":  {
+                                                        "de":  1,
+                                                        "ok":  true,
+                                                        "message":  "deux"
+                                                    }
+                                   },
+                                   {
+                                       "tic":  true
+                                   }
+                               ],
+                    "sorties":  [
+                                    {
+                                        "taches":  [
+                                                       "appli"
+                                                   ],
+                                        "retraits":  0,
+                                        "runas":  [
+
+                                                  ],
+                                        "fins":  [
+
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    },
+                                    {
+                                        "taches":  [
+
+                                                   ],
+                                        "retraits":  0,
+                                        "runas":  [
+
+                                                  ],
+                                        "fins":  [
+
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    },
+                                    {
+                                        "taches":  [
+
+                                                   ],
+                                        "retraits":  0,
+                                        "runas":  [
+
+                                                  ],
+                                        "fins":  [
+
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    },
+                                    {
+                                        "taches":  [
+
+                                                   ],
+                                        "retraits":  0,
+                                        "runas":  [
+
+                                                  ],
+                                        "fins":  [
+
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    },
+                                    {
+                                        "taches":  [
+                                                       "supprimer"
+                                                   ],
+                                        "retraits":  1,
+                                        "runas":  [
+
+                                                  ],
+                                        "fins":  [
+                                                     [
+                                                         "A",
+                                                         true,
+                                                         "un"
+                                                     ]
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    },
+                                    {
+                                        "taches":  [
+
+                                                   ],
+                                        "retraits":  0,
+                                        "runas":  [
+
+                                                  ],
+                                        "fins":  [
+
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    },
+                                    {
+                                        "taches":  [
+
+                                                   ],
+                                        "retraits":  0,
+                                        "runas":  [
+
+                                                  ],
+                                        "fins":  [
+
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    },
+                                    {
+                                        "taches":  [
+
+                                                   ],
+                                        "retraits":  1,
+                                        "runas":  [
+
+                                                  ],
+                                        "fins":  [
+                                                     [
+                                                         "B",
+                                                         true,
+                                                         "deux"
+                                                     ]
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    }
+                                ],
+                    "tache_ok":  true
+                },
+                {
+                    "nom":  "la tache ne demarre pas",
+                    "debut":  {
+                                  "run_ok":  false,
+                                  "tache":  "systeme"
+                              },
+                    "etapes":  [
+                                   {
+                                       "admin":  {
+                                                     "nom":  "A",
+                                                     "action":  "appli",
+                                                     "auto":  false,
+                                                     "parametres":  [
+                                                                        [
+                                                                            "Appli",
+                                                                            "evermind"
+                                                                        ],
+                                                                        [
+                                                                            "Zip",
+                                                                            "\u003cR\u003e\\Donnees\\Mindset\\telechargements\\evermind.zip"
+                                                                        ],
+                                                                        [
+                                                                            "Destination",
+                                                                            "\u003cR\u003e\\Programmes\\Evermind"
+                                                                        ],
+                                                                        [
+                                                                            "Exe",
+                                                                            "Evermind.exe"
+                                                                        ]
+                                                                    ]
+                                                 }
+                                   },
+                                   {
+                                       "reponse_directe":  {
+                                                               "ok":  true,
+                                                               "message":  "direct",
+                                                               "de":  0
+                                                           }
+                                   },
+                                   {
+                                       "tic":  true
+                                   },
+                                   {
+                                       "admin":  {
+                                                     "nom":  "B",
+                                                     "action":  "appli",
+                                                     "auto":  false,
+                                                     "parametres":  [
+                                                                        [
+                                                                            "Appli",
+                                                                            "evermind"
+                                                                        ],
+                                                                        [
+                                                                            "Zip",
+                                                                            "\u003cR\u003e\\Donnees\\Mindset\\telechargements\\evermind.zip"
+                                                                        ],
+                                                                        [
+                                                                            "Destination",
+                                                                            "\u003cR\u003e\\Programmes\\Evermind"
+                                                                        ],
+                                                                        [
+                                                                            "Exe",
+                                                                            "Evermind.exe"
+                                                                        ]
+                                                                    ]
+                                                 }
+                                   },
+                                   {
+                                       "tic":  true
+                                   }
+                               ],
+                    "sorties":  [
+                                    {
+                                        "taches":  [
+                                                       "appli"
+                                                   ],
+                                        "retraits":  1,
+                                        "runas":  [
+                                                      {
+                                                          "action":  "appli",
+                                                          "parametres":  [
+                                                                             [
+                                                                                 "Appli",
+                                                                                 "\"evermind\""
+                                                                             ],
+                                                                             [
+                                                                                 "Destination",
+                                                                                 "\"\u003cR\u003e\\Programmes\\Evermind\""
+                                                                             ],
+                                                                             [
+                                                                                 "Exe",
+                                                                                 "\"Evermind.exe\""
+                                                                             ],
+                                                                             [
+                                                                                 "Zip",
+                                                                                 "\"\u003cR\u003e\\Donnees\\Mindset\\telechargements\\evermind.zip\""
+                                                                             ]
+                                                                         ]
+                                                      }
+                                                  ],
+                                        "fins":  [
+
+                                                 ],
+                                        "journal":  [
+                                                        "Mini-installateur : la tâche d\u0027installation n\u0027a pas démarré (code 1) ; demande de Windows à la place"
+                                                    ]
+                                    },
+                                    {
+                                        "taches":  [
+
+                                                   ],
+                                        "retraits":  0,
+                                        "runas":  [
+
+                                                  ],
+                                        "fins":  [
+
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    },
+                                    {
+                                        "taches":  [
+
+                                                   ],
+                                        "retraits":  0,
+                                        "runas":  [
+
+                                                  ],
+                                        "fins":  [
+                                                     [
+                                                         "A",
+                                                         true,
+                                                         "direct"
+                                                     ]
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    },
+                                    {
+                                        "taches":  [
+
+                                                   ],
+                                        "retraits":  0,
+                                        "runas":  [
+                                                      {
+                                                          "action":  "appli",
+                                                          "parametres":  [
+                                                                             [
+                                                                                 "Appli",
+                                                                                 "\"evermind\""
+                                                                             ],
+                                                                             [
+                                                                                 "Destination",
+                                                                                 "\"\u003cR\u003e\\Programmes\\Evermind\""
+                                                                             ],
+                                                                             [
+                                                                                 "Exe",
+                                                                                 "\"Evermind.exe\""
+                                                                             ],
+                                                                             [
+                                                                                 "Zip",
+                                                                                 "\"\u003cR\u003e\\Donnees\\Mindset\\telechargements\\evermind.zip\""
+                                                                             ]
+                                                                         ]
+                                                      }
+                                                  ],
+                                        "fins":  [
+
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    },
+                                    {
+                                        "taches":  [
+
+                                                   ],
+                                        "retraits":  0,
+                                        "runas":  [
+
+                                                  ],
+                                        "fins":  [
+                                                     [
+                                                         "B",
+                                                         false,
+                                                         "pas de réponse (opération interrompue ?)."
+                                                     ]
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    }
+                                ],
+                    "tache_ok":  false
+                },
+                {
+                    "nom":  "la tache ne demarre pas, auto",
+                    "debut":  {
+                                  "run_ok":  false,
+                                  "tache":  "systeme"
+                              },
+                    "etapes":  [
+                                   {
+                                       "admin":  {
+                                                     "nom":  "A",
+                                                     "action":  "appli",
+                                                     "auto":  true,
+                                                     "parametres":  [
+                                                                        [
+                                                                            "Appli",
+                                                                            "evermind"
+                                                                        ],
+                                                                        [
+                                                                            "Zip",
+                                                                            "\u003cR\u003e\\Donnees\\Mindset\\telechargements\\evermind.zip"
+                                                                        ],
+                                                                        [
+                                                                            "Destination",
+                                                                            "\u003cR\u003e\\Programmes\\Evermind"
+                                                                        ],
+                                                                        [
+                                                                            "Exe",
+                                                                            "Evermind.exe"
+                                                                        ]
+                                                                    ]
+                                                 }
+                                   },
+                                   {
+                                       "tic":  true
+                                   }
+                               ],
+                    "sorties":  [
+                                    {
+                                        "taches":  [
+                                                       "appli"
+                                                   ],
+                                        "retraits":  1,
+                                        "runas":  [
+
+                                                  ],
+                                        "fins":  [
+                                                     [
+                                                         "A",
+                                                         false,
+                                                         "la tâche d\u0027installation ne répond pas (la tâche d\u0027installation n\u0027a pas démarré (code 1))."
+                                                     ]
+                                                 ],
+                                        "journal":  [
+                                                        "Mini-installateur : la tâche d\u0027installation n\u0027a pas démarré (code 1) ; opération abandonnée"
+                                                    ]
+                                    },
+                                    {
+                                        "taches":  [
+
+                                                   ],
+                                        "retraits":  0,
+                                        "runas":  [
+
+                                                  ],
+                                        "fins":  [
+
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    }
+                                ],
+                    "tache_ok":  false
+                },
+                {
+                    "nom":  "deuxieme en attente quand la premiere echoue",
+                    "debut":  {
+                                  "tache":  "systeme"
+                              },
+                    "etapes":  [
+                                   {
+                                       "admin":  {
+                                                     "nom":  "A",
+                                                     "action":  "appli",
+                                                     "auto":  false,
+                                                     "parametres":  [
+                                                                        [
+                                                                            "Appli",
+                                                                            "evermind"
+                                                                        ],
+                                                                        [
+                                                                            "Zip",
+                                                                            "\u003cR\u003e\\Donnees\\Mindset\\telechargements\\evermind.zip"
+                                                                        ],
+                                                                        [
+                                                                            "Destination",
+                                                                            "\u003cR\u003e\\Programmes\\Evermind"
+                                                                        ],
+                                                                        [
+                                                                            "Exe",
+                                                                            "Evermind.exe"
+                                                                        ]
+                                                                    ]
+                                                 }
+                                   },
+                                   {
+                                       "admin":  {
+                                                     "nom":  "B",
+                                                     "action":  "supprimer",
+                                                     "auto":  true,
+                                                     "parametres":  [
+                                                                        [
+                                                                            "Destination",
+                                                                            "\u003cR\u003e\\Programmes\\Evermind"
+                                                                        ],
+                                                                        [
+                                                                            "Exe",
+                                                                            ""
+                                                                        ],
+                                                                        [
+                                                                            "Version",
+                                                                            ""
+                                                                        ]
+                                                                    ]
+                                                 }
+                                   },
+                                   {
+                                       "admin":  {
+                                                     "nom":  "C",
+                                                     "action":  "supprimer",
+                                                     "auto":  false,
+                                                     "parametres":  [
+                                                                        [
+                                                                            "Destination",
+                                                                            "\u003cR\u003e\\Programmes\\Evermind"
+                                                                        ],
+                                                                        [
+                                                                            "Exe",
+                                                                            ""
+                                                                        ],
+                                                                        [
+                                                                            "Version",
+                                                                            ""
+                                                                        ]
+                                                                    ]
+                                                 }
+                                   },
+                                   {
+                                       "avancer":  30
+                                   },
+                                   {
+                                       "tic":  true
+                                   },
+                                   {
+                                       "tic":  true
+                                   }
+                               ],
+                    "sorties":  [
+                                    {
+                                        "taches":  [
+                                                       "appli"
+                                                   ],
+                                        "retraits":  0,
+                                        "runas":  [
+
+                                                  ],
+                                        "fins":  [
+
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    },
+                                    {
+                                        "taches":  [
+
+                                                   ],
+                                        "retraits":  0,
+                                        "runas":  [
+
+                                                  ],
+                                        "fins":  [
+
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    },
+                                    {
+                                        "taches":  [
+
+                                                   ],
+                                        "retraits":  0,
+                                        "runas":  [
+
+                                                  ],
+                                        "fins":  [
+
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    },
+                                    {
+                                        "taches":  [
+
+                                                   ],
+                                        "retraits":  0,
+                                        "runas":  [
+
+                                                  ],
+                                        "fins":  [
+
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    },
+                                    {
+                                        "taches":  [
+
+                                                   ],
+                                        "retraits":  1,
+                                        "runas":  [
+                                                      {
+                                                          "action":  "appli",
+                                                          "parametres":  [
+                                                                             [
+                                                                                 "Appli",
+                                                                                 "\"evermind\""
+                                                                             ],
+                                                                             [
+                                                                                 "Destination",
+                                                                                 "\"\u003cR\u003e\\Programmes\\Evermind\""
+                                                                             ],
+                                                                             [
+                                                                                 "Exe",
+                                                                                 "\"Evermind.exe\""
+                                                                             ],
+                                                                             [
+                                                                                 "Zip",
+                                                                                 "\"\u003cR\u003e\\Donnees\\Mindset\\telechargements\\evermind.zip\""
+                                                                             ]
+                                                                         ]
+                                                      }
+                                                  ],
+                                        "fins":  [
+                                                     [
+                                                         "B",
+                                                         false,
+                                                         "la tâche d\u0027installation ne répond pas."
+                                                     ]
+                                                 ],
+                                        "journal":  [
+                                                        "Mini-installateur : pas de réponse de la tâche en 30 secondes ; demande de Windows à la place"
+                                                    ]
+                                    },
+                                    {
+                                        "taches":  [
+
+                                                   ],
+                                        "retraits":  0,
+                                        "runas":  [
+
+                                                  ],
+                                        "fins":  [
+                                                     [
+                                                         "A",
+                                                         false,
+                                                         "pas de réponse (opération interrompue ?)."
+                                                     ]
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    }
+                                ],
+                    "tache_ok":  false
+                },
+                {
+                    "nom":  "demande de Windows refusee",
+                    "debut":  {
+                                  "runas":  false,
+                                  "tache":  "absente"
+                              },
+                    "etapes":  [
+                                   {
+                                       "admin":  {
+                                                     "nom":  "A",
+                                                     "action":  "appli",
+                                                     "auto":  false,
+                                                     "parametres":  [
+                                                                        [
+                                                                            "Appli",
+                                                                            "evermind"
+                                                                        ],
+                                                                        [
+                                                                            "Zip",
+                                                                            "\u003cR\u003e\\Donnees\\Mindset\\telechargements\\evermind.zip"
+                                                                        ],
+                                                                        [
+                                                                            "Destination",
+                                                                            "\u003cR\u003e\\Programmes\\Evermind"
+                                                                        ],
+                                                                        [
+                                                                            "Exe",
+                                                                            "Evermind.exe"
+                                                                        ]
+                                                                    ]
+                                                 }
+                                   },
+                                   {
+                                       "tic":  true
+                                   }
+                               ],
+                    "sorties":  [
+                                    {
+                                        "taches":  [
+
+                                                   ],
+                                        "retraits":  0,
+                                        "runas":  [
+                                                      {
+                                                          "action":  "appli",
+                                                          "parametres":  [
+                                                                             [
+                                                                                 "Appli",
+                                                                                 "\"evermind\""
+                                                                             ],
+                                                                             [
+                                                                                 "Destination",
+                                                                                 "\"\u003cR\u003e\\Programmes\\Evermind\""
+                                                                             ],
+                                                                             [
+                                                                                 "Exe",
+                                                                                 "\"Evermind.exe\""
+                                                                             ],
+                                                                             [
+                                                                                 "Zip",
+                                                                                 "\"\u003cR\u003e\\Donnees\\Mindset\\telechargements\\evermind.zip\""
+                                                                             ]
+                                                                         ]
+                                                      }
+                                                  ],
+                                        "fins":  [
+                                                     [
+                                                         "A",
+                                                         false,
+                                                         "l\u0027autorisation de Windows a été refusée."
+                                                     ]
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    },
+                                    {
+                                        "taches":  [
+
+                                                   ],
+                                        "retraits":  0,
+                                        "runas":  [
+
+                                                  ],
+                                        "fins":  [
+
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    }
+                                ],
+                    "tache_ok":  false
+                },
+                {
+                    "nom":  "demande de Windows sans reponse",
+                    "debut":  {
+                                  "tache":  "absente"
+                              },
+                    "etapes":  [
+                                   {
+                                       "admin":  {
+                                                     "nom":  "A",
+                                                     "action":  "appli",
+                                                     "auto":  false,
+                                                     "parametres":  [
+                                                                        [
+                                                                            "Appli",
+                                                                            "evermind"
+                                                                        ],
+                                                                        [
+                                                                            "Zip",
+                                                                            "\u003cR\u003e\\Donnees\\Mindset\\telechargements\\evermind.zip"
+                                                                        ],
+                                                                        [
+                                                                            "Destination",
+                                                                            "\u003cR\u003e\\Programmes\\Evermind"
+                                                                        ],
+                                                                        [
+                                                                            "Exe",
+                                                                            "Evermind.exe"
+                                                                        ]
+                                                                    ]
+                                                 }
+                                   },
+                                   {
+                                       "tic":  true
+                                   }
+                               ],
+                    "sorties":  [
+                                    {
+                                        "taches":  [
+
+                                                   ],
+                                        "retraits":  0,
+                                        "runas":  [
+                                                      {
+                                                          "action":  "appli",
+                                                          "parametres":  [
+                                                                             [
+                                                                                 "Appli",
+                                                                                 "\"evermind\""
+                                                                             ],
+                                                                             [
+                                                                                 "Destination",
+                                                                                 "\"\u003cR\u003e\\Programmes\\Evermind\""
+                                                                             ],
+                                                                             [
+                                                                                 "Exe",
+                                                                                 "\"Evermind.exe\""
+                                                                             ],
+                                                                             [
+                                                                                 "Zip",
+                                                                                 "\"\u003cR\u003e\\Donnees\\Mindset\\telechargements\\evermind.zip\""
+                                                                             ]
+                                                                         ]
+                                                      }
+                                                  ],
+                                        "fins":  [
+
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    },
+                                    {
+                                        "taches":  [
+
+                                                   ],
+                                        "retraits":  0,
+                                        "runas":  [
+
+                                                  ],
+                                        "fins":  [
+                                                     [
+                                                         "A",
+                                                         false,
+                                                         "pas de réponse (opération interrompue ?)."
+                                                     ]
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    }
+                                ],
+                    "tache_ok":  false
+                },
+                {
+                    "nom":  "variables dangereuses",
+                    "debut":  {
+                                  "compte":  [
+                                                 "COR_PROFILER"
+                                             ],
+                                  "tache":  "absente"
+                              },
+                    "etapes":  [
+                                   {
+                                       "admin":  {
+                                                     "nom":  "A",
+                                                     "action":  "appli",
+                                                     "auto":  false,
+                                                     "parametres":  [
+                                                                        [
+                                                                            "Appli",
+                                                                            "evermind"
+                                                                        ],
+                                                                        [
+                                                                            "Zip",
+                                                                            "\u003cR\u003e\\Donnees\\Mindset\\telechargements\\evermind.zip"
+                                                                        ],
+                                                                        [
+                                                                            "Destination",
+                                                                            "\u003cR\u003e\\Programmes\\Evermind"
+                                                                        ],
+                                                                        [
+                                                                            "Exe",
+                                                                            "Evermind.exe"
+                                                                        ]
+                                                                    ]
+                                                 }
+                                   },
+                                   {
+                                       "tic":  true
+                                   }
+                               ],
+                    "sorties":  [
+                                    {
+                                        "taches":  [
+
+                                                   ],
+                                        "retraits":  0,
+                                        "runas":  [
+
+                                                  ],
+                                        "fins":  [
+                                                     [
+                                                         "A",
+                                                         false,
+                                                         "un réglage inhabituel de Windows (COR_PROFILER) pourrait détourner l\u0027installation, alors Mindset n\u0027a rien lancé. Demande de l\u0027aide à la personne qui s\u0027occupe de ton PC."
+                                                     ]
+                                                 ],
+                                        "journal":  [
+                                                        "Demande de Windows pas lancée, par prudence : variable d\u0027environnement COR_PROFILER"
+                                                    ]
+                                    },
+                                    {
+                                        "taches":  [
+
+                                                   ],
+                                        "retraits":  0,
+                                        "runas":  [
+
+                                                  ],
+                                        "fins":  [
+
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    }
+                                ],
+                    "tache_ok":  false
+                },
+                {
+                    "nom":  "guillemet dans une valeur",
+                    "debut":  {
+                                  "tache":  "absente"
+                              },
+                    "etapes":  [
+                                   {
+                                       "admin":  {
+                                                     "nom":  "A",
+                                                     "action":  "supprimer",
+                                                     "auto":  false,
+                                                     "parametres":  [
+                                                                        [
+                                                                            "Destination",
+                                                                            "C:\\a\"b"
+                                                                        ],
+                                                                        [
+                                                                            "Exe",
+                                                                            "Evermind.exe"
+                                                                        ]
+                                                                    ]
+                                                 }
+                                   },
+                                   {
+                                       "tic":  true
+                                   }
+                               ],
+                    "sorties":  [
+                                    {
+                                        "taches":  [
+
+                                                   ],
+                                        "retraits":  0,
+                                        "runas":  [
+
+                                                  ],
+                                        "fins":  [
+                                                     [
+                                                         "A",
+                                                         false,
+                                                         "Valeur refusée (guillemet) : C:\\a\"b"
+                                                     ]
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    },
+                                    {
+                                        "taches":  [
+
+                                                   ],
+                                        "retraits":  0,
+                                        "runas":  [
+
+                                                  ],
+                                        "fins":  [
+
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    }
+                                ],
+                    "tache_ok":  false
+                },
+                {
+                    "nom":  "valeurs avec apostrophe et dollar",
+                    "debut":  {
+                                  "tache":  "absente"
+                              },
+                    "etapes":  [
+                                   {
+                                       "admin":  {
+                                                     "nom":  "A",
+                                                     "action":  "supprimer",
+                                                     "auto":  false,
+                                                     "parametres":  [
+                                                                        [
+                                                                            "Destination",
+                                                                            "C:\\d’Arthur\\$x"
+                                                                        ],
+                                                                        [
+                                                                            "Exe",
+                                                                            "E:\\"
+                                                                        ]
+                                                                    ]
+                                                 }
+                                   },
+                                   {
+                                       "reponse_directe":  {
+                                                               "ok":  true,
+                                                               "message":  "ok",
+                                                               "de":  0
+                                                           }
+                                   },
+                                   {
+                                       "tic":  true
+                                   }
+                               ],
+                    "sorties":  [
+                                    {
+                                        "taches":  [
+
+                                                   ],
+                                        "retraits":  0,
+                                        "runas":  [
+                                                      {
+                                                          "action":  "supprimer",
+                                                          "parametres":  [
+                                                                             [
+                                                                                 "Destination",
+                                                                                 "\"C:\\d’Arthur\\$x\""
+                                                                             ],
+                                                                             [
+                                                                                 "Exe",
+                                                                                 "\"E:\\\\\""
+                                                                             ]
+                                                                         ]
+                                                      }
+                                                  ],
+                                        "fins":  [
+
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    },
+                                    {
+                                        "taches":  [
+
+                                                   ],
+                                        "retraits":  0,
+                                        "runas":  [
+
+                                                  ],
+                                        "fins":  [
+
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    },
+                                    {
+                                        "taches":  [
+
+                                                   ],
+                                        "retraits":  0,
+                                        "runas":  [
+
+                                                  ],
+                                        "fins":  [
+                                                     [
+                                                         "A",
+                                                         true,
+                                                         "ok"
+                                                     ]
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    }
+                                ],
+                    "tache_ok":  false
+                },
+                {
+                    "nom":  "reponse ok en texte",
+                    "debut":  {
+                                  "tache":  "systeme"
+                              },
+                    "etapes":  [
+                                   {
+                                       "admin":  {
+                                                     "nom":  "A",
+                                                     "action":  "appli",
+                                                     "auto":  false,
+                                                     "parametres":  [
+                                                                        [
+                                                                            "Appli",
+                                                                            "evermind"
+                                                                        ],
+                                                                        [
+                                                                            "Zip",
+                                                                            "\u003cR\u003e\\Donnees\\Mindset\\telechargements\\evermind.zip"
+                                                                        ],
+                                                                        [
+                                                                            "Destination",
+                                                                            "\u003cR\u003e\\Programmes\\Evermind"
+                                                                        ],
+                                                                        [
+                                                                            "Exe",
+                                                                            "Evermind.exe"
+                                                                        ]
+                                                                    ]
+                                                 }
+                                   },
+                                   {
+                                       "recu":  0
+                                   },
+                                   {
+                                       "resultat_brut":  {
+                                                             "de":  0,
+                                                             "json":  "{\"id\":\"\u003cID\u003e\",\"ok\":\"false\",\"message\":5}"
+                                                         }
+                                   },
+                                   {
+                                       "tic":  true
+                                   }
+                               ],
+                    "sorties":  [
+                                    {
+                                        "taches":  [
+                                                       "appli"
+                                                   ],
+                                        "retraits":  0,
+                                        "runas":  [
+
+                                                  ],
+                                        "fins":  [
+
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    },
+                                    {
+                                        "taches":  [
+
+                                                   ],
+                                        "retraits":  0,
+                                        "runas":  [
+
+                                                  ],
+                                        "fins":  [
+
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    },
+                                    {
+                                        "taches":  [
+
+                                                   ],
+                                        "retraits":  0,
+                                        "runas":  [
+
+                                                  ],
+                                        "fins":  [
+
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    },
+                                    {
+                                        "taches":  [
+
+                                                   ],
+                                        "retraits":  1,
+                                        "runas":  [
+
+                                                  ],
+                                        "fins":  [
+                                                     [
+                                                         "A",
+                                                         true,
+                                                         "5"
+                                                     ]
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    }
+                                ],
+                    "tache_ok":  true
+                },
+                {
+                    "nom":  "reponse abimee",
+                    "debut":  {
+                                  "tache":  "systeme"
+                              },
+                    "etapes":  [
+                                   {
+                                       "admin":  {
+                                                     "nom":  "A",
+                                                     "action":  "appli",
+                                                     "auto":  false,
+                                                     "parametres":  [
+                                                                        [
+                                                                            "Appli",
+                                                                            "evermind"
+                                                                        ],
+                                                                        [
+                                                                            "Zip",
+                                                                            "\u003cR\u003e\\Donnees\\Mindset\\telechargements\\evermind.zip"
+                                                                        ],
+                                                                        [
+                                                                            "Destination",
+                                                                            "\u003cR\u003e\\Programmes\\Evermind"
+                                                                        ],
+                                                                        [
+                                                                            "Exe",
+                                                                            "Evermind.exe"
+                                                                        ]
+                                                                    ]
+                                                 }
+                                   },
+                                   {
+                                       "recu":  0
+                                   },
+                                   {
+                                       "resultat_brut":  {
+                                                             "de":  0,
+                                                             "json":  "{\"id\":\"\u003cID\u003e\","
+                                                         }
+                                   },
+                                   {
+                                       "tic":  true
+                                   },
+                                   {
+                                       "avancer":  601
+                                   },
+                                   {
+                                       "tic":  true
+                                   }
+                               ],
+                    "sorties":  [
+                                    {
+                                        "taches":  [
+                                                       "appli"
+                                                   ],
+                                        "retraits":  0,
+                                        "runas":  [
+
+                                                  ],
+                                        "fins":  [
+
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    },
+                                    {
+                                        "taches":  [
+
+                                                   ],
+                                        "retraits":  0,
+                                        "runas":  [
+
+                                                  ],
+                                        "fins":  [
+
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    },
+                                    {
+                                        "taches":  [
+
+                                                   ],
+                                        "retraits":  0,
+                                        "runas":  [
+
+                                                  ],
+                                        "fins":  [
+
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    },
+                                    {
+                                        "taches":  [
+
+                                                   ],
+                                        "retraits":  0,
+                                        "runas":  [
+
+                                                  ],
+                                        "fins":  [
+
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    },
+                                    {
+                                        "taches":  [
+
+                                                   ],
+                                        "retraits":  0,
+                                        "runas":  [
+
+                                                  ],
+                                        "fins":  [
+
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    },
+                                    {
+                                        "taches":  [
+
+                                                   ],
+                                        "retraits":  1,
+                                        "runas":  [
+
+                                                  ],
+                                        "fins":  [
+                                                     [
+                                                         "A",
+                                                         false,
+                                                         "pas de réponse du mini-installateur (opération interrompue ?)."
+                                                     ]
+                                                 ],
+                                        "journal":  [
+
+                                                    ]
+                                    }
+                                ],
+                    "tache_ok":  true
+                }
+            ]
+}

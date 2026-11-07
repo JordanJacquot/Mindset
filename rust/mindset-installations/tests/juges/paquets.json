@@ -1,0 +1,203 @@
+{
+    "famille":  "paquets",
+    "origine":  "outils\\exporter-juges-installations.ps1",
+    "cas":  [
+                {
+                    "nom":  "dossier d aujourd hui",
+                    "noms":  [
+                                 "Nevermind",
+                                 "OptiGame"
+                             ],
+                    "exe":  "Nevermind.exe",
+                    "appli":  "",
+                    "mindset":  "",
+                    "zip":  "UEsDBBQAAAAIANU0Z12DFtyMAwAAAAEAAAAXAAAATmV2ZXJtaW5kL05ldmVybWluZC5leGWrAABQSwECFAAUAAAACADVNGddgxbcjAMAAAABAAAAFwAAAAAAAAAAAAAAAAAAAAAATmV2ZXJtaW5kL05ldmVybWluZC5leGVQSwUGAAAAAAEAAQBFAAAAOAAAAAAA",
+                    "dossier_zip":  "Nevermind",
+                    "erreur":  null
+                },
+                {
+                    "nom":  "ancien dossier",
+                    "noms":  [
+                                 "Nevermind",
+                                 "OptiGame"
+                             ],
+                    "exe":  "Nevermind.exe",
+                    "appli":  "",
+                    "mindset":  "",
+                    "zip":  "UEsDBBQAAAAIANY0Z12DFtyMAwAAAAEAAAAWAAAAT3B0aUdhbWUvTmV2ZXJtaW5kLmV4ZasAAFBLAQIUABQAAAAIANY0Z12DFtyMAwAAAAEAAAAWAAAAAAAAAAAAAAAAAAAAAABPcHRpR2FtZS9OZXZlcm1pbmQuZXhlUEsFBgAAAAABAAEARAAAADcAAAAAAA==",
+                    "dossier_zip":  "OptiGame",
+                    "erreur":  null
+                },
+                {
+                    "nom":  "aucun",
+                    "noms":  [
+                                 "Nevermind",
+                                 "OptiGame"
+                             ],
+                    "exe":  "Nevermind.exe",
+                    "appli":  "",
+                    "mindset":  "",
+                    "zip":  "UEsDBBQAAAAIANY0Z12DFtyMAwAAAAEAAAATAAAAQXV0cmUvTmV2ZXJtaW5kLmV4ZasAAFBLAQIUABQAAAAIANY0Z12DFtyMAwAAAAEAAAATAAAAAAAAAAAAAAAAAAAAAABBdXRyZS9OZXZlcm1pbmQuZXhlUEsFBgAAAAABAAEAQQAAADQAAAAAAA==",
+                    "dossier_zip":  "Nevermind",
+                    "erreur":  null
+                },
+                {
+                    "nom":  "majuscules",
+                    "noms":  [
+                                 "Nevermind",
+                                 ""
+                             ],
+                    "exe":  "Nevermind.exe",
+                    "appli":  "",
+                    "mindset":  "",
+                    "zip":  "UEsDBBQAAAAIANY0Z12DFtyMAwAAAAEAAAAXAAAAbmV2ZXJtaW5kL05FVkVSTUlORC5leGWrAABQSwECFAAUAAAACADWNGddgxbcjAMAAAABAAAAFwAAAAAAAAAAAAAAAAAAAAAAbmV2ZXJtaW5kL05FVkVSTUlORC5leGVQSwUGAAAAAAEAAQBFAAAAOAAAAAAA",
+                    "dossier_zip":  "Nevermind",
+                    "erreur":  null
+                },
+                {
+                    "nom":  "barres de windows",
+                    "noms":  [
+                                 "",
+                                 "Evermind"
+                             ],
+                    "exe":  "Evermind.exe",
+                    "appli":  "",
+                    "mindset":  "",
+                    "zip":  "UEsDBBQAAAAIANY0Z12DFtyMAwAAAAEAAAAVAAAARXZlcm1pbmRcRXZlcm1pbmQuZXhlqwAAUEsBAhQAFAAAAAgA1jRnXYMW3IwDAAAAAQAAABUAAAAAAAAAAAAAAAAAAAAAAEV2ZXJtaW5kXEV2ZXJtaW5kLmV4ZVBLBQYAAAAAAQABAEMAAAA2AAAAAAA=",
+                    "dossier_zip":  "Evermind",
+                    "erreur":  null
+                },
+                {
+                    "nom":  "zip illisible",
+                    "noms":  [
+                                 "Evermind"
+                             ],
+                    "exe":  "Evermind.exe",
+                    "appli":  "",
+                    "mindset":  "",
+                    "zip":  "cGFzIHVuIHppcA==",
+                    "dossier_zip":  "Evermind",
+                    "erreur":  null
+                },
+                {
+                    "nom":  "version.json bon",
+                    "noms":  [
+                                 "Mindcare"
+                             ],
+                    "exe":  "Mindcare.exe",
+                    "appli":  "mindcare",
+                    "mindset":  "3.0.0",
+                    "zip":  "UEsDBBQAAAAIANY0Z12DFtyMAwAAAAEAAAAVAAAATWluZGNhcmUvTWluZGNhcmUuZXhlqwAAUEsDBBQAAAAIANY0Z10T1A4kNwAAAD0AAAAVAAAATWluZGNhcmUvdmVyc2lvbi5qc29uq1YqSy0qzszPU7JSMtQz0DNQ0lFKLCjIyQTyczPzUpITi1KBQiBmcWpJPJAGShjpGVoAVdYCAFBLAQIUABQAAAAIANY0Z12DFtyMAwAAAAEAAAAVAAAAAAAAAAAAAAAAAAAAAABNaW5kY2FyZS9NaW5kY2FyZS5leGVQSwECFAAUAAAACADWNGddE9QOJDcAAAA9AAAAFQAAAAAAAAAAAAAAAAA2AAAATWluZGNhcmUvdmVyc2lvbi5qc29uUEsFBgAAAAACAAIAhgAAAKAAAAAAAA==",
+                    "dossier_zip":  "Mindcare",
+                    "erreur":  null
+                },
+                {
+                    "nom":  "version.json autre appli",
+                    "noms":  [
+                                 "Mindcare"
+                             ],
+                    "exe":  "Mindcare.exe",
+                    "appli":  "mindcare",
+                    "mindset":  "3.0.0",
+                    "zip":  "UEsDBBQAAAAIANY0Z12DFtyMAwAAAAEAAAAVAAAATWluZGNhcmUvTWluZGNhcmUuZXhlqwAAUEsDBBQAAAAIANY0Z115Oo/7JQAAACYAAAAVAAAATWluZGNhcmUvdmVyc2lvbi5qc29uq1YqSy0qzszPU7JSMtQz0DNQ0lFKLCjIyQTyU4FSuZl5KUq1AFBLAQIUABQAAAAIANY0Z12DFtyMAwAAAAEAAAAVAAAAAAAAAAAAAAAAAAAAAABNaW5kY2FyZS9NaW5kY2FyZS5leGVQSwECFAAUAAAACADWNGddeTqP+yUAAAAmAAAAFQAAAAAAAAAAAAAAAAA2AAAATWluZGNhcmUvdmVyc2lvbi5qc29uUEsFBgAAAAACAAIAhgAAAI4AAAAAAA==",
+                    "dossier_zip":  "Mindcare",
+                    "erreur":  "Ce fichier contient l\u0027appli evermind et pas mindcare : rien n\u0027a été installé."
+                },
+                {
+                    "nom":  "version.json mindset trop ancien",
+                    "noms":  [
+                                 "Mindcare"
+                             ],
+                    "exe":  "Mindcare.exe",
+                    "appli":  "mindcare",
+                    "mindset":  "3.0.0",
+                    "zip":  "UEsDBBQAAAAIANY0Z12DFtyMAwAAAAEAAAAVAAAATWluZGNhcmUvTWluZGNhcmUuZXhlqwAAUEsDBBQAAAAIANY0Z12TdIDzNgAAADwAAAAVAAAATWluZGNhcmUvdmVyc2lvbi5qc29uq1YqSy0qzszPU7JSMtQz0DNQ0lFKLCjIyQTyczPzUpITi1KBQiBmcWpJPJAGShjrAZUq1QIAUEsBAhQAFAAAAAgA1jRnXYMW3IwDAAAAAQAAABUAAAAAAAAAAAAAAAAAAAAAAE1pbmRjYXJlL01pbmRjYXJlLmV4ZVBLAQIUABQAAAAIANY0Z12TdIDzNgAAADwAAAAVAAAAAAAAAAAAAAAAADYAAABNaW5kY2FyZS92ZXJzaW9uLmpzb25QSwUGAAAAAAIAAgCGAAAAnwAAAAAA",
+                    "dossier_zip":  "Mindcare",
+                    "erreur":  "Mets d\u0027abord Mindset à jour : cette version demande Mindset 3.1.0 ou plus récent."
+                },
+                {
+                    "nom":  "version.json illisible",
+                    "noms":  [
+                                 "Mindcare"
+                             ],
+                    "exe":  "Mindcare.exe",
+                    "appli":  "mindcare",
+                    "mindset":  "3.0.0",
+                    "zip":  "UEsDBBQAAAAIANY0Z12DFtyMAwAAAAEAAAAVAAAATWluZGNhcmUvTWluZGNhcmUuZXhlqwAAUEsDBBQAAAAIANY0Z12Klk/EDQAAAAsAAAAVAAAATWluZGNhcmUvdmVyc2lvbi5qc29uq1YqSy0qzszPU7ICAFBLAQIUABQAAAAIANY0Z12DFtyMAwAAAAEAAAAVAAAAAAAAAAAAAAAAAAAAAABNaW5kY2FyZS9NaW5kY2FyZS5leGVQSwECFAAUAAAACADWNGddipZPxA0AAAALAAAAFQAAAAAAAAAAAAAAAAA2AAAATWluZGNhcmUvdmVyc2lvbi5qc29uUEsFBgAAAAACAAIAhgAAAHYAAAAAAA==",
+                    "dossier_zip":  "Mindcare",
+                    "erreur":  "Le fichier téléchargé ne dit pas quelle version il contient : rien n\u0027a été installé."
+                },
+                {
+                    "nom":  "version.json a la racine",
+                    "noms":  [
+                                 "Mindcare"
+                             ],
+                    "exe":  "Mindcare.exe",
+                    "appli":  "mindcare",
+                    "mindset":  "3.0.0",
+                    "zip":  "UEsDBBQAAAAIANY0Z12DFtyMAwAAAAEAAAAVAAAATWluZGNhcmUvTWluZGNhcmUuZXhlqwAAUEsDBBQAAAAIANY0Z12Qf0o/IwAAACMAAAAMAAAAdmVyc2lvbi5qc29uq1YqSy0qzszPU7JSMtQz0DNQ0lFKLCjIyQTyE0tLilKVagFQSwECFAAUAAAACADWNGddgxbcjAMAAAABAAAAFQAAAAAAAAAAAAAAAAAAAAAATWluZGNhcmUvTWluZGNhcmUuZXhlUEsBAhQAFAAAAAgA1jRnXZB/Sj8jAAAAIwAAAAwAAAAAAAAAAAAAAAAANgAAAHZlcnNpb24uanNvblBLBQYAAAAAAgACAH0AAACDAAAAAAA=",
+                    "dossier_zip":  "Mindcare",
+                    "erreur":  "Ce fichier contient l\u0027appli autre et pas mindcare : rien n\u0027a été installé."
+                },
+                {
+                    "nom":  "deux version.json differents",
+                    "noms":  [
+                                 "Mindcare"
+                             ],
+                    "exe":  "Mindcare.exe",
+                    "appli":  "mindcare",
+                    "mindset":  "3.0.0",
+                    "zip":  "UEsDBBQAAAAIANY0Z13ukhoNFQAAABMAAAAVAAAATWluZGNhcmUvdmVyc2lvbi5qc29uq1YqSy0qzszPU7JSMtQz0DNQqgUAUEsDBBQAAAAIANY0Z13Z+NgMFQAAABMAAAAMAAAAdmVyc2lvbi5qc29uq1YqSy0qzszPU7JSMtQz0DNUqgUAUEsBAhQAFAAAAAgA1jRnXe6SGg0VAAAAEwAAABUAAAAAAAAAAAAAAAAAAAAAAE1pbmRjYXJlL3ZlcnNpb24uanNvblBLAQIUABQAAAAIANY0Z13Z+NgMFQAAABMAAAAMAAAAAAAAAAAAAAAAAEgAAAB2ZXJzaW9uLmpzb25QSwUGAAAAAAIAAgB9AAAAhwAAAAAA",
+                    "dossier_zip":  "Mindcare",
+                    "erreur":  "Le fichier téléchargé ne dit pas quelle version il contient : rien n\u0027a été installé."
+                },
+                {
+                    "nom":  "deux version.json pareils",
+                    "noms":  [
+                                 "Mindcare"
+                             ],
+                    "exe":  "Mindcare.exe",
+                    "appli":  "mindcare",
+                    "mindset":  "3.0.0",
+                    "zip":  "UEsDBBQAAAAIANY0Z12Qf0o/IwAAACMAAAAVAAAATWluZGNhcmUvdmVyc2lvbi5qc29uq1YqSy0qzszPU7JSMtQz0DNQ0lFKLCjIyQTyE0tLilKVagFQSwMEFAAAAAgA1jRnXZB/Sj8jAAAAIwAAAAwAAAB2ZXJzaW9uLmpzb26rVipLLSrOzM9TslIy1DPQM1DSUUosKMjJBPITS0uKUpVqAVBLAQIUABQAAAAIANY0Z12Qf0o/IwAAACMAAAAVAAAAAAAAAAAAAAAAAAAAAABNaW5kY2FyZS92ZXJzaW9uLmpzb25QSwECFAAUAAAACADWNGddkH9KPyMAAAAjAAAADAAAAAAAAAAAAAAAAABWAAAAdmVyc2lvbi5qc29uUEsFBgAAAAACAAIAfQAAAKMAAAAAAA==",
+                    "dossier_zip":  "Mindcare",
+                    "erreur":  "Ce fichier contient l\u0027appli autre et pas mindcare : rien n\u0027a été installé."
+                },
+                {
+                    "nom":  "Version.json en majuscule a la racine",
+                    "noms":  [
+                                 "Mindcare"
+                             ],
+                    "exe":  "Mindcare.exe",
+                    "appli":  "mindcare",
+                    "mindset":  "3.0.0",
+                    "zip":  "UEsDBBQAAAAIANY0Z12Qf0o/IwAAACMAAAAMAAAAVmVyc2lvbi5qc29uq1YqSy0qzszPU7JSMtQz0DNQ0lFKLCjIyQTyE0tLilKVagFQSwECFAAUAAAACADWNGddkH9KPyMAAAAjAAAADAAAAAAAAAAAAAAAAAAAAAAAVmVyc2lvbi5qc29uUEsFBgAAAAABAAEAOgAAAE0AAAAAAA==",
+                    "dossier_zip":  "Mindcare",
+                    "erreur":  null
+                },
+                {
+                    "nom":  "sans appli attendue",
+                    "noms":  [
+                                 "Mindcare"
+                             ],
+                    "exe":  "Mindcare.exe",
+                    "appli":  "",
+                    "mindset":  "",
+                    "zip":  "UEsDBBQAAAAIANY0Z11LMJ54MwAAADkAAAAVAAAATWluZGNhcmUvdmVyc2lvbi5qc29uq1YqSy0qzszPU7JSMtQz0DNQ0lFKLCjIyQTyE0tLilKB/NzMvJTi1JJ4IA0UtQSrqgUAUEsBAhQAFAAAAAgA1jRnXUswnngzAAAAOQAAABUAAAAAAAAAAAAAAAAAAAAAAE1pbmRjYXJlL3ZlcnNpb24uanNvblBLBQYAAAAAAQABAEMAAABmAAAAAAA=",
+                    "dossier_zip":  "Mindcare",
+                    "erreur":  null
+                },
+                {
+                    "nom":  "appli en majuscules",
+                    "noms":  [
+                                 "Mindcare"
+                             ],
+                    "exe":  "Mindcare.exe",
+                    "appli":  "mindcare",
+                    "mindset":  "3.0.0",
+                    "zip":  "UEsDBBQAAAAIANY0Z12480txNgAAADwAAAAVAAAATWluZGNhcmUvdmVyc2lvbi5qc29uq1YqSy0qzszPU7JSMtQz0DNQ0lFKLCjIyQTyfT39XJwdg1yBQrmZeSnFqSXxQBooYQxWWAsAUEsBAhQAFAAAAAgA1jRnXbjzS3E2AAAAPAAAABUAAAAAAAAAAAAAAAAAAAAAAE1pbmRjYXJlL3ZlcnNpb24uanNvblBLBQYAAAAAAQABAEMAAABpAAAAAAA=",
+                    "dossier_zip":  "Mindcare",
+                    "erreur":  null
+                }
+            ]
+}
