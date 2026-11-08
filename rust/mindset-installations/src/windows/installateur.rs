@@ -176,6 +176,17 @@ impl Installateur for InstallateurWindows {
         false
     }
 
+    fn oublier_direct(&self, numero: u32) {
+        let mut l = verrou(&self.directs);
+        let Some(place) = l.get_mut(numero as usize) else { return };
+        if let Some(h) = place.take() {
+            // SAFETY : handle gardé par lancer_direct, retiré de la liste ici : fermé une seule fois
+            unsafe {
+                let _ = CloseHandle(HANDLE(h as *mut core::ffi::c_void));
+            }
+        }
+    }
+
     fn compte_tache(&self, nom: &str) -> Option<String> {
         self.lire_tache(&format!("{DOSSIER_TACHES}{nom}")).map(|(c, _)| c)
     }

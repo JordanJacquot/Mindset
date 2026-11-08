@@ -52,6 +52,9 @@ pub trait Installateur: Send + Sync {
     fn lancer_direct(&self, demande: &Direct) -> Result<u32, String>;
     /// La demande directe `numero` est-elle finie (son programme s'est arrêté) ?
     fn direct_fini(&self, numero: u32) -> bool;
+    /// Mindset n'attend plus la demande directe `numero` (pas finie dans le délai) : ce qui la suivait est rendu à
+    /// Windows (le handle de son programme). Sans effet si elle est déjà finie.
+    fn oublier_direct(&self, _numero: u32) {}
     /// Le compte (SID) d'une tâche `\Mindset\<nom>` si elle existe (`Test-TachesAnciennes`), `None` sinon.
     fn compte_tache(&self, nom: &str) -> Option<String>;
 }
@@ -97,6 +100,7 @@ pub struct FauxInstallateur {
     valeurs: Mutex<HashMap<String, String>>,
     directs: Mutex<Vec<Direct>>,
     directs_finis: Mutex<Vec<u32>>,
+    directs_oublies: Mutex<Vec<u32>>,
     taches: Mutex<HashMap<String, String>>,
     repondeur: Mutex<Option<Repondeur>>,
     refus_direct: Mutex<Option<String>>,
@@ -111,6 +115,7 @@ impl Default for FauxInstallateur {
             valeurs: Mutex::new(HashMap::new()),
             directs: Mutex::new(Vec::new()),
             directs_finis: Mutex::new(Vec::new()),
+            directs_oublies: Mutex::new(Vec::new()),
             taches: Mutex::new(HashMap::new()),
             repondeur: Mutex::new(None),
             refus_direct: Mutex::new(None),
@@ -159,6 +164,10 @@ impl FauxInstallateur {
     pub fn directs(&self) -> Vec<Direct> {
         verrou(&self.directs).clone()
     }
+    /// Les demandes directes que Mindset n'attend plus (pas finies dans le délai), dans l'ordre.
+    pub fn directs_oublies(&self) -> Vec<u32> {
+        verrou(&self.directs_oublies).clone()
+    }
 }
 
 fn write_reponse(f: &Path, ok: bool, message: &str) -> std::io::Result<()> {
@@ -202,6 +211,9 @@ impl Installateur for FauxInstallateur {
     }
     fn direct_fini(&self, numero: u32) -> bool {
         verrou(&self.directs_finis).contains(&numero)
+    }
+    fn oublier_direct(&self, numero: u32) {
+        verrou(&self.directs_oublies).push(numero);
     }
     fn compte_tache(&self, nom: &str) -> Option<String> {
         verrou(&self.taches).get(nom).cloned()

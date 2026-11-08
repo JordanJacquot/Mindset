@@ -338,6 +338,11 @@ impl BlocInstallations {
                     if !fini && ctx.ecoule().saturating_sub(debut) < DELAI_DIRECT {
                         continue;
                     }
+                    // (plus attendue : le handle de son programme est rendu tout de suite, au lieu de rester ouvert
+                    // jusqu'à la fermeture de Mindset ; audit du 08/11)
+                    if !fini {
+                        inst.oublier_direct(processus);
+                    }
                     self.retirer_attente(numero);
                     let r = std::fs::read(&reponse).ok().and_then(|o| {
                         suite_commun::protocole_installateur::lire_json(&suite_commun::json_sur::texte_du_fichier(&o))

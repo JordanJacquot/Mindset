@@ -605,6 +605,29 @@ fn installation_par_la_demande_de_windows() {
     assert!(!d[0].resultat.exists(), "le fichier de réponse est effacé");
 }
 
+/// Audit du 08/11 (petit) : la demande de Windows laissée sans réponse plus de 5 minutes. Mindset dit « pas de
+/// réponse », et rend aussitôt le handle du programme (avant, il restait ouvert jusqu'à la fermeture de Mindset).
+#[test]
+fn demande_de_windows_sans_reponse_oubliee_apres_5_minutes() {
+    let mut m = Monde::nouveau("flux-direct-oublie");
+    m.faux.installateur.poser_etat(EtatTache::Absente);
+    let z = zip_evermind("2.5.0");
+    m.faux.reseau.repondre(SIG, Ok(ReponseHttp::ok(signer(&z))));
+    m.faux.reseau.repondre(ZIP, Ok(ReponseHttp::ok(z)));
+    m.publier_version("evermind", "2.5.0");
+    m.signal("installer", json!({ "id": "evermind" }));
+    assert_eq!(m.faux.installateur.directs().len(), 1);
+    m.avancer(299);
+    m.tic();
+    assert!(m.faux.installateur.directs_oublies().is_empty(), "encore attendue");
+    m.avancer(2);
+    m.tic();
+    assert_eq!(m.faux.installateur.directs_oublies(), vec![0]);
+    assert!(m.message("evermind").contains("pas de réponse"), "{}", m.message("evermind"));
+    m.tic();
+    assert_eq!(m.faux.installateur.directs_oublies(), vec![0], "une seule fois");
+}
+
 #[test]
 fn ouvrir_une_appli() {
     let mut m = Monde::nouveau("flux-ouvrir");
