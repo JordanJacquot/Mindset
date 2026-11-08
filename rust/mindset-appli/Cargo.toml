@@ -2,7 +2,7 @@
 name = "mindset-appli"
 # La version de Mindset ($AppVersion de Mindset.ps1 aujourd'hui) : 3.0.0 pour la version en Rust (proposé, à confirmer
 # par Jordan). La même que version.json et la fiche de l'exe.
-version = "3.0.1"
+version = "3.0.2"
 description = "Mindset en Rust : l'appli (fenêtre Tauri, page de la coquille, pont avec la page, fil des blocs, effets, travaux de fond)"
 edition.workspace = true
 license.workspace = true
