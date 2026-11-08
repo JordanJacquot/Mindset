@@ -37,6 +37,12 @@ jobs:
           $h = (Get-FileHash -LiteralPath $exe -Algorithm SHA256).Hash
           Write-Host "MindsetInstallateur.exe : SHA-256 $h"
           [IO.File]::AppendAllText($env:GITHUB_ENV, "MINDSET_INSTALLATEUR=$exe`n")
+          # Le désinstalleur en Rust (sans l'option « essai », comme livré), pour le cas 15 (audit du 08/11, G1)
+          cargo build --release --locked -p desinstalleur
+          if ($LASTEXITCODE) { exit 1 }
+          $des = (Resolve-Path 'target\release\desinstaller-mindset.exe').Path
+          Write-Host "desinstaller-mindset.exe : SHA-256 $((Get-FileHash -LiteralPath $des -Algorithm SHA256).Hash)"
+          [IO.File]::AppendAllText($env:GITHUB_ENV, "MINDSET_DESINSTALLEUR=$des`n")
 
       - name: "0. Préparation (Mindset construit avec MindsetInstallateur.exe, clé de TEST, zips signés, Releases v2.14.0, v2.11.0, v2.9.0 et v2.7.0)"
         run: .\outils\essai-installateur-reel.ps1 -Cas 0
@@ -96,3 +102,7 @@ jobs:
       - name: "14. Mise à jour depuis v2.14.0 (dernière version PowerShell) : bascule vers MindsetInstallateur.exe"
         if: ${{ !cancelled() }}
         run: .\outils\essai-installateur-reel.ps1 -Cas 14
+
+      - name: "15. Audit du 08/11 : jonction sur D:\\Mindset\\Programmes (M14), C:\\Mindset\\Programmes préparé et désinstalleur en Rust (G1), tâche sous « Valérie » (M1)"
+        if: ${{ !cancelled() }}
+        run: .\outils\essai-installateur-reel.ps1 -Cas 15

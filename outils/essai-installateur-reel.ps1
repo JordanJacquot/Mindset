@@ -3,7 +3,7 @@
 # registre, vraie installation de Mindset : JAMAIS sur un vrai PC. Le script refuse de tourner hors de GitHub Actions.
 #
 #   .\outils\essai-installateur-reel.ps1 -Cas 0     préparation (Mindset construit, clé de TEST, zips signés, Releases)
-#   .\outils\essai-installateur-reel.ps1 -Cas N     un cas (1 à 14), voir la liste plus bas
+#   .\outils\essai-installateur-reel.ps1 -Cas N     un cas (1 à 15), voir la liste plus bas
 #
 # Côté Mindset, ce sont ses vraies fonctions (modules\installations.ps1, mindset.ps1), lues dans la copie installée et
 # lancées sous le compte voulu (« client », -Client) : rien n'est simulé sauf la fenêtre où l'on clique « Oui » (pour un
@@ -31,6 +31,10 @@
 #  14. mise à jour depuis la dernière version PowerShell (Release v2.14.0, compte standard) : son installateur installe
 #      la version au relais, puis la tâche SYSTEM est repointée vers MindsetInstallateur.exe au démarrage du nouveau
 #      Mindset ; ensuite, les demandes (appli, version ancienne refusée, mise à jour de Mindset) passent par l'exe
+#  15. audit du 08/11/2026 : D:\Mindset\Programmes préparé en jonction par un compte standard, installation sur D:
+#      refusée (M14) ; C:\Mindset\Programmes préparé par lui, rien n'y est lancé ni supprimé par le désinstalleur en
+#      Rust (G1, exe donné par la variable MINDSET_DESINSTALLEUR) ; une tâche sous « Valérie » pendant une prise en
+#      charge, l'appli installée quand même (M1)
 #
 # Depuis l'étape 2 du passage en Rust, le mini-installateur est MindsetInstallateur.exe (construit dans le même run par
 # le workflow, donné par la variable MINDSET_INSTALLATEUR) ; installer-admin.ps1 n'est plus qu'un relais vers lui. Les
@@ -1050,10 +1054,98 @@ function Test-Cas14 {
 }
 
 # =====================================================================================================================
+# 15. Audit du 08/11/2026 : M14 (D:\Mindset\Programmes préparé en jonction par un compte standard : installation sur
+#     D: refusée), G1 (le désinstalleur en Rust ne lance ni ne supprime rien dans un C:\Mindset\Programmes préparé par
+#     un compte standard), M1 (une tâche sous le compte « Valérie » ne fait plus échouer une prise en charge)
+# =====================================================================================================================
+function Test-Cas15 {
+    Write-Partie '15. Audit du 08/11 : jonction sur D: (M14), dossier préparé et désinstalleur (G1), compte accentué (M1)'
+    Reset-Machine
+    $e = Get-Compte $NomElodie
+    $modules = Join-Path $MindsetC 'fichiers\modules'
+
+    # --- M14 : D:\Mindset\Programmes, une jonction préparée par Élodie vers un dossier à elle
+    $cible = Join-Path $e.Profil 'cible-jonction'
+    $lien = 'D:\Mindset\Programmes'
+    $code = "New-Item -ItemType Directory -Force -Path '$cible' | Out-Null; New-Item -ItemType Directory -Force -Path 'D:\Mindset' | Out-Null; & `"$env:SystemRoot\System32\cmd.exe`" /d /c mklink /J `"$lien`" `"$cible`""
+    $p = Microsoft.PowerShell.Management\Start-Process -FilePath $PowerShellExe -ArgumentList '-NoProfile', '-EncodedCommand', ([Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($code))) -Credential $e.Cred -LoadUserProfile -WorkingDirectory $Racine -PassThru -WindowStyle Hidden
+    [void]$p.WaitForExit(60000)
+    $i = Get-Item -LiteralPath $lien -Force -ErrorAction SilentlyContinue
+    if (-not $i -or -not ($i.Attributes -band [IO.FileAttributes]::ReparsePoint)) {
+        Add-Note "M14 : Élodie n'a pas pu préparer la jonction $lien (racine de D: fermée aux comptes standard ?) : partie sautée"
+    } else {
+        $r = Install-MindsetDirect $e.Sid 'D'
+        Test-Cas 'M14 : D:\Mindset\Programmes préparé en jonction par un compte standard : installation refusée, rien copié derrière la jonction, aucune tâche' {
+            $r -and -not $r.ok -and ([string]$r.message) -match 'Programmes n.est pas s' -and -not (Test-Path -LiteralPath (Join-Path $cible 'Mindset')) -and
+                -not @(Get-ScheduledTask -TaskPath '\Mindset\' -ErrorAction SilentlyContinue).Count
+        }
+    }
+    # (la jonction seule est retirée, jamais ce qu'elle vise : rmdir ne la suit pas)
+    if (Test-Path -LiteralPath $lien) { & "$env:SystemRoot\System32\cmd.exe" /d /c rmdir "$lien" 2>&1 | Out-Null }
+
+    # --- G1 : C:\Mindset\Programmes préparé par Élodie (un apps.json et des « désinstalleurs » à elle), puis la
+    # désinstallation de Mindset par le désinstalleur en Rust (construit dans ce run), en administrateur
+    Reset-Machine
+    $null = Install-MindsetDirect $e.Sid
+    if (-not $env:MINDSET_DESINSTALLEUR -or -not (Test-Path -LiteralPath $env:MINDSET_DESINSTALLEUR)) {
+        Add-Note 'G1 : le désinstalleur en Rust est absent (variable MINDSET_DESINSTALLEUR) : partie sautée'
+    } else {
+        Copy-Item -LiteralPath $env:MINDSET_DESINSTALLEUR -Destination (Join-Path $MindsetC 'Desinstaller Mindset.exe') -Force
+        $piege = 'C:\Mindset\Programmes'
+        $piege2 = "$piege\Piege2\D$([char]0xE9)sinstaller Piege2.exe"
+        $apps = '[{"id":"piege","nom":"Piege","exe":"Piege.exe","desinstalleur":"Retirer Piege.exe"}]'
+        $s = Invoke-Client $e @{ Mode = 'creer'; Modules = $modules; DataDir = $e.Donnees; Fichiers = @(
+                @{ Chemin = "$piege\Mindset\fichiers\apps.json"; Texte = $apps }, @{ Chemin = "$piege\Mindset\Mindset.exe"; Texte = 'piege' },
+                @{ Chemin = "$piege\Piege\Piege.exe"; Texte = 'piege' }, @{ Chemin = "$piege\Piege\Retirer Piege.exe"; Texte = 'piege' }, @{ Chemin = $piege2; Texte = 'piege' }) }
+        Test-Cas "G1 : Élodie (compte standard) a préparé $piege (apps.json et « désinstalleurs » à elle)" { $s.Cree -and (Test-Path -LiteralPath "$piege\Piege\Retirer Piege.exe") }
+        $journal = Join-Path $env:SystemRoot 'Temp\Mindset-desinstallation.txt'
+        Remove-Item -LiteralPath $journal -Force -ErrorAction SilentlyContinue
+        $rap = Join-Path $Sorties 'desinstallation-g1.json'
+        Microsoft.PowerShell.Management\Start-Process -FilePath (Join-Path $MindsetC 'Desinstaller Mindset.exe') -ArgumentList '-Silencieux', '-Sid', $e.Sid, '-Rapport', "`"$rap`"" -WorkingDirectory $env:SystemRoot
+        $fini = Wait-Jusque { Test-Path -LiteralPath $rap } 180
+        $r = Read-Json $rap
+        $lignes = @(Get-Content -LiteralPath $journal -Encoding UTF8 -ErrorAction SilentlyContinue)
+        foreach ($l in $lignes) { Write-Host "         | journal du désinstalleur : $l" -ForegroundColor DarkGray }
+        Test-Cas 'G1 : le désinstalleur en Rust retire Mindset de Program Files (plus rien de Mindset, plus aucune tâche)' { $fini -and $r.ok -and (Test-RienDeMindset) }
+        Test-Cas 'G1 : rien n''est lancé ni supprimé dans C:\Mindset\Programmes (dossier ignoré, noté au journal)' {
+            (Test-Path -LiteralPath "$piege\Piege\Retirer Piege.exe") -and (Test-Path -LiteralPath $piege2) -and (Test-Path -LiteralPath "$piege\Mindset\fichiers\apps.json") -and
+                -not (@($r.alertes) -match 'Piege').Count -and -not (@($r.faits) -match 'Piege').Count -and (@($lignes) -match 'Dossier ignor').Count -ge 1 -and -not (@($lignes) -match 'Piege').Count
+        }
+    }
+
+    # --- M1 : une tâche du PC sous le compte « Valérie » (son nom seul), pendant la prise en charge d'une ancienne copie
+    Reset-Machine
+    $null = Install-MindsetDirect $e.Sid
+    $v = Get-Compte "Val$([char]0xE9)rie"
+    $ancienne = Join-Path $Racine 'ancienne-essai\Essai.exe'
+    New-Item -ItemType Directory -Force -Path (Split-Path $ancienne -Parent) | Out-Null
+    [IO.File]::WriteAllText($ancienne, 'ancienne copie')
+    $reglages = New-ScheduledTaskSettingsSet -Disable
+    $tacheV = "Essai de Val$([char]0xE9)rie"
+    $tacheE = 'Essai d''Elodie'
+    Register-ScheduledTask -TaskPath '\' -TaskName $tacheV -Action (New-ScheduledTaskAction -Execute $ancienne) -Principal (New-ScheduledTaskPrincipal -UserId $v.Nom -LogonType Interactive) -Settings $reglages -Force | Out-Null
+    Register-ScheduledTask -TaskPath '\' -TaskName $tacheE -Action (New-ScheduledTaskAction -Execute $ancienne) -Principal (New-ScheduledTaskPrincipal -UserId $e.Nom -LogonType Interactive) -Settings $reglages -Force | Out-Null
+    $compteV = [string](Get-ScheduledTask -TaskPath '\' -TaskName $tacheV).Principal.UserId
+    Write-Host "         | tâche de Valérie inscrite sous le compte « $compteV »" -ForegroundColor DarkGray
+    if ($compteV.Contains('\')) { Add-Note "M1 : Windows a écrit le compte « $compteV » avec le nom du PC : le cas du nom seul n'est pas joué ici (il l'est par cargo test)" }
+    $p = Get-DemandeEssai $e.Donnees -Aide; $p.AncienExe = $ancienne
+    $s = Invoke-Client $e @{ Mode = 'invoke'; Modules = $modules; DataDir = $e.Donnees; Action = 'appli'; Parametres = $p; Copier = $CopierEssai }
+    $execE = [string](Get-ScheduledTask -TaskPath '\' -TaskName $tacheE -ErrorAction SilentlyContinue).Actions[0].Execute
+    $execV = [string](Get-ScheduledTask -TaskPath '\' -TaskName $tacheV -ErrorAction SilentlyContinue).Actions[0].Execute
+    Write-Host "         | après : tâche d'Élodie -> $execE ; tâche de Valérie -> $execV" -ForegroundColor DarkGray
+    Test-Cas "M1 : prise en charge avec une tâche sous « $compteV » : l'appli est installée, sa tâche d'aide créée, la tâche d'Élodie réécrite, celle de Valérie laissée" {
+        @($s.Fins).Count -eq 1 -and $s.Fins[0] -eq "True|$ProgrammesC\Essai" -and [bool](Get-InfoTache 'Essai (aide)') -and
+            $execE.Trim('"') -eq "$ProgrammesC\Essai\Essai.exe" -and $execV.Trim('"') -eq $ancienne
+    }
+    foreach ($t in $tacheV, $tacheE) { Unregister-ScheduledTask -TaskPath '\' -TaskName $t -Confirm:$false -ErrorAction SilentlyContinue }
+}
+
+# =====================================================================================================================
 $titres = @{ 0 = 'Préparation'; 1 = 'Installation C:, D:, demande par la tâche SYSTEM'; 2 = 'Mise à jour depuis v2.9.0'; 3 = 'Mise à jour depuis v2.7.0'; 4 = 'Mise à jour cachée sur runneradmin'
     5 = 'Compte standard accentué installé par un administrateur'; 6 = 'Le compte standard lance la tâche'; 7 = 'Deux comptes standard'; 8 = 'Tâche absente, désactivée ou cassée'; 9 = 'Désinstallation'; 10 = 'Environnement de l''utilisateur'
-    11 = 'Mise à jour directe depuis v2.11.0'; 12 = 'Compte standard malveillant'; 13 = 'Variable COR_* dans HKCU\Environment'; 14 = 'Mise à jour depuis v2.14.0, bascule vers MindsetInstallateur.exe' }
-if (-not $titres.ContainsKey($Cas)) { Write-Host 'Indique -Cas 0 (préparation) ou -Cas 1 à 14.' -ForegroundColor Yellow; exit 2 }
+    11 = 'Mise à jour directe depuis v2.11.0'; 12 = 'Compte standard malveillant'; 13 = 'Variable COR_* dans HKCU\Environment'; 14 = 'Mise à jour depuis v2.14.0, bascule vers MindsetInstallateur.exe'
+    15 = 'Audit du 08/11 : jonction sur D:, dossier préparé et désinstalleur, compte accentué' }
+if (-not $titres.ContainsKey($Cas)) { Write-Host 'Indique -Cas 0 (préparation) ou -Cas 1 à 15.' -ForegroundColor Yellow; exit 2 }
 try {
     if ($Cas -ne 0) { Copy-Item -LiteralPath $PSCommandPath -Destination (Join-Path $Racine 'outils\essai-installateur-reel.ps1') -Force }
     switch ($Cas) {
@@ -1072,6 +1164,7 @@ try {
         12 { Test-Cas12 }
         13 { Test-Cas13 }
         14 { Test-Cas14 }
+        15 { Test-Cas15 }
     }
 } catch {
     $script:Echoues.Add("erreur : $($_.Exception.Message)")
