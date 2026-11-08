@@ -369,12 +369,14 @@ static class Faux {
     # -------------------------------------------------------------------------------------------------------------
     # Rien dans Program Files, apps.json abîmé, pas d'entrée « Applications installées » ; lancé depuis un autre dossier
     $e = New-Environnement 'secours' -SansProgrammeC -AppsAbime -SansCleDesinstall
+    # (les marques des cas d'avant, « Désinstaller Appli » par exemple, ne doivent pas compter ici)
+    Remove-Item -LiteralPath (Join-Path $marques '*') -Force -ErrorAction SilentlyContinue
     $b = Invoke-Desinstalleur $e $desinstalleur @('-Nettoyer', '-Silencieux')
     # (Rust, audit du 08/11, G1 : X:\Mindset\Programmes n'est ni celui de ce désinstalleur, ni celui inscrit dans Windows,
     # il n'est pas touché : un autre compte a pu le préparer, rien n'y est lancé ni supprimé)
-    $rust = $variante.Nom -eq 'Rust'
-    Test-Cas 'Il retire ce qui reste, sans planter' { $b.ok -eq $true -and (Test-ToutRetire $e -SaufX:$rust) }
-    if ($rust) {
+    $estRust = $variante.Nom -eq 'Rust'
+    Test-Cas 'Il retire ce qui reste, sans planter' { $b.ok -eq $true -and (Test-ToutRetire $e -SaufX:$estRust) }
+    if ($estRust) {
         Test-Cas 'X:\Mindset\Programmes, ni celui de ce désinstalleur ni celui inscrit dans Windows, n''est pas touché' {
             (Test-Path -LiteralPath (Join-Path $e.RacineX 'Programmes\Mindset\Mindset.exe')) -and (Test-Absent (Join-Path $marques 'Désinstaller Appli.txt'))
         }
@@ -386,7 +388,7 @@ static class Faux {
     $b = Invoke-Desinstalleur $e $desinstalleur @('-Nettoyer', '-Silencieux', '-SupprimerDonnees')
     Test-Cas 'Avec -SupprimerDonnees : plus aucun dossier Mindset, sur aucun disque' {
         $b.ok -eq $true -and (Test-Absent $e.Donnees) -and (Test-Absent $e.RacineC) -and
-        $(if ($rust) { (Test-Absent (Join-Path $e.RacineX 'Donnees')) -and (Test-Path -LiteralPath (Join-Path $e.RacineX 'Programmes')) } else { Test-Absent $e.RacineX })
+        $(if ($estRust) { (Test-Absent (Join-Path $e.RacineX 'Donnees')) -and (Test-Path -LiteralPath (Join-Path $e.RacineX 'Programmes')) } else { Test-Absent $e.RacineX })
     }
     Test-Cas 'Avec -SupprimerDonnees : le dossier WebView2-Tauri (C: et X:) est parti avec les données' { (Test-Absent (Join-Path $e.Donnees 'WebView2-Tauri')) -and (Test-Absent (Join-Path $e.RacineX 'Donnees\WebView2-Tauri')) }
     Test-Cas 'Le lien dans les données n''a pas été suivi' { Test-Path -LiteralPath (Join-Path $e.Precieux 'important.txt') }
