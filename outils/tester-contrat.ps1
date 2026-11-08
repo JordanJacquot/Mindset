@@ -659,17 +659,34 @@ public static class ContratFenetre
             Open-Appli $t
             (Wait-Jusque { [ContratFenetre]::IsWindowVisible($h) } 6) -and -not (Test-Path -LiteralPath (Join-Path $donneesTemoin 'afficher.demande'))
         }
-        [MSIntegration]::Fermer($h)
-        $null = Wait-Jusque { -not [ContratFenetre]::IsWindowVisible($h) } 5
+        # Rangée (« Fermer » de Mindset) avant le second lancement : sinon « la première se montre » serait vrai d'avance.
+        # Un WM_CLOSE posté pendant qu'elle se montre peut se perdre sur la machine de GitHub (run 42434590642 du 08/11 :
+        # restée visible, puis trois cas ratés en chaîne) : il est redonné une fois, comme un second clic sur « Fermer ».
+        # (Le WM_CLOSE lui-même est jugé plus haut, par « « Fermer » de Mindset (WM_CLOSE) », sans second essai.)
+        function Hide-Temoin {
+            foreach ($essai in 1, 2) {
+                [MSIntegration]::Fermer($h)
+                if (Wait-Jusque { -not [ContratFenetre]::IsWindowVisible($h) } 5) { return $true }
+            }
+            $false
+        }
+        # Un second lancement encore là prendrait la place de la première dès qu'elle quitte (son verrou attend 5 s), et
+        # ferait rater à tort « Request-FermetureApplis » et la copie dans Téléchargements (run 42434590642) : arrêté ici,
+        # après que son propre cas a dit s'il a raté.
+        function Stop-SecondLancement {
+            foreach ($p in @(Get-ProcessusAppli $t -Hote | Where-Object { $_.Id -ne $pidTemoin })) { try { $p.Kill(); $null = $p.WaitForExit(3000) } catch {} }
+        }
+        $rangee = Hide-Temoin
         Test-Cas 'second lancement par Temoin.exe : il attend, dépose sa demande d''affichage et s''arrête ; la première se montre' {
             Start-Process -FilePath (Join-Path $prog 'Temoin.exe') -WorkingDirectory $prog
-            $deux = Wait-Jusque { @(Get-ProcessusAppli $t -Hote).Count -ge 2 } 5
-            $ok = (Wait-Jusque { [ContratFenetre]::IsWindowVisible($h) } 15)
-            $seul = Wait-Jusque { $p = @(Get-ProcessusAppli $t -Hote); $p.Count -eq 1 -and $p[0].Id -eq $pidTemoin } 5
-            $deux -and $ok -and $seul
+            # (délais de la machine de GitHub : démarrage du relais et de l'hôte, puis 5 s d'attente du verrou)
+            $deux = Wait-Jusque { @(Get-ProcessusAppli $t -Hote).Count -ge 2 } 10
+            $ok = (Wait-Jusque { [ContratFenetre]::IsWindowVisible($h) } 20)
+            $seul = Wait-Jusque { $p = @(Get-ProcessusAppli $t -Hote); $p.Count -eq 1 -and $p[0].Id -eq $pidTemoin } 15
+            $rangee -and $deux -and $ok -and $seul
         }
-        [MSIntegration]::Fermer($h)
-        $null = Wait-Jusque { -not [ContratFenetre]::IsWindowVisible($h) } 5
+        Stop-SecondLancement
+        $null = Hide-Temoin
 
         # =============================================================================================================
         Write-Partie 'Partie 5 : Mindset quitte avec les applis (quitter.demande)'
@@ -689,6 +706,9 @@ public static class ContratFenetre
         # =============================================================================================================
         if (-not $Casser) {
             $ailleurs = Join-Path $tmp 'Telechargements\Temoin'
+            # (une copie gérée encore là, si un cas plus haut a raté, garderait le verrou : la copie attendrait 5 s puis
+            # s'arrêterait sans rien écrire, et ce cas raterait à tort ; ce qui a raté plus haut l'a déjà dit)
+            foreach ($p in @(Get-ProcessusAppli $t -Hote)) { try { $p.Kill(); $null = $p.WaitForExit(3000) } catch {} }
             Copy-Item -LiteralPath $prog -Destination $ailleurs -Recurse
             $p = Start-Process -FilePath (Join-Path $ailleurs 'Mindset.exe') -ArgumentList '-Demarrage' -WorkingDirectory $ailleurs -PassThru
             Test-Cas "copie dans Téléchargements : ses données dans %LOCALAPPDATA%\Temoin, le dossier « donnees » que Mindset lit" {
