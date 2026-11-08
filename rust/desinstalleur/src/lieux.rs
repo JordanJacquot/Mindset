@@ -35,15 +35,8 @@ fn ajouter(r: &mut Vec<PathBuf>, d: &Path) {
 }
 
 impl Lieux {
-    /// Les dossiers des programmes qui existent : <Program Files>\Mindset, X:\Mindset\Programmes
-    pub fn racines_programmes(&self) -> Vec<PathBuf> {
-        let mut r = Vec::new();
-        ajouter(&mut r, &self.program_files.join("Mindset"));
-        for d in &self.disques {
-            ajouter(&mut r, &d.join("Mindset").join("Programmes"));
-        }
-        r
-    }
+    // (les dossiers des programmes ne sont plus pris sur chaque disque : seulement ceux qui passent les contrôles de
+    // travail.rs, racines_sures, audit du 08/11)
 
     /// Les dossiers des données qui existent : %LOCALAPPDATA%\Mindset, X:\Mindset\Donnees
     pub fn racines_donnees(&self) -> Vec<PathBuf> {

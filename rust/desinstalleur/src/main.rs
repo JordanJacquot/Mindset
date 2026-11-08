@@ -19,6 +19,7 @@ mod fin;
 mod lieux;
 mod options;
 mod os;
+mod protection;
 mod systeme;
 mod texte;
 mod travail;

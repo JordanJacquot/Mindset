@@ -223,7 +223,10 @@ static class Faux {
         Remove-Item -Path $r -Recurse -Force -ErrorAction SilentlyContinue
         if (-not $SansCleDesinstall) {
             New-Item -Path "$r\Uninstall\Mindset" -Force | Out-Null
-            Set-ItemProperty -Path "$r\Uninstall\Mindset" -Name InstallLocation -Value $e.Mindset
+            # (l'installation inscrite dans « Applications installées » : celle de l'autre disque, comme si Mindset y avait
+            # été réinstallé ; celle de Program Files est celle d'où vient le désinstalleur. Le désinstalleur en Rust ne
+            # touche qu'à ces deux-là, audit du 08/11, G1 ; la version C# ne lit pas cette valeur)
+            Set-ItemProperty -Path "$r\Uninstall\Mindset" -Name InstallLocation -Value (Join-Path $e.RacineX 'Programmes\Mindset')
             Set-ItemProperty -Path "$r\Uninstall\Mindset" -Name UninstallString -Value "`"$(Join-Path $e.Mindset 'Mindset.exe')`" -Desinstaller"
         }
         New-Item -Path "$r\Mindset\Installation" -Force | Out-Null
@@ -260,8 +263,8 @@ static class Faux {
     }
     function Test-Absent([string]$Chemin) { -not (Test-Path -LiteralPath $Chemin) }
     function Test-Valeur([string]$Cle, [string]$Nom) { $null -ne (Get-ItemProperty -Path $Cle -Name $Nom -ErrorAction SilentlyContinue) }
-    function Test-ToutRetire($E) {
-        (Test-Absent $E.RacineC) -and (Test-Absent (Join-Path $E.RacineX 'Programmes')) -and -not (Test-DossierTachesPresent) -and
+    function Test-ToutRetire($E, [switch]$SaufX) {
+        (Test-Absent $E.RacineC) -and ($SaufX -or (Test-Absent (Join-Path $E.RacineX 'Programmes'))) -and -not (Test-DossierTachesPresent) -and
         (Test-Absent "HKCU:\$CleTest\Uninstall\Mindset") -and (Test-Absent "HKCU:\$CleTest\Mindset") -and -not (Test-Valeur "HKCU:\$CleTest\Run" 'Mindset') -and
         (Test-Absent (Join-Path $E.Bureau 'Mindset.lnk')) -and (Test-Absent (Join-Path $E.Menu 'Mindset.lnk')) -and (Test-Absent (Join-Path $E.Menu 'Mindset'))
     }
@@ -367,13 +370,24 @@ static class Faux {
     # Rien dans Program Files, apps.json abîmé, pas d'entrée « Applications installées » ; lancé depuis un autre dossier
     $e = New-Environnement 'secours' -SansProgrammeC -AppsAbime -SansCleDesinstall
     $b = Invoke-Desinstalleur $e $desinstalleur @('-Nettoyer', '-Silencieux')
-    Test-Cas 'Il retire ce qui reste, sans planter' { $b.ok -eq $true -and (Test-ToutRetire $e) }
+    # (Rust, audit du 08/11, G1 : X:\Mindset\Programmes n'est ni celui de ce désinstalleur, ni celui inscrit dans Windows,
+    # il n'est pas touché : un autre compte a pu le préparer, rien n'y est lancé ni supprimé)
+    $rust = $variante.Nom -eq 'Rust'
+    Test-Cas 'Il retire ce qui reste, sans planter' { $b.ok -eq $true -and (Test-ToutRetire $e -SaufX:$rust) }
+    if ($rust) {
+        Test-Cas 'X:\Mindset\Programmes, ni celui de ce désinstalleur ni celui inscrit dans Windows, n''est pas touché' {
+            (Test-Path -LiteralPath (Join-Path $e.RacineX 'Programmes\Mindset\Mindset.exe')) -and (Test-Absent (Join-Path $marques 'Désinstaller Appli.txt'))
+        }
+    }
     Test-Cas 'Sans -SupprimerDonnees, les données restent' { (Test-Path -LiteralPath (Join-Path $e.Donnees 'Mindset\reglages.json')) -and (Test-Path -LiteralPath (Join-Path $e.RacineX 'Donnees\Mindset\reglages.json')) }
     $b = Invoke-Desinstalleur $e $desinstalleur @('-Nettoyer', '-Silencieux')
     Test-Cas 'Relancé : rien à faire, aucune erreur (idempotent)' { $b.ok -eq $true -and @($b.restes).Count -eq 0 -and @($b.faits).Count -eq 0 }
     Test-Cas 'Sans -SupprimerDonnees, le dossier WebView2-Tauri d''une appli Tauri reste (contre-épreuve)' { Test-Path -LiteralPath (Join-Path $e.Donnees 'WebView2-Tauri\Mindcare\EBWebView\Default\Preferences') }
     $b = Invoke-Desinstalleur $e $desinstalleur @('-Nettoyer', '-Silencieux', '-SupprimerDonnees')
-    Test-Cas 'Avec -SupprimerDonnees : plus aucun dossier Mindset, sur aucun disque' { $b.ok -eq $true -and (Test-Absent $e.Donnees) -and (Test-Absent $e.RacineX) -and (Test-Absent $e.RacineC) }
+    Test-Cas 'Avec -SupprimerDonnees : plus aucun dossier Mindset, sur aucun disque' {
+        $b.ok -eq $true -and (Test-Absent $e.Donnees) -and (Test-Absent $e.RacineC) -and
+        $(if ($rust) { (Test-Absent (Join-Path $e.RacineX 'Donnees')) -and (Test-Path -LiteralPath (Join-Path $e.RacineX 'Programmes')) } else { Test-Absent $e.RacineX })
+    }
     Test-Cas 'Avec -SupprimerDonnees : le dossier WebView2-Tauri (C: et X:) est parti avec les données' { (Test-Absent (Join-Path $e.Donnees 'WebView2-Tauri')) -and (Test-Absent (Join-Path $e.RacineX 'Donnees\WebView2-Tauri')) }
     Test-Cas 'Le lien dans les données n''a pas été suivi' { Test-Path -LiteralPath (Join-Path $e.Precieux 'important.txt') }
     Test-Cas 'Le désinstalleur lancé hors des programmes est gardé' { Test-Path -LiteralPath $desinstalleur }

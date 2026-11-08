@@ -461,6 +461,70 @@ pub fn dossier_dans_profil(chemin: &str, profil: &str) -> bool {
     true
 }
 
+/// Un SID en texte (« S-1-5-32-544 »)
+fn sid_texte(sid: PSID) -> Option<String> {
+    let mut p = PWSTR::null();
+    // SAFETY : SID valable pendant l'appel ; texte rendu par Windows, libéré par MemoireLocale
+    unsafe {
+        ConvertSidToStringSidW(sid, &mut p).ok()?;
+        let _m = MemoireLocale(p.0.cast());
+        p.to_string().ok()
+    }
+}
+
+/// Les droits d'un dossier : son propriétaire, et les entrées de sa liste d'accès (autorisations et refus seulement),
+/// lus comme l'installateur les lit (mindset-installateur, windows\securite.rs). None : illisibles.
+fn droits_dossier(dossier: &Path) -> Option<(Option<String>, Vec<crate::protection::Regle>)> {
+    use windows::Win32::Foundation::WIN32_ERROR;
+    use windows::Win32::Security::Authorization::{GetNamedSecurityInfoW, SE_FILE_OBJECT};
+    use windows::Win32::Security::{ACE_HEADER, ACL, DACL_SECURITY_INFORMATION, GetAce, OWNER_SECURITY_INFORMATION};
+    let mut proprietaire = PSID::default();
+    let mut dacl: *mut ACL = std::ptr::null_mut();
+    let mut sd = PSECURITY_DESCRIPTOR::default();
+    // SAFETY : descripteur rendu par Windows (libéré par MemoireLocale) ; le propriétaire et la liste pointent dedans
+    unsafe {
+        let r = GetNamedSecurityInfoW(
+            &HSTRING::from(dossier.as_os_str()),
+            SE_FILE_OBJECT,
+            OWNER_SECURITY_INFORMATION | DACL_SECURITY_INFORMATION,
+            Some(&mut proprietaire),
+            None,
+            Some(&mut dacl),
+            None,
+            &mut sd,
+        );
+        if r != WIN32_ERROR(0) {
+            return None;
+        }
+        let _m = MemoireLocale(sd.0);
+        // (aucune liste d'accès : tout le monde a tous les droits)
+        if dacl.is_null() {
+            return Some((sid_texte(proprietaire), vec![crate::protection::Regle::tout_le_monde()]));
+        }
+        let mut regles = Vec::new();
+        for i in 0..u32::from((*dacl).AceCount) {
+            let mut ace: *mut core::ffi::c_void = std::ptr::null_mut();
+            if GetAce(dacl, i, &mut ace).is_err() || ace.is_null() {
+                continue;
+            }
+            let h = &*(ace as *const ACE_HEADER);
+            // ACCESS_ALLOWED_ACE (0) et ACCESS_DENIED_ACE (1) : en-tête, droits, puis le SID
+            if h.AceType > 1 {
+                continue;
+            }
+            let masque = *((ace as *const u8).add(4) as *const u32);
+            let sid = PSID((ace as *mut u8).add(8).cast());
+            regles.push(crate::protection::Regle {
+                sid: sid_texte(sid).unwrap_or_default(),
+                autorise: h.AceType == 0,
+                herite_seulement: h.AceFlags & 0x08 != 0,
+                masque,
+            });
+        }
+        Some((sid_texte(proprietaire), regles))
+    }
+}
+
 /// Les disques fixes prêts (« C:\ », « D:\ »...)
 fn disques_fixes() -> Vec<PathBuf> {
     let mut r = Vec::new();
@@ -725,6 +789,20 @@ impl Systeme for Windows {
             Err(e) => Err(message(&e)),
             Ok(k) => k.set_string(nom, valeur).map_err(|e| message(&e)),
         })?
+    }
+
+    fn lire_texte(&self, ruche: Ruche, cle: &str, nom: &str) -> Option<String> {
+        self.avec_ruche(ruche, |b| b.open(cle).and_then(|k| k.get_string(nom)).ok()).ok().flatten()
+    }
+
+    fn dossier_protege(&self, dossier: &Path) -> bool {
+        // Faux environnement (construction d'essai, tester-desinstallation.ps1) : ses dossiers sont dans le TEMP de
+        // l'utilisateur, jamais protégés. Le contrôle y est jugé par les tests du travail (faux Windows) et, en vrai,
+        // sur la machine de GitHub (installateur-reel.yml).
+        if self.test {
+            return true;
+        }
+        droits_dossier(dossier).is_some_and(|(p, r)| crate::protection::protege(p.as_deref(), &r))
     }
 
     fn dossier_taches(&self, chemin: &str) -> Result<Option<DossierTaches>, LectureTaches> {

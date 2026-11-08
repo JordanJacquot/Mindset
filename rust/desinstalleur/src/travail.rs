@@ -2,7 +2,9 @@
 //! regarde d'abord ce qui existe : ce qui est déjà parti est passé.
 //!
 //! Ce qui est retiré :
-//!   programmes        <Program Files>\Mindset (Mindset et ses applis) et X:\Mindset\Programmes sur chaque disque fixe
+//!   programmes        <Program Files>\Mindset (Mindset et ses applis), et le X:\Mindset\Programmes d'où vient ce
+//!                     désinstalleur ou inscrit dans Windows ; chacun seulement s'il est protégé et sans lien
+//!                     (racines_sures, audit du 08/11 : jamais ceux qu'un autre compte a pu préparer)
 //!   applis            le désinstalleur de chaque appli qui en a un (champ « desinstalleur » de apps.json, et de la
 //!                     liste des applis en ligne gardée par Mindset si elle est valable) est lancé d'abord, avec
 //!                     -GarderDonnees ou -SupprimerDonnees ; s'il échoue, la désinstallation continue et le signale ;
@@ -45,6 +47,11 @@ pub struct Travail<'a> {
     pub sys: &'a dyn Systeme,
     pub lieux: Lieux,
     pub bilan: Bilan,
+    /// Les dossiers des programmes sûrs, les seuls où quelque chose est lancé ou supprimé (voir `racines_sures`)
+    racines: Vec<PathBuf>,
+    /// Le dossier de Mindset d'où vient ce désinstalleur, s'il est dans un dossier des programmes sûr : le seul où
+    /// apps.json et les clés de la liste en ligne sont lus
+    mindset_source: Option<PathBuf>,
     /// Ce programme, s'il est dans un dossier des programmes (il part en dernier, si tout le reste est parti)
     pub garder: Option<String>,
     pub donnees_gardees: Vec<String>,
@@ -90,19 +97,108 @@ fn vide(d: &Path) -> bool {
     std::fs::read_dir(d).is_ok_and(|mut e| e.next().is_none())
 }
 
+/// Aucun lien (point de jonction, lien symbolique) sur ce chemin ni sur un de ses dossiers parents, et il existe
+/// (comme `sans_lien` de l'installateur)
+fn sans_lien(p: &Path) -> bool {
+    let mut x = Some(complet(p));
+    while let Some(d) = x {
+        if t(&d).chars().count() <= 3 {
+            break;
+        }
+        if attributs(&d).is_none_or(|a| a & LIEN != 0) {
+            return false;
+        }
+        x = d.parent().map(Path::to_path_buf);
+    }
+    true
+}
+
+/// Audit du 08/11 (G1) : les dossiers des programmes où ce désinstalleur, lancé en administrateur, a le droit de lancer
+/// et de supprimer quelque chose. Avant, c'était `X:\Mindset\Programmes` sur chaque disque fixe, C: compris, que tout
+/// compte peut créer : un programme sans droits pouvait y préparer un « désinstalleur » lancé en administrateur.
+///
+/// Seuls trois candidats, et seulement s'ils ont la forme d'un dossier des programmes de Mindset (`<Program
+/// Files>\Mindset`, ou `X:\Mindset\Programmes` d'un disque fixe), sans lien sur leur chemin et protégés (le même contrôle
+/// que l'installateur) :
+///   - celui d'où vient ce désinstalleur (`<racine>\Mindset\Desinstaller Mindset.exe`) ;
+///   - celui inscrit par l'installateur dans « Applications installées » (HKLM, `InstallLocation` = `<racine>\Mindset`) ;
+///   - `<Program Files>\Mindset`, que seul un administrateur peut créer (l'emplacement par défaut).
+///
+/// Rend aussi le dossier de Mindset d'où vient ce désinstalleur, si sa racine est gardée (apps.json et les clés de la
+/// liste en ligne ne sont lus que là). Un candidat refusé est dit au bilan (rien n'y est lancé ni supprimé) ; un autre
+/// `X:\Mindset\Programmes` trouvé sur un disque est seulement noté au journal.
+fn racines_sures(
+    sys: &dyn Systeme,
+    lieux: &Lieux,
+    bilan: &mut Bilan,
+    original: Option<&str>,
+) -> (Vec<PathBuf>, Option<PathBuf>) {
+    let pf = complet(&lieux.program_files.join("Mindset"));
+    let formes: Vec<PathBuf> = std::iter::once(pf.clone())
+        .chain(lieux.disques.iter().map(|d| complet(&d.join("Mindset").join("Programmes"))))
+        .collect();
+    // (le dossier de Mindset d'un chemin « <racine>\Mindset\... » : sa racine, si elle a la bonne forme)
+    let racine_de = |mindset: &Path| -> Option<PathBuf> {
+        let m = complet(mindset);
+        let r = m.parent()?.to_path_buf();
+        (egal(&nom(&t(&m)), "Mindset") && formes.iter().any(|f| egal(&t(f), &t(&r)))).then_some(r)
+    };
+    let depuis_moi = original.and_then(|o| Path::new(o).parent().map(Path::to_path_buf));
+    let inscrit = sys
+        .lire_texte(Ruche::Machine, &lieux.cle_desinstall, "InstallLocation")
+        .map(|v| PathBuf::from(sans_barre(v.trim().trim_matches('"'))))
+        .filter(|v| v.is_absolute());
+    let mut candidats: Vec<(PathBuf, &str)> = Vec::new();
+    if let Some(r) = depuis_moi.as_deref().and_then(racine_de) {
+        candidats.push((r, "celui de ce désinstalleur"));
+    }
+    if let Some(r) = inscrit.as_deref().and_then(racine_de) {
+        candidats.push((r, "celui inscrit dans Windows"));
+    }
+    candidats.push((pf, "celui de Program Files"));
+
+    let mut gardees: Vec<PathBuf> = Vec::new();
+    for (r, d_ou) in candidats {
+        if gardees.iter().any(|g| egal(&t(g), &t(&r))) || std::fs::symlink_metadata(&r).is_err() {
+            continue;
+        }
+        let mindset = r.join("Mindset");
+        let sans = sans_lien(&r) && (std::fs::symlink_metadata(&mindset).is_err() || sans_lien(&mindset));
+        if sans && sys.dossier_protege(&r) {
+            bilan.journal(&format!("Dossier des programmes gardé ({d_ou}) : {}", t(&r)));
+            gardees.push(r);
+        } else {
+            let pourquoi = if sans { "un autre compte peut le changer" } else { "c'est un lien vers un autre dossier" };
+            bilan.reste(format!(
+                "Le dossier des programmes {} (il n'est pas protégé, {pourquoi} : rien n'y a été lancé ni supprimé)",
+                t(&r)
+            ));
+        }
+    }
+    for f in &formes {
+        if f.is_dir() && !gardees.iter().any(|g| egal(&t(g), &t(f))) {
+            bilan.journal(&format!(
+                "Dossier ignoré (ni celui de ce désinstalleur, ni celui inscrit dans Windows) : {}",
+                t(f)
+            ));
+        }
+    }
+    let source = depuis_moi.filter(|m| racine_de(m).is_some_and(|r| gardees.iter().any(|g| egal(&t(g), &t(&r)))));
+    (gardees, source)
+}
+
 impl<'a> Travail<'a> {
     pub fn nouveau(sys: &'a dyn Systeme, lieux: Lieux, bilan: Bilan, original: Option<&str>) -> Travail<'a> {
-        let mut garder = None;
-        if let Some(o) = original.filter(|o| !o.is_empty()) {
-            let g = t(&complet(Path::new(o)));
-            if lieux.racines_programmes().iter().any(|r| dans(&g, &t(r))) {
-                garder = Some(g);
-            }
-        }
+        let mut bilan = bilan;
+        let original = original.filter(|o| !o.is_empty()).map(|o| t(&complet(Path::new(o))));
+        let (racines, mindset_source) = racines_sures(sys, &lieux, &mut bilan, original.as_deref());
+        let garder = original.filter(|g| racines.iter().any(|r| dans(g, &t(r))));
         Travail {
             sys,
             lieux,
             bilan,
+            racines,
+            mindset_source,
             garder,
             donnees_gardees: Vec::new(),
             donnees_supprimees_par: Vec::new(),
@@ -111,8 +207,13 @@ impl<'a> Travail<'a> {
         }
     }
 
+    /// Les dossiers des programmes sûrs (voir `racines_sures`)
+    pub fn racines_programmes(&self) -> Vec<PathBuf> {
+        self.racines.clone()
+    }
+
     pub fn executer(&mut self, supprimer_donnees: bool) {
-        let programmes = self.lieux.racines_programmes();
+        let programmes = self.racines_programmes();
 
         // 1. Mindset d'abord (il relancerait ses applis), puis le désinstalleur de chaque appli qui en a un, puis le reste
         self.bilan.etape("Fermeture de Mindset...");
@@ -342,15 +443,20 @@ impl<'a> Travail<'a> {
     // ---------------------------------------------------------------------------------------------------------------
     pub fn applis_avec_desinstalleur(&mut self, racines: &[PathBuf]) -> Vec<AppliGeree> {
         let mut r: Vec<AppliGeree> = Vec::new();
-        for racine in racines {
-            let mut liste = Vec::new();
-            let json = racine.join("Mindset").join("fichiers").join("apps.json");
+        // apps.json : seulement celui du dossier de Mindset d'où vient ce désinstalleur (protégé, vérifié par
+        // racines_sures), jamais celui d'un autre disque
+        let mut livree = Vec::new();
+        if let Some(source) = self.mindset_source.clone() {
+            let json = source.join("fichiers").join("apps.json");
             if json.is_file() {
                 match lire_apps(&json) {
-                    Ok(l) => liste = l,
-                    Err(e) => self.bilan.journal(&format!("apps.json illisible dans {} : {e}", t(racine))),
+                    Ok(l) => livree = l,
+                    Err(e) => self.bilan.journal(&format!("apps.json illisible dans {} : {e}", t(&source))),
                 }
             }
+        }
+        for racine in racines {
+            let mut liste = livree.clone();
             // En plus : la liste des applis en ligne gardée par ce Mindset (une appli ajoutée depuis sa version)
             liste.extend(self.liste_en_ligne(racine));
             for (nom_appli, exe, des) in liste {
@@ -389,6 +495,8 @@ impl<'a> Travail<'a> {
     /// passe toutes les règles (suite_commun::liste_en_ligne, avec les clés, le numéro livré et la version de ce
     /// Mindset), lue une seule fois. Ses applis qui ont un désinstalleur, contrôlées comme celles de apps.json.
     fn liste_en_ligne(&self, racine: &Path) -> Vec<(String, String, String)> {
+        // (vérifiée avec les clés, le numéro livré et la version du Mindset d'où vient ce désinstalleur, seulement)
+        let Some(source) = self.mindset_source.clone() else { return Vec::new() };
         let mindset = racine.join("Mindset");
         let donnees = chemins::donnees_mindset(&t(&mindset), || Err(String::new()))
             .ok()
@@ -396,7 +504,7 @@ impl<'a> Travail<'a> {
             .or_else(|| self.lieux.local_app_data.as_ref().map(|l| l.join("Mindset").join("Mindset")));
         let Some(donnees) = donnees else { return Vec::new() };
         let f = donnees.join(liste_en_ligne::FICHIER);
-        match liste_en_ligne::lire_et_accepter(&f, &mindset) {
+        match liste_en_ligne::lire_et_accepter(&f, &source) {
             Ok(l) => {
                 self.bilan.journal(&format!("Liste des applis en ligne {} prise ({})", l.numero, t(&f)));
                 applis_avec_desinstalleur(&l.applis)

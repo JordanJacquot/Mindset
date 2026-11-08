@@ -47,6 +47,10 @@ struct Faux {
     donnees: Mutex<Option<PathBuf>>,
     /// Ce que le désinstalleur de chaque appli (nom de son dossier) laisse comme conseils en finissant
     conseils: Mutex<BTreeMap<String, Laisse>>,
+    /// Les dossiers qu'un compte sans droits peut changer (chemins en minuscules) ; les autres sont protégés
+    non_proteges: Mutex<BTreeSet<String>>,
+    /// Les dossiers dont on a demandé les droits
+    droits_lus: Mutex<Vec<String>>,
 }
 
 /// Le fichier des conseils laissé par un faux désinstalleur d'appli
@@ -148,6 +152,14 @@ impl Systeme for Faux {
             v.insert(n.into(), valeur.into());
         }
         Ok(())
+    }
+    fn lire_texte(&self, r: Ruche, c: &str, n: &str) -> Option<String> {
+        self.registre.lock().unwrap().get(&cle(r, c)).and_then(|v| v.get(n).cloned())
+    }
+    fn dossier_protege(&self, dossier: &Path) -> bool {
+        let d = t(dossier).to_lowercase();
+        self.droits_lus.lock().unwrap().push(d.clone());
+        !self.non_proteges.lock().unwrap().contains(&d)
     }
     fn dossier_taches(&self, chemin: &str) -> Result<Option<DossierTaches>, LectureTaches> {
         if *self.planificateur_absent.lock().unwrap() {
@@ -307,7 +319,12 @@ impl Env {
         let sys = Faux::default();
         {
             let mut r = sys.registre.lock().unwrap();
-            r.insert(cle(Ruche::Machine, "Software\\Test\\Uninstall\\Mindset"), BTreeMap::new());
+            // (l'installation inscrite dans « Applications installées » : celle de l'autre disque, comme si Mindset y
+            // avait été réinstallé ; celle de Program Files est celle d'où vient le désinstalleur)
+            let mut desinstall = BTreeMap::new();
+            desinstall
+                .insert("InstallLocation".to_string(), t(&racine_x.join("Programmes").join("Mindset")).to_string());
+            r.insert(cle(Ruche::Machine, "Software\\Test\\Uninstall\\Mindset"), desinstall);
             r.insert(cle(Ruche::Machine, "Software\\Test\\Mindset\\Installation"), BTreeMap::new());
             let mut run = BTreeMap::new();
             run.insert("Mindset".to_string(), "\"Mindset.exe\" -Demarrage".to_string());
@@ -502,21 +519,33 @@ fn nettoyage_de_secours_idempotent() {
     let ailleurs = e.dossier.join("outils").join("Desinstaller Mindset.exe");
     ecrire(&ailleurs, "x");
     let (b, _, _, _) = e.lancer(Some(&ailleurs), false);
-    assert!(b.restes.is_empty() && e.tout_retire());
+    // (audit du 08/11, G1 : X:\Mindset\Programmes n'est ni celui de ce désinstalleur, ni celui inscrit dans Windows :
+    // il n'est pas touché ; tout le reste est retiré)
+    let prog_x = e.racine_x.join("Programmes");
+    let reste_retire = |e: &Env| {
+        !e.racine_c.exists()
+            && e.sys.dossiers.lock().unwrap().is_empty()
+            && e.sys.taches.lock().unwrap().is_empty()
+            && !e.bureau.join("Mindset.lnk").exists()
+            && !e.menu.join("Mindset").exists()
+    };
+    assert!(b.restes.is_empty() && reste_retire(&e) && prog_x.exists(), "restes : {:?}", b.restes);
+    assert!(e.lances("Désinstaller Appli.exe").is_empty());
     assert!(e.donnees.join("Mindset").join("reglages.json").exists());
     let (b, texte, _, _) = e.lancer(Some(&ailleurs), false);
     assert!(b.restes.is_empty() && b.faits.is_empty(), "relancé : rien à faire ({:?})", b.faits);
     assert!(texte.starts_with("Il ne restait plus rien de Mindset sur ce PC."));
     let (b, _, _, _) = e.lancer(Some(&ailleurs), true);
-    assert!(b.restes.is_empty() && !e.donnees.exists() && !e.racine_x.exists());
+    assert!(b.restes.is_empty() && !e.donnees.exists() && !e.racine_x.join("Donnees").exists());
+    assert!(prog_x.exists());
     assert!(ailleurs.exists(), "le désinstalleur lancé hors des programmes est gardé");
 }
 
 #[test]
 fn sans_apps_json_le_desinstalleur_d_une_appli_est_trouve_par_son_nom() {
     let e = Env::nouveau("sansapps", false, true);
-    let mut tr = Travail::nouveau(&e.sys, e.lieux.clone(), Bilan::default(), None);
-    let racines = e.lieux.racines_programmes();
+    let mut tr = Travail::nouveau(&e.sys, e.lieux.clone(), Bilan::default(), Some(t(&e.exe).as_str()));
+    let racines = tr.racines_programmes();
     let a = tr.applis_avec_desinstalleur(&racines);
     let noms: Vec<(String, String)> = a.iter().map(|x| (x.nom.clone(), x.desinstalleur.clone())).collect();
     assert_eq!(
@@ -526,8 +555,8 @@ fn sans_apps_json_le_desinstalleur_d_une_appli_est_trouve_par_son_nom() {
     assert!(a.iter().all(|x| x.exe.is_none()));
     // apps.json bon : les applis de apps.json, avec leur programme
     let e = Env::nouveau("avecapps", false, false);
-    let mut tr = Travail::nouveau(&e.sys, e.lieux.clone(), Bilan::default(), None);
-    let a = tr.applis_avec_desinstalleur(&e.lieux.racines_programmes());
+    let mut tr = Travail::nouveau(&e.sys, e.lieux.clone(), Bilan::default(), Some(t(&e.exe).as_str()));
+    let a = tr.applis_avec_desinstalleur(&tr.racines_programmes());
     assert_eq!(a.len(), 2);
     assert_eq!(a[0].exe.as_deref(), Some("Appli.exe"));
 }
@@ -612,6 +641,129 @@ fn contre_epreuve() {
 }
 
 // ---------------------------------------------------------------------------------------------------------------
+// Audit du 08/11 (G1) : seuls les dossiers des programmes sûrs (celui de ce désinstalleur, celui inscrit dans Windows,
+// Program Files\Mindset ; protégés et sans lien) voient quelque chose lancé ou supprimé
+// ---------------------------------------------------------------------------------------------------------------
+
+/// Un faux « C:\Mindset\Programmes » qu'un compte sans droits a préparé : un dossier de Mindset avec un apps.json qui
+/// cite son « désinstalleur », et un autre trouvé par son nom. Rend le disque et son dossier des programmes.
+fn piege_sur_un_disque(e: &mut Env, nom_disque: &str) -> (PathBuf, PathBuf) {
+    let disque = e.dossier.join(nom_disque);
+    let prog = disque.join("Mindset").join("Programmes");
+    let apps = r#"[{"id":"piege","nom":"Piege","exe":"Piege.exe","desinstalleur":"Retirer Piege.exe"}]"#;
+    ecrire(&prog.join("Mindset").join("fichiers").join("apps.json"), apps);
+    ecrire(&prog.join("Mindset").join("Mindset.exe"), "programme");
+    ecrire(&prog.join("Piege").join("Piege.exe"), "programme");
+    ecrire(&prog.join("Piege").join("Retirer Piege.exe"), "programme d'un autre compte");
+    ecrire(&prog.join("Piege2").join("Désinstaller Piege2.exe"), "programme d'un autre compte");
+    e.lieux.disques.push(disque.clone());
+    e.sys.non_proteges.lock().unwrap().insert(t(&prog).to_lowercase());
+    (disque, prog)
+}
+
+/// Rien de ce qui est lancé ne vient de ce dossier
+fn rien_lance_depuis(e: &Env, dossier: &Path) -> bool {
+    e.sys.lances.lock().unwrap().iter().all(|(exe, _)| !dans(exe, &t(dossier)))
+}
+
+#[test]
+fn faux_dossier_des_programmes_sur_c_ne_fait_rien_lancer() {
+    let mut e = Env::nouveau("piege-c", false, false);
+    let (_, prog) = piege_sur_un_disque(&mut e, "DisqueC");
+    let (b, _, _, _) = e.lancer(Some(&e.exe), true);
+    assert!(rien_lance_depuis(&e, &prog), "lancés : {:?}", e.sys.lances.lock().unwrap());
+    assert!(
+        prog.join("Piege").join("Retirer Piege.exe").exists() && prog.join("Piege2").exists(),
+        "rien n'y est supprimé"
+    );
+    // (ni candidat ni reste : le vrai Mindset est retiré entièrement, ce dossier n'est que noté au journal)
+    assert!(b.restes.is_empty(), "restes : {:?}", b.restes);
+    assert!(e.tout_retire());
+    assert_eq!(e.lances("Désinstaller Appli.exe"), vec!["-SupprimerDonnees"], "les vraies applis, elles, le sont");
+}
+
+/// Même s'il est protégé : un X:\Mindset\Programmes qui n'est ni celui de ce désinstalleur, ni celui inscrit dans
+/// Windows, n'est pas touché (son apps.json n'est jamais lu)
+#[test]
+fn autre_dossier_des_programmes_ni_le_mien_ni_l_inscrit_ignore() {
+    let mut e = Env::nouveau("piege-protege", false, false);
+    let (_, prog) = piege_sur_un_disque(&mut e, "DisqueD");
+    e.sys.non_proteges.lock().unwrap().clear();
+    let (b, _, _, _) = e.lancer(Some(&e.exe), false);
+    assert!(rien_lance_depuis(&e, &prog));
+    assert!(prog.join("Piege").exists() && b.restes.is_empty());
+}
+
+/// Le désinstalleur lancé depuis un dossier des programmes qu'un autre compte peut changer : rien n'y est lancé ni
+/// supprimé, et le bilan le dit ; l'installation inscrite dans Windows (protégée) est retirée
+#[test]
+fn dossier_du_desinstalleur_non_protege() {
+    let e = Env::nouveau("origine-ouverte", false, false);
+    e.sys.non_proteges.lock().unwrap().insert(t(&e.racine_c).to_lowercase());
+    let (b, texte, _, _) = e.lancer(Some(&e.exe), false);
+    assert!(rien_lance_depuis(&e, &e.racine_c), "lancés : {:?}", e.sys.lances.lock().unwrap());
+    assert!(e.racine_c.join("Appli").join("Appli.exe").exists() && e.exe.exists());
+    assert!(
+        b.restes.iter().any(|r| r.contains(&t(&e.racine_c)) && r.contains("rien n'y a été lancé")),
+        "{:?}",
+        b.restes
+    );
+    assert!(!e.racine_x.join("Programmes").exists(), "l'installation inscrite dans Windows est retirée");
+    assert!(texte.contains("rien n'y a été lancé ni supprimé"), "{texte}");
+}
+
+/// Le dossier inscrit dans Windows remplacé par un point de jonction vers un autre dossier : refusé
+#[test]
+fn dossier_inscrit_derriere_un_lien_refuse() {
+    let e = Env::nouveau("inscrit-lien", false, false);
+    let ailleurs = e.dossier.join("ailleurs");
+    ecrire(&ailleurs.join("Appli").join("Désinstaller Appli.exe"), "programme d'un autre compte");
+    ecrire(&ailleurs.join("Appli").join("Appli.exe"), "programme");
+    let prog = e.racine_x.join("Programmes");
+    std::fs::remove_dir_all(&prog).unwrap();
+    jonction(&prog, &ailleurs);
+    let (b, _, _, _) = e.lancer(Some(&e.exe), false);
+    assert!(rien_lance_depuis(&e, &prog) && rien_lance_depuis(&e, &ailleurs));
+    assert!(ailleurs.join("Appli").join("Désinstaller Appli.exe").exists());
+    assert!(b.restes.iter().any(|r| r.contains("lien vers un autre dossier")), "{:?}", b.restes);
+}
+
+/// Un dossier inscrit dans Windows qui n'a pas la forme d'un dossier des programmes de Mindset : ignoré
+#[test]
+fn dossier_inscrit_hors_des_programmes_ignore() {
+    let e = Env::nouveau("inscrit-ailleurs", false, false);
+    let ailleurs = e.dossier.join("ailleurs");
+    ecrire(&ailleurs.join("Mindset").join("fichiers").join("apps.json"), APPS);
+    ecrire(&ailleurs.join("Appli").join("Désinstaller Appli.exe"), "programme");
+    ecrire(&ailleurs.join("Appli").join("Appli.exe"), "programme");
+    e.sys
+        .registre
+        .lock()
+        .unwrap()
+        .get_mut(&cle(Ruche::Machine, "Software\\Test\\Uninstall\\Mindset"))
+        .unwrap()
+        .insert("InstallLocation".into(), t(&ailleurs.join("Mindset")));
+    let (_, _, _, _) = e.lancer(Some(&e.exe), false);
+    assert!(rien_lance_depuis(&e, &ailleurs));
+    assert!(ailleurs.join("Appli").join("Appli.exe").exists());
+}
+
+/// apps.json n'est lu que dans le dossier de Mindset d'où vient le désinstalleur : celui de l'installation inscrite
+/// (autre disque) ne fait rien lancer qui ne soit pas dans la liste du désinstalleur
+#[test]
+fn apps_json_lu_seulement_a_cote_du_desinstalleur() {
+    let e = Env::nouveau("apps-source", false, false);
+    let prog = e.racine_x.join("Programmes");
+    let apps = r#"[{"id":"x","nom":"Cachee","exe":"Cachee.exe","desinstalleur":"Retirer Cachee.exe"}]"#;
+    ecrire(&prog.join("Mindset").join("fichiers").join("apps.json"), apps);
+    ecrire(&prog.join("Cachee").join("Cachee.exe"), "programme");
+    ecrire(&prog.join("Cachee").join("Retirer Cachee.exe"), "programme");
+    let _ = e.lancer(Some(&e.exe), false);
+    assert!(e.lances("Retirer Cachee.exe").is_empty(), "lancés : {:?}", e.sys.lances.lock().unwrap());
+    assert!(!prog.exists(), "le dossier inscrit, protégé, est quand même retiré");
+}
+
+// ---------------------------------------------------------------------------------------------------------------
 // Les conseils laissés par le désinstalleur d'une appli (<données de la suite>\<Nom>.conseils-desinstallation.txt)
 // ---------------------------------------------------------------------------------------------------------------
 
@@ -628,7 +780,7 @@ fn laisser(e: &Env, appli: &str, l: Laisse) {
 
 /// Le travail fait, avec ses conseils, son texte et son bilan en JSON
 fn lancer_complet(e: &Env, supprimer: bool) -> (Vec<(String, String)>, String, serde_json::Value) {
-    let mut tr = Travail::nouveau(&e.sys, e.lieux.clone(), Bilan::default(), Some(&t(&e.exe)));
+    let mut tr = Travail::nouveau(&e.sys, e.lieux.clone(), Bilan::default(), Some(t(&e.exe).as_str()));
     tr.executer(supprimer);
     let texte = texte_bilan(&tr);
     let json = crate::fin::rapport(&tr, None, supprimer, &texte);
@@ -816,13 +968,13 @@ fn poser_liste(racine: &Path, donnees: &Path, livree: &str, pose: &Pose) {
 }
 
 /// Les applis trouvées (nom, programme) et le journal
-fn trouvees(e: &Env) -> (Vec<(String, Option<String>)>, Vec<String>) {
+fn trouvees(e: &Env, original: &Path) -> (Vec<(String, Option<String>)>, Vec<String>) {
     let journal = std::sync::Arc::new(Mutex::new(Vec::<String>::new()));
     let j = journal.clone();
     let bilan =
         Bilan { journal: Some(Box::new(move |t: &str| j.lock().unwrap().push(t.to_string()))), ..Bilan::default() };
-    let mut tr = Travail::nouveau(&e.sys, e.lieux.clone(), bilan, None);
-    let a = tr.applis_avec_desinstalleur(&e.lieux.racines_programmes());
+    let mut tr = Travail::nouveau(&e.sys, e.lieux.clone(), bilan, Some(t(original).as_str()));
+    let a = tr.applis_avec_desinstalleur(&tr.racines_programmes());
     let noms = a.iter().map(|x| (x.nom.clone(), x.exe.clone())).collect();
     let lignes = journal.lock().unwrap().clone();
     (noms, lignes)
@@ -834,7 +986,7 @@ fn liste_en_ligne_valable_trouve_ses_applis() {
     // Program Files : la liste dans %LOCALAPPDATA%\Mindset\Mindset
     let e = Env::nouveau("enligne-c", false, false);
     poser_liste(&e.racine_c, &e.donnees.join("Mindset"), "3", &Pose::Signee(bonne.clone()));
-    let (a, journal) = trouvees(&e);
+    let (a, journal) = trouvees(&e, &e.exe);
     assert!(a.contains(&("Nouvelle".into(), Some("Nouvelle.exe".into()))), "{a:?}");
     // (en plus de apps.json, pas à sa place)
     assert!(a.contains(&("Appli".into(), Some("Appli.exe".into()))), "{a:?}");
@@ -842,9 +994,24 @@ fn liste_en_ligne_valable_trouve_ses_applis() {
     // X:\Mindset\Programmes : la liste dans X:\Mindset\Donnees\Mindset
     let e = Env::nouveau("enligne-x", true, false);
     let racine = e.racine_x.join("Programmes");
-    poser_liste(&racine, &e.racine_x.join("Donnees").join("Mindset"), "3", &Pose::Signee(bonne));
-    let (a, _) = trouvees(&e);
+    poser_liste(&racine, &e.racine_x.join("Donnees").join("Mindset"), "3", &Pose::Signee(bonne.clone()));
+    // (le désinstalleur de cet autre disque : ses clés et son numéro livré)
+    let (a, _) = trouvees(&e, &racine.join("Mindset").join("Desinstaller Mindset.exe"));
     assert!(a.contains(&("Nouvelle".into(), Some("Nouvelle.exe".into()))), "{a:?}");
+}
+
+/// Audit du 08/11 (G1) : la liste en ligne d'un autre disque n'est jamais jugée avec les clés posées à côté d'elle,
+/// seulement avec celles du Mindset d'où vient le désinstalleur
+#[test]
+fn liste_en_ligne_jugee_avec_les_cles_du_desinstalleur_seulement() {
+    let bonne = liste("4", "2.16.0", &[NOUVELLE]);
+    let e = Env::nouveau("enligne-cles", false, false);
+    let racine = e.racine_x.join("Programmes");
+    poser_liste(&racine, &e.racine_x.join("Donnees").join("Mindset"), "3", &Pose::Signee(bonne));
+    // Le désinstalleur vient de Program Files, dont le Mindset n'a pas la clé de test : la liste est refusée
+    let (a, journal) = trouvees(&e, &e.exe);
+    assert!(!a.iter().any(|(n, _)| n == "Nouvelle"), "{a:?}");
+    assert!(journal.iter().any(|l| l.contains("ignorée")), "{journal:?}");
 }
 
 #[test]
@@ -861,7 +1028,7 @@ fn liste_en_ligne_refusee_ignoree() {
     ] {
         let e = Env::nouveau(&format!("refus-{nom}"), false, false);
         poser_liste(&e.racine_c, &e.donnees.join("Mindset"), livree, &pose);
-        let (a, journal) = trouvees(&e);
+        let (a, journal) = trouvees(&e, &e.exe);
         assert!(!a.iter().any(|(n, _)| n == "Nouvelle"), "{nom} : {a:?}");
         // apps.json livré reste pris
         assert!(a.contains(&("Appli".into(), Some("Appli.exe".into()))), "{nom} : {a:?}");
@@ -874,7 +1041,7 @@ fn liste_en_ligne_entree_mal_formee_ignoree() {
     let piege = r#"{"id":"piege","nom":"..","exe":"P.exe","desinstalleur":"Retirer Nouvelle.exe"}"#;
     let e = Env::nouveau("enligne-entree", false, false);
     poser_liste(&e.racine_c, &e.donnees.join("Mindset"), "3", &Pose::Signee(liste("4", "2.16.0", &[piege, NOUVELLE])));
-    let (a, _) = trouvees(&e);
+    let (a, _) = trouvees(&e, &e.exe);
     assert!(a.contains(&("Nouvelle".into(), Some("Nouvelle.exe".into()))), "{a:?}");
     assert!(!a.iter().any(|(n, _)| n == ".."), "{a:?}");
 }

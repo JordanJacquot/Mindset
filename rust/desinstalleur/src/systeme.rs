@@ -71,6 +71,13 @@ pub trait Systeme: Sync {
     fn supprimer_valeur(&self, ruche: Ruche, cle: &str, nom: &str) -> Result<(), String>;
     /// Écrit une valeur texte, seulement si la clé existe déjà
     fn ecrire_texte_si_cle(&self, ruche: Ruche, cle: &str, nom: &str, valeur: &str) -> Result<(), String>;
+    /// Une valeur texte (None : clé ou valeur absente, ou illisible)
+    fn lire_texte(&self, ruche: Ruche, cle: &str, nom: &str) -> Option<String>;
+
+    /// Un dossier que seuls les administrateurs peuvent changer : propriétaire Administrateurs, SYSTEM ou
+    /// TrustedInstaller, et aucun droit d'écriture pour un autre compte (le même contrôle que `dossier_protege` de
+    /// l'installateur). Droits illisibles : non.
+    fn dossier_protege(&self, dossier: &Path) -> bool;
 
     /// Le contenu d'un dossier du Planificateur de tâches (None : il n'existe pas)
     fn dossier_taches(&self, chemin: &str) -> Result<Option<DossierTaches>, LectureTaches>;
