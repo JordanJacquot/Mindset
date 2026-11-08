@@ -82,8 +82,9 @@ pub trait Fenetres: Send {
     fn barre_propre(&self, h: isize) -> bool;
     /// `MSIntegration.Fermer` : `WM_CLOSE`, comme un clic sur sa croix.
     fn fermer(&self, h: isize);
-    /// `MSIntegration.Liberer` : rendue telle qu'elle était, cachée.
-    fn liberer(&self, h: isize, styles: Styles);
+    /// `MSIntegration.Liberer` : rendue telle qu'elle était, cachée. `false` : l'appli ne traitait pas ses messages,
+    /// elle n'est pas encore rendue (elle le sera dès qu'elle les traitera ; Mindset n'attend pas, audit M3).
+    fn liberer(&self, h: isize, styles: Styles) -> bool;
     /// `MSIntegration.Focus` : le clavier va à l'appli.
     fn focus(&self, h: isize);
     /// Mindset se ferme : plus rien ne sera demandé (les panneaux s'en vont).
@@ -282,13 +283,15 @@ impl Fenetres for FauxFenetres {
     fn fermer(&self, h: isize) {
         self.i().appels.push(format!("fermer {h}"));
     }
-    fn liberer(&self, h: isize, _styles: Styles) {
+    fn liberer(&self, h: isize, _styles: Styles) -> bool {
         let mut i = self.i();
         i.appels.push(format!("liberer {h}"));
-        if let Some(f) = i.fenetres.get_mut(&h) {
+        // (comme le vrai : une appli qui ne répond pas est rendue plus tard, ici tout de suite ; `false` est rendu)
+        i.fenetres.get_mut(&h).is_none_or(|f| {
             f.parent = None;
             f.visible = false;
-        }
+            f.repond
+        })
     }
     fn focus(&self, h: isize) {
         self.i().appels.push(format!("focus {h}"));

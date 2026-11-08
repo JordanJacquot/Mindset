@@ -104,6 +104,8 @@ thread_local! {
 struct EcranPage {
     app: AppHandle,
     etat_essai: Option<PathBuf>,
+    /// La file des demandes vers le fil de la fenêtre (pour la cacher avant de fermer les blocs)
+    demandes: Sender<Vec<Demande>>,
 }
 
 impl Ecran for EcranPage {
@@ -115,6 +117,11 @@ impl Ecran for EcranPage {
     }
     fn ordre(&mut self, ordre: Value) {
         self.app.state::<Page>().ordre(ordre);
+    }
+    fn cacher_avant_fermeture(&mut self) {
+        // (envoyée tout de suite : le fil de la fenêtre la cache à son pas suivant, 100 ms au plus, pendant que ce fil
+        // ferme les blocs ; la fin, elle, part une fois les blocs fermés)
+        let _ = self.demandes.send(vec![Demande::Fenetre(Fenetre::Cacher)]);
     }
 }
 
@@ -393,9 +400,10 @@ fn ouvrir_fenetre(app: &App, suite: &Path, donnees: &Path) {
             etat.demandes = Some(rd);
             let a = app.handle().clone();
             let etat_essai = etat.essai.then(|| etat.donnees.join("etat.json"));
-            let r = std::thread::Builder::new()
-                .name("blocs".into())
-                .spawn(move || fil_des_blocs(hote, EcranPage { app: a, etat_essai }, ro, td));
+            let r = std::thread::Builder::new().name("blocs".into()).spawn(move || {
+                let ecran = EcranPage { app: a, etat_essai, demandes: td.clone() };
+                fil_des_blocs(hote, ecran, ro, td)
+            });
             if let Err(x) = r {
                 journal(&format!("Écran impossible : le fil des blocs n'a pas pu démarrer ({x})"));
             }

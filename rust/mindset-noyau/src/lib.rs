@@ -169,6 +169,15 @@ pub trait Bloc: Send {
         None
     }
 
+    /// Un tic de ce bloc qui ne demande AUCUN effet peut-il changer l'état (le sien, le tableau commun, un réglage) ?
+    /// Oui par défaut : l'hôte relit alors l'état après chacun de ses tics (correction du 07/11/2026, le rond
+    /// « Recherche des mises à jour... » sans fin). Un bloc ne rend `false` que si son tic ne change jamais rien sans
+    /// passer par un effet : l'hôte ne refait pas l'état pour lui (audit M2 du 08/11/2026 : le tic de 150 ms de
+    /// l'icône près de l'horloge faisait refaire tout l'état 6,7 fois par seconde, suite.json relu à chaque fois).
+    fn tic_change_l_etat(&self) -> bool {
+        true
+    }
+
     /// Un message d'un autre bloc ou de l'hôte (voir [`signaux`]).
     fn signal(&mut self, _ctx: &Contexte, _nom: &str, _donnees: &Value, _effets: &mut Effets) {}
 

@@ -81,6 +81,29 @@ struct Integration {
     debloquee: bool,
     relancee: bool,
     pid: Option<u32>,
+    /// L'attente d'une fenêtre trouvée mais pas prête est déjà notée au journal (une fois par attente)
+    attente_notee: bool,
+}
+
+/// Pourquoi une fenêtre trouvée n'est pas encore accrochée (audit G4 : c'est une attente, pas un abandon).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum PasPrete {
+    /// Elle ne répond pas dans la seconde (elle démarre, ou elle travaille)
+    NeRepondPas,
+    /// Mindset n'a pas encore sa fenêtre
+    SansFenetreDeMindset,
+    /// Le panneau n'a pas pu être créé
+    SansPanneau,
+}
+
+impl PasPrete {
+    fn texte(self) -> &'static str {
+        match self {
+            PasPrete::NeRepondPas => "ne répond pas encore : il sera affiché dès qu'il répondra",
+            PasPrete::SansFenetreDeMindset => "pas encore affiché : Mindset n'a pas encore sa fenêtre",
+            PasPrete::SansPanneau => "pas encore affiché : sa place dans Mindset n'a pas pu être créée",
+        }
+    }
 }
 
 /// Ce que la page de l'appli affiche quand l'appli n'y est pas (PageAppliTitre, PageAppliTexte, BtnPageAppliIci).
@@ -265,6 +288,7 @@ impl BlocAccrochage {
             debloquee: false,
             relancee: false,
             pid: None,
+            attente_notee: false,
         });
         self.integrees.len() - 1
     }
@@ -463,7 +487,22 @@ impl BlocAccrochage {
             return;
         }
         if let Some(h) = self.trouver_fenetre(ctx, a) {
-            self.connecter(ctx, a, h);
+            if self.connecter(ctx, a, h).is_err() {
+                // Trouvée mais pas encore prête (audit G4) : elle démarre, la jauge, et la surveillance la raccroche
+                // dès qu'elle répond (avant le 08/11/2026, la page restait vide et plus personne ne la regardait)
+                let etat = self.integrees[k].etat;
+                if etat != Etat::Lancement && etat != Etat::Relance {
+                    let maintenant = self.maintenant();
+                    let i = &mut self.integrees[k];
+                    i.etat = Etat::Lancement;
+                    i.depuis = maintenant;
+                    i.debloquee = false;
+                }
+                if self.integrees[k].etat == Etat::Lancement {
+                    self.montrer_jauge(ctx, a, "Ouverture...");
+                }
+                self.demarrer_minuterie(ctx);
+            }
             return;
         }
         let etat = self.integrees[k].etat;
@@ -494,21 +533,33 @@ impl BlocAccrochage {
         self.demarrer_minuterie(ctx);
     }
 
-    /// `Connect-Fenetre` (integration.ps1:97-115)
-    fn connecter(&mut self, ctx: &Contexte, a: &Appli, h: isize) {
+    /// `Connect-Fenetre` (integration.ps1:97-115). `Err` : la fenêtre est trouvée mais pas encore prête (l'appli ne
+    /// répond pas, Mindset n'a pas encore de fenêtre, ou pas de panneau) : rien n'est fait, c'est une attente, à
+    /// réessayer au passage suivant de la surveillance (une ligne au journal la première fois).
+    fn connecter(&mut self, ctx: &Contexte, a: &Appli, h: isize) -> Result<(), PasPrete> {
         let k = self.index(&a.id);
-        let Some(f) = self.fenetres.as_deref() else { return };
-        // (une appli figée n'est pas accrochée maintenant : Mindset resterait bloqué avec elle ; au passage suivant)
-        if !f.repond(h) {
-            return;
-        }
-        // (pas encore de fenêtre à Mindset : au passage suivant)
-        let Some(parent) = ctx.fenetre_principale() else { return };
-        let hote = match self.integrees[k].hote {
-            Some(x) => Some(x),
-            None => f.hote(&a.id, parent),
+        let Some(f) = self.fenetres.as_deref() else { return Ok(()) };
+        let pret = if !f.repond(h) {
+            // (une appli figée n'est pas accrochée maintenant : Mindset resterait bloqué avec elle)
+            Err(PasPrete::NeRepondPas)
+        } else if let Some(parent) = ctx.fenetre_principale() {
+            match self.integrees[k].hote {
+                Some(x) => Ok(x),
+                None => f.hote(&a.id, parent).ok_or(PasPrete::SansPanneau),
+            }
+        } else {
+            Err(PasPrete::SansFenetreDeMindset)
         };
-        let Some(hote) = hote else { return };
+        let hote = match pret {
+            Ok(x) => x,
+            Err(raison) => {
+                if !std::mem::replace(&mut self.integrees[k].attente_notee, true) {
+                    ctx.journal(&format!("{} {}", a.nom, raison.texte()));
+                }
+                return Err(raison);
+            }
+        };
+        let Some(f) = self.fenetres.as_deref() else { return Ok(()) };
         // (le panneau est montré pour avoir sa taille : celle de la zone, rien si la page de l'appli est repliée)
         let taille = self.zone.taille();
         f.placer_hote(hote, self.zone, true);
@@ -530,7 +581,7 @@ impl BlocAccrochage {
                 "Windows a refusé de l'accrocher : quitte tout (icône près de l'horloge) puis rouvre Mindset.",
             );
             ctx.journal(&format!("Intégration de {} refusée par Windows", a.nom));
-            return;
+            return Ok(());
         };
         if self.integrees[k].etat == Etat::Lancement {
             self.retenir_duree(ctx, a, self.integrees[k].depuis);
@@ -542,6 +593,7 @@ impl BlocAccrochage {
             i.styles = Some(styles);
             i.etat = Etat::Affiche;
             i.pid = Some(pid);
+            i.attente_notee = false;
         }
         ctx.journal(&format!("{} affiché dans Mindset", a.nom));
         self.hotes_visibles(ctx);
@@ -549,6 +601,7 @@ impl BlocAccrochage {
             f.focus(h);
         }
         self.demarrer_minuterie(ctx);
+        Ok(())
     }
 
     /// `Update-HotesVisibles` (integration.ps1:131-144) : une seule appli visible, celle de la page montrée, et aucune
@@ -625,8 +678,10 @@ impl BlocAccrochage {
                     self.ecran_ouvrir(ctx, &a, &format!("{} est fermé.", a.nom));
                 } else if !self.f().is_some_and(|f| f.est_montree(h)) {
                     // Elle s'est cachée elle-même (réduite près de l'horloge, par sa croix) : rendue telle quelle
-                    if let (Some(f), Some(s)) = (self.f(), self.integrees[k].styles) {
-                        f.liberer(h, s);
+                    if let (Some(f), Some(s)) = (self.f(), self.integrees[k].styles)
+                        && !f.liberer(h, s)
+                    {
+                        ctx.journal(&format!("{} ne répond pas : sa fenêtre lui est rendue dès qu'il répond", a.nom));
                     }
                     let i = &mut self.integrees[k];
                     i.fenetre = None;
@@ -640,8 +695,12 @@ impl BlocAccrochage {
             if etat != Etat::Lancement && etat != Etat::Relance {
                 continue;
             }
-            if let Some(h) = self.trouver_fenetre(ctx, &a) {
-                self.connecter(ctx, &a, h);
+            // (trouvée mais pas encore prête, audit G4 : c'est une attente comme une autre, la surveillance continue et
+            // la limite d'une minute ci-dessous s'applique ; avant le 08/11/2026 : `continue` sans attente, la
+            // surveillance s'arrêtait et la jauge « Ouverture... » restait pour toujours)
+            if let Some(h) = self.trouver_fenetre(ctx, &a)
+                && self.connecter(ctx, &a, h).is_ok()
+            {
                 continue;
             }
             if etat == Etat::Relance && !self.integrees[k].relancee && self.nouveau_processus(ctx, &a, k) {
@@ -713,12 +772,17 @@ impl BlocAccrochage {
     }
 
     /// `Disconnect-Applis` (integration.ps1:241-246) : chaque appli retrouve sa fenêtre, cachée près de l'horloge.
-    fn decrocher_tout(&mut self) {
+    /// Une appli figée n'est pas attendue plus de `windows::DELAI_APPLI` (audit M3) : Mindset quitte quand même.
+    fn decrocher_tout(&mut self, ctx: &Contexte) {
         for k in 0..self.integrees.len() {
             if let (Some(h), Some(s)) = (self.integrees[k].fenetre, self.integrees[k].styles)
                 && let Some(f) = self.f()
+                && !f.liberer(h, s)
             {
-                f.liberer(h, s);
+                let nom = ctx.appli(&self.integrees[k].id).map_or_else(|| self.integrees[k].id.clone(), |a| a.nom);
+                ctx.journal(&format!(
+                    "{nom} ne répondait pas quand Mindset a quitté : sa fenêtre lui est rendue s'il répond dans les 10 s"
+                ));
             }
             self.integrees[k].fenetre = None;
         }
@@ -958,7 +1022,7 @@ impl Bloc for BlocAccrochage {
     }
 
     fn fermer(&mut self, ctx: &Contexte) {
-        self.decrocher_tout();
+        self.decrocher_tout(ctx);
         if let Some(f) = self.f() {
             f.fin();
         }

@@ -221,6 +221,13 @@ impl Bloc for BlocHorloge {
         }
     }
 
+    /// Non : le tic ne fait que donner le menu à l'icône, lire ses gestes et relever les notifications des applis.
+    /// Ce qui change l'état ou la fenêtre passe toujours par un effet (montrer, quitter, ouvrir une appli) ; le reste
+    /// (le menu, la bulle d'appli en attente d'un clic, le prochain relevé) n'est pas dans l'état. Audit M2.
+    fn tic_change_l_etat(&self) -> bool {
+        false
+    }
+
     fn signal(&mut self, ctx: &Contexte, nom: &str, donnees: &Value, effets: &mut Effets) {
         match nom {
             signaux::CROIX => self.croix(ctx, effets),

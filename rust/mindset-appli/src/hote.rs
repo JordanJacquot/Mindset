@@ -35,6 +35,10 @@ pub trait Ecran {
     fn etat(&mut self, etat: Value);
     /// Un ordre à la page (`{ kit: ... }`).
     fn ordre(&mut self, ordre: Value);
+    /// Mindset quitte : la fenêtre est cachée TOUT DE SUITE, avant que les blocs ne soient fermés (les applis ont
+    /// jusqu'à 6 s pour se fermer ; sans cela, la fenêtre restait affichée et figée pendant ce temps). Comme
+    /// Exit-Mindset puis `$Window.Close()` de la version PowerShell (interface.ps1:98-101).
+    fn cacher_avant_fermeture(&mut self) {}
 }
 
 /// Ce que l'hôte demande au programme (le fil de la fenêtre).
@@ -258,6 +262,8 @@ impl Hote {
             }
         }
         if let Some(avec_applis) = self.quitter.take() {
+            // (la fenêtre d'abord, puis les blocs, qui ferment les applis : jusqu'à 6 s)
+            ecran.cacher_avant_fermeture();
             self.fermer(avec_applis, ecran);
             demandes.push(Demande::Fin { relancer: self.relancer, lancer_apres: self.lancer_apres.take() });
             return demandes;
@@ -465,7 +471,9 @@ impl Hote {
             if !self.prochains[i].is_some_and(|p| p <= t) {
                 continue;
             }
-            appele = true;
+            // (sauf un bloc dont le tic ne change jamais rien sans effet : l'icône près de l'horloge, toutes les
+            // 150 ms ; audit M2, tests/rythme_etat.rs)
+            appele |= self.blocs[i].tic_change_l_etat();
             let mut ef = Effets::default();
             match self.appeler(i, "tic", |b, ctx| b.tic(ctx, &mut ef)) {
                 Some(d) => self.prochains[i] = d.map(|d| t + d),
@@ -573,6 +581,8 @@ mod tests {
     struct Page {
         etats: Vec<Value>,
         ordres: Vec<Value>,
+        /// Les notes des blocs, où la page écrit « page:cachee » quand la fenêtre est cachée (pour l'ordre)
+        notes: Option<Notes>,
     }
     impl Ecran for Page {
         fn etat(&mut self, e: Value) {
@@ -580,6 +590,11 @@ mod tests {
         }
         fn ordre(&mut self, o: Value) {
             self.ordres.push(o);
+        }
+        fn cacher_avant_fermeture(&mut self) {
+            if let Some(n) = &self.notes {
+                n.lock().unwrap().push("page:cachee".into());
+            }
         }
     }
 
@@ -782,6 +797,26 @@ mod tests {
             ]
         );
         assert!(h.recevoir(action("ecrans:plus", Value::Null), &mut p).is_empty(), "plus rien une fois fermé");
+    }
+
+    /// « Tout quitter », « Quitter », une relance : la fenêtre est cachée AVANT que les blocs ne soient prévenus et
+    /// fermés (avant le 08/11/2026, elle restait affichée et figée jusqu'à 6 s, le temps que les applis se ferment).
+    #[test]
+    fn quitter_cache_la_fenetre_avant_de_fermer_les_blocs() {
+        for quoi in ["ecrans:quitter", "liste:relancer"] {
+            let (mut h, notes, _f) = hote("hote-cacher-avant");
+            h.demarrer();
+            let mut p = Page { notes: Some(notes.clone()), ..Default::default() };
+            prendre(&notes);
+            let d = h.recevoir(action(quoi, Value::Null), &mut p);
+            assert!(matches!(d.last(), Some(Demande::Fin { .. })), "{d:?}");
+            let n = prendre(&notes);
+            let cachee = n.iter().position(|x| x == "page:cachee");
+            let premier = n.iter().position(|x| x.contains("signal quitter") || x.ends_with(":fermer"));
+            assert!(cachee.is_some(), "{quoi} : la fenêtre n'est jamais cachée avant la fin : {n:?}");
+            assert!(cachee < premier, "{quoi} : cachée après la fermeture des blocs : {n:?}");
+            assert_eq!(n.iter().filter(|x| *x == "page:cachee").count(), 1);
+        }
     }
 
     #[test]

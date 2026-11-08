@@ -152,6 +152,8 @@ fn la_surveillance_garde_son_rythme() {
     assert_eq!(hote.zone, Zone { x: 210, y: 96, largeur: 1100, hauteur: 760, visible: true });
 }
 
+/// Avant le 08/11/2026 (audit G4), ce test renvoyait lui-même le signal « page » pour faire réessayer : dans Mindset,
+/// personne ne le renvoie. Ici, seule la surveillance (les tics) fait réessayer.
 #[test]
 fn une_appli_figee_ou_sans_fenetre_de_mindset_attend() {
     let mut b = Banc::nouveau("accrochage-figee");
@@ -161,13 +163,97 @@ fn une_appli_figee_ou_sans_fenetre_de_mindset_attend() {
     b.ctx.definir_fenetre(None);
     b.page("evermind");
     assert!(b.f.appels().is_empty(), "ni accrochée, ni bloquée avec elle");
-    assert_eq!(b.pages()["evermind"]["etat"], "vide");
+    assert!(b.bloc.minuterie(), "pas encore prête : la surveillance la regarde");
+    assert_eq!(b.pages()["evermind"]["etat"], "lancement");
+    assert!(!b.pages()["evermind"]["jauge"].is_null(), "la jauge « Ouverture... », pas une page vide");
     b.ctx.definir_fenetre(Some(77));
-    b.page("evermind");
+    b.avancer(400);
+    assert_eq!(b.tic().0, Some(INTERVALLE), "elle ne répond toujours pas : la surveillance continue");
     assert!(b.f.appels().is_empty(), "elle ne répond toujours pas");
     b.f.changer(1001, |x| x.repond = true);
-    b.page("evermind");
+    b.avancer(400);
+    b.tic();
     assert_eq!(b.f.appels(), vec!["accrocher 1001 900x700", "focus 1001"]);
+    assert_eq!(b.pages()["evermind"]["etat"], "affiche");
+    let notes: Vec<String> = b.faux.donnees.lignes().into_iter().filter(|l| l.contains("pas encore")).collect();
+    assert_eq!(notes.len(), 1, "une seule ligne au journal pour toute l'attente : {notes:?}");
+}
+
+/// Audit G4, cas A : lancée par Mindset, sa fenêtre arrive pendant qu'elle est occupée (Nevermind qui démarre). Avant
+/// le 08/11/2026, la surveillance s'arrêtait là, et la jauge « Ouverture... » restait pour toujours.
+#[test]
+fn lancee_puis_occupee_un_instant_elle_est_accrochee_quand_elle_repond() {
+    let mut b = Banc::nouveau("accrochage-occupee-lancee");
+    b.zone(1100, 760);
+    b.page("evermind");
+    let mut e = Effets::default();
+    b.bloc.action(&b.ctx, "accrochage:ouvrir-ici", &json!("evermind"), &mut e);
+    assert!(b.bloc.minuterie());
+    // Son programme démarre, sa fenêtre existe, mais il ne répond pas dans la seconde
+    b.faux.systeme.ajouter_processus(501, r"C:\Essai\Programmes\evermind\Mindset.exe", b.f.maintenant());
+    b.f.creer(1001, 501, "Evermind", "HwndWrapper[Mindset.exe;;1]", false, false);
+    b.f.changer(1001, |x| x.repond = false);
+    for _ in 0..5 {
+        b.avancer(400);
+        assert_eq!(b.tic().0, Some(INTERVALLE), "trouvée mais pas prête : la surveillance continue");
+    }
+    assert!(b.f.appels().is_empty());
+    assert_eq!(b.pages()["evermind"]["etat"], "lancement");
+    assert!(!b.pages()["evermind"]["jauge"].is_null());
+    // Elle répond : accrochée au passage suivant, sans rien d'autre
+    b.f.changer(1001, |x| x.repond = true);
+    b.avancer(400);
+    b.tic();
+    assert_eq!(b.f.appels(), vec!["accrocher 1001 1100x760", "focus 1001"]);
+    let p = b.pages()["evermind"].clone();
+    assert_eq!(p["etat"], "affiche");
+    assert_eq!(p["jauge"], Value::Null);
+    assert_eq!(
+        b.faux.donnees.lignes().iter().filter(|l| l.contains("ne répond pas encore")).count(),
+        1,
+        "une seule ligne : {:?}",
+        b.faux.donnees.lignes()
+    );
+}
+
+/// Audit G4, cas B : déjà ouverte près de l'horloge, occupée au moment du clic sur son onglet. Avant le 08/11/2026,
+/// la page restait vide (seulement son nom), sans jauge ni surveillance.
+#[test]
+fn deja_ouverte_mais_occupee_elle_est_accrochee_quand_elle_repond() {
+    let mut b = Banc::nouveau("accrochage-occupee-ouverte");
+    b.zone(1100, 760);
+    b.evermind_ouverte(1001);
+    b.f.changer(1001, |x| x.repond = false);
+    b.page("evermind");
+    assert!(b.bloc.minuterie(), "la surveillance la regarde");
+    let p = b.pages()["evermind"].clone();
+    assert_eq!(p["etat"], "lancement");
+    assert_eq!(p["titre"], "Evermind");
+    assert!(!p["jauge"].is_null(), "la jauge « Ouverture... »");
+    b.f.changer(1001, |x| x.repond = true);
+    b.avancer(400);
+    b.tic();
+    assert_eq!(b.f.appels(), vec!["accrocher 1001 1100x760", "focus 1001"]);
+    assert_eq!(b.pages()["evermind"]["etat"], "affiche");
+}
+
+/// Une appli trouvée qui ne répond jamais : la limite d'une minute s'applique comme pour une fenêtre jamais venue.
+#[test]
+fn trouvee_mais_jamais_prete_la_limite_s_applique() {
+    let mut b = Banc::nouveau("accrochage-jamais-prete");
+    b.zone(1100, 760);
+    b.evermind_ouverte(1001);
+    b.f.changer(1001, |x| x.repond = false);
+    b.page("evermind");
+    for _ in 0..160 {
+        b.avancer(400);
+        b.tic();
+    }
+    assert!(!b.bloc.minuterie(), "après une minute, la surveillance s'arrête");
+    let p = b.pages()["evermind"].clone();
+    assert_eq!(p["etat"], "vide");
+    assert_eq!(p["texte"], "Evermind n'a pas pu s'ouvrir.");
+    assert!(b.f.appels().is_empty());
 }
 
 #[test]

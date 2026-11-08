@@ -15,12 +15,16 @@
 //!
 //! **Ne jamais rester bloqué par une appli** : ce qui touche la fenêtre d'une appli (un autre programme) se fait depuis
 //! le fil des blocs, avec `SWP_ASYNCWINDOWPOS` pour les tailles, `PostMessage` pour `WM_CLOSE`, et une appli qui ne
-//! répond pas (`SendMessageTimeout`, 1 s) n'est pas accrochée tant qu'elle ne répond pas.
+//! répond pas (`SendMessageTimeout`, 1 s) n'est pas accrochée tant qu'elle ne répond pas. `accrocher` et `liberer`
+//! (`ShowWindow`, `SetWindowLongPtrW`, `SetParent` attendent que l'appli traite leurs messages) se font sur un fil à
+//! part, attendu [`DELAI_APPLI`] au plus (audit M3 du 08/11/2026 : sans cela, une appli figée 10 s bloquait le fil
+//! des blocs 10 s, et Mindset ne pouvait plus quitter ni se relancer pour une mise à jour).
 
 #![allow(unsafe_code)]
 
 use std::sync::Mutex;
 use std::sync::mpsc;
+use std::time::{Duration, Instant};
 
 use windows::Win32::Foundation::{FILETIME, HWND, LPARAM, LRESULT, WIN32_ERROR, WPARAM};
 use windows::Win32::Graphics::Gdi::{
@@ -34,11 +38,11 @@ use windows::Win32::UI::Input::KeyboardAndMouse::SetFocus;
 use windows::Win32::UI::WindowsAndMessaging::{
     CreateWindowExW, DefWindowProcW, DestroyWindow, DispatchMessageW, EnumWindows, GW_CHILD, GW_HWNDNEXT, GW_OWNER,
     GWL_EXSTYLE, GWL_STYLE, GetClassNameW, GetMessageW, GetParent, GetPropW, GetWindow, GetWindowLongPtrW,
-    GetWindowTextW, GetWindowThreadProcessId, HWND_MESSAGE, HWND_TOP, IsIconic, IsWindow, IsZoomed, MSG, PostMessageW,
-    PostQuitMessage, RegisterClassW, SMTO_ABORTIFHUNG, SMTO_BLOCK, SMTO_NORMAL, SW_HIDE, SW_RESTORE,
-    SWP_ASYNCWINDOWPOS, SWP_FRAMECHANGED, SWP_NOACTIVATE, SWP_NOMOVE, SWP_NOSIZE, SWP_NOZORDER, SWP_SHOWWINDOW,
-    SendMessageTimeoutW, SetParent, SetWindowLongPtrW, SetWindowPos, ShowWindow, TranslateMessage, WINDOW_EX_STYLE,
-    WM_APP, WM_CLOSE, WM_NULL, WM_SETFOCUS, WNDCLASSW, WS_CHILD, WS_CLIPCHILDREN, WS_CLIPSIBLINGS,
+    GetWindowTextW, GetWindowThreadProcessId, HWND_MESSAGE, HWND_TOP, IsIconic, IsWindow, IsZoomed, MSG, PM_NOREMOVE,
+    PeekMessageW, PostMessageW, PostQuitMessage, RegisterClassW, SMTO_ABORTIFHUNG, SMTO_BLOCK, SMTO_NORMAL, SW_HIDE,
+    SW_RESTORE, SWP_ASYNCWINDOWPOS, SWP_FRAMECHANGED, SWP_NOACTIVATE, SWP_NOMOVE, SWP_NOSIZE, SWP_NOZORDER,
+    SWP_SHOWWINDOW, SendMessageTimeoutW, SetParent, SetWindowLongPtrW, SetWindowPos, ShowWindow, TranslateMessage,
+    WINDOW_EX_STYLE, WM_APP, WM_CLOSE, WM_NULL, WM_SETFOCUS, WNDCLASSW, WS_CHILD, WS_CLIPCHILDREN, WS_CLIPSIBLINGS,
     WS_EX_NOPARENTNOTIFY,
 };
 use windows::core::{BOOL, w};
@@ -224,6 +228,83 @@ unsafe extern "system" fn proc_panneau(h: HWND, msg: u32, wp: WPARAM, lp: LPARAM
     unsafe { DefWindowProcW(h, msg, wp, lp) }
 }
 
+/// Ce que Mindset attend au plus d'une appli pour l'accrocher ou la rendre (audit M3, essai du 08/11/2026 sur un
+/// bureau à part, `examples\essai_figee.rs` : une appli figée 10 s bloquait `liberer` 8,6 s et `accrocher` 9,9 s).
+pub const DELAI_APPLI: Duration = Duration::from_millis(1500);
+
+/// En quittant, ce que Mindset attend encore au plus les accrochages et rendus pas finis à temps, avant de détruire
+/// ses panneaux : un panneau détruit détruit aussi la fenêtre d'appli qu'il tient encore (essai du 08/11/2026). Au-delà,
+/// Mindset quitte quand même (avant : il attendait l'appli figée pour toujours). 10 s : Nevermind met jusqu'à 10 s à
+/// finir de quitter ; la fenêtre de Mindset est déjà cachée pendant ce temps (`Ecran::cacher_avant_fermeture`), et
+/// l'attente est commune à toutes les applis.
+pub const ATTENTE_FIN: Duration = Duration::from_secs(10);
+
+/// Les appels de [`avec_delai`] pas encore finis (leurs fils tournent encore).
+static EN_COURS: (Mutex<usize>, std::sync::Condvar) = (Mutex::new(0), std::sync::Condvar::new());
+
+fn en_cours(plus: bool) {
+    let mut n = EN_COURS.0.lock().unwrap_or_else(|e| e.into_inner());
+    *n = if plus { *n + 1 } else { n.saturating_sub(1) };
+    EN_COURS.1.notify_all();
+}
+
+/// Attend que les appels de [`avec_delai`] soient finis, `max` au plus ; `true` s'ils le sont.
+fn attendre_en_cours(max: Duration) -> bool {
+    let n = EN_COURS.0.lock().unwrap_or_else(|e| e.into_inner());
+    let (n, _) = EN_COURS.1.wait_timeout_while(n, max, |n| *n > 0).unwrap_or_else(|e| e.into_inner());
+    *n == 0
+}
+
+/// `f` sur un fil à part (sur le même bureau Windows que l'appelant), attendue `DELAI_APPLI` au plus. `None` : pas
+/// finie à temps (l'appli ne traite pas ses messages) ; `f` se finit seule dès qu'elle les traite. Pendant l'attente,
+/// les messages envoyés aux fenêtres de l'appelant sont traités (s'il en a : les tests), pour ne pas se bloquer
+/// soi-même.
+fn avec_delai<R: Send + 'static>(f: impl FnOnce() -> R + Send + 'static) -> Option<R> {
+    // SAFETY : lecture du bureau de ce fil (handle non possédé, rien à fermer)
+    let bureau = unsafe { GetThreadDesktop(GetCurrentThreadId()) }.ok().map(|d| d.0 as isize);
+    let (envoi, recu) = mpsc::channel();
+    let f = std::sync::Arc::new(Mutex::new(Some(f)));
+    let pour_le_fil = f.clone();
+    en_cours(true);
+    let lance = std::thread::Builder::new().name("accrochage-appli".into()).spawn(move || {
+        // SAFETY : ce fil neuf n'a aucune fenêtre ; le bureau est celui du fil demandeur
+        unsafe {
+            if let Some(b) = bureau {
+                let _ = SetThreadDesktop(HDESK(b as *mut core::ffi::c_void));
+            }
+        }
+        let f = pour_le_fil.lock().unwrap_or_else(|e| e.into_inner()).take();
+        if let Some(f) = f {
+            let r = f();
+            en_cours(false);
+            let _ = envoi.send(r);
+        } else {
+            en_cours(false);
+        }
+    });
+    if lance.is_err() {
+        en_cours(false);
+        // (pas de fil : comme avant, sur place)
+        let f = f.lock().unwrap_or_else(|e| e.into_inner()).take()?;
+        return Some(f());
+    }
+    let fin = Instant::now() + DELAI_APPLI;
+    loop {
+        match recu.recv_timeout(Duration::from_millis(10)) {
+            Ok(r) => return Some(r),
+            Err(mpsc::RecvTimeoutError::Disconnected) => return None,
+            Err(mpsc::RecvTimeoutError::Timeout) if Instant::now() >= fin => return None,
+            Err(mpsc::RecvTimeoutError::Timeout) => {
+                let mut m = MSG::default();
+                // SAFETY : la file de ce fil ; PM_NOREMOVE traite les messages envoyés sans retirer les messages postés
+                unsafe {
+                    let _ = PeekMessageW(&mut m, None, 0, 0, PM_NOREMOVE);
+                }
+            }
+        }
+    }
+}
+
 fn existe(h: isize) -> bool {
     // SAFETY : lecture seule
     h != 0 && unsafe { IsWindow(Some(hwnd(h))) }.as_bool()
@@ -384,34 +465,41 @@ impl Fenetres for FenetresWindows {
             | WS_VISIBLE;
         let nouveau_ex =
             ex & !(WS_EX_APPWINDOW | WS_EX_WINDOWEDGE | WS_EX_DLGMODALFRAME | WS_EX_CLIENTEDGE | WS_EX_STATICEDGE);
-        // SAFETY : la fenêtre principale de l'appli (trouvée par son processus, son titre et sa classe) et notre panneau
-        unsafe {
-            // (ni réduite, ni agrandie ; une fenêtre cachée en taille normale n'est pas montrée hors de Mindset : voir
-            // DIVERGENCES.md)
-            if IsIconic(hwnd(h)).as_bool() || IsZoomed(hwnd(h)).as_bool() {
-                let _ = ShowWindow(hwnd(h), SW_RESTORE);
+        // (sur un fil à part, attendu DELAI_APPLI au plus : `repond` vient de dire oui, mais l'appli peut se figer juste
+        // après ; audit M3. Au-delà du délai, l'accrochage se finit dès qu'elle répond : elle compte comme accrochée,
+        // un refus de Windows, lui, est immédiat)
+        let fait = avec_delai(move || {
+            // SAFETY : la fenêtre principale de l'appli (trouvée par son processus, son titre et sa classe) et notre
+            // panneau
+            unsafe {
+                // (ni réduite, ni agrandie ; une fenêtre cachée en taille normale n'est pas montrée hors de Mindset :
+                // voir DIVERGENCES.md)
+                if IsIconic(hwnd(h)).as_bool() || IsZoomed(hwnd(h)).as_bool() {
+                    let _ = ShowWindow(hwnd(h), SW_RESTORE);
+                }
+                SetWindowLongPtrW(hwnd(h), GWL_STYLE, nouveau as isize);
+                SetWindowLongPtrW(hwnd(h), GWL_EXSTYLE, nouveau_ex as isize);
+                windows::Win32::Foundation::SetLastError(WIN32_ERROR(0));
+                if let Err(e) = SetParent(hwnd(h), Some(hwnd(hote)))
+                    && e.code().is_err()
+                {
+                    SetWindowLongPtrW(hwnd(h), GWL_STYLE, style as isize);
+                    SetWindowLongPtrW(hwnd(h), GWL_EXSTYLE, ex as isize);
+                    return false;
+                }
+                let _ = SetWindowPos(
+                    hwnd(h),
+                    None,
+                    0,
+                    0,
+                    largeur,
+                    hauteur,
+                    SWP_NOZORDER | SWP_FRAMECHANGED | SWP_SHOWWINDOW | SWP_ASYNCWINDOWPOS,
+                );
             }
-            SetWindowLongPtrW(hwnd(h), GWL_STYLE, nouveau as isize);
-            SetWindowLongPtrW(hwnd(h), GWL_EXSTYLE, nouveau_ex as isize);
-            windows::Win32::Foundation::SetLastError(WIN32_ERROR(0));
-            if let Err(e) = SetParent(hwnd(h), Some(hwnd(hote)))
-                && e.code().is_err()
-            {
-                SetWindowLongPtrW(hwnd(h), GWL_STYLE, style as isize);
-                SetWindowLongPtrW(hwnd(h), GWL_EXSTYLE, ex as isize);
-                return None;
-            }
-            let _ = SetWindowPos(
-                hwnd(h),
-                None,
-                0,
-                0,
-                largeur,
-                hauteur,
-                SWP_NOZORDER | SWP_FRAMECHANGED | SWP_SHOWWINDOW | SWP_ASYNCWINDOWPOS,
-            );
-        }
-        Some(Styles { style, ex })
+            true
+        });
+        (fait != Some(false)).then_some(Styles { style, ex })
     }
 
     fn redimensionner(&self, h: isize, largeur: i32, hauteur: i32) {
@@ -438,26 +526,30 @@ impl Fenetres for FenetresWindows {
         }
     }
 
-    fn liberer(&self, h: isize, styles: Styles) {
+    fn liberer(&self, h: isize, styles: Styles) -> bool {
         if !existe(h) {
-            return;
+            return true;
         }
-        // SAFETY : la fenêtre accrochée, rendue telle qu'elle était, cachée
-        unsafe {
-            let _ = ShowWindow(hwnd(h), SW_HIDE);
-            let _ = SetParent(hwnd(h), None);
-            SetWindowLongPtrW(hwnd(h), GWL_STYLE, (styles.style & !WS_VISIBLE) as isize);
-            SetWindowLongPtrW(hwnd(h), GWL_EXSTYLE, styles.ex as isize);
-            let _ = SetWindowPos(
-                hwnd(h),
-                None,
-                0,
-                0,
-                0,
-                0,
-                SWP_NOZORDER | SWP_NOMOVE | SWP_NOSIZE | SWP_FRAMECHANGED | SWP_NOACTIVATE | SWP_ASYNCWINDOWPOS,
-            );
-        }
+        // (sur un fil à part, attendu DELAI_APPLI au plus : une appli figée ne bloque plus le fil des blocs ; audit M3)
+        avec_delai(move || {
+            // SAFETY : la fenêtre accrochée, rendue telle qu'elle était, cachée
+            unsafe {
+                let _ = ShowWindow(hwnd(h), SW_HIDE);
+                let _ = SetParent(hwnd(h), None);
+                SetWindowLongPtrW(hwnd(h), GWL_STYLE, (styles.style & !WS_VISIBLE) as isize);
+                SetWindowLongPtrW(hwnd(h), GWL_EXSTYLE, styles.ex as isize);
+                let _ = SetWindowPos(
+                    hwnd(h),
+                    None,
+                    0,
+                    0,
+                    0,
+                    0,
+                    SWP_NOZORDER | SWP_NOMOVE | SWP_NOSIZE | SWP_FRAMECHANGED | SWP_NOACTIVATE | SWP_ASYNCWINDOWPOS,
+                );
+            }
+        })
+        .is_some()
     }
 
     fn focus(&self, h: isize) {
@@ -473,6 +565,8 @@ impl Fenetres for FenetresWindows {
     fn fin(&self) {
         let mut f = self.fil.lock().unwrap_or_else(|e| e.into_inner());
         if f.boite != 0 {
+            // (une appli figée pas encore rendue : ses panneaux la détruiraient avec eux ; elle a encore ATTENTE_FIN)
+            let _ = attendre_en_cours(ATTENTE_FIN);
             // SAFETY : un message posté à notre fil, qui s'arrête
             unsafe {
                 let _ = PostMessageW(Some(hwnd(f.boite)), FIN, WPARAM(0), LPARAM(0));
