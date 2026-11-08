@@ -396,6 +396,15 @@ impl Hote {
         Some(format!("Démarrage Mindset {version} (Rust){avec}"))
     }
 
+    /// La fenêtre est-elle montrée dès sa création (et la vue de départ des blocs « visible ») ? Ouvert à la main, oui ;
+    /// lancé avec `-Demarrage`, seulement si un bloc l'a demandé au départ (relancé après une mise à jour demandée à
+    /// l'écran). Avant le 08/11/2026, seulement `!demarrage` : la fenêtre était montrée par la demande du départ, mais
+    /// les blocs la croyaient cachée ; la console 3D se fermait au bout d'une minute sous les yeux de l'utilisateur,
+    /// et l'appli qu'il ouvrait depuis elle n'était jamais affichée (tests/relance_visible.rs).
+    pub fn montree_au_depart(demarrage: bool, au_depart: &[Demande]) -> bool {
+        !demarrage || au_depart.iter().any(|d| matches!(d, Demande::Fenetre(Fenetre::Montrer)))
+    }
+
     /// La fenêtre existe : chaque bloc aura son premier tic tout de suite.
     pub fn fenetre_prete(&mut self) {
         let t = self.ctx.ecoule();
