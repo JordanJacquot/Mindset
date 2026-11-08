@@ -204,12 +204,21 @@ fn nom_impossible(rel: &str) -> bool {
 /// qui vient de se fermer, ou l'antivirus, garde ses fichiers un court moment.
 fn deplacer_avec_essais(de: &Path, vers: &Path) -> bool {
     for _ in 0..6 {
-        if std::fs::rename(de, vers).is_ok() {
+        if renommer(de, vers).is_ok() {
             return true;
         }
-        std::thread::sleep(Duration::from_millis(500));
+        std::thread::sleep(Duration::from_millis(if cfg!(test) { 5 } else { 500 }));
     }
     false
+}
+
+/// Un renommage (dans les tests : des échecs peuvent être imposés, pour un fichier tenu par l'antivirus)
+fn renommer(de: &Path, vers: &Path) -> std::io::Result<()> {
+    #[cfg(test)]
+    if tests::echec_impose(de) {
+        return Err(std::io::Error::other("échec imposé par le test"));
+    }
+    std::fs::rename(de, vers)
 }
 
 /// Le chemin complet, comme `[IO.Path]::GetFullPath` (Windows : GetFullPathNameW).
@@ -333,18 +342,41 @@ fn installer_verifie(d: &Demande<'_>) -> Result<PathBuf, Erreur> {
     let dest_texte = destination.to_string_lossy().into_owned();
     let parent = destination.parent().ok_or_else(|| autre("Dossier d'arrivée sans parent."))?.to_path_buf();
     std::fs::create_dir_all(&parent).map_err(autre)?;
-    // Restes d'une installation interrompue
+    // Restes d'une installation interrompue. Si la destination manque (Windows arrêté entre les deux renommages, ou
+    // ancienne version qui n'a pas pu revenir), l'ancienne version mise de côté est remise en place au lieu d'être
+    // effacée : c'est la seule copie de l'appli (pour Mindset : Mindset.exe et son installateur).
+    let mut anciens = Vec::new();
     if let Ok(entrees) = std::fs::read_dir(&parent) {
         for e in entrees.flatten() {
+            if !e.file_type().is_ok_and(|t| t.is_dir()) {
+                continue;
+            }
             let p = e.path();
             let texte = p.to_string_lossy();
-            let reste = [".nouveau-", ".ancien-"]
-                .iter()
-                .any(|s| commence_par_sans_casse(&texte, &format!("{dest_texte}{s}")).is_some());
-            if reste && e.file_type().is_ok_and(|t| t.is_dir()) {
+            if commence_par_sans_casse(&texte, &format!("{dest_texte}.nouveau-")).is_some() {
                 supprimer_dossier(&p);
+            } else if commence_par_sans_casse(&texte, &format!("{dest_texte}.ancien-")).is_some() {
+                anciens.push(p);
             }
         }
+    }
+    if std::fs::symlink_metadata(&destination).is_err() && !anciens.is_empty() {
+        // (la plus haute version s'il y en a plusieurs)
+        let version = |p: &Path| version_dossier(p).map(|v| v.0).unwrap_or_else(|()| version_scripts(p));
+        let mut meilleur = 0;
+        for i in 1..anciens.len() {
+            let (v, m) = (version(&anciens[i]), version(&anciens[meilleur]));
+            if forme_valide(&v) && (!forme_valide(&m) || plus_recente(&v, &m)) {
+                meilleur = i;
+            }
+        }
+        let a = anciens.remove(meilleur);
+        if !deplacer_avec_essais(&a, &destination) {
+            anciens.clear(); // (toujours pas : rien n'est effacé, on réessaiera la prochaine fois)
+        }
+    }
+    for a in anciens {
+        supprimer_dossier(&a);
     }
 
     let suffixe = suffixe_au_hasard()?;
@@ -437,9 +469,12 @@ fn installer_verifie(d: &Demande<'_>) -> Result<PathBuf, Erreur> {
             ));
         }
         if !deplacer_avec_essais(&tmp, &destination) {
-            // On remet l'ancienne version telle quelle
-            if let Err(e) = std::fs::rename(&ancien, &destination) {
-                return refuser(autre(e));
+            // On remet l'ancienne version telle quelle, avec les mêmes essais (l'antivirus peut la tenir encore un
+            // instant). Si elle ne revient toujours pas, elle reste à côté : l'installation suivante la remettra.
+            if !deplacer_avec_essais(&ancien, &destination) {
+                return refuser(message_bloque(
+                    "La nouvelle version n'a pas pu être mise en place, et l'ancienne n'a pas pu revenir (fichiers bloqués) : redémarre l'ordinateur, puis réessaie.",
+                ));
             }
             return refuser(message_bloque(
                 "La nouvelle version n'a pas pu être mise en place (fichiers bloqués) : réessaie dans un moment.",
@@ -501,6 +536,87 @@ mod tests {
 
     fn json(version: &str) -> String {
         format!(r#"{{ "appli": "appli", "version": "{version}", "mindset_min": "2.15.0" }}"#)
+    }
+
+    thread_local! {
+        /// Les échecs imposés aux renommages de ce fil : (morceau du chemin de départ, nombre d'échecs restants)
+        static ECHECS: std::cell::RefCell<Vec<(String, u32)>> = const { std::cell::RefCell::new(Vec::new()) };
+    }
+
+    /// Le prochain renommage depuis ce chemin doit-il échouer ? (un échec de moins à imposer)
+    pub(super) fn echec_impose(de: &Path) -> bool {
+        let texte = de.to_string_lossy().into_owned();
+        ECHECS.with_borrow_mut(|l| {
+            for (motif, n) in l.iter_mut() {
+                if *n > 0 && texte.contains(motif.as_str()) {
+                    *n -= 1;
+                    return true;
+                }
+            }
+            false
+        })
+    }
+
+    fn imposer_echecs(motif: &str, n: u32) {
+        ECHECS.with_borrow_mut(|l| l.push((motif.to_string(), n)));
+    }
+
+    /// Audit du 08/11 (M12) : la nouvelle version ne peut pas prendre sa place (fichiers tenus), et l'ancienne ne peut
+    /// pas revenir du premier coup (l'antivirus la tient encore un instant) : elle revient quand même, l'appli reste
+    /// installée.
+    #[test]
+    fn retour_en_arriere_reessaye() {
+        let d = Dossier::nouveau("retour");
+        let dest = d.0.join("Appli");
+        let z = zip_de(&[("Appli/Appli.exe", "ancienne"), ("Appli/version.json", &json("1.0.0"))]);
+        installer_verifie(&demande(&z, &dest)).unwrap();
+        imposer_echecs(".nouveau-", 6); // (tous les essais : la nouvelle ne se met jamais en place)
+        imposer_echecs(".ancien-", 2);
+        let z = zip_de(&[("Appli/Appli.exe", "nouvelle"), ("Appli/version.json", &json("2.0.0"))]);
+        let e = installer_verifie(&demande(&z, &dest)).unwrap_err();
+        assert!(matches!(e, Erreur::Bloque(_)), "{e:?}");
+        assert_eq!(std::fs::read_to_string(dest.join("Appli.exe")).unwrap(), "ancienne");
+        ECHECS.with_borrow_mut(Vec::clear);
+    }
+
+    /// Audit du 08/11 (M12) : Windows s'est arrêté entre les deux renommages (il ne reste que `Appli.ancien-xxxx`).
+    /// L'installation suivante le remet en place au lieu de l'effacer (la plus haute version s'il y en a plusieurs), et
+    /// compare la nouvelle version à celle-là.
+    #[test]
+    fn nettoyage_remet_l_ancienne_si_la_destination_manque() {
+        let d = Dossier::nouveau("restes");
+        let dest = d.0.join("Appli");
+        let z = zip_de(&[("Appli/Appli.exe", "installee"), ("Appli/version.json", &json("1.0.0"))]);
+        installer_verifie(&demande(&z, &dest)).unwrap();
+        let plus_vieille = d.0.join("Appli.ancien-00000001");
+        std::fs::create_dir_all(&plus_vieille).unwrap();
+        std::fs::write(plus_vieille.join("Appli.exe"), "plus vieille").unwrap();
+        std::fs::rename(&dest, d.0.join("Appli.ancien-0000abcd")).unwrap();
+        std::fs::create_dir_all(d.0.join("Appli.nouveau-0000abcd")).unwrap();
+        // Une version plus ancienne que celle remise en place : refusée, et l'appli est de nouveau là
+        let z = zip_de(&[("Appli/Appli.exe", "vieille"), ("Appli/version.json", &json("0.9.0"))]);
+        let e = installer_verifie(&demande(&z, &dest)).unwrap_err();
+        assert_eq!(e, Erreur::VersionInstallee { nouvelle: "0.9.0".into(), installee: "1.0.0".into() });
+        assert_eq!(std::fs::read_to_string(dest.join("Appli.exe")).unwrap(), "installee");
+        // Les autres restes partent
+        assert!(!plus_vieille.exists() && !d.0.join("Appli.nouveau-0000abcd").exists());
+        assert!(!d.0.join("Appli.ancien-0000abcd").exists());
+    }
+
+    /// La destination est là : les restes `.ancien-*` et `.nouveau-*` sont effacés, comme avant
+    #[test]
+    fn nettoyage_efface_les_restes_si_la_destination_est_la() {
+        let d = Dossier::nouveau("restes-la");
+        let dest = d.0.join("Appli");
+        let z = zip_de(&[("Appli/Appli.exe", "installee"), ("Appli/version.json", &json("1.0.0"))]);
+        installer_verifie(&demande(&z, &dest)).unwrap();
+        std::fs::create_dir_all(d.0.join("Appli.ancien-0000abcd")).unwrap();
+        std::fs::create_dir_all(d.0.join("Appli.nouveau-0000abcd")).unwrap();
+        let z = zip_de(&[("Appli/Appli.exe", "nouvelle"), ("Appli/version.json", &json("2.0.0"))]);
+        installer_verifie(&demande(&z, &dest)).unwrap();
+        assert_eq!(std::fs::read_to_string(dest.join("Appli.exe")).unwrap(), "nouvelle");
+        let restes: Vec<_> = std::fs::read_dir(&d.0).unwrap().flatten().map(|e| e.file_name()).collect();
+        assert_eq!(restes, vec![std::ffi::OsString::from("Appli")]);
     }
 
     #[test]
