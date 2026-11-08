@@ -282,4 +282,19 @@ impl Systeme for Windows {
         // SAFETY : chemin valable pendant l'appel ; aucun nouveau nom (effacement)
         let _ = unsafe { MoveFileExW(&HSTRING::from(chemin), PCWSTR::null(), MOVEFILE_DELAY_UNTIL_REBOOT) };
     }
+    fn journal(&mut self, ligne: &str) {
+        // Dans HKLM (que seul un administrateur peut changer), les dernières lignes seulement (8 000 caractères au plus)
+        const CLE: &str = r"SOFTWARE\Mindset\Installation";
+        let Ok(k) = LOCAL_MACHINE.create(CLE) else { return };
+        let mut t = k.get_string("Journal").unwrap_or_default();
+        if !t.is_empty() {
+            t.push_str("\r\n");
+        }
+        t.push_str(ligne);
+        let n = t.chars().count();
+        if n > 8000 {
+            t = t.chars().skip(n - 8000).collect();
+        }
+        let _ = k.set_string("Journal", &t);
+    }
 }

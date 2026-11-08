@@ -197,4 +197,9 @@ pub trait Systeme {
     fn fenetre(&mut self, texte: &str, titre: &str);
     /// Ce fichier sera effacé au prochain démarrage de Windows (un programme en cours ne peut pas l'être avant)
     fn effacer_au_redemarrage(&mut self, chemin: &str);
+
+    // --- Journal --------------------------------------------------------------------------------------------
+    /// Note un incident qui n'arrête pas l'action (le vrai Windows : dans HKLM, `SOFTWARE\Mindset\Installation`,
+    /// valeur `Journal`, jamais dans un dossier modifiable sans droits)
+    fn journal(&mut self, _ligne: &str) {}
 }

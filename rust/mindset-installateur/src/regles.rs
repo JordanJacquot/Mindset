@@ -60,7 +60,10 @@ pub fn chemin_ancienne_copie(p: &str) -> bool {
 
 /// `^S-1-[\d-]+$` (sans tenir compte des majuscules) : un compte déjà donné par son SID.
 pub fn forme_sid(t: &str) -> bool {
-    t.len() > 4 && t[..4].eq_ignore_ascii_case("S-1-") && t[4..].bytes().all(|o| o.is_ascii_digit() || o == b'-')
+    // (`get` : un nom accentué à la 4e lettre n'est pas coupé au milieu d'une lettre, ce qui ferait paniquer)
+    t.len() > 4
+        && t.get(..4).is_some_and(|d| d.eq_ignore_ascii_case("S-1-"))
+        && t[4..].bytes().all(|o| o.is_ascii_digit() || o == b'-')
 }
 
 #[cfg(test)]
@@ -88,5 +91,15 @@ mod tests {
             dossier_profil(r"C:\Users\Élodie") && !dossier_profil(r"%SystemDrive%\Users\x") && !dossier_profil(r"C:\")
         );
         assert!(forme_sid("S-1-5-18") && forme_sid("s-1-5-21-1") && !forme_sid("SYSTEM"));
+    }
+
+    /// Audit du 08/11 (M1) : un compte accentué à la 4e lettre faisait paniquer l'installateur SYSTEM (`t[..4]` coupait
+    /// une lettre en deux)
+    #[test]
+    fn forme_sid_noms_accentues() {
+        for nom in ["Valérie", "Anaïs", "Zoé", "Noël", "Léa", "é", "S-1é", "PC\\Anaïs", "Jérôme-1"] {
+            assert!(!forme_sid(nom), "{nom}");
+        }
+        assert!(forme_sid("S-1-5-21-1000-1001"));
     }
 }

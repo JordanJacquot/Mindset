@@ -27,6 +27,9 @@ use serde_json::{Map, Value, json};
 const SID: &str = "S-1-5-21-1000000001-2000000002-3000000003-1001";
 const SID_AUTRE: &str = "S-1-5-21-1111111111-2222222222-3333333333-1001";
 const NOM_COMPTE: &str = r"PCTEST\Utilisateur";
+/// Des comptes écrits par leur nom seul, accentué à la 4e lettre (audit M1) : l'utilisateur du test, et un autre
+const COMPTE_ANAIS: &str = "Anaïs";
+const COMPTE_VALERIE: &str = "Valérie";
 const SESSION: u32 = 1;
 
 /// L'état du faux PC propre à un cas (`entree.contexte`).
@@ -37,6 +40,10 @@ struct Contexte {
     taches_restantes: bool,
     demarrage_ko: bool,
     sid_tache: String,
+    /// Des tâches du PC sous des comptes écrits par leur nom seul, accentué (« Valérie », « Anaïs ») : audit M1
+    taches_accentuees: bool,
+    /// Le nom d'une tâche que Windows refuse de réinscrire (elle garde un mot de passe, par exemple)
+    modification_ko: String,
 }
 
 struct FauxPc {
@@ -113,6 +120,8 @@ impl Systeme for FauxPc {
         match compte.to_ascii_uppercase().as_str() {
             "SYSTEM" | r"NT AUTHORITY\SYSTEM" => Some("S-1-5-18".into()),
             c if c == NOM_COMPTE.to_ascii_uppercase() => Some(SID.into()),
+            _ if compte == COMPTE_ANAIS => Some(SID.into()),
+            _ if compte == COMPTE_VALERIE => Some(SID_AUTRE.into()),
             _ => None,
         }
     }
@@ -283,14 +292,20 @@ impl Systeme for FauxPc {
         }
         // Les tâches du PC : celles qui lancent l'ancienne copie d'une appli, de tous les genres
         let anc = format!(r"{}\ancienne\Appli.exe", self.tmp);
-        vec![
+        let mut v = vec![
             t("\\", "Appli (démarrage)", Some(SID), vec![act(&format!("\"{anc}\"")), act(r"C:\Autre\Autre.exe")]),
             t("\\", "Antivirus", Some("S-1-5-18"), vec![act(&anc)]),
             t(r"\Microsoft\Windows\Defrag\", "Windows", Some(SID), vec![act(&anc)]),
             t(r"\Mindset\", "Mindset (aide)", Some(SID), vec![act(&anc)]),
             t("\\", "Autre compte", Some(SID_AUTRE), vec![act(&anc)]),
             t("\\", "Groupe", None, vec![act(&anc)]),
-        ]
+        ];
+        if self.ctx.taches_accentuees {
+            // (« Anaïs » : l'utilisateur du test, par son nom seul ; « Valérie » : un autre compte)
+            v.push(t("\\", "Valérie (démarrage)", Some(COMPTE_VALERIE), vec![act(&anc)]));
+            v.push(t("\\", "Anaïs (démarrage)", Some(COMPTE_ANAIS), vec![act(&anc)]));
+        }
+        v
     }
     fn tache(&self, dossier: &str, nom: &str) -> Option<TacheVue> {
         self.noter(&format!("LECTURE tâches {dossier}{nom}"));
@@ -322,6 +337,10 @@ impl Systeme for FauxPc {
         self.noter(&format!("ACTION dossier de tâches retiré : {nom}"));
     }
     fn modifier_actions(&mut self, dossier: &str, nom: &str, actions: &[ActionTache]) -> Result<(), String> {
+        if !self.ctx.modification_ko.is_empty() && nom == self.ctx.modification_ko {
+            self.noter(&format!("REFUS tâche non modifiée : {dossier}{nom}"));
+            return Err("Le mot de passe de la tâche est demandé.".into());
+        }
         let l: Vec<&str> = actions.iter().map(|a| a.execute.as_deref().unwrap_or("")).collect();
         self.noter(&format!("ACTION tâche modifiée : {dossier}{nom} -> {}", l.join(" | ")));
         Ok(())
@@ -375,6 +394,9 @@ impl Systeme for FauxPc {
     }
     fn effacer_au_redemarrage(&mut self, chemin: &str) {
         self.noter(&format!("ACTION effacement au redémarrage de {chemin}"));
+    }
+    fn journal(&mut self, ligne: &str) {
+        self.noter(&format!("JOURNAL {ligne}"));
     }
 }
 
@@ -473,6 +495,19 @@ impl Banc {
             "Mindset",
             &[("Mindset/Mindset.exe", "mindset 2.0.0"), ("Mindset/fichiers/Mindset.ps1", "$AppVersion = '2.0.0'\r\n")],
         );
+        // Pour rust-securite.json : l'appli « nouvelle » (seulement dans la liste en ligne) et une liste en ligne
+        // signée, posée hors du dossier des demandes (un lien la fera paraître à sa place)
+        let zip_nouvelle = paquet(
+            "Nouvelle",
+            &[
+                ("Nouvelle/Nouvelle.exe", "nouvelle 1.0.0"),
+                ("Nouvelle/fichiers/Nouvelle.ps1", "$AppVersion = '1.0.0'\r\n"),
+            ],
+        );
+        let liste_signee = format!(r"{tmp}\sources-liens\apps-en-ligne.json");
+        let l = liste_en_ligne("4", "1.0.0", &[NOUVELLE]);
+        ecrire(&liste_signee, &l);
+        ecrire(&format!("{liste_signee}.sig"), &signer(&l));
         let sig_fausse = format!(r"{paquets}\fausse.sig");
         ecrire(&sig_fausse, &signer(b"autre chose"));
         // Les dossiers de Mindset fournis par l'installation complète (Action mindset -Source)
@@ -561,6 +596,8 @@ impl Banc {
             ("{zip-appli}", zip_appli),
             ("{zip-mindset}", zip_mindset),
             ("{sig-fausse}", sig_fausse),
+            ("{zip-nouvelle}", zip_nouvelle),
+            ("{liste-signee}", liste_signee),
             ("{src-ok}", src_ok),
             ("{src-sans-exe}", src_sans_exe),
             ("{src-sans-script}", src_sans_script),
@@ -736,7 +773,7 @@ struct Resultat {
 
 const CHAMPS_ENTREE: [&str; 8] =
     ["lancement", "demande", "demande_texte", "demande_absente", "taille", "sid", "sans_resultat", "contexte"];
-const CHAMPS_CONTEXTE: [&str; 10] = [
+const CHAMPS_CONTEXTE: [&str; 14] = [
     "fichiers",
     "retirer",
     "copier",
@@ -747,6 +784,10 @@ const CHAMPS_CONTEXTE: [&str; 10] = [
     "demarrage_ko",
     "sid_tache",
     "recu",
+    "taches_accentuees",
+    "modification_ko",
+    "liens",
+    "tailles",
 ];
 const CHAMPS_ATTENDU: [&str; 26] = [
     "reponse",
@@ -792,6 +833,105 @@ fn nouvel_id() -> String {
     let a = h.finish();
     h.write_u64(a);
     format!("{:016x}{:016x}", a, h.finish())
+}
+
+/// Les liens posés pour un cas (`contexte.liens`), défaits à la fin du cas, même en cas d'erreur : (lien, cible, la
+/// cible est l'ancien contenu du lien, déplacé)
+struct Liens(Vec<(PathBuf, PathBuf, bool)>);
+
+impl Drop for Liens {
+    fn drop(&mut self) {
+        for (lien, cible, deplace) in self.0.drain(..).rev() {
+            if std::fs::remove_dir(&lien).is_err() {
+                let _ = std::fs::remove_file(&lien);
+            }
+            if deplace {
+                let _ = std::fs::rename(&cible, &lien);
+            }
+        }
+    }
+}
+
+/// Un point de jonction `lien` vers le dossier `cible` (sans droits ; par cmd, sans fenêtre)
+fn jonction(lien: &Path, cible: &Path) -> Result<(), String> {
+    use std::os::windows::process::CommandExt;
+    let s = std::process::Command::new(format!(r"{}\System32\cmd.exe", windows_du_pc()))
+        .args(["/d", "/c", "mklink", "/J"])
+        .arg(lien)
+        .arg(cible)
+        .creation_flags(0x0800_0000) // CREATE_NO_WINDOW
+        .output()
+        .map_err(|e| format!("jonction {} : {e}", lien.display()))?;
+    if !s.status.success() {
+        return Err(format!("jonction {} : {}", lien.display(), String::from_utf8_lossy(&s.stdout)));
+    }
+    Ok(())
+}
+
+/// Un lien symbolique de fichier peut-il être créé sur ce PC ? (il faut le mode développeur ou les droits
+/// administrateur : oui sur la machine de GitHub, souvent non sur un PC ordinaire)
+fn liens_fichiers_possibles() -> bool {
+    static R: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
+    *R.get_or_init(|| {
+        let d = std::env::temp_dir().join(format!("mindset-essai-lien-{}", std::process::id()));
+        let _ = std::fs::create_dir_all(&d);
+        let _ = std::fs::write(d.join("cible"), b"x");
+        let ok = std::os::windows::fs::symlink_file(d.join("cible"), d.join("lien")).is_ok();
+        let _ = std::fs::remove_dir_all(&d);
+        ok
+    })
+}
+
+/// `contexte.liens` : chaque chemin devient un lien vers sa cible. Un chemin qui existe déjà est d'abord déplacé à
+/// la place de la cible (le contenu reste le même, mais au travers d'un lien). Un dossier : point de jonction ; un
+/// fichier : lien symbolique (cas marqués `"besoin": "lien-fichier"`).
+fn poser_liens(liens: Option<&Value>) -> Result<Liens, String> {
+    let mut r = Liens(Vec::new());
+    for (k, v) in liens.and_then(Value::as_object).into_iter().flatten() {
+        let (lien, cible) = (PathBuf::from(k), PathBuf::from(texte(v)));
+        let deplace = std::fs::symlink_metadata(&lien).is_ok() && std::fs::symlink_metadata(&cible).is_err();
+        if deplace {
+            if let Some(p) = cible.parent() {
+                std::fs::create_dir_all(p).map_err(|e| e.to_string())?;
+            }
+            std::fs::rename(&lien, &cible).map_err(|e| format!("déplacement {k} : {e}"))?;
+        } else if std::fs::symlink_metadata(&cible).is_err() {
+            std::fs::create_dir_all(&cible).map_err(|e| e.to_string())?;
+        }
+        if let Some(p) = lien.parent() {
+            std::fs::create_dir_all(p).map_err(|e| e.to_string())?;
+        }
+        if cible.is_file() {
+            std::os::windows::fs::symlink_file(&cible, &lien).map_err(|e| format!("lien {k} : {e}"))?;
+        } else {
+            jonction(&lien, &cible)?;
+        }
+        r.0.push((lien, cible, deplace));
+    }
+    Ok(r)
+}
+
+/// `contexte.tailles` : des fichiers de cette taille exacte, en octets (remplis de zéros, sans tout écrire), retirés
+/// à la fin du cas
+struct Fichiers(Vec<PathBuf>);
+
+impl Drop for Fichiers {
+    fn drop(&mut self) {
+        for f in self.0.drain(..) {
+            let _ = std::fs::remove_file(f);
+        }
+    }
+}
+
+fn poser_tailles(tailles: Option<&Value>) -> Result<Fichiers, String> {
+    let mut r = Fichiers(Vec::new());
+    for (k, v) in tailles.and_then(Value::as_object).into_iter().flatten() {
+        let n = v.as_u64().ok_or(format!("taille de {k} : un nombre attendu"))?;
+        let f = std::fs::File::create(k).map_err(|e| format!("{k} : {e}"))?;
+        r.0.push(PathBuf::from(k));
+        f.set_len(n).map_err(|e| format!("{k} : {e}"))?;
+    }
+    Ok(r)
 }
 
 impl Banc {
@@ -846,6 +986,9 @@ impl Banc {
                 std::fs::remove_file(p).unwrap();
             }
         }
+        // (défaits à la fin du cas, quand ces deux valeurs disparaissent)
+        let _liens = poser_liens(ctx.get("liens"))?;
+        let _tailles = poser_tailles(ctx.get("tailles"))?;
         if let Some(v) = ctx.get("version_gardee") {
             versions.clear();
             if !v.is_null() {
@@ -858,6 +1001,8 @@ impl Banc {
             taches_restantes: ctx.get("taches_restantes").and_then(Value::as_bool).unwrap_or(false),
             demarrage_ko: ctx.get("demarrage_ko").and_then(Value::as_bool).unwrap_or(false),
             sid_tache: texte(ctx.get("sid_tache").unwrap_or(&Value::Null)),
+            taches_accentuees: ctx.get("taches_accentuees").and_then(Value::as_bool).unwrap_or(false),
+            modification_ko: texte(ctx.get("modification_ko").unwrap_or(&Value::Null)),
         };
         let recu = ctx.get("recu").map(texte).filter(|r| !r.is_empty());
 
@@ -1329,7 +1474,7 @@ fn verifier(r: &Resultat, a: &Map<String, Value>) -> Vec<String> {
 // =============================================================================================================
 
 /// Le nombre de cas attendu au moins dans chaque fichier (un cas retiré ou un fichier vidé fait échouer le test)
-const MINIMUM_CAS: [(&str, usize); 11] = [
+const MINIMUM_CAS: [(&str, usize); 12] = [
     ("demande.json", 31),
     ("appli.json", 66),
     ("mindset.json", 16),
@@ -1343,6 +1488,8 @@ const MINIMUM_CAS: [(&str, usize); 11] = [
     // (Mindset en Rust : lu seulement ici, pas par tester-installer.ps1, l'ancienne version PowerShell de l'installateur
     // ne connaissant pas ce dossier)
     ("rust-mindset.json", 14),
+    // (audit du 08/11 : liens, comptes accentués, tailles ; lu seulement ici, comme rust-mindset.json)
+    ("rust-securite.json", 21),
 ];
 
 fn lire_corpus(nom: &str) -> Value {
@@ -1351,6 +1498,9 @@ fn lire_corpus(nom: &str) -> Value {
 }
 
 /// Passe tous les cas d'un corpus ; rend les échecs (nom du cas et ce qui manque, avec le journal)
+/// Les cas sautés (leur besoin manque sur ce PC), comptés à part
+static SAUTES: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsize::new(0);
+
 fn passer(banc: &mut Banc, nom_fichier: &str, corpus: &Value, minimum: usize) -> (usize, Vec<String>) {
     let mut echecs = Vec::new();
     let cas = corpus.get("cas").and_then(Value::as_array).cloned().unwrap_or_default();
@@ -1362,6 +1512,21 @@ fn passer(banc: &mut Banc, nom_fichier: &str, corpus: &Value, minimum: usize) ->
         let nom = texte(c.get("nom").unwrap_or(&Value::Null));
         if noms.insert(nom.clone(), ()).is_some() {
             echecs.push(format!("{nom_fichier} : nom de cas en double : {nom}"));
+        }
+        // (un cas qui demande un lien symbolique de fichier est sauté là où Windows ne permet pas d'en créer sans
+        // droits : il tourne sur la machine de GitHub)
+        match c.get("besoin").map(texte).as_deref() {
+            None => {}
+            Some("lien-fichier") if liens_fichiers_possibles() => {}
+            Some("lien-fichier") => {
+                println!("sauté (pas de lien symbolique de fichier sur ce PC) : {nom_fichier} : {nom}");
+                SAUTES.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+                continue;
+            }
+            Some(autre) => {
+                echecs.push(format!("{nom_fichier} : {nom} : besoin inconnu : {autre}"));
+                continue;
+            }
         }
         match banc.lancer(corpus, c) {
             Ok((r, a)) => {
@@ -1402,7 +1567,11 @@ fn corpus_installateur() {
         total += n;
         echecs.extend(e);
     }
-    println!("corpus cas\\installateur : {} cas sur {total} réussis", total - echecs.len());
+    let sautes = SAUTES.load(std::sync::atomic::Ordering::Relaxed);
+    println!(
+        "corpus cas\\installateur : {} cas sur {total} réussis, dont {sautes} sauté(s) faute de liens symboliques",
+        total - echecs.len()
+    );
     assert!(echecs.is_empty(), "{} échec(s) sur {total} cas :\n{}", echecs.len(), echecs.join("\n\n"));
 }
 

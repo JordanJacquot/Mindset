@@ -51,6 +51,11 @@ const COMPTES_ADMIN: [&str; 3] =
 /// « génériques » tout et écriture), comme Test-DossierProtege.
 const DROITS_ECRITURE: u32 = 0x2 | 0x4 | 0x10 | 0x100 | 0x10000 | 0x40 | 0x40000 | 0x80000 | 0x5000_0000;
 
+/// Le zip le plus gros qui s'installe : la limite du téléchargement de Mindset (mindset-noyau, reseau.rs)
+pub const TAILLE_MAX_ZIP: u64 = 200 * 1024 * 1024;
+/// La signature la plus grosse (une signature RSA fait quelques centaines d'octets)
+pub const TAILLE_MAX_SIG: u64 = 64 * 1024;
+
 /// Le message d'une erreur qui arrête l'action (le `throw` de la version PowerShell).
 type Res<T> = Result<T, String>;
 
@@ -157,6 +162,33 @@ impl Installateur<'_> {
             return Err("Fichier introuvable : aucun chemin donné.".into());
         }
         std::fs::read(self.sys.reel(chemin)).map_err(|e| format!("Fichier illisible ({chemin}) : {e}"))
+    }
+    /// Un fichier lu en entier, `max` octets au plus (le zip et sa signature, posés dans un dossier modifiable sans
+    /// droits : un fichier énorme ferait allouer autant au processus SYSTEM, qui s'arrêterait sans réponse).
+    fn lire_octets_max(&self, chemin: &str, max: u64) -> Res<Vec<u8>> {
+        use std::io::Read;
+        if chemin.is_empty() {
+            return Err("Fichier introuvable : aucun chemin donné.".into());
+        }
+        let trop = || format!("Fichier trop gros ({chemin}) : rien n'a été installé.");
+        let mut f =
+            std::fs::File::open(self.sys.reel(chemin)).map_err(|e| format!("Fichier illisible ({chemin}) : {e}"))?;
+        if f.metadata().map_err(|e| format!("Fichier illisible ({chemin}) : {e}"))?.len() > max {
+            return Err(trop());
+        }
+        let mut o = Vec::new();
+        (&mut f).take(max + 1).read_to_end(&mut o).map_err(|e| format!("Fichier illisible ({chemin}) : {e}"))?;
+        if o.len() as u64 > max {
+            return Err(trop());
+        }
+        Ok(o)
+    }
+    /// Le zip d'une installation (200 Mo au plus, la limite du téléchargement de Mindset) et sa signature (64 Ko)
+    fn lire_zip_et_signature(&self) -> Res<(Vec<u8>, Vec<u8>)> {
+        Ok((
+            self.lire_octets_max(&self.p.zip, TAILLE_MAX_ZIP)?,
+            self.lire_octets_max(&self.p.signature, TAILLE_MAX_SIG)?,
+        ))
     }
     /// Un fichier texte en UTF-8 (marque du début retirée), comme `[IO.File]::ReadAllText($f, UTF8)`.
     fn lire_texte(&self, chemin: &str) -> Res<String> {
@@ -834,8 +866,7 @@ impl Installateur<'_> {
         let exe = app.exe.clone();
         self.telechargement(&self.p.zip)?;
         self.telechargement(&self.p.signature)?;
-        let octets = self.lire_octets(&self.p.zip)?;
-        let sig = self.lire_octets(&self.p.signature)?;
+        let (octets, sig) = self.lire_zip_et_signature()?;
         // Prise en charge : l'ancienne copie est le programme <Exe> d'un dossier, donné par son chemin complet
         let ancien = self.p.ancien_exe.clone();
         if !ancien.is_empty() {
@@ -905,8 +936,13 @@ impl Installateur<'_> {
                         change = true;
                     }
                 }
-                if change {
-                    self.sys.modifier_actions(&t.dossier, &t.nom, &actions)?;
+                // (une tâche qui ne peut pas être réinscrite, par exemple parce qu'elle garde un mot de passe, est
+                // notée puis laissée telle quelle : l'appli est déjà installée, et sa tâche d'aide doit être créée)
+                if change && let Err(e) = self.sys.modifier_actions(&t.dossier, &t.nom, &actions) {
+                    self.sys.journal(&format!(
+                        "Tâche « {}{} » non réinscrite, laissée telle quelle : {e}",
+                        t.dossier, t.nom
+                    ));
                 }
             }
         }
@@ -932,8 +968,15 @@ impl Installateur<'_> {
         let racine = format!(r"{}:\{}", lettre.to_ascii_uppercase(), chemins::RACINE_DISQUE);
         let programmes = joindre(&racine, chemins::PROGRAMMES_DISQUE);
         let donnees = joindre(&racine, chemins::DONNEES_DISQUE);
+        // (audit du 08/11, M14 : un autre compte a pu préparer X:\Mindset avant l'installation. Chaque dossier est
+        // vérifié dès qu'il est là, avant de créer quoi que ce soit dedans et avant de poser des droits : sinon ils
+        // seraient posés sur le dossier visé par le lien.)
+        let rien = |raison: String| format!("{raison} : rien n'a été installé.");
         for d in [&racine, &programmes, &donnees] {
             self.creer_dossier(d)?;
+            if !self.sans_lien(d).unwrap_or(false) {
+                return Err(rien(format!("Le dossier {d} n'est pas sûr (c'est un lien vers un autre dossier)")));
+            }
         }
         self.sys.poser_droits_racine(&racine)?;
         // Tout ce qui est dessous reprend ces droits (même un dossier qui existait déjà avec d'autres droits)
@@ -941,7 +984,44 @@ impl Installateur<'_> {
         self.sys.reprendre_droits_herites(&donnees);
         self.proprietaire_admins(&programmes);
         self.sys.ajouter_droit_modifier(&donnees, sid)?;
+        self.racine_disque_sure(&racine).map_err(rien)?;
         Ok(programmes)
+    }
+
+    /// X:\Mindset, Programmes et Donnees : aucun n'est un lien (point de jonction, lien symbolique), ni sur leur
+    /// chemin. `Err` : la raison, en une phrase sans point.
+    fn racine_disque_sans_lien(&self, racine: &str) -> Res<()> {
+        for d in
+            [racine.to_string(), joindre(racine, chemins::PROGRAMMES_DISQUE), joindre(racine, chemins::DONNEES_DISQUE)]
+        {
+            if !self.sans_lien(&d).unwrap_or(false) {
+                return Err(format!("Le dossier {d} n'est pas sûr (c'est un lien vers un autre dossier)"));
+            }
+        }
+        Ok(())
+    }
+
+    /// Après les droits posés : toujours sans lien, et le dossier des programmes protégé (seuls les administrateurs
+    /// peuvent le changer), comme la tâche le vérifiera à chaque demande.
+    fn racine_disque_sure(&self, racine: &str) -> Res<()> {
+        self.racine_disque_sans_lien(racine)?;
+        let programmes = joindre(racine, chemins::PROGRAMMES_DISQUE);
+        if !self.dossier_protege(&programmes) {
+            return Err(format!("Le dossier {programmes} n'est pas protégé (un autre compte peut le changer)"));
+        }
+        Ok(())
+    }
+
+    /// Le dossier de Mindset installé (`dest`, dans `programmes`) : sans lien, et sur un autre disque, X:\Mindset
+    /// toujours sûr (vérifié de nouveau juste avant d'inscrire les tâches, qui lanceront ce qui s'y trouve).
+    fn dossier_mindset_sur(&self, programmes: &str, dest: &str, sur_disque: bool) -> Res<()> {
+        if sur_disque {
+            self.racine_disque_sure(parent(programmes))?;
+        }
+        if self.existe(dest) && !self.sans_lien(dest).unwrap_or(false) {
+            return Err(format!("Le dossier {dest} n'est pas sûr (c'est un lien vers un autre dossier)"));
+        }
+        Ok(())
     }
 
     /// Action mindset : installe Mindset lui-même (copie de -Source), et l'inscrit dans « Applications installées ».
@@ -954,6 +1034,8 @@ impl Installateur<'_> {
             self.initialiser_racine_disque(&disque, &sid)?
         };
         let dest = self.dossier_mindset(&joindre(&programmes, chemins::DOSSIER_MINDSET))?;
+        self.dossier_mindset_sur(&programmes, &dest, !disque.is_empty())
+            .map_err(|r| format!("{r} : rien n'a été installé."))?;
         let src = chemin_complet(self.p.source.trim_end_matches('\\'))?;
         if !self.existe(&joindre(&src, "Mindset.exe")) || !self.source_mindset(&src) {
             return Err(format!("Ce dossier ne contient pas Mindset : {}", self.p.source));
@@ -997,6 +1079,10 @@ impl Installateur<'_> {
         ];
         for (nom, v) in &valeurs {
             self.sys.registre_ecrire(CLE_DESINSTALL, nom, v)?;
+        }
+        // (de nouveau juste avant les tâches : la tâche SYSTEM lancera le programme de ce dossier)
+        if let Err(r) = self.dossier_mindset_sur(&programmes, &dest, !disque.is_empty()) {
+            return Err(format!("{r} : Mindset est copié, mais ses tâches ne sont pas inscrites."));
         }
         if let Err(e) = self.enregistrer_taches_mindset(&dest, &sid) {
             self.ecrire_resultat(true, &format!("{dest}|sans-taches : {e}"));
@@ -1059,8 +1145,7 @@ impl Installateur<'_> {
         self.sys.pause(500);
         self.telechargement(&self.p.zip)?;
         self.telechargement(&self.p.signature)?;
-        let octets = self.lire_octets(&self.p.zip)?;
-        let sig = self.lire_octets(&self.p.signature)?;
+        let (octets, sig) = self.lire_zip_et_signature()?;
         let cles = self.sys.reel(&joindre(&joindre(&self.dossier_exe, "fichiers"), "cles-publiques"));
         let dest_reel = self.sys.reel(&dest);
         paquet::installer(&paquet::Demande {

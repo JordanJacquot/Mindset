@@ -57,6 +57,8 @@ Règles :
 | `ancienne-tache.json` | `tester-installer.ps1` et `cargo test` | 5 | L'ancienne tâche (Mindset 2.9.0 et avant) ne sert qu'à se remplacer |
 | `prise-en-charge.json` | `tester-installer.ps1` et `cargo test` | 9 | Les tâches qui lançaient une ancienne copie de l'appli |
 | `programmes.json` | `tester-installer.ps1` et `cargo test` | 6 | Les programmes fermés : par leur chemin, ceux de l'utilisateur |
+| `rust-mindset.json` | `cargo test` seulement | 14 | Mindset en Rust : installation sans Mindset.ps1, mise à jour vers un zip au format Rust |
+| `rust-securite.json` | `cargo test` seulement | 21 | Audit du 08/11 : liens sur le zip, la signature, la liste en ligne, la destination et `X:Mindset` ; comptes accentués et tâches impossibles à réinscrire ; zip et signature trop gros |
 | `dossier-protege.json` | `tester-securite.ps1` et `cargo test` | 20 | Les dossiers acceptés (Test-DossierMindset) |
 | `cote-mindset-tache.json` | `tester-mini-installateur.ps1` | 5 | Côté Mindset : quelle tâche d'installation est utilisée |
 | `cote-mindset-variables.json` | `tester-mini-installateur.ps1` | 9 | Côté Mindset : variables lues par .NET, pas de demande de Windows |
@@ -102,6 +104,10 @@ administrateur), `autre` (sans partie administrateur), `piege` (un nom piégé, 
 | `demarrage_ko` | Vrai : la tâche de démarrage de Mindset ne se lance pas. |
 | `sid_tache` | L'utilisateur de l'ancienne tâche « \Mindset\Mindset (installation) ». |
 | `recu` | L'accusé de réception déjà écrit dans HKLM (une demande déjà reçue). |
+| `liens` | `rust-*.json` seulement. Chemin -> cible : le chemin devient un lien vers la cible (dossier : point de jonction ; fichier : lien symbolique, cas marqués `"besoin": "lien-fichier"`, sautés là où Windows ne le permet pas sans droits). Un chemin qui existe est d'abord déplacé à la place de la cible ; tout est remis en place à la fin du cas. |
+| `tailles` | `rust-*.json` seulement. Chemin -> taille exacte du fichier, en octets (rempli de zéros). |
+| `taches_accentuees` | `rust-*.json` seulement. Vrai : deux tâches du PC sous « Anaïs » (l'utilisateur du test, par son nom seul) et « Valérie » (un autre compte) lancent l'ancienne copie. |
+| `modification_ko` | `rust-*.json` seulement. Le nom d'une tâche que Windows refuse de réinscrire. |
 
 `attendu` (chaque champ est vérifié s'il est présent) :
 
