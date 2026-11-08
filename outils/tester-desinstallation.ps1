@@ -377,6 +377,11 @@ static class Faux {
     $estRust = $variante.Nom -eq 'Rust'
     Test-Cas 'Il retire ce qui reste, sans planter' { $b.ok -eq $true -and (Test-ToutRetire $e -SaufX:$estRust) }
     if ($estRust) {
+        # (ce qui permet de comprendre un échec : ce qui reste sur X:, les marques, et ce que le désinstalleur a fait)
+        $xProgrammes = Join-Path $e.RacineX 'Programmes'
+        Write-Host "         | X:\Mindset\Programmes : $(@(Get-ChildItem -LiteralPath $xProgrammes -Recurse -Force -ErrorAction SilentlyContinue | ForEach-Object { $_.FullName.Substring($xProgrammes.Length) }) -join ', ')"
+        Write-Host "         | marques : $(@(Get-ChildItem -LiteralPath $marques -ErrorAction SilentlyContinue | ForEach-Object Name) -join ', ')"
+        Write-Host "         | bilan : $(($b | ConvertTo-Json -Depth 4 -Compress) -replace '\s+', ' ')"
         Test-Cas 'X:\Mindset\Programmes, ni celui de ce désinstalleur ni celui inscrit dans Windows, n''est pas touché' {
             (Test-Path -LiteralPath (Join-Path $e.RacineX 'Programmes\Mindset\Mindset.exe')) -and (Test-Absent (Join-Path $marques 'Désinstaller Appli.txt'))
         }
