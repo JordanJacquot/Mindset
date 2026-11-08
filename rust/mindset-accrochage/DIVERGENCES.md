@@ -81,6 +81,26 @@ de la version PowerShell (`outils/exporter-juges-accrochage.ps1`, `tests/juges/a
 - `pages_applis` donne l'état de la page de chaque appli : les textes ne changent que pour la page montrée (comme les
   éléments uniques de l'écran WPF), la jauge et l'écran « Ouvrir » ne vont qu'à la page de leur appli.
 
+## 9. L'appli montrée qui se cache elle-même ramène Mindset à l'accueil
+
+- **Avant** : l'appli de la page qui se cachait (sa croix : « Quitter » ou « Réduire ») était rendue, et sa page
+  montrait l'écran « Nevermind est réduit près de l'horloge. » avec « Ouvrir Nevermind ». Jordan, le 08/11/2026 à
+  19:53 : il ferme Nevermind par sa croix, répond « Quitter », et la place de Nevermind reste noire ; il doit tout
+  quitter. Il veut que Mindset revienne tout de suite au menu (l'accueil, avec la console).
+- **Maintenant** : au passage suivant de la surveillance (400 ms au plus), sa place est effacée, sa fenêtre lui est
+  rendue sans l'attendre (une appli qui quitte ne traite plus ses messages : `liberer_sans_attendre`, que Mindset qui
+  quitte attend encore, `ATTENTE_FIN`), et si c'était l'appli montrée, Mindset revient à l'accueil (journal :
+  « Nevermind fermé ou réduit dans Mindset : retour à l'accueil »). Pareil quand la fenêtre de l'appli montrée disparaît
+  (elle quitte sans se cacher d'abord) : l'accueil au lieu de l'écran « Nevermind est fermé. » ; si un nouveau
+  programme de l'appli arrive (relance), sa fenêtre est raccrochée comme avant, sans être montrée. Pas pendant une
+  opération de Mindset sur l'appli (une occupation : mise à jour, installation) : l'écran de sa page reste, comme
+  avant. Une appli cachée ou fermée hors de sa page : comme avant. (Une relance pour un nouveau thème se fait depuis
+  les Paramètres de Mindset : la page n'est pas celle de l'appli.)
+- **Preuve** : `cachee_elle_meme_dans_sa_page_retour_a_l_accueil` (src/tests.rs),
+  `mindset-appli/tests/fermeture_par_l_appli.rs` (tous les vrais blocs : accueil et console rallumée en moins d'une
+  seconde ; échouait avant) et l'essai réel sur un bureau à part (Nevermind accroché, sa croix, « Quitter »). Les juges
+  de la version PowerShell sont rejoués avec ce point coupé (`sans_retour_accueil`).
+
 ## Ce que la version PowerShell avait et qui n'est pas ici
 
 - `Write-DemandeQuitter` et `Request-FermetureApplis` : au bloc « installations » (architecture, bloc 6). Le bloc envoie

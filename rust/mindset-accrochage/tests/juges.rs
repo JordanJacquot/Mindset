@@ -64,7 +64,7 @@ impl Banc {
         v.visible = true;
         ctx.definir_vue(v);
         let f = FauxFenetres::nouveau();
-        let bloc = BlocAccrochage::avec(Box::new(f.clone()));
+        let bloc = BlocAccrochage::avec(Box::new(f.clone())).sans_retour_accueil();
         let mut b = Banc {
             ctx,
             faux,

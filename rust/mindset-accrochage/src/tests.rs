@@ -322,6 +322,55 @@ fn ouvrir_appli_change_de_page_puis_la_lance() {
     assert!(e.est_vide(), "une appli hors de la liste");
 }
 
+/// DIVERGENCES.md, point 9 (Jordan, 08/11/2026) : l'appli montrée qui se cache elle-même (sa croix, « Quitter » ou
+/// « Réduire ») ramène Mindset à l'accueil au passage suivant, sans attendre la fin de son programme. Pas pendant une
+/// mise à jour de l'appli faite par Mindset (une occupation sur elle) : l'écran « réduit près de l'horloge » reste.
+#[test]
+fn cachee_elle_meme_dans_sa_page_retour_a_l_accueil() {
+    let mut b = Banc::nouveau("accrochage-retour-accueil");
+    b.zone(1100, 760);
+    b.evermind_ouverte(1001);
+    b.page("evermind");
+    assert_eq!(b.pages()["evermind"]["etat"], "affiche");
+    b.f.changer(1001, |x| x.visible = false);
+    b.avancer(400);
+    let (_, e) = b.tic();
+    assert_eq!(e.0, vec![Effet::Page("accueil".into())], "retour à l'accueil");
+    assert_eq!(b.pages()["evermind"]["etat"], "cachee");
+    assert!(!b.f.hote_de("evermind").unwrap().visible, "sa place est effacée");
+    assert_eq!(b.f.appels().last().map(String::as_str), Some("liberer 1001"), "sa fenêtre lui est rendue");
+    assert_eq!(
+        b.faux.donnees.lignes(),
+        vec!["Evermind affiché dans Mindset", "Evermind fermé ou réduit dans Mindset : retour à l'accueil"]
+    );
+
+    // Pendant une mise à jour demandée par Mindset : la page reste, avec l'écran « réduit près de l'horloge »
+    let mut b = Banc::nouveau("accrochage-retour-occupee");
+    b.zone(1100, 760);
+    b.evermind_ouverte(1001);
+    b.page("evermind");
+    b.ctx.au_nom_de("installations", || {
+        b.ctx.publier(partage::OCCUPATIONS, json!({ "evermind": { "texte": "Fermeture d'Evermind..." } }))
+    });
+    b.f.changer(1001, |x| x.visible = false);
+    b.avancer(400);
+    let (_, e) = b.tic();
+    assert!(e.est_vide(), "{:?}", e.0);
+    assert_eq!(b.pages()["evermind"]["texte"], "Evermind est réduit près de l'horloge.");
+
+    // Sa fenêtre disparaît sans s'être cachée d'abord : l'accueil aussi (avant : l'écran « Evermind est fermé. »)
+    let mut b = Banc::nouveau("accrochage-retour-fermee");
+    b.zone(1100, 760);
+    b.evermind_ouverte(1001);
+    b.page("evermind");
+    b.f.detruire(1001);
+    b.avancer(400);
+    let (_, e) = b.tic();
+    assert_eq!(e.0, vec![Effet::Page("accueil".into())]);
+    assert_eq!(b.pages()["evermind"]["etat"], "relance", "une relance serait encore raccrochée");
+    assert!(!b.f.hote_de("evermind").unwrap().visible);
+}
+
 #[test]
 fn un_arret_refuse_est_note_et_la_fin_rend_tout() {
     let mut b = Banc::nouveau("accrochage-fin");

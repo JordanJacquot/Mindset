@@ -154,6 +154,9 @@ pub struct BlocAccrochage {
     /// Les tâches d'arrêt d'un programme bloqué en cours
     numero_tache: u32,
     publie: Option<Value>,
+    /// L'appli de la page qui se cache elle-même ramène Mindset à l'accueil (DIVERGENCES.md, point 9 ; coupé
+    /// seulement pour rejouer les juges de la version PowerShell)
+    retour_accueil: bool,
 }
 
 /// Un bloc neuf (voir [`BlocAccrochage`]).
@@ -211,11 +214,19 @@ impl BlocAccrochage {
         lancer_apres_page: None,
         numero_tache: 0,
         publie: None,
+        retour_accueil: true,
     };
 
     /// Un bloc sur ce port (tests : [`FauxFenetres`]).
     pub fn avec(fenetres: Box<dyn Fenetres>) -> BlocAccrochage {
         BlocAccrochage { fenetres: Some(fenetres), injecte: true, port_essaye: true, ..BlocAccrochage::VIDE }
+    }
+
+    /// Pour rejouer les juges de la version PowerShell : l'appli qui se cache elle-même laisse Mindset sur sa page,
+    /// avec l'écran « réduit près de l'horloge » (comme avant le 08/11/2026 ; DIVERGENCES.md, point 9).
+    pub fn sans_retour_accueil(mut self) -> BlocAccrochage {
+        self.retour_accueil = false;
+        self
     }
 
     /// La surveillance de 400 ms tourne (`$script:IntegrationTimer.IsEnabled`).
@@ -675,20 +686,28 @@ impl BlocAccrochage {
                     i.depuis = maintenant;
                     i.relancee = false;
                     self.hotes_visibles(ctx);
-                    self.ecran_ouvrir(ctx, &a, &format!("{} est fermé.", a.nom));
-                } else if !self.f().is_some_and(|f| f.est_montree(h)) {
-                    // Elle s'est cachée elle-même (réduite près de l'horloge, par sa croix) : rendue telle quelle
-                    if let (Some(f), Some(s)) = (self.f(), self.integrees[k].styles)
-                        && !f.liberer(h, s)
-                    {
-                        ctx.journal(&format!("{} ne répond pas : sa fenêtre lui est rendue dès qu'il répond", a.nom));
+                    // (l'appli montrée, fermée par l'utilisateur : retour à l'accueil, DIVERGENCES.md point 9 ; une
+                    // relance pour un thème se fait depuis les Paramètres, une mise à jour est une occupation)
+                    if !self.retour_a_l_accueil(ctx, &a, e) {
+                        self.ecran_ouvrir(ctx, &a, &format!("{} est fermé.", a.nom));
                     }
+                } else if !self.f().is_some_and(|f| f.est_montree(h)) {
+                    // Elle s'est cachée elle-même (sa croix : « Quitter » ou « Réduire ») : sa place est effacée
+                    // tout de suite, sa fenêtre lui est rendue telle quelle (sans l'attendre : une appli qui quitte
+                    // ne traite plus ses messages), et si c'était l'appli montrée, Mindset revient à l'accueil
+                    // (DIVERGENCES.md, point 9 ; avant le 08/11/2026, la page de l'appli restait sur elle)
+                    let s = self.integrees[k].styles;
                     let i = &mut self.integrees[k];
                     i.fenetre = None;
                     i.styles = None;
                     i.etat = Etat::Cachee;
                     self.hotes_visibles(ctx);
-                    self.ecran_ouvrir(ctx, &a, &format!("{} est réduit près de l'horloge.", a.nom));
+                    if let (Some(f), Some(s)) = (self.f(), s) {
+                        f.liberer_sans_attendre(h, s);
+                    }
+                    if !self.retour_a_l_accueil(ctx, &a, e) {
+                        self.ecran_ouvrir(ctx, &a, &format!("{} est réduit près de l'horloge.", a.nom));
+                    }
                 }
             }
             let etat = self.integrees[k].etat;
@@ -747,6 +766,18 @@ impl BlocAccrochage {
         if !attente && !self.integrees.iter().any(|i| i.fenetre.is_some()) {
             self.minuterie = false;
         }
+    }
+
+    /// L'appli montrée vient de se cacher ou de se fermer elle-même : Mindset revient à l'accueil (DIVERGENCES.md,
+    /// point 9), sauf pendant une opération de Mindset sur elle (une occupation : mise à jour, installation). `true` :
+    /// l'accueil est demandé.
+    fn retour_a_l_accueil(&self, ctx: &Contexte, a: &Appli, e: &mut Effets) -> bool {
+        if !self.retour_accueil || Self::page(ctx) != a.id || partage::occupation(ctx, &a.id).is_some() {
+            return false;
+        }
+        ctx.journal(&format!("{} fermé ou réduit dans Mindset : retour à l'accueil", a.nom));
+        e.ajouter(Effet::Page("accueil".into()));
+        true
     }
 
     /// L'arrêt des programmes bloqués (`$p.Kill(); $p.WaitForExit(3000)`), sur un autre fil : la fin revient dans

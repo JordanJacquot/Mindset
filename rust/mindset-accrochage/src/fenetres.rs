@@ -85,6 +85,12 @@ pub trait Fenetres: Send {
     /// `MSIntegration.Liberer` : rendue telle qu'elle était, cachée. `false` : l'appli ne traitait pas ses messages,
     /// elle n'est pas encore rendue (elle le sera dès qu'elle les traitera ; Mindset n'attend pas, audit M3).
     fn liberer(&self, h: isize, styles: Styles) -> bool;
+    /// [`Fenetres::liberer`] sans l'attendre du tout : une appli qui s'est cachée pour quitter ne traite souvent plus
+    /// ses messages, et Mindset revient à l'accueil sans elle (DIVERGENCES.md, point 9). Elle est rendue dès
+    /// qu'elle les traite ; Mindset qui quitte attend encore ce rendu (`windows::ATTENTE_FIN`).
+    fn liberer_sans_attendre(&self, h: isize, styles: Styles) {
+        let _ = self.liberer(h, styles);
+    }
     /// `MSIntegration.Focus` : le clavier va à l'appli.
     fn focus(&self, h: isize);
     /// Mindset se ferme : plus rien ne sera demandé (les panneaux s'en vont).

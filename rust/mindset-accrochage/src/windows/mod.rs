@@ -255,11 +255,11 @@ fn attendre_en_cours(max: Duration) -> bool {
     *n == 0
 }
 
-/// `f` sur un fil à part (sur le même bureau Windows que l'appelant), attendue `DELAI_APPLI` au plus. `None` : pas
+/// `f` sur un fil à part (sur le même bureau Windows que l'appelant), attendue `max` au plus. `None` : pas
 /// finie à temps (l'appli ne traite pas ses messages) ; `f` se finit seule dès qu'elle les traite. Pendant l'attente,
 /// les messages envoyés aux fenêtres de l'appelant sont traités (s'il en a : les tests), pour ne pas se bloquer
 /// soi-même.
-fn avec_delai<R: Send + 'static>(f: impl FnOnce() -> R + Send + 'static) -> Option<R> {
+fn avec_delai<R: Send + 'static>(max: Duration, f: impl FnOnce() -> R + Send + 'static) -> Option<R> {
     // SAFETY : lecture du bureau de ce fil (handle non possédé, rien à fermer)
     let bureau = unsafe { GetThreadDesktop(GetCurrentThreadId()) }.ok().map(|d| d.0 as isize);
     let (envoi, recu) = mpsc::channel();
@@ -288,7 +288,7 @@ fn avec_delai<R: Send + 'static>(f: impl FnOnce() -> R + Send + 'static) -> Opti
         let f = f.lock().unwrap_or_else(|e| e.into_inner()).take()?;
         return Some(f());
     }
-    let fin = Instant::now() + DELAI_APPLI;
+    let fin = Instant::now() + max;
     loop {
         match recu.recv_timeout(Duration::from_millis(10)) {
             Ok(r) => return Some(r),
@@ -302,6 +302,27 @@ fn avec_delai<R: Send + 'static>(f: impl FnOnce() -> R + Send + 'static) -> Opti
                 }
             }
         }
+    }
+}
+
+/// La fenêtre accrochée rendue telle qu'elle était, cachée (`MSIntegration.Liberer`) ; attend que l'appli traite les
+/// messages de `ShowWindow` et `SetParent` : jamais sur le fil des blocs.
+fn rendre(h: isize, styles: Styles) {
+    // SAFETY : la fenêtre accrochée, rendue telle qu'elle était, cachée
+    unsafe {
+        let _ = ShowWindow(hwnd(h), SW_HIDE);
+        let _ = SetParent(hwnd(h), None);
+        SetWindowLongPtrW(hwnd(h), GWL_STYLE, (styles.style & !WS_VISIBLE) as isize);
+        SetWindowLongPtrW(hwnd(h), GWL_EXSTYLE, styles.ex as isize);
+        let _ = SetWindowPos(
+            hwnd(h),
+            None,
+            0,
+            0,
+            0,
+            0,
+            SWP_NOZORDER | SWP_NOMOVE | SWP_NOSIZE | SWP_FRAMECHANGED | SWP_NOACTIVATE | SWP_ASYNCWINDOWPOS,
+        );
     }
 }
 
@@ -468,7 +489,7 @@ impl Fenetres for FenetresWindows {
         // (sur un fil à part, attendu DELAI_APPLI au plus : `repond` vient de dire oui, mais l'appli peut se figer juste
         // après ; audit M3. Au-delà du délai, l'accrochage se finit dès qu'elle répond : elle compte comme accrochée,
         // un refus de Windows, lui, est immédiat)
-        let fait = avec_delai(move || {
+        let fait = avec_delai(DELAI_APPLI, move || {
             // SAFETY : la fenêtre principale de l'appli (trouvée par son processus, son titre et sa classe) et notre
             // panneau
             unsafe {
@@ -531,25 +552,14 @@ impl Fenetres for FenetresWindows {
             return true;
         }
         // (sur un fil à part, attendu DELAI_APPLI au plus : une appli figée ne bloque plus le fil des blocs ; audit M3)
-        avec_delai(move || {
-            // SAFETY : la fenêtre accrochée, rendue telle qu'elle était, cachée
-            unsafe {
-                let _ = ShowWindow(hwnd(h), SW_HIDE);
-                let _ = SetParent(hwnd(h), None);
-                SetWindowLongPtrW(hwnd(h), GWL_STYLE, (styles.style & !WS_VISIBLE) as isize);
-                SetWindowLongPtrW(hwnd(h), GWL_EXSTYLE, styles.ex as isize);
-                let _ = SetWindowPos(
-                    hwnd(h),
-                    None,
-                    0,
-                    0,
-                    0,
-                    0,
-                    SWP_NOZORDER | SWP_NOMOVE | SWP_NOSIZE | SWP_FRAMECHANGED | SWP_NOACTIVATE | SWP_ASYNCWINDOWPOS,
-                );
-            }
-        })
-        .is_some()
+        avec_delai(DELAI_APPLI, move || rendre(h, styles)).is_some()
+    }
+
+    fn liberer_sans_attendre(&self, h: isize, styles: Styles) {
+        if existe(h) {
+            // (le même fil à part, pas attendu : `fin` attend encore qu'il ait fini, ATTENTE_FIN au plus)
+            let _ = avec_delai(Duration::ZERO, move || rendre(h, styles));
+        }
     }
 
     fn focus(&self, h: isize) {
