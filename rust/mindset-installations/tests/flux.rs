@@ -65,6 +65,8 @@ struct Monde {
     poste: Arc<FauxPoste>,
     bloc: BlocInstallations,
     signaux: Vec<(String, Value)>,
+    /// Les actions demandées aux autres blocs (Effet::Action)
+    actions: Vec<(String, Value)>,
 }
 
 impl Monde {
@@ -87,7 +89,7 @@ impl Monde {
         .unwrap();
         let poste = Arc::new(FauxPoste::nouveau(&faux.racine));
         let bloc = BlocInstallations::pour_essai(poste.clone());
-        let mut m = Monde { ctx, faux, poste, bloc, signaux: Vec::new() };
+        let mut m = Monde { ctx, faux, poste, bloc, signaux: Vec::new(), actions: Vec::new() };
         let mut e = Effets::default();
         m.ctx.au_nom_de("installations", || m.bloc.demarrer(&m.ctx, &mut e));
         m.pomper(e);
@@ -108,6 +110,7 @@ impl Monde {
                         ctx.au_nom_de("installations", || b.tache_finie(ctx, &id, r, &mut suite));
                     }
                     Effet::Signal { nom, donnees } => self.signaux.push((nom, donnees)),
+                    Effet::Action { id, valeur } => self.actions.push((id, valeur)),
                     _ => {}
                 }
             }
@@ -121,6 +124,16 @@ impl Monde {
         let ctx = &self.ctx;
         ctx.au_nom_de("installations", || b.signal(ctx, nom, &d, &mut e));
         self.pomper(e);
+    }
+
+    /// Une action de la page (rend : prise par le bloc)
+    fn action(&mut self, id: &str, v: Value) -> bool {
+        let mut e = Effets::default();
+        let b = &mut self.bloc;
+        let ctx = &self.ctx;
+        let prise = ctx.au_nom_de("installations", || b.action(ctx, id, &v, &mut e));
+        self.pomper(e);
+        prise
     }
 
     fn tic(&mut self) -> Option<Duration> {
@@ -738,6 +751,70 @@ fn utiliser_une_copie_trouvee() {
     );
     let i = mindset_noyau::partage::installation(&m.ctx, "evermind").unwrap();
     assert!(!i.gere);
+}
+
+// ---------------------------------------------------------------------------------------------------------------
+// Audit du 08/11 (M7) : une page compromise ne peut ni donner un chemin, ni désinstaller sans la question. La page
+// ne fait que nommer l'appli ; le dossier vient de ce que Mindset a trouvé lui-même.
+// ---------------------------------------------------------------------------------------------------------------
+
+/// Une copie trouvée par Mindset (travail de fond du démarrage), comme dans prise_en_charge_d_une_copie_trouvee
+fn copie_trouvee(m: &mut Monde) -> PathBuf {
+    let d = m.poste.lieu(r"Telechargements\Evermind");
+    poser_evermind(&d, "2.3.0");
+    let cible = d.join("Evermind.exe").to_string_lossy().into_owned();
+    m.poste.poser_raccourci(&m.poste.lieu(r"Bureau\Evermind.lnk"), &cible, "", "");
+    m.tic();
+    let mut e = Effets::default();
+    m.ctx.au_nom_de("installations", || m.bloc.demarrer(&m.ctx, &mut e));
+    m.pomper(e);
+    assert_eq!(m.ctx.lu("trouvees").unwrap()["evermind"].as_str(), Some(d.to_string_lossy().as_ref()));
+    d
+}
+
+#[test]
+fn page_utiliser_un_chemin_qu_elle_donne_refuse() {
+    let mut m = Monde::nouveau("flux-page-utiliser");
+    let piege = m.faux.racine.join(r"Piege\Evermind");
+    poser_evermind(&piege, "2.0.0");
+    assert!(m.action("installations:utiliser", json!({ "id": "evermind", "dossier": piege.to_string_lossy() })));
+    assert!(mindset_noyau::partage::installation(&m.ctx, "evermind").is_none(), "jamais une copie choisie par la page");
+    // La copie trouvée par Mindset, elle, est prise (la page ne donne que l'appli)
+    let d = copie_trouvee(&mut m);
+    assert!(m.action("installations:utiliser", json!("evermind")));
+    let i = mindset_noyau::partage::installation(&m.ctx, "evermind").unwrap();
+    assert!(!i.gere && i.dossier == d.to_string_lossy());
+}
+
+#[test]
+fn page_installer_avec_une_ancienne_copie_qu_elle_donne_refuse() {
+    let mut m = Monde::nouveau("flux-page-ancien");
+    let piege = m.faux.racine.join(r"Victime\Evermind");
+    poser_evermind(&piege, "2.0.0");
+    preparer_installation(&m, "2.5.0");
+    m.publier_version("evermind", "2.5.0");
+    m.tic();
+    m.action("installations:installer", json!({ "id": "evermind", "ancien": piege.to_string_lossy() }));
+    assert!(m.faux.installateur.deposees().is_empty(), "rien de lancé : {:?}", m.faux.installateur.deposees());
+    assert!(piege.join("Evermind.exe").exists());
+    // Avec la copie trouvée par Mindset : la prise en charge se fait
+    let d = copie_trouvee(&mut m);
+    m.action("installations:installer", json!({ "id": "evermind", "ancien": d.to_string_lossy() }));
+    let dep = m.faux.installateur.deposees();
+    assert_eq!(dep.len(), 1);
+    assert!(dep[0]["AncienExe"].as_str().unwrap().starts_with(d.to_string_lossy().as_ref()));
+}
+
+#[test]
+fn page_desinstaller_pose_la_question_cote_rust() {
+    let mut m = Monde::nouveau("flux-page-desinstaller");
+    poser_evermind(&m.gere("Evermind"), "2.5.0");
+    m.tic();
+    preparer_installation(&m, "2.5.0");
+    assert!(m.action("installations:desinstaller", json!("evermind")));
+    assert!(m.faux.installateur.deposees().is_empty(), "rien de désinstallé sans la question");
+    assert!(m.gere("Evermind").join("Evermind.exe").exists());
+    assert_eq!(m.actions, vec![("ecrans:carte".to_string(), json!({ "id": "evermind", "quoi": "desinstaller" }))]);
 }
 
 #[test]

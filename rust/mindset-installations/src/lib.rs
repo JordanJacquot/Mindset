@@ -5,8 +5,9 @@
 //! Ce que le bloc publie dans le tableau commun : `installations`, `occupations`, `messages`, `trouvees`,
 //! `demarrages`, `admin` (formes dans `mindset_noyau::partage`). Ce qu'il reçoit : les signaux `installer`,
 //! `desinstaller`, `utiliser-trouvee`, `lancer-appli`, `demande-quitter`, `demarrage-appli`, `admin-demande`,
-//! `publications-changees`, `quitter` (et les actions `installations:*`, les mêmes). Ce qu'il envoie :
-//! `operation-finie`, `installations-changees`, `admin-recu`, `admin-fini`, `ouvrir-appli`.
+//! `publications-changees`, `quitter` ; et les actions de la page `installations:*`, qui ne font que nommer l'appli :
+//! le dossier est une copie trouvée par Mindset, et `desinstaller` pose la question de la carte (audit du 08/11, M7).
+//! Ce qu'il envoie : `operation-finie`, `installations-changees`, `admin-recu`, `admin-fini`, `ouvrir-appli`.
 //!
 //! Tout ce qui touche à Windows passe par les ports : ceux du noyau (disque, réseau, mini-installateur, programmes)
 //! et le sien ([`poste::Poste`] : raccourcis, entrées « Run », tâches de démarrage, variables, copie de dossier).
@@ -22,7 +23,7 @@ use mindset_noyau::appli::{appli_admin, appli_ouverte, processus_appli};
 use mindset_noyau::donnees::Dossiers;
 use mindset_noyau::installateur::Installateur;
 use mindset_noyau::systeme::Lancer;
-use mindset_noyau::{Appli, Bloc, Contexte, Effets, Installation, Progres, partage, signaux};
+use mindset_noyau::{Appli, Bloc, Contexte, Effet, Effets, Installation, Progres, partage, signaux};
 use suite_commun::chemins;
 
 pub mod admin;
@@ -184,6 +185,17 @@ impl BlocInstallations {
     }
 
     /// `Get-Installation` (avec l'opération en cours sur l'appli).
+    /// `dossier` est-il une copie de l'appli que Mindset connaît lui-même ? La copie trouvée sur le PC (`trouvees`),
+    /// ou la copie non gérée qu'il ouvre (les deux que la carte propose de prendre en charge).
+    fn copie_connue(&self, ctx: &Contexte, id: &str, dossier: &str) -> bool {
+        if self.trouvees.get(id).is_some_and(|d| chemins::egal(d, dossier)) {
+            return true;
+        }
+        Self::appli(ctx, id)
+            .and_then(|a| self.installation(ctx, &a))
+            .is_some_and(|i| !i.gere && chemins::egal(&i.dossier, dossier))
+    }
+
     pub fn installation(&self, ctx: &Contexte, appli: &Appli) -> Option<Installation> {
         installation(ctx, appli, self.occupee(&appli.id))
     }
@@ -1113,16 +1125,43 @@ impl Bloc for BlocInstallations {
         self.chercher_trouvees(ctx, effets);
     }
 
+    // (Audit du 08/11, M7 : ces actions viennent de la page. Une page compromise ne doit pouvoir ni donner un chemin,
+    // ni désinstaller sans la question. Elle ne fait que nommer l'appli : le dossier est une copie déjà trouvée par
+    // Mindset, et la désinstallation passe par la question de la carte, posée côté Rust. Les blocs, eux, passent par
+    // les signaux installer, utiliser-trouvee et desinstaller, qui gardent leurs paramètres.)
     fn action(&mut self, ctx: &Contexte, id: &str, valeur: &Value, effets: &mut Effets) -> bool {
         let appli = |v: &Value| v.as_str().map(str::to_string).unwrap_or_else(|| texte_de(v, "id"));
         match id {
             "installations:installer" => {
-                let ancien = valeur.get("ancien").and_then(Value::as_str).map(str::to_string);
-                self.installer(ctx, effets, &appli(valeur), ancien, false)
+                let id = appli(valeur);
+                let ancien = valeur.get("ancien").and_then(Value::as_str).filter(|d| !d.is_empty());
+                match ancien {
+                    Some(d) if !self.copie_connue(ctx, &id, d) => {
+                        ctx.journal(&format!("Écran : installation de {id} refusée (copie inconnue de Mindset)"));
+                        return true;
+                    }
+                    _ => self.installer(ctx, effets, &id, ancien.map(str::to_string), false),
+                }
             }
-            "installations:desinstaller" => self.desinstaller(ctx, effets, &appli(valeur)),
+            "installations:desinstaller" => {
+                let id = appli(valeur);
+                effets.ajouter(Effet::Action {
+                    id: "ecrans:carte".into(),
+                    valeur: json!({ "id": id, "quoi": "desinstaller" }),
+                });
+            }
             "installations:utiliser" => {
-                self.utiliser_trouvee(ctx, effets, &appli(valeur), &texte_de(valeur, "dossier"))
+                let id = appli(valeur);
+                let donne = texte_de(valeur, "dossier");
+                match self.trouvees.get(&id).cloned() {
+                    Some(d) if donne.is_empty() || chemins::egal(&donne, &d) => {
+                        self.utiliser_trouvee(ctx, effets, &id, &d)
+                    }
+                    _ => {
+                        ctx.journal(&format!("Écran : copie de {id} refusée (pas une copie trouvée par Mindset)"));
+                        return true;
+                    }
+                }
             }
             "installations:demarrage" => {
                 let oui = valeur.get("oui").is_some_and(suite_commun::protocole_installateur::vrai_ps);
