@@ -1754,7 +1754,7 @@ dependencies = [
 
 [[package]]
 name = "mindset-appli"
-version = "3.0.2"
+version = "3.0.3"
 dependencies = [
  "mindset-accrochage",
  "mindset-console",
