@@ -273,7 +273,7 @@ static class Faux {
     $script:Version = "[$($variante.Nom)]"
     $script:VersionDossier = ($variante.Nom -replace '[^A-Za-z]', '') + '-'
     $desinstalleur = $variante.Exe
-    Remove-Item -LiteralPath (Join-Path $marques '*') -Force -ErrorAction SilentlyContinue
+    Get-ChildItem -LiteralPath $marques -File -ErrorAction SilentlyContinue | Remove-Item -Force -ErrorAction SilentlyContinue
     Write-Partie "Version $($variante.Nom) : $desinstalleur"
     Test-Cas 'Le faux environnement se prépare (tâches de test comprises)' { $e0 = New-Environnement 'essai'; (Test-DossierTachesPresent) -and (Test-Path -LiteralPath $e0.Exe) }
 
@@ -283,7 +283,7 @@ static class Faux {
     $e = New-Environnement 'fenetre' -Script 'absent'
     $mindsetOuvert = Start-Process -FilePath (Join-Path $e.Mindset 'Mindset.exe') -PassThru
     $script:Processus += $mindsetOuvert
-    Remove-Item -LiteralPath (Join-Path $marques '*') -Force -ErrorAction SilentlyContinue
+    Get-ChildItem -LiteralPath $marques -File -ErrorAction SilentlyContinue | Remove-Item -Force -ErrorAction SilentlyContinue
     $b = Invoke-Desinstalleur $e $e.Exe @('-EssaiFenetre', '0')
     Test-Cas 'Le bilan est bon (rien ne reste)' { $b.ok -eq $true -and @($b.restes).Count -eq 0 }
     Test-Cas 'La case « Supprimer aussi mes données » est décochée au départ' { $b.caseDonneesAuDepart -eq $false -and $b.donneesSupprimees -eq $false }
@@ -370,7 +370,7 @@ static class Faux {
     # Rien dans Program Files, apps.json abîmé, pas d'entrée « Applications installées » ; lancé depuis un autre dossier
     $e = New-Environnement 'secours' -SansProgrammeC -AppsAbime -SansCleDesinstall
     # (les marques des cas d'avant, « Désinstaller Appli » par exemple, ne doivent pas compter ici)
-    Remove-Item -LiteralPath (Join-Path $marques '*') -Force -ErrorAction SilentlyContinue
+    Get-ChildItem -LiteralPath $marques -File -ErrorAction SilentlyContinue | Remove-Item -Force -ErrorAction SilentlyContinue
     $b = Invoke-Desinstalleur $e $desinstalleur @('-Nettoyer', '-Silencieux')
     # (Rust, audit du 08/11, G1 : X:\Mindset\Programmes n'est ni celui de ce désinstalleur, ni celui inscrit dans Windows,
     # il n'est pas touché : un autre compte a pu le préparer, rien n'y est lancé ni supprimé)
