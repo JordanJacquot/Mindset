@@ -13,6 +13,12 @@ tous ; les seules différences acceptées par `tests/juges.rs` sont celles de ce
 | Le carrousel du menu en grand (`requestAnimationFrame(boucleCarrousel)`) avance à chaque rafraîchissement de l'écran | il avance au plus 60 fois par seconde (même saut) | même raison. Effet visible : sur un écran à 360 Hz, le carrousel glissait 6 fois plus vite qu'à 60 Hz (la même fraction du chemin à chaque image) ; il glisse maintenant à la vitesse prévue, celle d'un écran à 60 Hz, quel que soit l'écran |
 | Les 8 animations CSS sans fin `linear infinite` (anneau de chargement, rouages, bascules, barres « coule », chargement qui tourne) avancent en continu, donc à chaque rafraîchissement | elles avancent par pas, `steps(n)` avec n = 60 x la durée (au plus 60 pas par seconde) | le même mouvement à l'oeil, 6 fois moins de travail sur un écran à 360 Hz (comme `nevermind-appli/tests/animations.rs`). Gardé par `les_animations_sans_fin_avancent_par_pas`, contre-épreuve faite |
 
+## Une demande de Jordan (08/11/2026) : voir qu'une appli tourne encore
+
+| Version PowerShell | Version Rust | Pourquoi |
+|---|---|---|
+| Sur l'écran de la console, sous chaque tuile : « À installer », la barre d'une mise à jour, ou le bouton « Mise à jour » ; rien pour une appli ouverte | une appli encore ouverte (`etat` différent de `ferme` : réduite près de l'horloge, ou en fond) a « Ouverte » en vert sous sa tuile, si rien d'autre n'est à montrer | depuis le 08/11, réduire une appli dans Mindset ramène au menu ; Jordan veut voir sur la console que l'appli tourne encore. Le menu en grand disait déjà « Ouverte » (`etatTuile`). Changement permis dans `tests/scene.rs` (point 4) |
+
 ## Les changements permis par l'architecture (bloc 7), et seulement ceux-là
 
 `tests/scene.rs` (`seulement_les_changements_permis`) refait scene.html à partir de celui de la version PowerShell avec

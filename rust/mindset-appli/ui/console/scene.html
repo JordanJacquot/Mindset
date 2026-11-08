@@ -452,7 +452,7 @@ function dessinerEcran(t) {
     const m = app.maj;
     if (m && m.etat !== 'dispo') { ex.fillStyle = 'rgba(255,255,255,0.18)'; ex.beginPath(); ex.roundRect(X + 20, Y + s + 16, s - 40, 10, 5); ex.fill(); ex.fillStyle = C('#FFB020'); ex.beginPath(); ex.roundRect(X + 20, Y + s + 16, Math.max(10, (s - 40) * (m.etat === 'installation' ? 1 : m.progres)), 10, 5); ex.fill(); }
     else if (!app.installee) { ex.fillStyle = C('#A9A3C9'); ex.font = `600 24px ${POLICE}`; ex.fillText('À installer', X + s / 2, Y + s + 34); }
-    else if (m) { ex.fillStyle = C('#FFB020'); ex.beginPath(); ex.roundRect(X + s / 2 - 80, Y + s + 12, 160, 36, 18); ex.fill(); ex.fillStyle = C('#1A1206'); ex.font = `800 22px ${POLICE}`; ex.fillText('Mise à jour', X + s / 2, Y + s + 31); }
+    else if (m) { ex.fillStyle = C('#FFB020'); ex.beginPath(); ex.roundRect(X + s / 2 - 80, Y + s + 12, 160, 36, 18); ex.fill(); ex.fillStyle = C('#1A1206'); ex.font = `800 22px ${POLICE}`; ex.fillText('Mise à jour', X + s / 2, Y + s + 31); } else if (app.etat !== 'ferme') { ex.fillStyle = C('#3FD99A'); ex.font = `700 24px ${POLICE}`; ex.fillText('Ouverte', X + s / 2, Y + s + 34); }
   });
   ex.textAlign = 'center'; ex.fillStyle = C('#ECEAF7'); ex.font = `600 34px ${POLICE}`;
   const lm = ligneEcranMaj();   // (la mise à jour en cours, à la place de la consigne)

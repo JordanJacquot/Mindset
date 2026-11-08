@@ -125,6 +125,12 @@ const CHANGEMENTS: &[(&str, &str)] = &[
     (" 30s linear infinite", " 30s steps(1800) infinite"),
     (" 3s linear infinite", " 3s steps(180) infinite"),
     (" 7s linear infinite", " 7s steps(420) infinite"),
+    // 4. une appli encore ouverte (réduite ou en fond) : « Ouverte » sous sa tuile, sur l'écran de la console
+    //    (demande de Jordan du 08/11/2026 : revenir au menu après « Réduire » et voir que l'appli tourne encore)
+    (
+        "ex.fillText('Mise à jour', X + s / 2, Y + s + 31); }",
+        "ex.fillText('Mise à jour', X + s / 2, Y + s + 31); } else if (app.etat !== 'ferme') { ex.fillStyle = C('#3FD99A'); ex.font = `700 24px ${POLICE}`; ex.fillText('Ouverte', X + s / 2, Y + s + 34); }",
+    ),
     // 3. les adresses des images servies par Mindset
     ("https://theme.mindset.local/) et sa police", "http://pack.localhost/) et sa police"),
     (
