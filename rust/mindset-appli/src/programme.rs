@@ -501,7 +501,11 @@ impl Etat {
                             }
                         }
                     }
-                    self.vu = Some((f.is_visible().unwrap_or(false), f.is_minimized().unwrap_or(false)));
+                    let maintenant = (f.is_visible().unwrap_or(false), f.is_minimized().unwrap_or(false));
+                    // (12/11, écran noir) la page suit aussi la fenêtre montrée ou cachée par Mindset lui-même : sinon
+                    // tour() ne voit aucun changement, et WebView2 garde la page cachée (rien n'est dessiné)
+                    let _ = webview2::page_visible(f, maintenant.0 && !maintenant.1);
+                    self.vu = Some(maintenant);
                 }
                 Demande::BarreDeTitre(c) => {
                     let h = self.fenetre.as_ref().and_then(|f| f.hwnd().ok()).map(|h| h.0 as usize).unwrap_or(0);
