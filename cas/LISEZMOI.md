@@ -59,6 +59,7 @@ Règles :
 | `programmes.json` | `tester-installer.ps1` et `cargo test` | 6 | Les programmes fermés : par leur chemin, ceux de l'utilisateur |
 | `rust-mindset.json` | `cargo test` seulement | 14 | Mindset en Rust : installation sans Mindset.ps1, mise à jour vers un zip au format Rust |
 | `rust-securite.json` | `cargo test` seulement | 21 | Audit du 08/11 : liens sur le zip, la signature, la liste en ligne, la destination et `X:Mindset` ; comptes accentués et tâches impossibles à réinscrire ; zip et signature trop gros |
+| `rust-supprimer.json` | `cargo test` seulement | 12 | Désinstallation d'une appli nommée (`Appli`) : sa tâche d'aide de apps.json retirée avec son dossier, jamais celle de la demande ; appli, dossier ou programme qui ne vont pas ensemble refusés |
 | `dossier-protege.json` | `tester-securite.ps1` et `cargo test` | 20 | Les dossiers acceptés (Test-DossierMindset) |
 | `cote-mindset-tache.json` | `tester-mini-installateur.ps1` | 5 | Côté Mindset : quelle tâche d'installation est utilisée |
 | `cote-mindset-variables.json` | `tester-mini-installateur.ps1` | 9 | Côté Mindset : variables lues par .NET, pas de demande de Windows |

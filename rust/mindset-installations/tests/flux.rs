@@ -493,6 +493,35 @@ fn donnees_sur_le_meme_disque_pas_deplacees() {
     assert!(anciennes.exists(), "même disque : l'appli renomme elle-même");
 }
 
+/// Une appli avec une partie administrateur : la demande la nomme (`Appli`), l'installateur retire sa tâche ; sans
+/// partie administrateur, la demande reste celle d'avant.
+#[test]
+fn desinstallation_nomme_l_appli_qui_a_une_aide() {
+    let mut m = Monde::nouveau("flux-desinstallation-aide");
+    let mut e = evermind(&m.faux.racine);
+    e.aide = "Evermind (aide)".into();
+    e.aide_exe = "EvermindAide.exe".into();
+    m.ctx.definir_applis(vec![e, nevermind(&m.faux.racine)]);
+    poser_evermind(&m.gere("Evermind"), "2.5.0");
+    m.tic();
+    preparer_installation(&m, "2.5.0");
+    m.signal("desinstaller", json!({ "id": "evermind" }));
+    let d = m.faux.installateur.deposees();
+    assert_eq!(d[0]["Action"], "supprimer");
+    assert_eq!(d[0]["Appli"], "evermind");
+    assert_eq!(d[0]["Exe"], "Evermind.exe");
+    assert!(d[0].get("TacheAide").is_none(), "le nom de la tâche n'est jamais pris dans la demande");
+
+    let mut m = Monde::nouveau("flux-desinstallation-sans-aide");
+    poser_evermind(&m.gere("Evermind"), "2.5.0");
+    m.tic();
+    preparer_installation(&m, "2.5.0");
+    m.signal("desinstaller", json!({ "id": "evermind" }));
+    let d = m.faux.installateur.deposees();
+    assert_eq!(d[0]["Action"], "supprimer");
+    assert!(d[0].get("Appli").is_none(), "sans partie administrateur : demande d'avant");
+}
+
 #[test]
 fn desinstallation_par_le_mini_installateur() {
     let mut m = Monde::nouveau("flux-desinstallation");

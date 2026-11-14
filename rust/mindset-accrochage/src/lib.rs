@@ -15,6 +15,7 @@
 //! sont jugées sur les cas exportés de la version PowerShell (`tests/juges`).
 
 use serde_json::{Map, Value, json};
+use std::path::PathBuf;
 use std::time::Duration;
 
 use mindset_noyau::appli::{self, Appli};
@@ -28,6 +29,10 @@ pub use fenetres::{FauxFenetres, Fenetres, Styles, Zone};
 
 /// La surveillance (`$script:IntegrationTimer`, integration.ps1:181-182).
 const INTERVALLE: Duration = Duration::from_millis(400);
+/// La demande d'ouverture d'une autre appli, dans le dossier de données de l'appli montrée (docs\contrat-appli.md)
+pub const OUVRIR_DEMANDE: &str = "ouvrir.demande";
+/// Au-delà (64 octets ou plus), la demande est supprimée sans être lue
+const OUVRIR_TAILLE_MAX: u64 = 64;
 /// 100 ns par seconde (FILETIME).
 const FT_SECONDE: u64 = 10_000_000;
 /// Le 01/01/1970 en FILETIME.
@@ -157,6 +162,8 @@ pub struct BlocAccrochage {
     /// L'appli de la page qui se cache elle-même ramène Mindset à l'accueil (DIVERGENCES.md, point 9 ; coupé
     /// seulement pour rejouer les juges de la version PowerShell)
     retour_accueil: bool,
+    /// Un `ouvrir.demande` impossible à supprimer : déjà noté au journal (il est ignoré tant qu'il reste)
+    ouvrir_bloque: bool,
 }
 
 /// Un bloc neuf (voir [`BlocAccrochage`]).
@@ -197,6 +204,21 @@ fn page_de_mindset(id: &str) -> bool {
     id == "accueil" || id == "parametres"
 }
 
+/// Le contenu de `ouvrir.demande` : un id d'appli (`^[a-z0-9-]{1,30}$`).
+fn id_demande(id: &str) -> bool {
+    (1..=30).contains(&id.len()) && id.bytes().all(|b| b.is_ascii_lowercase() || b.is_ascii_digit() || b == b'-')
+}
+
+/// Le dossier de données d'une appli, comme pour ses autres fichiers `.demande` (`dossier_donnees` de
+/// mindset-horloge, `Get-DossierDonnees`) : celui de la suite si l'appli est gérée et qu'il existe, sinon son ancien
+/// dossier ; jamais un chemin relatif.
+fn dossier_donnees(ctx: &Contexte, a: &Appli) -> Option<PathBuf> {
+    let suite = ctx.dossiers.donnees_suite.join(&a.nom);
+    let gere = partage::installation(ctx, &a.id).is_some_and(|i| i.gere);
+    let d = if gere && suite.exists() { suite } else { PathBuf::from(&a.donnees) };
+    d.is_absolute().then_some(d)
+}
+
 impl BlocAccrochage {
     const VIDE: BlocAccrochage = BlocAccrochage {
         fenetres: None,
@@ -215,6 +237,7 @@ impl BlocAccrochage {
         numero_tache: 0,
         publie: None,
         retour_accueil: true,
+        ouvrir_bloque: false,
     };
 
     /// Un bloc sur ce port (tests : [`FauxFenetres`]).
@@ -780,6 +803,70 @@ impl BlocAccrochage {
         true
     }
 
+    /// `ouvrir.demande` (docs\contrat-appli.md, partie 5) : l'appli montrée en ce moment demande d'ouvrir une autre
+    /// appli de la suite (le bouton « Ouvrir Nevermind » de Mindcare). Seulement l'appli affichée à l'écran (sa page,
+    /// Mindset montré, sa fenêtre accrochée) ; le fichier, dans son dossier de données, contient l'id d'une appli de
+    /// la liste, autre qu'elle. Lu une fois puis supprimé (même illisible), il fait ce que fait un clic sur la carte :
+    /// sa page, puis elle est lancée si elle est installée. Jamais d'installation.
+    fn relever_ouvrir(&mut self, ctx: &Contexte, e: &mut Effets) {
+        let vue = ctx.vue();
+        if !vue.visible || vue.reduite || page_de_mindset(&vue.page) {
+            return;
+        }
+        if !self.integrees.iter().any(|i| i.id == vue.page && i.fenetre.is_some()) {
+            return;
+        }
+        let Some(a) = ctx.appli(&vue.page) else { return };
+        let Some(d) = dossier_donnees(ctx, &a) else { return };
+        // (en essai, seulement dans le dossier d'essai : jamais les données des vraies applis)
+        let racine = ctx.dossiers.donnees_suite.parent().unwrap_or(&ctx.dossiers.donnees_suite);
+        if ctx.essai && !d.starts_with(racine) {
+            return;
+        }
+        let f = d.join(OUVRIR_DEMANDE);
+        // (un dossier ou un lien à ce nom : laissé tel quel, jamais suivi)
+        let Ok(m) = std::fs::symlink_metadata(&f) else {
+            self.ouvrir_bloque = false;
+            return;
+        };
+        if !m.is_file() {
+            return;
+        }
+        let contenu = (m.len() < OUVRIR_TAILLE_MAX)
+            .then(|| std::fs::read(&f).ok())
+            .flatten()
+            .map(|o| suite_commun::json_sur::texte_du_fichier(&o).trim_start_matches('\u{FEFF}').trim().to_string());
+        if let Err(x) = std::fs::remove_file(&f) {
+            // (noté une fois : la surveillance repasse toutes les 400 ms)
+            if !self.ouvrir_bloque {
+                self.ouvrir_bloque = true;
+                ctx.journal(&format!("Demande d'ouverture de {} non supprimée, ignorée : {x}", a.nom));
+            }
+            return;
+        }
+        self.ouvrir_bloque = false;
+        let cible = contenu.filter(|c| id_demande(c) && *c != a.id).and_then(|c| ctx.appli(&c));
+        let Some(c) = cible else {
+            ctx.journal(&format!("Demande d'ouverture de {} illisible, ignorée", a.nom));
+            return;
+        };
+        ctx.journal(&format!("{} demande d'ouvrir {}", a.nom, c.nom));
+        // (le signal pour les autres blocs, la console : l'hôte ne le rend pas à son auteur, d'où `ouvrir_ici`)
+        e.ajouter(signaux::ouvrir_appli(&c.id, true));
+        self.ouvrir_ici(ctx, &c.id, true, e);
+    }
+
+    /// Le signal `ouvrir-appli`, `Open-AppliIci` (integration.ps1:178) : son onglet, puis elle est lancée (`lancer`).
+    /// Pas installée : sa page dit « n'est pas installé » ([`Self::afficher`]), rien n'est lancé.
+    fn ouvrir_ici(&mut self, ctx: &Contexte, id: &str, lancer: bool, e: &mut Effets) {
+        if ctx.appli(id).is_some() {
+            if lancer {
+                self.lancer_apres_page = Some(id.to_string());
+            }
+            e.ajouter(Effet::Page(id.to_string()));
+        }
+    }
+
     /// L'arrêt des programmes bloqués (`$p.Kill(); $p.WaitForExit(3000)`), sur un autre fil : la fin revient dans
     /// [`Bloc::tache_finie`].
     fn arreter_bloques(&mut self, ctx: &Contexte, id: &str, pids: Vec<u32>, e: &mut Effets) {
@@ -973,6 +1060,8 @@ impl Bloc for BlocAccrochage {
             return Some(self.prochain - maintenant);
         }
         self.assurer_port(ctx);
+        // (avant la surveillance : l'appli montrée l'est encore, même si elle se ferme à ce passage)
+        self.relever_ouvrir(ctx, effets);
         self.surveiller(ctx, effets);
         self.publier(ctx);
         self.prochain = maintenant + INTERVALLE;
@@ -999,13 +1088,8 @@ impl Bloc for BlocAccrochage {
                 }
             }
             signaux::OUVRIR_APPLI => {
-                // Open-AppliIci (integration.ps1:178) : son onglet, puis elle est lancée
-                if ctx.appli(&id).is_some() {
-                    if donnees.get("lancer").and_then(Value::as_bool).unwrap_or(true) {
-                        self.lancer_apres_page = Some(id.clone());
-                    }
-                    effets.ajouter(Effet::Page(id));
-                }
+                let lancer = donnees.get("lancer").and_then(Value::as_bool).unwrap_or(true);
+                self.ouvrir_ici(ctx, &id, lancer, effets);
             }
             signaux::FERMER_APPLI => {
                 // Stop-AppliConsole (console.ps1:540-548) : sa fenêtre affichée reçoit « Fermer », sinon sa demande

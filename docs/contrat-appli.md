@@ -224,6 +224,7 @@ les renomme (Mindset ne lit jamais un fichier à moitié écrit).
 | `afficher.demande` (nom pris dans `afficher_fichier`) | Mindset, ou un second lancement de l'appli | l'appli | un numéro de processus, ou `notif:<12 hex>` | appli déjà ouverte à ramener ; clic sur une bulle |
 | `afficher-rdv.demande` | Mindset | Evermind | `<id 32 hex>\|<date au format s>` | clic sur un rendez-vous de l'accueil |
 | `notification.demande` | l'appli | Mindset | JSON `{ titre, texte, id }` | l'appli veut montrer une bulle |
+| `ouvrir.demande` (Mindset 3.0.6) | l'appli montrée dans Mindset | Mindset | l'id d'une autre appli de la liste (texte) | l'appli veut ouvrir une autre appli de la suite (bouton « Ouvrir Nevermind » de Mindcare) |
 | `etat.json` | l'appli | Mindset | le résumé de sa carte (JSON) | quand le résumé change |
 | `suite.json` | Mindset (et l'appli pour le thème) | l'appli | thème, micro, casque, applis gérées | à chaque changement |
 
@@ -262,6 +263,23 @@ les renomme (Mindset ne lit jamais un fichier à moitié écrit).
   coupé à 63 caractères, texte à 250, `id` accepté seulement s'il fait 12 chiffres hexadécimaux.
 - **Appli Rust** : mêmes règles d'écriture que Nevermind. Pas d'icône à elle près de l'horloge quand Mindset la gère
   (`zone.ps1:126`).
+
+### ouvrir.demande
+- **L'appli** l'écrit dans **son** dossier de données (partie 8), à côté puis renommé, avec un seul id d'appli de
+  apps.json (par exemple `nevermind`), moins de 64 octets. Rien d'autre : jamais de chemin, jamais d'option.
+- **Mindset en Rust** (3.0.6 et après) le regarde toutes les 400 ms dans la surveillance de l'accrochage
+  (`rust/mindset-accrochage/src/lib.rs`, `relever_ouvrir`), **seulement pour l'appli affichée à l'écran** : sa page
+  montrée, Mindset ni caché ni réduit, sa fenêtre accrochée. Le fichier d'une autre appli est laissé tel quel.
+- Lu une fois puis **toujours supprimé**. Accepté seulement si le contenu (espaces et marque UTF-8 retirés) suit
+  `^[a-z0-9-]{1,30}$`, est une appli de la liste et n'est pas l'appli qui demande ; sinon ignoré, avec une ligne au
+  journal. 64 octets ou plus : supprimé sans être lu.
+- Accepté : exactement ce que fait un clic sur la carte de l'accueil (signal `ouvrir-appli`, avec lancement). Appli
+  pas installée : Mindset montre sa page, « <Nom> n'est pas installé. » et « Installe-le depuis l'accueil. ».
+  **Jamais d'installation** lancée par ce fichier.
+- Sûreté : n'importe quel programme du compte peut écrire ce fichier, mais il ne fait que ce qu'un clic fait déjà, et
+  seulement pendant que l'appli est à l'écran.
+- **Mindset trop ancien** (PowerShell, ou Rust avant 3.0.6) : le fichier reste. L'appli le reprend elle-même au bout
+  de 3 s et dit quoi faire (par exemple « Ouvre Nevermind depuis l'accueil de Mindset »).
 
 ### etat.json
 - **Mindset** : `Get-EtatAppli` (`accueil.ps1:142-181`) : 32 Ko au plus, relu quand sa date change, textes nettoyés et
@@ -405,6 +423,13 @@ de programmes (il est protégé).
   826-830) ; il attend jusqu'à 10 minutes que `exe` ait disparu (`installations.ps1:867-879`), puis regarde ce qui
   reste des données (`installations.ps1:845-865`). Sans désinstalleur, Mindset fait supprimer le dossier par le
   mini-installateur (`installations.ps1:837-842`).
+- **Mindset en Rust 3.0.6 et après, appli avec `aide`** : la demande `supprimer` (`Destination`, `Exe`) nomme aussi
+  l'appli (`Appli` = son id, et `Liste` = la liste en ligne gardée par Mindset). L'installateur vérifie avant de rien
+  arrêter que l'appli est dans sa liste, que le dossier porte son nom et que `Exe` est le sien (sinon refus, rien fait),
+  efface le dossier, puis retire sa tâche `\Mindset\<aide>`. Le nom de la tâche vient toujours de apps.json, jamais de
+  la demande. Une tâche déjà absente (retirée par le désinstalleur de l'appli, comme pour Nevermind) n'est pas une
+  erreur. Sans `Appli` (appli sans aide, ancien Mindset) : comme avant, aucune tâche touchée
+  (`rust/mindset-installateur/src/installateur.rs`, `fn supprimer` ; cas `cas/installateur/rust-supprimer.json`).
 - **Depuis « Désinstaller Mindset »** (`outils/desinstalleur.cs`) : chaque désinstalleur de apps.json est lancé avec
   `-GarderDonnees` ou `-SupprimerDonnees` (`desinstalleur.cs:15-18`, `:780-803`, ligne 790), dans le dossier de
   l'appli, 10 minutes au plus ; réussi si `exe` a disparu. Si apps.json manque, un `*sinstaller *.exe` trouvé dans le

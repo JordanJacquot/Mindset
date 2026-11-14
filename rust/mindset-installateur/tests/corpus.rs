@@ -1474,7 +1474,7 @@ fn verifier(r: &Resultat, a: &Map<String, Value>) -> Vec<String> {
 // =============================================================================================================
 
 /// Le nombre de cas attendu au moins dans chaque fichier (un cas retiré ou un fichier vidé fait échouer le test)
-const MINIMUM_CAS: [(&str, usize); 12] = [
+const MINIMUM_CAS: [(&str, usize); 13] = [
     ("demande.json", 31),
     ("appli.json", 66),
     ("mindset.json", 16),
@@ -1490,6 +1490,8 @@ const MINIMUM_CAS: [(&str, usize); 12] = [
     ("rust-mindset.json", 14),
     // (audit du 08/11 : liens, comptes accentués, tailles ; lu seulement ici, comme rust-mindset.json)
     ("rust-securite.json", 21),
+    // (désinstallation d'une appli nommée, sa tâche d'aide retirée avec elle ; lu seulement ici)
+    ("rust-supprimer.json", 12),
 ];
 
 fn lire_corpus(nom: &str) -> Value {

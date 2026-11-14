@@ -1200,6 +1200,19 @@ impl Installateur<'_> {
     /// Action supprimer : une appli gérée, ou Mindset lui-même (chemin de secours).
     fn supprimer(&mut self) -> Res<()> {
         let dest = self.dossier_demande(&self.p.destination.clone())?;
+        // (l'appli nommée par la demande, vérifiée AVANT de rien arrêter : sa partie administrateur est retirée avec
+        // elle, sous le nom de apps.json, jamais celui de la demande ; sans `Appli`, comme avant)
+        let mut tache_aide = String::new();
+        if !self.p.appli.is_empty() {
+            let app = self.appli_connue(&self.p.appli.clone())?;
+            if !egal(feuille(&dest), &app.nom) {
+                return Err(format!("Dossier refusé : {}", self.p.destination));
+            }
+            if !self.p.exe.is_empty() && !egal(&self.p.exe, &app.exe) {
+                return Err("Nom de programme refusé.".into());
+            }
+            tache_aide = app.tache_aide;
+        }
         if self.p.attendre_pid != 0 {
             self.sys.attendre_fin(self.p.attendre_pid, 30);
         }
@@ -1210,6 +1223,11 @@ impl Installateur<'_> {
         if !egal(feuille(&dest), chemins::DOSSIER_MINDSET) {
             if self.existe(&dest) {
                 self.supprimer_tout(&dest)?;
+            }
+            // (une tâche déjà absente, retirée par le désinstalleur de l'appli, n'est pas une erreur)
+            if !tache_aide.is_empty() && regles::tache_aide(&tache_aide) {
+                self.sys.retirer_tache(DOSSIER_TACHES, &tache_aide);
+                self.sys.journal(&format!("Tâche « {DOSSIER_TACHES}{tache_aide} » retirée avec l'appli"));
             }
         } else {
             // Mindset lui-même. Mindset est déjà fermé et ne lira pas la réponse : chaque étape est tentée, puis ce

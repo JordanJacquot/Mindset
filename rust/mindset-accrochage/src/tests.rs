@@ -389,6 +389,161 @@ fn un_arret_refuse_est_note_et_la_fin_rend_tout() {
     assert_eq!(b.f.fenetre(1001).unwrap().parent, None);
 }
 
+/// `ouvrir.demande` : Evermind montrée, son dossier de données (celui de la suite, elle est gérée), et une autre appli
+/// de la liste, « Autre » (installée seulement si `autre_installee`), avec son propre dossier de données.
+fn banc_ouvrir(nom: &str, autre_installee: bool) -> (Banc, std::path::PathBuf, std::path::PathBuf) {
+    let mut b = Banc::nouveau(nom);
+    let donnees_autre = b.faux.racine.join(r"Anciennes\Autre");
+    let autre = Appli {
+        id: "autre".into(),
+        nom: "Autre".into(),
+        exe: "Autre.exe".into(),
+        donnees: donnees_autre.to_string_lossy().into_owned(),
+        ..Default::default()
+    };
+    b.ctx.definir_applis(vec![evermind(), autre]);
+    if autre_installee {
+        b.ctx.au_nom_de("installations", || {
+            b.ctx.publier(
+                partage::INSTALLATIONS,
+                json!({
+                    "evermind": { "dossier": r"C:\Essai\Programmes\evermind", "gere": true, "version": "1.3.0" },
+                    "autre": { "dossier": r"C:\Essai\Programmes\autre", "gere": true, "version": "1.0.0" },
+                }),
+            )
+        });
+    }
+    let donnees = b.ctx.dossiers.donnees_suite.join("Evermind");
+    std::fs::create_dir_all(&donnees).unwrap();
+    std::fs::create_dir_all(&donnees_autre).unwrap();
+    b.zone(1100, 760);
+    b.evermind_ouverte(1001);
+    b.page("evermind");
+    assert_eq!(b.pages()["evermind"]["etat"], "affiche");
+    (b, donnees.join(OUVRIR_DEMANDE), donnees_autre.join(OUVRIR_DEMANDE))
+}
+
+fn ouvrir_autre() -> Vec<Effet> {
+    vec![signaux::ouvrir_appli("autre", true), Effet::Page("autre".into())]
+}
+
+/// Le bouton « Ouvrir Nevermind » de Mindcare : un id valide ouvre l'autre appli (sa page, puis elle est lancée),
+/// le fichier est supprimé, une ligne au journal.
+#[test]
+fn ouvrir_demande_valide_ouvre_l_autre_appli() {
+    let (mut b, f, _) = banc_ouvrir("accrochage-ouvrir-demande", true);
+    std::fs::write(&f, "autre\r\n").unwrap();
+    b.avancer(400);
+    let (_, e) = b.tic();
+    assert_eq!(e.0, ouvrir_autre());
+    assert!(!f.exists(), "supprimé après lecture");
+    assert!(b.faux.donnees.lignes().contains(&"Evermind demande d'ouvrir Autre".to_string()));
+    // (sa page : elle est lancée, comme après un clic sur sa carte)
+    let e = b.page("autre");
+    assert_eq!(
+        e.0,
+        vec![Effet::Signal { nom: "lancer-appli".into(), donnees: json!({ "id": "autre", "demarrage": false }) }]
+    );
+    // (lu une seule fois : rien au passage suivant)
+    b.page("evermind");
+    b.avancer(400);
+    let (_, e) = b.tic();
+    assert!(!e.0.iter().any(|x| matches!(x, Effet::Page(_))), "{:?}", e.0);
+
+    // Juste sous la limite (63 octets, espaces autour) : accepté
+    let (mut b, f, _) = banc_ouvrir("accrochage-ouvrir-63", true);
+    std::fs::write(&f, format!("autre{}", " ".repeat(58))).unwrap();
+    assert_eq!(std::fs::metadata(&f).unwrap().len(), 63);
+    b.avancer(400);
+    let (_, e) = b.tic();
+    assert_eq!(e.0, ouvrir_autre());
+}
+
+/// L'autre appli pas installée : sa page dit qu'elle ne l'est pas, rien n'est lancé ni installé.
+#[test]
+fn ouvrir_demande_appli_pas_installee_montre_sa_page() {
+    let (mut b, f, _) = banc_ouvrir("accrochage-ouvrir-pas-installee", false);
+    std::fs::write(&f, "autre").unwrap();
+    b.avancer(400);
+    let (_, e) = b.tic();
+    assert_eq!(e.0, ouvrir_autre());
+    let e = b.page("autre");
+    assert!(e.est_vide(), "ni lancement ni installation : {:?}", e.0);
+    assert_eq!(b.pages()["autre"]["titre"], "Autre n'est pas installé.");
+    assert_eq!(b.pages()["autre"]["texte"], "Installe-le depuis l'accueil.");
+}
+
+/// Contenu refusé (id inconnu, elle-même, mal formé, trop gros, vide) : supprimé, ignoré, une ligne au journal.
+#[test]
+fn ouvrir_demande_refusee_supprimee_et_ignoree() {
+    let cas: [(&str, Vec<u8>); 7] = [
+        ("inconnue", b"inconnue".to_vec()),
+        ("soi-meme", b"evermind".to_vec()),
+        ("majuscules", b"Autre".to_vec()),
+        ("chemin", br"..\autre".to_vec()),
+        ("trop-gros", format!("autre{}", " ".repeat(59)).into_bytes()),
+        ("vide", Vec::new()),
+        ("deux-lignes", b"autre\nautre".to_vec()),
+    ];
+    for (nom, contenu) in cas {
+        let (mut b, f, _) = banc_ouvrir(&format!("accrochage-ouvrir-{nom}"), true);
+        std::fs::write(&f, &contenu).unwrap();
+        b.avancer(400);
+        let (_, e) = b.tic();
+        assert!(e.est_vide(), "{nom} : {:?}", e.0);
+        assert!(!f.exists(), "{nom} : supprimé quand même");
+        assert!(
+            b.faux.donnees.lignes().contains(&"Demande d'ouverture de Evermind illisible, ignorée".to_string()),
+            "{nom} : {:?}",
+            b.faux.donnees.lignes()
+        );
+    }
+}
+
+/// Seulement l'appli affichée à l'écran : Mindset sur l'accueil, caché ou réduit, ou la demande d'une autre appli
+/// que celle montrée, le fichier est laissé tel quel, rien ne s'ouvre.
+#[test]
+fn ouvrir_demande_ignoree_hors_de_l_appli_montree() {
+    // La demande d'une autre appli que celle montrée
+    let (mut b, f, f_autre) = banc_ouvrir("accrochage-ouvrir-autre-appli", true);
+    std::fs::write(&f_autre, "evermind").unwrap();
+    b.avancer(400);
+    let (_, e) = b.tic();
+    assert!(e.est_vide(), "{:?}", e.0);
+    assert!(f_autre.exists(), "pas l'appli montrée : laissé");
+    assert!(!f.exists());
+
+    // Mindset caché près de l'horloge, puis réduit
+    for (nom, visible, reduite) in [("cache", false, false), ("reduit", true, true)] {
+        let (mut b, f, _) = banc_ouvrir(&format!("accrochage-ouvrir-{nom}"), true);
+        std::fs::write(&f, "autre").unwrap();
+        let mut v = b.ctx.vue();
+        v.visible = visible;
+        v.reduite = reduite;
+        b.ctx.definir_vue(v);
+        b.avancer(400);
+        let (_, e) = b.tic();
+        assert!(e.est_vide(), "{nom} : {:?}", e.0);
+        assert!(f.exists(), "{nom} : laissé");
+    }
+
+    // Mindset revenu sur l'accueil (Evermind toujours accrochée, sa page n'est plus montrée)
+    let (mut b, f, _) = banc_ouvrir("accrochage-ouvrir-accueil", true);
+    b.page("accueil");
+    std::fs::write(&f, "autre").unwrap();
+    b.avancer(400);
+    let (_, e) = b.tic();
+    assert!(!e.0.iter().any(|x| matches!(x, Effet::Page(_))), "{:?}", e.0);
+    assert!(f.exists(), "accueil : laissé");
+}
+
+#[test]
+fn ouvrir_demande_id_valable() {
+    assert!(id_demande("nevermind") && id_demande("evermind-mobile") && id_demande("a1"));
+    assert!(!id_demande("") && !id_demande("Nevermind") && !id_demande("a b") && !id_demande("é"));
+    assert!(id_demande(&"a".repeat(30)) && !id_demande(&"a".repeat(31)));
+}
+
 #[test]
 fn arrondis_comme_powershell() {
     assert_eq!(arrondi_pair(2.5), 2.0);

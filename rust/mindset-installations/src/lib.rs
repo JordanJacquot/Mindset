@@ -852,7 +852,16 @@ impl BlocInstallations {
             id.into(),
             Occupation { texte: "Désinstallation (accepte la demande de Windows)...".into(), quoi: "desinstallation" },
         );
-        let p = vec![("Destination".into(), inst.dossier), ("Exe".into(), a.exe.clone())];
+        let mut p = vec![("Destination".into(), inst.dossier), ("Exe".into(), a.exe.clone())];
+        // Une appli avec une partie administrateur : nommée, pour que l'installateur retire aussi sa tâche (le nom de
+        // la tâche, il le prend dans sa liste des applis, la même que la nôtre)
+        if !a.aide.is_empty() {
+            p.push(("Appli".into(), a.id.clone()));
+            let liste = ctx.dossiers.donnees.join("apps-en-ligne.json");
+            if liste.is_file() {
+                p.push(("Liste".into(), liste.to_string_lossy().into_owned()));
+            }
+        }
         self.invoquer_admin(ctx, effets, "supprimer", p, Fin::Desinstallation(id.into()), false, None);
     }
 

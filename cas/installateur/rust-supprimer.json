@@ -1,0 +1,25 @@
+{
+  "format": 1,
+  "sujet": "Supprimer une appli nommée (Action supprimer avec Appli, Mindset en Rust 3.0.6 et après) : sa partie administrateur (tâche \\Mindset\\<aide> de apps.json) est retirée avec son dossier ; le nom de la tâche vient toujours de apps.json, jamais de la demande. Lu seulement par cargo test (tests\\corpus.rs) : l'ancienne version PowerShell de l'installateur ne connaît pas ce paramètre.",
+  "regle": "MindsetInstallateur.exe -Action supprimer -Destination <dossier> [-Exe <programme>] [-Appli <id>] [-Liste <liste en ligne>]",
+  "attendu": "voir cas\\LISEZMOI.md",
+  "valeurs": {
+    "{tmp}": "le dossier du faux PC",
+    "{pm}": "Program Files\\Mindset du faux PC",
+    "{id}": "un numéro de demande neuf"
+  },
+  "cas": [
+    {"nom":"appli avec aide désinstallée par la tâche : dossier retiré, plus de tâche d'aide","entree":{"lancement":"tache","demande":{"Action":"supprimer","Destination":"{pm}\\Appli","Exe":"Appli.exe","Appli":"appli"}},"attendu":{"reponse":"ok","absent":["{pm}\\Appli"],"existe":["{pm}\\Mindset\\Mindset.exe"],"actions":["tâche retirée : -TaskPath \\Mindset\\ -TaskName Appli (aide) -Confirm"],"lignes":["JOURNAL Tâche « \\Mindset\\Appli (aide) » retirée avec l'appli"]}},
+    {"nom":"appli avec aide désinstallée par la demande de Windows : plus de tâche d'aide non plus","entree":{"lancement":"direct","demande":{"Action":"supprimer","Destination":"{pm}\\Appli","Exe":"Appli.exe","Appli":"appli"}},"attendu":{"reponse":"ok","absent":["{pm}\\Appli"],"actions":["tâche retirée : -TaskPath \\Mindset\\ -TaskName Appli (aide) -Confirm"]}},
+    {"nom":"appli désinstallée sans Appli (demande d'avant) : dossier retiré, aucune tâche touchée","entree":{"lancement":"tache","demande":{"Action":"supprimer","Destination":"{pm}\\Appli","Exe":"Appli.exe"}},"attendu":{"reponse":"ok","absent":["{pm}\\Appli"],"sans_tache":true}},
+    {"nom":"appli sans aide dans apps.json : dossier retiré, aucune tâche touchée","entree":{"lancement":"tache","demande":{"Action":"supprimer","Destination":"{pm}\\Autre","Exe":"Autre.exe","Appli":"autre"},"contexte":{"fichiers":{"{pm}\\Autre\\Autre.exe":"autre 1.0.0"}}},"attendu":{"reponse":"ok","absent":["{pm}\\Autre"],"existe":["{pm}\\Appli\\Appli.exe"],"sans_tache":true}},
+    {"nom":"le nom de tâche de la demande est ignoré : seule celle de apps.json est retirée","entree":{"lancement":"tache","demande":{"Action":"supprimer","Destination":"{pm}\\Appli","Exe":"Appli.exe","Appli":"appli","TacheAide":"Autre (aide)","ExeAide":"Autre.exe"}},"attendu":{"reponse":"ok","absent":["{pm}\\Appli"],"actions":["tâche retirée : -TaskPath \\Mindset\\ -TaskName Appli (aide) -Confirm"],"actions_absentes":["-TaskName Autre (aide)"]}},
+    {"nom":"appli d'un autre dossier (Appli pour Autre) : « Dossier refusé », rien supprimé","entree":{"lancement":"tache","demande":{"Action":"supprimer","Destination":"{pm}\\Autre","Exe":"Autre.exe","Appli":"appli"},"contexte":{"fichiers":{"{pm}\\Autre\\Autre.exe":"autre 1.0.0"}}},"attendu":{"reponse":"refus","message":"Dossier refusé","rien_fait":true}},
+    {"nom":"programme qui n'est pas celui de l'appli : « Nom de programme refusé. », rien supprimé","entree":{"lancement":"tache","demande":{"Action":"supprimer","Destination":"{pm}\\Appli","Exe":"Autre.exe","Appli":"appli"}},"attendu":{"reponse":"refus","message_exact":"Nom de programme refusé.","rien_fait":true}},
+    {"nom":"appli inconnue de apps.json : « Appli inconnue. », rien supprimé","entree":{"lancement":"tache","demande":{"Action":"supprimer","Destination":"{pm}\\Appli","Exe":"Appli.exe","Appli":"inconnue"}},"attendu":{"reponse":"refus","message_exact":"Appli inconnue.","rien_fait":true}},
+    {"nom":"appli au nom refusé dans apps.json (piege) : « Appli inconnue. », rien supprimé","entree":{"lancement":"tache","demande":{"Action":"supprimer","Destination":"{pm}\\Appli","Exe":"Appli.exe","Appli":"piege"}},"attendu":{"reponse":"refus","message_exact":"Appli inconnue.","rien_fait":true}},
+    {"nom":"id d'appli mal formé : « Appli inconnue. », rien supprimé","entree":{"lancement":"tache","demande":{"Action":"supprimer","Destination":"{pm}\\Appli","Exe":"Appli.exe","Appli":"..\\appli"}},"attendu":{"reponse":"refus","message_exact":"Appli inconnue.","rien_fait":true}},
+    {"nom":"Mindset lui-même avec Appli : « Dossier refusé », rien supprimé","entree":{"lancement":"tache","demande":{"Action":"supprimer","Destination":"{pm}\\Mindset","Appli":"appli"}},"attendu":{"reponse":"refus","message":"Dossier refusé","rien_fait":true}},
+    {"nom":"dossier de l'appli déjà retiré : réponse ok, sa tâche d'aide retirée quand même","entree":{"lancement":"tache","demande":{"Action":"supprimer","Destination":"{pm}\\Appli","Appli":"appli"},"contexte":{"retirer":["{pm}\\Appli"]}},"attendu":{"reponse":"ok","actions":["tâche retirée : -TaskPath \\Mindset\\ -TaskName Appli (aide) -Confirm"]}}
+  ]
+}
