@@ -470,3 +470,126 @@ fn la_scene_d_un_theme_perso() {
     assert_eq!(t["console"]["fond"], json!("#0C0708"), "le fond du cadre dans le thème (pas d'éclair)");
     let _ = std::fs::remove_dir_all(&faux.racine);
 }
+
+// ---------------------------------------------------------------------------------------------------------------
+// Le filet de l'ouverture : la scène disparaît ou se tait pendant qu'une appli s'ouvre (suivi du 08/11/2026)
+// ---------------------------------------------------------------------------------------------------------------
+
+/// Evermind démarre et sa fenêtre apparaît.
+fn evermind_prete(e: &mut Essai) {
+    let exe = e.ctx.dossiers.programmes.join(r"Evermind\Mindset.exe");
+    e.faux.systeme.ajouter_processus(321, &exe.to_string_lossy(), 1);
+    e.fenetres.0.lock().unwrap().push(321);
+}
+
+/// L'appli est-elle affichée (le signal « ouvrir-appli » pour elle) ?
+fn affichee(effets: &[Effet], id: &str) -> bool {
+    signaux_de(effets).iter().any(|(n, d)| n == signaux::OUVRIR_APPLI && d["id"] == json!(id))
+}
+
+/// Les tics pendant `duree`, avec tout ce qu'ils ont demandé.
+fn tics_pendant(e: &mut Essai, duree: Duration) -> Vec<Effet> {
+    let mut tout = Vec::new();
+    let fin = e.ctx.ecoule() + duree;
+    while e.ctx.ecoule() < fin {
+        e.ctx.avancer(Duration::from_millis(300));
+        tout.extend(e.tic().1);
+    }
+    tout
+}
+
+#[test]
+fn la_scene_qui_redemarre_pendant_une_ouverture_n_empeche_pas_l_affichage() {
+    let mut e = essai();
+    e.pret();
+    e.action("console:action", json!({ "action": "ouvrir", "id": "evermind" }));
+    e.ctx.avancer(Duration::from_millis(300));
+    e.tic();
+    // Le processus de la 3D s'arrête : l'hôte rouvre la page, la console repart avec un nouveau cadre
+    e.action("console:incident", json!("RenderProcessExited"));
+    assert_eq!(e.bloc.cadre(), Some(2));
+    e.pret();
+    // La nouvelle scène ne sait rien de l'ouverture : elle ne dira jamais « afficher »
+    evermind_prete(&mut e);
+    let ef = tics_pendant(&mut e, Duration::from_secs(1));
+    assert!(affichee(&ef, "evermind"), "la scène a changé : l'appli prête est affichée tout de suite");
+    assert_eq!(e.bloc.en_fente(), Some("evermind"));
+    assert!(e.faux.donnees.lignes().iter().any(|l| l.starts_with("Console 3D : la scène n'a pas fini l'ouverture")));
+}
+
+#[test]
+fn la_scene_retiree_pendant_une_ouverture_n_empeche_pas_l_affichage() {
+    let mut e = essai();
+    e.pret();
+    e.action("console:action", json!({ "action": "ouvrir", "id": "evermind" }));
+    // Mindset réduit puis remontré : le cadre est retiré puis recréé
+    e.fenetre(true, true);
+    assert_eq!(e.bloc.cadre(), None);
+    evermind_prete(&mut e);
+    let ef = tics_pendant(&mut e, Duration::from_secs(1));
+    assert!(affichee(&ef, "evermind"), "plus de scène : l'appli prête est affichée quand même");
+}
+
+#[test]
+fn la_scene_qui_ne_repond_plus_pendant_une_ouverture_n_empeche_pas_l_affichage() {
+    let mut e = essai();
+    e.pret();
+    e.action("console:action", json!({ "action": "ouvrir", "id": "evermind" }));
+    evermind_prete(&mut e);
+    let ef = tics_pendant(&mut e, Duration::from_millis(600));
+    assert_eq!(ordres(&ef), vec![r#"appliPrete["evermind"]"#]);
+    // La scène est là mais ne dit plus rien : pas d'affichage avant le délai, puis l'appli est affichée
+    let ef = tics_pendant(&mut e, mindset_console::DELAI_AFFICHAGE - Duration::from_millis(600));
+    assert!(!affichee(&ef, "evermind"), "la scène a encore le temps de finir son animation");
+    let ef = tics_pendant(&mut e, Duration::from_secs(1));
+    assert!(affichee(&ef, "evermind"), "au bout du délai, l'appli est affichée sans la scène");
+    // Le « afficher » qui arrive en retard ne l'affiche pas une deuxième fois
+    e.page("evermind");
+    let ef = e.action("console:afficher", json!({ "id": "evermind" }));
+    assert!(!affichee(&ef, "evermind"));
+}
+
+#[test]
+fn le_filet_ne_sert_pas_quand_la_scene_finit_l_ouverture() {
+    let mut e = essai();
+    e.pret();
+    e.action("console:action", json!({ "action": "ouvrir", "id": "evermind" }));
+    evermind_prete(&mut e);
+    tics_pendant(&mut e, Duration::from_millis(600));
+    let ef = e.action("console:afficher", json!({ "id": "evermind" }));
+    assert!(affichee(&ef, "evermind"));
+    e.page("evermind");
+    // Revenu sur l'accueil tout de suite : l'appli n'est pas rouverte par le filet
+    e.page("accueil");
+    e.pret();
+    let ef = tics_pendant(&mut e, mindset_console::DELAI_AFFICHAGE * 2);
+    assert!(!affichee(&ef, "evermind"));
+    assert!(!e.faux.donnees.lignes().iter().any(|l| l.starts_with("Console 3D : la scène n'a pas fini")));
+}
+
+#[test]
+fn le_filet_ne_vole_pas_la_place_d_une_autre_appli_ou_d_une_autre_page() {
+    // Une autre appli ouverte entre-temps (menu de l'horloge) : le filet est abandonné
+    let mut e = essai();
+    e.pret();
+    e.action("console:action", json!({ "action": "ouvrir", "id": "evermind" }));
+    e.fenetre(true, true);
+    e.signal(signaux::OUVRIR_APPLI, json!({ "id": "cafe-creme", "lancer": true }));
+    e.page("cafe-creme");
+    e.fenetre(true, false);
+    evermind_prete(&mut e);
+    let ef = tics_pendant(&mut e, mindset_console::DELAI_AFFICHAGE * 2);
+    assert!(!affichee(&ef, "evermind"));
+
+    // Une autre page de Mindset : l'appli attend le retour sur l'accueil pour s'afficher
+    let mut e = essai();
+    e.pret();
+    e.action("console:action", json!({ "action": "ouvrir", "id": "evermind" }));
+    e.page("installations");
+    evermind_prete(&mut e);
+    let ef = tics_pendant(&mut e, mindset_console::DELAI_AFFICHAGE * 2);
+    assert!(!affichee(&ef, "evermind"), "pas d'appli qui s'affiche par-dessus une autre page");
+    e.page("accueil");
+    let ef = tics_pendant(&mut e, mindset_console::DELAI_AFFICHAGE + Duration::from_secs(1));
+    assert!(affichee(&ef, "evermind"), "de retour sur l'accueil, l'appli demandée s'affiche");
+}

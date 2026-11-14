@@ -43,6 +43,9 @@ pub const RYTHME_CACHE: Duration = Duration::from_secs(30);
 pub const RYTHME_ATTENTE: Duration = Duration::from_millis(300);
 /// Une minute sur une autre page : le cadre est retiré.
 pub const DELAI_FERMETURE: Duration = Duration::from_secs(60);
+/// Une ouverture que la scène ne finit pas (« afficher » jamais reçu) : l'appli est affichée sans elle au bout de ce
+/// délai, compté depuis qu'elle est prête (l'animation la plus longue, éjection, insertion et plongée, dure moins de 5 s).
+pub const DELAI_AFFICHAGE: Duration = Duration::from_secs(10);
 /// Un message de la scène plus long est ignoré (`$Json.Length -gt 2000`).
 pub const MESSAGE_MAX: usize = 2000;
 /// Les onglets des Paramètres (`$OngletsParametres`, parametres.ps1:306).
@@ -92,6 +95,8 @@ pub struct BlocConsole {
     attente_depuis: Duration,
     lancee: bool,
     duree_attendue: Option<f64>,
+    /// L'ouverture demandée par la scène, tant qu'elle n'a pas dit « afficher » (le filet, [`DELAI_AFFICHAGE`])
+    filet: Option<Filet>,
     /// Les Paramètres sont ouverts dans l'écran de la console
     parametres: bool,
     arretee_a: Option<Duration>,
@@ -110,6 +115,19 @@ pub struct BlocConsole {
     publie: Option<Value>,
     /// Le premier tic est passé
     premier_tic_fait: bool,
+}
+
+/// Le filet d'une ouverture depuis la console : c'est la scène qui dit quand l'appli prend sa place (« afficher », à
+/// la fin de sa plongée dans l'écran). Si la scène disparaît (fermée, rechargée, processus de la 3D arrêté) ou ne
+/// répond plus, l'appli est affichée sans elle : tout de suite quand le cadre a changé, sinon au bout de
+/// [`DELAI_AFFICHAGE`] après « appliPrete ». Pas par-dessus une autre page de Mindset : il attend le retour sur
+/// l'accueil. Abandonné si une autre appli est ouverte entre-temps, ou si l'appli est fermée depuis la console.
+struct Filet {
+    id: String,
+    /// Le cadre qui a demandé l'ouverture
+    cadre: Option<u64>,
+    /// L'appli est prête (« appliPrete » envoyé) : la scène a jusque-là pour dire « afficher »
+    limite: Option<Duration>,
 }
 
 impl Default for BlocConsole {
@@ -186,6 +204,7 @@ impl BlocConsole {
         attente_depuis: Duration::ZERO,
         lancee: false,
         duree_attendue: None,
+        filet: None,
         parametres: false,
         arretee_a: None,
         incidents: Vec::new(),
@@ -601,7 +620,49 @@ impl BlocConsole {
                     ecoule.round_ties_even() as i64
                 ));
             }
+            if let Some(f) = self.filet.as_mut().filter(|f| f.id == id) {
+                f.limite = Some(ctx.ecoule() + DELAI_AFFICHAGE);
+            }
+            self.verifier_filet(ctx, effets);
         }
+    }
+
+    /// Le filet de l'ouverture ([`Filet`]) : l'appli prête est affichée si la scène n'a pas fini à temps.
+    fn verifier_filet(&mut self, ctx: &Contexte, effets: &mut Effets) {
+        let Some(f) = &self.filet else { return };
+        let vue = ctx.vue();
+        if vue.page != "accueil" && ctx.appli(&vue.page).is_some() {
+            // (elle est affichée, ou une autre appli a pris la place : plus rien à faire)
+            self.filet = None;
+            return;
+        }
+        let Some(limite) = f.limite else { return };
+        let maintenant = ctx.ecoule();
+        if vue.page != "accueil" {
+            // (une autre page de Mindset : pas par-dessus ; la scène, en pause, aura le temps de finir au retour)
+            if let Some(f) = self.filet.as_mut() {
+                f.limite = Some(limite.max(maintenant + DELAI_AFFICHAGE));
+            }
+            return;
+        }
+        let perdue = self.vue.is_none() || self.vue != f.cadre;
+        if !perdue && maintenant < limite {
+            return;
+        }
+        let Some(f) = self.filet.take() else { return };
+        let Some(a) = ctx.appli(&f.id) else { return };
+        let raison = if perdue {
+            "scène fermée ou rechargée".to_string()
+        } else {
+            format!("pas de réponse après {} s", DELAI_AFFICHAGE.as_secs())
+        };
+        ctx.journal(&format!(
+            "Console 3D : la scène n'a pas fini l'ouverture ({raison}), {} affichée sans elle",
+            a.nom
+        ));
+        self.derniere_appli = Some(a.id.clone());
+        self.en_fente = Some(a.id.clone());
+        effets.ajouter(signaux::ouvrir_appli(&a.id, true));
     }
 
     // -----------------------------------------------------------------------------------------------------------
@@ -655,9 +716,13 @@ impl BlocConsole {
         if type_ == "afficher" {
             // Fin de la plongée dans l'écran : l'appli prend la place de la console
             if let Some(a) = a {
+                self.filet = None;
                 self.derniere_appli = Some(a.id.clone());
                 self.en_fente = Some(a.id.clone());
-                effets.ajouter(signaux::ouvrir_appli(&a.id, true));
+                // (déjà affichée par le filet : un « afficher » en retard ne la rouvre pas)
+                if ctx.vue().page != a.id {
+                    effets.ajouter(signaux::ouvrir_appli(&a.id, true));
+                }
             }
             return;
         }
@@ -681,6 +746,7 @@ impl BlocConsole {
                     }
                     self.attente = Some(a.id.clone());
                     self.attente_depuis = ctx.ecoule();
+                    self.filet = Some(Filet { id: a.id.clone(), cadre: self.vue, limite: None });
                     self.appeler(effets, "jouerOuverture", vec![json!(a.id)]);
                     self.prochaine_attente = ctx.ecoule() + RYTHME_ATTENTE;
                 }
@@ -716,6 +782,9 @@ impl BlocConsole {
             }
             "fermer" => {
                 if let Some(a) = a {
+                    if self.filet.as_ref().is_some_and(|f| f.id == a.id) {
+                        self.filet = None;
+                    }
                     self.fermer_appli(ctx, &a, effets);
                 }
             }
@@ -821,10 +890,8 @@ impl BlocConsole {
     fn prochain_reveil(&self) -> Option<Duration> {
         let a = self.attente.as_ref().map(|_| self.prochaine_attente);
         let m = (self.possible || self.en_fente.is_some()).then_some(self.prochaine_minuterie);
-        match (a, m) {
-            (Some(a), Some(m)) => Some(a.min(m)),
-            (a, m) => a.or(m),
-        }
+        let f = self.filet.as_ref().and_then(|f| f.limite);
+        [a, m, f].into_iter().flatten().min()
     }
 }
 
@@ -896,6 +963,8 @@ impl Bloc for BlocConsole {
             false
         };
         if pris {
+            // (un incident vient peut-être de remplacer le cadre qui ouvrait une appli)
+            self.verifier_filet(ctx, effets);
             self.publier(ctx);
         }
         pris
@@ -923,6 +992,7 @@ impl Bloc for BlocConsole {
             let rythme = if ctx.vue().cachee() { RYTHME_CACHE } else { RYTHME };
             self.prochaine_minuterie = maintenant + rythme;
         }
+        self.verifier_filet(ctx, effets);
         self.publier(ctx);
         self.prochain_reveil().map(|t| t.saturating_sub(maintenant))
     }
@@ -936,6 +1006,12 @@ impl Bloc for BlocConsole {
                     effets.ajouter(Effet::Page("accueil".into()));
                 } else {
                     self.mettre_a_jour_page(ctx, effets);
+                }
+                // De retour sur l'accueil : la scène, en pause jusque-là, a encore le temps de finir l'ouverture
+                if ctx.vue().page == "accueil"
+                    && let Some(l) = self.filet.as_mut().and_then(|f| f.limite.as_mut())
+                {
+                    *l = (*l).max(ctx.ecoule() + DELAI_AFFICHAGE);
                 }
             }
             signaux::FENETRE => {
@@ -954,6 +1030,8 @@ impl Bloc for BlocConsole {
                 self.prochaine_minuterie = ctx.ecoule();
             }
             signaux::OUVRIR_APPLI => {
+                // (affichée : par la scène, par le filet, ou une autre appli ouverte entre-temps qui prend la place)
+                self.filet = None;
                 // Ouverte sans passer par la console (menu de l'horloge, bulle) : sa cartouche va dans la fente
                 if self.possible
                     && let Some(id) = donnees.get("id").and_then(Value::as_str)
@@ -986,9 +1064,13 @@ impl Bloc for BlocConsole {
                     self.rafraichir_logos(ctx, effets);
                 }
             }
-            signaux::QUITTER => self.retirer_vue(ctx, None),
+            signaux::QUITTER => {
+                self.filet = None;
+                self.retirer_vue(ctx, None);
+            }
             _ => {}
         }
+        self.verifier_filet(ctx, effets);
         self.publier(ctx);
     }
 

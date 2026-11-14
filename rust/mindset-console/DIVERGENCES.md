@@ -19,6 +19,12 @@ tous ; les seules différences acceptées par `tests/juges.rs` sont celles de ce
 |---|---|---|
 | Sur l'écran de la console, sous chaque tuile : « À installer », la barre d'une mise à jour, ou le bouton « Mise à jour » ; rien pour une appli ouverte | une appli encore ouverte (`etat` différent de `ferme` : réduite près de l'horloge, ou en fond) a « Ouverte » en vert sous sa tuile, si rien d'autre n'est à montrer | depuis le 08/11, réduire une appli dans Mindset ramène au menu ; Jordan veut voir sur la console que l'appli tourne encore. Le menu en grand disait déjà « Ouverte » (`etatTuile`). Changement permis dans `tests/scene.rs` (point 4) |
 
+## Un filet ajouté (suivi du 08/11/2026) : la scène qui disparaît pendant une ouverture
+
+| Version PowerShell | Version Rust | Pourquoi, et la preuve |
+|---|---|---|
+| L'appli ouverte depuis la console n'est affichée que sur le message « afficher » de la scène (fin de sa plongée dans l'écran, `Receive-MessageConsole`) ; si la vue de la console est fermée, recréée ou ne répond plus pendant l'ouverture, `appliPrete` part dans le vide et l'appli, lancée cachée (`Start-AppliCachee`), n'est jamais affichée | le filet `Filet` (`verifier_filet`) : l'appli prête est affichée sans la scène, tout de suite si le cadre qui a demandé l'ouverture n'est plus là (fermé, rechargé, processus de la 3D arrêté, Mindset caché ou réduit), sinon au bout de `DELAI_AFFICHAGE` (10 s) après `appliPrete` si « afficher » n'est pas arrivé. Pas par-dessus une autre page de Mindset (il attend le retour sur l'accueil, et laisse alors 10 s à la scène pour finir) ; abandonné si une autre appli est ouverte entre-temps ou si l'appli est fermée depuis la console ; un « afficher » en retard ne la rouvre pas. Une ligne au journal quand il sert : « Console 3D : la scène n'a pas fini l'ouverture (...), X affichée sans elle » | Mindset ne doit jamais rester bloqué sur la console avec une appli ouverte qu'on ne voit pas. L'animation la plus longue (éjection, insertion, plongée, puis 0,4 s à 100 %) dure moins de 5 s. Gardé par `tests/bloc.rs` (les 5 tests `la_scene_..._pendant_une_ouverture...` et `le_filet_...`), qui échouaient sans le filet (4 sur 5 ; le cinquième vérifie que le filet ne sert pas quand la scène finit) |
+
 ## Les changements permis par l'architecture (bloc 7), et seulement ceux-là
 
 `tests/scene.rs` (`seulement_les_changements_permis`) refait scene.html à partir de celui de la version PowerShell avec
