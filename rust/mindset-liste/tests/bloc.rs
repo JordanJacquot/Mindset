@@ -99,7 +99,10 @@ fn au_demarrage_la_liste_livree_et_d_ou_elle_vient() {
     // (en essai, %LOCALAPPDATA% est le dossier d'essai : jamais les vraies données d'une appli)
     let e = ctx.appli("evermind").unwrap();
     assert!(Path::new(&e.donnees).starts_with(&faux.racine), "{}", e.donnees);
-    assert_eq!(ctx.lu(partage::OUVERTES), Some(json!({ "nevermind": false, "evermind": false, "mindcare": false, "paymind": false })));
+    assert_eq!(
+        ctx.lu(partage::OUVERTES),
+        Some(json!({ "nevermind": false, "evermind": false, "mindcare": false, "paymind": false }))
+    );
     assert!(faux.donnees.lignes().is_empty(), "{:?}", faux.donnees.lignes());
     nettoyer(&faux);
 }
@@ -164,7 +167,10 @@ fn releve_des_applis_ouvertes() {
     faux.systeme.poser_verrou(r"Local\OptiGame-Instance", true);
     faux.systeme.poser_verrou(r"Local\Evermind-Instance", false);
     assert_eq!(ctx.au_nom_de("liste", || bloc.tic(&ctx, &mut e)), Some(Duration::from_millis(1500)));
-    assert_eq!(ctx.lu(partage::OUVERTES), Some(json!({ "nevermind": true, "evermind": false, "mindcare": false, "paymind": false })));
+    assert_eq!(
+        ctx.lu(partage::OUVERTES),
+        Some(json!({ "nevermind": true, "evermind": false, "mindcare": false, "paymind": false }))
+    );
     // réduite : 30 s
     ctx.definir_vue(Vue { visible: true, reduite: true, page: "accueil".into() });
     assert_eq!(ctx.au_nom_de("liste", || bloc.tic(&ctx, &mut e)), Some(Duration::from_secs(30)));

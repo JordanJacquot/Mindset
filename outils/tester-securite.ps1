@@ -783,11 +783,12 @@ public static class BloqueurTest {
     $vraies = [IO.File]::ReadAllText((Join-Path $fichiers 'apps.json'), [Text.Encoding]::UTF8) | ConvertFrom-Json
     $AppDir = $fichiers
     $lues = @(Get-Applis)
-    Test-Cas 'les applis d''aujourd''hui (apps.json livré) sont toutes lues, de type powershell, champs inchangés' {
-        $ok = $lues.Count -eq @($vraies).Count -and $lues.Count -eq 3
+    Test-Cas 'les applis d''aujourd''hui (apps.json livré) sont toutes lues, de leur type (powershell sans champ type), champs inchangés' {
+        $ok = $lues.Count -eq @($vraies).Count -and $lues.Count -eq 4
         foreach ($v in $vraies) {
             $l = $lues | Where-Object Id -eq $v.id
-            $ok = $ok -and $l -and $l.Type -eq 'powershell' -and $l.Nom -eq $v.nom -and $l.Script -eq $v.script -and $l.Mutex -eq $v.mutex -and $l.Exe -eq $v.exe -and
+            $type = if ($v.type) { [string]$v.type } else { 'powershell' }
+            $ok = $ok -and $l -and $l.Type -eq $type -and $l.Nom -eq $v.nom -and [string]$l.Script -eq [string]$v.script -and $l.Mutex -eq $v.mutex -and $l.Exe -eq $v.exe -and
                   $l.AfficherSignal -eq [string]$v.afficher_signal -and $l.CacheDepuis -eq [string]$v.cache_depuis -and $l.DossierZip -eq $v.dossier_zip
         }
         $ok
