@@ -94,12 +94,12 @@ fn au_demarrage_la_liste_livree_et_d_ou_elle_vient() {
     let mut bloc = BlocListe::default();
     assert!(demarrer(&ctx, &mut bloc).est_vide());
     let ids: Vec<String> = ctx.applis().iter().map(|a| a.id.clone()).collect();
-    assert_eq!(ids, ["nevermind", "evermind", "mindcare"]);
+    assert_eq!(ids, ["nevermind", "evermind", "mindcare", "paymind"]);
     assert_eq!(ctx.lu(partage::LISTE), Some(json!({ "source": "apps.json", "numero": 3 })));
     // (en essai, %LOCALAPPDATA% est le dossier d'essai : jamais les vraies données d'une appli)
     let e = ctx.appli("evermind").unwrap();
     assert!(Path::new(&e.donnees).starts_with(&faux.racine), "{}", e.donnees);
-    assert_eq!(ctx.lu(partage::OUVERTES), Some(json!({ "nevermind": false, "evermind": false, "mindcare": false })));
+    assert_eq!(ctx.lu(partage::OUVERTES), Some(json!({ "nevermind": false, "evermind": false, "mindcare": false, "paymind": false })));
     assert!(faux.donnees.lignes().is_empty(), "{:?}", faux.donnees.lignes());
     nettoyer(&faux);
 }
@@ -128,7 +128,7 @@ fn au_demarrage_la_liste_gardee_si_elle_est_bonne() {
     std::fs::write(ctx.dossiers.donnees.join("apps-en-ligne.json.sig"), octets(&c["gardee_sig"])).unwrap();
     let mut bloc = BlocListe::default();
     demarrer(&ctx, &mut bloc);
-    assert_eq!(ctx.applis().len(), 3);
+    assert_eq!(ctx.applis().len(), 4);
     assert_eq!(ctx.lu(partage::LISTE), Some(json!({ "source": "apps.json", "numero": 3 })));
     assert_eq!(
         faux.donnees.lignes(),
@@ -164,7 +164,7 @@ fn releve_des_applis_ouvertes() {
     faux.systeme.poser_verrou(r"Local\OptiGame-Instance", true);
     faux.systeme.poser_verrou(r"Local\Evermind-Instance", false);
     assert_eq!(ctx.au_nom_de("liste", || bloc.tic(&ctx, &mut e)), Some(Duration::from_millis(1500)));
-    assert_eq!(ctx.lu(partage::OUVERTES), Some(json!({ "nevermind": true, "evermind": false, "mindcare": false })));
+    assert_eq!(ctx.lu(partage::OUVERTES), Some(json!({ "nevermind": true, "evermind": false, "mindcare": false, "paymind": false })));
     // réduite : 30 s
     ctx.definir_vue(Vue { visible: true, reduite: true, page: "accueil".into() });
     assert_eq!(ctx.au_nom_de("liste", || bloc.tic(&ctx, &mut e)), Some(Duration::from_secs(30)));
@@ -204,7 +204,7 @@ fn liste_en_ligne_cherchee_au_plus_toutes_les_six_heures() {
         faux.donnees.lignes(),
         ["Liste des applis en ligne n° 6 gardée (4 applis) : elle sera prise au prochain démarrage de Mindset"]
     );
-    assert_eq!(ctx.applis().len(), 3, "la liste de ce démarrage ne change pas");
+    assert_eq!(ctx.applis().len(), 4, "la liste de ce démarrage ne change pas");
     // pas deux fois en 6 heures
     ctx.avancer(Duration::from_secs(6 * 3600 - 1));
     assert!(tache(signal(&ctx, &mut bloc, signaux::VERIFIER_LISTE)).is_none());
