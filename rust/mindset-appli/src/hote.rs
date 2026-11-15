@@ -168,6 +168,12 @@ impl Hote {
         }
     }
 
+    /// Le prochain tic du bloc, tout de suite (au plus tard maintenant, qu'il en ait un de prévu ou non).
+    fn avancer_tic(&mut self, i: usize) {
+        let t = self.ctx.ecoule();
+        self.prochains[i] = Some(self.prochains[i].map_or(t, |p| p.min(t)));
+    }
+
     /// Exécute les effets (et ceux qu'ils entraînent), puis envoie l'état s'il a changé.
     fn traiter(&mut self, depart: Vec<(Source, Effet)>, ecran: &mut dyn Ecran) -> Vec<Demande> {
         let mut file: VecDeque<(Source, Effet)> = depart.into();
@@ -284,7 +290,11 @@ impl Hote {
             let mut ef = Effets::default();
             let prise = self.appeler(i, "action", |b, ctx| b.action(ctx, id, valeur, &mut ef)).unwrap_or(false);
             if prise {
-                self.reveiller(i);
+                // (un geste : le bloc qui le prend est regardé tout de suite, même s'il avait un tic prévu plus
+                // tard. Avant le 15/11/2026, seulement s'il n'en avait aucun : la console, de retour d'une autre
+                // page, ne voyait l'ouverture d'une appli qu'à son tic lointain, et la barre sautait de 0 à 100 %,
+                // vu par Jordan ; tests/ouverture_progressive.rs)
+                self.avancer_tic(i);
                 return ef.0.into_iter().map(|x| (Some(i), x)).collect();
             }
             // (un bloc qui ne prend pas l'action ne demande rien : ses effets éventuels sont ignorés)
