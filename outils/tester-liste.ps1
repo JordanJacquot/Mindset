@@ -303,7 +303,7 @@ try {
         $AppDir = $fichiers; $ListeGardee = $gardee; $AppVersion = '2.16.0'
         $a = @(Get-Applis)
         $n = $a | Where-Object Id -eq 'nouvelle'
-        $a.Count -eq 4 -and $n.Type -eq 'rust' -and $n.Nom -eq 'Nouvelle' -and $n.Couleur -eq '#12AB34' -and $n.DossierZip -eq 'Nouvelle'
+        $a.Count -eq 5 -and $n.Type -eq 'rust' -and $n.Nom -eq 'Nouvelle' -and $n.Couleur -eq '#12AB34' -and $n.DossierZip -eq 'Nouvelle'
     } $retraitGardee
     Test-Cas 'Get-Applis sans liste gardée : les applis de apps.json livré, sans la nouvelle' {
         Reset-Gardee
@@ -371,7 +371,7 @@ try {
         $script:DerniereListe = [datetime]::MinValue
         $EnTest = $true; $env:MINDSET_LISTE_URL = $publiee; $AppDir = $fichiers; $ListeGardee = $gardee; $AppVersion = '2.16.0'
         try { Update-ListeEnLigne } finally { $env:MINDSET_LISTE_URL = $envAvant }
-        $script:Taches.Count -eq 1 -and (Get-Liste).Numero -eq 6 -and ($script:Journal -join "`n") -match 'n° 6 gardée \(4 applis\) : elle sera prise au prochain démarrage'
+        $script:Taches.Count -eq 1 -and (Get-Liste).Numero -eq 6 -and ($script:Journal -join "`n") -match 'n° 6 gardée \(5 applis\) : elle sera prise au prochain démarrage'
     }
     Test-Cas 'pas plus d''une fois en 6 heures' {
         $script:Taches.Clear()
