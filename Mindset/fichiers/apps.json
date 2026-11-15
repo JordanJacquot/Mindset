@@ -65,5 +65,27 @@
     "cache_depuis": "0.1.0",
     "logo": "M14,52 L31,52 L38,31 L47,73 L57,20 L66,66 L71,52 L86,52",
     "logo_epaisseur": 12
+  },
+  {
+      "id": "paymind",
+      "type": "rust",
+      "nom": "Paymind",
+      "couleur": "#22E07A",
+      "description": "Combien te coûtent tes abonnements, et quand ils se renouvellent.",
+      "presentation": "Note tes abonnements et tes contrats une fois : Paymind te dit combien ils te coûtent par mois et par an, et te prévient avant chaque renouvellement. Tout reste sur ton PC.",
+      "depot": "JordanJacquot/Paymind",
+      "confidentialite": "https://github.com/JordanJacquot/Paymind/blob/main/CODE_SIGNING.md",
+      "zip": "Paymind.zip",
+      "dossier_zip": "Paymind",
+      "exe": "Paymind.exe",
+      "mutex": "Local\\Paymind-Instance",
+      "afficher_signal": "Local\\Paymind-Afficher",
+      "afficher_fichier": "afficher.demande",
+      "donnees": "%LOCALAPPDATA%\\Mindset\\Paymind",
+      "admin": false,
+      "rappels": true,
+      "cache_depuis": "0.1.0",
+      "logo": "M12,30 L80,30 L80,74 L12,74 L12,30 M12,44 L80,44 M22,62 L42,62 M24,22 L88,22 L88,64",
+      "logo_epaisseur": 9
   }
 ]
