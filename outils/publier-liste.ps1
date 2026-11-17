@@ -131,15 +131,25 @@ try {
     Invoke-Native gh @('release', 'upload', $tag, $liste, "$liste.sig", '--clobber') | Out-Null
 } finally { Pop-Location }
 
-# Retéléchargée et revérifiée : c'est ce que Mindset va lire
-$dl = Join-Path $env:TEMP "mindset-liste-$([guid]::NewGuid().ToString('N').Substring(0, 8))"
-New-Item -ItemType Directory -Force -Path $dl | Out-Null
-try {
-    Invoke-Native gh @('release', 'download', $tag, '-p', $NomListeEnLigne, '-p', "$NomListeEnLigne.sig", '-D', $dl, '--clobber') | Out-Null
-    $relu = [IO.File]::ReadAllBytes((Join-Path $dl $NomListeEnLigne)); $reluSig = [IO.File]::ReadAllBytes((Join-Path $dl "$NomListeEnLigne.sig"))
-    if ([Convert]::ToBase64String($relu) -cne [Convert]::ToBase64String($octets) -or [Convert]::ToBase64String($reluSig) -cne [Convert]::ToBase64String($sig)) {
-        throw 'La liste en ligne n''est pas celle qui vient d''être envoyée : relance outils\publier-liste.ps1.'
-    }
-    Assert-ListeBonne $relu $reluSig 'La liste relue sur GitHub ne va pas, relance outils\publier-liste.ps1'
-} finally { Remove-Item -LiteralPath $dl -Recurse -Force -ErrorAction SilentlyContinue }
+# Retéléchargée et revérifiée : c'est ce que Mindset va lire. GitHub sert parfois encore l'ancienne liste, ou rien,
+# juste après l'envoi (échoué 2 fois sur 2 en novembre 2026, alors que la liste en ligne était la bonne quelques
+# instants après) : jusqu'à 6 essais, 15 s d'écart.
+$essais = 6
+for ($n = 1; $n -le $essais; $n++) {
+    $dl = Join-Path $env:TEMP "mindset-liste-$([guid]::NewGuid().ToString('N').Substring(0, 8))"
+    New-Item -ItemType Directory -Force -Path $dl | Out-Null
+    try {
+        Invoke-Native gh @('release', 'download', $tag, '-p', $NomListeEnLigne, '-p', "$NomListeEnLigne.sig", '-D', $dl, '--clobber') | Out-Null
+        $relu = [IO.File]::ReadAllBytes((Join-Path $dl $NomListeEnLigne)); $reluSig = [IO.File]::ReadAllBytes((Join-Path $dl "$NomListeEnLigne.sig"))
+        if ([Convert]::ToBase64String($relu) -cne [Convert]::ToBase64String($octets) -or [Convert]::ToBase64String($reluSig) -cne [Convert]::ToBase64String($sig)) {
+            throw 'La liste en ligne n''est pas encore celle qui vient d''être envoyée.'
+        }
+        Assert-ListeBonne $relu $reluSig 'La liste relue sur GitHub ne va pas'
+        break
+    } catch {
+        if ($n -ge $essais) { throw "$($_.Exception.Message) Relance outils\publier-liste.ps1." }
+        Write-Host "Relecture sur GitHub, essai $n sur $essais : $($_.Exception.Message) Nouvel essai dans 15 s." -ForegroundColor Yellow
+        Start-Sleep -Seconds 15
+    } finally { Remove-Item -LiteralPath $dl -Recurse -Force -ErrorAction SilentlyContinue }
+}
 "Liste des applis n° $numero publiée : chaque Mindset la télécharge dans les 6 heures, et la prend à son démarrage suivant."
