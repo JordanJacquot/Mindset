@@ -516,10 +516,12 @@ try {
         # (le faux GitHub abîme ce qu'on lui envoie)
         ${function:global:TListeGhVrai} = ${function:global:gh}
         function global:gh { TListeGhVrai @args; if ($args[1] -eq 'upload') { [IO.File]::AppendAllText((Join-Path $global:TListePub 'apps-en-ligne.json'), ' ') } }
-        try { $refus = Test-Refus { Invoke-OutilDepot 'publier-liste.ps1' @{ MotDePasse = $mdpTest } } 'pas celle qui vient d''être envoyée' }
+        # (relue 6 fois, 15 s d'écart, avant de le dire : GitHub sert parfois encore l'ancienne liste juste après l'envoi)
+        $msg = 'aucune erreur'
+        try { $null = Invoke-OutilDepot 'publier-liste.ps1' @{ MotDePasse = $mdpTest } } catch { $msg = $_.Exception.Message }
         finally { ${function:global:gh} = ${function:global:TListeGhVrai} }
-        $refus
-    } @(, @('publier', "        throw 'La liste en ligne n''est pas celle qui vient d''être envoyée : relance outils\publier-liste.ps1.'", '        $null = 0'))
+        ($msg -like '*pas encore celle qui vient d''être envoyée. Relance*') -and @($global:TListeAppels -match '^gh release download .*\.sig').Count -eq 6
+    } @(, @('publier', "            throw 'La liste en ligne n''est pas encore celle qui vient d''être envoyée.'", '            $null = 0'))
 
     # =============================================================================================================
     Write-Partie 'Contre-épreuve : chaque vérification retirée, le cas qui la couvre doit échouer'
