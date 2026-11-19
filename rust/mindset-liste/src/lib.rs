@@ -4,6 +4,8 @@
 //! - Au démarrage ([`Bloc::demarrer`]) : la liste des applis (`$Applis = @(Get-Applis)`) donnée au contexte, une fois
 //!   (une nouvelle liste en ligne sert au prochain démarrage de Mindset : les cartes, les onglets et tout ce qui tient
 //!   une appli ouverte sont faits au démarrage), et d'où elle vient dans le tableau commun (`liste`).
+//!   Une appli privée (Mindset 3.1, `"type": "rust-prive"`) n'y est que si une clé GitHub est gardée sur ce PC
+//!   ([`montrees`]) ; toutes les applis privées de la liste sont dans `liste.privees` (id, nom, dépôt).
 //! - Toutes les 1,5 s (30 s quand Mindset est caché ou réduit) : quelles applis sont ouvertes (`ouvertes`,
 //!   `Test-AppliOuverte` de chacune).
 //! - Sur le signal `verifier-liste` (envoyé par le bloc « publications » avec la recherche des nouvelles versions,
@@ -72,11 +74,24 @@ fn variables(ctx: &Contexte) -> impl Fn(&str) -> Option<String> + '_ {
     }
 }
 
-/// `Get-Applis` avec les dossiers et la version de ce Mindset (et son journal).
+/// `Get-Applis` avec les dossiers et la version de ce Mindset (et son journal), toutes les applis de la liste (les
+/// applis privées comprises : voir [`montrees`]).
 pub fn applis_de(ctx: &Contexte) -> Applis {
     let gardee = chemin_liste_gardee(ctx);
     let mut journal = |t: &str| ctx.journal(t);
     liste::applis(&ctx.dossiers.fichiers, Some(&gardee), &ctx.version, &mut journal, &variables(ctx))
+}
+
+/// Les applis que Mindset montre : une appli privée (Mindset 3.1) seulement si une clé GitHub est gardée sur ce PC
+/// (`mindset_noyau::cle_github`). Sans clé, elle n'existe pas pour ce Mindset : ni carte, ni onglet, ni recherche de
+/// version, ni installation.
+pub fn montrees(ctx: &Contexte, toutes: &[Appli]) -> Vec<Appli> {
+    if !toutes.iter().any(|a| a.prive) || mindset_noyau::cle_github::presente(&ctx.dossiers) {
+        return toutes.to_vec();
+    }
+    let n = toutes.iter().filter(|a| a.prive).count();
+    ctx.journal(&format!("Applis privées : {n} pas montrée(s), aucune clé GitHub sur ce PC"));
+    toutes.iter().filter(|a| !a.prive).cloned().collect()
 }
 
 /// `Get-ProcessusDonneesAppli` (applis.ps1:86-92) : les programmes d'aide qu'une appli lance depuis son dossier de
@@ -215,8 +230,20 @@ impl Bloc for BlocListe {
             _ => "apps.json",
         };
         let numero = if l.source.is_some() && l.numero >= 0 { json!(l.numero) } else { Value::Null };
-        ctx.definir_applis(l.applis);
-        ctx.publier(partage::LISTE, json!({ "source": source, "numero": numero }));
+        // (les applis privées de la liste, même pas montrées : le bloc « paramètres » essaie la clé GitHub sur leur
+        // dépôt ; jamais affichées tant qu'une clé ne les ouvre pas)
+        let privees: Vec<Value> = l
+            .applis
+            .iter()
+            .filter(|a| a.prive)
+            .map(|a| json!({ "id": a.id, "nom": a.nom, "depot": a.depot }))
+            .collect();
+        ctx.definir_applis(montrees(ctx, &l.applis));
+        let mut v = json!({ "source": source, "numero": numero });
+        if !privees.is_empty() {
+            v["privees"] = Value::Array(privees);
+        }
+        ctx.publier(partage::LISTE, v);
         self.relever(ctx);
     }
 

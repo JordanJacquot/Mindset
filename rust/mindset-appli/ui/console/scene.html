@@ -202,6 +202,14 @@ html, body { height: 100%; margin: 0; overflow: hidden; background: #07060D; col
 #reglagesGrand .btn:hover, #reglagesGrand .btn:focus { transform: translateY(-2px); filter: brightness(1.12); }
 #reglagesGrand .btn.second { color: var(--texte); background: var(--carte2); border: 1px solid var(--ligne); }
 #reglagesGrand .btn.danger { color: #1A0610; background: var(--rouge); }
+/* Applis privées : le guide, le champ de la clé, le rappel */
+#reglagesGrand .etapes { margin: 4px 0 12px; padding-left: 24px; color: var(--doux); font-size: 14.5px; line-height: 1.55; }
+#reglagesGrand .etapes li { margin-bottom: 5px; }
+#reglagesGrand .champ { display: block; width: 100%; box-sizing: border-box; height: 46px; padding: 0 16px; border-radius: 14px; border: 1px solid var(--ligne); background: var(--carte2); color: var(--texte); font: inherit; font-size: 15px; }
+#reglagesGrand .champ::placeholder { color: var(--pale); }
+#reglagesGrand .champ:focus { outline: none; border-color: var(--S); box-shadow: 0 0 0 2px color-mix(in srgb, var(--S) 35%, transparent); }
+#reglagesGrand .rappel { margin: 2px 0 14px; color: var(--orange); font-size: 14px; font-weight: 700; line-height: 1.45; }
+#reglagesGrand .info.urgent { color: var(--rouge); } #reglagesGrand .info.ok { color: var(--vert); }
 /* en bas : Retour et OK, comme le menu */
 #reglagesGrand .bas { flex: none; margin-top: 10px; display: flex; justify-content: space-between; align-items: center; color: var(--doux); font-size: 15px; }
 #reglagesGrand .aides { display: flex; gap: 22px; color: var(--texte); }
@@ -839,7 +847,8 @@ const PAGES = {
         + `<div class="reglages plaque">${m.essai.map((a) => rang(`Recevoir les versions d'essai de ${a.nom}`, m.essaiNote || '', bascule(`e:${a.id}`, 'essai', a.oui, `Recevoir les versions d'essai de ${a.nom}`, a.id))).join('')}</div>` : '')
       + titreBloc('Versions') + texte(verif ? 'Mindset cherche les nouvelles versions au démarrage puis toutes les heures. Elles sont signées : une version qui ne l\'est pas n\'est jamais installée.' : 'Mindset ne cherche plus les nouvelles versions tout seul : clique sur « Vérifier maintenant » quand tu veux. Elles sont signées : une version qui ne l\'est pas n\'est jamais installée.')
       + ligne('Mindset', '#ECEAF7', `version ${e.version}`, mm.texte, mm.ton) + (m.applis || []).map((a) => ligne(a.nom, a.couleur, a.version, a.texte, a.ton)).join('')
-      + titreBloc('Dernières mises à jour') + ((m.historique || []).length ? m.historique.map((h) => `<div class="plaque ligne"><span class="ic" style="--a:${hex(h.couleur, '#ECEAF7')}"><span class="l">${esc(String(h.nom).charAt(0).toUpperCase())}</span></span><span class="txt"><b style="color:${hex(h.couleur, '#ECEAF7')}">${esc(`${h.nom} ${h.version}`)}</b><span class="n">${esc(h.quand)}</span></span><span class="tagMaj${h.auto ? ' auto' : ''}">${h.auto ? 'Automatique' : 'Faite par toi'}</span></div>`).join('') : texte("Aucune mise à jour pour l'instant."))];
+      + titreBloc('Dernières mises à jour') + ((m.historique || []).length ? m.historique.map((h) => `<div class="plaque ligne"><span class="ic" style="--a:${hex(h.couleur, '#ECEAF7')}"><span class="l">${esc(String(h.nom).charAt(0).toUpperCase())}</span></span><span class="txt"><b style="color:${hex(h.couleur, '#ECEAF7')}">${esc(`${h.nom} ${h.version}`)}</b><span class="n">${esc(h.quand)}</span></span><span class="tagMaj${h.auto ? ' auto' : ''}">${h.auto ? 'Automatique' : 'Faite par toi'}</span></div>`).join('') : texte("Aucune mise à jour pour l'instant."))
+      + blocPrive(m.prive)];
   },
   conso(e) {
     const c = e.conso;
@@ -857,6 +866,26 @@ const PAGES = {
       + `<div class="boutons">${btn('desinstaller', 'Désinstaller Mindset', 'danger', 'poubelle')}</div>`];
   },
 };
+// Applis privées (Mindset 3.1), repliées au départ : la clé GitHub qui ouvre le dépôt privé d'une appli. La clé
+// tapée ne quitte le champ que pour « Essayer » ; Mindset ne la renvoie jamais (l'état ne la contient pas).
+function blocPrive(p) {
+  if (!p || !p.visible) return '';
+  const ouvert = !!REG.prive;
+  const note = p.cle
+    ? [(p.applis || []).length ? `Elle ouvre ${p.applis.join(' et ')}.` : '', p.expire ? `Elle expire le ${p.expire}.` : ''].filter(Boolean).join(' ')
+    : 'Une clé GitHub en lecture seule ouvre une appli privée. Elle reste chiffrée sur ce PC.';
+  let h = titreBloc('Applis privées')
+    + texte("Pour une appli dont le dépôt GitHub est privé. Tu n'en as pas besoin si personne ne t'a donné d'appli privée.")
+    + (p.rappel ? `<p class="rappel" role="status">${esc(p.rappel)}</p>` : '')
+    + `<div class="reglages plaque">${rang(p.cle ? 'Une clé GitHub est gardée sur ce PC' : 'Aucune clé GitHub sur ce PC', note,
+      `<button type="button" class="btn f second" data-k="clePlier" data-a="clePlier" aria-expanded="${ouvert}">${ouvert ? 'Masquer' : 'Afficher'}</button>`)}</div>`;
+  if (!ouvert) return h;
+  return h + `<ol class="etapes">${(p.etapes || []).map((x) => `<li>${esc(x)}</li>`).join('')}</ol>`
+    + `<div class="boutons">${btn('clePage', 'Ouvrir la page de GitHub', 'second')}</div>`
+    + '<input id="cleChamp" class="f champ" data-k="cleChamp" type="password" autocomplete="off" spellcheck="false" placeholder="Colle ta clé ici (elle commence par github_pat_)" aria-label="Ta clé GitHub">'
+    + `<div class="boutons">${btn('cleEssayer', p.en_cours ? 'Essai en cours...' : 'Essayer')}${p.cle ? btn('cleRetirer', 'Retirer la clé', 'danger', 'poubelle') : ''}${p.relancer ? btn('cleRelancer', 'Relancer Mindset', 'second', 'actu') : ''}</div>`
+    + (p.info ? `<p class="info ${ton(p.ton)}" role="status">${esc(p.info)}</p>` : '');
+}
 function htmlReglages() {
   const o = REG.onglet, onglets = `<div class="pastilles-o" role="tablist">${ONGLETS.map(([id, nom]) => `<button type="button" class="f${id === o ? ' oui' : ''}" role="tab" aria-selected="${id === o}" data-k="o:${id}" data-a="onglet" data-v="${id}">${nom}</button>`).join('')}</div>`;
   if (!REG.etat) return `${onglets}<p class="texte">Chargement des réglages...</p>`;
@@ -871,7 +900,9 @@ function remplirReglages(focusOnglet) {
   if (html !== REG.html) {
     const k = elReg.contains(document.activeElement) ? document.activeElement.dataset.k : null;
     const haut = elRegCorps.querySelector('.contenu')?.scrollTop || 0, meme = REG.htmlOnglet === REG.onglet;
+    const champ = document.getElementById('cleChamp')?.value || '';   // (la clé en cours de saisie reste dans le champ)
     elRegCorps.innerHTML = html; REG.html = html; REG.htmlOnglet = REG.onglet;
+    const c2 = document.getElementById('cleChamp'); if (c2 && champ) c2.value = champ;
     const c = elRegCorps.querySelector('.contenu'); if (c && meme) c.scrollTop = haut;
     if (k && !focusOnglet) elRegCorps.querySelector(`[data-k="${CSS.escape(k)}"]`)?.focus({ preventScroll: true });
   }
@@ -925,6 +956,12 @@ elReg.addEventListener('click', (ev) => {
   const el = ev.target.closest('[data-a]'); if (!el || ouverte !== REGL || !zoome || occupe) return;
   const a = el.dataset.a, v = el.dataset.v ?? '', e = REG.etat;
   if (a === 'retour') { retourReglages(); return; }
+  if (a === 'clePlier') { sons.ok(); REG.prive = !REG.prive; remplirReglages(); return; }
+  if (a === 'cleEssayer') {   // (la clé part du champ vers Mindset, une fois ; le champ est vidé tout de suite)
+    const champ = document.getElementById('cleChamp'), cle = champ ? champ.value.trim() : '';
+    if (!cle) { champ?.focus(); return; }
+    sons.ok(); champ.value = ''; hote('reglage', { quoi: a, valeur: cle }); return;
+  }
   if (a === 'ok') { const f = document.activeElement; if (f && f !== el && elReg.contains(f) && f.dataset.a && f.dataset.a !== 'ok') f.click(); return; }
   if (a === 'onglet') {
     if (v !== REG.onglet && ONGLETS.some((o) => o[0] === v)) { sons.survol(); REG.onglet = v; remplirReglages(true); hote('reglage', { quoi: 'onglet', valeur: v }); }
@@ -1084,6 +1121,11 @@ addEventListener('keydown', (e) => {
   const touche = toucheManette(e);
   if (ouverte === REGL) {   // les Paramètres : Échap ou Retour arrière (B) ramène au menu en grand ; les flèches vont d'un réglage à l'autre
     if (!zoome || occupe) return;
+    // (le champ de la clé GitHub garde ses touches d'écriture ; Entrée y vaut « Essayer » ; haut et bas en sortent)
+    if (e.target && e.target.id === 'cleChamp') {
+      if (e.key === 'Enter') { e.preventDefault(); elReg.querySelector('[data-a="cleEssayer"]')?.click(); return; }
+      if (['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key)) return;
+    }
     if (touche === 'Escape' || e.key === 'Backspace') { e.preventDefault(); retourReglages(); return; }
     if (e.key.startsWith('Arrow')) { e.preventDefault(); naviguerReglages(e.key); }
     if (touche === 'Enter' && e.key !== 'Enter') { e.preventDefault(); document.querySelector('#reglagesGrand .aides [data-a="ok"]')?.click(); }

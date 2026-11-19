@@ -61,3 +61,10 @@ Les textes de Mindset sont repris mot pour mot. Ceux que .NET écrit lui-même n
 - `BlocListe` a maintenant un état (l'heure de la prochaine recherche). L'hôte écrit `Box::new(mindset_liste::BlocListe)`
   dans `blocs()` : une constante du même nom que le type le garde valable (à l'intégration, `BlocListe::default()`
   est plus clair).
+
+## 5. Mindset 3.1 : les applis privées (pas dans la version PowerShell)
+
+Une entrée `"type": "rust-prive"` avec `"prive": true` est une appli Rust privée (`Appli::prive`) ; la version
+PowerShell (et Mindset 3.0.x) l'ignore (« type inconnu »), et c'est voulu : c'est ce qui la cache aux Mindset d'avant
+3.1 (`docs/contrat-appli.md`, « Les applis privées »). Une seule des deux marques : ignorée, ici aussi. Elle n'est
+donnée au contexte que si une clé GitHub est gardée sur le PC (`montrees`), et `liste.privees` les nomme toutes.

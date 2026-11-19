@@ -50,7 +50,8 @@ entrée qui ne passe pas les contrôles (`applis.ps1:18` pour le type, `:37` pou
 | Champ | Obligatoire | Contrôle | Ligne |
 |---|---|---|---|
 | `id` | oui | `^[a-z0-9-]+$` | `applis.ps1:14`, `:19` |
-| `type` | non | `powershell` (la valeur quand il est absent) ou `rust`, avec cette casse ; sinon l'entrée est ignorée | `applis.ps1:15-18` |
+| `type` | non | `powershell` (la valeur quand il est absent) ou `rust`, avec cette casse ; sinon l'entrée est ignorée ; Mindset 3.1 accepte aussi `rust-prive` (une appli privée, voir plus bas) | `applis.ps1:15-18` |
+| `prive` | seulement pour une appli privée | `true` (un booléen) avec `"type": "rust-prive"`, et seulement avec lui ; une seule des deux marques : l'entrée est ignorée | `rust/mindset-liste/src/liste.rs`, `convertir` |
 | `nom` | oui | non vide ; aussi le nom du dossier de l'appli et le titre de sa fenêtre | `applis.ps1:19` |
 | `couleur` | oui | `#RRGGBB` | `applis.ps1:19` |
 | `depot` | oui | `propriétaire/dépôt` GitHub | `applis.ps1:20` |
@@ -119,6 +120,84 @@ La liste et sa signature sont lues une seule fois en mémoire, et tout est véri
 - `Desinstaller Mindset.exe` : en plus de `apps.json`, la liste gardée dans le dossier des données du Mindset de
   chaque racine (`X:\Mindset\Donnees\Mindset` ou `%LOCALAPPDATA%\Mindset\Mindset`), si elle passe les mêmes règles ;
   ce qui a servi est noté dans son journal.
+
+### Les applis privées (Mindset 3.1)
+
+**Existe (Rust, Mindset 3.1.0).** Une appli dont le dépôt GitHub est **privé** (Jobmind, `JordanJacquot/Jobmind`) est
+dans la liste comme les autres (`apps.json` et la liste en ligne signée), avec deux marques :
+
+```json
+{ "id": "jobmind", "type": "rust-prive", "prive": true, "nom": "Jobmind", "depot": "JordanJacquot/Jobmind", ... }
+```
+
+Pour Mindset 3.1, `rust-prive` est une appli Rust (`Appli::genre` = `rust`, `Appli::prive` = vrai), contrôlée
+exactement comme les autres. Les deux marques vont ensemble : une seule des deux, ou `prive` autre que `true`, et
+l'entrée est ignorée (journal : « appli ignorée (<id>, « prive » et « type » ne vont pas ensemble) ») ;
+`outils/publier-liste.ps1` refuse de publier une telle liste.
+
+**Pourquoi le type, et pas seulement `prive` : les Mindset d'avant 3.1 ne la montrent jamais.** Un Mindset qui ne
+connaît pas un champ l'ignore : avec seulement `"prive": true`, un vieux Mindset montrerait la carte de Jobmind à tout
+le monde. Il ignore en revanche toute entrée dont le `type` n'est ni `powershell` ni `rust` (« type inconnu »), et le
+reste de la liste est pris. Cette règle est la même dans **tous** les Mindset qui lisent une liste en ligne :
+- PowerShell 2.15 à 2.18 : `$type -cnotmatch '^(powershell|rust)$'` (`Mindset/fichiers/modules/liste.ps1`, depuis le
+  commit 536ea1f de l'étape 2 ; la liste en ligne est arrivée après, en 2.16) ;
+- Rust 3.0.0 à 3.0.7 : `t == "powershell" || t == "rust"` (`rust/mindset-liste/src/liste.rs`), vérifié version par
+  version dans git (`git show v3.0.X:rust/mindset-liste/src/liste.rs`) ;
+- un Mindset d'avant 2.15 ne lit que son `apps.json` livré, qui n'a pas changé.
+
+Preuves : le code de Mindset 3.0.7 (commit 470a134), lancé sur le nouvel `apps.json`, voit nevermind, evermind,
+mindcare et paymind, et note « apps.json : appli ignorée (jobmind, type inconnu) » ; `outils/tester-liste.ps1`
+(partie « Applis privées ») le vérifie avec les règles PowerShell, avec contre-épreuve ; `publier-liste.ps1` vérifie à
+chaque publication que ces règles ignorent chaque appli privée et prennent toutes les autres. L'installateur et le
+désinstalleur (`suite_commun::liste_en_ligne`, contrôle réduit à id, nom, exe) gardent l'entrée, mais n'affichent
+rien et n'installent que ce que Mindset leur demande.
+
+Le nom, la description et le dépôt d'une appli privée restent lisibles par tous dans la liste en ligne (elle est
+publique) : seul son **code** est privé.
+
+**La clé GitHub.** Mindset 3.1 ne montre une appli privée (carte, onglet, recherche de version, installation) que si
+une clé GitHub est gardée sur ce PC (`mindset_noyau::cle_github`) : un jeton à grain fin de GitHub (« Fine-grained
+personal access token », il commence par `github_pat_`), en lecture seule, limité au dépôt de l'appli (« Repository
+permissions » > « Contents » : « Read-only »). L'utilisateur la colle dans Paramètres > Mises à jour > Applis privées :
+- un guide pas à pas (la page de GitHub où la créer, `https://github.com/settings/personal-access-tokens/new` ; le
+  dépôt ; « Contents » en lecture seule ; une durée), un champ, « Essayer », « Retirer la clé », et « Relancer
+  Mindset » quand une appli privée doit apparaître ou partir (la liste est lue au démarrage) ;
+- « Essayer » essaie la clé sur le dépôt de chaque appli privée de la liste (`GET /repos/<dépôt>`, puis la dernière
+  version) ; elle n'est gardée que si elle en ouvre au moins un ;
+- elle est gardée chiffrée par DPAPI de Windows pour le compte de l'utilisateur, avec une entropie propre à Mindset
+  (`<données de Mindset>\cle-github.bin`) ; illisible ailleurs (autre compte, autre PC) ;
+- la date où elle expire (en-tête `github-authentication-token-expiration` de GitHub) est notée dans les réglages
+  (`CleGithubExpire`) : 14 jours avant, et une fois passée, un rappel s'affiche dans la section ;
+- la clé n'est **jamais** écrite en clair : ni dans un fichier, ni au journal, ni dans l'état envoyé à la page (le type
+  `Jeton` ne s'affiche pas, même en `Debug`).
+
+**Ce qui passe par GitHub pour une appli privée.** Tout par l'API, jamais par les pages de github.com (elles
+demandent d'être connecté) :
+- la dernière version : `https://api.github.com/repos/<dépôt>/releases/latest` (et `/releases?per_page=30` pour le
+  canal d'essai), avec `Authorization: Bearer <clé>` ;
+- le zip et sa signature : par leur adresse de l'API, `https://api.github.com/repos/<dépôt>/releases/assets/<numéro>`
+  (champ `url` de la version, jamais `browser_download_url`), avec `Accept: application/octet-stream` ; seulement une
+  adresse de fichier de **son** dépôt ;
+- GitHub renvoie (302) vers son stockage (`release-assets.githubusercontent.com` ou `objects.githubusercontent.com`) :
+  le vrai réseau suit cette redirection **sans la clé**. WinHTTP ne suit jamais une redirection lui-même
+  (`WINHTTP_DISABLE_REDIRECTS`) ; Mindset la suit (`mindset_publications::port::suivre`) et ne donne la clé qu'à
+  l'adresse demandée elle-même, seulement si c'est `api.github.com` en https sur le port 443 (`port::jeton_permis`) :
+  jamais à une redirection, même vers l'API, jamais à github.com, jamais pour une appli publique ni pour Mindset ;
+  l'en-tête `Authorization` ne peut pas être glissé par les en-têtes ordinaires d'une demande (refusé) ;
+- ensuite, **exactement** la même vérification que pour les autres applis : signature (clés publiques de Mindset),
+  `version.json` (appli, `mindset_min`), taille (200 Mo), retour en arrière refusé par l'installateur. Les mises à jour
+  automatiques sont les mêmes.
+- clé refusée par GitHub (401, 403, 404) : « Ta clé GitHub ne marche plus : refais-en une dans les Paramètres (Mises à
+  jour, Applis privées). » sur la carte (et « clé GitHub à refaire » dans les versions) ; dépôt ouvert mais sans
+  version : « Aucune version publiée pour l'instant. » ; clé retirée pendant que Mindset tourne : rien n'est demandé à
+  GitHub.
+
+Juges : `cargo test` (`mindset-noyau` : jeton et coffre DPAPI ; `mindset-liste/tests/bloc.rs` : montrée seulement avec
+une clé, une seule marque ignorée ; `mindset-publications` : `port::tests` pour la clé et les redirections,
+`windows::tests` pour le **vrai WinHTTP** contre un faux GitHub sur 127.0.0.1 (l'API reçoit la clé, le stockage
+jamais ; téléchargement complet signé avec la clé de test ; clé refusée), le bloc avec l'appli privée ;
+`mindset-installations/tests/flux.rs` : installation avec la clé, signature fausse, autre appli, clé refusée, clé
+retirée, et la clé cherchée dans tout le dossier d'essai ; `mindset-parametres` : Essayer, garder, retirer, rappel).
 
 ---
 

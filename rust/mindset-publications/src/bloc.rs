@@ -36,6 +36,10 @@ use crate::github::{self, Reponse};
 pub const DEPOT_MINDSET: &str = "JordanJacquot/Mindset";
 pub const ZIP_MINDSET: &str = "Mindset.zip";
 
+/// Le champ du résultat d'une question pour une appli privée qui porte la date où la clé GitHub expire (gardée dans le
+/// réglage `CleGithubExpire`, jamais dans le tableau commun).
+const CLE_EXPIRE: &str = "cle_expire";
+
 /// Le préfixe des travaux de fond : « publication:<id> » pour une appli, et celui de Mindset.
 const TACHE_APPLI: &str = "publication:";
 const TACHE_MINDSET: &str = "publication-mindset";
@@ -166,6 +170,20 @@ impl BlocPublications {
             }
             self.lancees.push(q.clone());
             let reseau = ctx.reseau();
+            if a.prive {
+                // Une appli privée : par l'API, avec la clé GitHub gardée sur le PC (lue ici, jamais écrite ailleurs)
+                let jeton = mindset_noyau::cle_github::lire(&ctx.dossiers);
+                effets.tache(&format!("{TACHE_APPLI}{}", q.id), move || {
+                    let Some(jeton) = jeton else { return Ok(github::en_partage(&Err(github::SANS_CLE.into()))) };
+                    let r = github::publication_privee(&*reseau, &q.depot, &q.zips, q.essai, &jeton);
+                    let mut v = github::en_partage(&r.reponse);
+                    if let (Some(e), Value::Object(m)) = (r.expire, &mut v) {
+                        m.insert(CLE_EXPIRE.into(), json!(e));
+                    }
+                    Ok(v)
+                });
+                continue;
+            }
             effets.tache(&format!("{TACHE_APPLI}{}", q.id), move || {
                 Ok(github::en_partage(&github::publication(&*reseau, &q.depot, &q.zips, q.essai)))
             });
@@ -202,6 +220,12 @@ impl BlocPublications {
 
     /// La fin d'une question (la fin du travail de `Update-Publications`).
     fn reponse(&mut self, ctx: &Contexte, id: &str, resultat: Result<Value, String>, effets: &mut Effets) {
+        // (une appli privée : la date où la clé GitHub expire, gardée pour le rappel des Paramètres)
+        if let Some(e) = resultat.as_ref().ok().and_then(|v| v.get(CLE_EXPIRE)).and_then(Value::as_str)
+            && ctx.reglage("CleGithubExpire").and_then(|x| x.as_str().map(str::to_string)).as_deref() != Some(e)
+        {
+            ctx.ecrire_reglage("CleGithubExpire", json!(e));
+        }
         let reponse = match resultat {
             Err(e) => Err(e),
             Ok(v) => github::depuis_partage(&v).unwrap_or_else(|| Err("réponse illisible".into())),
@@ -465,6 +489,94 @@ mod tests {
         ctx.avancer(Duration::from_secs(60));
         ctx.au_nom_de("publications", || b.tic(&ctx, &mut e));
         assert_eq!(e.0.iter().filter(|x| matches!(x, Effet::Tache(_))).count(), 3, "30 minutes après : on réessaie");
+        let _ = std::fs::remove_dir_all(&faux.racine);
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn appli_privee_par_l_api_avec_la_cle_et_seulement_elle() {
+        let (ctx, faux) = essai::contexte("publications-prive");
+        let mut privee = appli("jobmind", "JordanJacquot/Jobmind", "Jobmind.zip");
+        privee.prive = true;
+        ctx.definir_applis(vec![appli("evermind", "JordanJacquot/Evermind", "Evermind.zip"), privee]);
+        ctx.ecrire_reglage("VersionsEssai", json!(["jobmind"]));
+        let secret = format!("github_pat_{}", "Bloc_Pub_".repeat(8));
+        let jeton = mindset_noyau::reseau::Jeton::lire(&secret).unwrap();
+        mindset_noyau::cle_github::enregistrer(&ctx.dossiers, &jeton).unwrap();
+        let api = "https://api.github.com/repos";
+        let r = &faux.reseau;
+        let actif = |n: u32| format!("{api}/JordanJacquot/Jobmind/releases/assets/{n}");
+        let rel = |tag: &str, pre: bool| {
+            json!({ "tag_name": tag, "prerelease": pre, "draft": false, "body": "notes",
+                "assets": [
+                    { "name": "Jobmind.zip", "url": actif(11), "browser_download_url": "https://github.com/x" },
+                    { "name": "Jobmind.zip.sig", "url": actif(12), "browser_download_url": "https://github.com/y" },
+                ] })
+        };
+        let mut ok = ReponseHttp::ok(rel("v0.3.0", false).to_string());
+        ok.entetes.push(("github-authentication-token-expiration".into(), "2027-02-01 10:00:00 UTC".into()));
+        r.repondre(&format!("{api}/JordanJacquot/Jobmind/releases/latest"), Ok(ok));
+        let pre = json!([rel("v0.4.0", true)]);
+        r.repondre(&format!("{api}/JordanJacquot/Jobmind/releases?per_page=30"), Ok(ReponseHttp::ok(pre.to_string())));
+        r.repondre(
+            &format!("{api}/JordanJacquot/Evermind/releases/latest"),
+            Ok(ReponseHttp::ok(release("v2.5.0", "JordanJacquot/Evermind", "Evermind.zip", false).to_string())),
+        );
+        r.repondre(
+            &format!("{api}/JordanJacquot/Mindset/releases/latest"),
+            Ok(ReponseHttp::ok(release("v3.1.0", "JordanJacquot/Mindset", "Mindset.zip", false).to_string())),
+        );
+        let mut b = BlocPublications::nouveau();
+        let mut e = Effets::default();
+        ctx.au_nom_de("publications", || b.tic(&ctx, &mut e));
+        faire(&mut b, &ctx, e);
+        let pubs = ctx.lu(partage::PUBLICATIONS).unwrap();
+        // L'appli privée : par l'API, ses fichiers par leur adresse de l'API ; le canal d'essai marche aussi
+        assert_eq!(pubs["jobmind"]["version"], "0.4.0");
+        assert_eq!(pubs["jobmind"]["url_zip"], actif(11));
+        assert_eq!(pubs["jobmind"]["url_sig"], actif(12));
+        assert_eq!(ctx.reglage("CleGithubExpire"), Some(json!("2027-02-01 10:00:00 UTC")));
+        // La clé : seulement pour les questions de l'appli privée, toutes vers l'API
+        for d in faux.reseau.demandes() {
+            let privee = d.adresse.contains("/Jobmind/");
+            assert_eq!(d.jeton.is_some(), privee, "{}", d.adresse);
+            if privee {
+                assert!(d.adresse.starts_with("https://api.github.com/"));
+            }
+        }
+        assert!(!pubs.to_string().contains(&secret[11..30]), "jamais la clé dans le tableau commun");
+        // La clé refusée : le message simple
+        r.repondre(&format!("{api}/JordanJacquot/Jobmind/releases/latest"), Ok(ReponseHttp::code(401)));
+        ctx.avancer(Duration::from_secs(3600));
+        let mut e = Effets::default();
+        ctx.au_nom_de("publications", || b.tic(&ctx, &mut e));
+        faire(&mut b, &ctx, e);
+        let pubs = ctx.lu(partage::PUBLICATIONS).unwrap();
+        assert_eq!(pubs["jobmind"]["erreur"], mindset_noyau::cle_github::CLE_REFUSEE);
+        // 404 sur la dernière version, mais le dépôt s'ouvre : aucune version publiée (pas « clé refusée »)
+        r.repondre(&format!("{api}/JordanJacquot/Jobmind/releases/latest"), Ok(ReponseHttp::code(404)));
+        r.repondre(&format!("{api}/JordanJacquot/Jobmind"), Ok(ReponseHttp::ok("{}")));
+        ctx.ecrire_reglage("VersionsEssai", json!([]));
+        ctx.avancer(Duration::from_secs(3600));
+        let mut e = Effets::default();
+        ctx.au_nom_de("publications", || b.tic(&ctx, &mut e));
+        faire(&mut b, &ctx, e);
+        assert_eq!(
+            ctx.lu(partage::PUBLICATIONS).unwrap()["jobmind"]["erreur"],
+            "Aucune version publiée pour l'instant."
+        );
+        // Clé retirée : aucune question à GitHub pour l'appli privée
+        mindset_noyau::cle_github::retirer(&ctx.dossiers).unwrap();
+        let n = faux.reseau.demandes().iter().filter(|d| d.adresse.contains("/Jobmind")).count();
+        ctx.avancer(Duration::from_secs(3600));
+        let mut e = Effets::default();
+        ctx.au_nom_de("publications", || b.tic(&ctx, &mut e));
+        faire(&mut b, &ctx, e);
+        assert_eq!(faux.reseau.demandes().iter().filter(|d| d.adresse.contains("/Jobmind")).count(), n);
+        assert_eq!(ctx.lu(partage::PUBLICATIONS).unwrap()["jobmind"]["erreur"], mindset_noyau::cle_github::SANS_CLE);
+        for l in faux.donnees.lignes() {
+            assert!(!l.contains(&secret[11..30]), "{l}");
+        }
         let _ = std::fs::remove_dir_all(&faux.racine);
     }
 

@@ -16,8 +16,12 @@ use crate::systeme::{Processus, dans_dossier};
 pub struct Appli {
     /// `Id` : « nevermind »
     pub id: String,
-    /// `Type` : « powershell » ou « rust »
+    /// `Type` : « powershell » ou « rust » (« rust » aussi pour une appli privée, `"type": "rust-prive"`)
     pub genre: String,
+    /// Une appli privée (Mindset 3.1, `"type": "rust-prive"` et `"prive": true`) : son dépôt GitHub est privé, elle
+    /// n'est montrée que si une clé GitHub est gardée sur ce PC (`cle_github`), et tout ce qui la concerne sur GitHub
+    /// passe par l'API avec cette clé.
+    pub prive: bool,
     /// `Nom` : « Nevermind » (aussi le titre exact de sa fenêtre)
     pub nom: String,
     /// `Couleur` : « #00E5FF »

@@ -28,6 +28,9 @@ rendez-vous et tes sauvegardes sont gardés, l'ancienne copie et ses raccourcis 
 - **Discret** : Mindset se range près de l'horloge et se lance avec Windows ; sur chaque carte, l'interrupteur
   « S'ouvre avec Mindset » choisit les applis qui démarrent avec lui.
 - **Mises à jour automatiques** de Mindset et des applis, toutes signées.
+- **Applis privées** (Mindset 3.1) : une appli dont le dépôt GitHub est privé n'apparaît que si tu as collé une clé
+  GitHub en lecture seule dans Paramètres > Mises à jour > Applis privées (un guide pas à pas y explique comment la
+  faire). La clé reste chiffrée sur ton PC et n'est envoyée qu'à l'API de GitHub. Détails : `docs/contrat-appli.md`.
 ## Droits administrateur
 
 Mindset, Nevermind et Evermind tournent **sans** les droits administrateur. Seules deux petites parties les ont, lancées

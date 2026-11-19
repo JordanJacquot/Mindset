@@ -32,6 +32,7 @@ use std::path::PathBuf;
 use std::time::Duration;
 
 pub mod appli;
+pub mod cle_github;
 pub mod contexte;
 pub mod donnees;
 pub mod essai;

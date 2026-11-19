@@ -5,7 +5,9 @@
 //!    (`requestAnimationFrame(boucleCarrousel)`), et les animations CSS sans fin, qui avancent par pas (`steps(n)`, au
 //!    plus 60 pas par seconde) au lieu d'avancer en continu (`linear infinite`) : mesuré le 06/11/2026 sur Nevermind
 //!    (écran à 360 Hz : la page redessinée 360 fois par seconde), corrigé dans Nevermind 2.0.1 ;
-//! 3. les adresses des images servies par Mindset (`http://fichier.localhost/`, `http://pack.localhost/`).
+//! 3. les adresses des images servies par Mindset (`http://fichier.localhost/`, `http://pack.localhost/`) ;
+//! 4. « Ouverte » sous la tuile d'une appli encore ouverte ;
+//! 5. « Applis privées » (Mindset 3.1) dans l'onglet Mises à jour des Paramètres : la clé GitHub.
 //!
 //! Tout autre changement fait échouer `seulement_les_changements_permis`.
 
@@ -144,6 +146,80 @@ const CHANGEMENTS: &[(&str, &str)] = &[
     (
         "/^https:\\/\\/theme\\.mindset\\.local\\/[\\w.%()-]{1,240}$/",
         "/^http:\\/\\/pack\\.localhost\\/[\\w.%()-]{1,240}$/",
+    ),
+    // 5. Applis privées (Mindset 3.1) : la section repliée de l'onglet Mises à jour (la clé GitHub), son style, son
+    //    champ (ses touches d'écriture gardées, Entrée vaut « Essayer »), et la clé jamais gardée dans la page
+    (
+        "#reglagesGrand .btn.danger { color: #1A0610; background: var(--rouge); }\n",
+        r###"#reglagesGrand .btn.danger { color: #1A0610; background: var(--rouge); }
+/* Applis privées : le guide, le champ de la clé, le rappel */
+#reglagesGrand .etapes { margin: 4px 0 12px; padding-left: 24px; color: var(--doux); font-size: 14.5px; line-height: 1.55; }
+#reglagesGrand .etapes li { margin-bottom: 5px; }
+#reglagesGrand .champ { display: block; width: 100%; box-sizing: border-box; height: 46px; padding: 0 16px; border-radius: 14px; border: 1px solid var(--ligne); background: var(--carte2); color: var(--texte); font: inherit; font-size: 15px; }
+#reglagesGrand .champ::placeholder { color: var(--pale); }
+#reglagesGrand .champ:focus { outline: none; border-color: var(--S); box-shadow: 0 0 0 2px color-mix(in srgb, var(--S) 35%, transparent); }
+#reglagesGrand .rappel { margin: 2px 0 14px; color: var(--orange); font-size: 14px; font-weight: 700; line-height: 1.45; }
+#reglagesGrand .info.urgent { color: var(--rouge); } #reglagesGrand .info.ok { color: var(--vert); }
+"###,
+    ),
+    (
+        r###"texte("Aucune mise à jour pour l'instant."))];"###,
+        r###"texte("Aucune mise à jour pour l'instant."))
+      + blocPrive(m.prive)];"###,
+    ),
+    (
+        "};\nfunction htmlReglages() {\n",
+        r###"};
+// Applis privées (Mindset 3.1), repliées au départ : la clé GitHub qui ouvre le dépôt privé d'une appli. La clé
+// tapée ne quitte le champ que pour « Essayer » ; Mindset ne la renvoie jamais (l'état ne la contient pas).
+function blocPrive(p) {
+  if (!p || !p.visible) return '';
+  const ouvert = !!REG.prive;
+  const note = p.cle
+    ? [(p.applis || []).length ? `Elle ouvre ${p.applis.join(' et ')}.` : '', p.expire ? `Elle expire le ${p.expire}.` : ''].filter(Boolean).join(' ')
+    : 'Une clé GitHub en lecture seule ouvre une appli privée. Elle reste chiffrée sur ce PC.';
+  let h = titreBloc('Applis privées')
+    + texte("Pour une appli dont le dépôt GitHub est privé. Tu n'en as pas besoin si personne ne t'a donné d'appli privée.")
+    + (p.rappel ? `<p class="rappel" role="status">${esc(p.rappel)}</p>` : '')
+    + `<div class="reglages plaque">${rang(p.cle ? 'Une clé GitHub est gardée sur ce PC' : 'Aucune clé GitHub sur ce PC', note,
+      `<button type="button" class="btn f second" data-k="clePlier" data-a="clePlier" aria-expanded="${ouvert}">${ouvert ? 'Masquer' : 'Afficher'}</button>`)}</div>`;
+  if (!ouvert) return h;
+  return h + `<ol class="etapes">${(p.etapes || []).map((x) => `<li>${esc(x)}</li>`).join('')}</ol>`
+    + `<div class="boutons">${btn('clePage', 'Ouvrir la page de GitHub', 'second')}</div>`
+    + '<input id="cleChamp" class="f champ" data-k="cleChamp" type="password" autocomplete="off" spellcheck="false" placeholder="Colle ta clé ici (elle commence par github_pat_)" aria-label="Ta clé GitHub">'
+    + `<div class="boutons">${btn('cleEssayer', p.en_cours ? 'Essai en cours...' : 'Essayer')}${p.cle ? btn('cleRetirer', 'Retirer la clé', 'danger', 'poubelle') : ''}${p.relancer ? btn('cleRelancer', 'Relancer Mindset', 'second', 'actu') : ''}</div>`
+    + (p.info ? `<p class="info ${ton(p.ton)}" role="status">${esc(p.info)}</p>` : '');
+}
+function htmlReglages() {
+"###,
+    ),
+    (
+        "    elRegCorps.innerHTML = html; REG.html = html; REG.htmlOnglet = REG.onglet;\n",
+        r###"    const champ = document.getElementById('cleChamp')?.value || '';   // (la clé en cours de saisie reste dans le champ)
+    elRegCorps.innerHTML = html; REG.html = html; REG.htmlOnglet = REG.onglet;
+    const c2 = document.getElementById('cleChamp'); if (c2 && champ) c2.value = champ;
+"###,
+    ),
+    (
+        "  if (a === 'retour') { retourReglages(); return; }\n",
+        r###"  if (a === 'retour') { retourReglages(); return; }
+  if (a === 'clePlier') { sons.ok(); REG.prive = !REG.prive; remplirReglages(); return; }
+  if (a === 'cleEssayer') {   // (la clé part du champ vers Mindset, une fois ; le champ est vidé tout de suite)
+    const champ = document.getElementById('cleChamp'), cle = champ ? champ.value.trim() : '';
+    if (!cle) { champ?.focus(); return; }
+    sons.ok(); champ.value = ''; hote('reglage', { quoi: a, valeur: cle }); return;
+  }
+"###,
+    ),
+    (
+        "    if (touche === 'Escape' || e.key === 'Backspace') { e.preventDefault(); retourReglages(); return; }\n",
+        r###"    // (le champ de la clé GitHub garde ses touches d'écriture ; Entrée y vaut « Essayer » ; haut et bas en sortent)
+    if (e.target && e.target.id === 'cleChamp') {
+      if (e.key === 'Enter') { e.preventDefault(); elReg.querySelector('[data-a="cleEssayer"]')?.click(); return; }
+      if (['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key)) return;
+    }
+    if (touche === 'Escape' || e.key === 'Backspace') { e.preventDefault(); retourReglages(); return; }
+"###,
     ),
 ];
 

@@ -397,7 +397,7 @@ impl BlocInstallations {
             }
             None => return,
         };
-        let travail = telechargement::Travail {
+        let mut travail = telechargement::Travail {
             reseau: ctx.reseau(),
             progres,
             id: a.id.clone(),
@@ -409,7 +409,20 @@ impl BlocInstallations {
             cles: ctx.dossiers.fichiers.join("cles-publiques"),
             telechargements: ctx.dossiers.telechargements(),
             version_mindset: ctx.version.clone(),
+            prive: None,
         };
+        if a.prive {
+            // Une appli privée : la clé GitHub gardée sur le PC (lue ici, emportée par le travail, jamais écrite)
+            match mindset_noyau::cle_github::lire(&ctx.dossiers) {
+                Some(j) => travail.prive = Some((a.depot.clone(), j)),
+                None => {
+                    let ancien = ancien.unwrap_or_default();
+                    let sans = mindset_noyau::cle_github::SANS_CLE.to_string();
+                    effets.tache(&format!("telechargement:{}:{ancien}", a.id), move || Err(sans));
+                    return;
+                }
+            }
+        }
         let ancien = ancien.unwrap_or_default();
         effets.tache(&format!("telechargement:{}:{ancien}", a.id), move || travail.faire());
     }

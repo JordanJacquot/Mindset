@@ -37,7 +37,7 @@ pub use github::{Publication, Reponse};
 pub fn reseau_windows() -> Arc<dyn Reseau> {
     #[cfg(windows)]
     {
-        Arc::new(windows::ReseauWindows)
+        Arc::new(windows::ReseauWindows::default())
     }
     #[cfg(not(windows))]
     {

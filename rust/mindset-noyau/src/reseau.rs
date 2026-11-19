@@ -19,6 +19,37 @@ pub enum Methode {
     Head,
 }
 
+/// La clé GitHub d'une appli privée (un jeton à grain fin de GitHub, en lecture seule) : un secret. Elle ne s'écrit
+/// jamais (ni `Display`, ni le texte dans `Debug`) : seul [`Jeton::secret`] la donne, pour l'en-tête `Authorization`
+/// du vrai réseau et pour la garder chiffrée (`cle_github`).
+#[derive(Clone, PartialEq, Eq)]
+pub struct Jeton(String);
+
+impl Jeton {
+    /// Une clé collée par l'utilisateur, espaces autour retirés : seulement un jeton à grain fin de GitHub
+    /// (`github_pat_` puis des lettres, chiffres et `_`, 255 caractères au plus). `None` sinon.
+    pub fn lire(texte: &str) -> Option<Jeton> {
+        let t = texte.trim();
+        let reste = t.strip_prefix("github_pat_")?;
+        let bon = (20..=244).contains(&reste.len()) && reste.bytes().all(|o| o.is_ascii_alphanumeric() || o == b'_');
+        bon.then(|| Jeton(t.to_string()))
+    }
+
+    /// Le secret lui-même (seulement pour l'en-tête `Authorization` et le coffre chiffré).
+    pub fn secret(&self) -> &str {
+        &self.0
+    }
+}
+
+impl std::fmt::Debug for Jeton {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str("Jeton(caché)")
+    }
+}
+
+/// L'hôte de l'API de GitHub : le seul à qui le vrai réseau donne une clé GitHub.
+pub const HOTE_API: &str = "api.github.com";
+
 /// Une demande.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct DemandeHttp {
@@ -32,6 +63,10 @@ pub struct DemandeHttp {
     pub max_octets: u64,
     /// Le temps maximal (`-DelaiSecondes`, 600 s par défaut)
     pub delai: Duration,
+    /// La clé GitHub d'une appli privée (Mindset 3.1). Le vrai réseau l'envoie (`Authorization: Bearer`) SEULEMENT à
+    /// [`HOTE_API`] en https, et seulement à l'adresse demandée : jamais à l'adresse d'une redirection (le stockage
+    /// des fichiers de GitHub ne la reçoit jamais). `None` pour tout le reste (les applis publiques, Mindset).
+    pub jeton: Option<Jeton>,
 }
 
 impl DemandeHttp {
@@ -44,6 +79,7 @@ impl DemandeHttp {
             suivre_redirections: true,
             max_octets: 200 * 1024 * 1024,
             delai: Duration::from_secs(600),
+            jeton: None,
         }
     }
 }
@@ -148,5 +184,28 @@ mod tests {
         assert!(f.demander(&DemandeHttp::get("https://ailleurs"), None).is_err());
         assert_eq!(f.demandes().len(), 3);
         assert!(SansReseau.demander(&DemandeHttp::get("https://github.com/x"), None).is_err());
+    }
+
+    #[test]
+    fn jeton_seulement_a_grain_fin_et_jamais_ecrit() {
+        let bon = format!("github_pat_{}", "A1b2_".repeat(16));
+        let j = Jeton::lire(&format!("  {bon}\r\n")).unwrap();
+        assert_eq!(j.secret(), bon);
+        // (jamais écrit : ni Debug, ni dans une demande écrite pour le journal)
+        assert_eq!(format!("{j:?}"), "Jeton(caché)");
+        let mut d = DemandeHttp::get("https://api.github.com/x");
+        d.jeton = Some(j);
+        assert!(!format!("{d:?}").contains(&bon));
+        for faux in [
+            "".to_string(),
+            "ghp_abcdefghijklmnopqrstuvwxyz0123456789".into(),
+            "github_pat_court".into(),
+            format!("github_pat_{}", "a".repeat(300)),
+            format!("github_pat_{}é", "a".repeat(30)),
+            format!("github_pat_{} x", "a".repeat(30)),
+            format!("Bearer github_pat_{}", "a".repeat(30)),
+        ] {
+            assert!(Jeton::lire(&faux).is_none(), "{faux}");
+        }
     }
 }

@@ -28,6 +28,7 @@ use suite_commun::protocole_installateur::{texte_ps, vrai_ps};
 use mindset_noyau::signaux;
 use mindset_noyau::{Bloc, Contexte, Effet, Effets, Fenetre, appli, partage};
 
+pub mod cle;
 pub mod conso;
 pub mod packs;
 pub mod plateforme;
@@ -97,6 +98,9 @@ pub struct Parametres {
     bandeau: Bandeau,
     demandes: Vec<(String, Demande)>,
     import_en_cours: bool,
+    /// « Applis privées » : ce que la section dit, et la clé en cours d'essai (en mémoire seulement, jamais écrite)
+    cle: cle::EtatCle,
+    cle_en_essai: Option<mindset_noyau::reseau::Jeton>,
     compteur: u32,
 }
 
@@ -126,6 +130,14 @@ impl Parametres {
         bandeau: Bandeau { visible: false, texte: String::new(), bouton_actif: true },
         demandes: Vec::new(),
         import_en_cours: false,
+        cle: cle::EtatCle {
+            info: String::new(),
+            ton: String::new(),
+            en_cours: false,
+            relancer: false,
+            presente: false,
+        },
+        cle_en_essai: None,
         compteur: 0,
     };
 
@@ -704,9 +716,51 @@ impl Parametres {
                 effets.ajouter(Effet::OuvrirAdresse(ctx.dossiers.donnees_suite.to_string_lossy().into_owned()))
             }
             "desinstaller" => effets.signal(signaux::DESINSTALLER_MINDSET, json!({})),
+            // Applis privées (Mindset 3.1) : la clé GitHub
+            "clePage" => effets.ajouter(Effet::OuvrirAdresse(mindset_noyau::cle_github::PAGE_NOUVELLE_CLE.into())),
+            "cleEssayer" => self.essayer_cle(ctx, &v, effets),
+            "cleRetirer" => {
+                if !self.cle.en_cours {
+                    cle::retirer(ctx, &mut self.cle);
+                }
+            }
+            "cleRelancer" => {
+                if partage::une_occupation(ctx) {
+                    self.cle.info = OCCUPE.into();
+                } else if self.en_test(ctx) {
+                    self.cle.info = "Relance demandée (test : pas de relance).".into();
+                } else {
+                    effets.ajouter(Effet::Relancer);
+                }
+            }
             _ => {}
         }
         effets.ajouter(Effet::Rafraichir);
+    }
+
+    /// « Essayer » : la clé collée, essayée en fond sur chaque appli privée de la liste ; gardée seulement si elle en
+    /// ouvre une. La clé n'est jamais écrite au journal ni dans l'état de la page.
+    fn essayer_cle(&mut self, ctx: &Contexte, valeur: &Value, effets: &mut Effets) {
+        if self.cle.en_cours {
+            return;
+        }
+        self.cle.relancer = false;
+        let Some(jeton) = valeur.as_str().and_then(mindset_noyau::reseau::Jeton::lire) else {
+            self.cle.ton = "urgent".into();
+            self.cle.info = "Ce n'est pas une clé GitHub à grain fin : elle commence par github_pat_ (copie-la en entier, sans rien d'autre).".into();
+            return;
+        };
+        let liste = cle::privees(ctx);
+        if liste.is_empty() {
+            self.cle.ton = String::new();
+            self.cle.info = "Aucune appli privée dans la liste pour l'instant : la clé n'a pas été gardée.".into();
+            return;
+        }
+        self.cle.en_cours = true;
+        self.cle.ton = String::new();
+        self.cle.info = "Essai de la clé sur GitHub...".into();
+        self.cle_en_essai = Some(jeton.clone());
+        effets.tache(cle::TACHE, cle::travail(ctx, jeton, liste));
     }
 
     // -----------------------------------------------------------------------------------------------------------
@@ -757,6 +811,15 @@ impl Parametres {
                 let iv = i.as_ref().and_then(|i| i.version.clone()).filter(|v| !v.is_empty());
                 let (texte, ton) = match &p {
                     None => ("pas encore vérifié".to_string(), ""),
+                    // (une appli privée dont la clé GitHub est refusée ou absente)
+                    Some(p)
+                        if a.prive
+                            && p.get("erreur").and_then(Value::as_str).is_some_and(|e| {
+                                e == mindset_noyau::cle_github::CLE_REFUSEE || e == mindset_noyau::cle_github::SANS_CLE
+                            }) =>
+                    {
+                        ("clé GitHub à refaire".to_string(), "urgent")
+                    }
                     Some(p) if p.get("erreur").is_some_and(vrai_ps) => ("GitHub injoignable".to_string(), "urgent"),
                     Some(p)
                         if iv.as_ref().is_some_and(|v| {
@@ -814,6 +877,7 @@ impl Parametres {
                     "id": a.id, "nom": a.nom, "oui": essai.contains(&a.id),
                 })).collect::<Vec<_>>(),
                 "essaiNote": TEXTE_VERSIONS_ESSAI,
+                "prive": cle::etat(ctx, &self.cle),
             },
             "dossiers": { "texte": dossiers },
             "conso": self.conso.clone().unwrap_or(Value::Null),
@@ -884,6 +948,8 @@ impl Bloc for Parametres {
         self.theme = Some(t);
         self.publier_theme(ctx);
         self.onglet = "general".into();
+        // (Applis privées : une clé GitHub est-elle gardée ? lu une fois, puis tenu à jour par Essayer et Retirer)
+        self.cle.presente = mindset_noyau::cle_github::presente(&ctx.dossiers);
         ctx.publier(partage::ONGLET_PARAMETRES, json!("general"));
         // Les thèmes supprimés dont un dossier était encore pris : retirés maintenant, puis une dernière fois 30
         // secondes plus tard
@@ -986,6 +1052,11 @@ impl Bloc for Parametres {
         match id {
             "importer" => self.import_fini(ctx, resultat, effets),
             "conso" => self.conso_finie(ctx, resultat),
+            cle::TACHE => {
+                let jeton = self.cle_en_essai.take();
+                cle::fin_essai(ctx, &mut self.cle, jeton, resultat);
+                effets.ajouter(Effet::Rafraichir);
+            }
             _ => {}
         }
     }

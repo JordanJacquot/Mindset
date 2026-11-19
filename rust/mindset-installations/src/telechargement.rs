@@ -4,7 +4,8 @@
 //! rangés dans `telechargements`.
 
 use mindset_noyau::Progres;
-use mindset_noyau::reseau::{DemandeHttp, Reseau};
+use mindset_noyau::cle_github;
+use mindset_noyau::reseau::{DemandeHttp, Jeton, Reseau};
 use serde_json::{Value, json};
 use std::io::Read;
 use std::path::PathBuf;
@@ -23,6 +24,22 @@ pub struct Travail {
     pub cles: PathBuf,
     pub telechargements: PathBuf,
     pub version_mindset: String,
+    /// Une appli privée (Mindset 3.1) : son dépôt et la clé GitHub gardée sur le PC. Ses fichiers viennent alors de
+    /// l'API de GitHub (`/repos/<dépôt>/releases/assets/<numéro>`, avec la clé) ; tout le reste est pareil (signature,
+    /// version.json, taille). `None` pour toutes les autres applis : jamais de clé.
+    pub prive: Option<(String, Jeton)>,
+}
+
+/// Un fichier d'une appli privée : `mindset_noyau::cle_github::telecharger_actif` (l'API de GitHub avec la clé,
+/// seulement une adresse de fichier de SON dépôt ; la redirection vers le stockage suivie sans la clé).
+pub fn octets_prive(
+    reseau: &dyn Reseau,
+    depot: &str,
+    jeton: &Jeton,
+    url: &str,
+    progres: Option<&Progres>,
+) -> Result<Vec<u8>, String> {
+    cle_github::telecharger_actif(reseau, depot, jeton, url, progres)
 }
 
 /// `Test-AdresseTelechargement`
@@ -122,8 +139,17 @@ impl Travail {
         if self.url_sig.is_empty() {
             return Err(format!("La version {} n'est pas signée : Mindset ne l'installera pas.", self.version));
         }
-        let zip = octets(&*self.reseau, &self.url_zip, Some(&self.progres))?;
-        let sig = octets(&*self.reseau, &self.url_sig, None)?;
+        let (zip, sig) = match &self.prive {
+            Some((depot, jeton)) => (
+                octets_prive(&*self.reseau, depot, jeton, &self.url_zip, Some(&self.progres))?,
+                octets_prive(&*self.reseau, depot, jeton, &self.url_sig, None)?,
+            ),
+            None => (
+                octets(&*self.reseau, &self.url_zip, Some(&self.progres))?,
+                octets(&*self.reseau, &self.url_sig, None)?,
+            ),
+        };
+        // (à partir d'ici, exactement la même vérification pour une appli privée que pour les autres)
         if !suite_commun::signature::verifier_signature(&zip, &sig, &self.cles) {
             return Err("La signature du fichier téléchargé est invalide : rien n'a été installé.".into());
         }

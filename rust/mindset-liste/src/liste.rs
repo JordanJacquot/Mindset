@@ -36,6 +36,9 @@ use crate::ps::{
 /// Le nom de la liste gardée, dans le dossier des données de Mindset (`$NomListeEnLigne`).
 pub const NOM_LISTE_EN_LIGNE: &str = FICHIER;
 
+/// Le type d'une appli privée (Mindset 3.1) : une appli Rust dont le dépôt GitHub est privé.
+pub const TYPE_PRIVE: &str = "rust-prive";
+
 /// Ce qui note au journal (`Write-Log`, ou `Write-JournalListe`).
 pub type Journal<'a> = &'a mut dyn FnMut(&str);
 
@@ -134,15 +137,26 @@ pub fn convertir(a: &Value, origine: &str, journal: Journal, variables: Variable
         }
     };
     // Son type (docs\contrat-appli.md, partie 1) : « powershell » (champ absent : les applis d'aujourd'hui) a un
-    // script principal ; « rust » n'en a pas forcément. Tout autre type : ignorée.
+    // script principal ; « rust » n'en a pas forcément ; « rust-prive » (Mindset 3.1) : une appli Rust dont le dépôt
+    // GitHub est privé. Tout autre type : ignorée. (C'est le type qui cache une appli privée aux Mindset d'avant 3.1 :
+    // ils ignorent tout type autre que « powershell » et « rust ».)
     let genre = match deroule(champ(a, "type")) {
         Value::Null if champ(a, "type").is_null() => "powershell".to_string(),
-        Value::String(t) if correspond(&t, &|t| t == "powershell" || t == "rust") => t,
+        Value::String(t) if correspond(&t, &|t| t == "powershell" || t == "rust" || t == TYPE_PRIVE) => t,
         _ => {
             journal(&format!("{origine} : appli ignorée ({id}, type inconnu)"));
             return None;
         }
     };
+    // Une appli privée porte les deux marques, « type » : « rust-prive » et « prive » : true (exactement). Une seule
+    // des deux : ignorée (une entrée « prive » avec un autre type serait montrée par un Mindset d'avant 3.1).
+    let prive = correspond(&genre, &|t| t == TYPE_PRIVE);
+    let marque = champ(a, "prive");
+    if prive != (*marque == Value::Bool(true)) || !(marque.is_null() || marque.is_boolean()) {
+        journal(&format!("{origine} : appli ignorée ({id}, « prive » et « type » ne vont pas ensemble)"));
+        return None;
+    }
+    let genre = if prive { "rust".to_string() } else { genre };
     let m = |nom: &str, motif: &dyn Fn(&str) -> bool| correspond_ps(champ(a, nom), motif);
     let present = |nom: &str| vrai_ps(champ(a, nom));
     let mut ok = correspond(&id, &forme_id)
@@ -211,6 +225,7 @@ pub fn convertir(a: &Value, origine: &str, journal: Journal, variables: Variable
         app_id: format!("JordanJacquot.{}", nom.chars().filter(char::is_ascii_alphanumeric).collect::<String>()),
         id,
         genre,
+        prive,
         nom,
         couleur: t("couleur"),
         description: t("description"),

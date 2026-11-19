@@ -7,7 +7,8 @@
 #
 # 1. part de Mindset\fichiers\apps.json (la liste de référence, que le skill nouvelle-appli complète) ;
 # 2. vérifie chaque appli avec les contrôles de Mindset (modules\liste.ps1, ConvertTo-Appli) : au moindre problème, rien
-#    n'est publié ;
+#    n'est publié ; une appli privée (Mindset 3.1, « type » : « rust-prive » et « prive » : true) doit être ignorée par
+#    ces contrôles (ce sont ceux des Mindset d'avant 3.1 : ils ne la montrent jamais), puis passer comme une appli Rust ;
 # 3. son numéro : celui de Mindset\fichiers\apps-liste.txt plus un (et plus grand que celui de la liste déjà en ligne) ;
 #    apps-en-ligne.json est construit dans release\ (« mindset_min » : 2.16.0 par défaut) ;
 # 4. la signe avec outils\signer.ps1 (ton mot de passe est demandé, il n'est écrit nulle part) ;
@@ -50,9 +51,35 @@ $entrees = $null
 try { $entrees = $texteApps | ConvertFrom-Json -ErrorAction Stop } catch { $script:Problemes.Add("apps.json illisible : $($_.Exception.Message)") }
 if ($entrees -isnot [array] -or -not $entrees.Count) { $script:Problemes.Add('apps.json doit être un tableau d''applis, avec au moins une appli') }
 $ids = @{}
+# Une appli privée (Mindset 3.1) porte « type » : « rust-prive » et « prive » : true. Les Mindset d'avant 3.1 (les
+# contrôles de modules\liste.ps1, les mêmes que Mindset 2.15 à 3.0.7) doivent l'IGNORER (type inconnu) : c'est vérifié
+# ici. Elle est ensuite contrôlée comme une appli Rust (une copie avec « type » : « rust », sans « prive »).
+$prives = @{}
 foreach ($e in @($entrees | Where-Object { $_ })) {
-    $a = ConvertTo-Appli $e
-    if (-not $a) { continue }
+    $marque = $e.PSObject.Properties['prive']
+    if ($e.type -ceq 'rust-prive' -or $marque) {
+        if ($e.type -cne 'rust-prive' -or -not $marque -or $marque.Value -isnot [bool] -or -not $marque.Value) {
+            $script:Problemes.Add("apps.json : l'appli $($e.id) doit avoir les deux marques d'une appli privée (« type » : « rust-prive » et « prive » : true)")
+            continue
+        }
+        $avant = $script:Problemes.Count
+        $vieux = ConvertTo-Appli $e
+        $vu = @($script:Problemes | Select-Object -Skip $avant)
+        while ($script:Problemes.Count -gt $avant) { $script:Problemes.RemoveAt($script:Problemes.Count - 1) }
+        if ($vieux -or $vu.Count -ne 1 -or $vu[0] -notlike '*appli ignorée (*, type inconnu)') {
+            $script:Problemes.Add("apps.json : l'appli privée $($e.id) serait montrée par un Mindset d'avant 3.1")
+            continue
+        }
+        $copie = $e | ConvertTo-Json -Depth 5 | ConvertFrom-Json
+        $copie.type = 'rust'
+        $copie.PSObject.Properties.Remove('prive')
+        $a = ConvertTo-Appli $copie
+        if (-not $a) { continue }
+        $prives[$a.Id] = $true
+    } else {
+        $a = ConvertTo-Appli $e
+        if (-not $a) { continue }
+    }
     if ($ids.ContainsKey($a.Id)) { $script:Problemes.Add("apps.json : l'appli $($a.Id) est là deux fois") }
     $ids[$a.Id] = $true
 }
@@ -60,7 +87,7 @@ if ($script:Problemes.Count) {
     $script:Problemes | ForEach-Object { Write-Host "  $_" -ForegroundColor Red }
     throw 'Rien n''a été publié : corrige apps.json (voir ci-dessus).'
 }
-Write-Host "apps.json : $($ids.Count) applis, toutes acceptées par Mindset."
+Write-Host "apps.json : $($ids.Count) applis, toutes acceptées par Mindset$(if ($prives.Count) { " ($($prives.Count) privée(s), ignorée(s) par les Mindset d'avant 3.1)" })."
 
 # 3. Son numéro : plus grand que celui livré avec Mindset et que celui de la liste déjà en ligne (s'il y en a une)
 $livre = Get-NumeroListeLivree $fichiers
@@ -100,7 +127,11 @@ function Assert-ListeBonne([byte[]]$Json, [byte[]]$Sig, [string]$Debut) {
     $script:Problemes.Clear()
     try { $l = Read-ListeEnLigne $Json $Sig $fichiers $MindsetMin ($numero - 1) }
     catch { throw "$Debut : Mindset refuserait cette liste ($($_.Exception.Message))." }
-    if ($l.Numero -ne $numero -or @($l.Entrees).Count -ne $ids.Count -or $script:Problemes.Count) { throw "$Debut : Mindset ne prendrait pas toutes les applis de cette liste." }
+    # (les règles d'avant 3.1 : chaque appli publique prise, chaque appli privée ignorée, et rien d'autre au journal)
+    $attendus = @($prives.Keys | ForEach-Object { "liste en ligne : appli ignorée ($_, type inconnu)" })
+    $autres = @($script:Problemes | Where-Object { $attendus -notcontains $_ })
+    $ignorees = @($script:Problemes | Where-Object { $attendus -contains $_ })
+    if ($l.Numero -ne $numero -or @($l.Entrees).Count -ne ($ids.Count - $prives.Count) -or $autres.Count -or $ignorees.Count -ne $prives.Count) { throw "$Debut : Mindset ne prendrait pas toutes les applis de cette liste." }
 }
 Assert-ListeBonne $octets $sig 'Rien n''a été publié'
 Write-Host 'Signature et liste vérifiées comme Mindset le fera.'

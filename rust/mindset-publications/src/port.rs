@@ -1,5 +1,70 @@
-//! Les règles du vrai réseau (sans Windows, donc testées partout) : seulement GitHub, en https, et l'adresse découpée
-//! pour WinHTTP. Le port lui-même est dans `windows` (jamais appelé dans un test).
+//! Les règles du vrai réseau (sans Windows, donc testées partout) : seulement GitHub, en https, l'adresse découpée
+//! pour WinHTTP, et la clé GitHub d'une appli privée envoyée seulement à l'API de GitHub, jamais à l'adresse d'une
+//! redirection ([`suivre`]). Le port lui-même est dans `windows` (jamais appelé vers GitHub dans un test).
+
+use std::time::{Duration, Instant};
+
+use mindset_noyau::reseau::{DemandeHttp, HOTE_API, Jeton, ReponseHttp};
+
+use crate::telechargement::{ERREUR_DELAI, resoudre_adresse};
+
+/// Les redirections suivies au plus par une demande qui les suit (.NET en suivait 50).
+pub const REDIRECTIONS: usize = 10;
+
+/// L'en-tête de GitHub qui dit quand la clé (le jeton) expire, par exemple « 2027-02-01 10:00:00 UTC ».
+pub const ENTETE_EXPIRATION: &str = "github-authentication-token-expiration";
+
+/// La clé GitHub part-elle vers cette adresse ? Seulement l'adresse demandée elle-même (`saut` 0 : jamais celle d'une
+/// redirection, même vers l'API), en https, sur `api.github.com`, port 443.
+pub fn jeton_permis(adresse: &str, saut: usize) -> bool {
+    saut == 0 && decouper(adresse).is_some_and(|(h, p, _)| p == 443 && h == HOTE_API)
+}
+
+/// Une seule demande, sans suivre de redirection : (adresse, clé à envoyer ou non, temps qui reste).
+pub type UneDemande<'a> = dyn FnMut(&str, Option<&Jeton>, Duration) -> Result<ReponseHttp, String> + 'a;
+
+/// Une adresse refusée par le vrai réseau.
+pub fn refus(adresse: &str) -> String {
+    format!("Adresse refusée par Mindset : {adresse}")
+}
+
+/// La boucle du vrai réseau autour d'une seule demande (`une` : WinHTTP, ou un faux dans les tests) : l'adresse
+/// vérifiée (`permise`), les redirections suivies (10 au plus) quand la demande le veut, chaque nouvelle adresse
+/// revérifiée, le délai total tenu. `une` reçoit la clé GitHub seulement quand `jeton_ok(adresse, saut)` le permet
+/// ([`jeton_permis`] dans Mindset) : la redirection vers le stockage des fichiers de GitHub ne l'emporte jamais.
+pub fn suivre(
+    d: &DemandeHttp,
+    permise: &dyn Fn(&str) -> bool,
+    jeton_ok: &dyn Fn(&str, usize) -> bool,
+    une: &mut UneDemande,
+) -> Result<ReponseHttp, String> {
+    if !permise(&d.adresse) {
+        return Err(refus(&d.adresse));
+    }
+    let debut = Instant::now();
+    let mut adresse = d.adresse.clone();
+    for saut in 0..=REDIRECTIONS {
+        let reste = d.delai.saturating_sub(debut.elapsed());
+        if reste.is_zero() {
+            return Err(ERREUR_DELAI.into());
+        }
+        let jeton = d.jeton.as_ref().filter(|_| jeton_ok(&adresse, saut));
+        let r = une(&adresse, jeton, reste)?;
+        if d.suivre_redirections
+            && matches!(r.statut, 301 | 302 | 303 | 307 | 308)
+            && let Some(vers) = r.entete("Location")
+        {
+            let suivante = resoudre_adresse(&adresse, vers).unwrap_or_else(|| vers.to_string());
+            if !permise(&suivante) {
+                return Err(refus(&suivante));
+            }
+            adresse = suivante;
+            continue;
+        }
+        return Ok(r);
+    }
+    Err("GitHub renvoie d'adresse en adresse".into())
+}
 
 /// Les seuls hôtes que le vrai réseau accepte : l'API de GitHub (la dernière version, la liste des versions),
 /// github.com (la redirection, le flux atom, les pages, les fichiers publiés, la liste des applis en ligne) et les
@@ -85,6 +150,63 @@ mod tests {
             assert!(!adresse_permise(mauvaise), "{mauvaise}");
         }
         assert_eq!(decouper("https://GITHUB.com?x#y"), Some(("github.com".into(), 443, "/?x".into())));
+    }
+
+    /// Le jeton passé à chaque adresse par [`suivre`] : (adresse, jeton reçu ?).
+    fn derouler(
+        d: &DemandeHttp,
+        reponses: &[(&str, ReponseHttp)],
+    ) -> (Result<ReponseHttp, String>, Vec<(String, bool)>) {
+        let mut vus = Vec::new();
+        let r = suivre(d, &adresse_permise, &jeton_permis, &mut |a, j, _| {
+            vus.push((a.to_string(), j.is_some()));
+            reponses.iter().find(|(x, _)| *x == a).map(|(_, r)| r.clone()).ok_or_else(|| format!("inconnue : {a}"))
+        });
+        (r, vus)
+    }
+
+    fn vers(adresse: &str) -> ReponseHttp {
+        ReponseHttp { statut: 302, entetes: vec![("Location".into(), adresse.into())], ..Default::default() }
+    }
+
+    #[test]
+    fn la_cle_ne_part_que_vers_l_api_et_jamais_apres_une_redirection() {
+        let jeton = Jeton::lire(&format!("github_pat_{}", "a".repeat(40)));
+        let actif = "https://api.github.com/repos/JordanJacquot/Jobmind/releases/assets/42";
+        let stockage = "https://release-assets.githubusercontent.com/github-production-release-asset/1?sig=x";
+        let mut d = DemandeHttp::get(actif);
+        d.jeton = jeton.clone();
+        let (r, vus) = derouler(&d, &[(actif, vers(stockage)), (stockage, ReponseHttp::ok(b"zip".to_vec()))]);
+        assert_eq!(r.unwrap().corps, b"zip");
+        assert_eq!(vus, [(actif.to_string(), true), (stockage.to_string(), false)]);
+        // Une redirection qui revient sur l'API : toujours sans la clé
+        let api2 = "https://api.github.com/repositories/9/releases/assets/42";
+        let (_, vus) = derouler(&d, &[(actif, vers(api2)), (api2, ReponseHttp::code(404))]);
+        assert_eq!(vus, [(actif.to_string(), true), (api2.to_string(), false)]);
+        // Une redirection relative (même hôte) : sans la clé
+        let (_, vus) =
+            derouler(&d, &[(actif, vers("/autre")), ("https://api.github.com/autre", ReponseHttp::code(200))]);
+        assert_eq!(vus[1], ("https://api.github.com/autre".to_string(), false));
+        // github.com (une page, un fichier publié) ne la reçoit jamais, ni le stockage demandé directement
+        for a in ["https://github.com/JordanJacquot/Jobmind/releases/latest", stockage] {
+            let mut d = DemandeHttp::get(a);
+            d.jeton = jeton.clone();
+            let (_, vus) = derouler(&d, &[(a, ReponseHttp::code(200))]);
+            assert_eq!(vus, [(a.to_string(), false)], "{a}");
+        }
+        // Une appli publique (pas de clé) : rien, même vers l'API
+        let (_, vus) = derouler(&DemandeHttp::get(actif), &[(actif, ReponseHttp::code(200))]);
+        assert_eq!(vus, [(actif.to_string(), false)]);
+        // Une redirection hors de GitHub : refusée avant d'y aller
+        let (r, vus) = derouler(&d, &[(actif, vers("https://exemple.com/x"))]);
+        assert_eq!(r.unwrap_err(), "Adresse refusée par Mindset : https://exemple.com/x");
+        assert_eq!(vus.len(), 1);
+        // L'API sur un autre port, ou en http : jamais
+        assert!(!jeton_permis("https://api.github.com:444/x", 0));
+        assert!(!jeton_permis("http://api.github.com/x", 0));
+        assert!(!jeton_permis("https://api.github.com.exemple.com/x", 0));
+        assert!(jeton_permis("https://API.GitHub.com/x", 0));
+        assert!(!jeton_permis("https://api.github.com/x", 1));
     }
 
     #[test]

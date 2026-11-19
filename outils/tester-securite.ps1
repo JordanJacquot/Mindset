@@ -780,11 +780,12 @@ public static class BloqueurTest {
     $astApplis = [System.Management.Automation.Language.Parser]::ParseInput($texteApplis, [ref]$null, [ref]$null)
     . ([scriptblock]::Create($astApplis.Find({ param($x) $x -is [System.Management.Automation.Language.FunctionDefinitionAst] -and $x.Name -eq 'Get-Applis' }, $true).Extent.Text))
     function Write-Log([string]$Texte) {}
-    $vraies = [IO.File]::ReadAllText((Join-Path $fichiers 'apps.json'), [Text.Encoding]::UTF8) | ConvertFrom-Json
+    # (une appli privée, Mindset 3.1, « type » : « rust-prive », est ignorée par ces règles : outils\tester-liste.ps1)
+    $vraies = @([IO.File]::ReadAllText((Join-Path $fichiers 'apps.json'), [Text.Encoding]::UTF8) | ConvertFrom-Json | ForEach-Object { $_ } | Where-Object { $_.prive -ne $true })
     $AppDir = $fichiers
     $lues = @(Get-Applis)
     Test-Cas 'les applis d''aujourd''hui (apps.json livré) sont toutes lues, de leur type (powershell sans champ type), champs inchangés' {
-        $ok = $lues.Count -eq @($vraies).Count -and $lues.Count -eq 4
+        $ok = $lues.Count -eq @($vraies).Count -and $lues.Count -eq 4 -and -not ($lues | Where-Object Id -eq 'jobmind')
         foreach ($v in $vraies) {
             $l = $lues | Where-Object Id -eq $v.id
             $type = if ($v.type) { [string]$v.type } else { 'powershell' }

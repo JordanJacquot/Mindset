@@ -7,9 +7,11 @@
 //! - les verrous et signaux nommés (`OpenMutexW`, `OpenEventW` + `SetEvent`) ;
 //! - lancer un programme (sans console), ou sans les droits avec le jeton de l'Explorateur (`MSLanceur.SansAdmin`,
 //!   natif.cs:141-183) ; l'arrêter, attendre sa fin ;
-//! - ouvrir par l'Explorateur ; savoir si Mindset a les droits administrateur.
+//! - ouvrir par l'Explorateur ; savoir si Mindset a les droits administrateur ;
+//! - DPAPI : la clé GitHub des applis privées, chiffrée pour le compte de l'utilisateur (`crate::cle_github`).
 //!
-//! Rien ici n'écrit dans le registre ni ne touche aux fenêtres d'un autre programme.
+//! Rien ici n'écrit dans le registre ni ne touche aux fenêtres d'un autre programme (DPAPI ne montre jamais de fenêtre :
+//! `CRYPTPROTECT_UI_FORBIDDEN`).
 
 #![allow(unsafe_code)]
 
@@ -18,7 +20,12 @@ use std::os::windows::process::CommandExt;
 use std::path::Path;
 use std::sync::Mutex;
 
-use windows::Win32::Foundation::{CloseHandle, ERROR_ACCESS_DENIED, FILETIME, GetLastError, HANDLE, WAIT_OBJECT_0};
+use windows::Win32::Foundation::{
+    CloseHandle, ERROR_ACCESS_DENIED, FILETIME, GetLastError, HANDLE, HLOCAL, LocalFree, WAIT_OBJECT_0,
+};
+use windows::Win32::Security::Cryptography::{
+    CRYPT_INTEGER_BLOB, CRYPTPROTECT_UI_FORBIDDEN, CryptProtectData, CryptUnprotectData,
+};
 use windows::Win32::Security::{
     DuplicateTokenEx, GetTokenInformation, SecurityImpersonation, TOKEN_ACCESS_MASK, TOKEN_DUPLICATE, TOKEN_ELEVATION,
     TOKEN_QUERY, TokenElevation, TokenPrimary,
@@ -313,6 +320,74 @@ impl Systeme for SystemeWindows {
                 && e.TokenIsElevated != 0
         }
     }
+}
+
+// ---------------------------------------------------------------------------------------------------------------
+// DPAPI : la clé GitHub des applis privées (crate::cle_github), chiffrée pour le compte Windows de l'utilisateur
+// ---------------------------------------------------------------------------------------------------------------
+
+/// Un tampon rendu par DPAPI, rendu à Windows (`LocalFree`) quand on le lâche.
+struct TamponDpapi(CRYPT_INTEGER_BLOB);
+
+impl TamponDpapi {
+    fn octets(&self) -> Vec<u8> {
+        if self.0.pbData.is_null() {
+            return Vec::new();
+        }
+        // SAFETY : DPAPI a rempli pbData avec cbData octets, vivants jusqu'au LocalFree de Drop
+        unsafe { std::slice::from_raw_parts(self.0.pbData, self.0.cbData as usize) }.to_vec()
+    }
+}
+
+impl Drop for TamponDpapi {
+    fn drop(&mut self) {
+        if !self.0.pbData.is_null() {
+            // (le texte en clair est d'abord effacé de la mémoire)
+            // SAFETY : pbData, cbData viennent de DPAPI ; le tampon est rendu une seule fois
+            unsafe {
+                std::ptr::write_bytes(self.0.pbData, 0, self.0.cbData as usize);
+                let _ = LocalFree(Some(HLOCAL(self.0.pbData as *mut core::ffi::c_void)));
+            }
+        }
+    }
+}
+
+fn blob(o: &[u8]) -> CRYPT_INTEGER_BLOB {
+    CRYPT_INTEGER_BLOB { cbData: o.len() as u32, pbData: o.as_ptr() as *mut u8 }
+}
+
+/// Chiffre pour le compte Windows de l'utilisateur (DPAPI, sans jamais de fenêtre : `CRYPTPROTECT_UI_FORBIDDEN`),
+/// avec cette entropie.
+pub fn proteger(clair: &[u8], entropie: &[u8]) -> Result<Vec<u8>, String> {
+    let entree = blob(clair);
+    let ent = blob(entropie);
+    let mut sortie = TamponDpapi(CRYPT_INTEGER_BLOB::default());
+    // SAFETY : les tampons d'entrée sont vivants pendant l'appel (DPAPI ne les modifie pas) ; la sortie est allouée
+    // par DPAPI et rendue par TamponDpapi
+    unsafe {
+        CryptProtectData(
+            &entree,
+            &HSTRING::from("Mindset"),
+            Some(&ent),
+            None,
+            None,
+            CRYPTPROTECT_UI_FORBIDDEN,
+            &mut sortie.0,
+        )
+    }
+    .map_err(|e| format!("chiffrement impossible ({})", e.message().trim()))?;
+    Ok(sortie.octets())
+}
+
+/// Déchiffre ce que [`proteger`] a chiffré (même compte, même entropie) ; `None` sinon.
+pub fn deproteger(chiffre: &[u8], entropie: &[u8]) -> Option<Vec<u8>> {
+    let entree = blob(chiffre);
+    let ent = blob(entropie);
+    let mut sortie = TamponDpapi(CRYPT_INTEGER_BLOB::default());
+    // SAFETY : comme proteger
+    unsafe { CryptUnprotectData(&entree, None, Some(&ent), None, None, CRYPTPROTECT_UI_FORBIDDEN, &mut sortie.0) }
+        .ok()?;
+    Some(sortie.octets())
 }
 
 #[cfg(test)]

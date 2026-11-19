@@ -143,3 +143,9 @@
 .pm-conso .pm-txt { flex: 1; min-width: 0; margin-right: 16px; }
 .pm-conso .pm-nom-c { font-size: 13px; font-weight: 400; }
 .pm-conso .pm-chiffres { flex: none; font-size: 13px; white-space: pre; }
+/* Applis privées (Mindset 3.1) : le guide, le champ de la clé GitHub, le rappel */
+.pm-etapes { width: 520px; max-width: 100%; margin: 4px 0 10px; padding-left: 20px; font-size: 12.5px; line-height: 1.5; color: var(--pm-texte2); }
+.pm-etapes li { margin-bottom: 3px; }
+.pm-champ { display: block; width: 520px; max-width: 100%; box-sizing: border-box; height: 32px; margin: 10px 0; padding: 0 10px; border-radius: 6px; border: 1px solid var(--pm-b-bord); background: var(--pm-b-fond); color: var(--pm-b-texte); font: inherit; font-size: 13px; }
+.pm-champ:focus { outline: none; border-color: var(--pm-cyan); }
+.pm-rappel { width: 520px; max-width: 100%; margin-bottom: 10px; font-size: 12.5px; font-weight: 600; color: #FFB020; }

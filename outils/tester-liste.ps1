@@ -118,8 +118,12 @@ try {
     $script:Journal = New-Object Collections.Generic.List[string]
     function Write-Log([string]$Texte) { $script:Journal.Add($Texte) }
 
-    # Les listes de test : les applis livrées, plus une nouvelle (une appli Rust que Mindset ne connaît pas encore)
-    $vraies = @([IO.File]::ReadAllText((Join-Path $fichiersVrais 'apps.json'), [Text.Encoding]::UTF8) | ConvertFrom-Json | ForEach-Object { $_ })
+    # Les listes de test : les applis livrées, plus une nouvelle (une appli Rust que Mindset ne connaît pas encore). Les
+    # applis privées (Mindset 3.1, « type » : « rust-prive ») sont mises à part : ces règles-ci (celles des Mindset
+    # d'avant 3.1) les ignorent, et la partie « Applis privées » le vérifie.
+    $toutes = @([IO.File]::ReadAllText((Join-Path $fichiersVrais 'apps.json'), [Text.Encoding]::UTF8) | ConvertFrom-Json | ForEach-Object { $_ })
+    $vraies = @($toutes | Where-Object { $_.prive -ne $true })
+    $privees = @($toutes | Where-Object { $_.prive -eq $true })
     $nouvelle = [pscustomobject][ordered]@{ id = 'nouvelle'; type = 'rust'; nom = 'Nouvelle'; couleur = '#12AB34'; description = 'Une appli de test'
         depot = 'JordanJacquot/Nouvelle'; zip = 'Nouvelle.zip'; dossier_zip = 'Nouvelle'; exe = 'Nouvelle.exe'; mutex = 'Local\Nouvelle-Instance' }
     $applisListe = @($vraies) + $nouvelle
@@ -137,7 +141,7 @@ try {
     function Get-Liste { Get-EntreesApplis $fichiers $gardee '2.16.0' }
     function Get-Ids($Entrees) { @($Entrees | ForEach-Object { [string]$_.id }) -join ',' }
     function Reset-Gardee { if (Test-Path -LiteralPath $donnees) { Remove-Item -LiteralPath $donnees -Recurse -Force } }
-    $idsLivres = Get-Ids $vraies
+    $idsLivres = Get-Ids $toutes   # (les entrées du fichier livré, telles quelles : l'appli privée comprise)
     $idsListe = Get-Ids $applisListe
 
     # =============================================================================================================
@@ -412,6 +416,37 @@ try {
     }
 
     # =============================================================================================================
+    Write-Partie 'Applis privées (Mindset 3.1) : jamais montrées par un Mindset d''avant 3.1'
+    # =============================================================================================================
+    # Les règles de modules\liste.ps1 sont celles des Mindset 2.15 à 2.18 (PowerShell), reprises telles quelles par
+    # Mindset 3.0.0 à 3.0.7 (Rust) : une appli privée y est ignorée (type inconnu), dans apps.json comme dans une liste
+    # en ligne, et le reste de la liste est pris.
+    Test-Cas 'apps.json livré a au moins une appli privée (Jobmind), avec ses deux marques' {
+        $privees.Count -ge 1 -and @($privees | Where-Object { $_.type -cne 'rust-prive' }).Count -eq 0 -and ($privees.id -contains 'jobmind')
+    }
+    Test-Cas 'une appli privée est ignorée par ConvertTo-Appli (type inconnu), dans apps.json et dans la liste en ligne' {
+        $script:Journal.Clear()
+        $a = ConvertTo-Appli $privees[0]
+        $b = ConvertTo-Appli $privees[0] 'liste en ligne'
+        -not $a -and -not $b -and $script:Journal[0] -eq "apps.json : appli ignorée ($($privees[0].id), type inconnu)" -and $script:Journal[1] -eq "liste en ligne : appli ignorée ($($privees[0].id), type inconnu)"
+    } @(, @('liste', "-cnotmatch '^(powershell|rust)$'", "-cnotmatch '^(powershell|rust|rust-prive)$'"))
+    Test-Cas 'liste en ligne avec une appli privée : acceptée, l''appli privée n''y est pas, les autres oui' {
+        Reset-Gardee; $script:Journal.Clear()
+        $r = Add-Liste (New-Liste 4 '2.16.0' (@($applisListe) + $privees))
+        $l = Get-Liste
+        $r -and $l.Source -eq 'en-ligne' -and (Get-Ids (@($l.Entrees) | Where-Object { ConvertTo-Appli $_ 'x' })) -eq $idsListe -and
+            ($script:Journal -match "appli ignorée \($($privees[0].id), type inconnu\)")
+    } @(, @('liste', "-cnotmatch '^(powershell|rust)$'", "-cnotmatch '^(powershell|rust|rust-prive)$'"))
+    # (Get-AppliDuDossierZip, lui, lit les entrées telles quelles : il ne sert qu'à l'installateur, pour contrôler le
+    # version.json d'un zip qu'on lui demande d'installer ; un Mindset d'avant 3.1 ne lui demande jamais Jobmind)
+    Test-Cas 'Get-Applis sur le vrai apps.json : toutes les applis publiques, jamais Jobmind' {
+        Reset-Gardee; $script:Journal.Clear()
+        $AppDir = $fichiers; $ListeGardee = $gardee; $AppVersion = '2.16.0'
+        $ids = @(Get-Applis | ForEach-Object { $_.Id })
+        ($ids -join ',') -eq (Get-Ids $vraies) -and $ids -notcontains 'jobmind'
+    } @(, @('liste', "-cnotmatch '^(powershell|rust)$'", "-cnotmatch '^(powershell|rust|rust-prive)$'"))
+
+    # =============================================================================================================
     Write-Partie 'publier-liste.ps1, dans un faux dépôt (faux git et gh : rien n''est envoyé)'
     # =============================================================================================================
     # Le faux dépôt : les outils de clé et de publication, apps.json (avec la nouvelle appli), son numéro 3, les modules.
@@ -498,6 +533,23 @@ try {
         $refus = Test-Refus { Invoke-OutilDepot 'publier-liste.ps1' @{ MotDePasse = $mdpTest } } 'corrige apps.json'
         $refus -and -not (Test-Path -LiteralPath "$(Get-Publiee).sig") -and -not ($global:TListeAppels -match '^git|upload') -and (Get-NumeroDepot) -eq '3'
     } @(, @('publier', "    throw 'Rien n''a été publié : corrige apps.json (voir ci-dessus).'", "    Write-Host 'corrige apps.json'"))
+    Test-Cas 'apps.json avec une appli privée : publiée dans la liste, ignorée par les Mindset d''avant 3.1, les autres prises' {
+        Reset-Depot (ConvertTo-Json -InputObject (@($applisListe) + $privees) -Depth 6); $global:TListeAppels.Clear()
+        $null = Invoke-OutilDepot 'publier-liste.ps1' @{ Essai = $true; MotDePasse = $mdpTest }
+        $brut = [IO.File]::ReadAllText((Get-Publiee), [Text.Encoding]::UTF8)
+        (Test-AcceptePar (Get-Publiee) 4) -and $brut -match '"rust-prive"' -and $brut -match '"jobmind"'
+    } @(, @('publier', "`$attendus = @(`$prives.Keys", "`$attendus = @(@()"))
+    Test-Cas 'apps.json avec une appli qui n''a qu''une des deux marques privées : rien n''est publié' {
+        $une = $privees[0] | ConvertTo-Json -Depth 5 | ConvertFrom-Json
+        $une.type = 'rust'
+        Reset-Depot (ConvertTo-Json -InputObject (@($applisListe) + $une) -Depth 6); $global:TListeAppels.Clear()
+        $r1 = Test-Refus { Invoke-OutilDepot 'publier-liste.ps1' @{ Essai = $true; MotDePasse = $mdpTest } } 'corrige apps.json'
+        $deux = $privees[0] | ConvertTo-Json -Depth 5 | ConvertFrom-Json
+        $deux.PSObject.Properties.Remove('prive')
+        Reset-Depot (ConvertTo-Json -InputObject (@($applisListe) + $deux) -Depth 6)
+        $r2 = Test-Refus { Invoke-OutilDepot 'publier-liste.ps1' @{ Essai = $true; MotDePasse = $mdpTest } } 'corrige apps.json'
+        $r1 -and $r2 -and -not (Test-Path -LiteralPath "$(Get-Publiee).sig")
+    } @(, @('publier', "    if (`$e.type -ceq 'rust-prive' -or `$marque) {", "    if (`$e.type -ceq 'rust-prive') {"))
     Test-Cas 'apps.json avec un logo pas compris (Mindset l''ignorerait) ou un tiret long : rien n''est publié' {
         $logo = [pscustomobject]@{} ; foreach ($p in $nouvelle.PSObject.Properties) { $logo | Add-Member -NotePropertyName $p.Name -NotePropertyValue $p.Value }
         $logo | Add-Member -NotePropertyName logo -NotePropertyValue 'C 1 2 3'

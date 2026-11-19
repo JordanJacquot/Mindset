@@ -425,6 +425,10 @@ fn sans_ajouts(mut v: Value) -> Value {
     if let Some(m) = v.pointer_mut("/maj/mindset").and_then(Value::as_object_mut) {
         m.remove("texte_page");
     }
+    // (« Applis privées », Mindset 3.1 : pas dans la version PowerShell)
+    if let Some(m) = v.pointer_mut("/maj").and_then(Value::as_object_mut) {
+        m.remove("prive");
+    }
     v
 }
 

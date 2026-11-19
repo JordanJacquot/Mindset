@@ -44,8 +44,20 @@ fn octets(v: &Value) -> Vec<u8> {
     base64(v["b64"].as_str().unwrap())
 }
 
-/// Un Mindset d'essai : le vrai apps.json livré du dépôt, son numéro 3, la clé publique de test des juges.
+/// Un Mindset d'essai : le vrai apps.json livré du dépôt sans ses applis privées (elles ont leurs propres tests,
+/// avec [`mindset_complet`]), son numéro 3, la clé publique de test des juges.
 fn mindset(nom: &str) -> (Contexte, Faux, String) {
+    let (ctx, faux, cle) = mindset_complet(nom);
+    let f = ctx.dossiers.fichiers.join("apps.json");
+    let t = std::fs::read_to_string(&f).unwrap();
+    let mut l: Value = serde_json::from_str(t.trim_start_matches('\u{FEFF}')).unwrap();
+    l.as_array_mut().unwrap().retain(|e| e["prive"] != json!(true));
+    std::fs::write(&f, serde_json::to_string_pretty(&l).unwrap()).unwrap();
+    (ctx, faux, cle)
+}
+
+/// Un Mindset d'essai avec le vrai apps.json livré du dépôt, tel quel.
+fn mindset_complet(nom: &str) -> (Contexte, Faux, String) {
     let (ctx, faux) = contexte(&format!("liste-bloc-{nom}"));
     let (cle, _) = cas("bonne liste");
     let f = &ctx.dossiers.fichiers;
@@ -90,12 +102,17 @@ fn nettoyer(f: &Faux) {
 
 #[test]
 fn au_demarrage_la_liste_livree_et_d_ou_elle_vient() {
-    let (ctx, faux, _) = mindset("livree");
+    let (ctx, faux, _) = mindset_complet("livree");
     let mut bloc = BlocListe::default();
     assert!(demarrer(&ctx, &mut bloc).est_vide());
     let ids: Vec<String> = ctx.applis().iter().map(|a| a.id.clone()).collect();
+    // (Jobmind, l'appli privée d'apps.json, n'est pas montrée sans clé GitHub)
     assert_eq!(ids, ["nevermind", "evermind", "mindcare", "paymind"]);
-    assert_eq!(ctx.lu(partage::LISTE), Some(json!({ "source": "apps.json", "numero": 3 })));
+    assert_eq!(
+        ctx.lu(partage::LISTE),
+        Some(json!({ "source": "apps.json", "numero": 3,
+            "privees": [{ "id": "jobmind", "nom": "Jobmind", "depot": "JordanJacquot/Jobmind" }] }))
+    );
     // (en essai, %LOCALAPPDATA% est le dossier d'essai : jamais les vraies données d'une appli)
     let e = ctx.appli("evermind").unwrap();
     assert!(Path::new(&e.donnees).starts_with(&faux.racine), "{}", e.donnees);
@@ -103,8 +120,75 @@ fn au_demarrage_la_liste_livree_et_d_ou_elle_vient() {
         ctx.lu(partage::OUVERTES),
         Some(json!({ "nevermind": false, "evermind": false, "mindcare": false, "paymind": false }))
     );
-    assert!(faux.donnees.lignes().is_empty(), "{:?}", faux.donnees.lignes());
+    assert_eq!(faux.donnees.lignes(), ["Applis privées : 1 pas montrée(s), aucune clé GitHub sur ce PC"]);
     nettoyer(&faux);
+}
+
+/// Une clé GitHub de test, gardée chiffrée dans le dossier d'essai (jamais une vraie clé).
+#[cfg(windows)]
+fn poser_cle(ctx: &Contexte) -> String {
+    let secret = format!("github_pat_{}", "Liste_Essai_".repeat(6));
+    let j = mindset_noyau::reseau::Jeton::lire(&secret).unwrap();
+    mindset_noyau::cle_github::enregistrer(&ctx.dossiers, &j).unwrap();
+    secret
+}
+
+#[cfg(windows)]
+#[test]
+fn appli_privee_montree_seulement_avec_une_cle() {
+    let (ctx, faux, _) = mindset_complet("prive");
+    let secret = poser_cle(&ctx);
+    let mut bloc = BlocListe::default();
+    demarrer(&ctx, &mut bloc);
+    let ids: Vec<String> = ctx.applis().iter().map(|a| a.id.clone()).collect();
+    assert_eq!(ids, ["nevermind", "evermind", "mindcare", "paymind", "jobmind"]);
+    let j = ctx.appli("jobmind").unwrap();
+    assert!(j.prive && j.genre == "rust" && j.depot == "JordanJacquot/Jobmind" && j.mutex == r"Local\Jobmind-Instance");
+    assert!(!ctx.appli("paymind").unwrap().prive);
+    assert!(faux.donnees.lignes().is_empty(), "{:?}", faux.donnees.lignes());
+    // Clé retirée (ou illisible) : au démarrage suivant, plus de Jobmind
+    std::fs::write(mindset_noyau::cle_github::chemin(&ctx.dossiers), b"abime").unwrap();
+    let mut neuf = BlocListe::default();
+    demarrer(&ctx, &mut neuf);
+    assert!(ctx.appli("jobmind").is_none());
+    // La clé n'est écrite nulle part en clair
+    assert!(!faux.donnees.lignes().iter().any(|l| l.contains(&secret)));
+    nettoyer(&faux);
+}
+
+#[test]
+fn une_seule_marque_privee_et_l_entree_est_ignoree() {
+    use mindset_liste::liste;
+    let base = json!({ "id": "x", "nom": "X", "couleur": "#112233", "depot": "a/b", "zip": "X.zip", "dossier_zip": "X",
+        "exe": "X.exe" });
+    let lire = |modif: Value| {
+        let mut e = base.clone();
+        for (k, v) in modif.as_object().unwrap() {
+            e[k] = v.clone();
+        }
+        let mut j = Vec::new();
+        let a = liste::convertir(&e, "essai", &mut |t: &str| j.push(t.to_string()), &|_| None);
+        (a, j)
+    };
+    let (a, _) = lire(json!({ "type": "rust-prive", "prive": true }));
+    assert!(a.is_some_and(|a| a.prive && a.genre == "rust"));
+    let (a, _) = lire(json!({ "type": "rust" }));
+    assert!(a.is_some_and(|a| !a.prive));
+    let (a, _) = lire(json!({ "type": "rust", "prive": false }));
+    assert!(a.is_some_and(|a| !a.prive));
+    for faux in [
+        json!({ "type": "rust", "prive": true }),
+        json!({ "prive": true }),
+        json!({ "type": "rust-prive" }),
+        json!({ "type": "rust-prive", "prive": false }),
+        json!({ "type": "rust-prive", "prive": "true" }),
+        json!({ "type": "rust", "prive": "oui" }),
+        json!({ "type": "Rust-Prive", "prive": true }),
+    ] {
+        let (a, j) = lire(faux.clone());
+        assert!(a.is_none(), "{faux}");
+        assert_eq!(j.len(), 1, "{faux} : {j:?}");
+    }
 }
 
 #[test]

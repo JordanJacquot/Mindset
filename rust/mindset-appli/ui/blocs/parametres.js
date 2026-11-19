@@ -152,7 +152,28 @@
       <div class="pm-ligne-boutons" style="margin-top:14px">${bouton('Vérifier maintenant', true, { quoi: 'verifier', type: 'bouton' })}<span class="pm-t3" style="margin-left:14px">${info(m.info)}</span></div>
       <div class="pm-h pm-loin24">Versions d'essai</div>
       <div class="pm-t2 pm-mb10">Une version d'essai arrive avant les autres, pour la tester. Elle peut avoir des petits défauts. Elle est signée et vérifiée comme les autres.</div>
-      <div>${essais}</div>`;
+      <div>${essais}</div>${prive(m.prive)}`;
+  }
+
+  // Applis privées (Mindset 3.1), repliées au départ : la clé GitHub qui ouvre le dépôt privé d'une appli. La clé
+  // tapée ne quitte le champ que pour « Essayer » ; Mindset ne la renvoie jamais (l'état ne la contient pas).
+  let priveOuvert = false;
+  function prive(p) {
+    if (!p || !p.visible) return '';
+    const note = p.cle
+      ? [(p.applis || []).length ? `Elle ouvre ${p.applis.join(' et ')}.` : '', p.expire ? `Elle expire le ${p.expire}.` : ''].filter(Boolean).join(' ')
+      : 'Une clé GitHub en lecture seule ouvre une appli privée. Elle reste chiffrée sur ce PC.';
+    let h = `<div class="pm-h pm-loin24">Applis privées</div>
+      <div class="pm-t2 pm-mb10">Pour une appli dont le dépôt GitHub est privé. Tu n'en as pas besoin si personne ne t'a donné d'appli privée.</div>
+      ${p.rappel ? `<div class="pm-rappel" role="status">${e(p.rappel)}</div>` : ''}
+      <div class="pm-demarrage"><div class="pm-txt"><div>${p.cle ? 'Une clé GitHub est gardée sur ce PC' : 'Aucune clé GitHub sur ce PC'}</div><div class="pm-aide">${e(note)}</div></div>${bouton(priveOuvert ? 'Masquer' : 'Afficher', false, { quoi: 'clePlier', type: 'local' })}</div>`;
+    if (!priveOuvert) return h;
+    h += `<ol class="pm-etapes">${(p.etapes || []).map((x) => `<li>${e(x)}</li>`).join('')}</ol>
+      <div class="pm-ligne-boutons">${bouton('Ouvrir la page de GitHub', false, { quoi: 'clePage', type: 'bouton' })}</div>
+      <input id="pm-cle" class="pm-champ" type="password" autocomplete="off" spellcheck="false" placeholder="Colle ta clé ici (elle commence par github_pat_)" aria-label="Ta clé GitHub">
+      <div class="pm-ligne-boutons">${bouton(p.en_cours ? 'Essai en cours...' : 'Essayer', true, { quoi: 'cleEssayer', type: 'cle' })}${p.cle ? bouton('Retirer la clé', false, { quoi: 'cleRetirer', type: 'bouton' }) : ''}${p.relancer ? bouton('Relancer Mindset', false, { quoi: 'cleRelancer', type: 'bouton' }) : ''}</div>
+      <div class="pm-t3" style="margin-top:6px;color:${c(TONS[p.ton] || '#A6A1BC')}">${info(p.info)}</div>`;
+    return h;
   }
 
   function conso(p) {
@@ -195,8 +216,18 @@
     const defile = panneaux.closest('.parametres-defile') || panneaux;
     const haut = page.dataset.onglet === onglet ? defile.scrollTop : 0;
     page.dataset.onglet = onglet;
+    // (la clé GitHub en cours de saisie reste dans son champ, avec le curseur)
+    const champ = document.getElementById('pm-cle'), saisie = champ ? champ.value : '', focus = document.activeElement === champ;
     panneaux.innerHTML = `<div class="pm-panneau">${PANNEAUX[onglet](p)}</div>`;
+    const champ2 = document.getElementById('pm-cle');
+    if (champ2) { champ2.value = saisie; if (focus) champ2.focus(); }
     defile.scrollTop = haut;
+  }
+  // (redessiner tout de suite, sans attendre un nouvel état : Afficher ou Masquer les applis privées)
+  function redessiner() {
+    const avant = dernier;
+    dernier = '';
+    try { dessiner(JSON.parse(avant ? `{"parametres":${avant}}` : 'null')); } catch (x) { dernier = avant; }
   }
 
   // ---------------------------------------------------------------------------------------------------------------
@@ -206,6 +237,18 @@
     const x = ev.target.closest('[data-type]');
     if (!x || !page.contains(x)) return;
     const d = x.dataset;
+    if (d.type === 'local') {   // (Afficher ou Masquer les applis privées : rien n'est envoyé à Mindset)
+      priveOuvert = !priveOuvert;
+      redessiner();
+      return;
+    }
+    if (d.type === 'cle') {   // (la clé part du champ vers Mindset, une fois ; le champ est vidé tout de suite)
+      const champ = document.getElementById('pm-cle'), cle = champ ? champ.value.trim() : '';
+      if (!cle) { if (champ) champ.focus(); return; }
+      champ.value = '';
+      co.action('parametres:reglage', { quoi: 'cleEssayer', valeur: cle });
+      return;
+    }
     const m = { quoi: d.quoi };
     if (d.type === 'case' || d.type === 'inter') {
       const oui = !x.classList.contains('pm-oui');
@@ -218,6 +261,14 @@
     }
     if (d.id !== undefined) m.id = d.id;
     co.action('parametres:reglage', m);
+  });
+
+  // Entrée dans le champ de la clé : « Essayer »
+  page.addEventListener('keydown', (ev) => {
+    if (ev.key !== 'Enter' || !ev.target || ev.target.id !== 'pm-cle') return;
+    ev.preventDefault();
+    const b = page.querySelector('[data-type="cle"]');
+    if (b) b.click();
   });
 
   co.surEtat(dessiner);

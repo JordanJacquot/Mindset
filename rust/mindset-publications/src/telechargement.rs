@@ -187,6 +187,7 @@ pub fn octets(
             suivre_redirections: false,
             max_octets,
             delai: reste,
+            jeton: None,
         };
         let r = reseau.demander(&d, progres).map_err(|e| {
             if e.starts_with(ERREUR_TROP_GROS) {

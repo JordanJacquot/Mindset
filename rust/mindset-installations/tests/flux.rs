@@ -1023,3 +1023,176 @@ fn le_bloc_de_l_hote_n_a_pas_de_poste_en_essai() {
     assert!(faux.installateur.deposees().is_empty(), "en essai, rien au démarrage (comme $EnTest)");
     let _ = std::fs::remove_dir_all(&faux.racine);
 }
+
+// ---------------------------------------------------------------------------------------------------------------
+// Une appli privée (Mindset 3.1) : ses fichiers par l'API de GitHub avec la clé, la même vérification que les autres
+// ---------------------------------------------------------------------------------------------------------------
+
+const ACTIF_ZIP: &str = "https://api.github.com/repos/JordanJacquot/Jobmind/releases/assets/11";
+const ACTIF_SIG: &str = "https://api.github.com/repos/JordanJacquot/Jobmind/releases/assets/12";
+
+fn jobmind() -> Appli {
+    Appli {
+        id: "jobmind".into(),
+        genre: "rust".into(),
+        prive: true,
+        nom: "Jobmind".into(),
+        app_id: "JordanJacquot.Jobmind".into(),
+        depot: "JordanJacquot/Jobmind".into(),
+        zip: "Jobmind.zip".into(),
+        dossier_zip: "Jobmind".into(),
+        exe: "Jobmind.exe".into(),
+        mutex: r"Local\JobmindEssai-Instance".into(),
+        afficher_fichier: "afficher.demande".into(),
+        ..Default::default()
+    }
+}
+
+fn zip_jobmind(version: &str) -> Vec<u8> {
+    zip(&[
+        ("Jobmind/Jobmind.exe", "relais"),
+        ("Jobmind/Mindset.exe", "hote"),
+        ("Jobmind/version.json", &format!(r#"{{"appli":"jobmind","version":"{version}","mindset_min":"3.0.0"}}"#)),
+    ])
+}
+
+/// Un monde avec Jobmind dans la liste et une clé GitHub de test gardée (chiffrée) dans le dossier d'essai.
+#[cfg(windows)]
+fn monde_prive(nom: &str) -> (Monde, String) {
+    let m = Monde::nouveau(nom);
+    let mut l: Vec<Appli> = m.ctx.applis().iter().cloned().collect();
+    l.push(jobmind());
+    m.ctx.definir_applis(l);
+    let secret = format!("github_pat_{}", "Flux_Prive_7".repeat(6));
+    let j = mindset_noyau::reseau::Jeton::lire(&secret).unwrap();
+    mindset_noyau::cle_github::enregistrer(&m.ctx.dossiers, &j).unwrap();
+    m.faux.installateur.repondre(move |d| match d["Action"].as_str() {
+        Some("appli") => {
+            let dest = PathBuf::from(d["Destination"].as_str().unwrap());
+            std::fs::create_dir_all(&dest).unwrap();
+            std::fs::write(dest.join("Jobmind.exe"), "relais").unwrap();
+            std::fs::write(dest.join("Mindset.exe"), "hote").unwrap();
+            std::fs::write(dest.join("version.json"), r#"{"appli":"jobmind","version":"0.3.0"}"#).unwrap();
+            Some((true, dest.to_string_lossy().into_owned()))
+        }
+        _ => None,
+    });
+    (m, secret)
+}
+
+fn publier_jobmind(m: &Monde, version: &str) {
+    let p = json!({ "jobmind": { "version": version, "url_zip": ACTIF_ZIP, "url_sig": ACTIF_SIG, "notes": "", "essai": false } });
+    m.ctx.au_nom_de("publications", || m.ctx.publier("publications", p));
+}
+
+/// Tous les octets des fichiers sous un dossier (pour y chercher la clé).
+fn tous_les_fichiers(d: &Path, sortie: &mut Vec<(PathBuf, Vec<u8>)>) {
+    for e in std::fs::read_dir(d).into_iter().flatten().flatten() {
+        let p = e.path();
+        if p.is_dir() {
+            tous_les_fichiers(&p, sortie);
+        } else if let Ok(o) = std::fs::read(&p) {
+            sortie.push((p, o));
+        }
+    }
+}
+
+/// La clé n'est nulle part en clair : ni dans un fichier du dossier d'essai (UTF-8 ou UTF-16), ni au journal, ni
+/// dans le tableau commun.
+fn cle_nulle_part(m: &Monde, secret: &str) {
+    let mut f = Vec::new();
+    tous_les_fichiers(&m.faux.racine, &mut f);
+    assert!(!f.is_empty());
+    let utf16: Vec<u8> = secret.encode_utf16().flat_map(u16::to_le_bytes).collect();
+    for aiguille in [secret.as_bytes(), &secret.as_bytes()[11..31], &utf16[..40]] {
+        for (p, o) in &f {
+            assert!(!o.windows(aiguille.len()).any(|w| w == aiguille), "la clé est en clair dans {}", p.display());
+        }
+    }
+    for l in m.faux.donnees.lignes() {
+        assert!(!l.contains(&secret[11..31]), "la clé est au journal : {l}");
+    }
+    for cle in ["publications", "messages", "occupations", "installations"] {
+        let v = m.ctx.lu(cle).map(|v| v.to_string()).unwrap_or_default();
+        assert!(!v.contains(&secret[11..31]), "la clé est dans {cle}");
+    }
+}
+
+#[cfg(windows)]
+#[test]
+fn appli_privee_installee_avec_la_cle_et_la_meme_verification() {
+    let (mut m, secret) = monde_prive("flux-prive");
+    let z = zip_jobmind("0.3.0");
+    m.faux.reseau.repondre(ACTIF_SIG, Ok(ReponseHttp::ok(signer(&z))));
+    m.faux.reseau.repondre(ACTIF_ZIP, Ok(ReponseHttp::ok(z)));
+    publier_jobmind(&m, "0.3.0");
+    m.tic();
+    m.signal("installer", json!({ "id": "jobmind", "ancien": null, "auto": false }));
+    let d = m.faux.installateur.deposees();
+    assert_eq!(d.len(), 1, "{d:?} / {}", m.message("jobmind"));
+    assert_eq!((d[0]["Action"].as_str(), d[0]["Appli"].as_str()), (Some("appli"), Some("jobmind")));
+    assert_eq!(d[0]["DossierZip"], "Jobmind");
+    // Les deux fichiers : par l'API, avec la clé et « Accept: application/octet-stream »
+    let demandes = m.faux.reseau.demandes();
+    assert_eq!(demandes.len(), 2);
+    for x in &demandes {
+        assert!(x.adresse == ACTIF_ZIP || x.adresse == ACTIF_SIG);
+        assert_eq!(x.jeton.as_ref().map(|j| j.secret()), Some(secret.as_str()));
+        assert!(x.entetes.contains(&("Accept".to_string(), "application/octet-stream".to_string())));
+    }
+    // Une appli publique dans le même Mindset : jamais de clé
+    preparer_installation(&m, "2.5.0");
+    m.publier_version("evermind", "2.5.0");
+    m.signal("installer", json!({ "id": "evermind", "ancien": null, "auto": false }));
+    let publiques: Vec<_> = m.faux.reseau.demandes().into_iter().filter(|x| x.adresse.contains("Evermind")).collect();
+    assert_eq!(publiques.len(), 2);
+    assert!(publiques.iter().all(|x| x.jeton.is_none()));
+    cle_nulle_part(&m, &secret);
+}
+
+#[cfg(windows)]
+#[test]
+fn appli_privee_signature_fausse_ou_cle_refusee() {
+    let (mut m, secret) = monde_prive("flux-prive-refus");
+    // Signature d'autre chose : refusée exactement comme pour une appli publique
+    let z = zip_jobmind("0.3.0");
+    m.faux.reseau.repondre(ACTIF_SIG, Ok(ReponseHttp::ok(signer(b"autre chose"))));
+    m.faux.reseau.repondre(ACTIF_ZIP, Ok(ReponseHttp::ok(z.clone())));
+    publier_jobmind(&m, "0.3.0");
+    m.signal("installer", json!({ "id": "jobmind" }));
+    assert_eq!(
+        m.message("jobmind"),
+        "Échec : La signature du fichier téléchargé est invalide : rien n'a été installé."
+    );
+    // Zip d'une autre appli : refusé avant de fermer quoi que ce soit
+    let autre =
+        zip(&[("Jobmind/Jobmind.exe", "x"), ("Jobmind/version.json", r#"{"version":"0.3.0","appli":"paymind"}"#)]);
+    m.faux.reseau.repondre(ACTIF_SIG, Ok(ReponseHttp::ok(signer(&autre))));
+    m.faux.reseau.repondre(ACTIF_ZIP, Ok(ReponseHttp::ok(autre)));
+    m.signal("installer", json!({ "id": "jobmind" }));
+    assert_eq!(
+        m.message("jobmind"),
+        "Échec : Ce fichier contient l'appli paymind et pas jobmind : rien n'a été installé."
+    );
+    // La clé refusée par GitHub (expirée, retirée du dépôt) : 404, 401 ou 403, le message simple
+    for code in [404, 401, 403] {
+        m.faux.reseau.repondre(ACTIF_ZIP, Ok(ReponseHttp::code(code)));
+        m.signal("installer", json!({ "id": "jobmind" }));
+        assert_eq!(m.message("jobmind"), format!("Échec : {}", mindset_noyau::cle_github::CLE_REFUSEE), "{code}");
+    }
+    // Une adresse qui n'est pas un fichier de SON dépôt : refusée sans rien demander
+    let n = m.faux.reseau.demandes().len();
+    let p = json!({ "jobmind": { "version": "0.3.1", "url_zip": "https://api.github.com/repos/JordanJacquot/Autre/releases/assets/11", "url_sig": ACTIF_SIG } });
+    m.ctx.au_nom_de("publications", || m.ctx.publier("publications", p));
+    m.signal("installer", json!({ "id": "jobmind" }));
+    assert!(m.message("jobmind").starts_with("Échec : Adresse de téléchargement refusée"));
+    assert_eq!(m.faux.reseau.demandes().len(), n);
+    // Clé retirée pendant que Mindset tourne : rien n'est demandé à GitHub
+    mindset_noyau::cle_github::retirer(&m.ctx.dossiers).unwrap();
+    publier_jobmind(&m, "0.3.2");
+    m.signal("installer", json!({ "id": "jobmind" }));
+    assert_eq!(m.message("jobmind"), format!("Échec : {}", mindset_noyau::cle_github::SANS_CLE));
+    assert_eq!(m.faux.reseau.demandes().len(), n);
+    assert!(m.faux.installateur.deposees().is_empty());
+    cle_nulle_part(&m, &secret);
+}

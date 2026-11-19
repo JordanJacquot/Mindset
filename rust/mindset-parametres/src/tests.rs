@@ -232,3 +232,131 @@ fn bandeau_admin_ancienne_tache() {
     assert_eq!(b.etat(&ctx)["admin_bandeau"]["visible"], false);
     let _ = std::fs::remove_dir_all(&f.racine);
 }
+
+// ---------------------------------------------------------------------------------------------------------------
+// Applis privées (Mindset 3.1) : la clé GitHub
+// ---------------------------------------------------------------------------------------------------------------
+
+/// Les travaux de fond demandés, faits tout de suite (rend les effets qui suivent).
+fn faire_taches(b: &mut Parametres, ctx: &Contexte, e: Effets) -> Effets {
+    let mut suite = Effets::default();
+    for x in e.0 {
+        if let Effet::Tache(t) = x {
+            let id = t.id.clone();
+            let r = t.lancer();
+            ctx.au_nom_de("parametres", || b.tache_finie(ctx, &id, r, &mut suite));
+        }
+    }
+    suite
+}
+
+fn reglage_cle(b: &mut Parametres, ctx: &Contexte, quoi: &str, valeur: Value) -> Effets {
+    let mut e = Effets::default();
+    assert!(b.action(ctx, "parametres:reglage", &json!({ "quoi": quoi, "valeur": valeur }), &mut e));
+    e
+}
+
+#[cfg(windows)]
+#[test]
+fn applis_privees_essayer_garder_retirer_sans_jamais_ecrire_la_cle() {
+    let (ctx, f) = essai::contexte("parametres-cle");
+    let (mut b, _) = bloc();
+    let mut e = Effets::default();
+    ctx.au_nom_de("parametres", || b.demarrer(&ctx, &mut e));
+    let prive = |b: &Parametres| b.etat_parametres(&ctx)["maj"]["prive"].clone();
+    // Sans appli privée dans la liste : la section ne se montre pas
+    assert_eq!(prive(&b)["visible"], false);
+    ctx.au_nom_de("liste", || {
+        ctx.publier(
+            partage::LISTE,
+            json!({ "source": "apps.json", "numero": 3, "privees": [{ "id": "jobmind", "nom": "Jobmind", "depot": "JordanJacquot/Jobmind" }] }),
+        )
+    });
+    let p = prive(&b);
+    assert_eq!((p["visible"].clone(), p["cle"].clone()), (json!(true), json!(false)));
+    assert_eq!(p["applis"], json!([]), "sans clé, la section ne nomme aucune appli privée");
+    assert!(!p.to_string().contains("Jobmind"));
+    assert_eq!(p["etapes"].as_array().unwrap().len(), 6);
+    // « Ouvrir la page de GitHub »
+    let e = reglage_cle(&mut b, &ctx, "clePage", Value::Null);
+    assert!(e.0.contains(&Effet::OuvrirAdresse("https://github.com/settings/personal-access-tokens/new".into())));
+    // Pas une clé à grain fin : refusée tout de suite, rien demandé à GitHub
+    reglage_cle(&mut b, &ctx, "cleEssayer", json!("ghp_abcdefghijklmnopqrstuvwxyz0123456789"));
+    assert!(prive(&b)["info"].as_str().unwrap().starts_with("Ce n'est pas une clé GitHub à grain fin"));
+    assert!(f.reseau.demandes().is_empty());
+    // Une clé que GitHub refuse : pas gardée
+    let api = "https://api.github.com/repos/JordanJacquot/Jobmind";
+    let mauvaise = format!("github_pat_{}", "Mauvaise_".repeat(6));
+    f.reseau.repondre(api, Ok(mindset_noyau::reseau::ReponseHttp::code(404)));
+    let e = reglage_cle(&mut b, &ctx, "cleEssayer", json!(mauvaise));
+    assert_eq!(prive(&b)["en_cours"], true);
+    faire_taches(&mut b, &ctx, e);
+    let p = prive(&b);
+    assert_eq!((p["cle"].clone(), p["ton"].clone()), (json!(false), json!("urgent")));
+    assert!(p["info"].as_str().unwrap().starts_with("Cette clé n'ouvre aucune appli privée"));
+    assert!(!mindset_noyau::cle_github::chemin(&ctx.dossiers).exists());
+    // La bonne clé : gardée chiffrée, la date où elle expire notée, Jobmind nommée, « Relancer Mindset » proposé
+    let bonne = format!("github_pat_{}", "Bonne_Cle_".repeat(6));
+    let mut ok = mindset_noyau::reseau::ReponseHttp::ok("{}");
+    ok.entetes.push(("github-authentication-token-expiration".into(), "2026-11-12 10:00:00 UTC".into()));
+    f.reseau.repondre(api, Ok(ok));
+    f.reseau.repondre(
+        &format!("{api}/releases/latest"),
+        Ok(mindset_noyau::reseau::ReponseHttp::ok(r#"{"tag_name":"v0.3.0"}"#)),
+    );
+    let e = reglage_cle(&mut b, &ctx, "cleEssayer", json!(format!("  {bonne}\n")));
+    faire_taches(&mut b, &ctx, e);
+    let p = prive(&b);
+    assert_eq!(p["cle"], true);
+    assert_eq!(p["ton"], "ok");
+    assert_eq!(
+        p["info"],
+        "Ta clé marche : elle ouvre Jobmind (version 0.3.0). Elle est gardée chiffrée sur ce PC. Relance Mindset pour la voir dans l'accueil."
+    );
+    assert_eq!(p["relancer"], true);
+    assert_eq!(p["expire"], "12/11/2026");
+    assert_eq!(
+        p["rappel"],
+        "Ta clé GitHub expire dans 4 jours (le 12/11/2026) : refais-en une avant, avec le guide juste en dessous."
+    );
+    assert_eq!(mindset_noyau::cle_github::lire(&ctx.dossiers).map(|j| j.secret().to_string()), Some(bonne.clone()));
+    // Toutes les questions : vers l'API, avec la clé essayée
+    for d in f.reseau.demandes() {
+        assert!(d.adresse.starts_with("https://api.github.com/repos/JordanJacquot/Jobmind"));
+        assert!(d.jeton.is_some());
+    }
+    // « Relancer Mindset »
+    let e = reglage_cle(&mut b, &ctx, "cleRelancer", Value::Null);
+    assert!(e.0.contains(&Effet::Relancer));
+    // La clé n'est nulle part en clair : ni dans l'état de la page, ni au journal, ni dans un fichier
+    let tout = b.etat(&ctx);
+    for s in [&bonne, &mauvaise] {
+        let morceau = &s[11..30];
+        assert!(!serde_json::to_string(&tout).unwrap().contains(morceau));
+        assert!(!f.donnees.lignes().iter().any(|l| l.contains(morceau)), "journal");
+        let utf16: Vec<u8> = s.encode_utf16().flat_map(u16::to_le_bytes).collect();
+        let mut pile = vec![f.racine.clone()];
+        while let Some(d) = pile.pop() {
+            for x in std::fs::read_dir(&d).into_iter().flatten().flatten() {
+                let p = x.path();
+                if p.is_dir() {
+                    pile.push(p);
+                } else {
+                    let o = std::fs::read(&p).unwrap_or_default();
+                    for a in [morceau.as_bytes(), &utf16[22..60]] {
+                        assert!(!o.windows(a.len()).any(|w| w == a), "clé en clair dans {}", p.display());
+                    }
+                }
+            }
+        }
+        // (ni dans les réglages, gardés en mémoire par le faux disque)
+        assert!(!format!("{:?}", ctx.reglage("CleGithubExpire")).contains(morceau));
+    }
+    // « Retirer la clé »
+    reglage_cle(&mut b, &ctx, "cleRetirer", Value::Null);
+    let p = prive(&b);
+    assert_eq!((p["cle"].clone(), p["expire"].clone(), p["rappel"].clone()), (json!(false), json!(""), json!("")));
+    assert_eq!(p["info"], "Clé retirée de ce PC.");
+    assert!(!mindset_noyau::cle_github::chemin(&ctx.dossiers).exists());
+    let _ = std::fs::remove_dir_all(&f.racine);
+}

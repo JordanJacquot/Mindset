@@ -11,11 +11,14 @@
 //! - le canal d'essai (case « Recevoir les versions d'essai ») : la préversion la plus récente, si elle est plus
 //!   récente que la version normale ; sans l'API : le flux `releases.atom` ;
 //! - le premier des noms du zip qui est publié (le nom d'aujourd'hui, puis l'ancien) ; la signature `<zip>.sig`
-//!   (absente : `url_sig` vide, et rien ne sera installé).
+//!   (absente : `url_sig` vide, et rien ne sera installé) ;
+//! - une appli privée (Mindset 3.1, [`publication_privee`]) : seulement par l'API, avec la clé GitHub ; ses fichiers
+//!   par leur adresse de l'API (`/repos/<dépôt>/releases/assets/<numéro>`), téléchargés avec la même vérification de
+//!   la signature que les autres.
 
 use std::time::Duration;
 
-use mindset_noyau::reseau::{DemandeHttp, Methode, Reseau};
+use mindset_noyau::reseau::{DemandeHttp, Jeton, Methode, Reseau};
 use regex::Regex;
 use serde_json::{Map, Value, json};
 use suite_commun::protocole_installateur::{texte_ps, vrai_ps};
@@ -58,6 +61,7 @@ fn demande(adresse: &str, methode: Methode, suivre: bool, delai: Duration) -> De
         suivre_redirections: suivre,
         max_octets: MAX_REPONSE,
         delai,
+        jeton: None,
     }
 }
 
@@ -179,11 +183,16 @@ pub fn preversion(reseau: &dyn Reseau, depot: &str, zips: &[&str]) -> Option<Pub
         Ok(l) => l,
         Err(_) => return preversion_sans_api(reseau, depot, zips),
     };
+    meilleure_preversion(&liste, &|r| convertir_release(r, zips))
+}
+
+/// La préversion la plus récente d'une liste de versions (réponse de l'API), chacune lue par `convertir`.
+fn meilleure_preversion(liste: &Value, convertir: &dyn Fn(&Value) -> Reponse) -> Option<Publication> {
     // (.NET : « $ » accepte aussi un retour à la ligne final ; le numéro tel qu'il est écrit, sans le « v »)
     let numero = expr(r"(?i)^v?([0-9]+(\.[0-9]+){1,3})\n?\z");
     let mut meilleure: Option<(Publication, VersionNet)> = None;
     // (@($liste | ForEach-Object { $_ }) : un tableau dans le tableau est déplié)
-    let versions: Vec<&Value> = elements(&liste)
+    let versions: Vec<&Value> = elements(liste)
         .into_iter()
         .flat_map(|r| if let Value::Array(a) = r { a.iter().collect() } else { vec![r] })
         .collect();
@@ -197,7 +206,7 @@ pub fn preversion(reseau: &dyn Reseau, depot: &str, zips: &[&str]) -> Option<Pub
         if meilleure.as_ref().is_some_and(|(_, m)| v <= *m) {
             continue;
         }
-        let Ok(p) = convertir_release(r, zips) else { continue };
+        let Ok(p) = convertir(r) else { continue };
         meilleure = Some((p, v));
     }
     meilleure.map(|(p, _)| Publication { essai: true, ..p })
@@ -345,6 +354,99 @@ pub fn publication(reseau: &dyn Reseau, depot: &str, zips: &[String], essai: boo
         }
     }
     normale
+}
+
+// ---------------------------------------------------------------------------------------------------------------
+// Les applis privées (Mindset 3.1) : tout par l'API de GitHub, avec la clé GitHub gardée sur le PC
+// ---------------------------------------------------------------------------------------------------------------
+
+pub use mindset_noyau::cle_github::{CLE_REFUSEE, SANS_CLE, adresse_actif_prive, demande_api as demande_privee};
+
+/// `ConvertFrom-Release` pour un dépôt privé : les fichiers par leur adresse de l'API (`url`, téléchargée avec la clé
+/// et `Accept: application/octet-stream`), jamais par `browser_download_url` (qui demande d'être connecté à GitHub).
+pub fn convertir_release_privee(r: &Value, zips: &[&str], depot: &str) -> Reponse {
+    let p = convertir_release(r, zips)?;
+    let fichiers = elements(champ(r, "assets"));
+    let url_de = |nom: &str| {
+        fichiers
+            .iter()
+            .find(|a| egal_texte(&texte_ps(champ(a, "name")), nom))
+            .map(|a| texte_ps(champ(a, "url")))
+            .filter(|u| adresse_actif_prive(depot, u))
+    };
+    Ok(Publication {
+        url_zip: url_de(&p.fichier).unwrap_or_default(),
+        url_sig: url_de(&format!("{}.sig", p.fichier)),
+        ..p
+    })
+}
+
+/// Une question à l'API avec la clé : la réponse JSON, ou l'erreur dite à l'utilisateur ; et la date d'expiration de
+/// la clé si GitHub l'a donnée.
+fn api_privee(reseau: &dyn Reseau, adresse: &str, jeton: &Jeton) -> (Result<Value, (u16, String)>, Option<String>) {
+    let d = demande_privee(adresse, "application/vnd.github+json", jeton, MAX_REPONSE, DELAI_QUESTION);
+    let r = match reseau.demander(&d, None) {
+        Ok(r) => r,
+        Err(e) => return (Err((0, format!("Impossible de joindre GitHub ({e})."))), None),
+    };
+    let expire = r.entete(crate::port::ENTETE_EXPIRATION).map(str::to_string);
+    if matches!(r.statut, 401 | 403 | 404) {
+        return (Err((r.statut, CLE_REFUSEE.into())), expire);
+    }
+    if r.statut >= 400 {
+        return (Err((r.statut, format!("Impossible de joindre GitHub ({}).", erreur_http(r.statut)))), expire);
+    }
+    let t = texte(&r.corps);
+    (serde_json::from_str::<Value>(&t).map_err(|_| (r.statut, "Réponse de GitHub illisible.".to_string())), expire)
+}
+
+/// La réponse d'une question pour une appli privée, et la date où la clé expire (si GitHub l'a dite).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ReponsePrivee {
+    pub reponse: Reponse,
+    pub expire: Option<String>,
+}
+
+/// `Get-Publication` pour une appli privée : la dernière version par l'API, avec la clé (jamais par les pages de
+/// github.com, qui demandent d'être connecté) ; le canal d'essai comme les autres applis. La clé refusée (401, 403,
+/// 404) : [`CLE_REFUSEE`] ; un dépôt ouvert par la clé mais sans version publiée : dit tel quel.
+pub fn publication_privee(
+    reseau: &dyn Reseau,
+    depot: &str,
+    zips: &[String],
+    essai: bool,
+    jeton: &Jeton,
+) -> ReponsePrivee {
+    let zips: Vec<&str> = zips.iter().map(String::as_str).filter(|z| !z.is_empty()).collect();
+    let base = format!("https://api.github.com/repos/{depot}");
+    let (r, mut expire) = api_privee(reseau, &format!("{base}/releases/latest"), jeton);
+    let normale = match r {
+        Ok(r) => convertir_release_privee(&r, &zips, depot),
+        Err((404, e)) => {
+            // (404 : la clé n'ouvre pas ce dépôt, ou il n'a encore aucune version : le dépôt lui-même le dit)
+            let (d, x) = api_privee(reseau, &base, jeton);
+            expire = expire.or(x);
+            if d.is_ok() { Err("Aucune version publiée pour l'instant.".into()) } else { Err(e) }
+        }
+        Err((_, e)) => Err(e),
+    };
+    if !essai || normale.as_ref().is_err_and(|e| e == CLE_REFUSEE) {
+        return ReponsePrivee { reponse: normale, expire };
+    }
+    let (l, x) = api_privee(reseau, &format!("{base}/releases?per_page=30"), jeton);
+    expire = expire.or(x);
+    if let Ok(l) = l
+        && let Some(pre) = meilleure_preversion(&l, &|r| convertir_release_privee(r, &zips, depot))
+    {
+        let plus_recente = match &normale {
+            Err(_) => true,
+            Ok(n) => version_net::plus_recente(&pre.version, &n.version),
+        };
+        if plus_recente {
+            return ReponsePrivee { reponse: Ok(Publication { essai: true, ..pre }), expire };
+        }
+    }
+    ReponsePrivee { reponse: normale, expire }
 }
 
 // ---------------------------------------------------------------------------------------------------------------
